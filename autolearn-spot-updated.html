@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AutoLearn Spot - AI Automation Training</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#080B0F;--card:#141B23;--green:#00D98B;--cyan:#00B8E0;--yellow:#FFD166;--white:#F0F4F8;--muted:#8FA1B0;--dark:#0E1318;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Segoe UI',Arial,sans-serif;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(8,11,15,.88);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.07);}
+.nav-logo{font-size:1.25rem;font-weight:900;}.nav-logo span{color:var(--green);}
+.nav-right{display:flex;gap:12px;align-items:center;}
+.nav-lnk{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.875rem;font-weight:600;padding:8px 12px;border-radius:8px;transition:color .2s;text-decoration:none;display:inline-block;}
+.nav-lnk:hover{color:var(--green);}
+.btn-p{padding:10px 20px;background:var(--green);color:var(--bg);font-weight:900;border:none;border-radius:10px;cursor:pointer;font-size:.875rem;transition:all .2s;}
+.btn-p:hover{box-shadow:0 0 24px rgba(0,217,139,.5);transform:translateY(-1px);}
+#hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 32px 60px;position:relative;overflow:hidden;}
+.h-grid{position:absolute;inset:0;background:linear-gradient(rgba(0,217,139,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,139,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;opacity:.5;}
+.h-glow{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(0,217,139,.12),transparent 70%);pointer-events:none;}
+.h-in{max-width:1100px;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:1;}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(0,217,139,.12);border:1px solid rgba(0,217,139,.3);color:var(--green);font-size:.75rem;font-weight:700;border-radius:99px;margin-bottom:20px;}
+.pulse{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.h-title{font-size:clamp(2.5rem,5vw,4rem);font-weight:900;line-height:1.1;letter-spacing:-1px;margin-bottom:20px;}
+.word-wrap{display:inline-block;overflow:hidden;vertical-align:bottom;height:1.15em;}
+.word-inner{display:block;animation:slide 8.8s infinite;}
+.word-inner span{display:block;background:linear-gradient(135deg,var(--green),var(--cyan),var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+@keyframes slide{0%,10%{transform:translateY(0);}22%,32%{transform:translateY(-25%);}44%,54%{transform:translateY(-50%);}66%,76%{transform:translateY(-75%);}88%,100%{transform:translateY(0);}}
+.h-sub{color:var(--muted);font-size:1.1rem;line-height:1.7;margin-bottom:28px;max-width:480px;}
+.h-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;}
+.btn-hero{padding:14px 32px;font-size:1rem;border-radius:12px;}
+.btn-out{padding:14px 32px;border:2px solid rgba(0,184,224,.5);color:var(--cyan);background:none;border-radius:12px;cursor:pointer;font-weight:600;font-size:1rem;transition:all .2s;}
+.btn-out:hover{background:rgba(0,184,224,.08);}
+.h-stats{display:flex;gap:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.07);}
+.sv{font-size:1.75rem;font-weight:900;color:var(--green);}
+.sl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
+.wf-box{background:#0D1117;border-radius:20px;border:1px solid rgba(0,217,139,.15);padding:24px;box-shadow:0 0 40px rgba(0,217,139,.06);}
+.wf-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.wf-dots{display:flex;gap:8px;}
+.wf-dot{width:10px;height:10px;border-radius:50%;}
+.wf-lbl{font-size:.7rem;color:var(--muted);font-family:monospace;margin-left:8px;}
+.wf-run{display:flex;align-items:center;gap:6px;font-size:.65rem;font-weight:700;color:var(--green);}
+.wf-rdot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.2s infinite;}
+.wf-nm{font-size:.75rem;color:var(--muted);margin-bottom:20px;min-height:1.2em;}
+.wf-ns{display:flex;align-items:flex-start;gap:4px;flex-wrap:wrap;min-height:90px;}
+.wf-n{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.wf-ic{width:52px;height:52px;border-radius:16px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid #1E2A38;transition:all .4s;}
+.wf-ic.g{border-color:var(--green);box-shadow:0 0 16px rgba(0,217,139,.5);}
+.wf-ic.c{border-color:var(--cyan);box-shadow:0 0 16px rgba(0,184,224,.5);}
+.wf-ic.y{border-color:var(--yellow);box-shadow:0 0 16px rgba(255,209,102,.5);}
+.wf-nl{font-size:.6rem;color:var(--muted);font-weight:600;text-align:center;max-width:60px;line-height:1.3;}
+.wf-ar{display:flex;align-items:center;padding-bottom:28px;font-size:1.2rem;color:#1E2A38;transition:color .4s;font-weight:700;}
+.wf-ar.on{color:var(--green);}
+.wf-pt{margin-top:20px;height:2px;background:#1E2A38;border-radius:99px;overflow:hidden;}
+.wf-pb{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));border-radius:99px;width:0%;transition:width .5s;}
+.wf-dn{display:flex;gap:8px;justify-content:center;margin-top:16px;}
+.wf-dd{height:6px;border-radius:99px;border:none;cursor:pointer;transition:all .3s;}
+.wf-dd.on{width:24px;background:var(--green);}
+.wf-dd:not(.on){width:6px;background:#1E2A38;}
+section{padding:80px 32px;}
+.si{max-width:1100px;margin:0 auto;}
+.kicker{font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.15em;margin-bottom:12px;}
+.sec-t{font-size:clamp(2rem,4vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.5px;margin-bottom:16px;}
+#tech{background:var(--bg);}
+.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px;}
+.tc{padding:24px 16px;background:var(--card);border-radius:16px;border:1px solid rgba(255,255,255,.07);text-align:center;cursor:pointer;transition:all .25s;}
+.tc:hover{border-color:rgba(0,217,139,.5);box-shadow:0 0 20px rgba(0,217,139,.12);transform:translateY(-3px);}
+.te{font-size:2.2rem;margin-bottom:10px;display:block;transition:transform .25s;}
+.tc:hover .te{transform:scale(1.15);}
+.tn{font-size:.85rem;font-weight:700;}
+#feat{background:var(--dark);border-top:1px solid rgba(255,255,255,.07);}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px;}
+.fc{padding:40px;background:var(--card);border-radius:20px;border:1px solid rgba(0,217,139,.15);transition:all .3s;}
+.fc:hover{border-color:rgba(0,184,224,.4);box-shadow:0 0 30px rgba(0,184,224,.08);}
+.fe{font-size:2.8rem;margin-bottom:20px;display:block;}
+.ft{font-size:1.2rem;font-weight:900;margin-bottom:12px;}
+.fd{color:var(--muted);line-height:1.7;font-size:.95rem;}
+#gal{background:var(--bg);border-top:1px solid rgba(255,255,255,.07);}
+.gg{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;}
+.gc{border-radius:20px;overflow:hidden;border:2px solid rgba(0,184,224,.3);background:var(--card);transition:all .3s;}
+.gc:hover{border-color:var(--cyan);box-shadow:0 0 30px rgba(0,184,224,.25);transform:translateY(-4px);}
+.gi{aspect-ratio:16/9;overflow:hidden;position:relative;}
+.gi img{width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.gc:hover .gi img{transform:scale(1.06);}
+.go{position:absolute;inset:0;background:linear-gradient(to top,var(--bg),transparent);opacity:0;transition:opacity .3s;display:flex;align-items:flex-end;justify-content:center;padding:16px;}
+.gc:hover .go{opacity:1;}
+.go span{color:var(--cyan);font-weight:700;font-size:.85rem;}
+.gn{padding:20px;}
+.gt{font-weight:900;font-size:.95rem;margin-bottom:4px;}
+.gs{font-size:.8rem;color:var(--muted);}
+#curr{background:var(--dark);border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px;}
+.wc{background:var(--card);border-radius:20px;padding:28px;border:1px solid rgba(255,255,255,.07);transition:all .3s;}
+.wc:hover{border-color:rgba(0,217,139,.2);}
+.wn{font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+.wt{font-size:1.1rem;font-weight:900;margin-bottom:4px;}
+.wth{font-size:.82rem;color:var(--muted);font-style:italic;margin-bottom:20px;}
+.dr{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.dr:last-child{border-bottom:none;}
+.dn{width:32px;height:32px;border-radius:50%;background:rgba(0,217,139,.1);border:1px solid rgba(0,217,139,.25);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--green);flex-shrink:0;}
+.dt{font-size:.9rem;font-weight:600;}
+.cm{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px;padding-top:40px;border-top:1px solid rgba(255,255,255,.07);}
+.mcard{padding:24px;background:var(--card);border-radius:16px;border:1px solid rgba(255,255,255,.07);}
+.mem{font-size:1.8rem;margin-bottom:10px;}
+.mt{font-size:.85rem;color:var(--muted);line-height:1.6;}
+.mt strong{color:var(--white);}
+#cta{background:var(--bg);position:relative;overflow:hidden;}
+.cg2{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,217,139,.06),transparent,rgba(0,184,224,.06));pointer-events:none;}
+.ci{max-width:720px;margin:0 auto;text-align:center;position:relative;z-index:1;}
+.pb{display:inline-block;background:var(--card);border:2px solid var(--green);border-radius:20px;padding:32px 48px;margin:24px 0;}
+.pv{font-size:3.5rem;font-weight:900;color:var(--green);}
+.ps{color:var(--muted);font-size:.9rem;margin-top:4px;}
+.cb{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn-co{padding:16px 48px;font-size:1.05rem;border:2px solid var(--cyan);color:var(--cyan);background:none;border-radius:12px;cursor:pointer;font-weight:700;transition:all .2s;}
+.btn-co:hover{background:rgba(0,184,224,.08);}
+#testi{background:var(--dark);border-top:1px solid rgba(255,255,255,.07);}
+.tw{position:relative;max-width:800px;margin:48px auto 0;}
+.tcard{background:var(--card);border-radius:20px;border:1px solid rgba(0,217,139,.2);padding:60px 80px;text-align:center;transition:all .35s;}
+.tav{font-size:3.5rem;margin-bottom:20px;}
+.tq{font-size:1.15rem;color:var(--white);font-style:italic;line-height:1.75;margin-bottom:24px;font-weight:300;}
+.tnm{font-weight:900;color:var(--green);font-size:1rem;}
+.trl{color:var(--muted);font-size:.85rem;margin-top:2px;}
+.tnav{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:24px;}
+.tarr{width:40px;height:40px;border-radius:50%;background:var(--card);border:none;color:var(--white);cursor:pointer;font-size:1.1rem;transition:all .2s;}
+.tarr:hover{background:var(--green);color:var(--bg);}
+.tdots{display:flex;gap:8px;}
+.tdot{height:6px;border-radius:99px;border:none;cursor:pointer;transition:all .3s;}
+.tdot.on{width:24px;background:var(--green);}
+.tdot:not(.on){width:6px;background:var(--muted);}
+.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;padding-top:40px;border-top:1px solid rgba(255,255,255,.07);text-align:center;max-width:800px;margin-left:auto;margin-right:auto;}
+.sb{font-size:2.5rem;font-weight:900;}
+.sbl{color:var(--muted);font-size:.85rem;margin-top:6px;}
+footer{border-top:1px solid rgba(255,255,255,.07);padding:60px 32px;}
+.fi{max-width:1100px;margin:0 auto;}
+.fc2{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,.07);}
+.fcol h3{font-weight:700;margin-bottom:16px;font-size:.95rem;}
+.fcol p,.fcol a,.fcol button{font-size:.875rem;color:var(--muted);line-height:2;display:block;text-decoration:none;background:none;border:none;cursor:pointer;padding:0;text-align:left;transition:color .2s;}
+.fcol a:hover,.fcol button:hover{color:var(--green);}
+.fbot{text-align:center;padding-top:28px;font-size:.75rem;color:var(--muted);}
+.fbot span{color:var(--green);}
+#waf{position:fixed;bottom:32px;right:32px;z-index:99;width:56px;height:56px;background:#25D366;border-radius:50%;border:none;cursor:pointer;font-size:1.5rem;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(37,211,102,.4);transition:all .3s;opacity:0;pointer-events:none;transform:scale(.8);}
+#waf.show{opacity:1;pointer-events:all;transform:scale(1);}
+#waf:hover{transform:scale(1.1);}
+.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .25s;}
+.ov.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border:1px solid rgba(0,217,139,.35);border-radius:20px;max-width:440px;width:100%;padding:36px;box-shadow:0 0 60px rgba(0,217,139,.12);transform:translateY(20px) scale(.96);transition:all .3s;position:relative;}
+.ov.open .modal{transform:translateY(0) scale(1);}
+.modal h2{font-size:1.4rem;font-weight:900;margin-bottom:6px;}
+.msub{font-size:.875rem;color:var(--muted);margin-bottom:24px;}
+.mcl{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem;}
+.mcl:hover{color:var(--white);}
+.fl{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--white);margin-bottom:8px;}
+.fi2{width:100%;background:#0E1318;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:var(--white);font-size:.95rem;outline:none;transition:border-color .2s;margin-bottom:16px;}
+.fi2:focus{border-color:var(--green);}
+.fi2::placeholder{color:var(--muted);}
+.psm{background:#0E1318;border-radius:12px;padding:16px;border:1px solid rgba(0,217,139,.2);display:flex;align-items:center;justify-content:space-between;margin:8px 0 16px;}
+.psa{font-size:2rem;font-weight:900;color:var(--green);}
+.ferr{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);border-radius:8px;padding:10px 14px;color:#f87171;font-size:.85rem;margin-bottom:12px;display:none;}
+.ss{text-align:center;padding:24px 0;display:none;}
+.sei{font-size:3.5rem;margin-bottom:16px;}
+.spin{width:28px;height:28px;border:3px solid rgba(0,217,139,.2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;margin:16px auto 0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.wqb{width:100%;text-align:left;padding:14px 16px;background:#0E1318;border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--white);font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.wqb:hover{border-color:rgba(0,217,139,.5);background:rgba(0,217,139,.06);}
+.warr{color:var(--green);opacity:0;transition:opacity .2s;}
+.wqb:hover .warr{opacity:1;}
+.divl{display:flex;align-items:center;gap:12px;margin:16px 0;}
+.dlne{flex:1;height:1px;background:rgba(255,255,255,.07);}
+.divl span{font-size:.75rem;color:var(--muted);}
+.bcom{width:100%;padding:12px;border:1px solid rgba(0,217,139,.35);color:var(--green);background:none;border-radius:12px;cursor:pointer;font-weight:700;font-size:.875rem;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.bcom:hover{background:rgba(0,217,139,.08);}
+.wanote{text-align:center;font-size:.75rem;color:var(--muted);margin-top:12px;}
+.waavw{text-align:center;margin-bottom:20px;}
+.waav{width:64px;height:64px;background:rgba(37,211,102,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 12px;}
+.fi-in{opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s;}
+.fi-in.vis{opacity:1;transform:translateY(0);}
+@media(max-width:768px){
+  nav{padding:12px 16px;}
+  .h-in,.fg,.cg,.gg,.cm,.fc2,.srow{grid-template-columns:1fr;}
+  .tg{grid-template-columns:repeat(2,1fr);}
+  .tcard{padding:32px 20px;}
+  section{padding:60px 16px;}
+  .h-in{text-align:center;}
+  .h-btns{justify-content:center;}
+  .h-stats{justify-content:center;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">AutoLearn<span>Spot</span></div>
+  <div class="nav-right">
+    <a href="#curr" class="nav-lnk">Curriculum</a>
+    <button class="nav-lnk" onclick="openWA()">&#128172; Ask Us</button>
+    <button class="btn-p" onclick="openReg()">Register &#8212; &#8358;3,000</button>
+  </div>
+</nav>
+<button id="waf" onclick="openWA()">&#128172;</button>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="h-grid"></div><div class="h-glow"></div>
+  <div class="h-in">
+    <div>
+      <div class="badge"><span class="pulse"></span> Limited Cohorts &bull; Only &#8358;3,000</div>
+      <h1 class="h-title">
+        <span class="word-wrap"><span class="word-inner"><span>Automate</span><span>Build</span><span>Deploy</span><span>Earn</span></span></span><br>
+        with AI Automation
+      </h1>
+      <p class="h-sub">Build real-world n8n workflows, deploy AI bots to production, and earn your certificate from Moon Space Network. 12 hands-on sessions. No experience needed.</p>
+      <div class="h-btns">
+        <button class="btn-p btn-hero" onclick="openReg()">Register Now &#8212; &#8358;3,000</button>
+        <button class="btn-out btn-hero" onclick="openWA()">&#128172; Ask a Question</button>
+      </div>
+      <div class="h-stats">
+        <div><div class="sv">12</div><div class="sl">Sessions</div></div>
+        <div><div class="sv">4</div><div class="sl">Weeks</div></div>
+        <div><div class="sv">&#8358;3k</div><div class="sl">All-in</div></div>
+      </div>
+    </div>
+    <div class="wf-box">
+      <div class="wf-top">
+        <div style="display:flex;align-items:center">
+          <div class="wf-dots"><div class="wf-dot" style="background:#FF5F57"></div><div class="wf-dot" style="background:#FFBD2E"></div><div class="wf-dot" style="background:#28C840"></div></div>
+          <span class="wf-lbl">n8n workflow editor</span>
+        </div>
+        <div class="wf-run"><div class="wf-rdot"></div>RUNNING</div>
+      </div>
+      <div class="wf-nm" id="wfn">Form &#8594; Email Automation</div>
+      <div class="wf-ns" id="wfns"></div>
+      <div class="wf-pt"><div class="wf-pb" id="wfpb"></div></div>
+      <div class="wf-dn" id="wfdn"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+  <div class="si">
+    <div style="text-align:center"><div class="kicker">Tech Stack</div><h2 class="sec-t">Tools You'll Master</h2></div>
+    <div class="tg">
+      <div class="tc fi-in"><span class="te">&#9881;&#65039;</span><div class="tn">n8n</div></div>
+      <div class="tc fi-in"><span class="te">&#9992;&#65039;</span><div class="tn">Telegram</div></div>
+      <div class="tc fi-in"><span class="te">&#128231;</span><div class="tn">Gmail</div></div>
+      <div class="tc fi-in"><span class="te">&#129302;</span><div class="tn">ChatGPT</div></div>
+      <div class="tc fi-in"><span class="te">&#128452;&#65039;</span><div class="tn">Supabase</div></div>
+      <div class="tc fi-in"><span class="te">&#128642;</span><div class="tn">Railway</div></div>
+      <div class="tc fi-in"><span class="te">&#128202;</span><div class="tn">Google Sheets</div></div>
+      <div class="tc fi-in"><span class="te">&#128172;</span><div class="tn">WhatsApp</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="feat">
+  <div class="si">
+    <div style="text-align:center"><div class="kicker">Why AutoLearn Spot</div><h2 class="sec-t">What Makes Us <span style="color:var(--cyan)">Different</span></h2></div>
+    <div class="fg">
+      <div class="fc fi-in"><span class="fe">&#128296;</span><h3 class="ft">100% Practical</h3><p class="fd">Every session builds a complete, production-ready workflow. No theory-only days.</p></div>
+      <div class="fc fi-in"><span class="fe">&#129302;</span><h3 class="ft">AI-First</h3><p class="fd">Master ChatGPT integration from Day 4. Build AI bots that actually work.</p></div>
+      <div class="fc fi-in"><span class="fe">&#128640;</span><h3 class="ft">Deploy to Production</h3><p class="fd">Learn to deploy your n8n instance on Railway by Week 3. Take full control.</p></div>
+      <div class="fc fi-in"><span class="fe">&#127891;</span><h3 class="ft">Instant Certificate</h3><p class="fd">Earn your Moon Space Network certificate immediately after capstone presentation.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gal">
+  <div class="si">
+    <div style="text-align:center"><div class="kicker">Real Workflows</div><h2 class="sec-t">See What You'll <span style="color:var(--cyan)">Build</span></h2><p style="color:var(--muted);margin-top:12px">Real screenshots taken inside n8n from your curriculum.</p></div>
+    <div class="gg">
+      <div class="gc fi-in"><div class="gi"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAIAAADwf7zUAABhHWNhQlgAAGEdanVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAYPdqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOjEyYzA2MzNhLTFmMTMtNDM2YS04ZDdiLTBhNmVmMTk3NWJmYwAAABfAanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAJ0Jp1bWIAAAA7anVtZEDLDDK7ikidpwsq1vR/Q2kTYzJwYS5pY29uAAAAABhjMnNozQPI9UHXf0iPwn2QCN1CiAAAABdiZmRiAGltYWdlL3N2Zyt4bWwAAAAJd2JpZGI8c3ZnIHdpZHRoPSI3MTYiIGhlaWdodD0iNzE2IiB2aWV3Qm94PSIwIDAgNzE2IDcxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUwOC43NDkgMzE3LjM5OUM1MTYuNzc3IDI4Ny4zMTQgNTA4Ljk5MSAyNTMuODg0IDQ4NS4zODkgMjMwLjI4MkM0NjEuNzg4IDIwNi42ODEgNDI4LjM2IDE5OC44OTUgMzk4LjI3MyAyMDYuOTIzQzM3Ni4yMzEgMTg0LjkyOCAzNDMuMzkgMTc0Ljk1NiAzMTEuMTQ4IDE4My41OTZDMjc4LjkwNiAxOTIuMjM0IDI1NS40NSAyMTcuMjkyIDI0Ny4zNiAyNDcuMzYxQzIxNy4yOTEgMjU1LjQ1MSAxOTIuMjMzIDI3OC45MSAxODMuNTk1IDMxMS4xNDlDMTc0Ljk1NyAzNDMuMzkxIDE4NC45MjcgMzc2LjIzMiAyMDYuOTI0IDM5OC4yNzRDMTk4Ljg5NiA0MjguMzU5IDIwNi42ODMgNDYxLjc4OSAyMzAuMjg0IDQ4NS4zOTFDMjUzLjg4NSA1MDguOTkyIDI4Ny4zMTMgNTE2Ljc3OSAzMTcuNDAxIDUwOC43NUMzMzkuNDQyIDUzMC43NDUgMzcyLjI4NiA1NDAuNzE3IDQwNC41MjUgNTMyLjA3OUM0MzYuNzY3IDUyMy40NDEgNDYwLjIyMyA0OTguMzg0IDQ2OC4zMTMgNDY4LjMxNUM0OTguMzgzIDQ2MC4yMjQgNTIzLjQ0IDQzNi43NjYgNTMyLjA3OCA0MDQuNTI2QzU0MC43MTYgMzcyLjI4NSA1MzAuNzQ3IDMzOS40NDMgNTA4Ljc0OSAzMTcuNDAyVjMxNy4zOTlaTTQ3MC44OTkgMjQ0Ljc3NkM0ODYuODkyIDI2MC43NyA0OTMuNDg4IDI4Mi42MDEgNDkwLjY4NyAzMDMuNDEyTDQxNS41NzcgMjYwLjA0NkM0MTIuNDExIDI1OC4yMTggNDA4LjUwOSAyNTguMjE4IDQwNS4zNDUgMjYwLjA0NkwzMTcuNDAxIDMxMC44MlYyNzcuNTI2QzMxNy40MDEgMjc1LjE5MSAzMTguNjUyIDI3My4wMDUgMzIwLjY3NiAyNzEuODM3TDM4Ny42NDQgMjMzLjE3NEM0MTQuMTc4IDIxOC4zNTMgNDQ4LjM0NiAyMjIuMjIzIDQ3MC45MDEgMjQ0Ljc3Nkg0NzAuODk5Wk0zNTcuODM3IDMxMS4xNDRMMzk4LjI3NSAzMzQuNDkxVjM4MS4xODVMMzU3LjgzNyA0MDQuNTMyTDMxNy4zOTggMzgxLjE4NVYzMzQuNDkxTDM1Ny44MzcgMzExLjE0NFpNMjY0Ljc3NiAyNjkuNjkzQzI2NS4yMDcgMjM5LjMwNSAyODUuNjQ0IDIxMS42NDkgMzE2LjQ1MyAyMDMuMzkzQzMz" alt="n8n workflow example"/><div class="go"><span>Form ➜ Email</span></div></div><div class="gn"><div class="gt">Automate Email Responses</div><div class="gs">Trigger emails with form submissions</div></div></div>
+      <div class="gc fi-in"><div class="gi"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAIAAADwf7zUAABxZmNhQlgAAHFmanVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAcUBqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOmNjZGI0YzFkLWM2Y2ItNDkwYi1hMzgzLWM2ZmZiN2U4NDI3NAAAACEyanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAJ0Jp1bWIAAAA7anVtZEDLDDK7ikidpwsq1vR/Q2kTYzJwYS5pY29uAAAAABhjMnNo/SxZmcUGRKYfh9ZzgJ5+qAAAABdiZmRiAGltYWdlL3N2Zyt4bWwAAAAJd2JpZGI8c3ZnIHdpZHRoPSI3MTYiIGhlaWdodD0iNzE2IiB2aWV3Qm94PSIwIDAgNzE2IDcxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUwOC43NDkgMzE3LjM5OUM1MTYuNzc3IDI4Ny4zMTQgNTA4Ljk5MSAyNTMuODg0IDQ4NS4zODkgMjMwLjI4MkM0NjEuNzg4IDIwNi42ODEgNDI4LjM2IDE5OC44OTUgMzk4LjI3MyAyMDYuOTIzQzM3Ni4yMzEgMTg0LjkyOCAzNDMuMzkgMTc0Ljk1NiAzMTEuMTQ4IDE4My41OTZDMjc4LjkwNiAxOTIuMjM0IDI1NS40NSAyMTcuMjkyIDI0Ny4zNiAyNDcuMzYxQzIxNy4yOTEgMjU1LjQ1MSAxOTIuMjMzIDI3OC45MSAxODMuNTk1IDMxMS4xNDlDMTc0Ljk1NyAzNDMuMzkxIDE4NC45MjcgMzc2LjIzMiAyMDYuOTI0IDM5OC4yNzRDMTk4Ljg5NiA0MjguMzU5IDIwNi42ODMgNDYxLjc4OSAyMzAuMjg0IDQ4NS4zOTFDMjUzLjg4NSA1MDguOTkyIDI4Ny4zMTMgNTE2Ljc3OSAzMTcuNDAxIDUwOC43NUMzMzkuNDQyIDUzMC43NDUgMzcyLjI4NiA1NDAuNzE3IDQwNC41MjUgNTMyLjA3OUM0MzYuNzY3IDUyMy40NDEgNDYwLjIyMyA0OTguMzg0IDQ2OC4zMTMgNDY4LjMxNUM0OTguMzgzIDQ2MC4yMjQgNTIzLjQ0IDQzNi43NjYgNTMyLjA3OCA0MDQuNTI2QzU0MC43MTYgMzcyLjI4NSA1MzAuNzQ3IDMzOS40NDMgNTA4Ljc0OSAzMTcuNDAyVjMxNy4zOTlaTTQ3MC44OTkgMjQ0Ljc3NkM0ODYuODkyIDI2MC43NyA0OTMuNDg4IDI4Mi42MDEgNDkwLjY4NyAzMDMuNDEyTDQxNS41NzcgMjYwLjA0NkM0MTIuNDExIDI1OC4yMTggNDA4LjUwOSAyNTguMjE4IDQwNS4zNDUgMjYwLjA0NkwzMTcuNDAxIDMxMC44MlYyNzcuNTI2QzMxNy40MDEgMjc1LjE5MSAzMTguNjUyIDI3My4wMDUgMzIwLjY3NiAyNzEuODM3TDM4Ny42NDQgMjMzLjE3NEM0MTQuMTc4IDIxOC4zNTMgNDQ4LjM0NiAyMjIuMjIzIDQ3MC45MDEgMjQ0Ljc3Nkg0NzAuODk5Wk0zNTcuODM3IDMxMS4xNDRMMzk4LjI3NSAzMzQuNDkxVjM4MS4xODVMMzU3LjgzNyA0MDQuNTMyTDMxNy4zOTggMzgxLjE4NVYzMzQuNDkxTDM1Ny44MzcgMzExLjE0NFpNMjY0Ljc3NiAyNjkuNjkzQzI2NS4yMDcgMjM5LjMwNSAyODUuNjQ0IDIxMS42NDkgMzE2LjQ1MyAyMDMuMzkzQzMz" alt="AI bot example"/><div class="go"><span>AI Telegram Bot</span></div></div><div class="gn"><div class="gt">AI-Powered Telegram Bot</div><div class="gs">Respond to users with ChatGPT</div></div></div>
+      <div class="gc fi-in"><div class="gi"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAIAAADwf7zUAABxZmNhQlgAAHFmanVtYgAAAB5qdW1kYzJwYQARABCAAACqADibcQNjMnBhAAAAcUBqdW1iAAAAR2p1bWRjMm1hABEAEIAAAKoAOJtxA3VybjpjMnBhOmFlYTU0MDJlLWJiNTItNGYwZi05MDBlLWQxNWZmOGM3Zjg4MQAAACEyanVtYgAAAClqdW1kYzJhcwARABCAAACqADibcQNjMnBhLmFzc2VydGlvbnMAAAAJ0Jp1bWIAAAA7anVtZEDLDDK7ikidpwsq1vR/Q2kTYzJwYS5pY29uAAAAABhjMnNo9lzVsIBgfDlOTY8IvUVziQAAABdiZmRiAGltYWdlL3N2Zyt4bWwAAAAJd2JpZGI8c3ZnIHdpZHRoPSI3MTYiIGhlaWdodD0iNzE2IiB2aWV3Qm94PSIwIDAgNzE2IDcxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTUwOC43NDkgMzE3LjM5OUM1MTYuNzc3IDI4Ny4zMTQgNTA4Ljk5MSAyNTMuODg0IDQ4NS4zODkgMjMwLjI4MkM0NjEuNzg4IDIwNi42ODEgNDI4LjM2IDE5OC44OTUgMzk4LjI3MyAyMDYuOTIzQzM3Ni4yMzEgMTg0LjkyOCAzNDMuMzkgMTc0Ljk1NiAzMTEuMTQ4IDE4My41OTZDMjc4LjkwNiAxOTIuMjM0IDI1NS40NSAyMTcuMjkyIDI0Ny4zNiAyNDcuMzYxQzIxNy4yOTEgMjU1LjQ1MSAxOTIuMjMzIDI3OC45MSAxODMuNTk1IDMxMS4xNDlDMTc0Ljk1NyAzNDMuMzkxIDE4NC45MjcgMzc2LjIzMiAyMDYuOTI0IDM5OC4yNzRDMTk4Ljg5NiA0MjguMzU5IDIwNi42ODMgNDYxLjc4OSAyMzAuMjg0IDQ4NS4zOTFDMjUzLjg4NSA1MDguOTkyIDI4Ny4zMTMgNTE2Ljc3OSAzMTcuNDAxIDUwOC43NUMzMzkuNDQyIDUzMC43NDUgMzcyLjI4NiA1NDAuNzE3IDQwNC41MjUgNTMyLjA3OUM0MzYuNzY3IDUyMy40NDEgNDYwLjIyMyA0OTguMzg0IDQ2OC4zMTMgNDY4LjMxNUM0OTguMzgzIDQ2MC4yMjQgNTIzLjQ0IDQzNi43NjYgNTMyLjA3OCA0MDQuNTI2QzU0MC43MTYgMzcyLjI4NSA1MzAuNzQ3IDMzOS40NDMgNTA4Ljc0OSAzMTcuNDAyVjMxNy4zOTlaTTQ3MC44OTkgMjQ0Ljc3NkM0ODYuODkyIDI2MC43NyA0OTMuNDg4IDI4Mi42MDEgNDkwLjY4NyAzMDMuNDEyTDQxNS41NzcgMjYwLjA0NkM0MTIuNDExIDI1OC4yMTggNDA4LjUwOSAyNTguMjE4IDQwNS4zNDUgMjYwLjA0NkwzMTcuNDAxIDMxMC44MlYyNzcuNTI2QzMxNy40MDEgMjc1LjE5MSAzMTguNjUyIDI3My4wMDUgMzIwLjY3NiAyNzEuODM3TDM4Ny42NDQgMjMzLjE3NEM0MTQuMTc4IDIxOC4zNTMgNDQ4LjM0NiAyMjIuMjIzIDQ3MC45MDEgMjQ0Ljc3Nkg0NzAuODk5Wk0zNTcuODM3IDMxMS4xNDRMMzk4LjI3NSAzMzQuNDkxVjM4MS4xODVMMzU3LjgzNyA0MDQuNTMyTDMxNy4zOTggMzgxLjE4NVYzMzQuNDkxTDM1Ny44MzcgMzExLjE0NFpNMjY0Ljc3NiAyNjkuNjkzQzI2NS4yMDcgMjM5LjMwNSAyODUuNjQ0IDIxMS42NDkgMzE2LjQ1MyAyMDMuMzkzQzMz" alt="Lead capture example"/><div class="go"><span>Lead Capture + AI</span></div></div><div class="gn"><div class="gt">Qualify Leads with AI</div><div class="gs">Score and prioritize automatically</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CURRICULUM -->
+<section id="curr">
+  <div class="si">
+    <div style="text-align:center"><div class="kicker">4-Week Curriculum</div><h2 class="sec-t">What You'll <span style="color:var(--cyan)">Build</span></h2><p style="color:var(--muted);margin-top:12px">Every session is 100% practical. Deploy real workflows from Day 1.</p></div>
+    <div class="cg">
+      <div class="wc fi-in"><div class="wn">Week 1</div><div class="wt">n8n Automation Fundamentals</div><div class="wth">Learn the basics &amp; build your first workflow</div><div class="dr"><div class="dn">1</div><div class="dt">Theory + Account Setup</div></div><div class="dr"><div class="dn">2</div><div class="dt">Form &#8594; Personalised Email</div></div><div class="dr"><div class="dn">3</div><div class="dt">Add Google Sheets</div></div></div>
+      <div class="wc fi-in"><div class="wn">Week 2</div><div class="wt">AI-Powered Workflows</div><div class="wth">Build intelligent automation with ChatGPT</div><div class="dr"><div class="dn">4</div><div class="dt">AI Telegram Bot</div></div><div class="dr"><div class="dn">5</div><div class="dt">AI Email Auto-Responder</div></div><div class="dr"><div class="dn">6</div><div class="dt">AI Content Summarizer</div></div></div>
+      <div class="wc fi-in"><div class="wn">Week 3</div><div class="wt">Deployment + Advanced Workflows</div><div class="wth">Deploy to production &amp; scale your bots</div><div class="dr"><div class="dn">7</div><div class="dt">Deploy n8n on Railway</div></div><div class="dr"><div class="dn">8</div><div class="dt">AI Customer Support Bot</div></div><div class="dr"><div class="dn">9</div><div class="dt">Lead Capture + AI Qualifier</div></div></div>
+      <div class="wc fi-in"><div class="wn">Week 4</div><div class="wt">Capstone Project</div><div class="wth">Build, present &amp; earn your certificate</div><div class="dr"><div class="dn">10</div><div class="dt">AI Social Media Content Generator</div></div><div class="dr"><div class="dn">11</div><div class="dt">Capstone Build Day</div></div><div class="dr"><div class="dn">12</div><div class="dt">Presentation + Certification</div></div></div>
+    </div>
+    <div class="cm">
+      <div class="mcard"><div class="mem">&#128197;</div><p class="mt"><strong>Schedule:</strong> Mon/Wed/Fri, 30 mins each</p></div>
+      <div class="mcard"><div class="mem">&#127891;</div><p class="mt"><strong>Certificate:</strong> Issued by Moon Space Network</p></div>
+      <div class="mcard"><div class="mem">&#128101;</div><p class="mt"><strong>For Everyone:</strong> No coding experience needed</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cg2"></div>
+  <div class="ci">
+    <div class="kicker">Ready to Start?</div>
+    <h2 class="sec-t">Master <span style="color:var(--green)">AI Automation</span> Today</h2>
+    <p style="color:var(--muted);margin-top:12px">Join the next cohort &#8212; 12 sessions, certificate, community access. Limited spots.</p>
+    <div><div class="pb"><div class="pv">&#8358;3,000</div><div class="ps">All-inclusive &bull; No hidden fees</div></div></div>
+    <div class="cb">
+      <button class="btn-p" style="padding:16px 48px;font-size:1.05rem;border-radius:12px" onclick="openReg()">Register Now</button>
+      <button class="btn-co" onclick="openWA()">&#128172; Ask Questions</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testi">
+  <div class="si">
+    <div style="text-align:center"><div class="kicker">Success Stories</div><h2 class="sec-t">What Students <span style="color:var(--cyan)">Say</span></h2></div>
+    <div class="tw">
+      <div class="tcard"><div class="tav" id="tav">&#128105;&#8205;&#128187;</div><p class="tq" id="tq">&#8220;AutoLearn Spot transformed how I think about automation. I went from zero to deploying my own n8n instance in 4 weeks.&#8221;</p><div class="tnm" id="tnm">Chioma A.</div><div class="trl" id="trl">Software Developer</div></div>
+      <div class="tnav"><button class="tarr" onclick="mvT(-1)">&#8592;</button><div class="tdots" id="tdts"></div><button class="tarr" onclick="mvT(1)">&#8594;</button></div>
+    </div>
+    <div class="srow">
+      <div><div class="sb" style="color:var(--green)">200+</div><div class="sbl">Students Trained</div></div>
+      <div><div class="sb" style="color:var(--cyan)">4.9/5</div><div class="sbl">Average Rating</div></div>
+      <div><div class="sb" style="color:var(--yellow)">95%</div><div class="sbl">Certificate Rate</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fi">
+    <div class="fc2">
+      <div class="fcol"><h3>Connect</h3><button onclick="openWA()">&#128172; WhatsApp DM</button><a href="https://chat.whatsapp.com/FqgDAgL34Wq6tyPkT3nZ20" target="_blank">&#128101; Join Community</a><p>&#128241; +234 812 093 4828</p></div>
+      <div class="fcol"><h3>Program</h3><p>4 Weeks &bull; 12 Sessions</p><p>Mon/Wed/Fri &bull; 30 mins each</p><p>&#8358;3,000 All-Inclusive</p></div>
+      <div class="fcol"><h3>Certificate</h3><p>Issued by Moon Space Network</p><p>Powered by n8n &amp; Paystack</p></div>
+    </div>
+    <div class="fbot">&copy; 2025 AutoLearn Spot. Built by <span>Femi Adeleke</span></div>
+  </div>
+</footer>
+
+<!-- REG MODAL -->
+<div class="ov" id="rm" onclick="if(event.target===this)closeReg()">
+  <div class="modal">
+    <button class="mcl" onclick="closeReg()">&#10005;</button>
+    <div id="rf">
+      <div class="badge" style="font-size:.7rem;margin-bottom:12px"><span class="pulse"></span> STEP 1 OF 2</div>
+      <h2>Join AutoLearn Spot</h2>
+      <p class="msub">Enter your details then complete payment.</p>
+      <label class="fl">Full Name *</label><input class="fi2" id="rn" type="text" placeholder="e.g., Chioma Adeleke">
+      <label class="fl">Email Address *</label><input class="fi2" id="re" type="email" placeholder="e.g., chioma@gmail.com">
+      <label class="fl">Phone Number *</label><input class="fi2" id="rp" type="tel" placeholder="e.g., 08120934828">
+      <label class="fl">Referral Code</label><input class="fi2" id="rr" type="text" placeholder="Optional referral code">
+      <div class="psm"><div><p style="font-size:.8rem;color:var(--muted)">Total &#8212; 12 sessions + certificate</p><p style="font-size:.75rem;color:var(--muted);margin-top:4px">&#10003; Secure via Paystack</p></div><div class="psa">&#8358;3,000</div></div>
+      <div class="ferr" id="re2"></div>
+      <button class="btn-p" style="width:100%;padding:14px;font-size:1rem;border-radius:12px;margin-bottom:10px" onclick="subReg()" id="rb">Continue to Payment &#8594;</button>
+      <button onclick="closeReg()" style="width:100%;padding:12px;background:none;border:1px solid rgba(255,255,255,.08);color:var(--muted);border-radius:12px;cursor:pointer;font-size:.875rem">Cancel</button>
+    </div>
+    <div class="ss" id="rs"><div class="sei">&#9989;</div><h3>Details Saved!</h3><p style="color:var(--muted)">Redirecting to payment...</p><div class="spin"></div></div>
+  </div>
+</div>
+
+<!-- WA MODAL -->
+<div class="ov" id="wm" onclick="if(event.target===this)closeWA()">
+  <div class="modal" style="max-width:380px;border-color:rgba(0,217,139,.3)">
+    <button class="mcl" onclick="closeWA()">&#10005;</button>
+    <div class="waavw"><div class="waav">&#128172;</div><h2>Chat with Femi</h2><p class="msub" style="margin-bottom:0">Pick a message &#8212; opens WhatsApp instantly</p></div>
+    <button class="wqb" onclick="sendWA('Hi Femi! I am interested in AutoLearn Spot. How do I register?')">&#128172; I want to register<span class="warr">&#8594;</span></button>
+    <button class="wqb" onclick="sendWA('Hi Femi! When does the next AutoLearn Spot cohort begin?')">&#128197; When does it start?<span class="warr">&#8594;</span></button>
+    <button class="wqb" onclick="sendWA('Hi Femi! I have a question about AutoLearn Spot.')">&#129300; I have a question<span class="warr">&#8594;</span></button>
+    <button class="wqb" onclick="sendWA('Hi Femi! I need help completing my payment for AutoLearn Spot.')">&#128176; Payment help<span class="warr">&#8594;</span></button>
+    <div class="divl"><div class="dlne"></div><span>or</span><div class="dlne"></div></div>
+    <button class="bcom" onclick="window.open('https://chat.whatsapp.com/FqgDAgL34Wq6tyPkT3nZ20','_blank');closeWA()">&#128101; Join WhatsApp Community</button>
+    <p class="wanote">Usually replies within a few hours</p>
+  </div>
+</div>
+
+<script>
+var wfs=[
+  {l:"Form \u2192 Email Automation",n:[{e:"\uD83D\uDCCB",t:"Form Trigger",c:"g"},{e:"\u2699\uFE0F",t:"n8n Logic",c:"c"},{e:"\uD83D\uDCE7",t:"Gmail Send",c:"y"},{e:"\uD83D\uDCCA",t:"Sheets Log",c:"g"}]},
+  {l:"AI Telegram Bot",n:[{e:"\u2708\uFE0F",t:"Telegram",c:"c"},{e:"\uD83E\uDD16",t:"ChatGPT",c:"g"},{e:"\u2708\uFE0F",t:"Reply",c:"c"}]},
+  {l:"Lead Capture + AI Qualifier",n:[{e:"\uD83D\uDCCB",t:"Form",c:"g"},{e:"\uD83E\uDD16",t:"AI Score",c:"y"},{e:"\uD83D\uDCCA",t:"Sheets",c:"g"},{e:"\uD83D\uDCE7",t:"Alert",c:"c"}]}
+];
+var wi=0,ni=-1,wt=null;
+function rWF(){
+  var w=wfs[wi];document.getElementById("wfn").textContent=w.l;
+  var ns=document.getElementById("wfns");ns.innerHTML="";
+  w.n.forEach(function(n,i){
+    var wr=document.createElement("div");wr.style.cssText="display:flex;align-items:flex-start;gap:4px";
+    var nd=document.createElement("div");nd.className="wf-n";
+    var ic=document.createElement("div");ic.className="wf-ic";ic.id="wi"+i;ic.textContent=n.e;
+    var lb=document.createElement("div");lb.className="wf-nl";lb.textContent=n.t;
+    nd.appendChild(ic);nd.appendChild(lb);wr.appendChild(nd);
+    if(i<w.n.length-1){var ar=document.createElement("div");ar.className="wf-ar";ar.id="wa"+i;ar.textContent="\u2192";wr.appendChild(ar);}
+    ns.appendChild(wr);
+  });
+  var dn=document.getElementById("wfdn");dn.innerHTML="";
+  wfs.forEach(function(_,i){var d=document.createElement("button");d.className="wf-dd"+(i===wi?" on":"");d.onclick=function(){clearTimeout(wt);wi=i;ni=-1;rWF();runWF();};dn.appendChild(d);});
+  document.getElementById("wfpb").style.width="0%";
+}
+function uWF(){
+  var w=wfs[wi];
+  w.n.forEach(function(n,i){
+    var ic=document.getElementById("wi"+i);if(!ic)return;
+    ic.className="wf-ic"+(ni>=i?" "+n.c:"");
+    var ar=document.getElementById("wa"+i);if(ar)ar.className="wf-ar"+(ni>i?" on":"");
+  });
+  document.getElementById("wfpb").style.width=(ni>=0?((ni+1)/w.n.length)*100:0)+"%";
+}
+function runWF(){
+  var w=wfs[wi];ni++;uWF();
+  if(ni<w.n.length){wt=setTimeout(runWF,700);}
+  else{wt=setTimeout(function(){ni=-1;uWF();wt=setTimeout(function(){wi=(wi+1)%wfs.length;ni=-1;rWF();runWF();},400);},1400);}
+}
+rWF();setTimeout(runWF,800);
+
+var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add("vis");});},{threshold:.15});
+document.querySelectorAll(".fi-in").forEach(function(el,i){el.style.transitionDelay=(i%4*.1)+"s";obs.observe(el);});
+
+window.addEventListener("scroll",function(){document.getElementById("waf").classList[document.getElementById("hero").getBoundingClientRect().bottom<0?"add":"remove"]("show");});
+
+var ts=[
+  {av:"\uD83D\uDC69\u200D\uD83D\uDCBB",q:"AutoLearn Spot transformed how I think about automation. I went from zero to deploying my own n8n instance in 4 weeks.",n:"Chioma A.",r:"Software Developer"},
+  {av:"\uD83D\uDC68\u200D\uD83D\uDCBC",q:"This program saved me hours every week. The AI bots I built handle customer inquiries automatically now.",n:"Tunde O.",r:"Entrepreneur"},
+  {av:"\uD83D\uDC69\u200D\uD83D\uDD2C",q:"Clear, practical, and fast-paced. The capstone project was the perfect way to showcase what I learned.",n:"Adanna M.",r:"Data Analyst"},
+  {av:"\uD83D\uDC68\u200D\uD83C\uDF93",q:"Femi is an excellent instructor. He breaks down complex concepts beautifully and shows real results.",n:"Seun K.",r:"Product Manager"}
+];
+var ti=0,ta;
+function bDots(){var d=document.getElementById("tdts");d.innerHTML="";ts.forEach(function(_,i){var dot=document.createElement("button");dot.className="tdot"+(i===ti?" on":"");dot.onclick=function(){sTesti(i);};d.appendChild(dot);});}
+function sTesti(i){ti=i;var t=ts[i];var c=document.querySelector(".tcard");c.style.opacity="0";c.style.transform="translateX(16px)";setTimeout(function(){document.getElementById("tav").textContent=t.av;document.getElementById("tq").textContent="\u201C"+t.q+"\u201D";document.getElementById("tnm").textContent=t.n;document.getElementById("trl").textContent=t.r;c.style.opacity="1";c.style.transform="translateX(0)";bDots();},250);}
+function mvT(d){clearInterval(ta);sTesti((ti+d+ts.length)%ts.length);ta=setInterval(function(){sTesti((ti+1)%ts.length);},5000);}
+bDots();ta=setInterval(function(){sTesti((ti+1)%ts.length);},5000);
+
+function openReg(){document.getElementById("rm").classList.add("open");document.body.style.overflow="hidden";}
+function closeReg(){if(document.getElementById("rs").style.display==="block")return;document.getElementById("rm").classList.remove("open");document.body.style.overflow="";setTimeout(function(){document.getElementById("rf").style.display="block";document.getElementById("rs").style.display="none";document.getElementById("re2").style.display="none";document.getElementById("rb").textContent="Continue to Payment \u2192";},300);}
+function subReg(){
+  var n=document.getElementById("rn").value.trim(),e=document.getElementById("re").value.trim(),p=document.getElementById("rp").value.trim(),r=document.getElementById("rr").value.trim(),err=document.getElementById("re2");
+  err.style.display="none";
+  if(!n){err.textContent="Please enter your full name.";err.style.display="block";return;}
+  if(!e||!e.includes("@")){err.textContent="Please enter a valid email.";err.style.display="block";return;}
+  if(!p){err.textContent="Please enter your phone number.";err.style.display="block";return;}
+  document.getElementById("rb").textContent="Processing...";
+  fetch("https://n8n-wj6g.onrender.com/webhook/6f985fb5-f10a-4ad3-99c0-d58d70f86408",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({"Full Name":n,Email1:e,Phone:p,ReferralCode:r})}).catch(function(){});
+  document.getElementById("rf").style.display="none";document.getElementById("rs").style.display="block";
+  setTimeout(function(){window.location.href="https://paystack.shop/pay/yoksvlq4xn";},1800);
+}
+function openWA(){document.getElementById("wm").classList.add("open");document.body.style.overflow="hidden";}
+function closeWA(){document.getElementById("wm").classList.remove("open");document.body.style.overflow="";}
+function sendWA(m){window.open("https://wa.me/2348120934828?text="+encodeURIComponent(m),"_blank");closeWA();}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeReg();closeWA();}});
+
+// Referral Code System
+const urlParams = new URLSearchParams(window.location.search);
+const ref = urlParams.get('ref');
+
+if (ref) {
+    localStorage.setItem('autolearn_referral', ref);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const referralInput = document.getElementById('rr');
+    if (referralInput) {
+        referralInput.value = localStorage.getItem('autolearn_referral') || '';
+    }
+});
+</script>
+</body>
+</html>
