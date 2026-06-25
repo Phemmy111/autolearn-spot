@@ -10,8 +10,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'AutoLearn - Master n8n Automation',
+  description: 'Learn practical n8n workflow automation through hands-on training. Build real automations that solve actual business problems.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -33,11 +33,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light dark',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: 'white' },
-    { media: '(prefers-color-scheme: dark)', color: 'black' },
-  ],
+  colorScheme: 'light',
+  themeColor: [{ color: 'white' }],
 }
 
 export default function RootLayout({
