@@ -117,20 +117,12 @@ export default function Page() {
   }, [])
 
   useEffect(() => {
-    const nodeSequence = [
-      'node-webhook',
-      'node-parse',
-      'node-validate',
-      'node-ai',
-      'node-email',
-      'node-message',
-      'node-db',
-      'node-log',
-      'node-notify'
-    ]
+    const mainFlow = ['node-1', 'node-2', 'node-3', 'node-4', 'node-5', 'node-6', 'node-7']
+    const branches = ['node-8', 'node-9', 'node-10', 'node-11', 'node-12', 'node-13']
     
     const animateWorkflow = () => {
-      nodeSequence.forEach((nodeId, index) => {
+      // Animate main flow
+      mainFlow.forEach((nodeId, index) => {
         setTimeout(() => {
           const element = document.getElementById(nodeId)
           if (element) {
@@ -139,21 +131,26 @@ export default function Page() {
               element.classList.remove('active')
             }, 800)
           }
-          
-          const flowLines = document.querySelectorAll('.flow-line')
-          if (index < flowLines.length) {
-            const line = flowLines[index]
-            line.classList.add('active')
-            setTimeout(() => {
-              line.classList.remove('active')
-            }, 1000)
-          }
         }, index * 700)
+      })
+      
+      // Animate branches after main flow completes
+      const mainFlowDuration = mainFlow.length * 700
+      branches.forEach((nodeId, index) => {
+        setTimeout(() => {
+          const element = document.getElementById(nodeId)
+          if (element) {
+            element.classList.add('active')
+            setTimeout(() => {
+              element.classList.remove('active')
+            }, 600)
+          }
+        }, mainFlowDuration + index * 500)
       })
     }
     
     animateWorkflow()
-    const interval = setInterval(animateWorkflow, 7500)
+    const interval = setInterval(animateWorkflow, 9000)
     
     return () => clearInterval(interval)
   }, [])
@@ -256,11 +253,28 @@ export default function Page() {
                   }
                   
                   .nodes-container {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                    gap: 20px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 16px;
                     position: relative;
                     z-index: 1;
+                    justify-content: center;
+                  }
+                  
+                  .workflow-row {
+                    display: flex;
+                    gap: 16px;
+                    justify-content: center;
+                    width: 100%;
+                    flex-wrap: wrap;
+                  }
+                  
+                  .branch-row {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                    width: 100%;
+                    flex-wrap: wrap;
                   }
                   
                   .workflow-node {
@@ -334,42 +348,65 @@ export default function Page() {
                     <line x1="990" y1="80" x2="1070" y2="80" className="flow-line" strokeDasharray="1000" />
                   </svg>
                   
-                  <div className="nodes-container" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '12px' }}>
-                    <div className="workflow-node" id="node-webhook">
-                      <div className="node-icon">🔗</div>
-                      <div className="node-label">Webhook</div>
+                  <div className="nodes-container">
+                    {/* Main flow row */}
+                    <div className="workflow-row">
+                      <div className="workflow-node" id="node-1" style={{ minWidth: '90px' }}>
+                        <div className="node-icon">💬</div>
+                        <div className="node-label">Listen Msg</div>
+                      </div>
+                      <div className="workflow-node" id="node-2" style={{ minWidth: '90px' }}>
+                        <div className="node-icon">🎤</div>
+                        <div className="node-label">Voice/Text</div>
+                      </div>
+                      <div className="workflow-node" id="node-3" style={{ minWidth: '90px' }}>
+                        <div className="node-icon">❓</div>
+                        <div className="node-label">If Check</div>
+                      </div>
+                      <div className="workflow-node" id="node-4" style={{ minWidth: '90px' }}>
+                        <div className="node-icon">📥</div>
+                        <div className="node-label">Get Voice</div>
+                      </div>
+                      <div className="workflow-node" id="node-5" style={{ minWidth: '90px' }}>
+                        <div className="node-icon">🎙️</div>
+                        <div className="node-label">Transcribe</div>
+                      </div>
+                      <div className="workflow-node" id="node-6" style={{ minWidth: '90px' }}>
+                        <div className="node-icon">🤖</div>
+                        <div className="node-label">Jackie AI</div>
+                      </div>
+                      <div className="workflow-node" id="node-7" style={{ minWidth: '90px' }}>
+                        <div className="node-icon">✈️</div>
+                        <div className="node-label">Telegram</div>
+                      </div>
                     </div>
-                    <div className="workflow-node" id="node-parse">
-                      <div className="node-icon">📝</div>
-                      <div className="node-label">Parse Data</div>
-                    </div>
-                    <div className="workflow-node" id="node-validate">
-                      <div className="node-icon">✓</div>
-                      <div className="node-label">Validate</div>
-                    </div>
-                    <div className="workflow-node" id="node-ai">
-                      <div className="node-icon">🤖</div>
-                      <div className="node-label">AI Process</div>
-                    </div>
-                    <div className="workflow-node" id="node-email">
-                      <div className="node-icon">✉️</div>
-                      <div className="node-label">Send Email</div>
-                    </div>
-                    <div className="workflow-node" id="node-message">
-                      <div className="node-icon">💬</div>
-                      <div className="node-label">Send Message</div>
-                    </div>
-                    <div className="workflow-node" id="node-db">
-                      <div className="node-icon">💾</div>
-                      <div className="node-label">Save to DB</div>
-                    </div>
-                    <div className="workflow-node" id="node-log">
-                      <div className="node-icon">📊</div>
-                      <div className="node-label">Log Result</div>
-                    </div>
-                    <div className="workflow-node" id="node-notify">
-                      <div className="node-icon">🔔</div>
-                      <div className="node-label">Notify User</div>
+
+                    {/* Branching outputs row */}
+                    <div className="branch-row">
+                      <div className="workflow-node" id="node-8" style={{ minWidth: '75px', fontSize: '12px' }}>
+                        <div className="node-icon">🔀</div>
+                        <div className="node-label">Router</div>
+                      </div>
+                      <div className="workflow-node" id="node-9" style={{ minWidth: '75px', fontSize: '12px' }}>
+                        <div className="node-icon">🧠</div>
+                        <div className="node-label">Memory</div>
+                      </div>
+                      <div className="workflow-node" id="node-10" style={{ minWidth: '75px', fontSize: '12px' }}>
+                        <div className="node-icon">✅</div>
+                        <div className="node-label">Task</div>
+                      </div>
+                      <div className="workflow-node" id="node-11" style={{ minWidth: '75px', fontSize: '12px' }}>
+                        <div className="node-icon">📋</div>
+                        <div className="node-label">Get Tasks</div>
+                      </div>
+                      <div className="workflow-node" id="node-12" style={{ minWidth: '75px', fontSize: '12px' }}>
+                        <div className="node-icon">✉️</div>
+                        <div className="node-label">Email</div>
+                      </div>
+                      <div className="workflow-node" id="node-13" style={{ minWidth: '75px', fontSize: '12px' }}>
+                        <div className="node-icon">📅</div>
+                        <div className="node-label">Calendar</div>
+                      </div>
                     </div>
                   </div>
                 </div>
