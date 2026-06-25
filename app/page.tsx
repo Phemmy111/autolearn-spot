@@ -400,31 +400,31 @@ export default function Page() {
             <div>
               <h2 className="text-3xl font-serif text-slate-900 mb-4">Meet Your Instructor</h2>
               <p className="text-slate-600 mb-6">
-                I&apos;m Femi Adeleke, an automation engineer and educator passionate about making n8n and workflow automation accessible to everyone. With years of experience building production automations, I&apos;ve trained hundreds of learners to go from zero to building deployed workflows.
+                I&apos;m Femi Adeleke, a full-stack developer and automation engineer based in Ibadan, Nigeria. I specialize in building production-grade automation workflows with n8n, connecting LLMs to real-world applications, and creating AI-powered solutions. I&apos;m also an educator at heart, currently teaching English Language and Literature while building automation projects that solve actual business problems.
               </p>
               <p className="text-slate-600 mb-6">
-                AutoLearn Spot was created because I saw a gap in practical, hands-on automation training. Most courses teach theory. I teach you how to build real workflows that solve actual business problems.
+                AutoLearn Spot is my first formal training program—and that&apos;s your advantage. You get direct access to me, real-time problem-solving, and training that&apos;s shaped by the exact workflows I&apos;m building right now in production. No outdated curriculum, no theory-heavy lectures. Pure, practical automation.
               </p>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <span className="text-amber-600 font-bold mt-1">✓</span>
                   <div>
-                    <p className="font-semibold text-slate-900">1000+ Automations Built</p>
-                    <p className="text-sm text-slate-600">Production workflows across various industries</p>
+                    <p className="font-semibold text-slate-900">10+ Production Automation Projects</p>
+                    <p className="text-sm text-slate-600">Including WhatsApp bots, content pipelines, AI chatbots, and more</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-amber-600 font-bold mt-1">✓</span>
                   <div>
-                    <p className="font-semibold text-slate-900">500+ Learners Trained</p>
-                    <p className="text-sm text-slate-600">From complete beginners to advanced builders</p>
+                    <p className="font-semibold text-slate-900">Full-Stack Developer</p>
+                    <p className="text-sm text-slate-600">Flutter mobile apps, React frontends, Supabase/Firebase backends</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <span className="text-amber-600 font-bold mt-1">✓</span>
                   <div>
-                    <p className="font-semibold text-slate-900">Certified by Moon Space Network</p>
-                    <p className="text-sm text-slate-600">Our certificate is recognized and trusted</p>
+                    <p className="font-semibold text-slate-900">AI Integration Specialist</p>
+                    <p className="text-sm text-slate-600">Claude, Gemini, GPT-4o, and multi-model routing with OpenRouter</p>
                   </div>
                 </div>
               </div>
