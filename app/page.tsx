@@ -11,6 +11,7 @@ export default function Page() {
   const [regData, setRegData] = useState({ name: '', email: '', phone: '', referral: '' })
   const [regLoading, setRegLoading] = useState(false)
   const [regSuccess, setRegSuccess] = useState(false)
+  const [expandedFAQ, setExpandedFAQ] = useState(null)
 
   const webhookUrl = 'https://n8n-wj6g.onrender.com/webhook/6f985fb5-f10a-4ad3-99c0-d58d70f86408'
   const paystackLink = 'https://paystack.shop/pay/yoksvlq4xn'
@@ -262,6 +263,76 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Tools You'll Master */}
+      <section className="border-b border-slate-200">
+        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-serif text-slate-900 mb-4">Tools You&apos;ll Master</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">Master the complete n8n ecosystem and integrate with the tools your business already uses</p>
+          </div>
+          
+          <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
+            {[
+              { name: 'n8n', desc: 'Workflow automation' },
+              { name: 'ChatGPT', desc: 'AI integration' },
+              { name: 'Gmail', desc: 'Email automation' },
+              { name: 'Telegram', desc: 'Bot creation' },
+              { name: 'Google Sheets', desc: 'Data management' },
+              { name: 'WhatsApp', desc: 'Messaging automation' },
+              { name: 'Railway', desc: 'Production deployment' },
+              { name: 'Supabase', desc: 'Database & auth' },
+            ].map((tool, i) => (
+              <div key={i} className="rounded-lg border border-slate-200 p-4 text-center hover:border-amber-400 transition-colors hover:shadow-md">
+                <div className="text-3xl mb-2 inline-block px-3 py-2 bg-slate-50 rounded-lg">{tool.name[0]}</div>
+                <h3 className="font-semibold text-slate-900 text-sm mb-1">{tool.name}</h3>
+                <p className="text-xs text-slate-500">{tool.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* What Makes Us Different */}
+      <section className="border-b border-slate-200 bg-slate-50">
+        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-serif text-slate-900 mb-4">Why AutoLearn Spot Stands Out</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">We focus on what truly matters for your success</p>
+          </div>
+          
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: '⚡',
+                title: '100% Practical',
+                desc: 'Every session produces production-ready workflows you can deploy immediately'
+              },
+              {
+                icon: '🤖',
+                title: 'AI-Powered First',
+                desc: 'Learn ChatGPT integration and AI automation from day one'
+              },
+              {
+                icon: '🚀',
+                title: 'Deploy to Production',
+                desc: 'Deploy your automations live with Railway in Week 3'
+              },
+              {
+                icon: '🎓',
+                title: 'Certified by MSN',
+                desc: 'Earn a recognized certificate from Moon Space Network'
+              },
+            ].map((item, i) => (
+              <div key={i} className="bg-white rounded-lg border border-slate-200 p-6 text-center">
+                <div className="text-4xl mb-4">{item.icon}</div>
+                <h3 className="font-semibold text-slate-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-slate-600">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Live Workflows */}
       <section id="how-it-works" className="border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
@@ -318,6 +389,124 @@ export default function Page() {
                 />
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Instructor Section */}
+      <section className="border-b border-slate-200">
+        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+            <div>
+              <h2 className="text-3xl font-serif text-slate-900 mb-4">Meet Your Instructor</h2>
+              <p className="text-slate-600 mb-6">
+                I&apos;m Femi Adeleke, an automation engineer and educator passionate about making n8n and workflow automation accessible to everyone. With years of experience building production automations, I&apos;ve trained hundreds of learners to go from zero to building deployed workflows.
+              </p>
+              <p className="text-slate-600 mb-6">
+                AutoLearn Spot was created because I saw a gap in practical, hands-on automation training. Most courses teach theory. I teach you how to build real workflows that solve actual business problems.
+              </p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-600 font-bold mt-1">✓</span>
+                  <div>
+                    <p className="font-semibold text-slate-900">1000+ Automations Built</p>
+                    <p className="text-sm text-slate-600">Production workflows across various industries</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-600 font-bold mt-1">✓</span>
+                  <div>
+                    <p className="font-semibold text-slate-900">500+ Learners Trained</p>
+                    <p className="text-sm text-slate-600">From complete beginners to advanced builders</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-600 font-bold mt-1">✓</span>
+                  <div>
+                    <p className="font-semibold text-slate-900">Certified by Moon Space Network</p>
+                    <p className="text-sm text-slate-600">Our certificate is recognized and trusted</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <Image
+                src="/femi-headshot.webp"
+                alt="Femi Adeleke - Instructor"
+                width={350}
+                height={450}
+                className="w-full max-w-sm h-auto rounded-lg shadow-lg"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="border-b border-slate-200">
+        <div className="mx-auto max-w-3xl px-6 py-20 sm:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-serif text-slate-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-600">Got questions? We&apos;ve got answers. Can&apos;t find what you&apos;re looking for? Reach out on WhatsApp.</p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                q: 'Do I need coding experience?',
+                a: 'No, absolutely not. AutoLearn Spot is 100% beginner-friendly. We teach n8n visually with no coding required. Many of our learners had zero technical background before joining.'
+              },
+              {
+                q: 'What if I miss a session?',
+                a: 'All sessions are recorded and available to access anytime. You can watch at your own pace, though we recommend keeping up with the live sessions for Q&A and community interaction.'
+              },
+              {
+                q: 'Is the certificate recognized?',
+                a: 'Yes. Our certificate is issued by Moon Space Network, a trusted organization in the tech community. You can display it on LinkedIn and your professional profiles.'
+              },
+              {
+                q: 'What payment methods do you accept?',
+                a: 'We use Paystack for secure payments. You can pay with your card (Visa, Mastercard), bank transfer, or USSD. All transactions are secure and encrypted.'
+              },
+              {
+                q: 'Can I get a refund?',
+                a: 'We stand behind our training. If you&apos;re not satisfied within the first 3 days, we offer a full refund. No questions asked.'
+              },
+              {
+                q: 'How long do I have access?',
+                a: 'You get lifetime access to all course materials, recorded sessions, and resources. You can revisit any content anytime.'
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="border border-slate-200 rounded-lg overflow-hidden hover:border-slate-300 transition-colors"
+              >
+                <button
+                  onClick={() => setExpandedFAQ(expandedFAQ === i ? null : i)}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                >
+                  <h3 className="font-semibold text-slate-900">{item.q}</h3>
+                  <span className={`text-amber-600 transition-transform duration-300 ${expandedFAQ === i ? 'rotate-180' : ''}`}>
+                    ⌄
+                  </span>
+                </button>
+                {expandedFAQ === i && (
+                  <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
+                    <p className="text-slate-600 text-sm leading-relaxed">{item.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center p-6 rounded-lg bg-slate-50 border border-slate-200">
+            <p className="text-slate-600 mb-4">Still have questions?</p>
+            <button
+              onClick={() => setShowWhatsAppModal(true)}
+              className="inline-block px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
+            >
+              Chat with us on WhatsApp
+            </button>
           </div>
         </div>
       </section>
