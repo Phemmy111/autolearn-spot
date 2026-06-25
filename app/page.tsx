@@ -163,63 +163,67 @@ export default function Page() {
             <div className="flex justify-center">
               <div className="relative w-full max-w-lg">
                 <style>{`
-                  @keyframes flowPulse {
-                    0% {
-                      box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.3), 0 0 30px rgba(245, 158, 11, 0.2);
+                  @keyframes nodeShake {
+                    0%, 100% {
+                      transform: scale(1) translate(0, 0);
+                      filter: drop-shadow(0 0 0px rgba(34, 197, 94, 0.5));
                     }
                     50% {
-                      box-shadow: inset 0 0 40px rgba(34, 197, 94, 0.5), 0 0 50px rgba(245, 158, 11, 0.4);
-                    }
-                    100% {
-                      box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.3), 0 0 30px rgba(245, 158, 11, 0.2);
+                      transform: scale(1.15) translate(2px, -2px);
+                      filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.9));
                     }
                   }
                   
-                  @keyframes nodeFlow {
+                  @keyframes pulseGlow {
                     0%, 100% {
-                      opacity: 0;
-                      transform: translateX(-100%);
+                      filter: brightness(1);
                     }
-                    25% {
-                      opacity: 1;
-                    }
-                    75% {
-                      opacity: 1;
+                    50% {
+                      filter: brightness(1.2);
                     }
                   }
                   
-                  .n8n-container {
-                    animation: flowPulse 3s ease-in-out infinite;
+                  .n8n-workflow {
+                    position: relative;
+                    animation: pulseGlow 4s ease-in-out infinite;
                   }
                   
-                  .flow-indicator {
+                  .node-animation {
                     position: absolute;
-                    width: 8px;
-                    height: 8px;
-                    background: radial-gradient(circle, #22c55e 0%, rgba(34, 197, 94, 0.5) 100%);
-                    border-radius: 50%;
-                    animation: nodeFlow 2s ease-in-out infinite;
-                    box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 8px;
+                    background: rgba(34, 197, 94, 0.8);
+                    border: 2px solid #22c55e;
+                    animation: nodeShake 0.6s ease-in-out;
                   }
                   
-                  .flow-1 { top: 25%; left: 10%; animation-delay: 0s; }
-                  .flow-2 { top: 45%; left: 35%; animation-delay: 0.5s; }
-                  .flow-3 { top: 35%; left: 60%; animation-delay: 1s; }
-                  .flow-4 { top: 55%; left: 80%; animation-delay: 1.5s; }
+                  .node-1 { top: 15%; left: 8%; animation-delay: 0s; }
+                  .node-2 { top: 35%; left: 22%; animation-delay: 0.7s; }
+                  .node-3 { top: 25%; left: 36%; animation-delay: 1.4s; }
+                  .node-4 { top: 50%; left: 48%; animation-delay: 2.1s; }
+                  .node-5 { top: 20%; left: 60%; animation-delay: 2.8s; }
+                  .node-6 { top: 55%; left: 72%; animation-delay: 3.5s; }
+                  .node-7 { top: 35%; left: 82%; animation-delay: 4.2s; }
+                  .node-8 { top: 60%; left: 88%; animation-delay: 4.9s; }
                 `}</style>
-                <div className="n8n-container relative">
+                <div className="n8n-workflow relative">
                   <Image
                     src="/n8n-mockup.png"
-                    alt="n8n Workflow Automation Interface"
+                    alt="n8n Workflow Automation with Multiple Nodes"
                     width={600}
                     height={400}
                     className="w-full h-auto rounded-lg shadow-lg border border-slate-200"
                     priority
                   />
-                  <div className="flow-indicator flow-1" />
-                  <div className="flow-indicator flow-2" />
-                  <div className="flow-indicator flow-3" />
-                  <div className="flow-indicator flow-4" />
+                  <div className="node-animation node-1" />
+                  <div className="node-animation node-2" />
+                  <div className="node-animation node-3" />
+                  <div className="node-animation node-4" />
+                  <div className="node-animation node-5" />
+                  <div className="node-animation node-6" />
+                  <div className="node-animation node-7" />
+                  <div className="node-animation node-8" />
                 </div>
               </div>
             </div>
