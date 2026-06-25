@@ -7,12 +7,17 @@ import { useState, useEffect } from 'react'
 export default function Page() {
   const [activeWorkflow, setActiveWorkflow] = useState(0)
 
-  const whatsappNumber = '2348160518519'
-  const whatsappMessage = 'Hi! I&apos;m interested in learning more about AutoLearn n8n training.'
+  const whatsappNumber = '2348120934828'
+  const whatsappCommunity = 'https://chat.whatsapp.com/FqgDAgL34Wq6tyPkT3nZ20'
+  const programPrice = '₦3,000'
 
-  const handleWhatsAppClick = () => {
-    const encodedMessage = encodeURIComponent(whatsappMessage)
+  const handleWhatsAppClick = (message) => {
+    const encodedMessage = encodeURIComponent(message)
     window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank')
+  }
+
+  const openWhatsAppOptions = () => {
+    handleWhatsAppClick('Hi Femi! I am interested in AutoLearn Spot. How do I register?')
   }
 
   const workflows = [
@@ -59,7 +64,7 @@ export default function Page() {
               <a href="#how-it-works" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                 How It Works
               </a>
-              <Button className="bg-amber-600 hover:bg-amber-700" onClick={handleWhatsAppClick}>Get Started</Button>
+              <Button className="bg-amber-600 hover:bg-amber-700" onClick={openWhatsAppOptions}>Get Started</Button>
             </div>
           </div>
         </div>
@@ -77,7 +82,7 @@ export default function Page() {
                 Master workflow automation through practical, hands-on training. Build real n8n automations that solve actual business problems.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={handleWhatsAppClick}>
+                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={openWhatsAppOptions}>
                   Start Learning Today
                 </Button>
                 <Button 
@@ -180,7 +185,7 @@ export default function Page() {
             {[
               { icon: '📅', label: 'Schedule', text: 'Mon/Wed/Fri, 30 mins each' },
               { icon: '🎓', label: 'Certificate', text: 'Issued by Moon Space Network' },
-              { icon: '👥', label: 'For Everyone', text: 'No coding experience needed' },
+              { icon: '💰', label: 'Investment', text: programPrice + ' - All Inclusive' },
             ].map((info, i) => (
               <div key={i} className="rounded-lg border border-slate-200 p-6 text-center">
                 <div className="text-3xl mb-3">{info.icon}</div>
@@ -259,7 +264,7 @@ export default function Page() {
           <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
             Join our comprehensive training program and learn to build powerful automations that drive real business results.
           </p>
-          <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={handleWhatsAppClick}>
+          <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={openWhatsAppOptions}>
             Enroll Now
           </Button>
         </div>
@@ -281,7 +286,7 @@ export default function Page() {
 
       {/* Floating WhatsApp Icon */}
       <button
-        onClick={handleWhatsAppClick}
+        onClick={openWhatsAppOptions}
         className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 hover:scale-110 z-50"
         aria-label="Contact us on WhatsApp"
         title="Chat with us on WhatsApp"
