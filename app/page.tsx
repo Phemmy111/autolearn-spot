@@ -50,7 +50,7 @@ export default function Page() {
             <div className="flex justify-center">
               <div className="relative w-full max-w-sm">
                 <Image
-                  src="/femi-headshot.png"
+                  src="/femi-headshot.webp"
                   alt="Femi Adeleke - Automation Trainer"
                   width={400}
                   height={500}
