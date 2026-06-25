@@ -10,11 +10,16 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'AutoLearn - Master n8n Automation',
-  description: 'Learn practical n8n workflow automation through hands-on training. Build real automations that solve actual business problems.',
+  metadataBase: new URL('https://autolearn-spot.vercel.app'),
+  title: 'AutoLearn Spot – Master n8n & AI Automation',
+  description: 'Learn practical n8n automation through hands-on projects. Build AI automations, Telegram bots, WhatsApp bots, APIs, and real business workflows.',
   generator: 'v0.app',
   icons: {
     icon: [
+      {
+        url: '/favicon.ico',
+        sizes: 'any',
+      },
       {
         url: '/icon-light-32x32.png',
         media: '(prefers-color-scheme: light)',
@@ -29,6 +34,25 @@ export const metadata: Metadata = {
       },
     ],
     apple: '/apple-icon.png',
+  },
+  openGraph: {
+    title: 'AutoLearn Spot – Master n8n & AI Automation',
+    description: 'Learn practical n8n automation through hands-on projects. Build AI automations, Telegram bots, WhatsApp bots, APIs, and real business workflows.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'AutoLearn Spot – Master n8n & AI Automation',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AutoLearn Spot – Master n8n & AI Automation',
+    description: 'Learn practical n8n automation through hands-on projects. Build AI automations, Telegram bots, WhatsApp bots, APIs, and real business workflows.',
+    images: ['/og-image.png'],
   },
 }
 
