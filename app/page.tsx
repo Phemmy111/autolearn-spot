@@ -200,223 +200,96 @@ export default function Page() {
               </div>
             </div>
             <div className="flex justify-center w-full">
-              <div className="w-full max-w-2xl">
+              <div className="w-full max-w-lg">
                 <style>{`
                   @keyframes nodeActive {
-                    0% {
+                    0%, 100% {
                       transform: scale(1);
-                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.4);
+                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.5);
                     }
                     50% {
-                      transform: scale(1.1);
-                      box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), inset 0 0 10px rgba(34, 197, 94, 0.6);
-                    }
-                    100% {
-                      transform: scale(1);
-                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.4);
-                    }
-                  }
-                  
-                  @keyframes lineFlow {
-                    0% {
-                      stroke-dashoffset: 1000;
-                      opacity: 0;
-                    }
-                    25% {
-                      opacity: 1;
-                    }
-                    75% {
-                      opacity: 1;
-                    }
-                    100% {
-                      stroke-dashoffset: 0;
-                      opacity: 0;
+                      transform: scale(1.15);
+                      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
                     }
                   }
                   
                   .workflow-container {
-                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
-                    border: 1px solid rgba(34, 197, 94, 0.3);
-                    border-radius: 8px;
-                    padding: 16px 12px;
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(34, 197, 94, 0.4);
+                    border-radius: 6px;
+                    padding: 12px;
                     position: relative;
-                    overflow: hidden;
+                    width: fit-content;
+                    margin: 0 auto;
                   }
                   
-                  .workflow-svg {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    z-index: 0;
-                  }
-                  
-                  .nodes-container {
+                  .workflow-content {
                     display: flex;
-                    flex-wrap: wrap;
-                    gap: 8px;
-                    position: relative;
-                    z-index: 1;
-                    justify-content: center;
+                    flex-direction: column;
+                    gap: 10px;
                   }
                   
-                  .workflow-row {
+                  .main-flow {
                     display: flex;
-                    gap: 8px;
+                    gap: 4px;
+                    align-items: center;
                     justify-content: center;
-                    width: 100%;
                     flex-wrap: wrap;
                   }
                   
-                  .branch-row {
+                  .branch-flow {
                     display: flex;
-                    gap: 6px;
+                    gap: 3px;
+                    align-items: center;
                     justify-content: center;
-                    width: 100%;
                     flex-wrap: wrap;
-                    margin-top: 4px;
                   }
                   
                   .workflow-node {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 4px;
-                    padding: 8px 6px;
-                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.08) 100%);
-                    border: 1.5px solid rgba(34, 197, 94, 0.6);
-                    border-radius: 6px;
-                    position: relative;
-                    backdrop-filter: blur(8px);
-                    transition: all 0.3s ease;
-                  }
-                  
-                  .workflow-node.active {
-                    animation: nodeActive 0.8s ease-in-out;
-                    border-color: #22c55e;
-                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.4) 0%, rgba(34, 197, 94, 0.15) 100%);
-                  }
-                  
-                  .node-icon {
-                    font-size: 24px;
-                    line-height: 1;
-                    width: 28px;
-                    height: 28px;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.1));
+                    border: 1.5px solid rgba(34, 197, 94, 0.7);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: rgba(34, 197, 94, 0.15);
-                    border-radius: 4px;
-                    font-weight: bold;
+                    font-size: 18px;
+                    transition: all 0.2s ease;
+                    flex-shrink: 0;
                   }
                   
-                  .node-label {
-                    font-size: 9px;
-                    font-weight: 600;
-                    color: #94a3b8;
-                    text-align: center;
-                    text-transform: uppercase;
-                    letter-spacing: 0.3px;
-                    line-height: 1.1;
+                  .workflow-node.active {
+                    animation: nodeActive 0.7s ease-in-out;
+                    border-color: #22c55e;
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.5), rgba(34, 197, 94, 0.2));
                   }
                   
-                  .node-active .node-label {
-                    color: #22c55e;
-                  }
-                  
-                  .flow-line {
-                    stroke: #22c55e;
-                    stroke-width: 2;
-                    fill: none;
-                    stroke-dasharray: 1000;
-                    stroke-linecap: round;
-                  }
-                  
-                  .flow-line.active {
-                    animation: lineFlow 1s ease-in-out;
+                  .branch-node {
+                    width: 32px;
+                    height: 32px;
+                    font-size: 14px;
                   }
                 `}</style>
                 
                 <div className="workflow-container">
-                  <svg className="workflow-svg" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid meet">
-                    <defs>
-                      <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                        <polygon points="0 0, 10 3, 0 6" fill="rgba(34, 197, 94, 0.6)" />
-                      </marker>
-                    </defs>
-                    <line x1="120" y1="80" x2="200" y2="80" className="flow-line" strokeDasharray="1000" />
-                    <line x1="250" y1="80" x2="330" y2="80" className="flow-line" strokeDasharray="1000" />
-                    <line x1="380" y1="80" x2="460" y2="80" className="flow-line" strokeDasharray="1000" />
-                    <line x1="510" y1="80" x2="550" y2="140" className="flow-line" strokeDasharray="1000" />
-                    <line x1="510" y1="80" x2="550" y2="40" className="flow-line" strokeDasharray="1000" />
-                    <line x1="600" y1="40" x2="680" y2="40" className="flow-line" strokeDasharray="1000" />
-                    <line x1="600" y1="140" x2="680" y2="140" className="flow-line" strokeDasharray="1000" />
-                    <line x1="730" y1="40" x2="810" y2="80" className="flow-line" strokeDasharray="1000" />
-                    <line x1="730" y1="140" x2="810" y2="80" className="flow-line" strokeDasharray="1000" />
-                    <line x1="860" y1="80" x2="940" y2="80" className="flow-line" strokeDasharray="1000" />
-                    <line x1="990" y1="80" x2="1070" y2="80" className="flow-line" strokeDasharray="1000" />
-                  </svg>
-                  
-                  <div className="nodes-container">
-                    {/* Main flow row */}
-                    <div className="workflow-row">
-                      <div className="workflow-node" id="node-1" style={{ minWidth: '56px' }}>
-                        <div className="node-icon">💬</div>
-                        <div className="node-label">Listen</div>
-                      </div>
-                      <div className="workflow-node" id="node-2" style={{ minWidth: '56px' }}>
-                        <div className="node-icon">🎤</div>
-                        <div className="node-label">Voice</div>
-                      </div>
-                      <div className="workflow-node" id="node-3" style={{ minWidth: '56px' }}>
-                        <div className="node-icon">❓</div>
-                        <div className="node-label">If</div>
-                      </div>
-                      <div className="workflow-node" id="node-4" style={{ minWidth: '56px' }}>
-                        <div className="node-icon">📥</div>
-                        <div className="node-label">Get</div>
-                      </div>
-                      <div className="workflow-node" id="node-5" style={{ minWidth: '56px' }}>
-                        <div className="node-icon">🎙️</div>
-                        <div className="node-label">Trans</div>
-                      </div>
-                      <div className="workflow-node" id="node-6" style={{ minWidth: '56px' }}>
-                        <div className="node-icon">🤖</div>
-                        <div className="node-label">AI</div>
-                      </div>
-                      <div className="workflow-node" id="node-7" style={{ minWidth: '56px' }}>
-                        <div className="node-icon">✈️</div>
-                        <div className="node-label">TG</div>
-                      </div>
+                  <div className="workflow-content">
+                    <div className="main-flow">
+                      <div className="workflow-node" id="node-1">💬</div>
+                      <div className="workflow-node" id="node-2">🎤</div>
+                      <div className="workflow-node" id="node-3">❓</div>
+                      <div className="workflow-node" id="node-4">📥</div>
+                      <div className="workflow-node" id="node-5">🎙️</div>
+                      <div className="workflow-node" id="node-6">🤖</div>
+                      <div className="workflow-node" id="node-7">✈️</div>
                     </div>
-
-                    {/* Branching outputs row */}
-                    <div className="branch-row">
-                      <div className="workflow-node" id="node-8" style={{ minWidth: '48px' }}>
-                        <div className="node-icon">🔀</div>
-                        <div className="node-label">Router</div>
-                      </div>
-                      <div className="workflow-node" id="node-9" style={{ minWidth: '48px' }}>
-                        <div className="node-icon">🧠</div>
-                        <div className="node-label">Mem</div>
-                      </div>
-                      <div className="workflow-node" id="node-10" style={{ minWidth: '48px' }}>
-                        <div className="node-icon">✅</div>
-                        <div className="node-label">Task</div>
-                      </div>
-                      <div className="workflow-node" id="node-11" style={{ minWidth: '48px' }}>
-                        <div className="node-icon">📋</div>
-                        <div className="node-label">Gets</div>
-                      </div>
-                      <div className="workflow-node" id="node-12" style={{ minWidth: '48px' }}>
-                        <div className="node-icon">✉️</div>
-                        <div className="node-label">Email</div>
-                      </div>
-                      <div className="workflow-node" id="node-13" style={{ minWidth: '48px' }}>
-                        <div className="node-icon">📅</div>
-                        <div className="node-label">Cal</div>
-                      </div>
+                    <div className="branch-flow">
+                      <div className="workflow-node branch-node" id="node-8">🔀</div>
+                      <div className="workflow-node branch-node" id="node-9">🧠</div>
+                      <div className="workflow-node branch-node" id="node-10">✅</div>
+                      <div className="workflow-node branch-node" id="node-11">📋</div>
+                      <div className="workflow-node branch-node" id="node-12">✉️</div>
+                      <div className="workflow-node branch-node" id="node-13">📅</div>
                     </div>
                   </div>
                 </div>
