@@ -6,18 +6,28 @@ import { useState, useEffect } from 'react'
 
 export default function Page() {
   const [activeWorkflow, setActiveWorkflow] = useState(0)
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
 
   const whatsappNumber = '2348120934828'
   const whatsappCommunity = 'https://chat.whatsapp.com/FqgDAgL34Wq6tyPkT3nZ20'
   const programPrice = '₦3,000'
 
-  const handleWhatsAppClick = (message) => {
+  const messages = [
+    { icon: '💬', text: 'I want to register', msg: 'Hi Femi! I am interested in AutoLearn Spot. How do I register?' },
+    { icon: '📅', text: 'When does it start?', msg: 'Hi Femi! When does the next AutoLearn Spot cohort begin?' },
+    { icon: '🤔', text: 'I have a question', msg: 'Hi Femi! I have a question about AutoLearn Spot.' },
+    { icon: '💰', text: 'Payment help', msg: 'Hi Femi! I need help completing my payment for AutoLearn Spot.' },
+  ]
+
+  const sendWhatsApp = (message) => {
     const encodedMessage = encodeURIComponent(message)
     window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank')
+    setShowWhatsAppModal(false)
   }
 
-  const openWhatsAppOptions = () => {
-    handleWhatsAppClick('Hi Femi! I am interested in AutoLearn Spot. How do I register?')
+  const joinCommunity = () => {
+    window.open(whatsappCommunity, '_blank')
+    setShowWhatsAppModal(false)
   }
 
   const workflows = [
@@ -64,7 +74,7 @@ export default function Page() {
               <a href="#how-it-works" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                 How It Works
               </a>
-              <Button className="bg-amber-600 hover:bg-amber-700" onClick={openWhatsAppOptions}>Get Started</Button>
+              <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => setShowWhatsAppModal(true)}>Get Started</Button>
             </div>
           </div>
         </div>
@@ -82,7 +92,7 @@ export default function Page() {
                 Master workflow automation through practical, hands-on training. Build real n8n automations that solve actual business problems.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={openWhatsAppOptions}>
+                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowWhatsAppModal(true)}>
                   Start Learning Today
                 </Button>
                 <Button 
@@ -264,7 +274,7 @@ export default function Page() {
           <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
             Join our comprehensive training program and learn to build powerful automations that drive real business results.
           </p>
-          <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={openWhatsAppOptions}>
+          <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowWhatsAppModal(true)}>
             Enroll Now
           </Button>
         </div>
@@ -286,19 +296,74 @@ export default function Page() {
 
       {/* Floating WhatsApp Icon */}
       <button
-        onClick={openWhatsAppOptions}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg flex items-center justify-center text-white transition-all duration-300 hover:scale-110 z-50"
-        aria-label="Contact us on WhatsApp"
+        onClick={() => setShowWhatsAppModal(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg flex items-center justify-center text-white text-2xl transition-all duration-300 hover:scale-110 z-50"
+        aria-label="Chat with us on WhatsApp"
         title="Chat with us on WhatsApp"
       >
-        <svg
-          className="w-7 h-7"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.798c0 2.734.743 5.404 2.153 7.718L2.854 23.75l8.132-2.135a9.847 9.847 0 004.736 1.204h.004c5.425 0 9.85-4.418 9.85-9.85 0-2.631-.997-5.109-2.81-6.977A9.833 9.833 0 0011.586 2.979zm7.607 12.614c-.265.593-1.043.967-1.796 1.087-.601.09-1.386.159-3.957-.839-3.529-1.432-5.798-5.005-5.973-5.235-.174-.23-1.422-1.897-1.422-3.615 0-1.719.9-2.563 1.22-2.915.272-.297.594-.371.84-.371.211 0 .42.009.601.015.19.006.474-.071.743.565.281.671.941 2.3.024 3.852-.217.408-.521.734-.95.734-.21 0-.42-.065-.616-.2-1.119-.743-2.17-1.903-2.17-3.793 0-2.134 1.382-4.025 3.535-4.025 1.922 0 3.598 1.385 3.973 3.246.529 2.582-.3 5.335-2.126 6.514z" />
-        </svg>
+        💬
       </button>
+
+      {/* WhatsApp Modal */}
+      {showWhatsAppModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowWhatsAppModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowWhatsAppModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl"
+            >
+              ✕
+            </button>
+
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="text-5xl mb-3">💬</div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Chat with Femi</h2>
+              <p className="text-slate-600 text-sm">Pick a message — opens WhatsApp instantly</p>
+            </div>
+
+            {/* Message Options */}
+            <div className="space-y-3 mb-6">
+              {messages.map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => sendWhatsApp(item.msg)}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-green-50 border border-slate-200 hover:border-green-400 transition-colors text-left group"
+                >
+                  <span className="text-2xl">{item.icon}</span>
+                  <span className="text-slate-900 font-medium group-hover:text-green-600">{item.text}</span>
+                  <span className="ml-auto text-slate-400 group-hover:text-green-600">→</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex-1 h-px bg-slate-200"></div>
+              <span className="text-slate-500 text-sm">or</span>
+              <div className="flex-1 h-px bg-slate-200"></div>
+            </div>
+
+            {/* Join Community */}
+            <button
+              onClick={joinCommunity}
+              className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors mb-3"
+            >
+              <span>👥</span> Join WhatsApp Community
+            </button>
+
+            {/* Note */}
+            <p className="text-center text-slate-500 text-xs">Usually replies within a few hours</p>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
