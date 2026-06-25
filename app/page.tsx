@@ -235,10 +235,10 @@ export default function Page() {
                   }
                   
                   .workflow-container {
-                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 41, 59, 0.5) 100%);
-                    border: 2px solid rgba(148, 163, 184, 0.2);
-                    border-radius: 12px;
-                    padding: 40px 20px;
+                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+                    border: 1px solid rgba(34, 197, 94, 0.3);
+                    border-radius: 8px;
+                    padding: 16px 12px;
                     position: relative;
                     overflow: hidden;
                   }
@@ -255,7 +255,7 @@ export default function Page() {
                   .nodes-container {
                     display: flex;
                     flex-wrap: wrap;
-                    gap: 16px;
+                    gap: 8px;
                     position: relative;
                     z-index: 1;
                     justify-content: center;
@@ -263,7 +263,7 @@ export default function Page() {
                   
                   .workflow-row {
                     display: flex;
-                    gap: 16px;
+                    gap: 8px;
                     justify-content: center;
                     width: 100%;
                     flex-wrap: wrap;
@@ -271,44 +271,54 @@ export default function Page() {
                   
                   .branch-row {
                     display: flex;
-                    gap: 12px;
+                    gap: 6px;
                     justify-content: center;
                     width: 100%;
                     flex-wrap: wrap;
+                    margin-top: 4px;
                   }
                   
                   .workflow-node {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 8px;
-                    padding: 16px 12px;
-                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
-                    border: 2px solid rgba(34, 197, 94, 0.5);
-                    border-radius: 8px;
+                    gap: 4px;
+                    padding: 8px 6px;
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.08) 100%);
+                    border: 1.5px solid rgba(34, 197, 94, 0.6);
+                    border-radius: 6px;
                     position: relative;
-                    backdrop-filter: blur(10px);
+                    backdrop-filter: blur(8px);
                     transition: all 0.3s ease;
                   }
                   
                   .workflow-node.active {
                     animation: nodeActive 0.8s ease-in-out;
                     border-color: #22c55e;
-                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%);
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.4) 0%, rgba(34, 197, 94, 0.15) 100%);
                   }
                   
                   .node-icon {
-                    font-size: 32px;
+                    font-size: 24px;
                     line-height: 1;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(34, 197, 94, 0.15);
+                    border-radius: 4px;
+                    font-weight: bold;
                   }
                   
                   .node-label {
-                    font-size: 11px;
+                    font-size: 9px;
                     font-weight: 600;
-                    color: #64748b;
+                    color: #94a3b8;
                     text-align: center;
                     text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.3px;
+                    line-height: 1.1;
                   }
                   
                   .node-active .node-label {
@@ -351,61 +361,61 @@ export default function Page() {
                   <div className="nodes-container">
                     {/* Main flow row */}
                     <div className="workflow-row">
-                      <div className="workflow-node" id="node-1" style={{ minWidth: '90px' }}>
+                      <div className="workflow-node" id="node-1" style={{ minWidth: '56px' }}>
                         <div className="node-icon">💬</div>
-                        <div className="node-label">Listen Msg</div>
+                        <div className="node-label">Listen</div>
                       </div>
-                      <div className="workflow-node" id="node-2" style={{ minWidth: '90px' }}>
+                      <div className="workflow-node" id="node-2" style={{ minWidth: '56px' }}>
                         <div className="node-icon">🎤</div>
-                        <div className="node-label">Voice/Text</div>
+                        <div className="node-label">Voice</div>
                       </div>
-                      <div className="workflow-node" id="node-3" style={{ minWidth: '90px' }}>
+                      <div className="workflow-node" id="node-3" style={{ minWidth: '56px' }}>
                         <div className="node-icon">❓</div>
-                        <div className="node-label">If Check</div>
+                        <div className="node-label">If</div>
                       </div>
-                      <div className="workflow-node" id="node-4" style={{ minWidth: '90px' }}>
+                      <div className="workflow-node" id="node-4" style={{ minWidth: '56px' }}>
                         <div className="node-icon">📥</div>
-                        <div className="node-label">Get Voice</div>
+                        <div className="node-label">Get</div>
                       </div>
-                      <div className="workflow-node" id="node-5" style={{ minWidth: '90px' }}>
+                      <div className="workflow-node" id="node-5" style={{ minWidth: '56px' }}>
                         <div className="node-icon">🎙️</div>
-                        <div className="node-label">Transcribe</div>
+                        <div className="node-label">Trans</div>
                       </div>
-                      <div className="workflow-node" id="node-6" style={{ minWidth: '90px' }}>
+                      <div className="workflow-node" id="node-6" style={{ minWidth: '56px' }}>
                         <div className="node-icon">🤖</div>
-                        <div className="node-label">Jackie AI</div>
+                        <div className="node-label">AI</div>
                       </div>
-                      <div className="workflow-node" id="node-7" style={{ minWidth: '90px' }}>
+                      <div className="workflow-node" id="node-7" style={{ minWidth: '56px' }}>
                         <div className="node-icon">✈️</div>
-                        <div className="node-label">Telegram</div>
+                        <div className="node-label">TG</div>
                       </div>
                     </div>
 
                     {/* Branching outputs row */}
                     <div className="branch-row">
-                      <div className="workflow-node" id="node-8" style={{ minWidth: '75px', fontSize: '12px' }}>
+                      <div className="workflow-node" id="node-8" style={{ minWidth: '48px' }}>
                         <div className="node-icon">🔀</div>
                         <div className="node-label">Router</div>
                       </div>
-                      <div className="workflow-node" id="node-9" style={{ minWidth: '75px', fontSize: '12px' }}>
+                      <div className="workflow-node" id="node-9" style={{ minWidth: '48px' }}>
                         <div className="node-icon">🧠</div>
-                        <div className="node-label">Memory</div>
+                        <div className="node-label">Mem</div>
                       </div>
-                      <div className="workflow-node" id="node-10" style={{ minWidth: '75px', fontSize: '12px' }}>
+                      <div className="workflow-node" id="node-10" style={{ minWidth: '48px' }}>
                         <div className="node-icon">✅</div>
                         <div className="node-label">Task</div>
                       </div>
-                      <div className="workflow-node" id="node-11" style={{ minWidth: '75px', fontSize: '12px' }}>
+                      <div className="workflow-node" id="node-11" style={{ minWidth: '48px' }}>
                         <div className="node-icon">📋</div>
-                        <div className="node-label">Get Tasks</div>
+                        <div className="node-label">Gets</div>
                       </div>
-                      <div className="workflow-node" id="node-12" style={{ minWidth: '75px', fontSize: '12px' }}>
+                      <div className="workflow-node" id="node-12" style={{ minWidth: '48px' }}>
                         <div className="node-icon">✉️</div>
                         <div className="node-label">Email</div>
                       </div>
-                      <div className="workflow-node" id="node-13" style={{ minWidth: '75px', fontSize: '12px' }}>
+                      <div className="workflow-node" id="node-13" style={{ minWidth: '48px' }}>
                         <div className="node-icon">📅</div>
-                        <div className="node-label">Calendar</div>
+                        <div className="node-label">Cal</div>
                       </div>
                     </div>
                   </div>
