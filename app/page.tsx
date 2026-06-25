@@ -116,6 +116,48 @@ export default function Page() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    const nodeSequence = [
+      'node-webhook',
+      'node-parse',
+      'node-validate',
+      'node-ai',
+      'node-email',
+      'node-message',
+      'node-db',
+      'node-log',
+      'node-notify'
+    ]
+    
+    const animateWorkflow = () => {
+      nodeSequence.forEach((nodeId, index) => {
+        setTimeout(() => {
+          const element = document.getElementById(nodeId)
+          if (element) {
+            element.classList.add('active')
+            setTimeout(() => {
+              element.classList.remove('active')
+            }, 800)
+          }
+          
+          const flowLines = document.querySelectorAll('.flow-line')
+          if (index < flowLines.length) {
+            const line = flowLines[index]
+            line.classList.add('active')
+            setTimeout(() => {
+              line.classList.remove('active')
+            }, 1000)
+          }
+        }, index * 700)
+      })
+    }
+    
+    animateWorkflow()
+    const interval = setInterval(animateWorkflow, 7500)
+    
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <main className="bg-white text-slate-900">
       {/* Navigation */}
@@ -160,70 +202,176 @@ export default function Page() {
                 </Button>
               </div>
             </div>
-            <div className="flex justify-center">
-              <div className="relative w-full max-w-lg">
+            <div className="flex justify-center w-full">
+              <div className="w-full max-w-2xl">
                 <style>{`
-                  @keyframes nodeShake {
-                    0%, 100% {
-                      transform: scale(1) translate(0, 0);
-                      filter: drop-shadow(0 0 0px rgba(34, 197, 94, 0.5));
+                  @keyframes nodeActive {
+                    0% {
+                      transform: scale(1);
+                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.4);
                     }
                     50% {
-                      transform: scale(1.15) translate(2px, -2px);
-                      filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.9));
+                      transform: scale(1.1);
+                      box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), inset 0 0 10px rgba(34, 197, 94, 0.6);
+                    }
+                    100% {
+                      transform: scale(1);
+                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.4);
                     }
                   }
                   
-                  @keyframes pulseGlow {
-                    0%, 100% {
-                      filter: brightness(1);
+                  @keyframes lineFlow {
+                    0% {
+                      stroke-dashoffset: 1000;
+                      opacity: 0;
                     }
-                    50% {
-                      filter: brightness(1.2);
+                    25% {
+                      opacity: 1;
+                    }
+                    75% {
+                      opacity: 1;
+                    }
+                    100% {
+                      stroke-dashoffset: 0;
+                      opacity: 0;
                     }
                   }
                   
-                  .n8n-workflow {
+                  .workflow-container {
+                    background: linear-gradient(135deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 41, 59, 0.5) 100%);
+                    border: 2px solid rgba(148, 163, 184, 0.2);
+                    border-radius: 12px;
+                    padding: 40px 20px;
                     position: relative;
-                    animation: pulseGlow 4s ease-in-out infinite;
+                    overflow: hidden;
                   }
                   
-                  .node-animation {
+                  .workflow-svg {
                     position: absolute;
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 8px;
-                    background: rgba(34, 197, 94, 0.8);
-                    border: 2px solid #22c55e;
-                    animation: nodeShake 0.6s ease-in-out;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    z-index: 0;
                   }
                   
-                  .node-1 { top: 15%; left: 8%; animation-delay: 0s; }
-                  .node-2 { top: 35%; left: 22%; animation-delay: 0.7s; }
-                  .node-3 { top: 25%; left: 36%; animation-delay: 1.4s; }
-                  .node-4 { top: 50%; left: 48%; animation-delay: 2.1s; }
-                  .node-5 { top: 20%; left: 60%; animation-delay: 2.8s; }
-                  .node-6 { top: 55%; left: 72%; animation-delay: 3.5s; }
-                  .node-7 { top: 35%; left: 82%; animation-delay: 4.2s; }
-                  .node-8 { top: 60%; left: 88%; animation-delay: 4.9s; }
+                  .nodes-container {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                    gap: 20px;
+                    position: relative;
+                    z-index: 1;
+                  }
+                  
+                  .workflow-node {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 16px 12px;
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%);
+                    border: 2px solid rgba(34, 197, 94, 0.5);
+                    border-radius: 8px;
+                    position: relative;
+                    backdrop-filter: blur(10px);
+                    transition: all 0.3s ease;
+                  }
+                  
+                  .workflow-node.active {
+                    animation: nodeActive 0.8s ease-in-out;
+                    border-color: #22c55e;
+                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%);
+                  }
+                  
+                  .node-icon {
+                    font-size: 32px;
+                    line-height: 1;
+                  }
+                  
+                  .node-label {
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: #64748b;
+                    text-align: center;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                  }
+                  
+                  .node-active .node-label {
+                    color: #22c55e;
+                  }
+                  
+                  .flow-line {
+                    stroke: #22c55e;
+                    stroke-width: 2;
+                    fill: none;
+                    stroke-dasharray: 1000;
+                    stroke-linecap: round;
+                  }
+                  
+                  .flow-line.active {
+                    animation: lineFlow 1s ease-in-out;
+                  }
                 `}</style>
-                <div className="n8n-workflow relative">
-                  <Image
-                    src="/n8n-mockup.png"
-                    alt="n8n Workflow Automation with Multiple Nodes"
-                    width={600}
-                    height={400}
-                    className="w-full h-auto rounded-lg shadow-lg border border-slate-200"
-                    priority
-                  />
-                  <div className="node-animation node-1" />
-                  <div className="node-animation node-2" />
-                  <div className="node-animation node-3" />
-                  <div className="node-animation node-4" />
-                  <div className="node-animation node-5" />
-                  <div className="node-animation node-6" />
-                  <div className="node-animation node-7" />
-                  <div className="node-animation node-8" />
+                
+                <div className="workflow-container">
+                  <svg className="workflow-svg" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                      <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <polygon points="0 0, 10 3, 0 6" fill="rgba(34, 197, 94, 0.6)" />
+                      </marker>
+                    </defs>
+                    <line x1="120" y1="80" x2="200" y2="80" className="flow-line" strokeDasharray="1000" />
+                    <line x1="250" y1="80" x2="330" y2="80" className="flow-line" strokeDasharray="1000" />
+                    <line x1="380" y1="80" x2="460" y2="80" className="flow-line" strokeDasharray="1000" />
+                    <line x1="510" y1="80" x2="550" y2="140" className="flow-line" strokeDasharray="1000" />
+                    <line x1="510" y1="80" x2="550" y2="40" className="flow-line" strokeDasharray="1000" />
+                    <line x1="600" y1="40" x2="680" y2="40" className="flow-line" strokeDasharray="1000" />
+                    <line x1="600" y1="140" x2="680" y2="140" className="flow-line" strokeDasharray="1000" />
+                    <line x1="730" y1="40" x2="810" y2="80" className="flow-line" strokeDasharray="1000" />
+                    <line x1="730" y1="140" x2="810" y2="80" className="flow-line" strokeDasharray="1000" />
+                    <line x1="860" y1="80" x2="940" y2="80" className="flow-line" strokeDasharray="1000" />
+                    <line x1="990" y1="80" x2="1070" y2="80" className="flow-line" strokeDasharray="1000" />
+                  </svg>
+                  
+                  <div className="nodes-container" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gap: '12px' }}>
+                    <div className="workflow-node" id="node-webhook">
+                      <div className="node-icon">🔗</div>
+                      <div className="node-label">Webhook</div>
+                    </div>
+                    <div className="workflow-node" id="node-parse">
+                      <div className="node-icon">📝</div>
+                      <div className="node-label">Parse Data</div>
+                    </div>
+                    <div className="workflow-node" id="node-validate">
+                      <div className="node-icon">✓</div>
+                      <div className="node-label">Validate</div>
+                    </div>
+                    <div className="workflow-node" id="node-ai">
+                      <div className="node-icon">🤖</div>
+                      <div className="node-label">AI Process</div>
+                    </div>
+                    <div className="workflow-node" id="node-email">
+                      <div className="node-icon">✉️</div>
+                      <div className="node-label">Send Email</div>
+                    </div>
+                    <div className="workflow-node" id="node-message">
+                      <div className="node-icon">💬</div>
+                      <div className="node-label">Send Message</div>
+                    </div>
+                    <div className="workflow-node" id="node-db">
+                      <div className="node-icon">💾</div>
+                      <div className="node-label">Save to DB</div>
+                    </div>
+                    <div className="workflow-node" id="node-log">
+                      <div className="node-icon">📊</div>
+                      <div className="node-label">Log Result</div>
+                    </div>
+                    <div className="workflow-node" id="node-notify">
+                      <div className="node-icon">🔔</div>
+                      <div className="node-label">Notify User</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
