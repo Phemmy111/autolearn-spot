@@ -2,10 +2,40 @@
 
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function Page() {
-  const [activeWorkflow, setActiveWorkflow] = useState('email')
+  const [activeWorkflow, setActiveWorkflow] = useState(0)
+
+  const workflows = [
+    {
+      title: 'Email Responder',
+      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-42-55-750_com.playit.videoplayer-NeXBGsSEq0TAhzDebstVdH4ojDWudU.jpg',
+    },
+    {
+      title: 'Form Submission',
+      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-41-59-581_com.playit.videoplayer-wKF8HBnGTjyg5jtgwF4Dm5ZuLBv0Zq.jpg',
+    },
+    {
+      title: 'Email Responder (Advanced)',
+      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-42-32-051_com.playit.videoplayer-RaIbheFNV5m53K4ycv0bOryZRlrgXF.jpg',
+    },
+    {
+      title: 'AutoLearn Day 4',
+      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-43-28-995_com.playit.videoplayer-Wx9wfXXNVy7rJaPLARxfntNz6gveOw.jpg',
+    },
+    {
+      title: 'AutoLearn Day 3',
+      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-43-55-665_com.playit.videoplayer-kOfEbpPWhJUn7nO40BFoTsUGu6A0sZ.jpg',
+    },
+  ]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveWorkflow((prev) => (prev + 1) % workflows.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <main className="bg-white text-slate-900">
@@ -42,7 +72,11 @@ export default function Page() {
                 <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white">
                   Start Learning Today
                 </Button>
-                <Button size="lg" className="border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100">
+                <Button 
+                  size="lg" 
+                  className="border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100"
+                  onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+                >
                   View Curriculum
                 </Button>
               </div>
@@ -158,46 +192,54 @@ export default function Page() {
             See the actual workflows used in our training. Each example demonstrates practical automation patterns you can apply immediately.
           </p>
 
-          {/* Workflow Tabs */}
-          <div className="mb-8 flex gap-3 border-b border-slate-200">
-            {[
-              { id: 'email', label: 'Email Responder' },
-              { id: 'form', label: 'Form Submission' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveWorkflow(tab.id)}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeWorkflow === tab.id
-                    ? 'border-amber-600 text-slate-900'
-                    : 'border-transparent text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {/* Workflow Slideshow */}
+          <div className="rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
+            <div className="relative w-full bg-slate-900">
+              <div className="transition-opacity duration-500">
+                <Image
+                  src={workflows[activeWorkflow].src}
+                  alt={workflows[activeWorkflow].title}
+                  width={1000}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+            
+            {/* Slideshow Controls */}
+            <div className="p-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">{workflows[activeWorkflow].title}</h3>
+                <p className="text-sm text-slate-600 mt-1">Workflow {activeWorkflow + 1} of {workflows.length}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActiveWorkflow((prev) => (prev - 1 + workflows.length) % workflows.length)}
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-900 hover:bg-slate-100 transition-colors font-medium"
+                >
+                  ← Previous
+                </button>
+                <button
+                  onClick={() => setActiveWorkflow((prev) => (prev + 1) % workflows.length)}
+                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-900 hover:bg-slate-100 transition-colors font-medium"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
 
-          {/* Workflow Display */}
-          <div className="rounded-lg border border-slate-200 overflow-hidden bg-slate-50 p-6">
-            {activeWorkflow === 'email' && (
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-42-55-750_com.playit.videoplayer-NeXBGsSEq0TAhzDebstVdH4ojDWudU.jpg"
-                alt="Email Responder Workflow"
-                width={1000}
-                height={600}
-                className="w-full h-auto rounded"
-              />
-            )}
-            {activeWorkflow === 'form' && (
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-41-59-581_com.playit.videoplayer-wKF8HBnGTjyg5jtgwF4Dm5ZuLBv0Zq.jpg"
-                alt="Form Submission Workflow"
-                width={1000}
-                height={600}
-                className="w-full h-auto rounded"
-              />
-            )}
+            {/* Slideshow Indicators */}
+            <div className="px-6 pb-4 flex gap-2 justify-center">
+              {workflows.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveWorkflow(i)}
+                  className={`h-2 rounded-full transition-all ${
+                    i === activeWorkflow ? 'bg-amber-600 w-8' : 'bg-slate-300 w-2 hover:bg-slate-400'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
