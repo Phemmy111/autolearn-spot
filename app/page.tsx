@@ -162,14 +162,65 @@ export default function Page() {
             </div>
             <div className="flex justify-center">
               <div className="relative w-full max-w-lg">
-                <Image
-                  src="/n8n-mockup.png"
-                  alt="n8n Workflow Automation Interface"
-                  width={600}
-                  height={400}
-                  className="w-full h-auto rounded-lg shadow-lg border border-slate-200"
-                  priority
-                />
+                <style>{`
+                  @keyframes flowPulse {
+                    0% {
+                      box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.3), 0 0 30px rgba(245, 158, 11, 0.2);
+                    }
+                    50% {
+                      box-shadow: inset 0 0 40px rgba(34, 197, 94, 0.5), 0 0 50px rgba(245, 158, 11, 0.4);
+                    }
+                    100% {
+                      box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.3), 0 0 30px rgba(245, 158, 11, 0.2);
+                    }
+                  }
+                  
+                  @keyframes nodeFlow {
+                    0%, 100% {
+                      opacity: 0;
+                      transform: translateX(-100%);
+                    }
+                    25% {
+                      opacity: 1;
+                    }
+                    75% {
+                      opacity: 1;
+                    }
+                  }
+                  
+                  .n8n-container {
+                    animation: flowPulse 3s ease-in-out infinite;
+                  }
+                  
+                  .flow-indicator {
+                    position: absolute;
+                    width: 8px;
+                    height: 8px;
+                    background: radial-gradient(circle, #22c55e 0%, rgba(34, 197, 94, 0.5) 100%);
+                    border-radius: 50%;
+                    animation: nodeFlow 2s ease-in-out infinite;
+                    box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+                  }
+                  
+                  .flow-1 { top: 25%; left: 10%; animation-delay: 0s; }
+                  .flow-2 { top: 45%; left: 35%; animation-delay: 0.5s; }
+                  .flow-3 { top: 35%; left: 60%; animation-delay: 1s; }
+                  .flow-4 { top: 55%; left: 80%; animation-delay: 1.5s; }
+                `}</style>
+                <div className="n8n-container relative">
+                  <Image
+                    src="/n8n-mockup.png"
+                    alt="n8n Workflow Automation Interface"
+                    width={600}
+                    height={400}
+                    className="w-full h-auto rounded-lg shadow-lg border border-slate-200"
+                    priority
+                  />
+                  <div className="flow-indicator flow-1" />
+                  <div className="flow-indicator flow-2" />
+                  <div className="flow-indicator flow-3" />
+                  <div className="flow-indicator flow-4" />
+                </div>
               </div>
             </div>
           </div>
