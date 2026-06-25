@@ -42,7 +42,7 @@ export default function Page() {
                 <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white">
                   Start Learning Today
                 </Button>
-                <Button size="lg" variant="outline" className="border-slate-300 text-slate-900 hover:bg-slate-50">
+                <Button size="lg" className="border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100">
                   View Curriculum
                 </Button>
               </div>
