@@ -161,13 +161,13 @@ export default function Page() {
               </div>
             </div>
             <div className="flex justify-center">
-              <div className="relative w-full max-w-sm">
+              <div className="relative w-full max-w-lg">
                 <Image
-                  src="/femi-headshot.webp"
-                  alt="Femi Adeleke - Automation Trainer"
-                  width={400}
-                  height={500}
-                  className="w-full h-auto rounded-lg shadow-lg"
+                  src="/n8n-mockup.png"
+                  alt="n8n Workflow Automation Interface"
+                  width={600}
+                  height={400}
+                  className="w-full h-auto rounded-lg shadow-lg border border-slate-200"
                   priority
                 />
               </div>
