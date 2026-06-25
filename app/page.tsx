@@ -116,44 +116,7 @@ export default function Page() {
     return () => clearInterval(interval)
   }, [])
 
-  useEffect(() => {
-    const mainFlow = ['node-1', 'node-2', 'node-3', 'node-4', 'node-5', 'node-6', 'node-7']
-    const branches = ['node-8', 'node-9', 'node-10', 'node-11', 'node-12', 'node-13']
-    
-    const animateWorkflow = () => {
-      // Animate main flow
-      mainFlow.forEach((nodeId, index) => {
-        setTimeout(() => {
-          const element = document.getElementById(nodeId)
-          if (element) {
-            element.classList.add('active')
-            setTimeout(() => {
-              element.classList.remove('active')
-            }, 800)
-          }
-        }, index * 700)
-      })
-      
-      // Animate branches after main flow completes
-      const mainFlowDuration = mainFlow.length * 700
-      branches.forEach((nodeId, index) => {
-        setTimeout(() => {
-          const element = document.getElementById(nodeId)
-          if (element) {
-            element.classList.add('active')
-            setTimeout(() => {
-              element.classList.remove('active')
-            }, 600)
-          }
-        }, mainFlowDuration + index * 500)
-      })
-    }
-    
-    animateWorkflow()
-    const interval = setInterval(animateWorkflow, 9000)
-    
-    return () => clearInterval(interval)
-  }, [])
+
 
   return (
     <main className="bg-white text-slate-900">
@@ -199,92 +162,15 @@ export default function Page() {
                 </Button>
               </div>
             </div>
-            <div className="flex justify-center w-full">
-              <div className="relative w-full max-w-2xl" style={{ aspectRatio: '16/10' }}>
-                <style>{`
-                  @keyframes nodeGlow {
-                    0%, 100% {
-                      transform: scale(1);
-                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.4);
-                    }
-                    50% {
-                      transform: scale(1.2);
-                      box-shadow: 0 0 16px rgba(34, 197, 94, 1), inset 0 0 8px rgba(34, 197, 94, 0.6);
-                    }
-                  }
-                  
-                  .workflow-image-container {
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    border: 2px solid rgba(34, 197, 94, 0.3);
-                  }
-                  
-                  .workflow-image-container img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                  }
-                  
-                  .animation-overlay {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    pointer-events: none;
-                  }
-                  
-                  .node-indicator {
-                    position: absolute;
-                    width: 32px;
-                    height: 32px;
-                    border-radius: 50%;
-                    background: rgba(34, 197, 94, 0.3);
-                    border: 2px solid rgba(34, 197, 94, 0.8);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14px;
-                    transform: translate(-50%, -50%);
-                  }
-                  
-                  .node-indicator.active {
-                    animation: nodeGlow 0.8s ease-in-out;
-                  }
-                `}</style>
-                
-                <div className="workflow-image-container">
-                  <Image
-                    src="/workflow-real.jpg"
-                    alt="n8n Workflow Automation"
-                    width={1200}
-                    height={750}
-                    className="w-full h-full"
-                    priority
-                  />
-                  <div className="animation-overlay" id="animation-overlay">
-                    {/* Main flow nodes - positioned at approximate node locations */}
-                    <div className="node-indicator" id="node-1" style={{ left: '18%', top: '25%' }} />
-                    <div className="node-indicator" id="node-2" style={{ left: '28%', top: '38%' }} />
-                    <div className="node-indicator" id="node-3" style={{ left: '38%', top: '32%' }} />
-                    <div className="node-indicator" id="node-4" style={{ left: '48%', top: '30%' }} />
-                    <div className="node-indicator" id="node-5" style={{ left: '55%', top: '35%' }} />
-                    <div className="node-indicator" id="node-6" style={{ left: '62%', top: '32%' }} />
-                    <div className="node-indicator" id="node-7" style={{ left: '72%', top: '38%' }} />
-                    
-                    {/* Branch nodes */}
-                    <div className="node-indicator" id="node-8" style={{ left: '40%', top: '58%' }} />
-                    <div className="node-indicator" id="node-9" style={{ left: '52%', top: '60%' }} />
-                    <div className="node-indicator" id="node-10" style={{ left: '58%', top: '62%' }} />
-                    <div className="node-indicator" id="node-11" style={{ left: '64%', top: '60%' }} />
-                    <div className="node-indicator" id="node-12" style={{ left: '70%', top: '62%' }} />
-                    <div className="node-indicator" id="node-13" style={{ left: '82%', top: '60%' }} />
-                  </div>
-                </div>
-              </div>
+            <div className="flex justify-center">
+              <Image
+                src="/workflow-real.jpg"
+                alt="n8n Workflow Automation"
+                width={900}
+                height={560}
+                className="rounded-lg shadow-lg border border-slate-200"
+                priority
+              />
             </div>
           </div>
         </div>
