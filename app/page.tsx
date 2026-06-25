@@ -6,8 +6,14 @@ import { useState, useEffect } from 'react'
 
 export default function Page() {
   const [activeWorkflow, setActiveWorkflow] = useState(0)
+  const [showRegModal, setShowRegModal] = useState(false)
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
+  const [regData, setRegData] = useState({ name: '', email: '', phone: '', referral: '' })
+  const [regLoading, setRegLoading] = useState(false)
+  const [regSuccess, setRegSuccess] = useState(false)
 
+  const webhookUrl = 'https://n8n-wj6g.onrender.com/webhook/6f985fb5-f10a-4ad3-99c0-d58d70f86408'
+  const paystackLink = 'https://paystack.shop/pay/yoksvlq4xn'
   const whatsappNumber = '2348120934828'
   const whatsappCommunity = 'https://chat.whatsapp.com/FqgDAgL34Wq6tyPkT3nZ20'
   const programPrice = '₦3,000'
@@ -19,6 +25,48 @@ export default function Page() {
     { icon: '💰', text: 'Payment help', msg: 'Hi Femi! I need help completing my payment for AutoLearn Spot.' },
   ]
 
+  const handleSubmitReg = async () => {
+    if (!regData.name.trim()) {
+      alert('Please enter your full name.')
+      return
+    }
+    if (!regData.email.trim() || !regData.email.includes('@')) {
+      alert('Please enter a valid email.')
+      return
+    }
+    if (!regData.phone.trim()) {
+      alert('Please enter your phone number.')
+      return
+    }
+
+    setRegLoading(true)
+    const payload = {
+      'Full Name': regData.name,
+      Email1: regData.email,
+      Phone: regData.phone,
+      ReferralCode: regData.referral,
+    }
+
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        mode: 'no-cors',
+      })
+      setRegSuccess(true)
+      setTimeout(() => {
+        window.location.href = paystackLink
+      }, 1800)
+    } catch (error) {
+      console.error('Webhook error:', error)
+      setRegSuccess(true)
+      setTimeout(() => {
+        window.location.href = paystackLink
+      }, 1800)
+    }
+  }
+
   const sendWhatsApp = (message) => {
     const encodedMessage = encodeURIComponent(message)
     window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank')
@@ -28,6 +76,13 @@ export default function Page() {
   const joinCommunity = () => {
     window.open(whatsappCommunity, '_blank')
     setShowWhatsAppModal(false)
+  }
+
+  const closeRegModal = () => {
+    if (!regSuccess) {
+      setShowRegModal(false)
+      setRegData({ name: '', email: '', phone: '', referral: '' })
+    }
   }
 
   const workflows = [
@@ -74,7 +129,7 @@ export default function Page() {
               <a href="#how-it-works" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
                 How It Works
               </a>
-              <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => setShowWhatsAppModal(true)}>Get Started</Button>
+              <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => setShowRegModal(true)}>Get Started</Button>
             </div>
           </div>
         </div>
@@ -92,7 +147,7 @@ export default function Page() {
                 Master workflow automation through practical, hands-on training. Build real n8n automations that solve actual business problems.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowWhatsAppModal(true)}>
+                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowRegModal(true)}>
                   Start Learning Today
                 </Button>
                 <Button 
@@ -274,7 +329,7 @@ export default function Page() {
           <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
             Join our comprehensive training program and learn to build powerful automations that drive real business results.
           </p>
-          <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowWhatsAppModal(true)}>
+          <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowRegModal(true)}>
             Enroll Now
           </Button>
         </div>
@@ -304,6 +359,110 @@ export default function Page() {
         💬
       </button>
 
+      {/* Registration Modal */}
+      {showRegModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={closeRegModal}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {!regSuccess ? (
+              <>
+                <button
+                  onClick={closeRegModal}
+                  className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl"
+                >
+                  ✕
+                </button>
+                <div className="mb-6">
+                  <div className="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full mb-3">
+                    STEP 1 OF 2
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Join AutoLearn Spot</h2>
+                  <p className="text-slate-600 text-sm">Enter your details then complete payment.</p>
+                </div>
+
+                <div className="space-y-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-900 mb-1">Full Name *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Chioma Adeleke"
+                      value={regData.name}
+                      onChange={(e) => setRegData({ ...regData, name: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-900 mb-1">Email Address *</label>
+                    <input
+                      type="email"
+                      placeholder="e.g., chioma@gmail.com"
+                      value={regData.email}
+                      onChange={(e) => setRegData({ ...regData, email: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-900 mb-1">Phone Number *</label>
+                    <input
+                      type="tel"
+                      placeholder="e.g., 08120934828"
+                      value={regData.phone}
+                      onChange={(e) => setRegData({ ...regData, phone: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-900 mb-1">Referral Code</label>
+                    <input
+                      type="text"
+                      placeholder="Optional referral code"
+                      value={regData.referral}
+                      onChange={(e) => setRegData({ ...regData, referral: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-lg mb-6">
+                  <p className="text-xs text-slate-600 mb-1">Total — 12 sessions + certificate</p>
+                  <p className="text-xs text-slate-600 mb-3">✓ Secure via Paystack</p>
+                  <p className="text-xl font-bold text-slate-900">{programPrice}</p>
+                </div>
+
+                <Button
+                  size="lg"
+                  className="w-full bg-amber-600 hover:bg-amber-700 text-white mb-3"
+                  onClick={handleSubmitReg}
+                  disabled={regLoading}
+                >
+                  {regLoading ? 'Processing...' : 'Continue to Payment →'}
+                </Button>
+                <button
+                  onClick={closeRegModal}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-900 hover:bg-slate-50 transition-colors text-sm font-medium"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-4">✓</div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Details Saved!</h3>
+                <p className="text-slate-600 text-sm mb-4">Redirecting to payment...</p>
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* WhatsApp Modal */}
       {showWhatsAppModal && (
         <div
@@ -314,7 +473,6 @@ export default function Page() {
             className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
             <button
               onClick={() => setShowWhatsAppModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl"
@@ -322,14 +480,12 @@ export default function Page() {
               ✕
             </button>
 
-            {/* Header */}
             <div className="text-center mb-8">
               <div className="text-5xl mb-3">💬</div>
               <h2 className="text-2xl font-bold text-slate-900 mb-2">Chat with Femi</h2>
               <p className="text-slate-600 text-sm">Pick a message — opens WhatsApp instantly</p>
             </div>
 
-            {/* Message Options */}
             <div className="space-y-3 mb-6">
               {messages.map((item, i) => (
                 <button
@@ -344,14 +500,12 @@ export default function Page() {
               ))}
             </div>
 
-            {/* Divider */}
             <div className="flex items-center gap-3 mb-6">
               <div className="flex-1 h-px bg-slate-200"></div>
               <span className="text-slate-500 text-sm">or</span>
               <div className="flex-1 h-px bg-slate-200"></div>
             </div>
 
-            {/* Join Community */}
             <button
               onClick={joinCommunity}
               className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors mb-3"
@@ -359,7 +513,6 @@ export default function Page() {
               <span>👥</span> Join WhatsApp Community
             </button>
 
-            {/* Note */}
             <p className="text-center text-slate-500 text-xs">Usually replies within a few hours</p>
           </div>
         </div>
