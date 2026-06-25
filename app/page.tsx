@@ -200,97 +200,88 @@ export default function Page() {
               </div>
             </div>
             <div className="flex justify-center w-full">
-              <div className="w-full max-w-lg">
+              <div className="relative w-full max-w-2xl" style={{ aspectRatio: '16/10' }}>
                 <style>{`
-                  @keyframes nodeActive {
+                  @keyframes nodeGlow {
                     0%, 100% {
                       transform: scale(1);
-                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.5);
+                      box-shadow: 0 0 0px rgba(34, 197, 94, 0.4);
                     }
                     50% {
-                      transform: scale(1.15);
-                      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+                      transform: scale(1.2);
+                      box-shadow: 0 0 16px rgba(34, 197, 94, 1), inset 0 0 8px rgba(34, 197, 94, 0.6);
                     }
                   }
                   
-                  .workflow-container {
-                    background: rgba(15, 23, 42, 0.6);
-                    border: 1px solid rgba(34, 197, 94, 0.4);
-                    border-radius: 6px;
-                    padding: 12px;
+                  .workflow-image-container {
                     position: relative;
-                    width: fit-content;
-                    margin: 0 auto;
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    border: 2px solid rgba(34, 197, 94, 0.3);
                   }
                   
-                  .workflow-content {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
+                  .workflow-image-container img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
                   }
                   
-                  .main-flow {
-                    display: flex;
-                    gap: 4px;
-                    align-items: center;
-                    justify-content: center;
-                    flex-wrap: wrap;
+                  .animation-overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
                   }
                   
-                  .branch-flow {
-                    display: flex;
-                    gap: 3px;
-                    align-items: center;
-                    justify-content: center;
-                    flex-wrap: wrap;
-                  }
-                  
-                  .workflow-node {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.1));
-                    border: 1.5px solid rgba(34, 197, 94, 0.7);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 18px;
-                    transition: all 0.2s ease;
-                    flex-shrink: 0;
-                  }
-                  
-                  .workflow-node.active {
-                    animation: nodeActive 0.7s ease-in-out;
-                    border-color: #22c55e;
-                    background: linear-gradient(135deg, rgba(34, 197, 94, 0.5), rgba(34, 197, 94, 0.2));
-                  }
-                  
-                  .branch-node {
+                  .node-indicator {
+                    position: absolute;
                     width: 32px;
                     height: 32px;
+                    border-radius: 50%;
+                    background: rgba(34, 197, 94, 0.3);
+                    border: 2px solid rgba(34, 197, 94, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                     font-size: 14px;
+                    transform: translate(-50%, -50%);
+                  }
+                  
+                  .node-indicator.active {
+                    animation: nodeGlow 0.8s ease-in-out;
                   }
                 `}</style>
                 
-                <div className="workflow-container">
-                  <div className="workflow-content">
-                    <div className="main-flow">
-                      <div className="workflow-node" id="node-1">💬</div>
-                      <div className="workflow-node" id="node-2">🎤</div>
-                      <div className="workflow-node" id="node-3">❓</div>
-                      <div className="workflow-node" id="node-4">📥</div>
-                      <div className="workflow-node" id="node-5">🎙️</div>
-                      <div className="workflow-node" id="node-6">🤖</div>
-                      <div className="workflow-node" id="node-7">✈️</div>
-                    </div>
-                    <div className="branch-flow">
-                      <div className="workflow-node branch-node" id="node-8">🔀</div>
-                      <div className="workflow-node branch-node" id="node-9">🧠</div>
-                      <div className="workflow-node branch-node" id="node-10">✅</div>
-                      <div className="workflow-node branch-node" id="node-11">📋</div>
-                      <div className="workflow-node branch-node" id="node-12">✉️</div>
-                      <div className="workflow-node branch-node" id="node-13">📅</div>
-                    </div>
+                <div className="workflow-image-container">
+                  <Image
+                    src="/workflow-real.jpg"
+                    alt="n8n Workflow Automation"
+                    width={1200}
+                    height={750}
+                    className="w-full h-full"
+                    priority
+                  />
+                  <div className="animation-overlay" id="animation-overlay">
+                    {/* Main flow nodes - positioned at approximate node locations */}
+                    <div className="node-indicator" id="node-1" style={{ left: '18%', top: '25%' }} />
+                    <div className="node-indicator" id="node-2" style={{ left: '28%', top: '38%' }} />
+                    <div className="node-indicator" id="node-3" style={{ left: '38%', top: '32%' }} />
+                    <div className="node-indicator" id="node-4" style={{ left: '48%', top: '30%' }} />
+                    <div className="node-indicator" id="node-5" style={{ left: '55%', top: '35%' }} />
+                    <div className="node-indicator" id="node-6" style={{ left: '62%', top: '32%' }} />
+                    <div className="node-indicator" id="node-7" style={{ left: '72%', top: '38%' }} />
+                    
+                    {/* Branch nodes */}
+                    <div className="node-indicator" id="node-8" style={{ left: '40%', top: '58%' }} />
+                    <div className="node-indicator" id="node-9" style={{ left: '52%', top: '60%' }} />
+                    <div className="node-indicator" id="node-10" style={{ left: '58%', top: '62%' }} />
+                    <div className="node-indicator" id="node-11" style={{ left: '64%', top: '60%' }} />
+                    <div className="node-indicator" id="node-12" style={{ left: '70%', top: '62%' }} />
+                    <div className="node-indicator" id="node-13" style={{ left: '82%', top: '60%' }} />
                   </div>
                 </div>
               </div>
