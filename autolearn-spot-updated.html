@@ -440,9 +440,11 @@ function subReg(){
   if(!e||!e.includes("@")){err.textContent="Please enter a valid email.";err.style.display="block";return;}
   if(!p){err.textContent="Please enter your phone number.";err.style.display="block";return;}
   document.getElementById("rb").textContent="Processing...";
-  fetch("https://n8n-wj6g.onrender.com/webhook/6f985fb5-f10a-4ad3-99c0-d58d70f86408",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({"Full Name":n,Email1:e,Phone:p,ReferralCode:r})}).catch(function(){});
-  document.getElementById("rf").style.display="none";document.getElementById("rs").style.display="block";
-  setTimeout(function(){window.location.href="https://paystack.shop/pay/yoksvlq4xn";},1800);
+  var webhookUrl="https://n8n-wj6g.onrender.com/webhook/6f985fb5-f10a-4ad3-99c0-d58d70f86408";
+  var payload=JSON.stringify({"Full Name":n,Email1:e,Phone:p,ReferralCode:r});
+  console.log("[v0] Sending webhook to:",webhookUrl);
+  console.log("[v0] Payload:",payload);
+  fetch(webhookUrl,{method:"POST",headers:{"Content-Type":"application/json"},body:payload,mode:"no-cors"}).then(function(response){console.log("[v0] Webhook response received. Status:",response.status,"Type:",response.type);document.getElementById("rf").style.display="none";document.getElementById("rs").style.display="block";setTimeout(function(){window.location.href="https://paystack.shop/pay/yoksvlq4xn";},1800);}).catch(function(error){console.error("[v0] Webhook fetch failed:",error.message);console.log("[v0] This may be CORS - proceeding with payment anyway");document.getElementById("rf").style.display="none";document.getElementById("rs").style.display="block";setTimeout(function(){window.location.href="https://paystack.shop/pay/yoksvlq4xn";},1800);});
 }
 function openWA(){document.getElementById("wm").classList.add("open");document.body.style.overflow="hidden";}
 function closeWA(){document.getElementById("wm").classList.remove("open");document.body.style.overflow="";}
