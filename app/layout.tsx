@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://autolearn-spot.vercel.app'),
   title: 'AutoLearn Spot – Master n8n & AI Automation',
   description: 'Learn practical n8n automation through hands-on projects. Build AI automations, Telegram bots, WhatsApp bots, APIs, and real business workflows.',
-  generator: 'v0.app',
+ generator: 'AutoLearn Spot',
   icons: {
     icon: [
       {
