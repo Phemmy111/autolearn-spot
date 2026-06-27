@@ -2,16 +2,212 @@
 
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+// Workflow Animation Canvas Component
+const WorkflowCanvas = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let packets: { x: number, y: number, progress: number, pathIndex: number }[] = [];
+
+    // Define workflow nodes
+    const nodes = [
+      { id: 0, x: 100, y: 200, label: 'Trigger', color: '#10b981', icon: '⚡' },
+      { id: 1, x: 300, y: 200, label: 'AI Agent', color: '#818cf8', icon: '🧠' },
+      { id: 2, x: 500, y: 100, label: 'Gmail', color: '#f87171', icon: '📧' },
+      { id: 3, x: 500, y: 300, label: 'Sheets', color: '#34d399', icon: '📊' },
+    ];
+
+    // Define connections (paths)
+    const paths = [
+      { from: 0, to: 1 },
+      { from: 1, to: 2 },
+      { from: 1, to: 3 },
+    ];
+
+    const resize = () => {
+      canvas.width = canvas.parentElement?.clientWidth || 800;
+      canvas.height = canvas.parentElement?.clientHeight || 450;
+    };
+    
+    // Add packets periodically (workflow execution)
+    const packetInterval = setInterval(() => {
+      // Start a packet from Webhook to AI Agent
+      packets.push({ x: 0, y: 0, progress: 0, pathIndex: 0 });
+    }, 1200);
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Calculate scale to center the workflow layout
+      const scaleX = canvas.width / 600;
+      const scaleY = canvas.height / 400;
+      const scale = Math.min(scaleX, scaleY) * 0.8;
+      const offsetX = (canvas.width - (600 * scale)) / 2;
+      const offsetY = (canvas.height - (400 * scale)) / 2;
+
+      const getScaledPos = (nx: number, ny: number) => {
+        return { x: nx * scale + offsetX, y: ny * scale + offsetY };
+      }
+
+      // 1. Draw paths
+      paths.forEach(path => {
+        const p1 = getScaledPos(nodes[path.from].x, nodes[path.from].y);
+        const p2 = getScaledPos(nodes[path.to].x, nodes[path.to].y);
+        
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 2 * scale;
+        ctx.setLineDash([5 * scale, 5 * scale]);
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // 2. Update and draw packets (data moving along paths)
+      for (let i = packets.length - 1; i >= 0; i--) {
+        const p = packets[i];
+        p.progress += 0.015; // Animation speed
+        
+        if (p.progress >= 1) {
+          // If it reached the AI node, split into two tasks (Gmail & Sheets)
+          if (p.pathIndex === 0) {
+            packets.push({ x: 0, y: 0, progress: 0, pathIndex: 1 });
+            packets.push({ x: 0, y: 0, progress: 0, pathIndex: 2 });
+          }
+          packets.splice(i, 1);
+          continue;
+        }
+
+        const path = paths[p.pathIndex];
+        const p1 = getScaledPos(nodes[path.from].x, nodes[path.from].y);
+        const p2 = getScaledPos(nodes[path.to].x, nodes[path.to].y);
+        
+        const cx = p1.x + (p2.x - p1.x) * p.progress;
+        const cy = p1.y + (p2.y - p1.y) * p.progress;
+
+        // Glowing packet dot
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6 * scale, 0, Math.PI * 2);
+        ctx.fillStyle = nodes[path.to].color;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = nodes[path.to].color;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // 3. Draw nodes on top
+      nodes.forEach(node => {
+        const pos = getScaledPos(node.x, node.y);
+        
+        // Node background
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 35 * scale, 0, Math.PI * 2);
+        ctx.fillStyle = '#1e293b'; // slate-800
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = 3 * scale;
+        ctx.fill();
+        ctx.stroke();
+
+        // Node Icon (Text)
+        ctx.fillStyle = 'white';
+        ctx.font = `${20 * scale}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node.icon, pos.x, pos.y - 5 * scale);
+
+        // Node Label
+        ctx.fillStyle = '#94a3b8'; // slate-400
+        ctx.font = `bold ${11 * scale}px Inter, sans-serif`;
+        ctx.fillText(node.label, pos.x, pos.y + 18 * scale);
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener('resize', resize);
+    resize();
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      clearInterval(packetInterval);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <div className="relative w-full h-full min-h-[450px] bg-[#0f172a] rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 flex items-center justify-center border-4 border-white ring-1 ring-slate-100">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      
+      {/* Editor UI Accents */}
+      <div className="absolute top-6 left-6 bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-700 p-3 flex items-center gap-3">
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+          <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+        </div>
+        <span className="text-xs font-mono text-slate-300">live_workflow.n8n</span>
+      </div>
+
+      <div className="absolute top-6 right-6 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-3 flex items-center gap-2">
+        <span className="relative flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        <span className="text-xs font-semibold text-white tracking-wide">Executing</span>
+      </div>
+    </div>
+  );
+};
 
 export default function Page() {
   const [activeWorkflow, setActiveWorkflow] = useState(0)
   const [showRegModal, setShowRegModal] = useState(false)
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [showBanner, setShowBanner] = useState(true)
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [regData, setRegData] = useState({ name: '', email: '', phone: '', referral: '' })
   const [regLoading, setRegLoading] = useState(false)
   const [regSuccess, setRegSuccess] = useState(false)
-  const [expandedFAQ, setExpandedFAQ] = useState(null)
+  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', handleScroll)
+    
+    // Countdown Timer Logic
+    const deadline = new Date('July 13, 2026 23:59:59').getTime()
+    const timer = setInterval(() => {
+      const now = new Date().getTime()
+      const distance = deadline - now
+      if (distance < 0) {
+        clearInterval(timer)
+        return
+      }
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      })
+    }, 1000)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearInterval(timer)
+    }
+  }, [])
 
   const webhookUrl = 'https://n8n-wj6g.onrender.com/webhook/6f985fb5-f10a-4ad3-99c0-d58d70f86408'
   const paystackLink = 'https://paystack.shop/pay/yoksvlq4xn'
@@ -27,624 +223,574 @@ export default function Page() {
   ]
 
   const handleSubmitReg = async () => {
-    if (!regData.name.trim()) {
-      alert('Please enter your full name.')
-      return
-    }
-    if (!regData.email.trim() || !regData.email.includes('@')) {
-      alert('Please enter a valid email.')
-      return
-    }
-    if (!regData.phone.trim()) {
-      alert('Please enter your phone number.')
-      return
-    }
+    if (!regData.name.trim()) { alert('Please enter your full name.'); return }
+    if (!regData.email.trim() || !regData.email.includes('@')) { alert('Please enter a valid email.'); return }
+    if (!regData.phone.trim()) { alert('Please enter your phone number.'); return }
 
     setRegLoading(true)
-    const payload = {
-      'Full Name': regData.name,
-      Email1: regData.email,
-      Phone: regData.phone,
-      ReferralCode: regData.referral,
-    }
-
+    const payload = { 'Full Name': regData.name, Email1: regData.email, Phone: regData.phone, ReferralCode: regData.referral }
     try {
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        mode: 'no-cors',
-      })
+      await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), mode: 'no-cors' })
       setRegSuccess(true)
-      setTimeout(() => {
-        window.location.href = paystackLink
-      }, 1800)
+      setTimeout(() => { window.location.href = paystackLink }, 1800)
     } catch (error) {
       console.error('Webhook error:', error)
       setRegSuccess(true)
-      setTimeout(() => {
-        window.location.href = paystackLink
-      }, 1800)
+      setTimeout(() => { window.location.href = paystackLink }, 1800)
     }
   }
 
-  const sendWhatsApp = (message) => {
-    const encodedMessage = encodeURIComponent(message)
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank')
+  const sendWhatsApp = (message: string) => {
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank')
     setShowWhatsAppModal(false)
   }
 
-  const joinCommunity = () => {
-    window.open(whatsappCommunity, '_blank')
-    setShowWhatsAppModal(false)
-  }
+  const joinCommunity = () => { window.open(whatsappCommunity, '_blank'); setShowWhatsAppModal(false) }
 
   const closeRegModal = () => {
-    if (!regSuccess) {
-      setShowRegModal(false)
-      setRegData({ name: '', email: '', phone: '', referral: '' })
-    }
+    if (!regSuccess) { setShowRegModal(false); setRegData({ name: '', email: '', phone: '', referral: '' }) }
   }
 
   const workflows = [
-    {
-      title: 'Email Responder',
-      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-42-55-750_com.playit.videoplayer-NeXBGsSEq0TAhzDebstVdH4ojDWudU.jpg',
-    },
-    {
-      title: 'Form Submission',
-      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-41-59-581_com.playit.videoplayer-wKF8HBnGTjyg5jtgwF4Dm5ZuLBv0Zq.jpg',
-    },
-    {
-      title: 'Email Responder (Advanced)',
-      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-42-32-051_com.playit.videoplayer-RaIbheFNV5m53K4ycv0bOryZRlrgXF.jpg',
-    },
-    {
-      title: 'AutoLearn Day 4',
-      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-43-28-995_com.playit.videoplayer-Wx9wfXXNVy7rJaPLARxfntNz6gveOw.jpg',
-    },
-    {
-      title: 'AutoLearn Day 3',
-      src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-43-55-665_com.playit.videoplayer-kOfEbpPWhJUn7nO40BFoTsUGu6A0sZ.jpg',
-    },
+    { title: 'Email Responder', src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-42-55-750_com.playit.videoplayer-NeXBGsSEq0TAhzDebstVdH4ojDWudU.jpg' },
+    { title: 'Form Submission', src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-41-59-581_com.playit.videoplayer-wKF8HBnGTjyg5jtgwF4Dm5ZuLBv0Zq.jpg' },
+    { title: 'Email Responder (Advanced)', src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-42-32-051_com.playit.videoplayer-RaIbheFNV5m53K4ycv0bOryZRlrgXF.jpg' },
+    { title: 'AutoLearn Day 4', src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-43-28-995_com.playit.videoplayer-Wx9wfXXNVy7rJaPLARxfntNz6gveOw.jpg' },
+    { title: 'AutoLearn Day 3', src: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot_2026-06-24-16-43-55-665_com.playit.videoplayer-kOfEbpPWhJUn7nO40BFoTsUGu6A0sZ.jpg' },
   ]
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveWorkflow((prev) => (prev + 1) % workflows.length)
-    }, 5000)
+    const interval = setInterval(() => setActiveWorkflow((prev) => (prev + 1) % workflows.length), 5000)
     return () => clearInterval(interval)
   }, [])
 
-
+  const stats = [
+    { value: '10+', label: 'Real workflows deployed' },
+    { value: '12', label: 'Live hands-on sessions' },
+    { value: '4 weeks', label: 'Program duration' },
+    { value: '100%', label: 'Practical, no fluff' },
+  ]
 
   return (
-    <main className="bg-white text-slate-900">
-      {/* Navigation */}
-      <nav className="border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-6 py-4 sm:px-8">
-          <div className="flex items-center justify-between">
-            <div className="text-xl font-semibold text-slate-900">AutoLearn</div>
-            <div className="flex items-center gap-6">
-              <a href="#features" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
-                Features
-              </a>
-              <a href="#how-it-works" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
-                How It Works
-              </a>
-              <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => setShowRegModal(true)}>Get Started</Button>
-            </div>
+    <main className="bg-[#f9fafb] text-slate-900 font-sans">
+
+      {/* ── ANNOUNCEMENT BANNER ── */}
+      {showBanner && (
+        <div className="bg-slate-900 text-slate-200 text-xs sm:text-sm font-semibold text-center py-2.5 px-4 flex items-center justify-center gap-3 relative z-[60]">
+          <span>🚀 Training begins July 13th. Only <strong className="text-emerald-400">15 seats</strong> available!</span>
+          <button onClick={() => setShowBanner(false)} className="absolute right-4 text-slate-400 hover:text-white" aria-label="Close banner">✕</button>
+        </div>
+      )}
+
+      {/* ── NAVIGATION ── */}
+      <nav className={`sticky top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm border-b border-slate-100' : 'bg-white border-b border-transparent'}`}>
+        <div className="mx-auto max-w-7xl px-6 py-4 sm:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Image src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" width={32} height={32} className="rounded-lg shadow-sm" />
+            <span className="text-lg font-bold text-slate-900 tracking-tight">AutoLearn <span className="text-emerald-500">Spot</span></span>
+          </div>
+          
+          <div className="flex items-center gap-4 sm:gap-6">
+            <Button
+              className="bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white rounded-full px-6 shadow-md shadow-emerald-200 hover:shadow-emerald-300 transition-all hover:scale-[1.02]"
+              onClick={() => setShowRegModal(true)}
+            >
+              Enroll Now — {programPrice}
+            </Button>
+            <button 
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="p-2 text-slate-600 hover:text-emerald-500 transition-colors bg-white rounded-full shadow-sm border border-slate-100"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {showMobileMenu ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
           </div>
         </div>
+
+        {/* Hamburger Dropdown Menu */}
+        {showMobileMenu && (
+          <div className="absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-xl py-4 px-6 flex flex-col gap-4 animate-in slide-in-from-top-2">
+            {['Curriculum', 'Tools', 'Instructor', 'FAQ'].map((item) => (
+              <a 
+                key={item}
+                href={`#${item.toLowerCase()}`} 
+                onClick={() => setShowMobileMenu(false)}
+                className="text-base font-bold text-slate-600 hover:text-emerald-500 transition-colors py-2 border-b border-slate-50 last:border-0"
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+        )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8 lg:py-28">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-            <div>
-              <h1 className="text-4xl font-serif text-slate-900 leading-tight sm:text-5xl">
-                Learn n8n Automation by Building Real Workflows
+      {/* ── HERO SECTION ── */}
+      <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-emerald-100/50 via-teal-50/40 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-40 right-0 w-64 h-64 bg-gradient-to-br from-blue-100/40 to-cyan-100/30 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="grid gap-16 lg:grid-cols-2 items-center">
+            {/* Left */}
+            <div className="max-w-xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 mb-6">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">🎓 Next Cohort Open</span>
+              </div>
+
+              <h1 className="text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.05] tracking-tight mb-6">
+                Build Real AI<br />
+                Automations.<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">Get Certified.</span>
               </h1>
-              <p className="mt-6 text-lg text-slate-600 leading-relaxed">
-                Master workflow automation through practical, hands-on training. Build real n8n automations that solve actual business problems.
+
+              <p className="text-lg text-slate-500 leading-relaxed mb-8">
+                A 4-week, hands-on n8n automation training. No theory overload — every session ends with a working, deployable workflow you built yourself.
               </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowRegModal(true)}>
-                  Start Learning Today
+
+              {/* Countdown Timer */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8 bg-white/50 backdrop-blur-sm border border-slate-200 p-3 rounded-2xl w-fit">
+                <div className="flex items-center gap-2">
+                  {[
+                    { label: 'DAYS', value: timeLeft.days },
+                    { label: 'HOURS', value: timeLeft.hours },
+                    { label: 'MINS', value: timeLeft.minutes },
+                    { label: 'SECS', value: timeLeft.seconds }
+                  ].map((unit, i) => (
+                    <div key={i} className="flex flex-col items-center">
+                      <div className="w-12 h-12 bg-slate-900 shadow-sm rounded-lg flex items-center justify-center text-xl font-bold text-white tracking-wider">
+                        {unit.value.toString().padStart(2, '0')}
+                      </div>
+                      <span className="text-[9px] font-bold text-slate-500 mt-1.5 uppercase tracking-wider">{unit.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="hidden sm:block w-px h-10 bg-slate-200"></div>
+                <div className="text-sm font-semibold text-slate-600 max-w-[140px] leading-snug">
+                  Until registration <span className="text-red-500 font-bold">closes</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 mb-10">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white rounded-full px-8 h-14 text-base font-semibold shadow-lg shadow-emerald-200 hover:shadow-emerald-300 transition-all hover:scale-[1.02]"
+                  onClick={() => setShowRegModal(true)}
+                >
+                  Start Learning — {programPrice} →
                 </Button>
-                <Button 
-                  size="lg" 
-                  className="border-2 border-slate-900 bg-white text-slate-900 hover:bg-slate-100"
-                  onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300 rounded-full px-8 h-14 text-base font-medium transition-all"
+                  onClick={() => document.getElementById('curriculum')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   View Curriculum
                 </Button>
               </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {['🧑‍💻', '👩‍💼', '👨‍🎓', '👩‍🔬'].map((e, i) => (
+                    <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 border-2 border-white flex items-center justify-center text-sm shadow-sm">{e}</div>
+                  ))}
+                </div>
+                <p className="text-sm text-slate-500"><span className="font-semibold text-slate-800">Designed for beginners</span> and professionals</p>
+              </div>
             </div>
-            <div className="flex justify-center">
-              <Image
-                src="/workflow-real.jpg"
-                alt="n8n Workflow Automation"
-                width={900}
-                height={560}
-                className="rounded-lg shadow-lg border border-slate-200"
-                priority
-              />
+
+            {/* Right — Interactive Workflow Execution Canvas */}
+            <div className="relative">
+              <WorkflowCanvas />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4-Week Curriculum */}
-      <section id="features" className="border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
-          <div className="text-center mb-16">
-            <div className="text-amber-600 font-semibold text-sm uppercase tracking-wide mb-2">4-Week Curriculum</div>
-            <h2 className="text-3xl font-serif text-slate-900 mb-4">What You&apos;ll Build</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">Every session is 100% practical. Deploy real workflows from Day 1.</p>
+      {/* ── STATS BAR ── */}
+      <section className="bg-white border-y border-slate-100 py-10">
+        <div className="mx-auto max-w-5xl px-6 sm:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {stats.map((s, i) => (
+              <div key={i}>
+                <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">{s.value}</div>
+                <div className="text-sm text-slate-500 mt-1">{s.label}</div>
+              </div>
+            ))}
           </div>
-          
+        </div>
+      </section>
+
+      {/* ── 4-WEEK CURRICULUM ── */}
+      <section id="curriculum" className="py-24 bg-slate-50 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-widest mb-4">4-Week Curriculum</span>
+            <h2 className="text-4xl font-extrabold text-slate-900 mb-4">What You&apos;ll Build</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">Every session is 100% practical. You leave with a working workflow, not just notes.</p>
+          </div>
+
+          {/* Heavy, Detailed Bento-grid weeks */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
-              {
-                week: 'Week 1',
-                title: 'n8n Automation Fundamentals',
-                subtitle: 'Learn the basics & build your first workflow',
-                sessions: [
-                  { num: '1', title: 'Theory + Account Setup' },
-                  { num: '2', title: 'Form → Personalised Email' },
-                  { num: '3', title: 'Add Google Sheets' },
-                ]
-              },
-              {
-                week: 'Week 2',
-                title: 'AI-Powered Workflows',
-                subtitle: 'Build intelligent automation with ChatGPT',
-                sessions: [
-                  { num: '4', title: 'AI Telegram Bot' },
-                  { num: '5', title: 'AI Email Auto-Responder' },
-                  { num: '6', title: 'AI Content Summarizer' },
-                ]
-              },
-              {
-                week: 'Week 3',
-                title: 'Deployment + Advanced Workflows',
-                subtitle: 'Deploy to production & scale your bots',
-                sessions: [
-                  { num: '7', title: 'Deploy n8n on Railway' },
-                  { num: '8', title: 'AI Customer Support Bot' },
-                  { num: '9', title: 'Lead Capture + AI Qualifier' },
-                ]
-              },
-              {
-                week: 'Week 4',
-                title: 'Capstone Project',
-                subtitle: 'Build, present & earn your certificate',
-                sessions: [
-                  { num: '10', title: 'AI Social Media Content Generator' },
-                  { num: '11', title: 'Capstone Build Day' },
-                  { num: '12', title: 'Presentation + Certification' },
-                ]
-              },
+              { week: 'Week 1', gradient: 'from-emerald-400 to-teal-500', title: 'n8n Fundamentals', subtitle: 'Build your first workflow from scratch', icon: '🏗️', sessions: ['Theory + Account Setup', 'Form → Email Automation', 'Add Google Sheets'] },
+              { week: 'Week 2', gradient: 'from-violet-400 to-purple-500', title: 'AI-Powered Workflows', subtitle: 'Connect ChatGPT to your automations', icon: '🤖', sessions: ['AI Telegram Bot', 'AI Email Auto-Responder', 'AI Content Summarizer'] },
+              { week: 'Week 3', gradient: 'from-blue-400 to-cyan-500', title: 'Deploy & Scale', subtitle: 'Take your workflows live on Railway', icon: '🚀', sessions: ['Deploy n8n on Railway', 'AI Customer Support Bot', 'Lead Capture + AI Qualifier'] },
+              { week: 'Week 4', gradient: 'from-emerald-400 to-green-500', title: 'Capstone Project', subtitle: 'Build a full product & get certified', icon: '🎓', sessions: ['Social Media Content Bot', 'Capstone Build Day', 'Presentation + Certificate'] },
             ].map((week, i) => (
-              <div key={i} className="rounded-lg border border-slate-200 p-6 hover:border-slate-300 transition-colors">
-                <div className="text-amber-600 font-semibold text-sm mb-2">{week.week}</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-1">{week.title}</h3>
-                <p className="text-sm text-slate-500 mb-6">{week.subtitle}</p>
-                <div className="space-y-3">
-                  {week.sessions.map((session, j) => (
-                    <div key={j} className="flex gap-3 pb-3 border-b border-slate-100 last:pb-0 last:border-b-0">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 text-amber-700 font-semibold text-sm flex-shrink-0">
-                        {session.num}
+              <div 
+                key={i} 
+                className={`bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden flex flex-col relative transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl group`}
+              >
+                {/* Colorful top bar */}
+                <div className={`h-2 w-full bg-gradient-to-r ${week.gradient}`}></div>
+                
+                <div className="p-8 flex-1">
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl mb-6 bg-slate-50 border border-slate-100 shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+                    {week.icon}
+                  </div>
+                  <span className={`text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-2 block`}>{week.week}</span>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">{week.title}</h3>
+                  <p className="text-sm text-slate-500 mb-6 pb-6 border-b border-slate-100">{week.subtitle}</p>
+                  
+                  <div className="space-y-4">
+                    {week.sessions.map((s, j) => (
+                      <div key={j} className="flex items-start gap-3">
+                        <span className="text-emerald-500 text-lg leading-none mt-0.5">✓</span>
+                        <span className="text-sm text-slate-700 font-medium leading-snug">{s}</span>
                       </div>
-                      <div className="text-sm text-slate-600">{session.title}</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Curriculum Info Cards */}
-          <div className="grid gap-6 md:grid-cols-3 mt-12 pt-12 border-t border-slate-200">
+          <div className="grid md:grid-cols-3 gap-5 mt-10">
             {[
-              { icon: '📅', label: 'Schedule', text: 'Mon/Wed/Fri, 30 mins each' },
-              { icon: '🎓', label: 'Certificate', text: 'Issued by Moon Space Network' },
-              { icon: '💰', label: 'Investment', text: programPrice + ' - All Inclusive' },
-            ].map((info, i) => (
-              <div key={i} className="rounded-lg border border-slate-200 p-6 text-center">
-                <div className="text-3xl mb-3">{info.icon}</div>
-                <h3 className="font-semibold text-slate-900 mb-1">{info.label}</h3>
-                <p className="text-sm text-slate-600">{info.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Tools You'll Master */}
-      <section className="border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-serif text-slate-900 mb-4">Tools You&apos;ll Master</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">Master the complete n8n ecosystem and integrate with the tools your business already uses</p>
-          </div>
-          
-          <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-4">
-            {[
-              { name: 'n8n', desc: 'Workflow automation' },
-              { name: 'ChatGPT', desc: 'AI integration' },
-              { name: 'Gmail', desc: 'Email automation' },
-              { name: 'Telegram', desc: 'Bot creation' },
-              { name: 'Google Sheets', desc: 'Data management' },
-              { name: 'WhatsApp', desc: 'Messaging automation' },
-              { name: 'Railway', desc: 'Production deployment' },
-              { name: 'Supabase', desc: 'Database & auth' },
-            ].map((tool, i) => (
-              <div key={i} className="rounded-lg border border-slate-200 p-4 text-center hover:border-amber-400 transition-colors hover:shadow-md">
-                <div className="text-3xl mb-2 inline-block px-3 py-2 bg-slate-50 rounded-lg">{tool.name[0]}</div>
-                <h3 className="font-semibold text-slate-900 text-sm mb-1">{tool.name}</h3>
-                <p className="text-xs text-slate-500">{tool.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What Makes Us Different */}
-      <section className="border-b border-slate-200 bg-slate-50">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-serif text-slate-900 mb-4">Why AutoLearn Spot Stands Out</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">We focus on what truly matters for your success</p>
-          </div>
-          
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                icon: '⚡',
-                title: '100% Practical',
-                desc: 'Every session produces production-ready workflows you can deploy immediately'
-              },
-              {
-                icon: '🤖',
-                title: 'AI-Powered First',
-                desc: 'Learn ChatGPT integration and AI automation from day one'
-              },
-              {
-                icon: '🚀',
-                title: 'Deploy to Production',
-                desc: 'Deploy your automations live with Railway in Week 3'
-              },
-              {
-                icon: '🎓',
-                title: 'Certified by MSN',
-                desc: 'Earn a recognized certificate from Moon Space Network'
-              },
+              { icon: '📅', label: 'Schedule', value: 'Mon, Wed, Fri — 30 mins each session' },
+              { icon: '🏆', label: 'Certificate', value: 'Issued by Moon Space Network on completion' },
+              { icon: '💳', label: 'Investment', value: `${programPrice} — Full access, all 12 sessions` },
             ].map((item, i) => (
-              <div key={i} className="bg-white rounded-lg border border-slate-200 p-6 text-center">
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <h3 className="font-semibold text-slate-900 mb-2">{item.title}</h3>
-                <p className="text-sm text-slate-600">{item.desc}</p>
+              <div key={i} className="flex items-start gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <span className="text-3xl flex-shrink-0">{item.icon}</span>
+                <div>
+                  <div className="text-sm font-bold text-slate-900">{item.label}</div>
+                  <div className="text-sm text-slate-500 mt-1">{item.value}</div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Live Workflows */}
-      <section id="how-it-works" className="border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
-          <h2 className="text-3xl font-serif text-slate-900 mb-4">Real n8n Workflows</h2>
-          <p className="text-slate-600 mb-12 max-w-2xl">
-            See the actual workflows used in our training. Each example demonstrates practical automation patterns you can apply immediately.
-          </p>
+      {/* ── TOOLS ── */}
+      <section id="tools" className="py-24 bg-white border-t border-slate-100">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold text-slate-900 mb-4">Tools You&apos;ll Master</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">From triggering workflows to deploying production bots — you&apos;ll use the same tools professionals use every day.</p>
+          </div>
 
-          {/* Workflow Slideshow */}
-          <div className="rounded-lg border border-slate-200 overflow-hidden bg-slate-50">
-            <div className="relative w-full bg-slate-900">
-              <div className="transition-opacity duration-500">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { name: 'n8n', desc: 'Workflow engine', emoji: '⚙️', bg: 'bg-emerald-50 border-emerald-100' },
+              { name: 'ChatGPT', desc: 'AI integration', emoji: '🤖', bg: 'bg-green-50 border-green-100' },
+              { name: 'Gmail', desc: 'Email automation', emoji: '📧', bg: 'bg-red-50 border-red-100' },
+              { name: 'Telegram', desc: 'Bot creation', emoji: '✈️', bg: 'bg-blue-50 border-blue-100' },
+              { name: 'Google Sheets', desc: 'Data pipelines', emoji: '📊', bg: 'bg-emerald-50 border-emerald-100' },
+              { name: 'WhatsApp', desc: 'Messaging bots', emoji: '💬', bg: 'bg-green-50 border-green-100' },
+              { name: 'Railway', desc: 'Live deployment', emoji: '🚀', bg: 'bg-violet-50 border-violet-100' },
+              { name: 'Supabase', desc: 'Database & auth', emoji: '🗄️', bg: 'bg-teal-50 border-teal-100' },
+            ].map((tool, i) => (
+              <div key={i} className={`${tool.bg} border rounded-2xl p-5 flex flex-col items-center text-center hover:-translate-y-2 hover:shadow-lg transition-all duration-300 cursor-default group`}>
+                <span className="text-3xl mb-3 group-hover:scale-110 group-hover:rotate-3 transition-transform">{tool.emoji}</span>
+                <div className="text-sm font-bold text-slate-900">{tool.name}</div>
+                <div className="text-xs text-slate-500 mt-0.5">{tool.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHY AUTOLEARN ── */}
+      <section className="py-24 bg-slate-50 border-t border-slate-100">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold text-slate-900 mb-4">Why AutoLearn Spot?</h2>
+            <p className="text-slate-500 max-w-xl mx-auto">We built the training we wished existed — practical, beginner-friendly, and outcome-focused.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { icon: '⚡', title: '100% Practical', desc: 'No slides and lectures. Every session = a live workflow you built and deployed.', bg: 'bg-white', size: 'lg:col-span-1' },
+              { icon: '🤖', title: 'AI-Native Training', desc: 'ChatGPT, OpenRouter, Claude — you learn how to wire AI into real business workflows from Day 4.', bg: 'bg-white', size: 'lg:col-span-1' },
+              { icon: '🚀', title: 'Deploy Live in Week 3', desc: 'Your automation goes to production on Railway. Real URL. Real users. Not a sandbox toy.', bg: 'bg-white', size: 'lg:col-span-1' },
+              { icon: '🎓', title: 'MSN Certificate', desc: 'Earn a verified certificate from Moon Space Network to display on LinkedIn and your portfolio.', bg: 'bg-white', size: 'lg:col-span-1' },
+              { icon: '👨‍🏫', title: 'Direct Instructor Access', desc: 'You get direct Q&A time with Femi. No generic support queues. Get unblocked fast.', bg: 'bg-white', size: 'lg:col-span-1' },
+              { icon: '♾️', title: 'Lifetime Recordings', desc: 'Miss a session? Replay all 12 recorded sessions forever at your own pace.', bg: 'bg-white', size: 'lg:col-span-1' },
+            ].map((item, i) => (
+              <div key={i} className={`${item.bg} ${item.size} border border-slate-200 shadow-sm rounded-2xl p-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-200`}>
+                <span className="text-4xl block mb-5">{item.icon}</span>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── LIVE WORKFLOWS SLIDESHOW ── */}
+      <section id="workflows" className="py-24 bg-white border-t border-slate-100">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="inline-block px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-widest mb-6">Real n8n Workflows</span>
+              <h2 className="text-4xl font-extrabold text-slate-900 mb-4">See What You&apos;ll Build</h2>
+              <p className="text-slate-500 mb-8 leading-relaxed">These are actual screenshots from our training sessions — real workflows, not demos. By the end of Week 4, you&apos;ll have built all of these.</p>
+              <div className="space-y-3">
+                {workflows.map((w, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveWorkflow(i)}
+                    className={`w-full text-left px-5 py-4 rounded-xl transition-all ${i === activeWorkflow ? 'bg-emerald-50 border-2 border-emerald-400 text-emerald-800 font-bold shadow-sm' : 'bg-white border-2 border-slate-100 text-slate-600 hover:border-slate-300'}`}
+                  >
+                    <span className="text-sm">{w.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden shadow-2xl shadow-slate-200 border border-slate-200 bg-slate-900 p-2">
+              <div className="bg-slate-900 relative rounded-xl overflow-hidden">
                 <Image
                   src={workflows[activeWorkflow].src}
                   alt={workflows[activeWorkflow].title}
                   width={1000}
                   height={600}
-                  className="w-full h-auto"
+                  className="w-full h-auto transition-opacity duration-500"
                 />
               </div>
-            </div>
-            
-            {/* Slideshow Controls */}
-            <div className="p-6 flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900">{workflows[activeWorkflow].title}</h3>
-                <p className="text-sm text-slate-600 mt-1">Workflow {activeWorkflow + 1} of {workflows.length}</p>
+              <div className="bg-slate-900 px-4 py-3 flex items-center justify-between mt-2 rounded-xl">
+                <div>
+                  <div className="text-sm font-semibold text-white">{workflows[activeWorkflow].title}</div>
+                  <div className="text-xs text-slate-400">Workflow {activeWorkflow + 1} of {workflows.length}</div>
+                </div>
+                <div className="flex gap-1.5">
+                  {workflows.map((_, i) => (
+                    <button key={i} onClick={() => setActiveWorkflow(i)} className={`h-2 rounded-full transition-all ${i === activeWorkflow ? 'bg-emerald-500 w-6' : 'bg-slate-700 w-2 hover:bg-slate-600'}`} />
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setActiveWorkflow((prev) => (prev - 1 + workflows.length) % workflows.length)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-900 hover:bg-slate-100 transition-colors font-medium"
-                >
-                  ← Previous
-                </button>
-                <button
-                  onClick={() => setActiveWorkflow((prev) => (prev + 1) % workflows.length)}
-                  className="px-4 py-2 border border-slate-300 rounded-lg text-slate-900 hover:bg-slate-100 transition-colors font-medium"
-                >
-                  Next →
-                </button>
-              </div>
-            </div>
-
-            {/* Slideshow Indicators */}
-            <div className="px-6 pb-4 flex gap-2 justify-center">
-              {workflows.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveWorkflow(i)}
-                  className={`h-2 rounded-full transition-all ${
-                    i === activeWorkflow ? 'bg-amber-600 w-8' : 'bg-slate-300 w-2 hover:bg-slate-400'
-                  }`}
-                />
-              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Instructor Section */}
-      <section className="border-b border-slate-200">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
-            <div>
-              <h2 className="text-3xl font-serif text-slate-900 mb-4">Meet Your Instructor</h2>
-              <p className="text-slate-600 mb-6">
-                I&apos;m Femi Adeleke, a full-stack developer and automation engineer based in Ibadan, Nigeria. I specialize in building production-grade automation workflows with n8n, connecting LLMs to real-world applications, and creating AI-powered solutions. I&apos;m also an educator at heart, currently teaching English Language and Literature while building automation projects that solve actual business problems.
-              </p>
-              <p className="text-slate-600 mb-6">
-                AutoLearn Spot is my first formal training program—and that&apos;s your advantage. You get direct access to me, real-time problem-solving, and training that&apos;s shaped by the exact workflows I&apos;m building right now in production. No outdated curriculum, no theory-heavy lectures. Pure, practical automation.
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <span className="text-amber-600 font-bold mt-1">✓</span>
-                  <div>
-                    <p className="font-semibold text-slate-900">10+ Production Automation Projects</p>
-                    <p className="text-sm text-slate-600">Including WhatsApp bots, content pipelines, AI chatbots, and more</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-amber-600 font-bold mt-1">✓</span>
-                  <div>
-                    <p className="font-semibold text-slate-900">Full-Stack Developer</p>
-                    <p className="text-sm text-slate-600">Flutter mobile apps, React frontends, Supabase/Firebase backends</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-amber-600 font-bold mt-1">✓</span>
-                  <div>
-                    <p className="font-semibold text-slate-900">AI Integration Specialist</p>
-                    <p className="text-sm text-slate-600">Claude, Gemini, GPT-4o, and multi-model routing with OpenRouter</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-center">
+      {/* ── INSTRUCTOR ── */}
+      <section id="instructor" className="py-24 bg-slate-50 border-t border-slate-100">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="relative order-2 lg:order-1 flex justify-center">
               <Image
                 src="/femi-headshot.webp"
                 alt="Femi Adeleke - Instructor"
-                width={350}
-                height={450}
-                className="w-full max-w-sm h-auto rounded-lg shadow-lg"
+                width={400}
+                height={500}
+                className="relative rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] w-full max-w-sm mx-auto hover:scale-[1.02] hover:-rotate-1 transition-all duration-500 object-cover border-4 border-white"
               />
+            </div>
+
+            <div className="order-1 lg:order-2">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-widest mb-6">Your Instructor</span>
+              <h2 className="text-4xl font-extrabold text-slate-900 mb-4">Meet Femi Adeleke</h2>
+              <p className="text-slate-500 mb-4 leading-relaxed">
+                I&apos;m a full-stack developer and automation engineer based in Ibadan, Nigeria. I specialize in building production-grade n8n workflows, connecting LLMs to real business applications, and AI-powered solutions.
+              </p>
+              <p className="text-slate-500 mb-8 leading-relaxed">
+                AutoLearn Spot is my first formal training program — and that&apos;s <strong className="text-slate-900">your advantage</strong>. You get direct access to me, real-time problem-solving, and curriculum built from workflows I&apos;m deploying right now.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { icon: '🔧', text: '10+ Production Projects' },
+                  { icon: '📱', text: 'Flutter & React Expert' },
+                  { icon: '🧠', text: 'AI Integration Specialist' },
+                  { icon: '🎓', text: 'Educator & Trainer' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-white shadow-sm rounded-xl p-3 border border-slate-200">
+                    <span className="text-xl">{item.icon}</span>
+                    <span className="text-sm font-bold text-slate-700">{item.text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="border-b border-slate-200">
-        <div className="mx-auto max-w-3xl px-6 py-20 sm:px-8">
+      {/* ── FAQ ── */}
+      <section id="faq" className="py-24 bg-white border-t border-slate-100">
+        <div className="mx-auto max-w-3xl px-6 sm:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-serif text-slate-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-slate-600">Got questions? We&apos;ve got answers. Can&apos;t find what you&apos;re looking for? Reach out on WhatsApp.</p>
+            <h2 className="text-4xl font-extrabold text-slate-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-500">Got questions? We&apos;ve got answers.</p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[
-              {
-                q: 'Do I need coding experience?',
-                a: 'No, absolutely not. AutoLearn Spot is 100% beginner-friendly. We teach n8n visually with no coding required. Many of our learners had zero technical background before joining.'
-              },
-              {
-                q: 'What if I miss a session?',
-                a: 'All sessions are recorded and available to access anytime. You can watch at your own pace, though we recommend keeping up with the live sessions for Q&A and community interaction.'
-              },
-              {
-                q: 'Is the certificate recognized?',
-                a: 'Yes. Our certificate is issued by Moon Space Network, a trusted organization in the tech community. You can display it on LinkedIn and your professional profiles.'
-              },
-              {
-                q: 'What payment methods do you accept?',
-                a: 'We use Paystack for secure payments. You can pay with your card (Visa, Mastercard), bank transfer, or USSD. All transactions are secure and encrypted.'
-              },
-              {
-                q: 'Can I get a refund?',
-                a: 'We stand behind our training. If you&apos;re not satisfied within the first 3 days, we offer a full refund. No questions asked.'
-              },
-              {
-                q: 'How long do I have access?',
-                a: 'You get lifetime access to all course materials, recorded sessions, and resources. You can revisit any content anytime.'
-              },
+              { q: 'Do I need coding experience?', a: 'No. AutoLearn Spot is 100% beginner-friendly. n8n is visual — no coding required. Many learners had zero technical background before joining.' },
+              { q: 'What if I miss a session?', a: 'All 12 sessions are recorded and available for lifetime access. You can catch up anytime, though live sessions offer real-time Q&A.' },
+              { q: 'Is the certificate recognized?', a: 'Yes. The certificate is issued by Moon Space Network, a trusted organization. You can display it on LinkedIn and professional profiles.' },
+              { q: 'What payment methods do you accept?', a: 'We use Paystack for secure payments — Visa, Mastercard, bank transfer, or USSD. All transactions are encrypted.' },
+              { q: 'Can I get a refund?', a: 'We offer a full refund within the first 3 days if you\'re not satisfied. No questions asked.' },
+              { q: 'How long do I have access?', a: 'Lifetime. Once enrolled, you have access to all 12 recordings and any future updates to the curriculum.' },
             ].map((item, i) => (
-              <div
-                key={i}
-                className="border border-slate-200 rounded-lg overflow-hidden hover:border-slate-300 transition-colors"
-              >
+              <div key={i} className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:border-emerald-300 transition-all">
                 <button
                   onClick={() => setExpandedFAQ(expandedFAQ === i ? null : i)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors text-left"
+                  className="w-full px-6 py-5 flex items-center justify-between hover:bg-white transition-colors text-left"
                 >
-                  <h3 className="font-semibold text-slate-900">{item.q}</h3>
-                  <span className={`text-amber-600 transition-transform duration-300 ${expandedFAQ === i ? 'rotate-180' : ''}`}>
-                    ⌄
-                  </span>
+                  <h3 className="text-sm font-bold text-slate-900">{item.q}</h3>
+                  <span className={`text-emerald-500 text-xl transition-transform duration-300 ml-4 flex-shrink-0 ${expandedFAQ === i ? 'rotate-180' : ''}`}>⌄</span>
                 </button>
                 {expandedFAQ === i && (
-                  <div className="px-6 py-4 border-t border-slate-200 bg-slate-50">
-                    <p className="text-slate-600 text-sm leading-relaxed">{item.a}</p>
+                  <div className="px-6 pb-6 bg-white border-t border-slate-100">
+                    <p className="text-sm text-slate-600 leading-relaxed pt-4">{item.a}</p>
                   </div>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="mt-12 text-center p-6 rounded-lg bg-slate-50 border border-slate-200">
-            <p className="text-slate-600 mb-4">Still have questions?</p>
+          <div className="mt-10 text-center p-6 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm">
+            <p className="text-slate-600 mb-4 font-medium text-sm">Still have questions?</p>
             <button
               onClick={() => setShowWhatsAppModal(true)}
-              className="inline-block px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-bold text-sm transition-all shadow-md shadow-green-200 hover:shadow-green-300"
             >
-              Chat with us on WhatsApp
+              💬 Chat with us on WhatsApp
             </button>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-slate-900 text-white">
-        <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8 text-center">
-          <h2 className="text-3xl font-serif mb-6">Ready to Master n8n Automation?</h2>
-          <p className="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-            Join our comprehensive training program and learn to build powerful automations that drive real business results.
-          </p>
-          <Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white" onClick={() => setShowRegModal(true)}>
-            Enroll Now
-          </Button>
+      {/* ── CTA SECTION ── */}
+      <section className="py-24 bg-white">
+        <div className="mx-auto max-w-4xl px-6 sm:px-8 text-center">
+          <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-800 rounded-3xl p-12 overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl pointer-events-none" />
+            <div className="relative">
+              <span className="text-5xl block mb-6">🚀</span>
+              <h2 className="text-4xl font-extrabold text-white mb-4">Ready to start building?</h2>
+              <p className="text-slate-300 mb-8 max-w-lg mx-auto leading-relaxed text-lg">
+                Stop watching tutorials and start building real automations. Join the training and get certified.
+              </p>
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white rounded-full px-10 h-14 text-base font-bold shadow-lg shadow-emerald-500/30 transition-all hover:scale-[1.02]"
+                onClick={() => setShowRegModal(true)}
+              >
+                Enroll Now — Only {programPrice} →
+              </Button>
+              <p className="text-xs text-slate-400 mt-5 font-medium">3-day money back guarantee · Secure payment via Paystack</p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto max-w-7xl px-6 py-12 sm:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center">
-            <div className="text-slate-600 text-sm">© 2026 AutoLearn. All rights reserved.</div>
-            <div className="flex gap-6 mt-4 sm:mt-0">
-              <a href="#" className="text-slate-600 hover:text-slate-900 text-sm transition-colors">Privacy</a>
-              <a href="#" className="text-slate-600 hover:text-slate-900 text-sm transition-colors">Terms</a>
-              <a href="#" className="text-slate-600 hover:text-slate-900 text-sm transition-colors">Contact</a>
-            </div>
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-slate-200 bg-slate-50 py-10">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Image src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" width={32} height={32} className="rounded-lg" />
+            <span className="text-base font-bold text-slate-900">AutoLearn <span className="text-emerald-500">Spot</span></span>
+          </div>
+          <div className="text-sm font-medium text-slate-500">© 2026 AutoLearn Spot. All rights reserved.</div>
+          <div className="flex gap-6">
+            {['Privacy', 'Terms', 'Contact'].map((l) => (
+              <a key={l} href="#" className="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">{l}</a>
+            ))}
           </div>
         </div>
       </footer>
 
-      {/* Floating WhatsApp Icon */}
+      {/* ── FLOATING WHATSAPP ── */}
       <button
         onClick={() => setShowWhatsAppModal(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg flex items-center justify-center text-white text-2xl transition-all duration-300 hover:scale-110 z-50"
-        aria-label="Chat with us on WhatsApp"
-        title="Chat with us on WhatsApp"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg shadow-green-200 flex items-center justify-center text-white text-2xl transition-all duration-300 hover:scale-110 z-50"
+        aria-label="Chat on WhatsApp"
       >
         💬
       </button>
 
-      {/* Registration Modal */}
+      {/* ── REGISTRATION MODAL ── */}
       {showRegModal && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={closeRegModal}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={closeRegModal}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={closeRegModal} className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors">✕</button>
+
             {!regSuccess ? (
               <>
-                <button
-                  onClick={closeRegModal}
-                  className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl"
-                >
-                  ✕
-                </button>
                 <div className="mb-6">
-                  <div className="inline-block px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full mb-3">
-                    STEP 1 OF 2
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Join AutoLearn Spot</h2>
-                  <p className="text-slate-600 text-sm">Enter your details then complete payment.</p>
+                  <span className="inline-block px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold rounded-full mb-3">STEP 1 OF 2</span>
+                  <h2 className="text-2xl font-extrabold text-slate-900 mb-1">Join AutoLearn Spot</h2>
+                  <p className="text-slate-500 text-sm">Enter your details, then complete payment securely via Paystack.</p>
                 </div>
 
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">Full Name *</label>
-                    <input
-                      type="text"
-                      placeholder="e.g., Chioma Adeleke"
-                      value={regData.name}
-                      onChange={(e) => setRegData({ ...regData, name: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">Email Address *</label>
-                    <input
-                      type="email"
-                      placeholder="e.g., chioma@gmail.com"
-                      value={regData.email}
-                      onChange={(e) => setRegData({ ...regData, email: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">Phone Number *</label>
-                    <input
-                      type="tel"
-                      placeholder="e.g., 08120934828"
-                      value={regData.phone}
-                      onChange={(e) => setRegData({ ...regData, phone: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-900 mb-1">Referral Code</label>
-                    <input
-                      type="text"
-                      placeholder="Optional referral code"
-                      value={regData.referral}
-                      onChange={(e) => setRegData({ ...regData, referral: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-amber-600"
-                    />
-                  </div>
+                <div className="space-y-4 mb-5">
+                  {[
+                    { label: 'Full Name *', type: 'text', key: 'name', placeholder: 'e.g., Chioma Adeleke' },
+                    { label: 'Email Address *', type: 'email', key: 'email', placeholder: 'e.g., chioma@gmail.com' },
+                    { label: 'Phone Number *', type: 'tel', key: 'phone', placeholder: 'e.g., 08120934828' },
+                    { label: 'Referral Code', type: 'text', key: 'referral', placeholder: 'Optional' },
+                  ].map((field) => (
+                    <div key={field.key}>
+                      <label className="block text-sm font-bold text-slate-700 mb-1.5">{field.label}</label>
+                      <input
+                        type={field.type}
+                        placeholder={field.placeholder}
+                        value={regData[field.key as keyof typeof regData]}
+                        onChange={(e) => setRegData({ ...regData, [field.key]: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 focus:bg-white transition-all font-medium"
+                      />
+                    </div>
+                  ))}
                 </div>
 
-                <div className="bg-slate-50 p-4 rounded-lg mb-6">
-                  <p className="text-xs text-slate-600 mb-1">Total — 12 sessions + certificate</p>
-                  <p className="text-xs text-slate-600 mb-3">✓ Secure via Paystack</p>
-                  <p className="text-xl font-bold text-slate-900">{programPrice}</p>
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Investment</p>
+                    <p className="text-xs text-green-600 mt-1 font-semibold flex items-center gap-1">🔒 Secure via Paystack</p>
+                  </div>
+                  <p className="text-2xl font-extrabold text-slate-900">{programPrice}</p>
                 </div>
 
                 <Button
                   size="lg"
-                  className="w-full bg-amber-600 hover:bg-amber-700 text-white mb-3"
+                  className="w-full bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white rounded-xl h-14 text-base font-bold shadow-lg shadow-emerald-200 mb-3 transition-all"
                   onClick={handleSubmitReg}
                   disabled={regLoading}
                 >
                   {regLoading ? 'Processing...' : 'Continue to Payment →'}
                 </Button>
-                <button
-                  onClick={closeRegModal}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg text-slate-900 hover:bg-slate-50 transition-colors text-sm font-medium"
-                >
+                <button onClick={closeRegModal} className="w-full py-2 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors">
                   Cancel
                 </button>
               </>
             ) : (
               <div className="text-center py-8">
-                <div className="text-4xl mb-4">✓</div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Details Saved!</h3>
-                <p className="text-slate-600 text-sm mb-4">Redirecting to payment...</p>
+                <div className="w-20 h-20 rounded-full bg-green-50 border-2 border-green-100 flex items-center justify-center text-4xl mx-auto mb-5">✅</div>
+                <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Details Saved!</h3>
+                <p className="text-slate-500 font-medium mb-6">Redirecting you to secure payment...</p>
                 <div className="flex justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-emerald-500"></div>
                 </div>
               </div>
             )}
@@ -652,27 +798,16 @@ export default function Page() {
         </div>
       )}
 
-      {/* WhatsApp Modal */}
+      {/* ── WHATSAPP MODAL ── */}
       {showWhatsAppModal && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setShowWhatsAppModal(false)}
-        >
-          <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowWhatsAppModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl"
-            >
-              ✕
-            </button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowWhatsAppModal(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setShowWhatsAppModal(false)} className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition-colors">✕</button>
 
             <div className="text-center mb-8">
-              <div className="text-5xl mb-3">💬</div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Chat with Femi</h2>
-              <p className="text-slate-600 text-sm">Pick a message — opens WhatsApp instantly</p>
+              <div className="text-5xl mb-4">💬</div>
+              <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Chat with Femi</h2>
+              <p className="text-slate-500 font-medium">Pick a message to open WhatsApp instantly</p>
             </div>
 
             <div className="space-y-3 mb-6">
@@ -680,29 +815,28 @@ export default function Page() {
                 <button
                   key={i}
                   onClick={() => sendWhatsApp(item.msg)}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-green-50 border border-slate-200 hover:border-green-400 transition-colors text-left group"
+                  className="w-full flex items-center gap-4 p-4 rounded-xl bg-slate-50 hover:bg-green-50 border border-slate-200 hover:border-green-300 transition-all text-left group"
                 >
                   <span className="text-2xl">{item.icon}</span>
-                  <span className="text-slate-900 font-medium group-hover:text-green-600">{item.text}</span>
-                  <span className="ml-auto text-slate-400 group-hover:text-green-600">→</span>
+                  <span className="text-sm text-slate-700 font-bold group-hover:text-green-800">{item.text}</span>
+                  <span className="ml-auto text-slate-300 group-hover:text-green-500 font-bold">→</span>
                 </button>
               ))}
             </div>
 
             <div className="flex items-center gap-3 mb-6">
               <div className="flex-1 h-px bg-slate-200"></div>
-              <span className="text-slate-500 text-sm">or</span>
+              <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Or</span>
               <div className="flex-1 h-px bg-slate-200"></div>
             </div>
 
             <button
               onClick={joinCommunity}
-              className="w-full flex items-center justify-center gap-2 p-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors mb-3"
+              className="w-full flex items-center justify-center gap-2 p-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-base transition-all shadow-lg shadow-green-200 mb-4"
             >
-              <span>👥</span> Join WhatsApp Community
+              👥 Join WhatsApp Community
             </button>
-
-            <p className="text-center text-slate-500 text-xs">Usually replies within a few hours</p>
+            <p className="text-center text-slate-400 font-medium text-xs">Usually replies within a few hours</p>
           </div>
         </div>
       )}

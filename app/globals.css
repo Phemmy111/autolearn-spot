@@ -162,8 +162,61 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-color: #f9fafb;
+    color: #0f172a;
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
 }
+
+/* Workflow node float animation */
+@keyframes floatNode {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-float-node {
+  animation: floatNode 3s ease-in-out infinite;
+}
+
+/* Dashed line march animation */
+@keyframes dashMarch {
+  to { stroke-dashoffset: -40; }
+}
+
+.animate-dash {
+  animation: dashMarch 1.5s linear infinite;
+}
+
+.animate-dash-2 {
+  animation: dashMarch 1.5s linear infinite 0.5s;
+}
+
+.animate-dash-3 {
+  animation: dashMarch 1.5s linear infinite 1s;
+}
+
+/* Slow ping for AI node ring */
+@keyframes pingSlowly {
+  0% { transform: scale(1); opacity: 0.4; }
+  70% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+.animate-ping-slow {
+  animation: pingSlowly 2.5s ease-out infinite;
+  transform-origin: 220px 80px;
+}
+
+/* Staggered widget animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
