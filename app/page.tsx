@@ -178,6 +178,17 @@ export default function Page() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [regData, setRegData] = useState({ name: '', email: '', phone: '', referral: '' })
   const [regLoading, setRegLoading] = useState(false)
+
+  // Auto-fill referral code from URL query parameter if present
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const ref = params.get('ref')
+      if (ref) {
+        setRegData(prev => ({ ...prev, referral: ref }))
+      }
+    }
+  }, [])
   const [regSuccess, setRegSuccess] = useState(false)
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null)
   const [scrolled, setScrolled] = useState(false);
