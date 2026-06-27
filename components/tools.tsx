@@ -4,42 +4,42 @@ const integrations = [
   {
     title: "Stripe",
     description: "Seamless payment processing and subscription management for your applications.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg",
+    image: "/icons/brands/stripe.svg",
   },
   {
     title: "OpenAI",
     description: "Integrate powerful AI capabilities into your workflows and applications.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-2.svg",
+    image: "/icons/brands/openai.svg",
   },
   {
     title: "Supabase",
     description: "Real-time database and authentication solutions for modern applications.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-3.svg",
+    image: "/icons/brands/supabase.svg",
   },
   {
     title: "Vercel",
     description: "Deploy and scale your applications with enterprise-grade infrastructure.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-4.svg",
+    image: "/icons/brands/vercel.svg",
   },
   {
     title: "Slack",
     description: "Connect your workflows with team communication and notifications.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-5.svg",
+    image: "/icons/brands/slack.svg",
   },
   {
     title: "Zapier",
     description: "Automate workflows between your favorite apps and services.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-6.svg",
+    image: "/icons/brands/zapier.svg",
   },
   {
     title: "Airtable",
     description: "Build custom databases and workflows with flexible data management.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg",
+    image: "/icons/brands/airtable.svg",
   },
   {
     title: "Notion",
     description: "Integrate with collaborative workspaces and knowledge management systems.",
-    image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-2.svg",
+    image: "/icons/brands/notion.svg",
   },
 ]
 
