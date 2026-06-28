@@ -290,11 +290,27 @@ useEffect(() => {
     try {
       await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), mode: 'no-cors' })
       setRegSuccess(true)
-      setTimeout(() => { window.location.href = paystackLink }, 1800)
+      
+      const metadata = {
+        referralCode: regData.referral || "",
+        fullName: regData.name,
+        phone: regData.phone
+      }
+      const dynamicPaystackLink = `${paystackLink}?email=${encodeURIComponent(regData.email)}&metadata=${encodeURIComponent(JSON.stringify(metadata))}`
+      
+      setTimeout(() => { window.location.href = dynamicPaystackLink }, 1800)
     } catch (error) {
       console.error('Webhook error:', error)
       setRegSuccess(true)
-      setTimeout(() => { window.location.href = paystackLink }, 1800)
+      
+      const metadata = {
+        referralCode: regData.referral || "",
+        fullName: regData.name,
+        phone: regData.phone
+      }
+      const dynamicPaystackLink = `${paystackLink}?email=${encodeURIComponent(regData.email)}&metadata=${encodeURIComponent(JSON.stringify(metadata))}`
+      
+      setTimeout(() => { window.location.href = dynamicPaystackLink }, 1800)
     }
   }
 
