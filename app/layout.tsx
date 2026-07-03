@@ -50,7 +50,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="font-sans antialiased">
         {children}
-        <WhatsAppChatModal />
+        <WhatsAppChatModal variant="floating" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

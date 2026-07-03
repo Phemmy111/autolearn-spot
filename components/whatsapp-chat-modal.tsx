@@ -34,7 +34,7 @@ const quickMessages = [
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '2348120934828'
 const whatsappCommunityUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL
 
 
@@ -44,7 +44,7 @@ function whatsappHref(message: string) {
   return whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${text}` : `https://wa.me/?text=${text}`
 }
 
-export function WhatsAppChatModal() {
+export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' | 'floating' } = {}) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [message, setMessage] = useState('')
@@ -75,6 +75,7 @@ export function WhatsAppChatModal() {
 
   return (
     <>
+      {variant === 'floating' ? (
         <button
           className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-[#00f0ff] px-4 py-3 text-xs font-mono font-semibold uppercase tracking-[0.1em] text-[#050505] shadow-[0_4px_12px_rgba(0,240,255,0.2)] transition-transform hover:scale-105 hover:shadow-[0_6px_16px_rgba(0,240,255,0.3)]"
           onClick={() => setIsOpen(true)}
@@ -83,6 +84,15 @@ export function WhatsAppChatModal() {
           <MessageCircle className="h-5 w-5" />
           WhatsApp
         </button>
+      ) : (
+        <button
+          className="mt-4 border border-[#00f0ff]/70 bg-[#00f0ff]/10 px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition hover:bg-[#00f0ff]/15"
+          onClick={() => setIsOpen(true)}
+          type="button"
+        >
+          Send a message
+        </button>
+      )}
 
       {isOpen && isMounted
         ? createPortal(
