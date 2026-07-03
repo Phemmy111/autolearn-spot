@@ -55,10 +55,32 @@ export function EnrollModal({
     }
   }, [isOpen])
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsSubmitting(true)
-    const href = paymentHref(event.currentTarget)
+    const form = event.currentTarget
+    const href = paymentHref(form)
+
+    const data = new FormData(form)
+    const payload = JSON.stringify({
+      "Full Name": String(data.get('name') || ''),
+      "Email1": String(data.get('email') || ''),
+      "Phone": String(data.get('phone') || ''),
+      "ReferralCode": String(data.get('referral') || '')
+    })
+
+    const webhookUrl = "https://n8n-wj6g.onrender.com/webhook/6f985fb5-f10a-4ad3-99c0-d58d70f86408"
+    
+    try {
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        mode: "no-cors"
+      })
+    } catch (error) {
+      console.error("[Enrollment] Webhook fetch failed:", error)
+    }
 
     window.location.assign(href)
   }
