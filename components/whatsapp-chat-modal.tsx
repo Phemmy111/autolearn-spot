@@ -1,11 +1,6 @@
 'use client'
 
 import { ArrowRight, CalendarDays, CircleHelp, HandCoins, MessageCircle, Rocket, Users, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
-
-const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
-const whatsappCommunityUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL
 
 const quickMessages = [
   {
@@ -34,7 +29,15 @@ const quickMessages = [
     label: 'I want to be an ambassador',
     message: 'Hi Femi, I want to be an AutoLearn Spot ambassador.',
   },
-]
+];
+
+import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+
+const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+const whatsappCommunityUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL
+
+
 
 function whatsappHref(message: string) {
   const text = encodeURIComponent(message)
@@ -44,6 +47,7 @@ function whatsappHref(message: string) {
 export function WhatsAppChatModal() {
   const [isOpen, setIsOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [message, setMessage] = useState('')
   const communityHref = useMemo(
     () => whatsappCommunityUrl || whatsappHref('Hi Femi, I want to join the AutoLearn Spot WhatsApp community.'),
     [],
@@ -71,13 +75,14 @@ export function WhatsAppChatModal() {
 
   return (
     <>
-      <button
-        className="mt-4 border border-[#00f0ff]/70 bg-[#00f0ff]/10 px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition hover:bg-[#00f0ff]/15"
-        onClick={() => setIsOpen(true)}
-        type="button"
-      >
-        Chat with us on WhatsApp
-      </button>
+        <button
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-[#00f0ff] px-4 py-3 text-xs font-mono font-semibold uppercase tracking-[0.1em] text-[#050505] shadow-[0_4px_12px_rgba(0,240,255,0.2)] transition-transform hover:scale-105 hover:shadow-[0_6px_16px_rgba(0,240,255,0.3)]"
+          onClick={() => setIsOpen(true)}
+          type="button"
+        >
+          <MessageCircle className="h-5 w-5" />
+          WhatsApp
+        </button>
 
       {isOpen && isMounted
         ? createPortal(
@@ -125,34 +130,56 @@ export function WhatsAppChatModal() {
                   <p className="mt-2 text-sm leading-6 text-[#b9cacb]">
                     Pick a message to open WhatsApp instantly.
                   </p>
+                  {/* Quick message presets */}
+                  <div className="space-y-3 sm:mt-5">
+                    {quickMessages.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <a
+                          className={`group flex min-h-16 items-center gap-4 border px-4 py-3 transition ${
+                            item.featured
+                              ? 'border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#dbfcff] hover:bg-[#00f0ff]/15'
+                              : 'border-[#1f2229] bg-[#0c0e12] text-[#e2e2e8] hover:border-[#00f0ff]/55 hover:bg-[#10151b]'
+                          }`}
+                          href={whatsappHref(item.message)}
+                          key={item.label}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          <Icon className="h-5 w-5 shrink-0 text-[#00f0ff]" />
+                          <span className="min-w-0 flex-1 text-left font-mono text-xs font-semibold uppercase tracking-[0.08em]">
+                            {item.label}
+                          </span>
+                          <ArrowRight className="h-4 w-4 shrink-0 text-[#5d5f63] transition group-hover:translate-x-1 group-hover:text-[#00f0ff]" />
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="relative mt-4 space-y-3 sm:mt-5">
-              {quickMessages.map((item) => {
-                const Icon = item.icon
-                return (
-                  <a
-                    className={`group flex min-h-16 items-center gap-4 border px-4 py-3 transition ${
-                      item.featured
-                        ? 'border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#dbfcff] hover:bg-[#00f0ff]/15'
-                        : 'border-[#1f2229] bg-[#0c0e12] text-[#e2e2e8] hover:border-[#00f0ff]/55 hover:bg-[#10151b]'
-                    }`}
-                    href={whatsappHref(item.message)}
-                    key={item.label}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    <Icon className="h-5 w-5 shrink-0 text-[#00f0ff]" />
-                    <span className="min-w-0 flex-1 text-left font-mono text-xs font-semibold uppercase tracking-[0.08em]">
-                      {item.label}
-                    </span>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-[#5d5f63] transition group-hover:translate-x-1 group-hover:text-[#00f0ff]" />
-                  </a>
-                )
-              })}
-            </div>
+                <textarea
+                  className="w-full rounded bg-[#0c0e12] p-2 text-[#e2e2e8] placeholder-[#5d5f63] focus:outline-none"
+                  placeholder="Type your enquiry here..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
+                <a
+                  className={`inline-flex items-center gap-2 rounded px-4 py-2 font-mono text-xs font-semibold uppercase tracking-[0.08em] ${
+                    message
+                      ? 'border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#dbfcff] hover:bg-[#00f0ff]/15'
+                      : 'border-[#1f2229] bg-[#0c0e12] text-[#5d5f63] cursor-not-allowed'
+                  }`}
+                  href={whatsappHref(message || 'Hi Femi, I have a question about AutoLearn Spot.')}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <MessageCircle className="h-5 w-5 shrink-0 text-[#00f0ff]" />
+                  Send Enquiry
+                </a>
+              </div>
 
             <div className="relative my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-[#1f2229]" />
