@@ -4,11 +4,10 @@ import { Lock, X } from 'lucide-react'
 import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-const paymentUrl = process.env.NEXT_PUBLIC_PAYSTACK_PAYMENT_URL
+const defaultPaymentUrl = 'https://paystack.shop/pay/yoksvlq4xn'
+const paymentUrl = process.env.NEXT_PUBLIC_PAYSTACK_PAYMENT_URL || defaultPaymentUrl
 
 function paymentHref(form: HTMLFormElement) {
-  if (!paymentUrl) return '#'
-
   const data = new FormData(form)
   const url = new URL(paymentUrl)
   const name = String(data.get('name') || '')
@@ -33,6 +32,7 @@ export function EnrollModal({
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const modalTitleId = useMemo(() => 'enroll-modal-title', [])
 
   useEffect(() => {
@@ -57,11 +57,10 @@ export function EnrollModal({
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setIsSubmitting(true)
     const href = paymentHref(event.currentTarget)
 
-    if (href !== '#') {
-      window.open(href, '_blank', 'noopener,noreferrer')
-    }
+    window.location.assign(href)
   }
 
   return (
@@ -179,10 +178,11 @@ export function EnrollModal({
                   </div>
 
                   <button
-                    className="corner-accent blueprint-cta flex h-14 w-full items-center justify-center border border-[#00f0ff] bg-[#00f0ff] px-5 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff]"
+                    className="corner-accent blueprint-cta flex h-14 w-full items-center justify-center border border-[#00f0ff] bg-[#00f0ff] px-5 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff] disabled:cursor-wait disabled:opacity-75"
+                    disabled={isSubmitting}
                     type="submit"
                   >
-                    Continue to Payment →
+                    {isSubmitting ? 'Opening Paystack...' : 'Continue to Payment →'}
                   </button>
                 </form>
 
