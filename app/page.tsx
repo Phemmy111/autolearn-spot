@@ -24,6 +24,8 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import type { ReactNode } from 'react'
+import { EnrollModal } from '@/components/enroll-modal'
+import { SectionFadeController } from '@/components/section-fade-controller'
 import { ThreeAiBackground } from '@/components/three-ai-background'
 import { ThreeAutomationField } from '@/components/three-automation-field'
 import { ToolsCarousel } from '@/components/tools-carousel'
@@ -230,6 +232,9 @@ function CornerButton({
     </button>
   )
 }
+
+const primaryCtaClass =
+  'corner-accent blueprint-cta relative inline-flex items-center justify-center gap-2 overflow-hidden border border-cyan-300 bg-[#00f0ff] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]'
 
 function WorkflowNode({
   node,
@@ -510,6 +515,7 @@ function LogicFlow() {
 export default function Page() {
   return (
     <main className="page-shell min-h-screen bg-[#111317] text-[#e2e2e8]">
+      <SectionFadeController />
       <ThreeAiBackground />
       <nav className="page-nav sticky top-0 z-50 mx-auto flex h-16 max-w-[1440px] items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
         <a className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="#">
@@ -527,10 +533,10 @@ export default function Page() {
             </a>
           ))}
         </div>
-        <CornerButton className="page-animate page-delay-4">Enroll Now - ₦3,000</CornerButton>
+        <EnrollModal className={`${primaryCtaClass} page-animate page-delay-4`}>Enroll Now - ₦3,000</EnrollModal>
       </nav>
 
-      <section className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-4 py-16 sm:px-6 md:grid-cols-12 md:py-28">
+      <section className="section-fade mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-4 py-16 sm:px-6 md:grid-cols-12 md:py-28">
         <div className="relative z-10 flex flex-col justify-center border-[#1f2229] md:col-span-6 md:border-r md:pr-8">
           <h1 className="page-animate page-delay-1 max-w-2xl font-heading text-4xl font-bold uppercase leading-[1.08] tracking-normal text-[#e2e2e8] sm:text-5xl lg:text-6xl">
             <span className="typewriter-headline" aria-label="Build Real AI Automations. Get Certified.">
@@ -544,10 +550,10 @@ export default function Page() {
             deployable workflow you built yourself.
           </p>
           <div className="page-animate page-delay-3 mt-10 flex flex-wrap gap-4">
-            <CornerButton>
+            <EnrollModal className={primaryCtaClass}>
               <Terminal className="h-4 w-4" />
               Start Learning - ₦3,000
-            </CornerButton>
+            </EnrollModal>
             <CornerButton variant="secondary">View Curriculum</CornerButton>
           </div>
           <div className="page-animate page-delay-4 mt-16 flex items-center gap-6 text-[#b9cacb]/70">
@@ -574,7 +580,7 @@ export default function Page() {
       </section>
 
       <section
-        className="mx-auto grid max-w-[1440px] grid-cols-2 gap-4 border-t border-[#1f2229] px-4 py-12 sm:px-6 md:grid-cols-4"
+        className="section-fade mx-auto grid max-w-[1440px] grid-cols-2 gap-4 border-t border-[#1f2229] px-4 py-12 sm:px-6 md:grid-cols-4"
         id="stats"
       >
         {stats.map(([value, label], index) => (
@@ -586,7 +592,7 @@ export default function Page() {
       </section>
 
       <section
-        className="mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
+        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
         id="curriculum"
       >
         <div className="page-animate mb-12 text-center">
@@ -649,7 +655,7 @@ export default function Page() {
       </section>
 
       <section
-        className="mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
+        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
         id="tools"
       >
         <div className="page-animate mb-12 text-center">
@@ -664,7 +670,7 @@ export default function Page() {
       </section>
 
       <section
-        className="mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
+        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
         id="why"
       >
         <div className="page-animate mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
@@ -752,7 +758,7 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-[1440px] grid-cols-1 gap-8 border-t border-[#1f2229] px-4 py-20 sm:px-6 md:grid-cols-12 md:py-24">
+      <section className="section-fade mx-auto grid max-w-[1440px] grid-cols-1 gap-8 border-t border-[#1f2229] px-4 py-20 sm:px-6 md:grid-cols-12 md:py-24">
         <div className="page-animate md:col-span-5">
           <div className="border border-[#1f2229] bg-[#050505] p-6">
             <div className="relative aspect-square overflow-hidden border border-[#3b494b] bg-[#050505]">
@@ -797,7 +803,7 @@ export default function Page() {
       </section>
 
       <section
-        className="mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
+        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
         id="faq"
       >
         <div className="page-animate mb-12 text-center">
@@ -829,7 +835,7 @@ export default function Page() {
         </div>
       </section>
 
-      <footer className="page-animate mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 border-t border-[#3b494b] px-4 py-8 sm:px-6 md:flex-row">
+      <footer className="section-fade page-animate mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 border-t border-[#3b494b] px-4 py-8 sm:px-6 md:flex-row">
         <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
           ©2026 AUTOLEARN_SPOT // NEXT_COHORT_JULY_13
         </div>

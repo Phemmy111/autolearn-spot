@@ -458,6 +458,12 @@
 }
 
 .page-animate {
+  opacity: 0;
+  transform: translateY(28px);
+  will-change: opacity, transform;
+}
+
+.page-animate.is-visible {
   animation: pageEnter 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -504,12 +510,26 @@
   animation: ctaSweep 3.2s ease-in-out infinite;
 }
 
-.page-animate:is(article) {
+.page-animate:is(article).is-visible {
   animation-name: pageEnter, borderWake;
   animation-duration: 0.75s, 5s;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1), ease-in-out;
   animation-fill-mode: both, none;
   animation-iteration-count: 1, infinite;
+}
+
+.section-fade {
+  opacity: 0;
+  transform: translateY(38px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.section-fade.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .timeline-row {
@@ -622,6 +642,7 @@
   .page-shell::before,
   .page-nav,
   .page-animate,
+  .section-fade,
   .three-ai-background,
   .hero-aura,
   .three-automation-field,
@@ -642,6 +663,7 @@
   }
 
   .page-animate,
+  .section-fade,
   .timeline-row,
   .typewriter-headline,
   .typewriter-line {
