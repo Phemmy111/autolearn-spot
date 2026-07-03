@@ -26,8 +26,8 @@ export function SectionFadeController() {
         })
       },
       {
-        rootMargin: '0px 0px -14% 0px',
-        threshold: 0.14,
+        rootMargin: '0px 0px 24% 0px',
+        threshold: 0.04,
       },
     )
 
