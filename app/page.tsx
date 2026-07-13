@@ -1,3 +1,5 @@
+"use client";
+import { useAuth } from '@clerk/nextjs';
 import {
   Bot,
   BrainCircuit,
@@ -10,6 +12,7 @@ import {
   Infinity,
   Mail,
   MessageCircle,
+  Play,
   Plus,
   Rocket,
   Send,
@@ -23,8 +26,11 @@ import {
   Wrench,
 } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import type { ReactNode } from 'react'
+
 import { EnrollModal } from '@/components/enroll-modal'
+import { PreviewVideoModal } from '@/components/preview-video-modal'
 import { SectionFadeController } from '@/components/section-fade-controller'
 import { ThreeAiBackground } from '@/components/three-ai-background'
 import { ThreeAutomationField } from '@/components/three-automation-field'
@@ -513,6 +519,8 @@ function LogicFlow() {
 }
 
 export default function Page() {
+  const { isSignedIn } = useAuth()
+
   return (
     <main className="page-shell min-h-screen bg-[#111317] text-[#e2e2e8]">
       <SectionFadeController />
@@ -533,7 +541,15 @@ export default function Page() {
             </a>
           ))}
         </div>
-        <EnrollModal className={`${primaryCtaClass} page-animate page-delay-4`}>Enroll Now - ₦3,000</EnrollModal>
+        <div className="flex items-center gap-4">
+          <Link
+            href={isSignedIn ? "/dashboard" : "/sign-in"}
+            className="font-mono text-[10px] sm:text-xs font-semibold uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+          >
+            {isSignedIn ? 'Student Dashboard' : 'Student Login'}
+          </Link>
+          <EnrollModal className={`${primaryCtaClass} page-animate page-delay-4`}>Enroll Now - ₦3,000</EnrollModal>
+        </div>
       </nav>
 
       <section className="section-fade mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-4 py-16 sm:px-6 md:grid-cols-12 md:py-28">
@@ -554,7 +570,10 @@ export default function Page() {
               <Terminal className="h-4 w-4" />
               Start Learning - ₦3,000
             </EnrollModal>
-            <CornerButton variant="secondary">View Curriculum</CornerButton>
+            <PreviewVideoModal vimeoVideoId="1209374969" className="corner-accent relative inline-flex items-center justify-center gap-2 overflow-hidden border border-[#3b494b] bg-[#0c0e12] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#e2e2e8] transition duration-150 hover:bg-[#1a1c20] hover:text-[#00f0ff] hover:border-[#00f0ff]">
+               <Play className="h-4 w-4" />
+               Watch Preview
+            </PreviewVideoModal>
           </div>
           <div className="page-animate page-delay-4 mt-16 flex items-center gap-6 text-[#b9cacb]/70">
             <div>
@@ -840,13 +859,18 @@ export default function Page() {
           ©2026 AUTOLEARN_SPOT // NEXT_COHORT_JULY_13
         </div>
         <div className="flex flex-wrap justify-center gap-6">
-          {['Curriculum', 'Tools', 'Instructor', 'WhatsApp'].map((link) => (
+          {[
+            { label: 'Curriculum', id: 'curriculum' },
+            { label: 'Tools', id: 'tools' },
+            { label: 'Why Autolearn', id: 'why' },
+            { label: 'FAQ', id: 'faq' }
+          ].map((link) => (
             <a
+              key={link.id}
+              href={`#${link.id}`}
               className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#5d5f63] underline decoration-[#00f0ff] underline-offset-4 transition hover:text-[#dbfcff]"
-              href="#"
-              key={link}
             >
-              {link}
+              {link.label}
             </a>
           ))}
         </div>
