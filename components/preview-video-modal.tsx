@@ -1,10 +1,10 @@
 'use client'
 
-import { X, Lock } from 'lucide-react'
+import { X, Lock, ArrowRight } from 'lucide-react'
 import { type ReactNode, useEffect, useMemo, useState, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import Link from 'next/link'
 import Player from '@vimeo/player'
-import { EnrollModal } from './enroll-modal'
 
 interface PreviewVideoModalProps {
   children: ReactNode
@@ -202,9 +202,13 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
                         You&apos;ve reached the end of the preview. Enroll now to unlock the full
                         course, live deployments, and get certified.
                       </p>
-                      <EnrollModal className="corner-accent relative inline-flex h-12 items-center justify-center border border-[#00f0ff] bg-[#00f0ff] px-6 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff]">
+                      <Link
+                        href="/sign-up"
+                        className="corner-accent relative inline-flex h-12 items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-8 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff] w-full max-w-xs"
+                      >
                         Enroll Now to Unlock
-                      </EnrollModal>
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
                     </div>
                   )}
                 </div>
