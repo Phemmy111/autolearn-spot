@@ -96,7 +96,7 @@ export function EnrollModal({
             <div
               aria-labelledby={modalTitleId}
               aria-modal="true"
-              className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#050505]/82 px-3 py-4 backdrop-blur-md sm:px-6 sm:py-8"
+              className="fixed inset-0 z-[300] flex items-center justify-center overflow-y-auto bg-[#050505]/82 px-3 py-4 backdrop-blur-md sm:px-6 sm:py-8"
               role="dialog"
             >
               <button
