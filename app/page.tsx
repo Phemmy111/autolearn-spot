@@ -37,7 +37,7 @@ import { ThreeAutomationField } from '@/components/three-automation-field'
 import { ToolsCarousel } from '@/components/tools-carousel'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 
-const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ']
+const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ', 'Live Class'];
 
 const stats = [
   ['10+', 'Real workflows deployed'],
@@ -531,15 +531,28 @@ export default function Page() {
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </a>
         <div className="hidden items-center gap-8 md:flex">
-          {navItems.map((item) => (
-            <a
-              className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
-              href={`#${item.toLowerCase()}`}
-              key={item}
-            >
-              {item}
-            </a>
-          ))}
+          {navItems.map((item) => {
+            if (item === 'Live Class') {
+              return (
+                <Link
+                  key={item}
+                  href="/live-class"
+                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                >
+                  {item}
+                </Link>
+              );
+            }
+            return (
+              <a
+                key={item}
+                href={`#${item.toLowerCase().replace(' ', '')}`}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                {item}
+              </a>
+            );
+          })}
         </div>
         <div className="flex items-center gap-4">
           <Link
