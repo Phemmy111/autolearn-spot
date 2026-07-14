@@ -100,7 +100,14 @@ export default function LiveClassPage() {
       )}
       {showJitsi && roomName && (
         <div className="mt-8 rounded-xl overflow-hidden shadow-lg border border-gray-700 bg-gray-900/80 backdrop-blur-md">
-          <LiveJitsi roomName={roomName} userName={user?.fullName || "Guest"} />
+          <LiveJitsi 
+            roomName={roomName} 
+            userName={
+              user?.publicMetadata?.role === "admin" || user?.primaryEmailAddress?.emailAddress === "femiadeleke2019@gmail.com"
+                ? `${user?.fullName || "Guest"} (Anchor)`
+                : (user?.fullName || "Guest")
+            } 
+          />
         </div>
       )}
     </section>
