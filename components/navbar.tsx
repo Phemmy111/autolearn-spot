@@ -47,6 +47,7 @@ export function Navbar() {
           <div className="flex items-center justify-between rounded-full border border-zinc-700">
             <ResourcesDropdown />
             <ToolsDropdown />
+            <Link href="/live-class" className="px-4 py-2 rounded hover:bg-gray-800 transition text-white ml-4">Live Class</Link>
           </div>
           <Link
             href="/contact"
