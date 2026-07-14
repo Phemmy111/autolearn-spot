@@ -77,8 +77,15 @@ export default function LiveClassPage() {
     const date = new Date();
     const suffix = date.toISOString().split("T")[0];
     const name = `${schedule.roomPrefix}-${suffix}`;
-    setRoomName(name);
-    setShowJitsi(true);
+    
+    const displayName = user?.publicMetadata?.role === "admin" || user?.primaryEmailAddress?.emailAddress === "femiadeleke2019@gmail.com"
+      ? `${user?.fullName || "Guest"} (Anchor)`
+      : (user?.fullName || "Guest");
+      
+    // Construct the Jitsi URL with the display name in the hash
+    const jitsiUrl = `https://meet.jit.si/${encodeURIComponent(name)}#userInfo.displayName="${encodeURIComponent(displayName)}"`;
+    
+    window.open(jitsiUrl, "_blank");
   };
 
   return (
@@ -97,18 +104,6 @@ export default function LiveClassPage() {
         </div>
       ) : (
         <p className="text-center">Loading schedule...</p>
-      )}
-      {showJitsi && roomName && (
-        <div className="mt-8 rounded-xl overflow-hidden shadow-lg border border-gray-700 bg-gray-900/80 backdrop-blur-md">
-          <LiveJitsi 
-            roomName={roomName} 
-            userName={
-              user?.publicMetadata?.role === "admin" || user?.primaryEmailAddress?.emailAddress === "femiadeleke2019@gmail.com"
-                ? `${user?.fullName || "Guest"} (Anchor)`
-                : (user?.fullName || "Guest")
-            } 
-          />
-        </div>
       )}
     </section>
   );
