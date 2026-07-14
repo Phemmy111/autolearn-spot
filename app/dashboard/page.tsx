@@ -54,7 +54,12 @@ export default async function DashboardPage() {
           <Link href="/" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Home
           </Link>
-          <span className="font-mono text-xs uppercase text-[#b9cacb] hidden sm:block">Student Portal</span>
+          <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            Live Class
+          </Link>
+          <span className="font-mono text-xs uppercase text-[#b9cacb] hidden sm:block">
+            Student Portal
+          </span>
           <SignOutButton redirectUrl="/">
             <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
               Sign Out

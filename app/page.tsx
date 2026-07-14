@@ -37,7 +37,7 @@ import { ThreeAutomationField } from '@/components/three-automation-field'
 import { ToolsCarousel } from '@/components/tools-carousel'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 
-const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ', 'Live Class'];
+const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ'];
 
 const stats = [
   ['10+', 'Real workflows deployed'],
