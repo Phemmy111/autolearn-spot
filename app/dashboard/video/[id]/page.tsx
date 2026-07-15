@@ -5,7 +5,7 @@ import { videos, isVideoAvailable } from '@/data/videos'
 import { auth } from '@clerk/nextjs/server'
 import VdoCipherPlayer from '@/components/vdocipher-player'
 import VimeoPlayer from '@/components/vimeo-player'
-
+import { AutolearnBot } from '@/components/autolearn-bot'
 interface VideoPageProps {
   params: Promise<{
     id: string
@@ -95,6 +95,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
           </div>
         )}
       </div>
+      <AutolearnBot context="dashboard" />
     </main>
   )
 }
