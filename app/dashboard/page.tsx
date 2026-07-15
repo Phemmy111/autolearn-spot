@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { videos, isVideoAvailable } from '@/data/videos';
 import { Lock, PlayCircle, Calendar } from 'lucide-react';
 import { ProgressBar, MarkCompleteButton, CompletedBadge } from '@/components/progress-tracker';
+import { AutolearnBot } from '@/components/autolearn-bot';
 
 export interface VideoCourse {
   id: string
@@ -138,6 +139,7 @@ export default async function DashboardPage() {
           ))}
         </div>
       </div>
+      <AutolearnBot context="dashboard" />
     </main>
   );
 }

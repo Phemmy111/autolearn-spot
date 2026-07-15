@@ -28,6 +28,7 @@ import {
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { AutolearnBot } from '@/components/autolearn-bot'
 
 import { EnrollModal } from '@/components/enroll-modal'
 import { PreviewVideoModal } from '@/components/preview-video-modal'
@@ -888,6 +889,7 @@ export default function Page() {
           ))}
         </div>
       </footer>
+      <AutolearnBot context="landing" />
     </main>
   )
 }
