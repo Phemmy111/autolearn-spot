@@ -1,10 +1,11 @@
 import { SignOutButton } from '@clerk/nextjs';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { videos, isVideoAvailable } from '@/data/videos';
 import { Lock, PlayCircle, Calendar } from 'lucide-react';
 import { ProgressBar, MarkCompleteButton, CompletedBadge } from '@/components/progress-tracker';
 import { AutolearnBot } from '@/components/autolearn-bot';
+import { DashboardWidgets } from '@/components/dashboard-widgets';
 
 export interface VideoCourse {
   id: string
@@ -20,6 +21,8 @@ export interface VideoCourse {
 
 export default async function DashboardPage() {
   const { userId } = await auth();
+  const user = await currentUser();
+  const firstName = user?.firstName || 'Student';
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -69,6 +72,14 @@ export default async function DashboardPage() {
         </div>
       </nav>
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+        <div className="mb-8 border-l-4 border-[#00f0ff] bg-[#00f0ff]/10 p-4">
+          <p className="font-mono text-sm text-[#e2e8e2] leading-relaxed">
+            <strong className="text-[#00f0ff]">Instructor Announcement:</strong> Welcome to the July 13th Cohort, {firstName}! Our first live session is this Saturday at 9PM WAT.
+          </p>
+        </div>
+
+        <DashboardWidgets />
+
         <div className="mb-12">
           <h1 className="font-heading text-3xl font-bold uppercase text-[#e2e8e2]">Your Curriculum</h1>
           <p className="mt-3 font-mono text-sm text-[#b9cacb]">
