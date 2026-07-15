@@ -364,10 +364,13 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
       )
     : null
 
-  return (
-    <>
-      {triggerButton}
-      {chatModal}
-    </>
-  )
+  return isMounted
+    ? createPortal(
+        <>
+          {triggerButton}
+          {chatModal}
+        </>,
+        document.body
+      )
+    : <>{triggerButton}</>
 }
