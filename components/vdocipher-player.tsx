@@ -1,13 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Loader2, AlertCircle } from 'lucide-react'
+import { useAuth } from '@clerk/nextjs'
+import { markVideoComplete } from '@/components/progress-tracker'
+
+// Declare VdoPlayer on the window object
+declare global {
+  interface Window {
+    VdoPlayer: any
+    onVdoPlayerV2APIReady: () => void
+  }
+}
 
 interface VdoCipherPlayerProps {
   videoId: string
 }
 
 export default function VdoCipherPlayer({ videoId }: VdoCipherPlayerProps) {
+  const { userId } = useAuth()
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const [otp, setOtp] = useState<string | null>(null)
   const [playbackInfo, setPlaybackInfo] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -29,6 +41,45 @@ export default function VdoCipherPlayer({ videoId }: VdoCipherPlayerProps) {
       })
       .catch(() => setError('Unable to load video. Please try again.'))
   }, [videoId])
+
+  useEffect(() => {
+    if (!otp || !playbackInfo || !iframeRef.current) return
+
+    let player: any = null
+    let marked = false
+
+    const initPlayer = () => {
+      if (iframeRef.current && window.VdoPlayer) {
+        player = window.VdoPlayer.getInstance(iframeRef.current)
+        
+        player.video.addEventListener('timeupdate', () => {
+          if (!player.video.duration) return
+          const percent = player.video.currentTime / player.video.duration
+          if (!marked && percent > 0.9 && userId) {
+            marked = true
+            markVideoComplete(userId, videoId)
+          }
+        })
+      }
+    }
+
+    if (!window.VdoPlayer) {
+      const script = document.createElement('script')
+      script.src = 'https://player.vdocipher.com/v2/api.js'
+      script.async = true
+      document.body.appendChild(script)
+      window.onVdoPlayerV2APIReady = initPlayer
+    } else {
+      initPlayer()
+    }
+
+    return () => {
+      if (player && player.video) {
+        // VdoPlayer doesn't have an explicit unload/destroy that we need to manage here,
+        // but we would ideally removeEventListener if we kept the reference to the handler.
+      }
+    }
+  }, [otp, playbackInfo, videoId, userId])
 
   if (error) {
     return (
@@ -52,6 +103,7 @@ export default function VdoCipherPlayer({ videoId }: VdoCipherPlayerProps) {
 
   return (
     <iframe
+      ref={iframeRef}
       src={`https://player.vdocipher.com/v2/?otp=${otp}&playbackInfo=${playbackInfo}`}
       style={{
         border: 0,

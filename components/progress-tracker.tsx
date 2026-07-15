@@ -23,6 +23,17 @@ function setCompleted(userId: string, completed: string[]) {
   localStorage.setItem(getStorageKey(userId), JSON.stringify(completed))
 }
 
+export function markVideoComplete(userId: string, videoId: string) {
+  if (typeof window === 'undefined') return
+  const current = getCompleted(userId)
+  if (!current.includes(videoId)) {
+    const next = [...current, videoId]
+    setCompleted(userId, next)
+    window.dispatchEvent(new Event('autolearn-progress-updated'))
+    window.dispatchEvent(new Event('progress-updated'))
+  }
+}
+
 // ── Progress Bar ──────────────────────────────────────────────
 export function ProgressBar({ totalVideos }: { totalVideos: number }) {
   const { userId } = useAuth()
@@ -71,7 +82,6 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
   )
 }
 
-// ── Mark Complete Button ──────────────────────────────────────
 export function MarkCompleteButton({ videoId }: { videoId: string }) {
   const { userId } = useAuth()
   const [isDone, setIsDone] = useState(false)
@@ -82,29 +92,18 @@ export function MarkCompleteButton({ videoId }: { videoId: string }) {
     }
   }, [userId, videoId])
 
-  const toggle = useCallback(() => {
-    if (!userId) return
-    const current = getCompleted(userId)
-    let next: string[]
-    if (current.includes(videoId)) {
-      next = current.filter((id) => id !== videoId)
-    } else {
-      next = [...current, videoId]
+  useEffect(() => {
+    const handler = () => {
+      if (userId) setIsDone(getCompleted(userId).includes(videoId))
     }
-    setCompleted(userId, next)
-    setIsDone(next.includes(videoId))
-    // Notify the ProgressBar to re-read
-    window.dispatchEvent(new Event('progress-updated'))
+    window.addEventListener('progress-updated', handler)
+    return () => window.removeEventListener('progress-updated', handler)
   }, [userId, videoId])
 
   return (
-    <button
-      onClick={toggle}
-      type="button"
-      className={`flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] transition-colors ${
-        isDone
-          ? 'text-emerald-400 hover:text-emerald-300'
-          : 'text-[#5d5f63] hover:text-[#b9cacb]'
+    <div
+      className={`flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] ${
+        isDone ? 'text-emerald-400' : 'text-[#5d5f63]'
       }`}
     >
       {isDone ? (
@@ -112,8 +111,8 @@ export function MarkCompleteButton({ videoId }: { videoId: string }) {
       ) : (
         <Circle className="h-4 w-4" />
       )}
-      {isDone ? 'Completed' : 'Mark Complete'}
-    </button>
+      {isDone ? 'Completed' : 'In Progress'}
+    </div>
   )
 }
 
