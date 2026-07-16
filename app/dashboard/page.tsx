@@ -55,15 +55,21 @@ export default async function DashboardPage() {
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </Link>
         <div className="flex items-center gap-6">
-          <Link href="/" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+          <Link href="/dashboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Home
           </Link>
-          <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+          <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors hidden md:block">
             Live Class
           </Link>
-          <span className="font-mono text-xs uppercase text-[#b9cacb] hidden sm:block">
-            Student Portal
-          </span>
+          <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            Quiz
+          </Link>
+          <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors hidden sm:block">
+            Leaderboard
+          </Link>
+          <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors hidden lg:block">
+            History
+          </Link>
           <SignOutButton redirectUrl="/">
             <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
               Sign Out
