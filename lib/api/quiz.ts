@@ -6,7 +6,15 @@ export async function fetchCurrentQuiz(): Promise<Quiz | null> {
   try {
     const res = await fetch(`${BASE_URL}/quiz/current`, { cache: 'no-store' })
     if (!res.ok) throw new Error('Failed to fetch current quiz')
-    return await res.json()
+    
+    const data = await res.json()
+    // Validate that the n8n backend didn't return a broken/empty payload
+    if (!data || !data.title || typeof data.week !== 'number' || !Array.isArray(data.questions)) {
+      console.error('API returned malformed quiz data:', data)
+      throw new Error('Quiz data is malformed or empty')
+    }
+    
+    return data
   } catch (error) {
     console.error('Error fetching current quiz:', error)
     return null
