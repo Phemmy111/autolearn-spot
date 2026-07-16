@@ -9,18 +9,25 @@ interface QuestionCardProps {
 export function QuestionCard({ question, answer, onChange }: QuestionCardProps) {
   const isOpenEnded = question.type === 'Open-ended' || question.type === 'OPEN_ENDED'
   const isMCQ = question.type === 'MCQ'
-  const mcqOptions = question.options || ['A', 'B', 'C', 'D']
+
+  // Extract just the label (A, B, C, D) from an option string like "A. i only"
+  const extractLabel = (option: string): string => {
+    const match = option.match(/^([A-Z])\./)
+    return match ? match[1] : option
+  }
 
   return (
     <div className="rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
-      <h3 className="mb-6 font-heading text-xl font-semibold text-[#e2e8e2] leading-relaxed">
+      {/* Render question text, preserving \n line breaks */}
+      <h3 className="mb-6 font-heading text-lg font-semibold text-[#e2e8e2] leading-relaxed whitespace-pre-line">
         {question.question}
       </h3>
 
-      {isMCQ && (
+      {isMCQ && question.options && question.options.length > 0 && (
         <div className="flex flex-col gap-3">
-          {mcqOptions.map((opt, i) => {
-            const isSelected = answer === opt
+          {question.options.map((opt, i) => {
+            const label = extractLabel(opt)
+            const isSelected = answer === label
             return (
               <label
                 key={i}
@@ -30,17 +37,16 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
                     : 'border-[#1f2229] bg-[#111317] text-[#b9cacb] hover:border-[#3b494b]'
                 }`}
               >
-                <div className={`flex h-5 w-5 items-center justify-center rounded-full border ${isSelected ? 'border-[#00f0ff]' : 'border-[#5d5f63]'}`}>
+                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#00f0ff]' : 'border-[#5d5f63]'}`}>
                   {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[#00f0ff]" />}
                 </div>
                 <span className="font-mono text-sm">{opt}</span>
-                {/* Hidden actual radio input for accessibility */}
                 <input
                   type="radio"
                   name={`question-${question.number}`}
-                  value={opt}
+                  value={label}
                   checked={isSelected}
-                  onChange={() => onChange(opt)}
+                  onChange={() => onChange(label)}
                   className="hidden"
                 />
               </label>
@@ -55,7 +61,7 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
             value={answer || ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Type your answer here... (Auto-saves as you type)"
-            className="h-40 w-full resize-y rounded-lg border border-[#1f2229] bg-[#111317] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#00f0ff]"
+            className="h-40 w-full resize-y rounded-lg border border-[#1f2229] bg-[#111317] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#00f0ff] placeholder:text-[#5d5f63]"
           />
         </div>
       )}
