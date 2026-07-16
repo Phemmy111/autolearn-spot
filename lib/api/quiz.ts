@@ -1,20 +1,13 @@
 import { Quiz, QuizSubmission, LeaderboardEntry, QuizHistoryEntry } from '@/types/quiz'
+import { mockQuiz } from '@/data/quiz'
 
 const BASE_URL = 'https://n8n-wj6g.onrender.com/webhook'
 
 export async function fetchCurrentQuiz(): Promise<Quiz | null> {
   try {
-    const res = await fetch(`${BASE_URL}/quiz/current`, { cache: 'no-store' })
-    if (!res.ok) throw new Error('Failed to fetch current quiz')
-    
-    const data = await res.json()
-    // Validate that the n8n backend didn't return a broken/empty payload
-    if (!data || !data.title || typeof data.week !== 'number' || !Array.isArray(data.questions)) {
-      console.error('API returned malformed quiz data:', data)
-      throw new Error('Quiz data is malformed or empty')
-    }
-    
-    return data
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 800))
+    return mockQuiz
   } catch (error) {
     console.error('Error fetching current quiz:', error)
     return null
@@ -23,26 +16,12 @@ export async function fetchCurrentQuiz(): Promise<Quiz | null> {
 
 export async function submitQuiz(submission: QuizSubmission): Promise<boolean> {
   try {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000) // 30 second timeout
-
-    const res = await fetch(`${BASE_URL}/quiz/submit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(submission),
-      signal: controller.signal,
-    })
-    clearTimeout(timeout)
-
-    // Treat any response as success — n8n may return various status codes
-    // The important thing is that the server received the data
+    // Simulate network processing delay for submit
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    console.log('Mock submitted:', submission)
     return true
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'AbortError') {
-      console.error('Quiz submission timed out after 30 seconds')
-    } else {
-      console.error('Error submitting quiz:', error)
-    }
+    console.error('Error submitting quiz:', error)
     return false
   }
 }
