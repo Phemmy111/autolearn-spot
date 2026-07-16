@@ -7,15 +7,19 @@ interface QuestionCardProps {
 }
 
 export function QuestionCard({ question, answer, onChange }: QuestionCardProps) {
+  const isOpenEnded = question.type === 'Open-ended' || question.type === 'OPEN_ENDED'
+  const isMCQ = question.type === 'MCQ'
+  const mcqOptions = question.options || ['A', 'B', 'C', 'D']
+
   return (
     <div className="rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
       <h3 className="mb-6 font-heading text-xl font-semibold text-[#e2e8e2] leading-relaxed">
-        {question.questionText}
+        {question.question}
       </h3>
 
-      {question.type === 'MCQ' && question.options && (
+      {isMCQ && (
         <div className="flex flex-col gap-3">
-          {question.options.map((opt, i) => {
+          {mcqOptions.map((opt, i) => {
             const isSelected = answer === opt
             return (
               <label
@@ -45,7 +49,7 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
         </div>
       )}
 
-      {question.type === 'OPEN_ENDED' && (
+      {isOpenEnded && (
         <div className="flex flex-col gap-2">
           <textarea
             value={answer || ''}

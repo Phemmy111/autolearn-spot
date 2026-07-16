@@ -1,7 +1,7 @@
 export interface QuizQuestion {
   number: number
-  type: 'MCQ' | 'OPEN_ENDED'
-  questionText: string
+  type: string
+  question: string
   options?: string[]
 }
 
@@ -16,7 +16,7 @@ export interface Quiz {
 
 export interface QuizAnswer {
   number: number
-  type: 'MCQ' | 'OPEN_ENDED'
+  type: string
   answer: string
 }
 
