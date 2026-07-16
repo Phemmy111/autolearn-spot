@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { Quiz, QuizSubmission } from '@/types/quiz'
 import { useQuizProgress } from '@/hooks/useQuizProgress'
 import { useCountdown } from '@/hooks/useCountdown'
@@ -22,11 +22,55 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  const handleTimeUp = useCallback(async () => {
-    if (!isSubmitted && !isSubmitting) {
-      await handleSubmit()
+  // Use a ref so the timer callback always sees the latest state
+  const submittingRef = useRef(false)
+  const submittedRef = useRef(false)
+
+  const doSubmit = useCallback(async () => {
+    if (submittingRef.current || submittedRef.current) return
+    submittingRef.current = true
+    setIsSubmitting(true)
+    setSubmitError(null)
+
+    const submission: QuizSubmission = {
+      studentId: user.id,
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Student',
+      email: user.email,
+      week: quiz.week,
+      startedAt: progress.startedAt!,
+      submittedAt: new Date().toISOString(),
+      answers: quiz.questions.map((q) => ({
+        number: q.number,
+        type: q.type,
+        answer: progress.answers[q.number] || '',
+      })),
     }
-  }, [isSubmitted, isSubmitting])
+
+    try {
+      const success = await submitQuiz(submission)
+
+      if (success) {
+        submittedRef.current = true
+        setIsSubmitted(true)
+        clearProgress()
+      } else {
+        setSubmitError('Failed to submit quiz. Please try again.')
+      }
+    } catch {
+      setSubmitError('Network error. Please check your connection and try again.')
+    } finally {
+      submittingRef.current = false
+      setIsSubmitting(false)
+    }
+  }, [user, quiz, progress, clearProgress])
+
+  // Timer calls this — it always has the latest doSubmit via ref
+  const doSubmitRef = useRef(doSubmit)
+  useEffect(() => { doSubmitRef.current = doSubmit }, [doSubmit])
+
+  const handleTimeUp = useCallback(() => {
+    doSubmitRef.current()
+  }, [])
 
   const { formattedTime, timeLeft } = useCountdown(progress.startedAt, quiz.duration, handleTimeUp)
 
@@ -51,36 +95,6 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
         </button>
       </div>
     )
-  }
-
-  const handleSubmit = async () => {
-    if (isSubmitting || isSubmitted) return
-    setIsSubmitting(true)
-    setSubmitError(null)
-
-    const submission: QuizSubmission = {
-      studentId: user.id,
-      name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Student',
-      email: user.email,
-      week: quiz.week,
-      startedAt: progress.startedAt!,
-      submittedAt: new Date().toISOString(),
-      answers: quiz.questions.map((q) => ({
-        number: q.number,
-        type: q.type,
-        answer: progress.answers[q.number] || '',
-      })),
-    }
-
-    const success = await submitQuiz(submission)
-    setIsSubmitting(false)
-
-    if (success) {
-      setIsSubmitted(true)
-      clearProgress()
-    } else {
-      setSubmitError('Failed to submit quiz. Please try again.')
-    }
   }
 
   if (isSubmitting) {
@@ -143,8 +157,9 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
 
         {currentIndex === quiz.questions.length - 1 ? (
           <button
-            onClick={handleSubmit}
-            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+            onClick={doSubmit}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
           >
             Submit Quiz <Send className="h-4 w-4" />
           </button>
