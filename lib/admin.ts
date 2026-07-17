@@ -13,28 +13,25 @@ export interface AdminInfo {
 export async function isAdmin(): Promise<boolean> {
   try {
     const { userId } = await auth()
-    console.log('[ADMIN CHECK] userId:', userId)
     if (!userId) return false
     
     // Get user email from Clerk
     const user = await currentUser()
-    console.log('[ADMIN CHECK] user:', user)
-    if (!user?.emailAddresses || user.emailAddresses.length === 0) {
-      console.log('[ADMIN CHECK] No email addresses found')
-      return false
-    }
+    if (!user?.emailAddresses || user.emailAddresses.length === 0) return false
     
     const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase()
-    console.log('[ADMIN CHECK] userEmail:', userEmail)
-    if (!userEmail) {
-      console.log('[ADMIN CHECK] userEmail is empty')
-      return false
+    if (!userEmail) return false
+    
+    // First check ADMIN_EMAILS environment variable (fallback approach)
+    const adminEmails = process.env.ADMIN_EMAILS
+    if (adminEmails) {
+      const allowedEmails = adminEmails.split(',').map(e => e.trim().toLowerCase())
+      if (allowedEmails.includes(userEmail)) {
+        return true
+      }
     }
     
-    // Check database for admin status (use service role to bypass RLS)
-    console.log('[ADMIN CHECK] Using supabaseAdmin:', !!supabaseAdmin)
-    console.log('[ADMIN CHECK] supabaseAdmin === supabase:', supabaseAdmin === supabase)
-    
+    // Fall back to database check (service role to bypass RLS)
     const { data, error } = await supabaseAdmin
       .from('admins')
       .select('role, is_active')
@@ -42,17 +39,11 @@ export async function isAdmin(): Promise<boolean> {
       .eq('is_active', true)
       .single()
     
-    console.log('[ADMIN CHECK] Database query result:', { data, error, errorDetails: error?.details, errorHint: error?.hint })
+    if (error || !data) return false
     
-    if (error || !data) {
-      console.log('[ADMIN CHECK] Admin check failed - error:', error, 'data:', data)
-      return false
-    }
-    
-    console.log('[ADMIN CHECK] Admin check passed for:', userEmail)
     return true
   } catch (error) {
-    console.error('[ADMIN CHECK] Error checking admin status:', error)
+    console.error('Error checking admin status:', error)
     return false
   }
 }
@@ -94,11 +85,7 @@ export async function isSuperAdmin(): Promise<boolean> {
 export async function requireAdmin() {
   const admin = await isAdmin()
   if (!admin) {
-    // Get user email for debugging
-    const { userId } = await auth()
-    const user = await currentUser()
-    const userEmail = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase() || 'unknown'
-    throw new Error(`Unauthorized: Admin access required. User email: ${userEmail}, userId: ${userId}`)
+    throw new Error('Unauthorized: Admin access required')
   }
 }
 
