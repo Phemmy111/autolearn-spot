@@ -49,7 +49,11 @@ export async function POST(request: Request) {
       default_model,
     }
 
+    console.log('Creating provider with config:', { name, provider_type, base_url, default_model, createdBy })
+
     const provider = await AIProviderManager.createProvider(config, createdBy || '')
+
+    console.log('Provider creation result:', provider)
 
     if (!provider) {
       return NextResponse.json({ error: 'Failed to create provider' }, { status: 500 })
@@ -61,6 +65,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Super admin access required' }, { status: 403 })
     }
     console.error('Unexpected error creating provider:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
