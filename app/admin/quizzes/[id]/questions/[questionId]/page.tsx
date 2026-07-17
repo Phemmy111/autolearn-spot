@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Save, Trash2, Plus } from 'lucide-react'
 import Link from 'next/link'
 
@@ -22,28 +21,28 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
 
   useEffect(() => {
     async function loadQuestion() {
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('id', params.questionId)
-        .single()
-
-      if (error) {
-        setError(error.message)
-      } else if (data) {
-        setFormData({
-          question_text: data.question_text,
-          question_type: data.question_type,
-          options: data.options ? JSON.parse(data.options) : ['A', 'B', 'C', 'D'],
-          correct_answer: data.correct_answer,
-          explanation: data.explanation || '',
-          points: data.points,
-        })
+      const res = await fetch(`/api/admin/quizzes/${params.id}/questions/${params.questionId}`)
+      
+      if (!res.ok) {
+        const error = await res.json()
+        setError(error.error || 'Failed to load question')
+      } else {
+        const { question } = await res.json()
+        if (question) {
+          setFormData({
+            question_text: question.question_text,
+            question_type: question.question_type,
+            options: question.options ? JSON.parse(question.options) : ['A', 'B', 'C', 'D'],
+            correct_answer: question.correct_answer,
+            explanation: question.explanation || '',
+            points: question.points,
+          })
+        }
       }
       setLoading(false)
     }
     loadQuestion()
-  }, [params.questionId])
+  }, [params.questionId, params.id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
