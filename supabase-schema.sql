@@ -2,6 +2,26 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Create AI providers table (must be created first as it's referenced by ai_usage_logs)
+CREATE TABLE IF NOT EXISTS ai_providers (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name VARCHAR(100) NOT NULL, -- e.g., "My OpenRouter", "Production OpenAI"
+  provider_type VARCHAR(50) NOT NULL, -- 'openrouter', 'openai', 'gemini', 'groq'
+  api_key_encrypted TEXT NOT NULL, -- Encrypted API key
+  base_url TEXT, -- Custom base URL if needed
+  default_model VARCHAR(255), -- Default model for this provider
+  is_active BOOLEAN DEFAULT true,
+  is_default BOOLEAN DEFAULT false, -- Whether this is the default provider
+  models JSONB, -- Cached list of available models
+  last_model_fetch TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_by VARCHAR(255) -- Clerk user ID of who created this provider
+);
+
+-- Create unique constraint to ensure only one default provider
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_providers_default ON ai_providers(is_default) WHERE is_default = true;
+
 -- Create AI prompts table
 CREATE TABLE IF NOT EXISTS ai_prompts (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -19,7 +39,7 @@ CREATE TABLE IF NOT EXISTS ai_prompts (
 -- Create unique constraint to ensure only one active prompt per type
 CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_prompts_active_type ON ai_prompts(prompt_type, is_active) WHERE is_active = true;
 
--- Create AI usage logs table
+-- Create AI usage logs table (now can reference ai_providers)
 CREATE TABLE IF NOT EXISTS ai_usage_logs (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   admin_user_id VARCHAR(255), -- Clerk user ID
@@ -54,26 +74,6 @@ CREATE TABLE IF NOT EXISTS ai_cost_controls (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
--- Create AI providers table
-CREATE TABLE IF NOT EXISTS ai_providers (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  name VARCHAR(100) NOT NULL, -- e.g., "My OpenRouter", "Production OpenAI"
-  provider_type VARCHAR(50) NOT NULL, -- 'openrouter', 'openai', 'gemini', 'groq'
-  api_key_encrypted TEXT NOT NULL, -- Encrypted API key
-  base_url TEXT, -- Custom base URL if needed
-  default_model VARCHAR(255), -- Default model for this provider
-  is_active BOOLEAN DEFAULT true,
-  is_default BOOLEAN DEFAULT false, -- Whether this is the default provider
-  models JSONB, -- Cached list of available models
-  last_model_fetch TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  created_by VARCHAR(255) -- Clerk user ID of who created this provider
-);
-
--- Create unique constraint to ensure only one default provider
-CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_providers_default ON ai_providers(is_default) WHERE is_default = true;
 
 -- Create admins table
 CREATE TABLE IF NOT EXISTS admins (
