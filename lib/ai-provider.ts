@@ -376,33 +376,47 @@ export class AIProviderManager {
    */
   static async fetchModels(id: string): Promise<string[]> {
     try {
+      console.log('Fetching models for provider:', id)
       const provider = await this.getProvider(id)
       if (!provider) {
+        console.log('Provider not found')
         return []
       }
 
       const apiKey = decrypt(provider.api_key_encrypted)
       const config = PROVIDER_CONFIGS[provider.provider_type]
 
+      console.log('Provider config:', config)
+      console.log('Provider type:', provider.provider_type)
+
       if (!config.modelsEndpoint) {
+        console.log('No models endpoint, using default models')
         // Use default models for providers without models endpoint
         return DEFAULT_MODELS[provider.provider_type] || []
       }
 
       const baseUrl = provider.base_url || config.baseUrl
-      const response = await fetch(config.modelsEndpoint, {
+      const modelsEndpoint = config.modelsEndpoint
+      console.log('Fetching models from:', modelsEndpoint)
+      
+      const response = await fetch(modelsEndpoint, {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
       })
 
+      console.log('Models fetch response status:', response.status)
+
       if (!response.ok) {
-        console.error('Failed to fetch models:', response.status)
+        console.error('Failed to fetch models:', response.status, response.statusText)
+        const errorText = await response.text()
+        console.error('Error response:', errorText)
         return DEFAULT_MODELS[provider.provider_type] || []
       }
 
       const data = await response.json()
+      console.log('Models response data:', JSON.stringify(data).substring(0, 500))
       
       // Parse models based on provider response format
       let models: string[] = []
@@ -414,6 +428,8 @@ export class AIProviderManager {
       } else if (provider.provider_type === 'groq') {
         models = data.data?.map((m: any) => m.id) || []
       }
+
+      console.log('Parsed models:', models.length, models.slice(0, 5))
 
       // Cache the models in the database
       await supabase
