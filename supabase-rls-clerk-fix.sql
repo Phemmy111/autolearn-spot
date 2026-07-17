@@ -15,7 +15,7 @@ ALTER TABLE admins DISABLE ROW LEVEL SECURITY;
 ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE quiz_responses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE scoreboard ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leaderboard ENABLE ROW LEVEL SECURITY;
 
 -- Drop all existing policies on user-facing tables
 DROP POLICY IF EXISTS "Public can view active quizzes" ON quizzes;
@@ -51,13 +51,9 @@ DROP POLICY IF EXISTS "No direct updates on quiz_responses" ON quiz_responses;
 DROP POLICY IF EXISTS "No direct deletes on quiz_responses" ON quiz_responses;
 
 DROP POLICY IF EXISTS "Public can view leaderboard" ON leaderboard;
-DROP POLICY IF EXISTS "Public can view scoreboard" ON scoreboard;
 DROP POLICY IF EXISTS "No direct inserts on leaderboard" ON leaderboard;
 DROP POLICY IF EXISTS "No direct updates on leaderboard" ON leaderboard;
 DROP POLICY IF EXISTS "No direct deletes on leaderboard" ON leaderboard;
-DROP POLICY IF EXISTS "No direct inserts on scoreboard" ON scoreboard;
-DROP POLICY IF EXISTS "No direct updates on scoreboard" ON scoreboard;
-DROP POLICY IF EXISTS "No direct deletes on scoreboard" ON scoreboard;
 
 -- Create simple public access policies for user-facing tables
 CREATE POLICY "Public can view active quizzes" ON quizzes
@@ -72,7 +68,7 @@ CREATE POLICY "Public can view questions for active quizzes" ON questions
     )
   );
 
-CREATE POLICY "Public can view scoreboard" ON scoreboard
+CREATE POLICY "Public can view leaderboard" ON leaderboard
   FOR SELECT USING (true);
 
 -- Note: quiz_responses RLS is handled by the application logic
