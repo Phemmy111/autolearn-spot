@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Plus, Edit, Trash2, GripVertical } from 'lucide-react'
 import Link from 'next/link'
 
@@ -26,21 +25,29 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
 
   useEffect(() => {
     async function loadData() {
-      const [quizRes, questionsRes] = await Promise.all([
-        supabase.from('quizzes').select('*').eq('id', params.id).single(),
-        supabase.from('questions').select('*').eq('quiz_id', params.id).order('order_index', { ascending: true }),
-      ])
+      try {
+        const [quizRes, questionsRes] = await Promise.all([
+          fetch(`/api/admin/quizzes/${params.id}`),
+          fetch(`/api/admin/quizzes/${params.id}/questions`),
+        ])
 
-      if (quizRes.error) {
-        setError(quizRes.error.message)
-      } else {
-        setQuiz(quizRes.data)
-      }
+        if (!quizRes.ok) {
+          const error = await quizRes.json()
+          setError(error.error || 'Failed to load quiz')
+        } else {
+          const { quiz } = await quizRes.json()
+          setQuiz(quiz)
+        }
 
-      if (questionsRes.error) {
-        setError(questionsRes.error.message)
-      } else {
-        setQuestions(questionsRes.data || [])
+        if (!questionsRes.ok) {
+          const error = await questionsRes.json()
+          setError(error.error || 'Failed to load questions')
+        } else {
+          const { questions } = await questionsRes.json()
+          setQuestions(questions || [])
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to load data')
       }
 
       setLoading(false)
@@ -54,12 +61,14 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
     }
 
     try {
-      const { error } = await supabase
-        .from('questions')
-        .delete()
-        .eq('id', questionId)
+      const res = await fetch(`/api/admin/quizzes/${params.id}/questions/${questionId}`, {
+        method: 'DELETE',
+      })
 
-      if (error) throw error
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to delete question')
+      }
 
       setQuestions(prev => prev.filter(q => q.id !== questionId))
     } catch (err: any) {
@@ -82,7 +91,11 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
     try {
       await Promise.all(
         updates.map(update =>
-          supabase.from('questions').update({ order_index: update.order_index }).eq('id', update.id)
+          fetch(`/api/admin/quizzes/${params.id}/questions/${update.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_index: update.order_index }),
+          })
         )
       )
 
