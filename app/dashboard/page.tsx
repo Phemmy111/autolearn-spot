@@ -1,8 +1,9 @@
-import { SignOutButton } from '@clerk/nextjs';
-import { auth, currentUser } from '@clerk/nextjs/server';
+"use client";
+import { SignOutButton, useAuth } from '@clerk/nextjs';
+import { useState } from 'react';
 import Link from 'next/link';
 import { videos, isVideoAvailable } from '@/data/videos';
-import { Lock, PlayCircle, Calendar } from 'lucide-react';
+import { Lock, PlayCircle, Calendar, Menu, X } from 'lucide-react';
 import { ProgressBar, MarkCompleteButton, CompletedBadge } from '@/components/progress-tracker';
 import { AutolearnBot } from '@/components/autolearn-bot';
 import { DashboardWidgets } from '@/components/dashboard-widgets';
@@ -20,17 +21,17 @@ export interface VideoCourse {
   resources?: { label: string; url: string }[]
 }
 
-export default async function DashboardPage() {
-  const { userId } = await auth();
-  const user = await currentUser();
+export default function DashboardPage() {
+  const { isSignedIn, user } = useAuth()
   const firstName = user?.firstName || 'Student';
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
   const weeks = Array.from(new Set(videos.map((v) => v.week))).sort((a, b) => a - b);
 
-  if (!userId) {
+  if (!isSignedIn) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-[#111317] text-[#e2e8e2]">
         <h2 className="mb-6 text-2xl font-bold">Please sign in to access the curriculum</h2>
@@ -55,20 +56,20 @@ export default async function DashboardPage() {
           <span className="text-[#00f0ff]">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </Link>
-        <div className="flex items-center gap-6">
+        <div className="hidden items-center gap-6 md:flex">
           <Link href="/dashboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Home
           </Link>
-          <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors hidden md:block">
+          <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Live Class
           </Link>
           <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Quiz
           </Link>
-          <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors hidden sm:block">
+          <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Leaderboard
           </Link>
-          <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors hidden lg:block">
+          <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             History
           </Link>
           <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
@@ -80,7 +81,79 @@ export default async function DashboardPage() {
             </button>
           </SignOutButton>
         </div>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 text-[#b9cacb] hover:text-white"
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
       </nav>
+
+      {/* Mobile Menu Sidebar */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed right-0 top-0 h-full w-64 bg-[#111317] border-l border-[#3b494b] p-6">
+            <div className="flex flex-col gap-4">
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Home
+              </Link>
+              <Link
+                href="/live-class"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Live Class
+              </Link>
+              <Link
+                href="/dashboard/quiz"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Quiz
+              </Link>
+              <Link
+                href="/dashboard/leaderboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Leaderboard
+              </Link>
+              <Link
+                href="/dashboard/history"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                History
+              </Link>
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Admin
+              </Link>
+              <div className="border-t border-[#1f2229] pt-4">
+                <SignOutButton redirectUrl="/">
+                  <button 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-2 bg-[#1a1d24] cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </SignOutButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="mb-8 border-l-4 border-[#00f0ff] bg-[#00f0ff]/10 p-4">
           <p className="font-mono text-sm text-[#e2e8e2] leading-relaxed">
