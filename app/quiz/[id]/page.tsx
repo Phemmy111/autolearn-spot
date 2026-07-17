@@ -9,7 +9,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { CheckCircle, XCircle, ArrowLeft, Clock, Target } from 'lucide-react'
 import Link from 'next/link'
 
-export default function QuizPage({ params }: { params: { id: string } }) {
+export default function QuizPage({ params }: { params: Promise<{ id: string }>; searchParams: Promise<{ preview?: string }> }) {
   const { userId, user } = useAuth()
   const router = useRouter()
   const [quiz, setQuiz] = useState<SupabaseQuiz | null>(null)
@@ -23,10 +23,24 @@ export default function QuizPage({ params }: { params: { id: string } }) {
   const [submitted, setSubmitted] = useState(false)
   const [result, setResult] = useState<{ score: number; percentage: number; passed: boolean } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [quizId, setQuizId] = useState<string>('')
+  const [isPreview, setIsPreview] = useState(false)
 
   useEffect(() => {
+    async function loadParams() {
+      const resolvedParams = await params
+      const resolvedSearchParams = await searchParams
+      setQuizId(resolvedParams.id)
+      setIsPreview(resolvedSearchParams?.preview === 'true')
+    }
+    loadParams()
+  }, [params, searchParams])
+
+  useEffect(() => {
+    if (!quizId) return
+
     async function loadQuiz() {
-      const data = await fetchQuizById(params.id)
+      const data = await fetchQuizById(quizId, isPreview)
       if (data) {
         setQuiz(data.quiz)
         setQuestions(data.questions)
@@ -36,7 +50,7 @@ export default function QuizPage({ params }: { params: { id: string } }) {
       setLoading(false)
     }
     loadQuiz()
-  }, [params.id])
+  }, [quizId, isPreview])
 
   const startQuiz = () => {
     setStarted(true)

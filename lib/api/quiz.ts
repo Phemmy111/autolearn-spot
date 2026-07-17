@@ -16,9 +16,10 @@ export async function fetchQuizzes(): Promise<SupabaseQuiz[]> {
 }
 
 // Fetch a specific quiz with its questions
-export async function fetchQuizById(quizId: string): Promise<{ quiz: SupabaseQuiz; questions: SupabaseQuestion[] } | null> {
+export async function fetchQuizById(quizId: string, preview = false): Promise<{ quiz: SupabaseQuiz; questions: SupabaseQuestion[] } | null> {
   try {
-    const res = await fetch(`${BASE_URL}/api/quizzes/${quizId}`, { cache: 'no-store' })
+    const url = `${BASE_URL}/api/quizzes/${quizId}${preview ? '?preview=true' : ''}`
+    const res = await fetch(url, { cache: 'no-store' })
     if (!res.ok) throw new Error('Failed to fetch quiz')
     return await res.json()
   } catch (error) {
