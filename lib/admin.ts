@@ -92,7 +92,11 @@ export async function isSuperAdmin(): Promise<boolean> {
 export async function requireAdmin() {
   const admin = await isAdmin()
   if (!admin) {
-    throw new Error('Unauthorized: Admin access required')
+    // Get user email for debugging
+    const { userId } = await auth()
+    const user = await currentUser()
+    const userEmail = user?.emailAddresses?.[0]?.emailAddress?.toLowerCase() || 'unknown'
+    throw new Error(`Unauthorized: Admin access required. User email: ${userEmail}, userId: ${userId}`)
   }
 }
 
