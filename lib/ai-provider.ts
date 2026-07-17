@@ -198,16 +198,20 @@ export class AIProviderManager {
    */
   static async createProvider(config: ProviderConfig, createdBy: string): Promise<AIProvider | null> {
     try {
+      console.log('AIProviderManager.createProvider called with:', { name: config.name, provider_type: config.provider_type, createdBy })
       const encryptedKey = encrypt(config.api_key)
+      console.log('API key encrypted successfully')
 
       // If this is set as default, unset any existing default
       if (config.default_model) {
+        console.log('Unsetting existing default providers...')
         await supabase
           .from('ai_providers')
           .update({ is_default: false })
           .eq('is_default', true)
       }
 
+      console.log('Inserting new provider into database...')
       const { data, error } = await supabase
         .from('ai_providers')
         .insert({
@@ -223,14 +227,19 @@ export class AIProviderManager {
         .select()
         .single()
 
+      console.log('Database insert result:', { data, error })
+
       if (error) {
         console.error('Error creating provider:', error)
+        console.error('Error details:', { message: error.message, code: error.code, details: error.details })
         return null
       }
 
+      console.log('Provider created successfully:', data)
       return data as AIProvider
     } catch (error) {
       console.error('Error creating provider:', error)
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace')
       return null
     }
   }
