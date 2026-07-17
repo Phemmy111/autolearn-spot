@@ -1,81 +1,25 @@
-'use client'
-
-import { useState, useEffect } from 'react'
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Plus, Edit, Trash2, Eye, Clock, Target, Sparkles, ArrowLeft } from 'lucide-react'
 
-export default function AdminQuizzesPage() {
-  const [quizzes, setQuizzes] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
-
-  useEffect(() => {
-    async function checkAdmin() {
-      try {
-        await requireAdmin()
-        setIsAdmin(true)
-      } catch (err) {
-        redirect('/')
-      }
-    }
-    checkAdmin()
-  }, [])
-
-  useEffect(() => {
-    if (!isAdmin) return
-
-    async function loadQuizzes() {
-      const { data: quizzes, error } = await supabase
-        .from('quizzes')
-        .select('*, questions(count)')
-        .order('week_number', { ascending: true })
-
-      if (error) {
-        setError(error.message)
-      } else {
-        setQuizzes(quizzes || [])
-      }
-      setLoading(false)
-    }
-    loadQuizzes()
-  }, [isAdmin])
-
-  const handleDelete = async (quizId: string) => {
-    if (!confirm('Are you sure you want to delete this quiz? This will also delete all questions and responses.')) {
-      return
-    }
-
-    try {
-      const { error } = await supabase
-        .from('quizzes')
-        .delete()
-        .eq('id', quizId)
-
-      if (error) {
-        setError(error.message)
-        return
-      }
-
-      // Refresh the list
-      const { data: quizzes } = await supabase
-        .from('quizzes')
-        .select('*, questions(count)')
-        .order('week_number', { ascending: true })
-
-      setQuizzes(quizzes || [])
-    } catch (err: any) {
-      setError(err.message)
-    }
+export default async function AdminQuizzesPage() {
+  try {
+    await requireAdmin()
+  } catch (error) {
+    redirect('/')
   }
 
-  if (loading) {
+  const { data: quizzes, error } = await supabase
+    .from('quizzes')
+    .select('*, questions(count)')
+    .order('week_number', { ascending: true })
+
+  if (error) {
     return (
       <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00f0ff]" />
+        <p className="text-red-400 font-mono">Error loading quizzes: {error.message}</p>
       </div>
     )
   }
@@ -110,12 +54,6 @@ export default function AdminQuizzesPage() {
             </Link>
           </div>
         </div>
-
-        {error && (
-          <div className="mb-6 border border-red-500/50 bg-red-500/10 p-4 rounded-lg">
-            <p className="font-mono text-sm text-red-400">{error}</p>
-          </div>
-        )}
 
         {quizzes && quizzes.length === 0 ? (
           <div className="text-center py-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl">
@@ -188,13 +126,23 @@ export default function AdminQuizzesPage() {
                   >
                     Questions
                   </Link>
-                  <button
-                    onClick={() => handleDelete(quiz.id)}
-                    className="flex items-center gap-2 text-red-400 hover:text-red-300 font-mono text-xs uppercase tracking-wider transition-colors"
+                  <form
+                    action={`/api/admin/quizzes/${quiz.id}`}
+                    method="DELETE"
                   >
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </button>
+                    <button
+                      type="submit"
+                      className="flex items-center gap-2 text-red-400 hover:text-red-300 font-mono text-xs uppercase tracking-wider transition-colors"
+                      onClick={(e) => {
+                        if (!confirm('Are you sure you want to delete this quiz? This will also delete all questions and responses.')) {
+                          e.preventDefault()
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </button>
+                  </form>
                 </div>
               </div>
             ))}
