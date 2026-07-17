@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Sparkles, Upload, FileText, Loader2 } from 'lucide-react'
+import { ArrowLeft, Sparkles, Upload, FileText, Loader2, Bot } from 'lucide-react'
 import Link from 'next/link'
 
 interface GeneratedQuestion {
@@ -22,6 +22,16 @@ interface GeneratedQuiz {
   questions: GeneratedQuestion[]
 }
 
+interface AIProvider {
+  id: string
+  name: string
+  provider_type: string
+  default_model: string | null
+  models: string[]
+  is_active: boolean
+  is_default: boolean
+}
+
 export default function GenerateQuizPage() {
   const router = useRouter()
   const [step, setStep] = useState<'input' | 'generating' | 'review'>('input')
@@ -31,10 +41,50 @@ export default function GenerateQuizPage() {
   const [weekNumber, setWeekNumber] = useState(1)
   const [phase, setPhase] = useState('WEEK_1')
   const [generatedQuiz, setGeneratedQuiz] = useState<GeneratedQuiz | null>(null)
+  const [providers, setProviders] = useState<AIProvider[]>([])
+  const [selectedProviderId, setSelectedProviderId] = useState<string>('')
+  const [selectedModel, setSelectedModel] = useState<string>('')
+
+  useEffect(() => {
+    fetchProviders()
+  }, [])
+
+  const fetchProviders = async () => {
+    try {
+      const res = await fetch('/api/admin/ai-providers')
+      if (res.ok) {
+        const data = await res.json()
+        const activeProviders = (data.providers || []).filter((p: AIProvider) => p.is_active)
+        setProviders(activeProviders)
+        
+        // Auto-select the default provider
+        const defaultProvider = activeProviders.find((p: AIProvider) => p.is_default)
+        if (defaultProvider) {
+          setSelectedProviderId(defaultProvider.id)
+          setSelectedModel(defaultProvider.default_model || '')
+        } else if (activeProviders.length > 0) {
+          setSelectedProviderId(activeProviders[0].id)
+          setSelectedModel(activeProviders[0].default_model || '')
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch providers:', err)
+    }
+  }
 
   const handleGenerate = async () => {
     if (!script.trim()) {
       setError('Please provide a lesson script')
+      return
+    }
+
+    if (!selectedProviderId) {
+      setError('Please select an AI provider')
+      return
+    }
+
+    if (!selectedModel) {
+      setError('Please select a model')
       return
     }
 
@@ -50,6 +100,8 @@ export default function GenerateQuizPage() {
           script,
           weekNumber,
           phase,
+          providerId: selectedProviderId,
+          model: selectedModel,
         }),
       })
 
@@ -194,6 +246,71 @@ export default function GenerateQuizPage() {
                   </select>
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                    AI Provider
+                  </label>
+                  <select
+                    value={selectedProviderId}
+                    onChange={(e) => {
+                      setSelectedProviderId(e.target.value)
+                      const provider = providers.find(p => p.id === e.target.value)
+                      setSelectedModel(provider?.default_model || '')
+                    }}
+                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  >
+                    {providers.length === 0 ? (
+                      <option value="">No active providers</option>
+                    ) : (
+                      providers.map(provider => (
+                        <option key={provider.id} value={provider.id}>
+                          {provider.name} {provider.is_default && '(Default)'}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                    Model
+                  </label>
+                  <select
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  >
+                    {selectedProviderId ? (
+                      (() => {
+                        const provider = providers.find(p => p.id === selectedProviderId)
+                        const models = provider?.models || []
+                        if (models.length === 0) {
+                          return <option value="">No models available</option>
+                        }
+                        return models.map(model => (
+                          <option key={model} value={model}>{model}</option>
+                        ))
+                      })()
+                    ) : (
+                      <option value="">Select a provider first</option>
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              {providers.length === 0 && (
+                <div className="border border-yellow-500/50 bg-yellow-500/10 p-4 rounded-lg flex items-center gap-3">
+                  <Bot className="h-5 w-5 text-yellow-400" />
+                  <div>
+                    <p className="font-mono text-sm text-yellow-400">No AI providers configured</p>
+                    <Link href="/admin/ai-providers" className="font-mono text-xs text-[#b9cacb] hover:text-white">
+                      Configure AI providers →
+                    </Link>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
