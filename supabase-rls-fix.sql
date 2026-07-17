@@ -3,41 +3,76 @@
 
 -- Drop ALL existing policies first
 DROP POLICY IF EXISTS "Public can view active quizzes" ON quizzes;
+DROP POLICY IF EXISTS "Admins can view all quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct selects on quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct inserts on quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct updates on quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct deletes on quizzes" ON quizzes;
 
 DROP POLICY IF EXISTS "Public can view questions for active quizzes" ON questions;
+DROP POLICY IF EXISTS "Admins can view all questions" ON questions;
 DROP POLICY IF EXISTS "No direct selects on questions" ON questions;
 DROP POLICY IF EXISTS "No direct inserts on questions" ON questions;
 DROP POLICY IF EXISTS "No direct updates on questions" ON questions;
 DROP POLICY IF EXISTS "No direct deletes on questions" ON questions;
 
+DROP POLICY IF EXISTS "Admins can view admins" ON admins;
 DROP POLICY IF EXISTS "No direct selects on admins" ON admins;
 DROP POLICY IF EXISTS "No direct inserts on admins" ON admins;
 DROP POLICY IF EXISTS "No direct updates on admins" ON admins;
 DROP POLICY IF EXISTS "No direct deletes on admins" ON admins;
 
+DROP POLICY IF EXISTS "Admins can view ai_providers" ON ai_providers;
 DROP POLICY IF EXISTS "No direct selects on ai_providers" ON ai_providers;
 DROP POLICY IF EXISTS "No direct inserts on ai_providers" ON ai_providers;
 DROP POLICY IF EXISTS "No direct updates on ai_providers" ON ai_providers;
 DROP POLICY IF EXISTS "No direct deletes on ai_providers" ON ai_providers;
 
+DROP POLICY IF EXISTS "Admins can view ai_prompts" ON ai_prompts;
 DROP POLICY IF EXISTS "No direct selects on ai_prompts" ON ai_prompts;
 DROP POLICY IF EXISTS "No direct inserts on ai_prompts" ON ai_prompts;
 DROP POLICY IF EXISTS "No direct updates on ai_prompts" ON ai_prompts;
 DROP POLICY IF EXISTS "No direct deletes on ai_prompts" ON ai_prompts;
 
+DROP POLICY IF EXISTS "Admins can view ai_usage_logs" ON ai_usage_logs;
 DROP POLICY IF EXISTS "No direct selects on ai_usage_logs" ON ai_usage_logs;
 DROP POLICY IF EXISTS "No direct inserts on ai_usage_logs" ON ai_usage_logs;
 DROP POLICY IF EXISTS "No direct updates on ai_usage_logs" ON ai_usage_logs;
 DROP POLICY IF EXISTS "No direct deletes on ai_usage_logs" ON ai_usage_logs;
 
+DROP POLICY IF EXISTS "Admins can view ai_cost_controls" ON ai_cost_controls;
 DROP POLICY IF EXISTS "No direct selects on ai_cost_controls" ON ai_cost_controls;
 DROP POLICY IF EXISTS "No direct inserts on ai_cost_controls" ON ai_cost_controls;
 DROP POLICY IF EXISTS "No direct updates on ai_cost_controls" ON ai_cost_controls;
 DROP POLICY IF EXISTS "No direct deletes on ai_cost_controls" ON ai_cost_controls;
+
+DROP POLICY IF EXISTS "Admins can insert quizzes" ON quizzes;
+DROP POLICY IF EXISTS "Admins can update quizzes" ON quizzes;
+DROP POLICY IF EXISTS "Admins can delete quizzes" ON quizzes;
+
+DROP POLICY IF EXISTS "Admins can insert questions" ON questions;
+DROP POLICY IF EXISTS "Admins can update questions" ON questions;
+DROP POLICY IF EXISTS "Admins can delete questions" ON questions;
+
+DROP POLICY IF EXISTS "Admins can insert admins" ON admins;
+DROP POLICY IF EXISTS "Admins can update admins" ON admins;
+DROP POLICY IF EXISTS "Admins can delete admins" ON admins;
+
+DROP POLICY IF EXISTS "Admins can insert ai_providers" ON ai_providers;
+DROP POLICY IF EXISTS "Admins can update ai_providers" ON ai_providers;
+DROP POLICY IF EXISTS "Admins can delete ai_providers" ON ai_providers;
+
+DROP POLICY IF EXISTS "Admins can insert ai_prompts" ON ai_prompts;
+DROP POLICY IF EXISTS "Admins can update ai_prompts" ON ai_prompts;
+DROP POLICY IF EXISTS "Admins can delete ai_prompts" ON ai_prompts;
+
+DROP POLICY IF EXISTS "Admins can insert ai_usage_logs" ON ai_usage_logs;
+DROP POLICY IF EXISTS "Admins can update ai_usage_logs" ON ai_usage_logs;
+DROP POLICY IF EXISTS "Admins can delete ai_usage_logs" ON ai_usage_logs;
+
+DROP POLICY IF EXISTS "Admins can insert ai_cost_controls" ON ai_cost_controls;
+DROP POLICY IF EXISTS "Admins can update ai_cost_controls" ON ai_cost_controls;
+DROP POLICY IF EXISTS "Admins can delete ai_cost_controls" ON ai_cost_controls;
 
 DROP POLICY IF EXISTS "Users can view own responses" ON quiz_responses;
 DROP POLICY IF EXISTS "Users can insert own responses" ON quiz_responses;
