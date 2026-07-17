@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -22,12 +21,11 @@ export default function NewQuestionPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     async function loadQuiz() {
-      const { data } = await supabase
-        .from('quizzes')
-        .select('*')
-        .eq('id', params.id)
-        .single()
-      if (data) setQuiz(data)
+      const res = await fetch(`/api/admin/quizzes/${params.id}`)
+      if (res.ok) {
+        const { quiz } = await res.json()
+        if (quiz) setQuiz(quiz)
+      }
     }
     loadQuiz()
   }, [params.id])
