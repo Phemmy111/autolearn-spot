@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 export async function GET() {
@@ -11,7 +11,7 @@ export async function GET() {
 
     // Database status check
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('quizzes')
         .select('id')
         .limit(1)
@@ -52,7 +52,7 @@ export async function GET() {
 
     // Number of quizzes
     try {
-      const { count, error } = await supabase
+      const { count, error } = await supabaseAdmin
         .from('quizzes')
         .select('*', { count: 'exact', head: true })
       metrics.totalQuizzes = count || 0
@@ -62,7 +62,7 @@ export async function GET() {
 
     // Number of active quizzes
     try {
-      const { count, error } = await supabase
+      const { count, error } = await supabaseAdmin
         .from('quizzes')
         .select('*', { count: 'exact', head: true })
         .eq('is_active', true)
@@ -73,7 +73,7 @@ export async function GET() {
 
     // Number of students (unique users in leaderboard)
     try {
-      const { count, error } = await supabase
+      const { count, error } = await supabaseAdmin
         .from('leaderboard')
         .select('*', { count: 'exact', head: true })
       metrics.totalStudents = count || 0
@@ -85,7 +85,7 @@ export async function GET() {
     try {
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      const { count, error } = await supabase
+      const { count, error } = await supabaseAdmin
         .from('quiz_responses')
         .select('*', { count: 'exact', head: true })
         .gte('completed_at', today.toISOString())
@@ -96,7 +96,7 @@ export async function GET() {
 
     // Total submissions
     try {
-      const { count, error } = await supabase
+      const { count, error } = await supabaseAdmin
         .from('quiz_responses')
         .select('*', { count: 'exact', head: true })
       metrics.totalSubmissions = count || 0
@@ -106,7 +106,7 @@ export async function GET() {
 
     // Average score
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('quiz_responses')
         .select('percentage')
       if (data && data.length > 0) {
@@ -121,10 +121,10 @@ export async function GET() {
 
     // Pass rate
     try {
-      const { count: total, error } = await supabase
+      const { count: total, error } = await supabaseAdmin
         .from('quiz_responses')
         .select('*', { count: 'exact', head: true })
-      const { count: passed } = await supabase
+      const { count: passed } = await supabaseAdmin
         .from('quiz_responses')
         .select('*', { count: 'exact', head: true })
         .eq('passed', true)
