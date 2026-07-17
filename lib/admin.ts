@@ -33,6 +33,8 @@ export async function isAdmin(): Promise<boolean> {
     
     // Check database for admin status (use service role to bypass RLS)
     console.log('[ADMIN CHECK] Using supabaseAdmin:', !!supabaseAdmin)
+    console.log('[ADMIN CHECK] supabaseAdmin === supabase:', supabaseAdmin === supabase)
+    
     const { data, error } = await supabaseAdmin
       .from('admins')
       .select('role, is_active')
@@ -40,7 +42,7 @@ export async function isAdmin(): Promise<boolean> {
       .eq('is_active', true)
       .single()
     
-    console.log('[ADMIN CHECK] Database query result:', { data, error })
+    console.log('[ADMIN CHECK] Database query result:', { data, error, errorDetails: error?.details, errorHint: error?.hint })
     
     if (error || !data) {
       console.log('[ADMIN CHECK] Admin check failed - error:', error, 'data:', data)
