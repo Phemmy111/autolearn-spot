@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { requireSuperAdmin } from '@/lib/admin'
 
 // PUT - Super Admin only: Update admin
@@ -20,14 +20,14 @@ export async function PUT(
 
     // Prevent deactivating the last super admin
     if (is_active === false) {
-      const { data: currentAdmin } = await supabaseAdmin
+      const { data: currentAdmin } = await supabase
         .from('admins')
         .select('role')
         .eq('id', params.id)
         .single()
 
       if (currentAdmin?.role === 'super_admin') {
-        const { count } = await supabaseAdmin
+        const { count } = await supabase
           .from('admins')
           .select('*', { count: 'exact', head: true })
           .eq('role', 'super_admin')
@@ -39,7 +39,7 @@ export async function PUT(
       }
     }
 
-    const { data: admin, error } = await supabaseAdmin
+    const { data: admin, error } = await supabase
       .from('admins')
       .update({
         role: role || undefined,
@@ -74,14 +74,14 @@ export async function DELETE(
     await requireSuperAdmin()
 
     // Prevent deleting the last super admin
-    const { data: currentAdmin } = await supabaseAdmin
+    const { data: currentAdmin } = await supabase
       .from('admins')
       .select('role')
       .eq('id', params.id)
       .single()
 
     if (currentAdmin?.role === 'super_admin') {
-      const { count } = await supabaseAdmin
+      const { count } = await supabase
         .from('admins')
         .select('*', { count: 'exact', head: true })
         .eq('role', 'super_admin')
@@ -92,7 +92,7 @@ export async function DELETE(
       }
     }
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('admins')
       .delete()
       .eq('id', params.id)

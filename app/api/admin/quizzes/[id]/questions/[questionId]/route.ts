@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 // PUT - Admin only: Update question
@@ -13,7 +13,7 @@ export async function PUT(
     const body = await request.json()
     const { question_text, question_type, options, correct_answer, explanation, points, order_index } = body
 
-    const { data: question, error } = await supabaseAdmin
+    const { data: question, error } = await supabase
       .from('questions')
       .update({
         question_text,
@@ -49,7 +49,7 @@ export async function DELETE(
   try {
     await requireAdmin()
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('questions')
       .delete()
       .eq('id', params.questionId)

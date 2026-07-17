@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { CheckCircle, XCircle, Clock, User } from 'lucide-react'
 
@@ -11,7 +11,7 @@ export default async function AdminResultsPage() {
     redirect('/')
   }
 
-  const { data: responses, error } = await supabaseAdmin
+  const { data: responses, error } = await supabase
     .from('quiz_responses')
     .select('*, quizzes(title, week_number)')
     .order('completed_at', { ascending: false })

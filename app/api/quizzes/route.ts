@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 // GET - Public endpoint for students to view active quizzes
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const { data: quiz, error } = await supabaseAdmin
+    const { data: quiz, error } = await supabase
       .from('quizzes')
       .insert({
         title,

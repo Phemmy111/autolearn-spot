@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 import { requireSuperAdmin } from '@/lib/admin'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 // GET - Super Admin only: Get cost controls
 export async function GET() {
   try {
     await requireSuperAdmin()
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('ai_cost_controls')
       .select('*')
       .single()
@@ -52,14 +52,14 @@ export async function PUT(request: Request) {
     } = body
 
     // Check if controls exist
-    const { data: existing } = await supabaseAdmin
+    const { data: existing } = await supabase
       .from('ai_cost_controls')
       .select('*')
       .single()
 
     let result
     if (existing) {
-      result = await supabaseAdmin
+      result = await supabase
         .from('ai_cost_controls')
         .update({
           max_tokens: max_tokens ?? existing.max_tokens,
@@ -74,7 +74,7 @@ export async function PUT(request: Request) {
         .select()
         .single()
     } else {
-      result = await supabaseAdmin
+      result = await supabase
         .from('ai_cost_controls')
         .insert({
           max_tokens: max_tokens || 4000,

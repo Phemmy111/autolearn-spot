@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase, supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 // GET - Public endpoint for students to view quiz details
@@ -50,7 +50,7 @@ export async function PUT(
     const body = await request.json()
     const { title, description, week_number, phase, time_limit, passing_score, is_active } = body
 
-    const { data: quiz, error } = await supabaseAdmin
+    const { data: quiz, error } = await supabase
       .from('quizzes')
       .update({
         title,
@@ -86,7 +86,7 @@ export async function DELETE(
   try {
     await requireAdmin()
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('quizzes')
       .delete()
       .eq('id', params.id)

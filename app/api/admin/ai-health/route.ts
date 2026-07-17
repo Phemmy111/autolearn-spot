@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 // GET - Admin only: Get AI health metrics
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
     await requireAdmin()
 
     // Get active provider
-    const { data: defaultProvider } = await supabaseAdmin
+    const { data: defaultProvider } = await supabase
       .from('ai_providers')
       .select('*')
       .eq('is_default', true)
@@ -19,14 +19,14 @@ export async function GET() {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     
-    const { data: todayLogs } = await supabaseAdmin
+    const { data: todayLogs } = await supabase
       .from('ai_usage_logs')
       .select('*')
       .gte('created_at', today.toISOString())
       .order('created_at', { ascending: false })
 
     // Get last successful request
-    const { data: lastSuccess } = await supabaseAdmin
+    const { data: lastSuccess } = await supabase
       .from('ai_usage_logs')
       .select('*')
       .eq('success', true)
@@ -35,7 +35,7 @@ export async function GET() {
       .single()
 
     // Get last failed request
-    const { data: lastFailure } = await supabaseAdmin
+    const { data: lastFailure } = await supabase
       .from('ai_usage_logs')
       .select('*')
       .eq('success', false)
@@ -61,7 +61,7 @@ export async function GET() {
       .reduce((sum: number, log: any) => sum + (log.tokens_used || 0), 0) || 0
 
     // Get provider status
-    const { data: allProviders } = await supabaseAdmin
+    const { data: allProviders } = await supabase
       .from('ai_providers')
       .select('*')
       .eq('is_active', true)

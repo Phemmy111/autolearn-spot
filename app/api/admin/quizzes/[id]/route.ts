@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 // GET - Admin only: Get quiz details
@@ -10,7 +10,7 @@ export async function GET(
   try {
     await requireAdmin()
 
-    const { data: quiz, error } = await supabaseAdmin
+    const { data: quiz, error } = await supabase
       .from('quizzes')
       .select('*')
       .eq('id', params.id)
@@ -40,7 +40,7 @@ export async function PUT(
     const body = await request.json()
     const { title, description, week_number, phase, time_limit, passing_score, is_active } = body
 
-    const { data: quiz, error } = await supabaseAdmin
+    const { data: quiz, error } = await supabase
       .from('quizzes')
       .update({
         title,
@@ -76,7 +76,7 @@ export async function DELETE(
   try {
     await requireAdmin()
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('quizzes')
       .delete()
       .eq('id', params.id)
