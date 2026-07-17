@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings } from 'lucide-react'
+import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare } from 'lucide-react'
 
 export default async function AdminPage() {
   try {
@@ -75,6 +75,24 @@ export default async function AdminPage() {
             <Bot className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
             <h2 className="font-heading text-xl font-bold text-white mb-2">AI Providers</h2>
             <p className="font-mono text-xs text-[#b9cacb]">Manage AI providers and API keys (Super Admin only)</p>
+          </Link>
+
+          <Link
+            href="/admin/ai-prompts"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <MessageSquare className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">AI Prompts</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Manage AI prompts for quiz generation (Super Admin only)</p>
+          </Link>
+
+          <Link
+            href="/admin/ai-cost-controls"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <Settings className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">AI Cost Controls</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Configure AI usage limits and costs (Super Admin only)</p>
           </Link>
         </div>
 
