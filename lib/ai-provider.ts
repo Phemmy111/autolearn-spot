@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import crypto from 'crypto'
 import { currentUser } from '@clerk/nextjs/server'
 
@@ -127,7 +127,7 @@ export class AIProviderManager {
    */
   static async getDefaultProvider(): Promise<AIProvider | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_providers')
         .select('*')
         .eq('is_default', true)
@@ -151,7 +151,7 @@ export class AIProviderManager {
    */
   static async getActiveProviders(): Promise<AIProvider[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_providers')
         .select('*')
         .eq('is_active', true)
@@ -175,7 +175,7 @@ export class AIProviderManager {
    */
   static async getProvider(id: string): Promise<AIProvider | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_providers')
         .select('*')
         .eq('id', id)
@@ -202,13 +202,13 @@ export class AIProviderManager {
 
       // If this is set as default, unset any existing default
       if (config.default_model) {
-        await supabase
+        await supabaseAdmin
           .from('ai_providers')
           .update({ is_default: false })
           .eq('is_default', true)
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_providers')
         .insert({
           name: config.name,
@@ -252,7 +252,7 @@ export class AIProviderManager {
 
       // If setting as default, unset any existing default
       if (config.default_model) {
-        await supabase
+        await supabaseAdmin
           .from('ai_providers')
           .update({ is_default: false })
           .eq('is_default', true)
@@ -260,7 +260,7 @@ export class AIProviderManager {
         updates.is_default = true
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_providers')
         .update(updates)
         .eq('id', id)
@@ -284,7 +284,7 @@ export class AIProviderManager {
    */
   static async deleteProvider(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('ai_providers')
         .delete()
         .eq('id', id)
@@ -307,13 +307,13 @@ export class AIProviderManager {
   static async setDefaultProvider(id: string): Promise<boolean> {
     try {
       // Unset existing default
-      await supabase
+      await supabaseAdmin
         .from('ai_providers')
         .update({ is_default: false })
         .eq('is_default', true)
 
       // Set new default
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('ai_providers')
         .update({ is_default: true })
         .eq('id', id)
@@ -407,7 +407,7 @@ export class AIProviderManager {
       }
 
       // Cache the models in the database
-      await supabase
+      await supabaseAdmin
         .from('ai_providers')
         .update({
           models: models,
@@ -457,7 +457,7 @@ export class AIProviderManager {
     enabled: boolean
   } | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_cost_controls')
         .select('*')
         .eq('enabled', true)
@@ -509,7 +509,7 @@ export class AIProviderManager {
       thisMonth.setHours(0, 0, 0, 0)
 
       // Check daily limit
-      const { count: dailyCount } = await supabase
+      const { count: dailyCount } = await supabaseAdmin
         .from('ai_usage_logs')
         .select('*', { count: 'exact', head: true })
         .gte('created_at', today.toISOString())
@@ -519,7 +519,7 @@ export class AIProviderManager {
       }
 
       // Check monthly limit
-      const { count: monthlyCount } = await supabase
+      const { count: monthlyCount } = await supabaseAdmin
         .from('ai_usage_logs')
         .select('*', { count: 'exact', head: true })
         .gte('created_at', thisMonth.toISOString())
@@ -631,7 +631,7 @@ export class AIProviderManager {
       const user = await currentUser()
       const adminUserId = user?.id
 
-      await supabase.from('ai_usage_logs').insert({
+      await supabaseAdmin.from('ai_usage_logs').insert({
         admin_user_id: adminUserId,
         provider_id: provider.id,
         provider_name: provider.name,
