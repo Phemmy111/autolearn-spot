@@ -1,12 +1,14 @@
 -- Update RLS policies to allow admin access based on admins table
 -- This provides an alternative to using service role key
 
--- Drop existing restrictive policies
+-- Drop ALL existing policies first
+DROP POLICY IF EXISTS "Public can view active quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct selects on quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct inserts on quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct updates on quizzes" ON quizzes;
 DROP POLICY IF EXISTS "No direct deletes on quizzes" ON quizzes;
 
+DROP POLICY IF EXISTS "Public can view questions for active quizzes" ON questions;
 DROP POLICY IF EXISTS "No direct selects on questions" ON questions;
 DROP POLICY IF EXISTS "No direct inserts on questions" ON questions;
 DROP POLICY IF EXISTS "No direct updates on questions" ON questions;
@@ -37,9 +39,16 @@ DROP POLICY IF EXISTS "No direct inserts on ai_cost_controls" ON ai_cost_control
 DROP POLICY IF EXISTS "No direct updates on ai_cost_controls" ON ai_cost_controls;
 DROP POLICY IF EXISTS "No direct deletes on ai_cost_controls" ON ai_cost_controls;
 
+DROP POLICY IF EXISTS "Users can view own responses" ON quiz_responses;
+DROP POLICY IF EXISTS "Users can insert own responses" ON quiz_responses;
 DROP POLICY IF EXISTS "No direct selects on quiz_responses" ON quiz_responses;
 DROP POLICY IF EXISTS "No direct updates on quiz_responses" ON quiz_responses;
 DROP POLICY IF EXISTS "No direct deletes on quiz_responses" ON quiz_responses;
+
+DROP POLICY IF EXISTS "Public can view leaderboard" ON leaderboard;
+DROP POLICY IF EXISTS "No direct inserts on leaderboard" ON leaderboard;
+DROP POLICY IF EXISTS "No direct updates on leaderboard" ON leaderboard;
+DROP POLICY IF EXISTS "No direct deletes on leaderboard" ON leaderboard;
 
 -- Create helper function to check if user is admin
 CREATE OR REPLACE FUNCTION is_admin_user()
