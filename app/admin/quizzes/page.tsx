@@ -175,7 +175,7 @@ export default function AdminQuizzesPage() {
                     Edit
                   </Link>
                   <Link
-                    href={`/quiz/${quiz.id}`}
+                    href={`/quiz/${quiz.id}?preview=true`}
                     target="_blank"
                     className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-xs uppercase tracking-wider transition-colors"
                   >

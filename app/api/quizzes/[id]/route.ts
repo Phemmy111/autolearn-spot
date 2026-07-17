@@ -5,28 +5,32 @@ import { requireAdmin } from '@/lib/admin'
 // GET - Public endpoint for students to view quiz details
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    const { searchParams } = new URL(request.url)
+    const preview = searchParams.get('preview') === 'true'
+
     const { data: quiz, error: quizError } = await supabase
       .from('quizzes')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (quizError) {
       return NextResponse.json({ error: quizError.message }, { status: 404 })
     }
 
-    // Only return questions if quiz is active
-    if (!quiz.is_active) {
+    // Only return questions if quiz is active OR it's a preview request
+    if (!quiz.is_active && !preview) {
       return NextResponse.json({ error: 'Quiz not available' }, { status: 403 })
     }
 
     const { data: questions, error: questionsError } = await supabase
       .from('questions')
       .select('*')
-      .eq('quiz_id', params.id)
+      .eq('quiz_id', id)
       .order('order_index', { ascending: true })
 
     if (questionsError) {
@@ -42,11 +46,12 @@ export async function GET(
 // PUT - Admin only: Update quiz
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
 
+    const { id } = await params
     const body = await request.json()
     const { title, description, week_number, phase, time_limit, passing_score, is_active } = body
 
@@ -61,7 +66,7 @@ export async function PUT(
         passing_score,
         is_active,
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -81,15 +86,17 @@ export async function PUT(
 // DELETE - Admin only: Delete quiz
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
 
+    const { id } = await params
+
     const { error } = await supabase
       .from('quizzes')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
