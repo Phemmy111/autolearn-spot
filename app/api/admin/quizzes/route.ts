@@ -24,3 +24,42 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+// POST - Admin only: Create new quiz
+export async function POST(request: Request) {
+  try {
+    await requireAdmin()
+
+    const body = await request.json()
+    const { title, description, week_number, phase, time_limit, passing_score } = body
+
+    // Validate required fields
+    if (!title || !week_number || !phase) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const { data: quiz, error } = await supabaseAdmin
+      .from('quizzes')
+      .insert({
+        title,
+        description,
+        week_number,
+        phase,
+        time_limit,
+        passing_score: passing_score || 70,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ quiz }, { status: 201 })
+  } catch (error: any) {
+    if (error.message?.includes('Unauthorized')) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
+    }
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

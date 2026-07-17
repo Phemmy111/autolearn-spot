@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Save } from 'lucide-react'
 import Link from 'next/link'
 
@@ -26,7 +25,7 @@ export default function NewQuizPage() {
     setError(null)
 
     try {
-      const res = await fetch('/api/quizzes', {
+      const res = await fetch('/api/admin/quizzes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
