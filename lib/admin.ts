@@ -13,16 +13,26 @@ export interface AdminInfo {
 export async function isAdmin(): Promise<boolean> {
   try {
     const { userId } = await auth()
+    console.log('[ADMIN CHECK] userId:', userId)
     if (!userId) return false
     
     // Get user email from Clerk
     const user = await currentUser()
-    if (!user?.emailAddresses || user.emailAddresses.length === 0) return false
+    console.log('[ADMIN CHECK] user:', user)
+    if (!user?.emailAddresses || user.emailAddresses.length === 0) {
+      console.log('[ADMIN CHECK] No email addresses found')
+      return false
+    }
     
     const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase()
-    if (!userEmail) return false
+    console.log('[ADMIN CHECK] userEmail:', userEmail)
+    if (!userEmail) {
+      console.log('[ADMIN CHECK] userEmail is empty')
+      return false
+    }
     
     // Check database for admin status (use service role to bypass RLS)
+    console.log('[ADMIN CHECK] Using supabaseAdmin:', !!supabaseAdmin)
     const { data, error } = await supabaseAdmin
       .from('admins')
       .select('role, is_active')
@@ -30,11 +40,17 @@ export async function isAdmin(): Promise<boolean> {
       .eq('is_active', true)
       .single()
     
-    if (error || !data) return false
+    console.log('[ADMIN CHECK] Database query result:', { data, error })
     
+    if (error || !data) {
+      console.log('[ADMIN CHECK] Admin check failed - error:', error, 'data:', data)
+      return false
+    }
+    
+    console.log('[ADMIN CHECK] Admin check passed for:', userEmail)
     return true
   } catch (error) {
-    console.error('Error checking admin status:', error)
+    console.error('[ADMIN CHECK] Error checking admin status:', error)
     return false
   }
 }
