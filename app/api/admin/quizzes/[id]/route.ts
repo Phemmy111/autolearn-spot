@@ -5,15 +5,17 @@ import { requireAdmin } from '@/lib/admin'
 // GET - Admin only: Get quiz details
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
 
+    const { id } = await params
+
     const { data: quiz, error } = await supabase
       .from('quizzes')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error) {
@@ -32,11 +34,12 @@ export async function GET(
 // PUT - Admin only: Update quiz
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
 
+    const { id } = await params
     const body = await request.json()
     const { title, description, week_number, phase, time_limit, passing_score, is_active } = body
 
@@ -51,7 +54,7 @@ export async function PUT(
         passing_score,
         is_active,
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -71,15 +74,17 @@ export async function PUT(
 // DELETE - Admin only: Delete quiz
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
 
+    const { id } = await params
+
     const { error } = await supabase
       .from('quizzes')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
