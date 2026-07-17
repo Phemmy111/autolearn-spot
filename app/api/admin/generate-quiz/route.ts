@@ -72,9 +72,22 @@ export async function POST(request: Request) {
       console.log('Generated default title:', quizData.title)
     }
 
+    // Transform AI response to match expected format
+    const transformedQuestions = quizData.questions.map((q: any) => ({
+      question_text: q.question || q.question_text,
+      question_type: q.question_type || 'multiple_choice',
+      options: q.options || [],
+      correct_answer: q.correct_answer || q.correctAnswer,
+      explanation: q.explanation || '',
+      points: q.points || 10,
+    }))
+
+    quizData.questions = transformedQuestions
+
     // Add week and phase to the quiz data
     quizData.week_number = weekNumber || 1
     quizData.phase = phase || 'WEEK_1'
+    quizData.description = quizData.description || `Quiz for Week ${weekNumber || '1'} - ${phase || 'WEEK_1'}`
 
     return NextResponse.json({ quiz: quizData })
   } catch (error: any) {
