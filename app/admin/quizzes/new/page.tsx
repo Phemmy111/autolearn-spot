@@ -1,0 +1,213 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
+import { ArrowLeft, Save } from 'lucide-react'
+import Link from 'next/link'
+
+export default function NewQuizPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    week_number: 1,
+    phase: 'WEEK_1',
+    time_limit: 30,
+    passing_score: 70,
+    is_active: true,
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/quizzes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to create quiz')
+      }
+
+      const data = await res.json()
+      router.push(`/admin/quizzes/${data.quiz.id}/questions`)
+    } catch (err: any) {
+      setError(err.message || 'Failed to create quiz')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    }))
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0c10]">
+      <div className="container mx-auto px-4 py-12">
+        <div className="mb-8">
+          <Link
+            href="/admin/quizzes"
+            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Quizzes
+          </Link>
+          <h1 className="font-heading text-4xl font-bold text-white mb-4">Create New Quiz</h1>
+          <p className="font-mono text-sm text-[#b9cacb]">Set up the basic quiz information</p>
+        </div>
+
+        <div className="max-w-2xl">
+          {error && (
+            <div className="mb-6 border border-red-500/50 bg-red-500/10 p-4 rounded-lg">
+              <p className="font-mono text-sm text-red-400">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                Quiz Title
+              </label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                placeholder="e.g., Week 1: n8n Fundamentals Quiz"
+              />
+            </div>
+
+            <div>
+              <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors resize-y"
+                placeholder="Brief description of what this quiz covers..."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  Week Number
+                </label>
+                <input
+                  type="number"
+                  name="week_number"
+                  value={formData.week_number}
+                  onChange={handleChange}
+                  min="1"
+                  max="12"
+                  required
+                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  Phase
+                </label>
+                <select
+                  name="phase"
+                  value={formData.phase}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                >
+                  <option value="WEEK_1">WEEK_1</option>
+                  <option value="WEEK_2">WEEK_2</option>
+                  <option value="WEEK_3">WEEK_3</option>
+                  <option value="WEEK_4">WEEK_4</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  Time Limit (minutes)
+                </label>
+                <input
+                  type="number"
+                  name="time_limit"
+                  value={formData.time_limit}
+                  onChange={handleChange}
+                  min="1"
+                  required
+                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  Passing Score (%)
+                </label>
+                <input
+                  type="number"
+                  name="passing_score"
+                  value={formData.passing_score}
+                  onChange={handleChange}
+                  min="0"
+                  max="100"
+                  required
+                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                name="is_active"
+                id="is_active"
+                checked={formData.is_active}
+                onChange={handleChange}
+                className="w-4 h-4 accent-[#00f0ff]"
+              />
+              <label htmlFor="is_active" className="font-mono text-sm text-[#b9cacb]">
+                Make quiz immediately available
+              </label>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+              >
+                <Save className="h-4 w-4" />
+                {loading ? 'Creating...' : 'Create Quiz'}
+              </button>
+              <Link
+                href="/admin/quizzes"
+                className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+              >
+                Cancel
+              </Link>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}

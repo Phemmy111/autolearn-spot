@@ -6,6 +6,7 @@ import { Lock, PlayCircle, Calendar } from 'lucide-react';
 import { ProgressBar, MarkCompleteButton, CompletedBadge } from '@/components/progress-tracker';
 import { AutolearnBot } from '@/components/autolearn-bot';
 import { DashboardWidgets } from '@/components/dashboard-widgets';
+import { Leaderboard } from '@/components/leaderboard';
 
 export interface VideoCourse {
   id: string
@@ -70,6 +71,9 @@ export default async function DashboardPage() {
           <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors hidden lg:block">
             History
           </Link>
+          <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            Admin
+          </Link>
           <SignOutButton redirectUrl="/">
             <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
               Sign Out
@@ -86,74 +90,81 @@ export default async function DashboardPage() {
 
         <DashboardWidgets />
 
-        <div className="mb-12">
-          <h1 className="font-heading text-3xl font-bold uppercase text-[#e2e8e2]">Your Curriculum</h1>
-          <p className="mt-3 font-mono text-sm text-[#b9cacb]">
-            Videos are released every Monday, Wednesday, and Friday. Complete each session to stay on track.
-          </p>
-        </div>
-        <ProgressBar totalVideos={videos.filter(isVideoAvailable).length} />
-        <div className="space-y-12">
-          {weeks.map((week) => (
-            <section key={week}>
-              <h2 className="mb-6 border-b border-[#1f2229] pb-2 font-mono text-lg font-semibold uppercase tracking-[0.1em] text-[#00f0ff]">
-                Week {week}
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {videos
-                  .filter((v) => v.week === week)
-                  .map((video) => {
-                    const available = isVideoAvailable(video);
-                    return (
-                      <div
-                        key={video.id}
-                        className={`group relative flex flex-col overflow-hidden border ${
-                          available
-                            ? 'border-[#3b494b] bg-[#1a1d24] hover:border-[#00f0ff]'
-                            : 'border-[#1f2229] bg-[#111317] opacity-60'
-                        } transition-colors`}
-                      >
-                        {/* Completed badge */}
-                        {available && <CompletedBadge videoId={video.id} />}
-                        <div className="aspect-video w-full bg-[#0a0c10] p-4 flex items-center justify-center relative">
-                          {available ? (
-                            <PlayCircle className="h-12 w-12 text-[#00f0ff] opacity-80 group-hover:opacity-100 transition-opacity" />
-                          ) : (
-                            <Lock className="h-10 w-10 text-[#5d5f63]" />
-                          )}
-                          <div className="absolute top-2 right-2 rounded bg-black/50 px-2 py-1 font-mono text-[10px] text-white backdrop-blur">
-                            {video.duration}
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className="mb-12">
+              <h1 className="font-heading text-3xl font-bold uppercase text-[#e2e8e2]">Your Curriculum</h1>
+              <p className="mt-3 font-mono text-sm text-[#b9cacb]">
+                Videos are released every Monday, Wednesday, and Friday. Complete each session to stay on track.
+              </p>
+            </div>
+            <ProgressBar totalVideos={videos.filter(isVideoAvailable).length} />
+            <div className="space-y-12">
+              {weeks.map((week) => (
+                <section key={week}>
+                  <h2 className="mb-6 border-b border-[#1f2229] pb-2 font-mono text-lg font-semibold uppercase tracking-[0.1em] text-[#00f0ff]">
+                    Week {week}
+                  </h2>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {videos
+                      .filter((v) => v.week === week)
+                      .map((video) => {
+                        const available = isVideoAvailable(video);
+                        return (
+                          <div
+                            key={video.id}
+                            className={`group relative flex flex-col overflow-hidden border ${
+                              available
+                                ? 'border-[#3b494b] bg-[#1a1d24] hover:border-[#00f0ff]'
+                                : 'border-[#1f2229] bg-[#111317] opacity-60'
+                            } transition-colors`}
+                          >
+                            {/* Completed badge */}
+                            {available && <CompletedBadge videoId={video.id} />}
+                            <div className="aspect-video w-full bg-[#0a0c10] p-4 flex items-center justify-center relative">
+                              {available ? (
+                                <PlayCircle className="h-12 w-12 text-[#00f0ff] opacity-80 group-hover:opacity-100 transition-opacity" />
+                              ) : (
+                                <Lock className="h-10 w-10 text-[#5d5f63]" />
+                              )}
+                              <div className="absolute top-2 right-2 rounded bg-black/50 px-2 py-1 font-mono text-[10px] text-white backdrop-blur">
+                                {video.duration}
+                              </div>
+                            </div>
+                            <div className="flex flex-1 flex-col p-4">
+                              <h3 className={`font-semibold ${available ? 'text-white' : 'text-[#b9cacb]'}`}>
+                                {video.title}
+                              </h3>
+                              <p className="mt-2 text-sm text-[#5d5f63] line-clamp-2 mb-4">
+                                {video.description}
+                              </p>
+                              {available ? (
+                                <div className="mt-auto flex items-center justify-between">
+                                  <Link
+                                    href={`/dashboard/video/${video.id}`}
+                                    className="inline-flex items-center justify-center border border-[#00f0ff] bg-[#00f0ff]/10 px-4 py-2 font-mono text-xs font-bold uppercase text-[#00f0ff] transition-colors hover:bg-[#00f0ff] hover:text-black"
+                                  >
+                                    Watch Session
+                                  </Link>
+                                  <MarkCompleteButton videoId={video.id} />
+                                </div>
+                              ) : (
+                                <div className="mt-auto flex items-center gap-2 border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-[10px] uppercase text-[#5d5f63]">
+                                  <Calendar className="h-3 w-3" /> Unlocks {formatAvailableDate(video.availableAt)}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex flex-1 flex-col p-4">
-                          <h3 className={`font-semibold ${available ? 'text-white' : 'text-[#b9cacb]'}`}>
-                            {video.title}
-                          </h3>
-                          <p className="mt-2 text-sm text-[#5d5f63] line-clamp-2 mb-4">
-                            {video.description}
-                          </p>
-                          {available ? (
-                            <div className="mt-auto flex items-center justify-between">
-                              <Link
-                                href={`/dashboard/video/${video.id}`}
-                                className="inline-flex items-center justify-center border border-[#00f0ff] bg-[#00f0ff]/10 px-4 py-2 font-mono text-xs font-bold uppercase text-[#00f0ff] transition-colors hover:bg-[#00f0ff] hover:text-black"
-                              >
-                                Watch Session
-                              </Link>
-                              <MarkCompleteButton videoId={video.id} />
-                            </div>
-                          ) : (
-                            <div className="mt-auto flex items-center gap-2 border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-[10px] uppercase text-[#5d5f63]">
-                              <Calendar className="h-3 w-3" /> Unlocks {formatAvailableDate(video.availableAt)}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </section>
-          ))}
+                        );
+                      })}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </div>
+          <div className="lg:col-span-1">
+            <Leaderboard />
+          </div>
         </div>
       </div>
       <AutolearnBot context="dashboard" />

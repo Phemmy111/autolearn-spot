@@ -1,49 +1,73 @@
-import { Quiz, QuizSubmission, LeaderboardEntry, QuizHistoryEntry } from '@/types/quiz'
-import { mockQuiz } from '@/data/quiz'
+import { SupabaseQuiz, SupabaseQuestion, SupabaseLeaderboard } from '@/types/quiz'
 
-const BASE_URL = 'https://n8n-wj6g.onrender.com/webhook'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-export async function fetchCurrentQuiz(): Promise<Quiz | null> {
+// Fetch all available quizzes
+export async function fetchQuizzes(): Promise<SupabaseQuiz[]> {
   try {
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 800))
-    return mockQuiz
+    const res = await fetch(`${BASE_URL}/api/quizzes`, { cache: 'no-store' })
+    if (!res.ok) throw new Error('Failed to fetch quizzes')
+    const data = await res.json()
+    return data.quizzes || []
   } catch (error) {
-    console.error('Error fetching current quiz:', error)
-    return null
-  }
-}
-
-export async function submitQuiz(submission: QuizSubmission): Promise<boolean> {
-  try {
-    // Simulate network processing delay for submit
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    console.log('Mock submitted:', submission)
-    return true
-  } catch (error) {
-    console.error('Error submitting quiz:', error)
-    return false
-  }
-}
-
-export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
-  try {
-    const res = await fetch(`${BASE_URL}/leaderboard/current`, { cache: 'no-store' })
-    if (!res.ok) throw new Error('Failed to fetch leaderboard')
-    return await res.json()
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error)
+    console.error('Error fetching quizzes:', error)
     return []
   }
 }
 
-export async function fetchQuizHistory(studentId: string): Promise<QuizHistoryEntry[]> {
+// Fetch a specific quiz with its questions
+export async function fetchQuizById(quizId: string): Promise<{ quiz: SupabaseQuiz; questions: SupabaseQuestion[] } | null> {
   try {
-    const res = await fetch(`${BASE_URL}/student/history?studentId=${encodeURIComponent(studentId)}`, { cache: 'no-store' })
-    if (!res.ok) throw new Error('Failed to fetch quiz history')
+    const res = await fetch(`${BASE_URL}/api/quizzes/${quizId}`, { cache: 'no-store' })
+    if (!res.ok) throw new Error('Failed to fetch quiz')
     return await res.json()
   } catch (error) {
-    console.error('Error fetching quiz history:', error)
+    console.error('Error fetching quiz:', error)
+    return null
+  }
+}
+
+// Submit quiz to Supabase
+export async function submitQuiz(quizId: string, submission: {
+  user_name: string
+  user_email: string
+  answers: Record<string, string>
+  time_taken: number
+  started_at: string
+}): Promise<{ success: boolean; score?: number; percentage?: number; passed?: boolean; error?: string }> {
+  try {
+    const res = await fetch(`${BASE_URL}/api/quizzes/${quizId}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(submission),
+    })
+    
+    if (!res.ok) {
+      const error = await res.json()
+      return { success: false, error: error.error || 'Failed to submit quiz' }
+    }
+    
+    const data = await res.json()
+    return {
+      success: true,
+      score: data.score,
+      percentage: data.percentage,
+      passed: data.passed,
+    }
+  } catch (error) {
+    console.error('Error submitting quiz:', error)
+    return { success: false, error: 'Network error' }
+  }
+}
+
+export async function fetchLeaderboard(): Promise<SupabaseLeaderboard[]> {
+  try {
+    const res = await fetch(`${BASE_URL}/api/leaderboard`, { cache: 'no-store' })
+    if (!res.ok) throw new Error('Failed to fetch leaderboard')
+    const data = await res.json()
+    return data.leaderboard || []
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error)
     return []
   }
 }
