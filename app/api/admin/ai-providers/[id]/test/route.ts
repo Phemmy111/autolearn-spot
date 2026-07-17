@@ -5,12 +5,15 @@ import { AIProviderManager } from '@/lib/ai-provider'
 // POST - Super Admin only: Test provider connection
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireSuperAdmin()
 
-    const result = await AIProviderManager.testProvider(params.id)
+    const { id } = await params
+    console.log('Testing provider ID:', id)
+
+    const result = await AIProviderManager.testProvider(id)
 
     return NextResponse.json(result)
   } catch (error: any) {

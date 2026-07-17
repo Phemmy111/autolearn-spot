@@ -5,11 +5,12 @@ import { AIProviderManager, ProviderConfig } from '@/lib/ai-provider'
 // PUT - Super Admin only: Update AI provider
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireSuperAdmin()
 
+    const { id } = await params
     const body = await request.json()
     const { name, provider_type, api_key, base_url, default_model } = body
 
@@ -20,7 +21,7 @@ export async function PUT(
     if (base_url !== undefined) config.base_url = base_url
     if (default_model !== undefined) config.default_model = default_model
 
-    const provider = await AIProviderManager.updateProvider(params.id, config)
+    const provider = await AIProviderManager.updateProvider(id, config)
 
     if (!provider) {
       return NextResponse.json({ error: 'Failed to update provider' }, { status: 500 })
@@ -39,12 +40,13 @@ export async function PUT(
 // DELETE - Super Admin only: Delete AI provider
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireSuperAdmin()
 
-    const success = await AIProviderManager.deleteProvider(params.id)
+    const { id } = await params
+    const success = await AIProviderManager.deleteProvider(id)
 
     if (!success) {
       return NextResponse.json({ error: 'Failed to delete provider' }, { status: 500 })

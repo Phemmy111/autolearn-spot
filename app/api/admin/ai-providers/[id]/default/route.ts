@@ -5,12 +5,15 @@ import { AIProviderManager } from '@/lib/ai-provider'
 // POST - Super Admin only: Set provider as default
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireSuperAdmin()
 
-    const success = await AIProviderManager.setDefaultProvider(params.id)
+    const { id } = await params
+    console.log('Setting default provider ID:', id)
+
+    const success = await AIProviderManager.setDefaultProvider(id)
 
     if (!success) {
       return NextResponse.json({ error: 'Failed to set default provider' }, { status: 500 })

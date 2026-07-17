@@ -5,12 +5,15 @@ import { AIProviderManager } from '@/lib/ai-provider'
 // POST - Super Admin only: Fetch models from provider
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireSuperAdmin()
 
-    const models = await AIProviderManager.fetchModels(params.id)
+    const { id } = await params
+    console.log('Fetching models for provider ID:', id)
+
+    const models = await AIProviderManager.fetchModels(id)
 
     return NextResponse.json({ models })
   } catch (error: any) {
