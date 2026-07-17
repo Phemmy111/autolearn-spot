@@ -50,15 +50,20 @@ export async function POST(request: Request) {
     try {
       // Remove markdown code blocks if present
       const cleanedContent = result.content.replace(/```json\n?|\n?```/g, '').trim()
+      console.log('AI response content:', cleanedContent.substring(0, 1000))
       quizData = JSON.parse(cleanedContent)
+      console.log('Parsed quiz data:', JSON.stringify(quizData).substring(0, 500))
     } catch (parseError) {
       console.error('Failed to parse AI response:', result.content)
-      return NextResponse.json({ error: 'Failed to parse generated quiz' }, { status: 500 })
+      console.error('Parse error:', parseError)
+      return NextResponse.json({ error: 'Failed to parse generated quiz. AI response: ' + result.content.substring(0, 500) }, { status: 500 })
     }
 
     // Validate the structure
+    console.log('Validation check - title:', !!quizData.title, 'questions:', !!quizData.questions, 'isArray:', Array.isArray(quizData.questions))
     if (!quizData.title || !quizData.questions || !Array.isArray(quizData.questions)) {
-      return NextResponse.json({ error: 'Invalid quiz structure generated' }, { status: 500 })
+      console.error('Invalid quiz structure:', quizData)
+      return NextResponse.json({ error: 'Invalid quiz structure generated. Expected { title: string, questions: array }. Got: ' + JSON.stringify(quizData).substring(0, 500) }, { status: 500 })
     }
 
     // Add week and phase to the quiz data
