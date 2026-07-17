@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 // GET - Admin only: Get all questions for a quiz
@@ -10,7 +10,7 @@ export async function GET(
   try {
     await requireAdmin()
 
-    const { data: questions, error } = await supabase
+    const { data: questions, error } = await supabaseAdmin
       .from('questions')
       .select('*')
       .eq('quiz_id', params.id)
@@ -49,7 +49,7 @@ export async function POST(
     }
 
     // Get current max order_index
-    const { data: existingQuestions } = await supabase
+    const { data: existingQuestions } = await supabaseAdmin
       .from('questions')
       .select('order_index')
       .eq('quiz_id', params.id)
@@ -58,7 +58,7 @@ export async function POST(
 
     const nextOrderIndex = existingQuestions?.[0]?.order_index + 1 || 0
 
-    const { data: question, error } = await supabase
+    const { data: question, error } = await supabaseAdmin
       .from('questions')
       .insert({
         quiz_id: params.id,

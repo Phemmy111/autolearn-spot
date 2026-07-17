@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { requireSuperAdmin, currentUser } from '@/lib/admin'
 
 // GET - Super Admin only: Get all admins
@@ -7,7 +7,7 @@ export async function GET() {
   try {
     await requireSuperAdmin()
 
-    const { data: admins, error } = await supabase
+    const { data: admins, error } = await supabaseAdmin
       .from('admins')
       .select('*')
       .order('created_at', { ascending: false })
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     const createdBy = user?.id
 
     // Check if admin already exists
-    const { data: existingAdmin } = await supabase
+    const { data: existingAdmin } = await supabaseAdmin
       .from('admins')
       .select('id')
       .eq('email', email.toLowerCase())
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Admin with this email already exists' }, { status: 409 })
     }
 
-    const { data: admin, error } = await supabase
+    const { data: admin, error } = await supabaseAdmin
       .from('admins')
       .insert({
         email: email.toLowerCase(),
