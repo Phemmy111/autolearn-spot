@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export interface AIPrompt {
   id: string
@@ -19,7 +19,7 @@ export class AIPromptManager {
    */
   static async getActivePrompt(promptType: string): Promise<AIPrompt | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_prompts')
         .select('*')
         .eq('prompt_type', promptType)
@@ -43,7 +43,7 @@ export class AIPromptManager {
    */
   static async getPromptsByType(promptType: string): Promise<AIPrompt[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_prompts')
         .select('*')
         .eq('prompt_type', promptType)
@@ -66,7 +66,7 @@ export class AIPromptManager {
    */
   static async getAllPrompts(): Promise<AIPrompt[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_prompts')
         .select('*')
         .order('prompt_type', { ascending: true })
@@ -95,7 +95,7 @@ export class AIPromptManager {
   ): Promise<AIPrompt | null> {
     try {
       // Get the highest version for this prompt type
-      const { data: existingPrompts } = await supabase
+      const { data: existingPrompts } = await supabaseAdmin
         .from('ai_prompts')
         .select('version')
         .eq('prompt_type', promptType)
@@ -104,7 +104,7 @@ export class AIPromptManager {
 
       const nextVersion = (existingPrompts?.[0]?.version || 0) + 1
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_prompts')
         .insert({
           name,
@@ -156,7 +156,7 @@ export class AIPromptManager {
         if (updates.is_active) {
           const prompt = await this.getPromptById(id)
           if (prompt) {
-            await supabase
+            await supabaseAdmin
               .from('ai_prompts')
               .update({ is_active: false })
               .eq('prompt_type', prompt.prompt_type)
@@ -165,7 +165,7 @@ export class AIPromptManager {
         }
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_prompts')
         .update(updateData)
         .eq('id', id)
@@ -189,7 +189,7 @@ export class AIPromptManager {
    */
   static async deletePrompt(id: string): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('ai_prompts')
         .delete()
         .eq('id', id)
@@ -217,13 +217,13 @@ export class AIPromptManager {
       }
 
       // Deactivate all prompts of the same type
-      await supabase
+      await supabaseAdmin
         .from('ai_prompts')
         .update({ is_active: false })
         .eq('prompt_type', prompt.prompt_type)
 
       // Activate the selected prompt
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('ai_prompts')
         .update({ 
           is_active: true,
@@ -249,7 +249,7 @@ export class AIPromptManager {
    */
   static async getPromptById(id: string): Promise<AIPrompt | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('ai_prompts')
         .select('*')
         .eq('id', id)
