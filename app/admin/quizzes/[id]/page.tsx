@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
 import { ArrowLeft, Save, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -23,24 +22,24 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     async function loadQuiz() {
-      const { data, error } = await supabase
-        .from('quizzes')
-        .select('*')
-        .eq('id', params.id)
-        .single()
-
-      if (error) {
-        setError(error.message)
-      } else if (data) {
-        setFormData({
-          title: data.title,
-          description: data.description || '',
-          week_number: data.week_number,
-          phase: data.phase,
-          time_limit: data.time_limit || 30,
-          passing_score: data.passing_score,
-          is_active: data.is_active,
-        })
+      const res = await fetch(`/api/admin/quizzes/${params.id}`)
+      
+      if (!res.ok) {
+        const error = await res.json()
+        setError(error.error || 'Failed to load quiz')
+      } else {
+        const { quiz } = await res.json()
+        if (quiz) {
+          setFormData({
+            title: quiz.title,
+            description: quiz.description || '',
+            week_number: quiz.week_number,
+            phase: quiz.phase,
+            time_limit: quiz.time_limit || 30,
+            passing_score: quiz.passing_score,
+            is_active: quiz.is_active,
+          })
+        }
       }
       setLoading(false)
     }
@@ -53,7 +52,7 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
     setError(null)
 
     try {
-      const res = await fetch(`/api/quizzes/${params.id}`, {
+      const res = await fetch(`/api/admin/quizzes/${params.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -78,7 +77,7 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
     }
 
     try {
-      const res = await fetch(`/api/quizzes/${params.id}`, {
+      const res = await fetch(`/api/admin/quizzes/${params.id}`, {
         method: 'DELETE',
       })
 
