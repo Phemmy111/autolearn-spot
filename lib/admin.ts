@@ -1,6 +1,8 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { supabase } from '@/lib/supabase'
 
+export { currentUser }
+
 export interface AdminInfo {
   id: string
   email: string
