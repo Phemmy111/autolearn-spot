@@ -61,9 +61,15 @@ export async function POST(request: Request) {
 
     // Validate the structure
     console.log('Validation check - title:', !!quizData.title, 'questions:', !!quizData.questions, 'isArray:', Array.isArray(quizData.questions))
-    if (!quizData.title || !quizData.questions || !Array.isArray(quizData.questions)) {
+    if (!quizData.questions || !Array.isArray(quizData.questions)) {
       console.error('Invalid quiz structure:', quizData)
       return NextResponse.json({ error: 'Invalid quiz structure generated. Expected { title: string, questions: array }. Got: ' + JSON.stringify(quizData).substring(0, 500) }, { status: 500 })
+    }
+
+    // Generate default title if missing
+    if (!quizData.title) {
+      quizData.title = `Week ${weekNumber || '1'} Quiz - ${phase || 'WEEK_1'}`
+      console.log('Generated default title:', quizData.title)
     }
 
     // Add week and phase to the quiz data
