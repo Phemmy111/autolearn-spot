@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Eye, Clock, Target, Sparkles } from 'lucide-react'
+import { Plus, Edit, Trash2, Eye, Clock, Target, Sparkles, ArrowLeft } from 'lucide-react'
 
 export default async function AdminQuizzesPage() {
   try {
@@ -28,9 +28,14 @@ export default async function AdminQuizzesPage() {
     <div className="min-h-screen bg-[#0a0c10]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-12">
-          <div>
-            <h1 className="font-heading text-4xl font-bold text-white mb-4">Manage Quizzes</h1>
-            <p className="font-mono text-sm text-[#b9cacb]">Create and manage weekly quizzes</p>
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="text-[#b9cacb] hover:text-white">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <div>
+              <h1 className="font-heading text-4xl font-bold text-white mb-4">Manage Quizzes</h1>
+              <p className="font-mono text-sm text-[#b9cacb]">Create and manage weekly quizzes</p>
+            </div>
           </div>
           <div className="flex gap-3">
             <Link
