@@ -32,6 +32,15 @@ interface AIProvider {
   is_default: boolean
 }
 
+interface AIPrompt {
+  id: string
+  name: string
+  prompt_type: string
+  content: string
+  version: number
+  is_active: boolean
+}
+
 export default function GenerateQuizPage() {
   const router = useRouter()
   const [step, setStep] = useState<'input' | 'generating' | 'review'>('input')
@@ -44,9 +53,12 @@ export default function GenerateQuizPage() {
   const [providers, setProviders] = useState<AIProvider[]>([])
   const [selectedProviderId, setSelectedProviderId] = useState<string>('')
   const [selectedModel, setSelectedModel] = useState<string>('')
+  const [prompts, setPrompts] = useState<AIPrompt[]>([])
+  const [selectedPromptId, setSelectedPromptId] = useState<string>('')
 
   useEffect(() => {
     fetchProviders()
+    fetchPrompts()
   }, [])
 
   const fetchProviders = async () => {
@@ -72,6 +84,27 @@ export default function GenerateQuizPage() {
     }
   }
 
+  const fetchPrompts = async () => {
+    try {
+      const res = await fetch('/api/admin/ai-prompts')
+      if (res.ok) {
+        const data = await res.json()
+        const quizPrompts = (data.prompts || []).filter((p: AIPrompt) => p.prompt_type === 'quiz_generation')
+        setPrompts(quizPrompts)
+        
+        // Auto-select the active prompt
+        const activePrompt = quizPrompts.find((p: AIPrompt) => p.is_active)
+        if (activePrompt) {
+          setSelectedPromptId(activePrompt.id)
+        } else if (quizPrompts.length > 0) {
+          setSelectedPromptId(quizPrompts[0].id)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch prompts:', err)
+    }
+  }
+
   const handleGenerate = async () => {
     if (!script.trim()) {
       setError('Please provide a lesson script')
@@ -85,6 +118,11 @@ export default function GenerateQuizPage() {
 
     if (!selectedModel) {
       setError('Please select a model')
+      return
+    }
+
+    if (!selectedPromptId) {
+      setError('Please select an AI prompt')
       return
     }
 
@@ -102,6 +140,7 @@ export default function GenerateQuizPage() {
           phase,
           providerId: selectedProviderId,
           model: selectedModel,
+          promptId: selectedPromptId,
         }),
       })
 
@@ -300,6 +339,27 @@ export default function GenerateQuizPage() {
                 </div>
               </div>
 
+              <div>
+                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  AI Prompt
+                </label>
+                <select
+                  value={selectedPromptId}
+                  onChange={(e) => setSelectedPromptId(e.target.value)}
+                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                >
+                  {prompts.length === 0 ? (
+                    <option value="">No quiz prompts configured</option>
+                  ) : (
+                    prompts.map(prompt => (
+                      <option key={prompt.id} value={prompt.id}>
+                        {prompt.name} (v{prompt.version}) {prompt.is_active && '(Active)'}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
               {providers.length === 0 && (
                 <div className="border border-yellow-500/50 bg-yellow-500/10 p-4 rounded-lg flex items-center gap-3">
                   <Bot className="h-5 w-5 text-yellow-400" />
@@ -307,6 +367,18 @@ export default function GenerateQuizPage() {
                     <p className="font-mono text-sm text-yellow-400">No AI providers configured</p>
                     <Link href="/admin/ai-providers" className="font-mono text-xs text-[#b9cacb] hover:text-white">
                       Configure AI providers →
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {prompts.length === 0 && (
+                <div className="border border-yellow-500/50 bg-yellow-500/10 p-4 rounded-lg flex items-center gap-3">
+                  <Bot className="h-5 w-5 text-yellow-400" />
+                  <div>
+                    <p className="font-mono text-sm text-yellow-400">No quiz generation prompts configured</p>
+                    <Link href="/admin/ai-prompts" className="font-mono text-xs text-[#b9cacb] hover:text-white">
+                      Configure AI prompts →
                     </Link>
                   </div>
                 </div>

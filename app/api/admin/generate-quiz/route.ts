@@ -2,22 +2,33 @@ import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin'
 import { AIProviderManager } from '@/lib/ai-provider'
 import { AIPromptManager } from '@/lib/ai-prompt'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: Request) {
   try {
     await requireAdmin()
 
-    const { script, weekNumber, phase, providerId, model } = await request.json()
+    const { script, weekNumber, phase, providerId, model, promptId } = await request.json()
 
     if (!script) {
       return NextResponse.json({ error: 'Script is required' }, { status: 400 })
     }
 
-    // Get the active quiz generation prompt
-    const activePrompt = await AIPromptManager.getActivePrompt('quiz_generation')
+    // Get the quiz generation prompt (use specific promptId if provided, otherwise get active)
+    let activePrompt
+    if (promptId) {
+      const { data: prompt } = await supabase
+        .from('ai_prompts')
+        .select('*')
+        .eq('id', promptId)
+        .single()
+      activePrompt = prompt
+    } else {
+      activePrompt = await AIPromptManager.getActivePrompt('quiz_generation')
+    }
     
     if (!activePrompt) {
-      return NextResponse.json({ error: 'No active quiz generation prompt found. Please configure a prompt in the admin dashboard.' }, { status: 500 })
+      return NextResponse.json({ error: 'No quiz generation prompt found. Please configure a prompt in the admin dashboard.' }, { status: 500 })
     }
 
     // Use AI Provider Manager to generate quiz
