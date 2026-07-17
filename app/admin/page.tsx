@@ -6,8 +6,25 @@ import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, Hear
 export default async function AdminPage() {
   try {
     await requireAdmin()
-  } catch (error) {
-    redirect('/')
+  } catch (error: any) {
+    console.error('[ADMIN PAGE] Authorization failed:', error)
+    return (
+      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+        <div className="border border-red-500/50 bg-red-500/10 p-8 rounded-xl max-w-2xl">
+          <h1 className="font-heading text-2xl font-bold text-white mb-4">Authorization Failed</h1>
+          <p className="font-mono text-sm text-red-400 mb-4">{error?.message || 'Unknown error'}</p>
+          <p className="font-mono text-xs text-[#b9cacb]">
+            Please check the Vercel logs for detailed debugging information.
+          </p>
+          <Link 
+            href="/"
+            className="inline-block mt-4 font-mono text-sm text-[#00f0ff] hover:text-white"
+          >
+            Return to Homepage
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
