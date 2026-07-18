@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/admin'
 import Link from 'next/link'
 import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
+import { CertificateToggle } from '@/components/admin/CertificateToggle'
 
 export default async function AdminPage() {
   try {
@@ -148,6 +149,7 @@ export default async function AdminPage() {
               New Quiz
             </Link>
             <ResetDataButton />
+            <CertificateToggle />
           </div>
         </div>
       </div>
