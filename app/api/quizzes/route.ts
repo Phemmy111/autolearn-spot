@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/admin'
 // GET - Public endpoint for students to view active quizzes
 export async function GET() {
   try {
+    console.log('Fetching active quizzes list')
     const { data: quizzes, error } = await supabase
       .from('quizzes')
       .select('*')
@@ -15,6 +16,9 @@ export async function GET() {
       console.error('Error fetching quizzes:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    console.log('Active quizzes found:', quizzes?.length || 0)
+    console.log('Quizzes:', quizzes?.map(q => ({ id: q.id, title: q.title, is_active: q.is_active })))
 
     return NextResponse.json({ quizzes })
   } catch (error: any) {
