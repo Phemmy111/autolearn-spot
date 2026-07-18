@@ -118,6 +118,20 @@ export async function POST(
              isCorrect = true
            }
         }
+
+        // 3. Substring match fallback for AI mismatches (e.g. "Paris" vs "A. Paris" or "Paris, France")
+        if (!isCorrect && userAnswer.length > 2 && correctAnswer.length > 2) {
+          const userLower = userAnswer.toLowerCase()
+          const correctLower = correctAnswer.toLowerCase()
+          
+          // Remove prefixes like "A. ", "B) ", etc before comparing
+          const cleanUser = userLower.replace(/^[a-d][.)]\s*/, '').trim()
+          const cleanCorrect = correctLower.replace(/^[a-d][.)]\s*/, '').trim()
+
+          if (cleanUser === cleanCorrect || cleanUser.includes(cleanCorrect) || cleanCorrect.includes(cleanUser)) {
+            isCorrect = true
+          }
+        }
       }
 
       console.log(`Q ${question.id}: user="${userAnswer}" correct="${correctAnswer}" match=${isCorrect}`)
