@@ -83,7 +83,43 @@ export async function POST(
       totalPoints += question.points
       const userAnswer = (answers[question.id] || '').trim()
       const correctAnswer = (question.correct_answer || '').trim()
-      const isCorrect = userAnswer === correctAnswer
+      
+      let isCorrect = userAnswer === correctAnswer
+
+      // Smart matching for AI generated multiple choice questions
+      if (!isCorrect && question.question_type === 'multiple_choice') {
+        // 1. If AI set correct_answer to "A", "B", "C", or "D", but options are "A. ...", "B. ..."
+        const correctLetterMatch = correctAnswer.match(/^[A-D](?:\.|\))?$/i)
+        if (correctLetterMatch) {
+           const letter = correctAnswer.charAt(0).toUpperCase()
+           // Check if user answer starts with this letter
+           if (userAnswer.toUpperCase().startsWith(`${letter}.`) || userAnswer.toUpperCase().startsWith(`${letter})`) || userAnswer.toUpperCase().startsWith(`${letter} `)) {
+             isCorrect = true
+           }
+           
+           // Or check by index if options don't have letters
+           let optionsArray = question.options
+           if (typeof optionsArray === 'string') {
+             try { optionsArray = JSON.parse(optionsArray) } catch(e) {}
+           }
+           if (!isCorrect && Array.isArray(optionsArray)) {
+             const index = letter.charCodeAt(0) - 65 // A=0, B=1, etc.
+             if (optionsArray[index] && optionsArray[index] === userAnswer) {
+               isCorrect = true
+             }
+           }
+        }
+        
+        // 2. Inverse case: correct_answer is "A. Option" but userAnswer is just "A"
+        const userLetterMatch = userAnswer.match(/^[A-D](?:\.|\))?$/i)
+        if (!isCorrect && userLetterMatch) {
+           const letter = userAnswer.charAt(0).toUpperCase()
+           if (correctAnswer.toUpperCase().startsWith(`${letter}.`) || correctAnswer.toUpperCase().startsWith(`${letter})`) || correctAnswer.toUpperCase().startsWith(`${letter} `)) {
+             isCorrect = true
+           }
+        }
+      }
+
       console.log(`Q ${question.id}: user="${userAnswer}" correct="${correctAnswer}" match=${isCorrect}`)
       if (isCorrect) {
         correctAnswers += question.points
