@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { auth, currentUser } from '@clerk/nextjs/server'
 
 export async function POST(
@@ -31,7 +31,7 @@ export async function POST(
     }
 
     // Check if user has already submitted this quiz (prevent duplicate submissions)
-    const { data: existingResponse } = await supabase
+    const { data: existingResponse } = await supabaseAdmin
       .from('quiz_responses')
       .select('id')
       .eq('quiz_id', id)
@@ -43,7 +43,7 @@ export async function POST(
     }
 
     // Get quiz details (verify quiz exists and is active)
-    const { data: quiz, error: quizError } = await supabase
+    const { data: quiz, error: quizError } = await supabaseAdmin
       .from('quizzes')
       .select('passing_score, is_active')
       .eq('id', id)
@@ -58,7 +58,7 @@ export async function POST(
     }
 
     // Get quiz questions to calculate score
-    const { data: questions, error: questionsError } = await supabase
+    const { data: questions, error: questionsError } = await supabaseAdmin
       .from('questions')
       .select('*')
       .eq('quiz_id', id)
@@ -77,16 +77,23 @@ export async function POST(
     let correctAnswers = 0
     let totalPoints = 0
 
+    console.log('Submitted answers:', JSON.stringify(answers))
+
     questions.forEach((question: any) => {
       totalPoints += question.points
-      const userAnswer = answers[question.id]
-      if (userAnswer === question.correct_answer) {
+      const userAnswer = (answers[question.id] || '').trim()
+      const correctAnswer = (question.correct_answer || '').trim()
+      const isCorrect = userAnswer === correctAnswer
+      console.log(`Q ${question.id}: user="${userAnswer}" correct="${correctAnswer}" match=${isCorrect}`)
+      if (isCorrect) {
         correctAnswers += question.points
       }
     })
 
     const score = correctAnswers
     const percentage = totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0
+
+    console.log(`Score: ${score}/${totalPoints} = ${percentage}%`)
 
     const passed = percentage >= quiz.passing_score
 
@@ -97,7 +104,7 @@ export async function POST(
     }
 
     // Insert quiz response
-    const { data: response, error: responseError } = await supabase
+    const { data: response, error: responseError } = await supabaseAdmin
       .from('quiz_responses')
       .insert({
         quiz_id: id,
