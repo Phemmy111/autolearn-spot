@@ -1,11 +1,9 @@
 import { SupabaseQuiz, SupabaseQuestion, SupabaseLeaderboard } from '@/types/quiz'
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
 // Fetch all available quizzes
 export async function fetchQuizzes(): Promise<SupabaseQuiz[]> {
   try {
-    const res = await fetch(`${BASE_URL}/api/quizzes`, { cache: 'no-store' })
+    const res = await fetch(`/api/quizzes`, { cache: 'no-store' })
     if (!res.ok) throw new Error('Failed to fetch quizzes')
     const data = await res.json()
     return data.quizzes || []
@@ -18,7 +16,7 @@ export async function fetchQuizzes(): Promise<SupabaseQuiz[]> {
 // Fetch a specific quiz with its questions
 export async function fetchQuizById(quizId: string, preview = false): Promise<{ quiz: SupabaseQuiz; questions: SupabaseQuestion[] } | null> {
   try {
-    const url = `${BASE_URL}/api/quizzes/${quizId}${preview ? '?preview=true' : ''}`
+    const url = `/api/quizzes/${quizId}${preview ? '?preview=true' : ''}`
     const res = await fetch(url, { cache: 'no-store' })
     if (!res.ok) throw new Error('Failed to fetch quiz')
     return await res.json()
@@ -37,7 +35,7 @@ export async function submitQuiz(quizId: string, submission: {
   started_at: string
 }): Promise<{ success: boolean; score?: number; percentage?: number; passed?: boolean; error?: string }> {
   try {
-    const res = await fetch(`${BASE_URL}/api/quizzes/${quizId}/submit`, {
+    const res = await fetch(`/api/quizzes/${quizId}/submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(submission),
@@ -63,7 +61,7 @@ export async function submitQuiz(quizId: string, submission: {
 
 export async function fetchLeaderboard(): Promise<SupabaseLeaderboard[]> {
   try {
-    const res = await fetch(`${BASE_URL}/api/leaderboard`, { cache: 'no-store' })
+    const res = await fetch(`/api/leaderboard`, { cache: 'no-store' })
     if (!res.ok) throw new Error('Failed to fetch leaderboard')
     const data = await res.json()
     return data.leaderboard || []
