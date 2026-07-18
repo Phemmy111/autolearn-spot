@@ -12,7 +12,7 @@ export function Leaderboard() {
   useEffect(() => {
     async function loadLeaderboard() {
       const data = await fetchLeaderboard()
-      setLeaderboard(data)
+      setLeaderboard(data as any[]) // Use any since the API returns LeaderboardEntry but component had SupabaseLeaderboard
       setLoading(false)
     }
     loadLeaderboard()
@@ -63,15 +63,15 @@ export function Leaderboard() {
                   {getRankIcon(index + 1)}
                 </div>
                 <div>
-                  <p className="font-heading font-semibold text-white">{entry.user_name}</p>
+                  <p className="font-heading font-semibold text-white">{entry.name}</p>
                   <p className="font-mono text-xs text-[#5d5f63]">
-                    {entry.quizzes_completed} quizzes • {entry.quizzes_passed} passed
+                    Top Performer
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-mono text-lg font-bold text-[#00f0ff]">{entry.total_score} pts</p>
-                <p className="font-mono text-xs text-[#b9cacb]">{entry.average_score}% avg</p>
+                <p className="font-mono text-lg font-bold text-[#00f0ff]">{entry.score} pts</p>
+                <p className="font-mono text-xs text-[#b9cacb]">{entry.percentage}% avg</p>
               </div>
             </div>
           ))}

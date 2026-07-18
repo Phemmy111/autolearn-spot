@@ -76,6 +76,7 @@ export async function POST(
     // Calculate score
     let correctAnswers = 0
     let totalPoints = 0
+    const questionResults: any[] = []
 
     console.log('Submitted answers:', JSON.stringify(answers))
 
@@ -150,6 +151,18 @@ export async function POST(
       if (isCorrect) {
         correctAnswers += question.points
       }
+
+      questionResults.push({
+        id: question.id,
+        question_text: question.question_text,
+        question_type: question.question_type,
+        options: question.options,
+        user_answer: userAnswer,
+        correct_answer: correctAnswer,
+        is_correct: isCorrect,
+        explanation: question.explanation,
+        points: question.points
+      })
     })
 
     const score = correctAnswers
@@ -197,6 +210,7 @@ export async function POST(
       percentage,
       passed,
       correct_answers: correctAnswers,
+      question_results: questionResults,
     })
   } catch (error: any) {
     console.error('Quiz submission error:', error)

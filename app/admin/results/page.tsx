@@ -60,6 +60,9 @@ export default async function AdminResultsPage() {
                   <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-[#b9cacb]">
                     Submitted
                   </th>
+                  <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-[#b9cacb]">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -113,6 +116,14 @@ export default async function AdminResultsPage() {
                       <p className="font-mono text-xs text-[#5d5f63]">
                         {new Date(response.completed_at).toLocaleTimeString()}
                       </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link 
+                        href={`/admin/results/${response.id}`}
+                        className="text-[#00f0ff] hover:text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1"
+                      >
+                        Review
+                      </Link>
                     </td>
                   </tr>
                 ))}

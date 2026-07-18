@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft } from 'lucide-react'
+import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
 
@@ -147,6 +147,20 @@ export default async function AdminPage() {
             >
               <Plus className="h-4 w-4" />
               New Quiz
+            </Link>
+            <Link 
+              href="/admin/leaderboard"
+              className="flex items-center gap-2 border border-[#1f2229] bg-[#111317] px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#b9cacb] hover:bg-[#1a1d24] hover:text-white transition-colors"
+            >
+              <Trophy className="h-4 w-4" />
+              Leaderboard
+            </Link>
+            <Link 
+              href="/admin/analytics"
+              className="flex items-center gap-2 border border-[#1f2229] bg-[#111317] px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#b9cacb] hover:bg-[#1a1d24] hover:text-white transition-colors"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Analytics
             </Link>
             <ResetDataButton />
             <CertificateToggle />

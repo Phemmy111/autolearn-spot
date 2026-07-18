@@ -33,7 +33,7 @@ export async function submitQuiz(quizId: string, submission: {
   answers: Record<string, string>
   time_taken: number
   started_at: string
-}): Promise<{ success: boolean; score?: number; percentage?: number; passed?: boolean; error?: string }> {
+}): Promise<{ success: boolean; score?: number; percentage?: number; passed?: boolean; question_results?: any[]; error?: string }> {
   try {
     const res = await fetch(`/api/quizzes/${quizId}/submit`, {
       method: 'POST',
@@ -52,6 +52,7 @@ export async function submitQuiz(quizId: string, submission: {
       score: data.score,
       percentage: data.percentage,
       passed: data.passed,
+      question_results: data.question_results,
     }
   } catch (error) {
     console.error('Error submitting quiz:', error)

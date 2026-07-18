@@ -22,7 +22,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [result, setResult] = useState<{ score: number; percentage: number; passed: boolean } | null>(null)
+  const [result, setResult] = useState<{ score: number; percentage: number; passed: boolean; question_results?: any[] } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [quizId, setQuizId] = useState<string>('')
 
@@ -103,6 +103,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
           score: result.score || 0,
           percentage: result.percentage || 0,
           passed: result.passed || false,
+          question_results: result.question_results,
         })
         setSubmitted(true)
       } else {
@@ -192,6 +193,61 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
             Dashboard
           </Link>
         </div>
+
+        {result.question_results && (
+          <div className="mt-12 text-left space-y-6">
+            <h3 className="font-heading text-xl font-bold text-white mb-6 border-b border-[#1f2229] pb-4">
+              Review Your Answers
+            </h3>
+            {result.question_results.map((q: any, i: number) => (
+              <div
+                key={q.id || i}
+                className={`p-6 rounded-xl border ${
+                  q.is_correct ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'
+                }`}
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="mt-1">
+                    {q.is_correct ? (
+                      <CheckCircle className="h-5 w-5 text-emerald-400" />
+                    ) : (
+                      <XCircle className="h-5 w-5 text-red-400" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-heading text-[#e2e8e2] mb-3 leading-relaxed">
+                      <span className="text-[#5d5f63] font-mono mr-2 text-sm">{i + 1}.</span>
+                      {q.question_text}
+                    </p>
+                    <div className="space-y-2 font-mono text-sm">
+                      <div className="flex items-start gap-2">
+                        <span className="text-[#5d5f63] min-w-[100px]">Your Answer:</span>
+                        <span className={q.is_correct ? 'text-emerald-400' : 'text-red-400'}>
+                          {q.user_answer || '(No answer)'}
+                        </span>
+                      </div>
+                      {!q.is_correct && (
+                        <div className="flex items-start gap-2">
+                          <span className="text-[#5d5f63] min-w-[100px]">Correct:</span>
+                          <span className="text-emerald-400">{q.correct_answer}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {q.explanation && (
+                  <div className="mt-4 pt-4 border-t border-[#1f2229]/50">
+                    <p className="font-mono text-xs uppercase tracking-wider text-[#b9cacb] mb-2">Explanation</p>
+                    <p className="font-mono text-sm text-[#8b949e] leading-relaxed">
+                      {q.explanation}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
