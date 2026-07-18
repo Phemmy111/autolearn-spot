@@ -213,9 +213,10 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         </div>
         <button
           onClick={startQuiz}
-          className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors"
+          disabled={questions.length === 0}
+          className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Start Quiz
+          {questions.length === 0 ? 'No Questions Yet' : 'Start Quiz'}
         </button>
       </div>
     )
