@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
+export const dynamic = 'force-dynamic'
+export const fetchCache = 'force-no-store'
+
 // GET - Public endpoint for students to view active quizzes
 export async function GET() {
   try {
