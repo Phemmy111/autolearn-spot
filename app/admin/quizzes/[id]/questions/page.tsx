@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Plus, Edit, Trash2, GripVertical } from 'lucide-react'
 import Link from 'next/link'
@@ -16,8 +16,9 @@ interface Question {
   order_index: number
 }
 
-export default function QuizQuestionsPage({ params }: { params: { id: string } }) {
+export default function QuizQuestionsPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
+  const { id } = use(params)
   const [loading, setLoading] = useState(true)
   const [quiz, setQuiz] = useState<any>(null)
   const [questions, setQuestions] = useState<Question[]>([])
@@ -27,8 +28,8 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
     async function loadData() {
       try {
         const [quizRes, questionsRes] = await Promise.all([
-          fetch(`/api/admin/quizzes/${params.id}`),
-          fetch(`/api/admin/quizzes/${params.id}/questions`),
+          fetch(`/api/admin/quizzes/${id}`),
+          fetch(`/api/admin/quizzes/${id}/questions`),
         ])
 
         if (!quizRes.ok) {
@@ -53,7 +54,7 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
       setLoading(false)
     }
     loadData()
-  }, [params.id])
+  }, [id])
 
   const handleDelete = async (questionId: string) => {
     if (!confirm('Are you sure you want to delete this question?')) {
@@ -61,7 +62,7 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
     }
 
     try {
-      const res = await fetch(`/api/admin/quizzes/${params.id}/questions/${questionId}`, {
+      const res = await fetch(`/api/admin/quizzes/${id}/questions/${questionId}`, {
         method: 'DELETE',
       })
 
@@ -91,7 +92,7 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
     try {
       await Promise.all(
         updates.map(update =>
-          fetch(`/api/admin/quizzes/${params.id}/questions/${update.id}`, {
+          fetch(`/api/admin/quizzes/${id}/questions/${update.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ order_index: update.order_index }),
@@ -136,7 +137,7 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
 
         <div className="mb-6">
           <Link
-            href={`/admin/quizzes/${params.id}/questions/new`}
+            href={`/admin/quizzes/${id}/questions/new`}
             className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
           >
             <Plus className="h-4 w-4" />
@@ -197,7 +198,7 @@ export default function QuizQuestionsPage({ params }: { params: { id: string } }
 
                   <div className="flex items-center gap-2">
                     <Link
-                      href={`/admin/quizzes/${params.id}/questions/${question.id}`}
+                      href={`/admin/quizzes/${id}/questions/${question.id}`}
                       className="text-[#00f0ff] hover:text-white"
                     >
                       <Edit className="h-4 w-4" />

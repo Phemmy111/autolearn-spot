@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Save, Trash2, Plus } from 'lucide-react'
 import Link from 'next/link'
 
-export default function EditQuestionPage({ params }: { params: { id: string; questionId: string } }) {
+export default function EditQuestionPage({ params }: { params: Promise<{ id: string; questionId: string }> }) {
   const router = useRouter()
+  const { id, questionId } = use(params)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -21,7 +22,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
 
   useEffect(() => {
     async function loadQuestion() {
-      const res = await fetch(`/api/admin/quizzes/${params.id}/questions/${params.questionId}`)
+      const res = await fetch(`/api/admin/quizzes/${id}/questions/${questionId}`)
       
       if (!res.ok) {
         const error = await res.json()
@@ -42,7 +43,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
       setLoading(false)
     }
     loadQuestion()
-  }, [params.questionId, params.id])
+  }, [questionId, id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,7 +51,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
     setError(null)
 
     try {
-      const res = await fetch(`/api/admin/quizzes/${params.id}/questions/${params.questionId}`, {
+      const res = await fetch(`/api/admin/quizzes/${id}/questions/${questionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -61,7 +62,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
         throw new Error(error.error || 'Failed to update question')
       }
 
-      router.push(`/admin/quizzes/${params.id}/questions`)
+      router.push(`/admin/quizzes/${id}/questions`)
     } catch (err: any) {
       setError(err.message || 'Failed to update question')
     } finally {
@@ -75,7 +76,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
     }
 
     try {
-      const res = await fetch(`/api/admin/quizzes/${params.id}/questions/${params.questionId}`, {
+      const res = await fetch(`/api/admin/quizzes/${id}/questions/${questionId}`, {
         method: 'DELETE',
       })
 
@@ -84,7 +85,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
         throw new Error(error.error || 'Failed to delete question')
       }
 
-      router.push(`/admin/quizzes/${params.id}/questions`)
+      router.push(`/admin/quizzes/${id}/questions`)
     } catch (err: any) {
       setError(err.message || 'Failed to delete question')
     }
@@ -124,7 +125,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
-            href={`/admin/quizzes/${params.id}/questions`}
+            href={`/admin/quizzes/${id}/questions`}
             className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -318,7 +319,7 @@ export default function EditQuestionPage({ params }: { params: { id: string; que
                 Delete
               </button>
               <Link
-                href={`/admin/quizzes/${params.id}/questions`}
+                href={`/admin/quizzes/${id}/questions`}
                 className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
               >
                 Cancel

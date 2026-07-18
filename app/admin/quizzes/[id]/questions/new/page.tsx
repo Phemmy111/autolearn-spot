@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
-export default function NewQuestionPage({ params }: { params: { id: string } }) {
+export default function NewQuestionPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
+  const { id } = use(params)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [quiz, setQuiz] = useState<any>(null)
@@ -21,14 +22,14 @@ export default function NewQuestionPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     async function loadQuiz() {
-      const res = await fetch(`/api/admin/quizzes/${params.id}`)
+      const res = await fetch(`/api/admin/quizzes/${id}`)
       if (res.ok) {
         const { quiz } = await res.json()
         if (quiz) setQuiz(quiz)
       }
     }
     loadQuiz()
-  }, [params.id])
+  }, [id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,7 +37,7 @@ export default function NewQuestionPage({ params }: { params: { id: string } }) 
     setError(null)
 
     try {
-      const res = await fetch(`/api/admin/quizzes/${params.id}/questions`, {
+      const res = await fetch(`/api/admin/quizzes/${id}/questions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -47,7 +48,7 @@ export default function NewQuestionPage({ params }: { params: { id: string } }) 
         throw new Error(error.error || 'Failed to create question')
       }
 
-      router.push(`/admin/quizzes/${params.id}/questions`)
+      router.push(`/admin/quizzes/${id}/questions`)
     } catch (err: any) {
       setError(err.message || 'Failed to create question')
     } finally {
@@ -81,7 +82,7 @@ export default function NewQuestionPage({ params }: { params: { id: string } }) 
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
-            href={`/admin/quizzes/${params.id}/questions`}
+            href={`/admin/quizzes/${id}/questions`}
             className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -271,7 +272,7 @@ export default function NewQuestionPage({ params }: { params: { id: string } }) 
                 {loading ? 'Creating...' : 'Add Question'}
               </button>
               <Link
-                href={`/admin/quizzes/${params.id}/questions`}
+                href={`/admin/quizzes/${id}/questions`}
                 className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
               >
                 Cancel
