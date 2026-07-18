@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
 import Link from 'next/link'
 import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft } from 'lucide-react'
+import { ResetDataButton } from '@/components/admin/ResetDataButton'
 
 export default async function AdminPage() {
   try {
@@ -146,6 +147,7 @@ export default async function AdminPage() {
               <Plus className="h-4 w-4" />
               New Quiz
             </Link>
+            <ResetDataButton />
           </div>
         </div>
       </div>
