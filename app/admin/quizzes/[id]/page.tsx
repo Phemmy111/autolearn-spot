@@ -23,14 +23,30 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
 
   useEffect(() => {
     async function loadParams() {
-      const resolvedParams = await params
-      setQuizId(resolvedParams.id)
+      try {
+        const resolvedParams = await params
+        if (!resolvedParams || !resolvedParams.id) {
+          setError('Invalid quiz ID')
+          setLoading(false)
+          return
+        }
+        setQuizId(resolvedParams.id)
+      } catch (err) {
+        setError('Failed to load quiz ID')
+        setLoading(false)
+      }
     }
     loadParams()
   }, [params])
 
   useEffect(() => {
-    if (!quizId) return
+    if (!quizId || quizId === 'undefined') {
+      if (quizId === 'undefined') {
+        setError('Invalid quiz ID')
+        setLoading(false)
+      }
+      return
+    }
 
     async function loadQuiz() {
       const res = await fetch(`/api/admin/quizzes/${quizId}`)
