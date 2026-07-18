@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from '@clerk/nextjs';
+import { useState } from 'react';
 import {
   Bot,
   BrainCircuit,
@@ -24,6 +25,8 @@ import {
   UserCheck,
   Webhook,
   Wrench,
+  Menu,
+  X,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
