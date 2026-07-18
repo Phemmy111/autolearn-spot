@@ -119,7 +119,19 @@ export async function POST(
            }
         }
 
-        // 3. Substring match fallback for AI mismatches (e.g. "Paris" vs "A. Paris" or "Paris, France")
+        // 3. Number index case: AI set correct_answer to "0", "1", "2", "3"
+        if (!isCorrect && /^[0-9]+$/.test(correctAnswer)) {
+           const index = parseInt(correctAnswer, 10)
+           let optionsArray = question.options
+           if (typeof optionsArray === 'string') {
+             try { optionsArray = JSON.parse(optionsArray) } catch(e) {}
+           }
+           if (Array.isArray(optionsArray) && optionsArray[index] === userAnswer) {
+             isCorrect = true
+           }
+        }
+
+        // 4. Substring match fallback for AI mismatches (e.g. "Paris" vs "A. Paris" or "Paris, France")
         if (!isCorrect && userAnswer.length > 2 && correctAnswer.length > 2) {
           const userLower = userAnswer.toLowerCase()
           const correctLower = correctAnswer.toLowerCase()
