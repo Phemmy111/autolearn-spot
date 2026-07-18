@@ -524,6 +524,7 @@ function LogicFlow() {
 
 export default function Page() {
   const { isSignedIn } = useAuth()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <main className="page-shell min-h-screen bg-[#111317] text-[#e2e2e8]">
@@ -559,6 +560,12 @@ export default function Page() {
           })}
         </div>
         <div className="flex items-center gap-4">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-[#b9cacb] hover:text-white"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
           <div className="hidden md:flex items-center gap-4">
             <Link
               href={isSignedIn ? "/dashboard" : "/sign-in"}
@@ -570,6 +577,35 @@ export default function Page() {
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Sidebar */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed right-0 top-0 h-full w-64 bg-[#111317] border-l border-[#3b494b] p-6">
+            <div className="flex flex-col gap-4">
+              <div className="border-t border-[#1f2229] pt-4">
+                <Link
+                  href={isSignedIn ? "/dashboard" : "/sign-in"}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                >
+                  {isSignedIn ? 'Student Dashboard' : 'Student Login'}
+                </Link>
+                <EnrollModal 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`${primaryCtaClass} mt-2 w-full`}
+                >
+                  Enroll Now - ₦3,000
+                </EnrollModal>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="section-fade mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-4 py-16 sm:px-6 md:grid-cols-12 md:py-28">
         <div className="relative z-10 flex flex-col justify-center border-[#1f2229] md:col-span-6 md:border-r md:pr-8">

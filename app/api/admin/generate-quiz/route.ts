@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     await requireAdmin()
 
-    const { script, weekNumber, phase, providerId, model, promptId } = await request.json()
+    const { script, weekNumber, phase, questionCount, providerId, model, promptId } = await request.json()
 
     if (!script) {
       return NextResponse.json({ error: 'Script is required' }, { status: 400 })
@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     }
 
     // Use AI Provider Manager to generate quiz
-    const prompt = `${activePrompt.content}\n\nGenerate a quiz for Week ${weekNumber || '1'} (${phase || 'WEEK_1'}) based on this lesson script:\n\n${script}`
+    const countText = questionCount ? `Generate exactly ${questionCount} questions.` : 'Generate 10 questions.'
+    const prompt = `${activePrompt.content}\n\nGenerate a quiz for Week ${weekNumber || '1'} (${phase || 'WEEK_1'}) based on this lesson script:\n\n${script}\n\n${countText}`
     
     const result = await AIProviderManager.completion(prompt, {
       providerId,

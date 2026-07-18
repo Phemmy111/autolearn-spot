@@ -49,6 +49,7 @@ export default function GenerateQuizPage() {
   const [script, setScript] = useState('')
   const [weekNumber, setWeekNumber] = useState(1)
   const [phase, setPhase] = useState('WEEK_1')
+  const [questionCount, setQuestionCount] = useState(10)
   const [generatedQuiz, setGeneratedQuiz] = useState<GeneratedQuiz | null>(null)
   const [providers, setProviders] = useState<AIProvider[]>([])
   const [selectedProviderId, setSelectedProviderId] = useState<string>('')
@@ -138,6 +139,7 @@ export default function GenerateQuizPage() {
           script,
           weekNumber,
           phase,
+          questionCount,
           providerId: selectedProviderId,
           model: selectedModel,
           promptId: selectedPromptId,
@@ -254,7 +256,7 @@ export default function GenerateQuizPage() {
             )}
 
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
                     Week Number
@@ -283,6 +285,20 @@ export default function GenerateQuizPage() {
                     <option value="WEEK_3">WEEK_3</option>
                     <option value="WEEK_4">WEEK_4</option>
                   </select>
+                </div>
+                
+                <div>
+                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                    Questions Count
+                  </label>
+                  <input
+                    type="number"
+                    value={questionCount}
+                    onChange={(e) => setQuestionCount(parseInt(e.target.value) || 10)}
+                    min="1"
+                    max="50"
+                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  />
                 </div>
               </div>
 
