@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchQuizById, submitQuiz } from '@/lib/api/quiz'
 import { SupabaseQuiz, SupabaseQuestion } from '@/types/quiz'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { CheckCircle, XCircle, ArrowLeft, Clock, Target } from 'lucide-react'
 import Link from 'next/link'
 
-export default function QuizPage({ params }: { params: Promise<{ id: string }>; searchParams: Promise<{ preview?: string }> }) {
+export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
   const { userId, user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [quiz, setQuiz] = useState<SupabaseQuiz | null>(null)
   const [questions, setQuestions] = useState<SupabaseQuestion[]>([])
   const [loading, setLoading] = useState(true)
@@ -24,22 +25,20 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }>; 
   const [result, setResult] = useState<{ score: number; percentage: number; passed: boolean } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [quizId, setQuizId] = useState<string>('')
-  const [isPreview, setIsPreview] = useState(false)
 
   useEffect(() => {
     async function loadParams() {
       const resolvedParams = await params
-      const resolvedSearchParams = await searchParams
       setQuizId(resolvedParams.id)
-      setIsPreview(resolvedSearchParams?.preview === 'true')
     }
     loadParams()
-  }, [params, searchParams])
+  }, [params])
 
   useEffect(() => {
     if (!quizId) return
 
     async function loadQuiz() {
+      const isPreview = searchParams.get('preview') === 'true'
       const data = await fetchQuizById(quizId, isPreview)
       if (data) {
         setQuiz(data.quiz)
@@ -50,7 +49,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }>; 
       setLoading(false)
     }
     loadQuiz()
-  }, [quizId, isPreview])
+  }, [quizId, searchParams])
 
   const startQuiz = () => {
     setStarted(true)
