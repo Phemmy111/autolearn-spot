@@ -60,35 +60,42 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     setAnswers(prev => ({ ...prev, [questionId]: answer }))
   }
 
+  const [showConfirm, setShowConfirm] = useState(false)
+
   const handleSubmit = async () => {
     if (!userId || !quiz || !startTime) return
 
     // Validate all questions are answered
     const unansweredQuestions = questions.filter(q => !answers[q.id])
     if (unansweredQuestions.length > 0) {
-      setError(`Please answer all questions before submitting. ${unansweredQuestions.length} question(s) remaining.`)
+      setShowConfirm(true)
       return
     }
 
+    await confirmSubmit()
+  }
+
+  const confirmSubmit = async () => {
+    setShowConfirm(false)
     setSubmitting(true)
     setError(null)
 
-    const timeTaken = Math.floor((new Date().getTime() - startTime.getTime()) / 1000)
+    const timeTaken = Math.floor((new Date().getTime() - startTime!.getTime()) / 1000)
 
     // Validate time limit (server-side will also validate)
-    if (quiz.time_limit && timeTaken > quiz.time_limit * 60) {
+    if (quiz!.time_limit && timeTaken > quiz!.time_limit * 60) {
       setError('Time limit exceeded. Quiz cannot be submitted.')
       setSubmitting(false)
       return
     }
 
     try {
-      const result = await submitQuiz(quiz.id, {
+      const result = await submitQuiz(quiz!.id, {
         user_name: `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Student',
         user_email: user?.emailAddresses[0]?.emailAddress || '',
         answers,
         time_taken: timeTaken,
-        started_at: startTime.toISOString(),
+        started_at: startTime!.toISOString(),
       })
 
       if (result.success) {
@@ -350,6 +357,31 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
           </button>
         )}
       </div>
+
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-[#1f2229] bg-[#0c0e12] p-8 text-center shadow-2xl">
+            <h2 className="mb-4 font-heading text-2xl font-bold text-white">Unanswered Questions</h2>
+            <p className="mb-8 font-mono text-sm text-[#b9cacb]">
+              You have {questions.filter(q => !answers[q.id]).length} questions left unanswered. Are you sure you want to submit?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSubmit}
+                className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors"
+              >
+                Yes, Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

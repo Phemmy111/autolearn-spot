@@ -4,7 +4,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -12,6 +12,8 @@ export async function POST(
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const { id } = await params
 
     // Get user details from Clerk
     const user = await currentUser()
@@ -32,7 +34,7 @@ export async function POST(
     const { data: existingResponse } = await supabase
       .from('quiz_responses')
       .select('id')
-      .eq('quiz_id', params.id)
+      .eq('quiz_id', id)
       .eq('user_id', userId)
       .single()
 
@@ -44,7 +46,7 @@ export async function POST(
     const { data: quiz, error: quizError } = await supabase
       .from('quizzes')
       .select('passing_score, is_active')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (quizError || !quiz) {
@@ -59,7 +61,7 @@ export async function POST(
     const { data: questions, error: questionsError } = await supabase
       .from('questions')
       .select('*')
-      .eq('quiz_id', params.id)
+      .eq('quiz_id', id)
       .order('order_index', { ascending: true })
 
     if (questionsError) {
@@ -90,7 +92,7 @@ export async function POST(
 
     // Validate time limit on server side (security check)
     if (time_taken && quiz.time_limit && time_taken > quiz.time_limit * 60) {
-      console.error(`Time limit exceeded for quiz ${params.id} by user ${userId}: ${time_taken}s vs limit ${quiz.time_limit * 60}s`)
+      console.error(`Time limit exceeded for quiz ${id} by user ${userId}: ${time_taken}s vs limit ${quiz.time_limit * 60}s`)
       return NextResponse.json({ error: 'Time limit exceeded' }, { status: 403 })
     }
 
@@ -98,7 +100,7 @@ export async function POST(
     const { data: response, error: responseError } = await supabase
       .from('quiz_responses')
       .insert({
-        quiz_id: params.id,
+        quiz_id: id,
         user_id: userId,
         user_name: userName,
         user_email: userEmail,
