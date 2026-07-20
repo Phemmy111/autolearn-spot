@@ -3,9 +3,13 @@ import React from 'react'
 export function CertificateTemplate({
   name,
   date,
+  logoSrc,
+  qrCodeSrc,
 }: {
   name: string
   date: string
+  logoSrc?: string
+  qrCodeSrc?: string
 }) {
   return (
     <div
@@ -18,7 +22,7 @@ export function CertificateTemplate({
         height: '800px',
         backgroundImage: 'linear-gradient(135deg, #0b1524, #020611)',
         color: '#ffffff',
-        fontFamily: 'sans-serif',
+        fontFamily: '"Roboto", sans-serif',
         padding: '30px',
         position: 'relative',
       }}
@@ -87,24 +91,29 @@ export function CertificateTemplate({
             marginBottom: '15px',
             position: 'relative'
           }}>
-            {/* Tech Logo A */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
-                <circle cx="50" cy="50" r="45" stroke="#00e0ff" strokeWidth="2" strokeDasharray="5,5" />
-                <circle cx="50" cy="50" r="35" stroke="#00ffaa" strokeWidth="3" />
-                <circle cx="15" cy="50" r="4" fill="#00e0ff" />
-                <circle cx="85" cy="50" r="4" fill="#00e0ff" />
-              </svg>
-            </div>
-            <span style={{ color: '#00ffaa', fontSize: '40px', fontWeight: 'bold', fontFamily: 'sans-serif' }}>A</span>
+            {/* Tech Logo */}
+            {logoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoSrc} alt="Logo" width="80" height="80" style={{ objectFit: 'contain' }} />
+            ) : (
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+                  <circle cx="50" cy="50" r="45" stroke="#00e0ff" strokeWidth="2" strokeDasharray="5,5" />
+                  <circle cx="50" cy="50" r="35" stroke="#00ffaa" strokeWidth="3" />
+                  <circle cx="15" cy="50" r="4" fill="#00e0ff" />
+                  <circle cx="85" cy="50" r="4" fill="#00e0ff" />
+                </svg>
+                <span style={{ color: '#00ffaa', fontSize: '40px', fontWeight: 'bold', fontFamily: '"Roboto", sans-serif' }}>A</span>
+              </div>
+            )}
           </div>
           <span style={{ fontSize: '32px', fontWeight: 'bold', letterSpacing: '6px', color: '#ffffff' }}>AUTOLEARN SPOT</span>
           <span style={{ fontSize: '13px', marginTop: '5px', letterSpacing: '4px', color: '#00e0ff' }}>LEARN · AUTOMATE · SUCCEED</span>
-          <span style={{ fontSize: '12px', marginTop: '12px', fontStyle: 'italic', color: '#5d6f83' }}>Powered by Moon Space Network (MSN)</span>
+          <span style={{ fontSize: '12px', marginTop: '12px', marginBottom: '20px', fontStyle: 'italic', color: '#5d6f83' }}>Powered by Moon Space Network (MSN)</span>
         </div>
 
         {/* Middle Section - Certification */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', marginTop: '-10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
           <span style={{ fontSize: '14px', letterSpacing: '8px', color: '#88a0b0', textTransform: 'uppercase' as const }}>
             This is to certify that
           </span>
@@ -168,11 +177,15 @@ export function CertificateTemplate({
           </div>
 
           {/* QR Code */}
-          <div style={{ display: 'flex', width: '90px', height: '90px', backgroundColor: '#ffffff', padding: '5px', borderRadius: '8px', border: '2px solid #00e0ff' }}>
-            <svg width="100%" height="100%" viewBox="0 0 24 24" fill="#000000">
-              {/* Simulated dense QR code for realism */}
-              <path d="M2 2h6v6H2V2zm2 2v2h2V4H4zm10-2h6v6h-6V2zm2 2v2h2V4h-2zM2 14h6v6H2v-6zm2 2v2h2v-2H4zm14-2h-2v2h2v-2zm-4 4h2v2h-2v-2zm-2-2h2v2h-2v-2zm4 2h2v2h-2v-2zm-6 0h2v2h-2v-2zm-2-6h2v2h-2v-2zm2 2h2v2h-2v-2zm0 4h2v2h-2v-2zm6-4h2v2h-2v-2zm-8-2h6v2h-6v-2zm-2-2h12v2H8v-2zm12 2h2v2h-2v-2zM8 4h2v6H8V4zm2 2h2v2h-2V6zm-2 6h2v2H8v-2z" />
-            </svg>
+          <div style={{ display: 'flex', width: '90px', height: '90px', backgroundColor: '#ffffff', padding: '5px', borderRadius: '8px', border: '2px solid #00e0ff', alignItems: 'center', justifyContent: 'center' }}>
+            {qrCodeSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={qrCodeSrc} alt="QR Code" width="80" height="80" style={{ objectFit: 'contain' }} />
+            ) : (
+              <svg width="100%" height="100%" viewBox="0 0 24 24" fill="#000000">
+                <path d="M2 2h6v6H2V2zm2 2v2h2V4H4zm10-2h6v6h-6V2zm2 2v2h2V4h-2zM2 14h6v6H2v-6zm2 2v2h2v-2H4zm14-2h-2v2h2v-2zm-4 4h2v2h-2v-2zm-2-2h2v2h-2v-2zm4 2h2v2h-2v-2zm-6 0h2v2h-2v-2zm-2-6h2v2h-2v-2zm2 2h2v2h-2v-2zm0 4h2v2h-2v-2zm6-4h2v2h-2v-2zm-8-2h6v2h-6v-2zm-2-2h12v2H8v-2zm12 2h2v2h-2v-2zM8 4h2v6H8V4zm2 2h2v2h-2V6zm-2 6h2v2H8v-2z" />
+              </svg>
+            )}
           </div>
         </div>
 

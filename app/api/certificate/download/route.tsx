@@ -5,6 +5,9 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { isSuperAdmin } from '@/lib/admin'
 import { CertificateTemplate } from '@/components/certificate/CertificateTemplate'
+import fs from 'fs'
+import path from 'path'
+import QRCode from 'qrcode'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -44,14 +47,44 @@ export async function GET(request: Request) {
     // Fetch font for the cursive name
     const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/great-vibes@latest/latin-400-normal.ttf')
     const fontData = await fontRes.arrayBuffer()
+    
+    // Fetch a standard font (Roboto) for the rest of the text
+    const robotoRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf')
+    const robotoData = await robotoRes.arrayBuffer()
+
+    // Generate QR Code linking to verification URL
+    const verifyUrl = `${request.headers.get('origin') || 'https://autolearnspot.com'}/certificate/verify?id=${userId}`
+    const qrCodeSrc = await QRCode.toDataURL(verifyUrl, {
+      margin: 1,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    })
+
+    // Load logo from public directory
+    let logoSrc = undefined;
+    try {
+      const logoPath = path.join(process.cwd(), 'public', 'logo.png')
+      const logoData = fs.readFileSync(logoPath)
+      logoSrc = `data:image/png;base64,${logoData.toString('base64')}`
+    } catch (err) {
+      console.warn('Could not load logo.png from public directory', err)
+    }
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
-      (<CertificateTemplate name={userName} date={dateStr} />),
+      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrCodeSrc={qrCodeSrc} />),
       { 
         width: 1200, 
         height: 800,
         fonts: [
+          {
+            name: 'Roboto',
+            data: robotoData,
+            style: 'normal',
+            weight: 400
+          },
           {
             name: 'GreatVibes',
             data: fontData,
