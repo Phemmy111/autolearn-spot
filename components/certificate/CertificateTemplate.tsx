@@ -4,12 +4,12 @@ export function CertificateTemplate({
   name,
   date,
   logoSrc,
-  qrCodeSrc,
+  qrCodeSvg,
 }: {
   name: string
   date: string
   logoSrc?: string
-  qrCodeSrc?: string
+  qrCodeSvg?: string
 }) {
   return (
     <div
@@ -178,9 +178,8 @@ export function CertificateTemplate({
 
           {/* QR Code */}
           <div style={{ display: 'flex', width: '90px', height: '90px', backgroundColor: '#ffffff', padding: '5px', borderRadius: '8px', border: '2px solid #00e0ff', alignItems: 'center', justifyContent: 'center' }}>
-            {qrCodeSrc ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={qrCodeSrc} alt="QR Code" width="80" height="80" style={{ objectFit: 'contain' }} />
+            {qrCodeSvg ? (
+              <div dangerouslySetInnerHTML={{ __html: qrCodeSvg }} style={{ display: 'flex', width: '80px', height: '80px' }} />
             ) : (
               <svg width="100%" height="100%" viewBox="0 0 24 24" fill="#000000">
                 <path d="M2 2h6v6H2V2zm2 2v2h2V4H4zm10-2h6v6h-6V2zm2 2v2h2V4h-2zM2 14h6v6H2v-6zm2 2v2h2v-2H4zm14-2h-2v2h2v-2zm-4 4h2v2h-2v-2zm-2-2h2v2h-2v-2zm4 2h2v2h-2v-2zm-6 0h2v2h-2v-2zm-2-6h2v2h-2v-2zm2 2h2v2h-2v-2zm0 4h2v2h-2v-2zm6-4h2v2h-2v-2zm-8-2h6v2h-6v-2zm-2-2h12v2H8v-2zm12 2h2v2h-2v-2zM8 4h2v6H8V4zm2 2h2v2h-2V6zm-2 6h2v2H8v-2z" />

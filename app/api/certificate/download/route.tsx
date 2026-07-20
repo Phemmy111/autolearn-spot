@@ -52,9 +52,12 @@ export async function GET(request: Request) {
     const robotoRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf')
     const robotoData = await robotoRes.arrayBuffer()
 
-    // Generate QR Code linking to verification URL
-    const verifyUrl = `${request.headers.get('origin') || 'https://autolearnspot.com'}/certificate/verify?id=${userId}`
-    const qrCodeSrc = await QRCode.toDataURL(verifyUrl, {
+    const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
+
+    // Generate QR Code as SVG string
+    const verifyUrl = `${baseUrl}/certificate/verify?id=${userId}`
+    const qrCodeSvg = await QRCode.toString(verifyUrl, {
+      type: 'svg',
       margin: 1,
       color: {
         dark: '#000000',
@@ -62,19 +65,12 @@ export async function GET(request: Request) {
       }
     })
 
-    // Load logo from public directory
-    let logoSrc = undefined;
-    try {
-      const logoPath = path.join(process.cwd(), 'public', 'logo.png')
-      const logoData = fs.readFileSync(logoPath)
-      logoSrc = `data:image/png;base64,${logoData.toString('base64')}`
-    } catch (err) {
-      console.warn('Could not load logo.png from public directory', err)
-    }
+    // Use absolute URL for the logo so next/og can fetch it
+    const logoSrc = `${baseUrl}/logo.png`
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
-      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrCodeSrc={qrCodeSrc} />),
+      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrCodeSvg={qrCodeSvg} />),
       { 
         width: 1200, 
         height: 800,
