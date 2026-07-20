@@ -1,7 +1,7 @@
-
-
 import { generateCertificatePNG, generateCertificatePDF } from '@/lib/certificate'
 import { auth, currentUser } from '@clerk/nextjs/server'
+export const runtime = 'edge';
+import { NextResponse } from 'next/server'
 import { isSuperAdmin } from '@/lib/admin'
 
 export async function GET(request: Request) {
@@ -51,7 +51,8 @@ export async function GET(request: Request) {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="AutoLearn-Certificate.${extension}"`
+        'Content-Disposition': `attachment; filename="AutoLearn-Certificate.${extension}"`,
+        'Cache-Control': 'no-store, max-age=0'
       }
     })
   } catch (error) {
