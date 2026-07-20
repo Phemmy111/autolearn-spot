@@ -38,8 +38,11 @@ export async function GET(request: Request) {
       }
     }
 
-    // Capitalize the first letter of each word
-    userName = userName.replace(/\b\w/g, (c) => c.toUpperCase())
+    // Capitalize the first letter of each word robustly
+    userName = userName
+      .split(' ')
+      .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
+      .join(' ')
 
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
