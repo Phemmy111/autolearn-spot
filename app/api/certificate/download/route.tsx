@@ -1,9 +1,11 @@
-export const config = { runtime: 'edge' };
-
 import { generateCertificatePNG, generateCertificatePDF } from '@/lib/certificate';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { isSuperAdmin } from '@/lib/admin';
+
+// Force Node.js runtime (pdf-lib requires Buffer)
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +16,7 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const format = searchParams.get('format') || 'pdf' // 'pdf' | 'png' | 'svg'
+    const format = searchParams.get('format') || 'pdf' // 'pdf' | 'png'
     const studentNameParam = searchParams.get('name')
     
     const user = await currentUser()
@@ -31,33 +33,33 @@ export async function GET(request: Request) {
     }
       
     const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-    const logoUrl = `${request.headers.get('x-forwarded-proto') || 'http'}://${request.headers.get('host')}/favicon.ico`
+    const logoUrl = `${request.headers.get('x-forwarded-proto') || 'https'}://${request.headers.get('host')}/favicon.ico`
 
-    let buffer: Buffer
+    let data: Uint8Array
     let contentType: string
     let extension: string
 
     if (format === 'png') {
-      buffer = await generateCertificatePNG(userName, dateStr, logoUrl)
+      data = await generateCertificatePNG(userName, dateStr, logoUrl)
       contentType = 'image/png'
       extension = 'png'
     } else {
       // Default to PDF
-      buffer = await generateCertificatePDF(userName, dateStr, logoUrl)
+      data = await generateCertificatePDF(userName, dateStr, logoUrl)
       contentType = 'application/pdf'
       extension = 'pdf'
     }
 
-    return new NextResponse(buffer, {
+    return new NextResponse(data, {
       status: 200,
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="AutoLearn-Certificate.${extension}"`,
-        'Cache-Control': 'no-store, max-age=0'
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
       }
     })
   } catch (error) {
     console.error('Failed to generate certificate:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: 'Internal Server Error', details: String(error) }, { status: 500 })
   }
 }
