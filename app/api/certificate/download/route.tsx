@@ -1,8 +1,9 @@
-import { generateCertificatePNG, generateCertificatePDF } from '@/lib/certificate'
-import { auth, currentUser } from '@clerk/nextjs/server'
 export const runtime = 'edge';
-import { NextResponse } from 'next/server'
-import { isSuperAdmin } from '@/lib/admin'
+
+import { generateCertificatePNG, generateCertificatePDF } from '@/lib/certificate';
+import { auth, currentUser } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { isSuperAdmin } from '@/lib/admin';
 
 export async function GET(request: Request) {
   try {
