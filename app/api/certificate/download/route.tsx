@@ -41,10 +41,25 @@ export async function GET(request: Request) {
       day: 'numeric',
     })
 
+    // Fetch font for the cursive name
+    const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/great-vibes@latest/latin-400-normal.ttf')
+    const fontData = await fontRes.arrayBuffer()
+
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
       (<CertificateTemplate name={userName} date={dateStr} />),
-      { width: 1200, height: 800 }
+      { 
+        width: 1200, 
+        height: 800,
+        fonts: [
+          {
+            name: 'GreatVibes',
+            data: fontData,
+            style: 'normal',
+            weight: 400
+          }
+        ]
+      }
     )
 
     if (format === 'png') {

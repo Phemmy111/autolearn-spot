@@ -6,7 +6,6 @@ export function CertificateTemplate({
 }: {
   name: string
   date: string
-  logoUrl?: string
 }) {
   return (
     <div
@@ -17,14 +16,14 @@ export function CertificateTemplate({
         justifyContent: 'center',
         width: '1200px',
         height: '800px',
-        backgroundColor: '#0f172a',
+        backgroundImage: 'linear-gradient(135deg, #0b1524, #020611)',
         color: '#ffffff',
-        fontFamily: 'serif',
-        padding: '40px',
+        fontFamily: 'sans-serif',
+        padding: '30px',
         position: 'relative',
       }}
     >
-      {/* Outer Border */}
+      {/* Outer Glow & Border */}
       <div
         style={{
           display: 'flex',
@@ -33,115 +32,150 @@ export function CertificateTemplate({
           justifyContent: 'space-between',
           width: '100%',
           height: '100%',
-          border: '2px solid #00e0ff',
+          border: '1px solid #14303f',
+          backgroundColor: '#0a101a',
           position: 'relative',
           padding: '40px',
+          overflow: 'hidden'
         }}
       >
-        {/* Corner Accents - Top Left */}
-        <div style={{ position: 'absolute', top: '-3px', left: '-3px', width: '40px', height: '6px', backgroundColor: '#00e0ff' }} />
-        <div style={{ position: 'absolute', top: '-3px', left: '-3px', width: '6px', height: '40px', backgroundColor: '#00e0ff' }} />
-        {/* Corner Accents - Top Right */}
-        <div style={{ position: 'absolute', top: '-3px', right: '-3px', width: '40px', height: '6px', backgroundColor: '#00e0ff' }} />
-        <div style={{ position: 'absolute', top: '-3px', right: '-3px', width: '6px', height: '40px', backgroundColor: '#00e0ff' }} />
-        {/* Corner Accents - Bottom Left */}
-        <div style={{ position: 'absolute', bottom: '-3px', left: '-3px', width: '40px', height: '6px', backgroundColor: '#00e0ff' }} />
-        <div style={{ position: 'absolute', bottom: '-3px', left: '-3px', width: '6px', height: '40px', backgroundColor: '#00e0ff' }} />
-        {/* Corner Accents - Bottom Right */}
-        <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '40px', height: '6px', backgroundColor: '#00e0ff' }} />
-        <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '6px', height: '40px', backgroundColor: '#00e0ff' }} />
-
-        {/* Inner Border */}
-        <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', border: '1px solid rgba(0, 224, 255, 0.3)' }} />
+        {/* Intricate Corners - Top Left */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100px', height: '100px', display: 'flex' }}>
+          <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+            <path d="M0,0 L100,0 L100,4 L4,4 L4,100 L0,100 Z" fill="#00e0ff" />
+            <path d="M15,15 L60,15 L60,17 L17,17 L17,60 L15,60 Z" fill="#00ffaa" />
+            <path d="M70,14 L85,14 L85,18 L70,18 Z" fill="#00e0ff" />
+            <path d="M14,70 L18,70 L18,85 L14,85 Z" fill="#00e0ff" />
+          </svg>
+        </div>
+        {/* Intricate Corners - Top Right */}
+        <div style={{ position: 'absolute', top: 0, right: 0, width: '100px', height: '100px', display: 'flex', transform: 'scaleX(-1)' }}>
+          <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+            <path d="M0,0 L100,0 L100,4 L4,4 L4,100 L0,100 Z" fill="#00e0ff" />
+            <path d="M15,15 L60,15 L60,17 L17,17 L17,60 L15,60 Z" fill="#00ffaa" />
+            <path d="M70,14 L85,14 L85,18 L70,18 Z" fill="#00e0ff" />
+            <path d="M14,70 L18,70 L18,85 L14,85 Z" fill="#00e0ff" />
+          </svg>
+        </div>
+        {/* Intricate Corners - Bottom Left */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100px', height: '100px', display: 'flex', transform: 'scaleY(-1)' }}>
+          <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+            <path d="M0,0 L100,0 L100,4 L4,4 L4,100 L0,100 Z" fill="#00e0ff" />
+            <path d="M15,15 L60,15 L60,17 L17,17 L17,60 L15,60 Z" fill="#00ffaa" />
+            <path d="M70,14 L85,14 L85,18 L70,18 Z" fill="#00e0ff" />
+            <path d="M14,70 L18,70 L18,85 L14,85 Z" fill="#00e0ff" />
+          </svg>
+        </div>
+        {/* Intricate Corners - Bottom Right */}
+        <div style={{ position: 'absolute', bottom: 0, right: 0, width: '100px', height: '100px', display: 'flex', transform: 'scaleX(-1) scaleY(-1)' }}>
+          <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+            <path d="M0,0 L100,0 L100,4 L4,4 L4,100 L0,100 Z" fill="#00e0ff" />
+            <path d="M15,15 L60,15 L60,17 L17,17 L17,60 L15,60 Z" fill="#00ffaa" />
+            <path d="M70,14 L85,14 L85,18 L70,18 Z" fill="#00e0ff" />
+            <path d="M14,70 L18,70 L18,85 L14,85 Z" fill="#00e0ff" />
+          </svg>
+        </div>
 
         {/* Top Section - Logo & Title */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
           <div style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '30px',
-            border: '3px solid #00e0ff',
+            width: '80px',
+            height: '80px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '10px'
+            marginBottom: '15px'
           }}>
-            <span style={{ color: '#00e0ff', fontSize: '30px', fontWeight: 'bold', fontFamily: 'sans-serif' }}>A</span>
+            {/* Tech Logo A */}
+            <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+              <circle cx="50" cy="50" r="45" stroke="#00e0ff" strokeWidth="2" strokeDasharray="5,5" />
+              <circle cx="50" cy="50" r="35" stroke="#00ffaa" strokeWidth="3" />
+              <circle cx="15" cy="50" r="4" fill="#00e0ff" />
+              <circle cx="85" cy="50" r="4" fill="#00e0ff" />
+              <text x="50" y="65" textAnchor="middle" fill="#00ffaa" fontSize="40" fontWeight="bold" fontFamily="sans-serif">A</text>
+            </svg>
           </div>
-          <span style={{ fontSize: '28px', fontWeight: 'bold', letterSpacing: '4px', fontFamily: 'sans-serif' }}>AUTOLEARN SPOT</span>
-          <span style={{ fontSize: '12px', marginTop: '5px', letterSpacing: '2px', color: '#b9cacb', fontFamily: 'sans-serif' }}>LEARN · AUTOMATE · SUCCEED</span>
-          <span style={{ fontSize: '12px', marginTop: '15px', fontStyle: 'italic', color: '#5d5f63' }}>Powered by Moon Space Network (MSN)</span>
+          <span style={{ fontSize: '32px', fontWeight: 'bold', letterSpacing: '6px', color: '#ffffff' }}>AUTOLEARN SPOT</span>
+          <span style={{ fontSize: '13px', marginTop: '5px', letterSpacing: '4px', color: '#00e0ff' }}>LEARN · AUTOMATE · SUCCEED</span>
+          <span style={{ fontSize: '12px', marginTop: '12px', fontStyle: 'italic', color: '#5d6f83' }}>Powered by Moon Space Network (MSN)</span>
         </div>
 
         {/* Middle Section - Certification */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', marginTop: '-20px' }}>
-          <span style={{ fontSize: '14px', letterSpacing: '6px', color: '#b9cacb', textTransform: 'uppercase' as const, fontFamily: 'sans-serif' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, justifyContent: 'center', marginTop: '-10px' }}>
+          <span style={{ fontSize: '14px', letterSpacing: '8px', color: '#88a0b0', textTransform: 'uppercase' as const }}>
             This is to certify that
           </span>
 
           <span style={{
-            fontSize: '72px',
-            fontStyle: 'italic',
-            fontWeight: 400,
+            fontSize: '90px',
             color: '#ffffff',
-            marginTop: '20px',
+            marginTop: '25px',
             marginBottom: '10px',
-            fontFamily: 'serif',
+            fontFamily: 'GreatVibes',
+            lineHeight: 1.2
           }}>
             {name}
           </span>
 
-          {/* Underline */}
-          <div style={{ width: '600px', height: '1px', backgroundColor: '#b9cacb', marginTop: '5px', marginBottom: '20px' }} />
+          {/* Elegant Flourish Underline */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '700px', marginTop: '5px', marginBottom: '25px' }}>
+            <svg viewBox="0 0 700 20" width="100%" height="20" fill="none">
+              <path d="M 0 10 Q 350 0 700 10" stroke="#b9cacb" strokeWidth="1" />
+              <path d="M 100 12 Q 350 2 600 12" stroke="#b9cacb" strokeWidth="0.5" />
+              <circle cx="350" cy="8" r="4" fill="#00e0ff" />
+            </svg>
+          </div>
 
-          <span style={{ fontSize: '20px', color: '#b9cacb', letterSpacing: '1px' }}>
+          <span style={{ fontSize: '20px', color: '#88a0b0', letterSpacing: '2px' }}>
             has successfully completed the
           </span>
-          <span style={{ fontSize: '42px', color: '#00e0ff', fontWeight: 'bold', letterSpacing: '2px', marginTop: '10px', fontFamily: 'sans-serif' }}>
+          <span style={{ fontSize: '46px', color: '#00e0ff', fontWeight: 'bold', letterSpacing: '3px', marginTop: '15px' }}>
             n8n Automation
           </span>
-          <span style={{ fontSize: '20px', color: '#b9cacb', letterSpacing: '1px', marginTop: '10px' }}>
+          <span style={{ fontSize: '20px', color: '#88a0b0', letterSpacing: '2px', marginTop: '15px' }}>
             coursework and final assessment
           </span>
         </div>
 
         {/* Bottom Section - Date, Badge, Signature */}
-        <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 40px', marginBottom: '30px' }}>
+        <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 50px', marginBottom: '20px' }}>
           {/* Date */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '200px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '220px' }}>
             <span style={{ fontSize: '18px', color: '#ffffff', marginBottom: '5px' }}>Date: {date}</span>
-            <div style={{ width: '200px', height: '1px', backgroundColor: '#5d5f63', marginTop: '5px', marginBottom: '5px' }} />
-            <span style={{ fontSize: '14px', color: '#b9cacb', letterSpacing: '1px', fontFamily: 'sans-serif' }}>Instructor</span>
+            <div style={{ width: '100%', height: '1px', backgroundColor: '#385060', marginTop: '5px', marginBottom: '5px' }} />
+            <span style={{ fontSize: '14px', color: '#88a0b0', letterSpacing: '2px' }}>Instructor</span>
           </div>
 
           {/* Badge / Seal */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100px', height: '100px' }}>
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="1.5">
-              <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="#00f0ff" fillOpacity="0.2"/>
-              <path d="M19.3 10.2c.2-.5.5-.9 1-1.2.4-.3.8-.7.8-1.2 0-.6-.3-1.1-.8-1.4-.4-.2-.8-.6-1-1.1-.2-.5-.3-1.1-.8-1.4-.5-.2-1.1-.3-1.5-.7-.4-.4-.6-1-.9-1.4-.4-.4-1-.6-1.5-.6-.6 0-1.2.2-1.7.5-.5.2-1.1.2-1.6 0-.5-.3-1.1-.5-1.7-.5-.6 0-1.1.2-1.5.6-.4.4-.6 1-.9 1.4-.4.4-1 .5-1.5.7-.5.3-.7.9-.8 1.4-.2.5-.6.9-1 1.1-.5.3-.8-.8-.8 1.4 0-.5-.4-.9-.8-1.2-.5-.3-.8-.7-1-1.2Z" />
-              <path d="M7 16.5l-1.5 4.5 3-1.5 3 1.5-1.5-4.5" strokeLinejoin="round" />
-              <path d="M17 16.5l1.5 4.5-3-1.5-3 1.5 1.5-4.5" strokeLinejoin="round" />
+            <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+              {/* Starburst badge background */}
+              <path d="M50 5 L55 20 L70 15 L65 30 L80 35 L70 45 L85 55 L70 60 L75 75 L60 70 L55 85 L50 70 L45 85 L40 70 L25 75 L30 60 L15 55 L30 45 L20 35 L35 30 L30 15 L45 20 Z" fill="#00e0ff" fillOpacity="0.2" stroke="#00e0ff" strokeWidth="2" />
+              <circle cx="50" cy="45" r="22" fill="#0a101a" stroke="#00ffaa" strokeWidth="3" />
+              <circle cx="50" cy="45" r="15" fill="#00e0ff" />
+              <path d="M40 85 L40 95 L50 90 L60 95 L60 85" fill="none" stroke="#00e0ff" strokeWidth="2" />
             </svg>
           </div>
 
           {/* Signature */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '200px' }}>
-            <span style={{ fontSize: '32px', fontStyle: 'italic', color: '#00e0ff', marginBottom: '0px' }}>A. Signature</span>
-            <div style={{ width: '200px', height: '1px', backgroundColor: '#5d5f63', marginTop: '5px', marginBottom: '5px' }} />
-            <span style={{ fontSize: '14px', color: '#b9cacb', letterSpacing: '1px', fontFamily: 'sans-serif' }}>Director, MSN</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '220px' }}>
+            <span style={{ fontSize: '42px', color: '#00e0ff', marginBottom: '-5px', fontFamily: 'GreatVibes', lineHeight: 1 }}>F. Adeleke</span>
+            <div style={{ width: '100%', height: '1px', backgroundColor: '#385060', marginTop: '5px', marginBottom: '5px' }} />
+            <span style={{ fontSize: '14px', color: '#88a0b0', letterSpacing: '2px' }}>Founder, Femi Adeleke</span>
           </div>
 
-          {/* QR Code Placeholder */}
-          <div style={{ display: 'flex', width: '80px', height: '80px', backgroundColor: '#ffffff', padding: '5px', borderRadius: '4px' }}>
-            <svg width="70" height="70" viewBox="0 0 24 24" fill="#000000">
-              <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h-3v2h3v-2zm-3 2v2h-2v-2h2zm3 2v-2h-2v2h-2v2h4v-2h-2zm-5 0v2h2v-2h-2zm-2-4h2v2h-2v-2zm2 4h-2v-2h2v2z" />
+          {/* QR Code */}
+          <div style={{ display: 'flex', width: '90px', height: '90px', backgroundColor: '#ffffff', padding: '5px', borderRadius: '8px', border: '2px solid #00e0ff' }}>
+            <svg width="100%" height="100%" viewBox="0 0 24 24" fill="#000000">
+              {/* Simulated dense QR code for realism */}
+              <path d="M2 2h6v6H2V2zm2 2v2h2V4H4zm10-2h6v6h-6V2zm2 2v2h2V4h-2zM2 14h6v6H2v-6zm2 2v2h2v-2H4zm14-2h-2v2h2v-2zm-4 4h2v2h-2v-2zm-2-2h2v2h-2v-2zm4 2h2v2h-2v-2zm-6 0h2v2h-2v-2zm-2-6h2v2h-2v-2zm2 2h2v2h-2v-2zm0 4h2v2h-2v-2zm6-4h2v2h-2v-2zm-8-2h6v2h-6v-2zm-2-2h12v2H8v-2zm12 2h2v2h-2v-2zM8 4h2v6H8V4zm2 2h2v2h-2V6zm-2 6h2v2H8v-2z" />
             </svg>
           </div>
         </div>
 
         {/* Footer */}
         <div style={{ position: 'absolute', bottom: '15px', display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <span style={{ fontSize: '10px', color: '#5d5f63', fontFamily: 'sans-serif' }}>
+          <span style={{ fontSize: '11px', color: '#385060', letterSpacing: '1px' }}>
             © 2026 Moon Space Network - All Rights Reserved
           </span>
         </div>
