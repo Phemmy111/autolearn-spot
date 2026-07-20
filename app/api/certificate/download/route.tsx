@@ -64,7 +64,7 @@ export async function GET(request: Request) {
 
     // Use absolute URL for the background and logo so next/og can fetch them
     const logoSrc = `${baseUrl}/logo.png`
-    const backgroundSrc = `${baseUrl}/certificate-template.jpg`
+    const backgroundSrc = `${baseUrl}/certificate-template.png`
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
