@@ -138,22 +138,22 @@ export function DashboardWidgets() {
             <>
               <Award className="h-10 w-10 text-[#00f0ff] mb-2 drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]" />
               <p className="text-sm text-white font-semibold mb-3">Course Completed!</p>
-              <div className="w-full flex flex-col gap-2 mt-2">
+              <div className="flex gap-2 w-full">
                 <button
                   onClick={() => generateCertificate('pdf')}
                   disabled={generating}
-                  className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-black py-2 font-mono text-[10px] font-bold uppercase hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#00f0ff] to-[#0080ff] text-black font-bold py-3 px-4 rounded font-mono text-[10px] uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
-                  Download PDF
+                  PDF
                 </button>
                 <button
                   onClick={() => generateCertificate('png')}
                   disabled={generating}
-                  className="w-full flex items-center justify-center gap-2 border border-[#00f0ff] text-[#00f0ff] py-2 font-mono text-[10px] font-bold uppercase hover:bg-[#00f0ff] hover:text-black transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 border border-[#00f0ff] text-[#00f0ff] py-3 px-4 rounded font-mono text-[10px] font-bold uppercase tracking-wider hover:bg-[#00f0ff] hover:text-black transition-colors disabled:opacity-50"
                 >
                   {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
-                  Download PNG
+                  PNG
                 </button>
               </div>
             </>

@@ -126,14 +126,26 @@ export default async function AdminResultsPage() {
                           Review
                         </Link>
                         {response.passed && (
-                          <a
-                            href={`/api/certificate/download?format=pdf&name=${encodeURIComponent(response.user_name || 'Student')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-emerald-400 hover:text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1"
-                          >
-                            Download Cert
-                          </a>
+                          <div className="flex gap-2">
+                            <a
+                              href={`/api/certificate/download?format=pdf&name=${encodeURIComponent(response.user_name || 'Student')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-emerald-400 hover:text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1"
+                              title="Download PDF"
+                            >
+                              PDF
+                            </a>
+                            <a
+                              href={`/api/certificate/download?format=png&name=${encodeURIComponent(response.user_name || 'Student')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-emerald-400 hover:text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1"
+                              title="Download PNG"
+                            >
+                              PNG
+                            </a>
+                          </div>
                         )}
                       </div>
                     </td>
