@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+
+
 import { generateCertificatePNG, generateCertificatePDF } from '@/lib/certificate'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { isSuperAdmin } from '@/lib/admin'
