@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server'
 import { isSuperAdmin } from '@/lib/admin'
 import { CertificateTemplate } from '@/components/certificate/CertificateTemplate'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
