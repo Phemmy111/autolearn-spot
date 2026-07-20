@@ -84,16 +84,19 @@ export function CertificateTemplate({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '15px'
+            marginBottom: '15px',
+            position: 'relative'
           }}>
             {/* Tech Logo A */}
-            <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
-              <circle cx="50" cy="50" r="45" stroke="#00e0ff" strokeWidth="2" strokeDasharray="5,5" />
-              <circle cx="50" cy="50" r="35" stroke="#00ffaa" strokeWidth="3" />
-              <circle cx="15" cy="50" r="4" fill="#00e0ff" />
-              <circle cx="85" cy="50" r="4" fill="#00e0ff" />
-              <text x="50" y="65" textAnchor="middle" fill="#00ffaa" fontSize="40" fontWeight="bold" fontFamily="sans-serif">A</text>
-            </svg>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+              <svg viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+                <circle cx="50" cy="50" r="45" stroke="#00e0ff" strokeWidth="2" strokeDasharray="5,5" />
+                <circle cx="50" cy="50" r="35" stroke="#00ffaa" strokeWidth="3" />
+                <circle cx="15" cy="50" r="4" fill="#00e0ff" />
+                <circle cx="85" cy="50" r="4" fill="#00e0ff" />
+              </svg>
+            </div>
+            <span style={{ color: '#00ffaa', fontSize: '40px', fontWeight: 'bold', fontFamily: 'sans-serif' }}>A</span>
           </div>
           <span style={{ fontSize: '32px', fontWeight: 'bold', letterSpacing: '6px', color: '#ffffff' }}>AUTOLEARN SPOT</span>
           <span style={{ fontSize: '13px', marginTop: '5px', letterSpacing: '4px', color: '#00e0ff' }}>LEARN · AUTOMATE · SUCCEED</span>
