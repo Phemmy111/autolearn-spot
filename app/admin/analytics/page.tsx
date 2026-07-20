@@ -54,7 +54,7 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
           let isCorrect = userAnswer === correctAnswer
 
           if (!isCorrect && q.question_type === 'multiple_choice') {
-             const correctLetterMatch = correctAnswer.match(/^[A-D](?:\.|\\))?$/i)
+             const correctLetterMatch = correctAnswer.match(/^[A-D][.)]?$/i)
              if (correctLetterMatch) {
                 const letter = correctAnswer.charAt(0).toUpperCase()
                 if (userAnswer.toUpperCase().startsWith(`${letter}.`) || userAnswer.toUpperCase().startsWith(`${letter})`) || userAnswer.toUpperCase().startsWith(`${letter} `)) {
