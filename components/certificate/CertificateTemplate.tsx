@@ -118,7 +118,7 @@ export function CertificateTemplate({
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '200px' }}>
             <span style={{ fontSize: '32px', fontFamily: 'serif', fontStyle: 'italic', color: '#00f0ff', marginBottom: '0px' }}>A. Signature</span>
             <div style={{ width: '100%', height: '1px', backgroundColor: '#5d5f63', margin: '5px 0' }} />
-            <span style={{ fontSize: '14px', color: '#b9cacb', letterSpacing: '1px' }}>Director, MSN</span>
+            <span style={{ fontSize: '14px', color: '#b9cacb', letterSpacing: '1px' }}>Founder, Femi Adeleke</span>
           </div>
 
           {/* QR Code Placeholder */}
