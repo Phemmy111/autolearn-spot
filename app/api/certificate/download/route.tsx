@@ -94,9 +94,16 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Failed to generate certificate:', error)
+    
+    // Get the Vercel request ID for easier debugging
+    const requestId = request.headers.get('x-vercel-id') || 'unknown';
+
     return NextResponse.json(
-      { error: 'Internal Server Error', details: String(error) },
-      { status: 500 }
+      { error: 'Internal Server Error', details: String(error), requestId },
+      { 
+        status: 500,
+        headers: { 'x-vercel-request-id': requestId } 
+      }
     )
   }
 }

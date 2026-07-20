@@ -33,6 +33,7 @@ export function DashboardWidgets() {
   const [certLoading, setCertLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [fullName, setFullName] = useState('Student')
+  const [certError, setCertError] = useState<{message: string, requestId?: string | null} | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -78,9 +79,13 @@ export function DashboardWidgets() {
 
   async function generateCertificate(format: 'pdf' | 'png' | 'svg' = 'pdf') {
     setGenerating(true)
+    setCertError(null)
     try {
       const res = await fetch(`/api/certificate/download?format=${format}`)
-      if (!res.ok) throw new Error('Failed to generate certificate')
+      if (!res.ok) {
+        const requestId = res.headers.get('x-vercel-id');
+        throw new Error(JSON.stringify({ message: 'Failed to generate certificate. Please try again.', requestId }));
+      }
       
       const blob = await res.blob()
       const url = window.URL.createObjectURL(blob)
@@ -92,9 +97,14 @@ export function DashboardWidgets() {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Certificate generation failed:', err)
-      alert('Failed to generate certificate. Please try again.')
+      try {
+        const parsed = JSON.parse(err.message)
+        setCertError(parsed)
+      } catch (e) {
+        setCertError({ message: 'Failed to generate certificate. Please try again.' })
+      }
     } finally {
       setGenerating(false)
     }
@@ -156,6 +166,21 @@ export function DashboardWidgets() {
                   PNG
                 </button>
               </div>
+              {certError && (
+                <div className="mt-3 text-left w-full bg-red-500/10 border border-red-500/20 p-2 text-xs rounded">
+                  <p className="text-red-400 mb-1">{certError.message}</p>
+                  {certError.requestId && (
+                    <a
+                      href={`https://vercel.com/femiadeleke2019-5204s-projects/autolearn-spot/logs?search=${certError.requestId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#00f0ff] hover:underline flex items-center gap-1 mt-1 font-mono uppercase tracking-wider"
+                    >
+                      <ExternalLink className="h-3 w-3" /> View Vercel Log
+                    </a>
+                  )}
+                </div>
+              )}
             </>
           ) : (
             <>
