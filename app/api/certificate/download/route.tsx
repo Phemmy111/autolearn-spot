@@ -57,9 +57,10 @@ export async function GET(request: Request) {
 
     const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
 
-    // Generate QR Code URL via external API to avoid Satori Base64/SVG parsing issues
+    // Generate raw QR Code matrix to render as native SVG rects in Satori
     const verifyUrl = `${baseUrl}/certificate/verify?id=${userId}`
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verifyUrl)}&bgcolor=ffffff&color=000000&margin=1`
+    const qrData = QRCode.create(verifyUrl, { margin: 1 })
+    // qrData.modules is a boolean matrix packed into a 1D array (data) with a size property
 
     // Use absolute URL for the background and logo so next/og can fetch them
     const logoSrc = `${baseUrl}/logo.png`
@@ -67,7 +68,7 @@ export async function GET(request: Request) {
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
-      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrCodeUrl={qrCodeUrl} backgroundSrc={backgroundSrc} />),
+      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrData={qrData as any} backgroundSrc={backgroundSrc} />),
       { 
         width: 1200, 
         height: 800,

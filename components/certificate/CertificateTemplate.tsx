@@ -3,13 +3,13 @@ import React from 'react'
 export function CertificateTemplate({
   name,
   date,
-  qrCodeUrl,
+  qrData,
   backgroundSrc,
 }: {
   name: string
   date: string
   logoSrc?: string
-  qrCodeUrl?: string
+  qrData?: any
   backgroundSrc?: string
 }) {
   return (
@@ -53,20 +53,7 @@ export function CertificateTemplate({
           zIndex: 10,
         }}
       >
-        {/* Top Section - Logo & Title */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '160px' }}>
-          <span style={{ fontSize: '32px', fontWeight: 'bold', letterSpacing: '6px', color: '#ffffff' }}>AUTOLEARN SPOT</span>
-          <span style={{ fontSize: '13px', marginTop: '5px', letterSpacing: '4px', color: '#00e0ff' }}>LEARN · AUTOMATE · SUCCEED</span>
-          <span style={{ fontSize: '12px', marginTop: '12px', fontStyle: 'italic', color: '#5d6f83' }}>Powered by Moon Space Network (MSN)</span>
-        </div>
-
-        {/* Middle Section - Certification */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '35px' }}>
-          <span style={{ fontSize: '14px', letterSpacing: '8px', color: '#88a0b0', textTransform: 'uppercase' }}>
-            This is to certify that
-          </span>
-
-          {/* Student Name */}
+        {/* Student Name */}
           <span style={{
             fontSize: '90px',
             color: '#ffffff',
@@ -80,23 +67,13 @@ export function CertificateTemplate({
           </span>
 
           {/* Elegant Flourish Underline */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '700px', marginTop: '5px', marginBottom: '25px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '700px', marginTop: '5px' }}>
             <svg viewBox="0 0 700 20" width="100%" height="20" fill="none">
               <path d="M 0 10 Q 350 0 700 10" stroke="#b9cacb" strokeWidth="1" />
               <path d="M 100 12 Q 350 2 600 12" stroke="#b9cacb" strokeWidth="0.5" />
               <circle cx="350" cy="8" r="4" fill="#00e0ff" />
             </svg>
           </div>
-
-          <span style={{ fontSize: '20px', color: '#88a0b0', letterSpacing: '2px' }}>
-            has successfully completed the
-          </span>
-          <span style={{ fontSize: '46px', color: '#00e0ff', fontWeight: 'bold', letterSpacing: '3px', marginTop: '15px' }}>
-            n8n Automation
-          </span>
-          <span style={{ fontSize: '20px', color: '#88a0b0', letterSpacing: '2px', marginTop: '15px' }}>
-            coursework and final assessment
-          </span>
         </div>
 
         {/* Bottom Section - Date, Badge, Signature */}
@@ -133,8 +110,8 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            bottom: '40px', 
-            right: '40px',
+            bottom: '75px', 
+            right: '80px',
             display: 'flex',
             width: '100px',
             height: '100px',
@@ -146,15 +123,21 @@ export function CertificateTemplate({
             border: '2px solid #00e0ff',
           }}
         >
-          {qrCodeUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={qrCodeUrl}
-              alt="QR Code"
+          {qrData && (
+            <svg
               width="90"
               height="90"
-              style={{ objectFit: 'contain' }}
-            />
+              viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
+              fill="#000000"
+            >
+              {Array.from(qrData.modules.data).map((isDark, i) => {
+                if (!isDark) return null
+                const size = qrData.modules.size
+                const x = i % size
+                const y = Math.floor(i / size)
+                return <rect key={i} x={x} y={y} width="1.05" height="1.05" /> // slight overlap to prevent anti-aliasing gaps
+              })}
+            </svg>
           )}
         </div>
 
