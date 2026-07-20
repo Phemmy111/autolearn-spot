@@ -57,7 +57,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '410px', // Exact vertical alignment for the name
+            top: '330px', // Moved up to sit neatly above the flourish line and below "THIS IS TO CERTIFY THAT"
             left: '0',
             width: '1200px',
             display: 'flex',
@@ -82,8 +82,8 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '690px', // Aligned slightly above the line for "Date:"
-            left: '200px', // Pushed next to the "Date:" label
+            top: '640px', // Moved up to sit on top of the date line
+            left: '160px', // Adjusted to align perfectly with the blank line
             width: '200px',
             display: 'flex',
             justifyContent: 'center',
