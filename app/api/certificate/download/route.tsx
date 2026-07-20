@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
 
     // Generate raw QR Code matrix to render as native SVG rects in Satori
-    const verifyUrl = `${baseUrl}/certificate/verify?id=${userId}`
+    const verifyUrl = `${baseUrl}/certificate/verify?name=${encodeURIComponent(userName)}&date=${encodeURIComponent(dateStr)}`
     const qrData = QRCode.create(verifyUrl, { margin: 1 })
     // qrData.modules is a boolean matrix packed into a 1D array (data) with a size property
 
