@@ -38,6 +38,9 @@ export async function GET(request: Request) {
       }
     }
 
+    // Capitalize the first letter of each word
+    userName = userName.replace(/\b\w/g, (c) => c.toUpperCase())
+
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -58,12 +61,13 @@ export async function GET(request: Request) {
     const verifyUrl = `${baseUrl}/certificate/verify?id=${userId}`
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verifyUrl)}&bgcolor=ffffff&color=000000&margin=1`
 
-    // Use absolute URL for the logo so next/og can fetch it
+    // Use absolute URL for the background and logo so next/og can fetch them
     const logoSrc = `${baseUrl}/logo.png`
+    const backgroundSrc = `${baseUrl}/certificate-template.jpg`
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
-      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrCodeUrl={qrCodeUrl} />),
+      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrCodeUrl={qrCodeUrl} backgroundSrc={backgroundSrc} />),
       { 
         width: 1200, 
         height: 800,
