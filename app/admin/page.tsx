@@ -4,6 +4,13 @@ import Link from 'next/link'
 import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
+import { SummaryCard } from '@/components/admin/SummaryCard'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Admin Dashboard | AutoLearn Spot',
+  description: 'Manage quizzes, questions, and view student results.',
+}
 
 export default async function AdminPage() {
   try {
@@ -28,6 +35,8 @@ export default async function AdminPage() {
             Manage quizzes, questions, and view student results.
           </p>
         </div>
+
+        <SummaryCard />
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Link

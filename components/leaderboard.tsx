@@ -56,7 +56,8 @@ export function Leaderboard() {
           {leaderboard.map((entry, index) => (
             <div
               key={entry.id}
-              className={`flex items-center justify-between p-4 rounded-lg border transition-all hover:border-[#00f0ff]/50 ${getRankClass(index + 1)}`}
+              className={`group flex items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#00f0ff]/50 hover:bg-[#111317] ${getRankClass(index + 1)}`}
+              aria-label={`Rank ${index + 1}: ${entry.name} with ${entry.score} points and ${entry.percentage}% average`}
             >
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-center w-10 h-10">

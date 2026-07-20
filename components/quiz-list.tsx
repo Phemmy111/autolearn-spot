@@ -42,7 +42,7 @@ export function QuizList() {
       {quizzes.map((quiz) => (
         <div
           key={quiz.id}
-          className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all"
+          className="group border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#00f0ff]/50"
         >
           <div className="flex items-start justify-between mb-4">
             <div>

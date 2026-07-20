@@ -17,6 +17,7 @@ export async function GET() {
 
     // Map to expected frontend LeaderboardEntry format
     const formattedLeaderboard = leaderboard.map((entry: any, index: number) => ({
+      id: entry.id,
       rank: index + 1,
       studentId: entry.user_id,
       name: entry.user_name || 'Anonymous Student',

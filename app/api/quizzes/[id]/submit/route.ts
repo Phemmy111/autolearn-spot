@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { auth, currentUser } from '@clerk/nextjs/server'
+import { generateCertificatePDF } from '@/lib/certificate'
+import { sendEmail } from '@/utils/email'
 
 export async function POST(
   request: Request,
@@ -201,6 +203,41 @@ export async function POST(
     if (responseError) {
       console.error('Error inserting quiz response:', responseError)
       return NextResponse.json({ error: 'Failed to save quiz response' }, { status: 500 })
+    }
+
+    // Automatically email certificate if passed
+    if (passed && userEmail) {
+      try {
+        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        const logoUrl = `${request.headers.get('x-forwarded-proto') || 'http'}://${request.headers.get('host')}/favicon.ico`
+        const pdfBuffer = await generateCertificatePDF(userName, dateStr, logoUrl)
+        
+        await sendEmail({
+          to: userEmail,
+          subject: 'Your Certificate of Completion - AutoLearn Spot',
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #00f0ff;">Congratulations, ${userName}!</h2>
+              <p>You have successfully passed the quiz.</p>
+              <p>Your certificate of completion is attached to this email as a PDF.</p>
+              <p>You can also download it in PNG format from your student dashboard at any time.</p>
+              <br/>
+              <p>Best regards,</p>
+              <p><strong>AutoLearn Spot Team</strong></p>
+            </div>
+          `,
+          attachments: [
+            {
+              filename: `AutoLearn-Certificate-${userName.replace(/\s+/g, '-')}.pdf`,
+              content: pdfBuffer,
+              contentType: 'application/pdf'
+            }
+          ]
+        })
+      } catch (emailErr) {
+        console.error('Error sending certificate email:', emailErr)
+        // Don't fail the submission if email fails
+      }
     }
 
     return NextResponse.json({

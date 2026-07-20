@@ -76,74 +76,22 @@ export function DashboardWidgets() {
   const isCourseFullyReleased = videos.length >= 12 && videos.every(isVideoAvailable)
   const canDownloadCert = certEnabled && isCourseFullyReleased && isEligibleForCert
 
-  async function generateCertificate() {
+  async function generateCertificate(format: 'pdf' | 'png' | 'svg' = 'pdf') {
     setGenerating(true)
     try {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      if (!ctx) throw new Error('Canvas not supported')
-
-      // Load template image
-      const templateImg = await loadImage('/certificate-template.jpg')
-      canvas.width = templateImg.width
-      canvas.height = templateImg.height
-      ctx.drawImage(templateImg, 0, 0)
-
-      // Load and draw signature
-      try {
-        const signatureImg = await loadImage('/signature.jpg')
-        // Draw signature in the bottom-right area (signature line area)
-        const sigWidth = 200
-        const sigHeight = (signatureImg.height / signatureImg.width) * sigWidth
-        const sigX = canvas.width * 0.68
-        const sigY = canvas.height * 0.78
-        ctx.drawImage(signatureImg, sigX, sigY, sigWidth, sigHeight)
-      } catch {
-        console.warn('Signature image not found, skipping')
-      }
-
-      // Draw student name (elegant script font)
-      ctx.fillStyle = '#ffffff'
-      ctx.textAlign = 'center'
-      ctx.font = 'italic 64px Georgia, "Times New Roman", serif'
-      ctx.fillText(fullName, canvas.width / 2, canvas.height * 0.45)
-
-      // Draw decorative line under name
-      ctx.strokeStyle = '#00f0ff'
-      ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(canvas.width * 0.25, canvas.height * 0.48)
-      ctx.lineTo(canvas.width * 0.75, canvas.height * 0.48)
-      ctx.stroke()
-
-      // Draw completion date
-      const today = new Date()
-      const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-      ctx.fillStyle = '#b9cacb'
-      ctx.font = '24px Georgia, serif'
-      ctx.textAlign = 'left'
-      ctx.fillText(dateStr, canvas.width * 0.08, canvas.height * 0.88)
-
-      // Generate and draw QR code
-      try {
-        const QRCode = (await import('qrcode')).default
-        const verifyUrl = `${window.location.origin}/certificate/verify?name=${encodeURIComponent(fullName)}&date=${encodeURIComponent(dateStr)}`
-        const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
-          width: 100,
-          margin: 1,
-          color: { dark: '#000000', light: '#ffffff' },
-        })
-        const qrImg = await loadImage(qrDataUrl)
-        ctx.drawImage(qrImg, canvas.width * 0.88, canvas.height * 0.78, 100, 100)
-      } catch {
-        console.warn('QR code generation failed, skipping')
-      }
-
-      // Download the certificate
+      const res = await fetch(`/api/certificate/download?format=${format}`)
+      if (!res.ok) throw new Error('Failed to generate certificate')
+      
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      
       const link = document.createElement('a')
-      link.download = `Autolearn-Spot-Certificate-${fullName.replace(/\s+/g, '-')}.png`
-      link.href = canvas.toDataURL('image/png')
+      link.href = url
+      link.download = `Autolearn-Spot-Certificate-${fullName.replace(/\s+/g, '-')}.${format}`
+      document.body.appendChild(link)
       link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Certificate generation failed:', err)
       alert('Failed to generate certificate. Please try again.')
@@ -152,15 +100,7 @@ export function DashboardWidgets() {
     }
   }
 
-  function loadImage(src: string): Promise<HTMLImageElement> {
-    return new Promise((resolve, reject) => {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = () => resolve(img)
-      img.onerror = reject
-      img.src = src
-    })
-  }
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
@@ -198,18 +138,24 @@ export function DashboardWidgets() {
             <>
               <Award className="h-10 w-10 text-[#00f0ff] mb-2 drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]" />
               <p className="text-sm text-white font-semibold mb-3">Course Completed!</p>
-              <button
-                onClick={generateCertificate}
-                disabled={generating}
-                className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-black py-2 font-mono text-[10px] font-bold uppercase hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {generating ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Download className="h-3 w-3" />
-                )}
-                {generating ? 'Generating...' : 'Download Certificate'}
-              </button>
+              <div className="w-full flex flex-col gap-2 mt-2">
+                <button
+                  onClick={() => generateCertificate('pdf')}
+                  disabled={generating}
+                  className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-black py-2 font-mono text-[10px] font-bold uppercase hover:bg-white transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
+                  Download PDF
+                </button>
+                <button
+                  onClick={() => generateCertificate('png')}
+                  disabled={generating}
+                  className="w-full flex items-center justify-center gap-2 border border-[#00f0ff] text-[#00f0ff] py-2 font-mono text-[10px] font-bold uppercase hover:bg-[#00f0ff] hover:text-black transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
+                  Download PNG
+                </button>
+              </div>
             </>
           ) : (
             <>
@@ -257,8 +203,7 @@ export function DashboardWidgets() {
         </div>
       </div>
 
-      {/* Hidden canvas for certificate generation */}
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+
     </div>
   )
 }

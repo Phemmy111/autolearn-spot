@@ -118,12 +118,24 @@ export default async function AdminResultsPage() {
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <Link 
-                        href={`/admin/results/${response.id}`}
-                        className="text-[#00f0ff] hover:text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1"
-                      >
-                        Review
-                      </Link>
+                      <div className="flex flex-col gap-2">
+                        <Link 
+                          href={`/admin/results/${response.id}`}
+                          className="text-[#00f0ff] hover:text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1"
+                        >
+                          Review
+                        </Link>
+                        {response.passed && (
+                          <a
+                            href={`/api/certificate/download?format=pdf&name=${encodeURIComponent(response.user_name || 'Student')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-400 hover:text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1"
+                          >
+                            Download Cert
+                          </a>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -1,9 +1,16 @@
+import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import Link from 'next/link'
 import { ArrowLeft, BarChart3, TrendingUp, TrendingDown, Target } from 'lucide-react'
 import QuizSelector from '@/components/analytics/QuizSelector'
+import DifficultyChart from '@/components/analytics/DifficultyChart'
+
+export const metadata: Metadata = {
+  title: 'Quiz Analytics – Admin | AutoLearn Spot',
+  description: 'Analyze question difficulty and student performance',
+}
 
 export default async function AdminAnalyticsPage({ searchParams }: { searchParams: Promise<{ quizId?: string }> }) {
   try {
@@ -150,6 +157,9 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
                 <p className="font-heading text-4xl font-bold text-emerald-400">{Math.round(analyticsData.passRate)}%</p>
               </div>
             </div>
+
+            {/* Difficulty Bar Chart */}
+            <DifficultyChart data={analyticsData.questionStats} quizTitle={quizzes?.find(q => q.id === quizId)?.title || 'Quiz'} />
 
             {/* Question breakdown */}
             <div className="border border-[#1f2229] bg-[#0c0e12] rounded-xl overflow-hidden">
