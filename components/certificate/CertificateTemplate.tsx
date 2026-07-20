@@ -82,8 +82,8 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '645px', // Dropped slightly to sit closer to the line
-            left: '240px', // Pushed significantly right to avoid overlapping "Date:" label
+            top: '655px', // Dropped down 10px to sit right on the line
+            left: '260px', // Pushed slightly right to be perfectly centered over the line
             width: '200px',
             display: 'flex',
             justifyContent: 'center',
