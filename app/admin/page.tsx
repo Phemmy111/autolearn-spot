@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin, isSuperAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy } from 'lucide-react'
+import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy, FileText } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
 import { CourseCompletionCard } from '@/components/admin/CourseCompletionCard'
@@ -61,6 +61,16 @@ export default async function AdminPage() {
             <h2 className="font-heading text-xl font-bold text-white mb-2">Results</h2>
             <p className="font-mono text-xs text-[#b9cacb]">View student quiz results</p>
           </Link>
+
+          <Link
+            href="/admin/assignments"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <FileText className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Assignments</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Create and review student assignments</p>
+          </Link>
+
           <Link
             href="/admin/enrollments"
             className="border border-[#1f2229] bg-[#0c0c12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"

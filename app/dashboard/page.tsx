@@ -66,6 +66,9 @@ export default function DashboardPage() {
           <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Quiz
           </Link>
+          <Link href="/dashboard/assignments" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            Assignments
+          </Link>
           <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Leaderboard
           </Link>
@@ -118,6 +121,13 @@ export default function DashboardPage() {
                 className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Quiz
+              </Link>
+              <Link
+                href="/dashboard/assignments"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Assignments
               </Link>
               <Link
                 href="/dashboard/leaderboard"
