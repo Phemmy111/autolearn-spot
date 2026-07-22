@@ -4,6 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import Link from 'next/link'
 import { CheckCircle, XCircle, Clock, User } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminResultsPage() {
   try {
     await requireAdmin()

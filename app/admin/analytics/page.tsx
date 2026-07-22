@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: 'Analyze question difficulty and student performance',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminAnalyticsPage({ searchParams }: { searchParams: Promise<{ quizId?: string }> }) {
   try {
     await requireAdmin()

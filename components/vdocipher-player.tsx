@@ -47,6 +47,7 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
     if (!otp || !playbackInfo || !iframeRef.current) return
 
     let player: any = null
+    let timeUpdateHandler: (() => void) | null = null
     let marked = false
     let lastSavedTime = 0
     let lastSavedPct = 0
@@ -55,7 +56,7 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
       if (iframeRef.current && window.VdoPlayer) {
         player = window.VdoPlayer.getInstance(iframeRef.current)
         
-        player.video.addEventListener('timeupdate', () => {
+        timeUpdateHandler = () => {
           if (!player.video.duration || !userId) return
           
           const currentTime = player.video.currentTime
@@ -83,7 +84,9 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
               }),
             }).catch(e => console.error('Failed to save progress', e))
           }
-        })
+        }
+        
+        player.video.addEventListener('timeupdate', timeUpdateHandler)
       }
     }
 
@@ -98,9 +101,8 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
     }
 
     return () => {
-      if (player && player.video) {
-        // VdoPlayer doesn't have an explicit unload/destroy that we need to manage here,
-        // but we would ideally removeEventListener if we kept the reference to the handler.
+      if (player && player.video && timeUpdateHandler) {
+        player.video.removeEventListener('timeupdate', timeUpdateHandler)
       }
     }
   }, [otp, playbackInfo, videoId, userId])

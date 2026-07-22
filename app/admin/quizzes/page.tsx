@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { Plus, Edit, Eye, Clock, Target, Sparkles, ArrowLeft } from 'lucide-react'
 import { DeleteQuizButton } from '@/components/admin/delete-quiz-button'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminQuizzesPage() {
   try {
     await requireAdmin()
