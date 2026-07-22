@@ -5,10 +5,11 @@ import { requireSuperAdmin } from '@/lib/admin'
 // PUT - Super Admin only: Update admin
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireSuperAdmin()
+    const { id } = await params;
 
     const body = await request.json()
     const { role, is_active } = body
@@ -23,7 +24,7 @@ export async function PUT(
       const { data: currentAdmin } = await supabase
         .from('admins')
         .select('role')
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
 
       if (currentAdmin?.role === 'super_admin') {
@@ -46,7 +47,7 @@ export async function PUT(
         is_active: is_active !== undefined ? is_active : undefined,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -68,16 +69,17 @@ export async function PUT(
 // DELETE - Super Admin only: Delete admin
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireSuperAdmin()
+    const { id } = await params;
 
     // Prevent deleting the last super admin
     const { data: currentAdmin } = await supabase
       .from('admins')
       .select('role')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (currentAdmin?.role === 'super_admin') {
@@ -95,7 +97,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('admins')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       console.error('Error deleting admin:', error)

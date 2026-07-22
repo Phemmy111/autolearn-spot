@@ -23,7 +23,7 @@ function setCompleted(userId: string, completed: string[]) {
   localStorage.setItem(getStorageKey(userId), JSON.stringify(completed))
 }
 
-export function markVideoComplete(userId: string, videoId: string) {
+export function markVideoComplete(userId: string, videoId: string, courseSlug: string = 'ai-automation-bootcamp') {
   if (typeof window === 'undefined') return
   const current = getCompleted(userId)
   if (!current.includes(videoId)) {
@@ -31,6 +31,20 @@ export function markVideoComplete(userId: string, videoId: string) {
     setCompleted(userId, next)
     window.dispatchEvent(new Event('autolearn-progress-updated'))
     window.dispatchEvent(new Event('progress-updated'))
+
+    // Call certificate completion API in background
+    fetch('/api/certificate/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseSlug, lessonId: videoId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          window.dispatchEvent(new Event('certificate-unlocked'))
+        }
+      })
+      .catch((err) => console.error('Failed to trigger certificate completion:', err))
   }
 }
 

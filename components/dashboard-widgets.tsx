@@ -30,11 +30,27 @@ export function DashboardWidgets() {
   const [mounted, setMounted] = useState(false)
   const [completedIds, setCompletedIds] = useState<string[]>([])
   const [certEnabled, setCertEnabled] = useState(false)
+  const [certEligible, setCertEligible] = useState(false)
   const [certLoading, setCertLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [fullName, setFullName] = useState('Student')
   const [certError, setCertError] = useState<{message: string, requestId?: string | null} | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const fetchCertStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/certificate/status')
+      const data = await res.json()
+      setCertEnabled(!!data.enabled)
+      setCertEligible(!!data.eligible)
+      if (data.fullName) setFullName(data.fullName)
+    } catch {
+      setCertEnabled(false)
+      setCertEligible(false)
+    } finally {
+      setCertLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     setMounted(true)
@@ -42,40 +58,36 @@ export function DashboardWidgets() {
 
     const handleProgressUpdate = () => {
       setCompletedIds(getCompletedVideos(userId))
+      fetchCertStatus()
     }
+
+    const handleCertUnlocked = () => {
+      fetchCertStatus()
+    }
+
     window.addEventListener('autolearn-progress-updated', handleProgressUpdate)
     window.addEventListener('progress-updated', handleProgressUpdate)
+    window.addEventListener('certificate-unlocked', handleCertUnlocked)
+
     return () => {
       window.removeEventListener('autolearn-progress-updated', handleProgressUpdate)
       window.removeEventListener('progress-updated', handleProgressUpdate)
+      window.removeEventListener('certificate-unlocked', handleCertUnlocked)
     }
-  }, [userId])
+  }, [userId, fetchCertStatus])
 
-  // Fetch certificate status from API
+  // Fetch certificate status from API on mount
   useEffect(() => {
-    async function fetchCertStatus() {
-      try {
-        const res = await fetch('/api/certificate/status')
-        const data = await res.json()
-        setCertEnabled(data.enabled)
-        if (data.fullName) setFullName(data.fullName)
-      } catch {
-        setCertEnabled(false)
-      } finally {
-        setCertLoading(false)
-      }
-    }
     fetchCertStatus()
-  }, [])
+  }, [fetchCertStatus])
 
   if (!mounted) return null
 
   const availableVideos = videos.filter(isVideoAvailable)
   const nextVideo = availableVideos.find(v => !completedIds.includes(v.id))
   
-  const isEligibleForCert = availableVideos.length > 0 && availableVideos.every(v => completedIds.includes(v.id))
-  const isCourseFullyReleased = videos.length >= 12 && videos.every(isVideoAvailable)
-  const canDownloadCert = certEnabled && isCourseFullyReleased && isEligibleForCert
+  const isEligibleForCert = (availableVideos.length > 0 && availableVideos.every(v => completedIds.includes(v.id))) || certEligible
+  const canDownloadCert = certEnabled && isEligibleForCert
 
   async function generateCertificate(format: 'pdf' | 'png' | 'svg' = 'pdf') {
     setGenerating(true)

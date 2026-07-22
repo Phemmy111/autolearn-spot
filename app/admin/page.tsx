@@ -1,11 +1,14 @@
 import { redirect } from 'next/navigation'
-import { requireAdmin } from '@/lib/admin'
+import { requireAdmin, isSuperAdmin } from '@/lib/admin'
 import Link from 'next/link'
 import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
+import { CourseCompletionCard } from '@/components/admin/CourseCompletionCard'
 import { SummaryCard } from '@/components/admin/SummaryCard'
 import { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | AutoLearn Spot',
@@ -18,6 +21,8 @@ export default async function AdminPage() {
   } catch (error) {
     redirect('/')
   }
+
+  const isSuper = await isSuperAdmin()
 
   return (
     <div className="min-h-screen bg-[#0a0c10]">
@@ -113,6 +118,12 @@ export default async function AdminPage() {
             <p className="font-mono text-xs text-[#b9cacb]">Configure AI usage limits and costs (Super Admin only)</p>
           </Link>
         </div>
+
+        {isSuper && (
+          <div className="mt-8">
+            <CourseCompletionCard />
+          </div>
+        )}
 
         <div className="mt-6">
           <Link
