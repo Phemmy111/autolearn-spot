@@ -47,18 +47,23 @@ export async function POST(request: Request) {
       certificateEnabled = globalCertSetting?.value ?? false
     }
 
-    const isEnabled = certificateEnabled === true || certificateEnabled === 'true'
+    // Normalize JSONB values — they may come back as booleans, strings, or wrapped values
+    const isEnabled = certificateEnabled === true || String(certificateEnabled) === 'true'
+    console.log('[cert/complete] certificateEnabled raw:', JSON.stringify(certificateEnabled), '-> isEnabled:', isEnabled)
     if (!isEnabled) {
       return NextResponse.json(
-        { error: 'Certificates are not enabled for this course.' },
+        { error: 'Certificates are not enabled for this course.', debug: { certificateEnabled } },
         { status: 400 }
       )
     }
 
-    const configuredFinalLessonId = finalSetting?.value
-    if (configuredFinalLessonId && configuredFinalLessonId !== lessonId) {
+    // Normalize JSONB string — trim and compare as strings
+    const configuredFinalLessonId = finalSetting?.value ? String(finalSetting.value).trim() : null
+    const submittedLessonId = String(lessonId).trim()
+    console.log('[cert/complete] configuredFinalLessonId:', JSON.stringify(configuredFinalLessonId), 'submittedLessonId:', JSON.stringify(submittedLessonId))
+    if (configuredFinalLessonId && configuredFinalLessonId !== submittedLessonId) {
       return NextResponse.json(
-        { error: `Submitted lesson (${lessonId}) does not match the configured final lesson (${configuredFinalLessonId}).` },
+        { error: `Submitted lesson (${submittedLessonId}) does not match the configured final lesson (${configuredFinalLessonId}).`, debug: { configuredFinalLessonId, submittedLessonId } },
         { status: 400 }
       )
     }
@@ -108,9 +113,14 @@ export async function POST(request: Request) {
         .single()
 
       if (certErr) {
-        console.error('Error recording certificate completion:', certErr)
+        console.error('[cert/complete] Error recording certificate:', certErr)
+        return NextResponse.json(
+          { error: 'Failed to record certificate.', debug: { message: certErr.message, code: certErr.code, details: certErr.details } },
+          { status: 500 }
+        )
       } else {
         certificateRecord = newCert
+        console.log('[cert/complete] Certificate created successfully:', newCert?.certificate_code)
       }
     }
 

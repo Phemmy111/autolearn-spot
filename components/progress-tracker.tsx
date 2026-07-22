@@ -40,11 +40,14 @@ export function markVideoComplete(userId: string, videoId: string, courseSlug: s
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log('[cert/complete] API response:', data)
         if (data.success) {
           window.dispatchEvent(new Event('certificate-unlocked'))
+        } else if (data.error) {
+          console.error('[cert/complete] API error:', data.error, data.debug)
         }
       })
-      .catch((err) => console.error('Failed to trigger certificate completion:', err))
+      .catch((err) => console.error('[cert/complete] Network error:', err))
   }
 }
 
