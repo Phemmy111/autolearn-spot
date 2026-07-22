@@ -5,7 +5,8 @@ import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from 're
 import { createPortal } from 'react-dom'
 
 const defaultPaymentUrl = 'https://paystack.shop/pay/yoksvlq4xn'
-const paymentUrl = process.env.NEXT_PUBLIC_PAYSTACK_PAYMENT_URL || defaultPaymentUrl
+const paymentMode = process.env.NEXT_PUBLIC_PAYMENT_MODE ?? "live";
+const paymentUrl = paymentMode === 'test' ? (process.env.NEXT_PUBLIC_PAYSTACK_TEST_LINK || 'https://paystack.shop/pay/vmlnn84vds') : (process.env.NEXT_PUBLIC_PAYSTACK_PAYMENT_URL || defaultPaymentUrl);
 
 function paymentHref(form: HTMLFormElement) {
   const data = new FormData(form)

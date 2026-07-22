@@ -61,6 +61,14 @@ export default async function AdminPage() {
             <h2 className="font-heading text-xl font-bold text-white mb-2">Results</h2>
             <p className="font-mono text-xs text-[#b9cacb]">View student quiz results</p>
           </Link>
+          <Link
+            href="/admin/enrollments"
+            className="border border-[#1f2229] bg-[#0c0c12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <Users className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Enrollments</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">View student enrollment data</p>
+          </Link>
 
           <Link
             href="/admin/leaderboard"
