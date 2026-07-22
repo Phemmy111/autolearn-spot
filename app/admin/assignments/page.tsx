@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Edit, Trash2, ExternalLink, Calendar, Users, ArrowLeft } from 'lucide-react';
 
+// Modal fixes: reduced size, scrollable, click-outside-to-close
+
 interface Assignment {
   id: string;
   week_number: number;
