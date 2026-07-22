@@ -35,15 +35,16 @@ export async function POST(request: Request) {
     await requireAdmin()
 
     const body = await request.json()
-    const { 
-      cohort_id, 
-      week_number, 
-      title, 
-      description, 
-      instructions, 
-      due_date, 
+    console.log('Creating assignment with body:', body)
+    const {
+      cohort_id,
+      week_number,
+      title,
+      description,
+      instructions,
+      due_date,
       max_score,
-      is_required 
+      is_required
     } = body
 
     // Validate required fields
@@ -51,28 +52,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields: cohort_id, week_number, title' }, { status: 400 })
     }
 
+    const insertData = {
+      cohort_id,
+      week_number,
+      title,
+      description,
+      submission_type: 'url', // Only URL submissions for Phase 3
+      instructions,
+      due_date,
+      max_score: max_score || 100,
+      is_required: is_required !== undefined ? is_required : true,
+    }
+    console.log('Insert data:', insertData)
+
     const { data: assignment, error } = await supabase
       .from('assignments')
-      .insert({
-        cohort_id,
-        week_number,
-        title,
-        description,
-        submission_type: 'url', // Only URL submissions for Phase 3
-        instructions,
-        due_date,
-        max_score: max_score || 100,
-        is_required: is_required !== undefined ? is_required : true,
-      })
+      .insert(insertData)
       .select()
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Supabase error creating assignment:', error)
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 })
     }
 
+    console.log('Assignment created successfully:', assignment)
     return NextResponse.json({ assignment }, { status: 201 })
   } catch (error: any) {
+    console.error('Error in POST /api/admin/assignments:', error)
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
     }
