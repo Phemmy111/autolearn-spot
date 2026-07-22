@@ -7,9 +7,10 @@ import { markVideoComplete } from '@/components/progress-tracker'
 
 interface VimeoPlayerProps {
   videoId: string
+  lessonId: string
 }
 
-export default function VimeoPlayer({ videoId }: VimeoPlayerProps) {
+export default function VimeoPlayer({ videoId, lessonId }: VimeoPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const { userId } = useAuth()
 
@@ -22,7 +23,7 @@ export default function VimeoPlayer({ videoId }: VimeoPlayerProps) {
       // mark as complete if watched 90% or more
       if (!marked && data.percent > 0.9 && userId) {
         marked = true
-        markVideoComplete(userId, videoId)
+        markVideoComplete(userId, lessonId)
       }
     })
 

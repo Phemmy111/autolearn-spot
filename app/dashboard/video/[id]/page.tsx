@@ -58,9 +58,9 @@ export default async function VideoPage({ params }: VideoPageProps) {
         {/* Video Player Container */}
         <div className="relative aspect-video w-full overflow-hidden border border-[#3b494b] bg-black shadow-[0_0_30px_rgba(0,0,0,0.5)]">
           {video.vimeoVideoId ? (
-            <VimeoPlayer videoId={video.vimeoVideoId} />
+            <VimeoPlayer videoId={video.vimeoVideoId} lessonId={video.id} />
           ) : video.vdoCipherVideoId ? (
-            <VdoCipherPlayer videoId={video.vdoCipherVideoId} />
+            <VdoCipherPlayer videoId={video.vdoCipherVideoId} lessonId={video.id} />
           ) : (
             <div className="flex h-full items-center justify-center font-mono text-sm text-[#b9cacb]">
               Video source not found.

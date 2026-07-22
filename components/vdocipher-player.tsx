@@ -15,9 +15,10 @@ declare global {
 
 interface VdoCipherPlayerProps {
   videoId: string
+  lessonId: string
 }
 
-export default function VdoCipherPlayer({ videoId }: VdoCipherPlayerProps) {
+export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerProps) {
   const { userId } = useAuth()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [otp, setOtp] = useState<string | null>(null)
@@ -57,7 +58,7 @@ export default function VdoCipherPlayer({ videoId }: VdoCipherPlayerProps) {
           const percent = player.video.currentTime / player.video.duration
           if (!marked && percent > 0.9 && userId) {
             marked = true
-            markVideoComplete(userId, videoId)
+            markVideoComplete(userId, lessonId)
           }
         })
       }
