@@ -5,30 +5,12 @@ import { useAuth } from '@clerk/nextjs'
 import Link from 'next/link'
 import { PlayCircle, Download, Award, Lock, FileText, ExternalLink, Loader2 } from 'lucide-react'
 import { videos, isVideoAvailable } from '@/data/videos'
-
-function getStorageKey(userId: string) {
-  return `autolearn-progress-${userId}`
-}
-
-function getCompletedVideos(userId?: string | null): string[] {
-  if (typeof window === 'undefined') return []
-  try {
-    // Try user-specific key first, then fallback to old key
-    if (userId) {
-      const raw = localStorage.getItem(getStorageKey(userId))
-      if (raw) return JSON.parse(raw)
-    }
-    const raw = localStorage.getItem('autolearn-completed-videos')
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
+import { useProgress } from '@/hooks/useProgress'
 
 export function DashboardWidgets() {
   const { userId } = useAuth()
+  const { completedIds } = useProgress()
   const [mounted, setMounted] = useState(false)
-  const [completedIds, setCompletedIds] = useState<string[]>([])
   const [certEnabled, setCertEnabled] = useState(false)
   const [certEligible, setCertEligible] = useState(false)
   const [certLoading, setCertLoading] = useState(true)
@@ -54,27 +36,17 @@ export function DashboardWidgets() {
 
   useEffect(() => {
     setMounted(true)
-    setCompletedIds(getCompletedVideos(userId))
-
-    const handleProgressUpdate = () => {
-      setCompletedIds(getCompletedVideos(userId))
-      fetchCertStatus()
-    }
 
     const handleCertUnlocked = () => {
       fetchCertStatus()
     }
 
-    window.addEventListener('autolearn-progress-updated', handleProgressUpdate)
-    window.addEventListener('progress-updated', handleProgressUpdate)
     window.addEventListener('certificate-unlocked', handleCertUnlocked)
 
     return () => {
-      window.removeEventListener('autolearn-progress-updated', handleProgressUpdate)
-      window.removeEventListener('progress-updated', handleProgressUpdate)
       window.removeEventListener('certificate-unlocked', handleCertUnlocked)
     }
-  }, [userId, fetchCertStatus])
+  }, [fetchCertStatus])
 
   // Fetch certificate status from API on mount
   useEffect(() => {

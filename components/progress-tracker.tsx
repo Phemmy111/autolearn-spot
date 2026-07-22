@@ -1,38 +1,14 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { useAuth } from '@clerk/nextjs'
 import { CheckCircle, Circle } from 'lucide-react'
+import { useProgress } from '@/hooks/useProgress'
 
-function getStorageKey(userId: string) {
-  return `autolearn-progress-${userId}`
-}
+// Standalone function for legacy support, but prefers useProgress.markComplete
+export async function markVideoComplete(userId: string, videoId: string, courseSlug: string = 'ai-automation-bootcamp') {
+  if (typeof window === 'undefined') return
 
-function getCompleted(userId: string): string[] {
-  if (typeof window === 'undefined') return []
   try {
-    const raw = localStorage.getItem(getStorageKey(userId))
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function setCompleted(userId: string, completed: string[]) {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(getStorageKey(userId), JSON.stringify(completed))
-}
-
-export function markVideoComplete(userId: string, videoId: string, courseSlug: string = 'ai-automation-bootcamp') {
-  if (typeof window === 'undefined') return
-  const current = getCompleted(userId)
-  if (!current.includes(videoId)) {
-    const next = [...current, videoId]
-    setCompleted(userId, next)
-    window.dispatchEvent(new Event('autolearn-progress-updated'))
-    window.dispatchEvent(new Event('progress-updated'))
-
-    // Call certificate completion API in background
+    // 1. Call certificate API
     fetch('/api/certificate/complete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -40,39 +16,51 @@ export function markVideoComplete(userId: string, videoId: string, courseSlug: s
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log('[cert/complete] API response:', data)
         if (data.success) {
           window.dispatchEvent(new Event('certificate-unlocked'))
-        } else if (data.error) {
-          console.error('[cert/complete] API error:', data.error, data.debug)
         }
       })
       .catch((err) => console.error('[cert/complete] Network error:', err))
+
+    // 2. Call progress API
+    const res = await fetch('/api/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonId: videoId, watchPct: 100, completed: true }),
+    })
+    
+    if (res.ok) {
+      window.dispatchEvent(new Event('autolearn-progress-updated'))
+      window.dispatchEvent(new Event('progress-updated'))
+    } else {
+      // Fallback local storage write if API fails
+      const storageKey = `autolearn-progress-${userId}`
+      const raw = localStorage.getItem(storageKey)
+      const current = raw ? JSON.parse(raw) : []
+      if (!current.includes(videoId)) {
+        localStorage.setItem(storageKey, JSON.stringify([...current, videoId]))
+      }
+    }
+  } catch (error) {
+    console.error('Failed to mark video complete', error)
   }
 }
 
 // ── Progress Bar ──────────────────────────────────────────────
 export function ProgressBar({ totalVideos }: { totalVideos: number }) {
-  const { userId } = useAuth()
-  const [completed, setCompletedState] = useState<string[]>([])
+  const { progressData, isLoading } = useProgress()
 
-  useEffect(() => {
-    if (userId) {
-      setCompletedState(getCompleted(userId))
-    }
-  }, [userId])
-
-  // Listen for custom event from MarkCompleteButton
-  useEffect(() => {
-    const handler = () => {
-      if (userId) setCompletedState(getCompleted(userId))
-    }
-    window.addEventListener('progress-updated', handler)
-    return () => window.removeEventListener('progress-updated', handler)
-  }, [userId])
-
-  const count = completed.length
+  const count = progressData.filter(p => p.completed).length
   const pct = totalVideos > 0 ? Math.round((count / totalVideos) * 100) : 0
+
+  if (isLoading) {
+    return (
+      <div className="mb-10 border border-[#1f2229] bg-[#0c0e12] p-5 animate-pulse">
+        <div className="h-4 w-1/3 bg-[#1f2229] mb-3"></div>
+        <div className="h-2 w-full bg-[#1f2229]"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="mb-10 border border-[#1f2229] bg-[#0c0e12] p-5">
@@ -100,22 +88,8 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
 }
 
 export function MarkCompleteButton({ videoId }: { videoId: string }) {
-  const { userId } = useAuth()
-  const [isDone, setIsDone] = useState(false)
-
-  useEffect(() => {
-    if (userId) {
-      setIsDone(getCompleted(userId).includes(videoId))
-    }
-  }, [userId, videoId])
-
-  useEffect(() => {
-    const handler = () => {
-      if (userId) setIsDone(getCompleted(userId).includes(videoId))
-    }
-    window.addEventListener('progress-updated', handler)
-    return () => window.removeEventListener('progress-updated', handler)
-  }, [userId, videoId])
+  const { completedIds } = useProgress()
+  const isDone = completedIds.includes(videoId)
 
   return (
     <div
@@ -135,22 +109,8 @@ export function MarkCompleteButton({ videoId }: { videoId: string }) {
 
 // ── Completed Badge (overlay on video card thumbnail) ─────────
 export function CompletedBadge({ videoId }: { videoId: string }) {
-  const { userId } = useAuth()
-  const [isDone, setIsDone] = useState(false)
-
-  useEffect(() => {
-    if (userId) {
-      setIsDone(getCompleted(userId).includes(videoId))
-    }
-  }, [userId, videoId])
-
-  useEffect(() => {
-    const handler = () => {
-      if (userId) setIsDone(getCompleted(userId).includes(videoId))
-    }
-    window.addEventListener('progress-updated', handler)
-    return () => window.removeEventListener('progress-updated', handler)
-  }, [userId, videoId])
+  const { completedIds } = useProgress()
+  const isDone = completedIds.includes(videoId)
 
   if (!isDone) return null
 

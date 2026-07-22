@@ -48,17 +48,40 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
 
     let player: any = null
     let marked = false
+    let lastSavedTime = 0
+    let lastSavedPct = 0
 
     const initPlayer = () => {
       if (iframeRef.current && window.VdoPlayer) {
         player = window.VdoPlayer.getInstance(iframeRef.current)
         
         player.video.addEventListener('timeupdate', () => {
-          if (!player.video.duration) return
-          const percent = player.video.currentTime / player.video.duration
-          if (!marked && percent > 0.9 && userId) {
+          if (!player.video.duration || !userId) return
+          
+          const currentTime = player.video.currentTime
+          const duration = player.video.duration
+          const percent = currentTime / duration
+          const watchPct = percent * 100
+          
+          if (!marked && percent > 0.9) {
             marked = true
             markVideoComplete(userId, lessonId)
+          }
+
+          // Throttle updates: every 30 seconds or 5% progress
+          if (currentTime - lastSavedTime >= 30 || watchPct - lastSavedPct >= 5) {
+            lastSavedTime = currentTime
+            lastSavedPct = watchPct
+            
+            fetch('/api/progress', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                lessonId, 
+                watchPct, 
+                lastPositionSeconds: currentTime 
+              }),
+            }).catch(e => console.error('Failed to save progress', e))
           }
         })
       }
