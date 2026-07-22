@@ -281,11 +281,50 @@ export default function AdminAssignmentsPage() {
 
       {/* Create/Edit Modal */}
       {(showCreateModal || editingAssignment) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-xl border border-[#1f2229] bg-[#0c0e12] p-8 shadow-2xl">
-            <h2 className="mb-4 font-heading text-2xl font-bold text-white">
-              {editingAssignment ? 'Edit Assignment' : 'Create Assignment'}
-            </h2>
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowCreateModal(false);
+              setEditingAssignment(null);
+              setFormData({
+                cohort_id: 'a1111111-1111-1111-1111-111111111111',
+                week_number: 1,
+                title: '',
+                description: '',
+                instructions: '',
+                due_date: '',
+                max_score: 100,
+                is_required: true,
+              });
+            }
+          }}
+        >
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-xl font-bold text-white">
+                {editingAssignment ? 'Edit Assignment' : 'Create Assignment'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setEditingAssignment(null);
+                  setFormData({
+                    cohort_id: 'a1111111-1111-1111-1111-111111111111',
+                    week_number: 1,
+                    title: '',
+                    description: '',
+                    instructions: '',
+                    due_date: '',
+                    max_score: 100,
+                    is_required: true,
+                  });
+                }}
+                className="text-[#b9cacb] hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
 
             <form onSubmit={editingAssignment ? handleUpdate : handleCreate} className="space-y-4">
               <div>
@@ -377,7 +416,7 @@ export default function AdminAssignmentsPage() {
                 </label>
               </div>
 
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-4 pt-4">
                 <button
                   type="button"
                   onClick={() => {
@@ -394,14 +433,14 @@ export default function AdminAssignmentsPage() {
                       is_required: true,
                     });
                   }}
-                  className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                  className="font-mono text-sm text-[#b9cacb] hover:text-white px-4 py-2"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : editingAssignment ? 'Update' : 'Create'}
                 </button>
