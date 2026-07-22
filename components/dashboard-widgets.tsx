@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import Link from 'next/link'
 import { PlayCircle, Download, Award, Lock, FileText, ExternalLink, Loader2 } from 'lucide-react'
