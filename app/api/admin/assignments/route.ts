@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
@@ -10,18 +10,20 @@ export async function GET() {
   try {
     await requireAdmin()
 
-    const { data: assignments, error } = await supabase
+    const { data: assignments, error } = await supabaseAdmin
       .from('assignments')
       .select('*, cohort:cohorts(id, name, slug), submissions(count)')
       .order('week_number', { ascending: true })
       .order('order_index', { ascending: true })
 
     if (error) {
+      console.error('Error fetching assignments:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ assignments })
   } catch (error: any) {
+    console.error('Error in GET /api/admin/assignments:', error)
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
     }
@@ -65,7 +67,7 @@ export async function POST(request: Request) {
     }
     console.log('Insert data:', insertData)
 
-    const { data: assignment, error } = await supabase
+    const { data: assignment, error } = await supabaseAdmin
       .from('assignments')
       .insert(insertData)
       .select()

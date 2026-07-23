@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
@@ -14,18 +14,20 @@ export async function GET(
     await requireAdmin()
     const { id } = await params
 
-    const { data: assignment, error } = await supabase
+    const { data: assignment, error } = await supabaseAdmin
       .from('assignments')
       .select('*, cohort:cohorts(id, name, slug)')
       .eq('id', id)
       .single()
 
     if (error) {
+      console.error('Error fetching assignment:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ assignment })
   } catch (error: any) {
+    console.error('Error in GET /api/admin/assignments/[id]:', error)
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
     }
@@ -43,18 +45,18 @@ export async function PUT(
     const { id } = await params
 
     const body = await request.json()
-    const { 
-      cohort_id, 
-      week_number, 
-      title, 
-      description, 
-      instructions, 
-      due_date, 
+    const {
+      cohort_id,
+      week_number,
+      title,
+      description,
+      instructions,
+      due_date,
       max_score,
-      is_required 
+      is_required
     } = body
 
-    const { data: assignment, error } = await supabase
+    const { data: assignment, error } = await supabaseAdmin
       .from('assignments')
       .update({
         cohort_id,
@@ -72,11 +74,13 @@ export async function PUT(
       .single()
 
     if (error) {
+      console.error('Error updating assignment:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ assignment })
   } catch (error: any) {
+    console.error('Error in PUT /api/admin/assignments/[id]:', error)
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
     }
@@ -93,17 +97,19 @@ export async function DELETE(
     await requireAdmin()
     const { id } = await params
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('assignments')
       .delete()
       .eq('id', id)
 
     if (error) {
+      console.error('Error deleting assignment:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
+    console.error('Error in DELETE /api/admin/assignments/[id]:', error)
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
     }
