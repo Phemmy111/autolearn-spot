@@ -42,11 +42,15 @@ export default function AssignmentSubmissionsPage({ params }: { params: { id: st
 
   const fetchSubmissions = async () => {
     try {
+      console.log('Fetching submissions for assignment:', params.id);
       const res = await fetch(`/api/admin/assignments/${params.id}/submissions`);
-      if (!res.ok) throw new Error('Failed to fetch submissions');
+      console.log('Response status:', res.status);
       const data = await res.json();
+      console.log('Response data:', data);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch submissions');
       setSubmissions(data.submissions || []);
     } catch (err: any) {
+      console.error('Error fetching submissions:', err);
       setError(err.message);
     } finally {
       setLoading(false);
