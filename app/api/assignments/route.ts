@@ -21,8 +21,11 @@ export async function GET() {
       .single()
 
     if (cohortError || !cohort) {
+      console.error('No active cohort found:', cohortError)
       return NextResponse.json({ error: 'No active cohort found' }, { status: 404 })
     }
+
+    console.log('Active cohort:', cohort.id)
 
     // Get assignments for current cohort with user's submissions
     const { data: assignments, error } = await supabase
@@ -31,6 +34,7 @@ export async function GET() {
         *,
         submissions (
           id,
+          user_id,
           live_url,
           screenshot_url,
           notes,
@@ -46,14 +50,21 @@ export async function GET() {
       .order('order_index', { ascending: true })
 
     if (error) {
+      console.error('Error fetching assignments:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    console.log('Fetched assignments:', assignments?.length)
+
     // Filter submissions to only show current user's
-    const assignmentsWithUserSubmissions = assignments?.map(assignment => ({
-      ...assignment,
-      submissions: assignment.submissions?.filter((s: any) => s.user_id === userId) || []
-    })) || []
+    const assignmentsWithUserSubmissions = assignments?.map(assignment => {
+      const userSubmissions = assignment.submissions?.filter((s: any) => s.user_id === userId) || []
+      console.log(`Assignment ${assignment.id}: ${userSubmissions.length} user submissions`)
+      return {
+        ...assignment,
+        submissions: userSubmissions
+      }
+    }) || []
 
     return NextResponse.json({ assignments: assignmentsWithUserSubmissions })
   } catch (error: any) {
