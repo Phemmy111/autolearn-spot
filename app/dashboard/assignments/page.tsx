@@ -47,11 +47,15 @@ export default function AssignmentsPage() {
 
   const fetchAssignments = async () => {
     try {
+      console.log('Fetching assignments...');
       const res = await fetch('/api/assignments');
+      console.log('Response status:', res.status);
       if (!res.ok) throw new Error('Failed to fetch assignments');
       const data = await res.json();
+      console.log('Assignments data:', data);
       setAssignments(data.assignments || []);
     } catch (err: any) {
+      console.error('Error fetching assignments:', err);
       setError(err.message);
     } finally {
       setLoading(false);
