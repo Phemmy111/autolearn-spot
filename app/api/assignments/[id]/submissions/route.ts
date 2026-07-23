@@ -20,11 +20,14 @@ export async function POST(
 
     const { id: assignmentId } = await params
     const body = await request.json()
-    const { submission_url, notes } = body
+    const { submission_url, notes, screenshot_url } = body
 
-    // Validate required fields
-    if (!submission_url) {
-      return NextResponse.json({ error: 'submission_url is required' }, { status: 400 })
+    // At least one of URL, screenshot, or notes must be provided
+    if (!submission_url && !screenshot_url && !notes) {
+      return NextResponse.json(
+        { error: 'Please provide a URL, screenshot, or notes' },
+        { status: 400 }
+      )
     }
 
     // Check if assignment exists
@@ -60,7 +63,8 @@ export async function POST(
       const { data: updated, error } = await supabase
         .from('submissions')
         .update({
-          live_url: submission_url,
+          live_url: submission_url || existingSubmission.live_url,
+          screenshot_url: screenshot_url || existingSubmission.screenshot_url,
           notes,
           updated_at: new Date().toISOString(),
         })
@@ -80,8 +84,8 @@ export async function POST(
         .insert({
           assignment_id: assignmentId,
           user_id: userId,
-          screenshot_url: null, // Not used in Phase 3
-          live_url: submission_url,
+          screenshot_url: screenshot_url || null,
+          live_url: submission_url || null,
           notes,
           status: 'submitted',
         })

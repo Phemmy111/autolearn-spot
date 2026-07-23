@@ -1,13 +1,14 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ExternalLink, CheckCircle, XCircle, AlertCircle, Image as ImageIcon, ZoomIn } from 'lucide-react';
 
 interface Submission {
   id: string;
   assignment_id: string;
   user_id: string;
   live_url: string;
+  screenshot_url: string | null;
   notes: string | null;
   status: 'submitted' | 'approved' | 'needs_revision';
   ai_score: number | null;
@@ -33,6 +34,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: { id: st
     status: 'approved' as 'approved' | 'needs_revision',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [imageModal, setImageModal] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSubmissions();
@@ -165,6 +167,25 @@ export default function AssignmentSubmissionsPage({ params }: { params: { id: st
                     <div className="mb-4 font-mono text-sm text-[#b9cacb]">
                       <span>User ID: {submission.user_id}</span>
                     </div>
+                    {submission.screenshot_url && (
+                      <div className="mb-4">
+                        <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Screenshot:</p>
+                        <div className="relative inline-block">
+                          <img
+                            src={submission.screenshot_url}
+                            alt="Submission screenshot"
+                            className="max-h-32 rounded border border-[#3b494b] cursor-pointer hover:border-[#00f0ff] transition-colors"
+                            onClick={() => setImageModal(submission.screenshot_url)}
+                          />
+                          <button
+                            onClick={() => setImageModal(submission.screenshot_url)}
+                            className="absolute bottom-2 right-2 bg-[#0c0e12] border border-[#3b494b] p-1 rounded hover:border-[#00f0ff]"
+                          >
+                            <ZoomIn className="h-4 w-4 text-[#b9cacb]" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     {submission.notes && (
                       <div className="mb-4 border-t border-[#3b494b] pt-4">
                         <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Student Notes:</p>
@@ -290,6 +311,28 @@ export default function AssignmentSubmissionsPage({ params }: { params: { id: st
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Image Modal */}
+      {imageModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setImageModal(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]">
+            <img
+              src={imageModal}
+              alt="Full size screenshot"
+              className="max-h-[90vh] max-w-full rounded"
+            />
+            <button
+              onClick={() => setImageModal(null)}
+              className="absolute top-4 right-4 bg-[#ff6b6b] text-white rounded-full p-2 hover:bg-[#ff4444]"
+            >
+              <XCircle className="h-6 w-6" />
+            </button>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, ExternalLink, Edit, CheckCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, ExternalLink, Edit, CheckCircle, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface Assignment {
   id: string;
@@ -18,6 +18,7 @@ interface Assignment {
 interface Submission {
   id: string;
   live_url: string;
+  screenshot_url: string | null;
   notes: string | null;
   status: 'submitted' | 'approved' | 'needs_revision';
   ai_score: number | null;
@@ -33,6 +34,9 @@ export default function AssignmentsPage() {
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [submissionUrl, setSubmissionUrl] = useState('');
   const [notes, setNotes] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -54,16 +58,77 @@ export default function AssignmentsPage() {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Only PNG, JPG, JPEG, and WEBP images are allowed');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('File size must be less than 5MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    setFilePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+  };
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('assignmentId', selectedAssignment!.id);
+
+    const res = await fetch('/api/upload/assignment-screenshot', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error('Failed to upload file');
+
+    const data = await res.json();
+    return data.url;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAssignment || !submissionUrl) return;
+    if (!selectedAssignment) return;
+
+    // At least one of URL, file, or notes must be provided
+    if (!submissionUrl && !selectedFile && !notes.trim()) {
+      setError('Please provide a URL, upload a screenshot, or add notes');
+      return;
+    }
 
     setSubmitting(true);
     try {
+      let screenshotUrl: string | null = null;
+
+      // Upload file if selected
+      if (selectedFile) {
+        setUploading(true);
+        screenshotUrl = await uploadFile(selectedFile);
+        setUploading(false);
+      }
+
       const res = await fetch(`/api/assignments/${selectedAssignment.id}/submissions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ submission_url: submissionUrl, notes }),
+        body: JSON.stringify({
+          submission_url: submissionUrl || null,
+          notes,
+          screenshot_url: screenshotUrl,
+        }),
       });
 
       if (!res.ok) throw new Error('Failed to submit assignment');
@@ -75,11 +140,14 @@ export default function AssignmentsPage() {
       setSelectedAssignment(null);
       setSubmissionUrl('');
       setNotes('');
+      setSelectedFile(null);
+      setFilePreview(null);
       fetchAssignments();
     } catch (err: any) {
       setError(err.message);
     } finally {
       setSubmitting(false);
+      setUploading(false);
     }
   };
 
@@ -204,6 +272,8 @@ export default function AssignmentsPage() {
                                 setSelectedAssignment(assignment);
                                 setSubmissionUrl(submission.live_url);
                                 setNotes(submission.notes || '');
+                                setSelectedFile(null);
+                                setFilePreview(null);
                               }}
                               className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
                             >
@@ -242,11 +312,25 @@ export default function AssignmentsPage() {
 
       {/* Submission Modal */}
       {selectedAssignment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-xl border border-[#1f2229] bg-[#0c0e12] p-8 shadow-2xl">
-            <h2 className="mb-4 font-heading text-2xl font-bold text-white">
-              Submit Assignment
-            </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-xl font-bold text-white">
+                Submit Assignment
+              </h2>
+              <button
+                onClick={() => {
+                  setSelectedAssignment(null);
+                  setSubmissionUrl('');
+                  setNotes('');
+                  setSelectedFile(null);
+                  setFilePreview(null);
+                }}
+                className="text-[#b9cacb] hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
             <p className="mb-6 font-mono text-sm text-[#b9cacb]">
               {selectedAssignment.title}
             </p>
@@ -254,14 +338,13 @@ export default function AssignmentsPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
-                  Submission URL *
+                  Submission URL
                 </label>
                 <input
                   type="url"
                   value={submissionUrl}
                   onChange={(e) => setSubmissionUrl(e.target.value)}
                   placeholder="https://github.com/..."
-                  required
                   className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
                 />
                 <p className="mt-2 font-mono text-xs text-[#b9cacb]">
@@ -271,7 +354,53 @@ export default function AssignmentsPage() {
 
               <div>
                 <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
-                  Notes (Optional)
+                  Screenshot
+                </label>
+                <div className="border-2 border-dashed border-[#3b494b] bg-[#1a1d24] p-4 text-center">
+                  {filePreview ? (
+                    <div className="relative">
+                      <img
+                        src={filePreview}
+                        alt="Preview"
+                        className="max-h-48 mx-auto rounded"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveFile}
+                        className="absolute top-2 right-2 bg-[#ff6b6b] text-white rounded-full p-1 hover:bg-[#ff4444]"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="file"
+                        id="screenshot"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="screenshot"
+                        className="flex flex-col items-center gap-2 cursor-pointer"
+                      >
+                        <Upload className="h-8 w-8 text-[#b9cacb]" />
+                        <span className="font-mono text-xs text-[#b9cacb]">
+                          Click to upload screenshot
+                        </span>
+                        <span className="font-mono text-xs text-[#6b7b7c]">
+                          PNG, JPG, JPEG, WEBP (max 5MB)
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                  Notes
                 </label>
                 <textarea
                   value={notes}
@@ -282,24 +411,26 @@ export default function AssignmentsPage() {
                 />
               </div>
 
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-4 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedAssignment(null);
                     setSubmissionUrl('');
                     setNotes('');
+                    setSelectedFile(null);
+                    setFilePreview(null);
                   }}
-                  className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                  className="font-mono text-sm text-[#b9cacb] hover:text-white px-4 py-2"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={submitting || uploading}
+                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {submitting ? 'Submitting...' : 'Submit'}
+                  {uploading ? 'Uploading...' : submitting ? 'Submitting...' : 'Submit'}
                 </button>
               </div>
             </form>
