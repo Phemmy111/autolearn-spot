@@ -32,6 +32,7 @@ export async function GET() {
         submissions (
           id,
           live_url,
+          screenshot_url,
           notes,
           status,
           ai_score,
