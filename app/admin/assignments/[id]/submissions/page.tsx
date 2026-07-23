@@ -23,7 +23,7 @@ interface Submission {
   };
 }
 
-export default function AssignmentSubmissionsPage({ params }: { params: { id: string } }) {
+export default function AssignmentSubmissionsPage({ params }: { params: Promise<{ id: string }> }) {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,15 +35,21 @@ export default function AssignmentSubmissionsPage({ params }: { params: { id: st
   });
   const [submitting, setSubmitting] = useState(false);
   const [imageModal, setImageModal] = useState<string | null>(null);
+  const [assignmentId, setAssignmentId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSubmissions();
-  }, [params.id]);
+    const init = async () => {
+      const resolvedParams = await params;
+      setAssignmentId(resolvedParams.id);
+      fetchSubmissions(resolvedParams.id);
+    };
+    init();
+  }, []);
 
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = async (id: string) => {
     try {
-      console.log('Fetching submissions for assignment:', params.id);
-      const res = await fetch(`/api/admin/assignments/${params.id}/submissions`);
+      console.log('Fetching submissions for assignment:', id);
+      const res = await fetch(`/api/admin/assignments/${id}/submissions`);
       console.log('Response status:', res.status);
       const data = await res.json();
       console.log('Response data:', data);
