@@ -8,6 +8,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: any) 
   const [statusFilter, setStatusFilter] = useState('all');
   const [cohortFilter, setCohortFilter] = useState('all');
   const [isResyncing, setIsResyncing] = useState<string | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
   const filtered = initialEnrollments.filter((en: any) => {
     const matchesSearch = en.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -36,6 +37,27 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: any) 
       alert('Network error');
     } finally {
       setIsResyncing(null);
+    }
+  };
+
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    setIsUpdatingStatus(id);
+    try {
+      const res = await fetch(`/api/admin/enrollments/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Status update failed. Check console.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error');
+    } finally {
+      setIsUpdatingStatus(null);
     }
   };
 
@@ -121,26 +143,50 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: any) 
                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] uppercase font-bold ${
                     en.status === 'active' ? 'bg-[#00f0ff]/10 text-[#00f0ff]' :
                     en.status === 'pending' ? 'bg-yellow-400/10 text-yellow-400' :
+                    en.status === 'inactive' ? 'bg-gray-400/10 text-gray-400' :
                     'bg-red-400/10 text-red-400'
                   }`}>
                     {en.status === 'active' && <CheckCircle2 className="h-3 w-3" />}
                     {en.status === 'pending' && <Loader2 className="h-3 w-3" />}
+                    {en.status === 'inactive' && <XCircle className="h-3 w-3" />}
                     {en.status === 'refunded' && <XCircle className="h-3 w-3" />}
                     {en.status}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  {en.payment_ref && (
-                    <button 
-                      onClick={() => handleResync(en.payment_ref)}
-                      disabled={isResyncing === en.payment_ref}
-                      className="inline-flex items-center gap-1 border border-[#3b494b] px-2 py-1 text-xs text-[#b9cacb] hover:text-white hover:border-white transition-colors disabled:opacity-50"
-                      title="Re-fetch from Paystack"
-                    >
-                      {isResyncing === en.payment_ref ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-                      Resync
-                    </button>
-                  )}
+                  <div className="flex items-center justify-end gap-2">
+                    {en.payment_ref && (
+                      <button 
+                        onClick={() => handleResync(en.payment_ref)}
+                        disabled={isResyncing === en.payment_ref}
+                        className="inline-flex items-center gap-1 border border-[#3b494b] px-2 py-1 text-xs text-[#b9cacb] hover:text-white hover:border-white transition-colors disabled:opacity-50"
+                        title="Re-fetch from Paystack"
+                      >
+                        {isResyncing === en.payment_ref ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                        Resync
+                      </button>
+                    )}
+                    
+                    {en.status === 'active' ? (
+                      <button 
+                        onClick={() => handleUpdateStatus(en.id, 'inactive')}
+                        disabled={isUpdatingStatus === en.id}
+                        className="inline-flex items-center gap-1 border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-400 hover:text-white hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                      >
+                        {isUpdatingStatus === en.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
+                        Deactivate
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleUpdateStatus(en.id, 'active')}
+                        disabled={isUpdatingStatus === en.id}
+                        className="inline-flex items-center gap-1 border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-400 hover:text-white hover:bg-emerald-500/30 transition-colors disabled:opacity-50"
+                      >
+                        {isUpdatingStatus === en.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+                        Reactivate
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

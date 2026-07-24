@@ -11,6 +11,11 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Authenticated users can upload to assignment-submissions" ON storage.objects;
+DROP POLICY IF EXISTS "Public can read assignment-submissions" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated users can delete from assignment-submissions" ON storage.objects;
+
 -- Create policy to allow authenticated users to upload
 -- Authorization is handled at API route level, so we allow uploads from authenticated users
 CREATE POLICY "Authenticated users can upload to assignment-submissions"

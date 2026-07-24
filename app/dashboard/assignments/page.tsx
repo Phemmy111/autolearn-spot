@@ -261,20 +261,33 @@ export default function AssignmentsPage() {
                     <div className="flex flex-col gap-2 sm:min-w-[200px]">
                       {submission ? (
                         <>
-                          <a
-                            href={submission.live_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                            View Submission
-                          </a>
+                          {submission.live_url && (
+                            <a
+                              href={submission.live_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              View Live URL
+                            </a>
+                          )}
+                          {submission.screenshot_url && (
+                            <a
+                              href={submission.screenshot_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              View Screenshot
+                            </a>
+                          )}
                           {canEdit && (
                             <button
                               onClick={() => {
                                 setSelectedAssignment(assignment);
-                                setSubmissionUrl(submission.live_url);
+                                setSubmissionUrl(submission.live_url || '');
                                 setNotes(submission.notes || '');
                                 setSelectedFile(null);
                                 setFilePreview(null);

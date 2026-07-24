@@ -202,6 +202,15 @@ export default async function AdminPage() {
             </Link>
             <ResetDataButton />
             <CertificateToggle />
+            {isSuper && (
+              <Link 
+                href="/admin/enrollments/manual"
+                className="flex items-center gap-2 border border-[#00f0ff]/50 bg-[#00f0ff]/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#00f0ff] hover:bg-[#00f0ff]/20 transition-colors rounded"
+              >
+                <Users className="h-4 w-4" />
+                Manual Enrollment
+              </Link>
+            )}
           </div>
         </div>
       </div>
