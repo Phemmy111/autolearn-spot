@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
+import { auth } from '@clerk/nextjs/server'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -34,13 +35,15 @@ export async function PUT(
     }
 
     // Update submission with review
+    const { userId } = await auth()
+    
     const { data: submission, error } = await supabaseAdmin
       .from('submissions')
       .update({
         ai_score: score,
         ai_feedback: feedback,
         status,
-        reviewed_by: (await requireAdmin()).userId,
+        reviewed_by: userId,
         reviewed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
