@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
@@ -23,7 +23,7 @@ export async function PUT(
     }
 
     // Get submission to get user_id for notification
-    const { data: existingSubmission } = await supabase
+    const { data: existingSubmission } = await supabaseAdmin
       .from('submissions')
       .select('user_id, assignment_id')
       .eq('id', id)
@@ -34,7 +34,7 @@ export async function PUT(
     }
 
     // Update submission with review
-    const { data: submission, error } = await supabase
+    const { data: submission, error } = await supabaseAdmin
       .from('submissions')
       .update({
         ai_score: score,

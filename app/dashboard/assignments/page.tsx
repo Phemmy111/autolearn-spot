@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, ExternalLink, Edit, CheckCircle, AlertCircle, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Calendar, ExternalLink, Edit, CheckCircle, Upload, X, Eye } from 'lucide-react';
 
 interface Assignment {
   id: string;
@@ -32,6 +32,7 @@ export default function AssignmentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+  const [viewingSubmission, setViewingSubmission] = useState<{ assignment: Assignment; submission: Submission } | null>(null);
   const [submissionUrl, setSubmissionUrl] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -47,15 +48,11 @@ export default function AssignmentsPage() {
 
   const fetchAssignments = async () => {
     try {
-      console.log('Fetching assignments...');
       const res = await fetch('/api/assignments');
-      console.log('Response status:', res.status);
       if (!res.ok) throw new Error('Failed to fetch assignments');
       const data = await res.json();
-      console.log('Assignments data:', data);
       setAssignments(data.assignments || []);
     } catch (err: any) {
-      console.error('Error fetching assignments:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -66,14 +63,12 @@ export default function AssignmentsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       setError('Only PNG, JPG, JPEG, and WEBP images are allowed');
       return;
     }
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('File size must be less than 5MB');
       return;
@@ -108,7 +103,6 @@ export default function AssignmentsPage() {
     e.preventDefault();
     if (!selectedAssignment) return;
 
-    // At least one of URL, file, or notes must be provided
     if (!submissionUrl && !selectedFile && !notes.trim()) {
       setError('Please provide a URL, upload a screenshot, or add notes');
       return;
@@ -118,7 +112,6 @@ export default function AssignmentsPage() {
     try {
       let screenshotUrl: string | null = null;
 
-      // Upload file if selected
       if (selectedFile) {
         setUploading(true);
         screenshotUrl = await uploadFile(selectedFile);
@@ -179,6 +172,10 @@ export default function AssignmentsPage() {
     }
   };
 
+  const openViewModal = (assignment: Assignment, submission: Submission) => {
+    setViewingSubmission({ assignment, submission });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#111317] text-[#e2e8e2] flex items-center justify-center">
@@ -219,7 +216,7 @@ export default function AssignmentsPage() {
           <div className="space-y-4">
             {assignments.map((assignment) => {
               const submission = assignment.submissions[0];
-              const canEdit = !submission || submission.status === 'submitted';
+              const canEdit = submission && submission.status === 'submitted';
 
               return (
                 <div
@@ -261,28 +258,14 @@ export default function AssignmentsPage() {
                     <div className="flex flex-col gap-2 sm:min-w-[200px]">
                       {submission ? (
                         <>
-                          {submission.live_url && (
-                            <a
-                              href={submission.live_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                              View Live URL
-                            </a>
-                          )}
-                          {submission.screenshot_url && (
-                            <a
-                              href={submission.screenshot_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                              View Screenshot
-                            </a>
-                          )}
+                          {/* View Submission button */}
+                          <button
+                            onClick={() => openViewModal(assignment, submission)}
+                            className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff]/10 px-4 py-2 font-mono text-xs uppercase text-[#00f0ff] transition hover:bg-[#00f0ff]/20 hover:border-[#00f0ff]"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View Submission
+                          </button>
                           {canEdit && (
                             <button
                               onClick={() => {
@@ -295,18 +278,12 @@ export default function AssignmentsPage() {
                               className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
                             >
                               <Edit className="h-4 w-4" />
-                              Edit
+                              Edit Submission
                             </button>
                           )}
                           {submission.ai_score !== null && (
                             <div className="text-center font-mono text-xs text-[#b9cacb]">
                               Score: <span className="text-[#00f0ff]">{submission.ai_score}</span>/{assignment.max_score}
-                            </div>
-                          )}
-                          {submission.ai_feedback && (
-                            <div className="border-t border-[#3b494b] pt-2 font-mono text-xs text-[#b9cacb]">
-                              <span className="text-[#00f0ff]">Feedback:</span>
-                              <p className="mt-1">{submission.ai_feedback}</p>
                             </div>
                           )}
                         </>
@@ -326,6 +303,134 @@ export default function AssignmentsPage() {
           </div>
         )}
       </div>
+
+      {/* View Submission Modal */}
+      {viewingSubmission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-xl font-bold text-white">
+                Submission Details
+              </h2>
+              <button
+                onClick={() => setViewingSubmission(null)}
+                className="text-[#b9cacb] hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Assignment title */}
+            <p className="mb-6 font-mono text-sm text-[#00f0ff]">
+              {viewingSubmission.assignment.title}
+            </p>
+
+            {/* Status */}
+            <div className="mb-4">
+              <span className="font-mono text-xs uppercase text-[#b9cacb] mr-2">Status:</span>
+              {getStatusBadge(viewingSubmission.submission.status)}
+            </div>
+
+            {/* Screenshot preview */}
+            {viewingSubmission.submission.screenshot_url && (
+              <div className="mb-4">
+                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Screenshot:</p>
+                <a
+                  href={viewingSubmission.submission.screenshot_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block group"
+                >
+                  <img
+                    src={viewingSubmission.submission.screenshot_url}
+                    alt="Submission screenshot"
+                    className="max-h-48 rounded border border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
+                  />
+                  <span className="block mt-1 font-mono text-xs text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors">
+                    Click to open full image ↗
+                  </span>
+                </a>
+              </div>
+            )}
+
+            {/* Live URL */}
+            {viewingSubmission.submission.live_url && (
+              <div className="mb-4">
+                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Submitted URL:</p>
+                <a
+                  href={viewingSubmission.submission.live_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 font-mono text-sm text-[#00f0ff] hover:text-white transition-colors break-all"
+                >
+                  <ExternalLink className="h-4 w-4 flex-shrink-0" />
+                  {viewingSubmission.submission.live_url}
+                </a>
+              </div>
+            )}
+
+            {/* Notes */}
+            {viewingSubmission.submission.notes && (
+              <div className="mb-4 border-t border-[#3b494b] pt-4">
+                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Notes:</p>
+                <p className="font-mono text-sm text-[#e2e8e2] whitespace-pre-line">
+                  {viewingSubmission.submission.notes}
+                </p>
+              </div>
+            )}
+
+            {/* Submission date */}
+            <div className="mb-4 border-t border-[#3b494b] pt-4">
+              <p className="font-mono text-xs uppercase text-[#b9cacb] mb-1">Submitted:</p>
+              <p className="font-mono text-sm text-[#e2e8e2]">
+                {formatDate(viewingSubmission.submission.created_at)}
+              </p>
+            </div>
+
+            {/* Score */}
+            {viewingSubmission.submission.ai_score !== null && (
+              <div className="mb-4">
+                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-1">Score:</p>
+                <p className="font-mono text-lg text-[#00f0ff] font-bold">
+                  {viewingSubmission.submission.ai_score}
+                  <span className="text-sm text-[#b9cacb] font-normal">
+                    /{viewingSubmission.assignment.max_score}
+                  </span>
+                </p>
+              </div>
+            )}
+
+            {/* Feedback */}
+            {viewingSubmission.submission.ai_feedback && (
+              <div className="mb-4 border-t border-[#3b494b] pt-4">
+                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Feedback:</p>
+                <p className="font-mono text-sm text-[#e2e8e2] whitespace-pre-line">
+                  {viewingSubmission.submission.ai_feedback}
+                </p>
+              </div>
+            )}
+
+            {/* No submission data message */}
+            {!viewingSubmission.submission.screenshot_url &&
+             !viewingSubmission.submission.live_url &&
+             !viewingSubmission.submission.notes && (
+              <div className="mb-4 border border-[#3b494b] bg-[#1a1d24] p-4 text-center">
+                <p className="font-mono text-sm text-[#b9cacb]">No submission data available.</p>
+              </div>
+            )}
+
+            {/* Close button */}
+            <div className="flex justify-end pt-4 border-t border-[#3b494b]">
+              <button
+                onClick={() => setViewingSubmission(null)}
+                className="font-mono text-sm text-[#b9cacb] hover:text-white px-4 py-2 border border-[#3b494b] hover:border-[#00f0ff] transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Submission Modal */}
       {selectedAssignment && (

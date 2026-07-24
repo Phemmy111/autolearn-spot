@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Loader2, CheckCircle2, AlertCircle, UserPlus } from 'lucide-react'
 
 export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
   const router = useRouter()

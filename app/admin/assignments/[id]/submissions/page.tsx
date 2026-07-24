@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, CheckCircle, XCircle, AlertCircle, Image as ImageIcon, ZoomIn } from 'lucide-react';
+import { ArrowLeft, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface Submission {
   id: string;
@@ -34,7 +34,6 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
     status: 'approved' as 'approved' | 'needs_revision',
   });
   const [submitting, setSubmitting] = useState(false);
-  const [imageModal, setImageModal] = useState<string | null>(null);
   const [assignmentId, setAssignmentId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,7 +78,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
 
       setReviewingSubmission(null);
       setReviewData({ score: 0, feedback: '', status: 'approved' });
-      fetchSubmissions();
+      if (assignmentId) fetchSubmissions(assignmentId);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -180,20 +179,19 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                     {submission.screenshot_url && (
                       <div className="mb-4">
                         <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Screenshot:</p>
-                        <div className="relative inline-block">
+                        <a
+                          href={submission.screenshot_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block group"
+                        >
                           <img
                             src={submission.screenshot_url}
                             alt="Submission screenshot"
-                            className="max-h-32 rounded border border-[#3b494b] cursor-pointer hover:border-[#00f0ff] transition-colors"
-                            onClick={() => setImageModal(submission.screenshot_url)}
+                            className="max-h-32 rounded border border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
                           />
-                          <button
-                            onClick={() => setImageModal(submission.screenshot_url)}
-                            className="absolute bottom-2 right-2 bg-[#0c0e12] border border-[#3b494b] p-1 rounded hover:border-[#00f0ff]"
-                          >
-                            <ZoomIn className="h-4 w-4 text-[#b9cacb]" />
-                          </button>
-                        </div>
+                          <span className="block mt-1 font-mono text-xs text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors">Click to open full image ↗</span>
+                        </a>
                       </div>
                     )}
                     {submission.notes && (
@@ -221,6 +219,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                   </div>
 
                   <div className="flex gap-2 sm:min-w-[200px]">
+                    {submission.live_url && (
                     <a
                       href={submission.live_url}
                       target="_blank"
@@ -230,6 +229,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                       <ExternalLink className="h-4 w-4" />
                       Open Link
                     </a>
+                    )}
                     <button
                       onClick={() => openReviewModal(submission)}
                       className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
@@ -325,27 +325,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
         </div>
       )}
 
-      {/* Image Modal */}
-      {imageModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
-          onClick={() => setImageModal(null)}
-        >
-          <div className="relative max-w-4xl max-h-[90vh]">
-            <img
-              src={imageModal}
-              alt="Full size screenshot"
-              className="max-h-[90vh] max-w-full rounded"
-            />
-            <button
-              onClick={() => setImageModal(null)}
-              className="absolute top-4 right-4 bg-[#ff6b6b] text-white rounded-full p-2 hover:bg-[#ff4444]"
-            >
-              <XCircle className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-      )}
+
     </main>
   );
 }
