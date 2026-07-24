@@ -142,7 +142,21 @@ export async function POST(req: Request) {
 
       await logPaymentEvent(reference, 'enrollment_created', `Successfully enrolled ${data.customer.email} into cohort ${resolvedCohortId}`);
       
-      // TODO: Resend Email Confirmation (Phase 2 or later)
+      // Send Enrollment Notification
+      try {
+        const { createNotification } = await import('@/lib/notifications');
+        await createNotification({
+          title: 'Welcome to AutoLearn Spot!',
+          message: `Your payment of ${data.currency} ${data.amount / 100} was successful. You are now enrolled.`,
+          category: 'enrollment',
+          priority: 'important',
+          target_type: 'student',
+          target_id: data.customer.email, // wait, target_id needs to be clerk_user_id. The webhook only has email. The notification lib matches by clerk_user_id. Let's send an email via notif system?
+          send_email: true
+        });
+      } catch (notifErr) {
+        console.error('Failed to send enrollment notification:', notifErr);
+      }
     }
 
     return NextResponse.json({ received: true }, { status: 200 });

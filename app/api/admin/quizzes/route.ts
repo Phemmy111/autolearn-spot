@@ -64,6 +64,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Send Notification
+    try {
+      const { createNotification } = await import('@/lib/notifications');
+      await createNotification({
+        title: 'New Quiz Available',
+        message: `Week ${week_number} quiz "${title}" is now available.`,
+        category: 'quiz',
+        priority: 'normal',
+        target_type: 'all', // Or cohort if implemented later
+        action_url: '/dashboard/quiz',
+        action_label: 'Take Quiz',
+        send_email: true
+      });
+    } catch (notifErr) {
+      console.error('Failed to send quiz notification:', notifErr);
+    }
+
     console.log('Quiz created successfully:', quiz)
     return NextResponse.json({ quiz }, { status: 201 })
   } catch (error: any) {

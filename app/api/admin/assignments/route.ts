@@ -78,6 +78,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message, details: error }, { status: 500 })
     }
 
+    // Send Notification to Cohort
+    try {
+      const { createNotification } = await import('@/lib/notifications');
+      await createNotification({
+        title: 'New Assignment Available',
+        message: `Week ${week_number} assignment "${title}" is now available.`,
+        category: 'assignment',
+        priority: 'normal',
+        target_type: 'cohort',
+        target_id: cohort_id,
+        action_url: '/dashboard/assignments',
+        action_label: 'View Assignment',
+        send_email: true
+      });
+    } catch (notifErr) {
+      console.error('Failed to send assignment notification:', notifErr);
+    }
+
     console.log('Assignment created successfully:', assignment)
     return NextResponse.json({ assignment }, { status: 201 })
   } catch (error: any) {

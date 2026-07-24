@@ -48,11 +48,32 @@ export async function PUT(
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
-      .select()
+      .select('*, assignment:assignments(title, week_number)')
       .single()
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Send Notification to Student
+    if (existingSubmission.user_id) {
+      try {
+        const { createNotification } = await import('@/lib/notifications');
+        const assignmentTitle = submission.assignment?.title || `Week ${submission.assignment?.week_number}`;
+        await createNotification({
+          title: 'Assignment Graded',
+          message: `Your assignment "${assignmentTitle}" has been reviewed. Score: ${score}`,
+          category: 'assignment_review',
+          priority: 'normal',
+          target_type: 'student',
+          target_id: existingSubmission.user_id,
+          action_url: '/dashboard/assignments',
+          action_label: 'View Feedback',
+          send_email: true
+        });
+      } catch (notifErr) {
+        console.error('Failed to send assignment review notification:', notifErr);
+      }
     }
 
     return NextResponse.json({ submission })

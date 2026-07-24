@@ -59,6 +59,35 @@ export function EnrollmentRequired() {
     { title: "Student Dashboard", icon: <LayoutDashboard className="h-5 w-5 text-[#00f0ff]" /> },
   ];
 
+  const faqs = [
+    {
+      question: 'Do I need coding experience?',
+      answer: 'No. AutoLearn Spot is 100% beginner-friendly. n8n is visual — no coding required. Many learners had zero technical background before joining.',
+    },
+    {
+      question: 'What if I miss a session?',
+      answer: 'All 12 sessions are recorded and available for lifetime access. You can catch up anytime, though live sessions offer real-time Q&A.',
+    },
+    {
+      question: 'Is the certificate recognized?',
+      answer: 'Yes. The certificate is issued by Moon Space Network, a trusted organization. You can display it on LinkedIn and professional profiles.',
+    },
+    {
+      question: 'What payment methods do you accept?',
+      answer: 'We use Paystack for secure payments — Visa, Mastercard, bank transfer, or USSD. All transactions are encrypted.',
+    },
+    {
+      question: 'Can I get a refund?',
+      answer: "We offer a full refund within the first 3 days if you're not satisfied. No questions asked.",
+    },
+    {
+      question: 'How long do I have access?',
+      answer: 'Lifetime. Once enrolled, you have access to all 12 recordings and any future updates to the curriculum.',
+    },
+  ];
+
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+
   return (
     <div className="flex min-h-screen flex-col items-center p-4 sm:p-6 lg:p-10 bg-[#111317]">
       {/* Hero Section */}
@@ -180,7 +209,7 @@ export function EnrollmentRequired() {
               </p>
               
               <a 
-                href="https://wa.me/2347069176378" 
+                href="https://wa.me/2348120934828" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-2 border border-[#25D366]/30 bg-[#25D366]/10 px-4 py-3 font-mono text-xs uppercase text-[#25D366] transition-all hover:bg-[#25D366] hover:text-[#25D366] hover:border-[#25D366] rounded mt-auto"
@@ -257,23 +286,39 @@ export function EnrollmentRequired() {
       <div className="w-full max-w-5xl mt-8">
         <div className="rounded-xl border border-[#3b494b] bg-[#1a1d24]/60 backdrop-blur-sm p-6 sm:p-8">
           <h3 className="font-heading text-2xl font-bold uppercase text-white mb-6 text-center">Need Help?</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="https://wa.me/2347069176378" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#111317] p-6 text-center transition-all hover:border-[#00f0ff]/50 hover:bg-[#1a1d24]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+            <a href="https://wa.me/2348120934828" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#111317] p-6 text-center transition-all hover:border-[#00f0ff]/50 hover:bg-[#1a1d24]">
               <MessageCircle className="h-6 w-6 text-[#00f0ff]" />
               <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">WhatsApp Support</span>
+              <span className="text-[10px] text-[#b9cacb]">+234 812 093 4828</span>
             </a>
-            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#111317] p-6 text-center transition-all hover:border-[#00f0ff]/50 hover:bg-[#1a1d24]">
+            <a href="mailto:autolearnspot@gmail.com" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#111317] p-6 text-center transition-all hover:border-[#00f0ff]/50 hover:bg-[#1a1d24]">
               <Mail className="h-6 w-6 text-[#00f0ff]" />
               <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">Email Support</span>
-            </div>
-            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#111317] p-6 text-center transition-all hover:border-[#00f0ff]/50 hover:bg-[#1a1d24]">
-              <BookOpen className="h-6 w-6 text-[#00f0ff]" />
-              <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">Frequently Asked Questions</span>
-            </div>
-            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#111317] p-6 text-center transition-all hover:border-[#00f0ff]/50 hover:bg-[#1a1d24]">
-              <Clock className="h-6 w-6 text-[#00f0ff]" />
-              <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">Support Hours</span>
-            </div>
+              <span className="text-[10px] text-[#b9cacb]">autolearnspot@gmail.com</span>
+            </a>
+          </div>
+
+          <h3 className="font-heading text-xl font-bold uppercase text-white mb-6 text-center">Frequently Asked Questions</h3>
+          <div className="space-y-4 max-w-3xl mx-auto">
+            {faqs.map((faq, index) => (
+              <div key={index} className="border border-[#3b494b]/50 bg-[#111317] rounded-lg overflow-hidden transition-colors hover:border-[#00f0ff]/50">
+                <button
+                  onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                  className="flex w-full items-center justify-between p-4 text-left font-mono text-sm font-semibold text-[#e2e8e2] transition-colors focus:outline-none"
+                >
+                  <span>{faq.question}</span>
+                  <span className="ml-4 flex-shrink-0 text-[#00f0ff]">
+                    {openFaqIndex === index ? '−' : '+'}
+                  </span>
+                </button>
+                {openFaqIndex === index && (
+                  <div className="border-t border-[#3b494b]/30 p-4 text-sm text-[#b9cacb] bg-[#0a0c10]">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>

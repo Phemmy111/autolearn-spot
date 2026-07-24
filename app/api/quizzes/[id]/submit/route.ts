@@ -234,8 +234,22 @@ export async function POST(
             }
           ]
         })
+
+        // Also create in-app notification
+        const { createNotification } = await import('@/lib/notifications');
+        await createNotification({
+          title: 'Certificate Earned!',
+          message: `You passed the quiz with ${percentage}%. Your certificate is ready!`,
+          category: 'certificate',
+          priority: 'important',
+          target_type: 'student',
+          target_id: userId,
+          action_url: '/dashboard/history',
+          action_label: 'View Certificate',
+          send_email: false // we already sent the email with PDF attached just above
+        });
       } catch (emailErr) {
-        console.error('Error sending certificate email:', emailErr)
+        console.error('Error sending certificate email or notification:', emailErr)
         // Don't fail the submission if email fails
       }
     }

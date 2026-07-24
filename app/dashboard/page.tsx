@@ -8,6 +8,7 @@ import { ProgressBar, MarkCompleteButton, CompletedBadge } from '@/components/pr
 import { AutolearnBot } from '@/components/autolearn-bot';
 import { DashboardWidgets } from '@/components/dashboard-widgets';
 import { Leaderboard } from '@/components/leaderboard';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export interface VideoCourse {
   id: string
@@ -78,6 +79,7 @@ export default function DashboardPage() {
           <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
             Admin
           </Link>
+          <NotificationBell />
           <SignOutButton redirectUrl="/">
             <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
               Sign Out

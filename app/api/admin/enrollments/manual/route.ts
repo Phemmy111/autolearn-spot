@@ -52,6 +52,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to create enrollment in database' }, { status: 500 })
     }
 
+    // Send Enrollment Notification
+    try {
+      const { createNotification } = await import('@/lib/notifications');
+      await createNotification({
+        title: 'Welcome to AutoLearn Spot!',
+        message: `You have been manually enrolled by an administrator.`,
+        category: 'enrollment',
+        priority: 'important',
+        target_type: 'student',
+        target_id: clerkUserId || email, // Pass clerkUserId if available, else email
+        send_email: true
+      });
+    } catch (notifErr) {
+      console.error('Failed to send manual enrollment notification:', notifErr);
+    }
+
     return NextResponse.json({ success: true, message: 'Enrollment created successfully' })
   } catch (error: any) {
     console.error('Manual Enrollment Error:', error)
