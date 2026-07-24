@@ -7,6 +7,8 @@ interface Submission {
   id: string;
   assignment_id: string;
   user_id: string;
+  student_name?: string | null;
+  student_email?: string | null;
   live_url: string;
   screenshot_url: string | null;
   notes: string | null;
@@ -173,8 +175,10 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                     <h2 className="mb-2 font-heading text-xl font-bold text-white">
                       {submission.assignment.title}
                     </h2>
-                    <div className="mb-4 font-mono text-sm text-[#b9cacb]">
-                      <span>User ID: {submission.user_id}</span>
+                    <div className="mb-4 font-mono text-sm text-[#b9cacb] space-y-1">
+                      {submission.student_name && <div><span>Name: {submission.student_name}</span></div>}
+                      {submission.student_email && <div><span>Email: {submission.student_email}</span></div>}
+                      <div className="text-xs text-[#6b7b7c]">ID: {submission.user_id}</div>
                     </div>
                     {submission.screenshot_url && (
                       <div className="mb-4">
