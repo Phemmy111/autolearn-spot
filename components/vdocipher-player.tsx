@@ -56,11 +56,14 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
       if (iframeRef.current && window.VdoPlayer) {
         player = window.VdoPlayer.getInstance(iframeRef.current)
         
-        timeUpdateHandler = () => {
-          if (!player.video.duration || !userId) return
+        timeUpdateHandler = (event: any) => {
+          if (!userId || !event) return
           
-          const currentTime = player.video.currentTime
-          const duration = player.video.duration
+          const currentTime = event.currentTime
+          const duration = event.duration
+          
+          if (typeof currentTime !== 'number' || typeof duration !== 'number' || duration === 0) return
+          
           const percent = currentTime / duration
           const watchPct = percent * 100
           
@@ -86,7 +89,7 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
           }
         }
         
-        player.video.addEventListener('timeupdate', timeUpdateHandler)
+        player.addEventListener('timeupdate', timeUpdateHandler)
       }
     }
 
@@ -101,8 +104,8 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
     }
 
     return () => {
-      if (player && player.video && timeUpdateHandler) {
-        player.video.removeEventListener('timeupdate', timeUpdateHandler)
+      if (player && timeUpdateHandler) {
+        player.removeEventListener('timeupdate', timeUpdateHandler)
       }
     }
   }, [otp, playbackInfo, videoId, userId])
