@@ -57,41 +57,48 @@ export default function DashboardPage() {
           <span className="text-[#00f0ff]">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </Link>
-        <div className="hidden items-center gap-6 md:flex">
-          <Link href="/dashboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-            Home
-          </Link>
-          <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-            Live Class
-          </Link>
-          <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-            Quiz
-          </Link>
-          <Link href="/dashboard/assignments" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-            Assignments
-          </Link>
-          <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-            Leaderboard
-          </Link>
-          <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-            History
-          </Link>
-          <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-            Admin
-          </Link>
+        <div className="flex items-center gap-4 md:gap-6">
+          <div className="hidden items-center gap-6 md:flex">
+            <Link href="/dashboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Home
+            </Link>
+            <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Live Class
+            </Link>
+            <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Quiz
+            </Link>
+            <Link href="/dashboard/assignments" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Assignments
+            </Link>
+            <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Leaderboard
+            </Link>
+            <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              History
+            </Link>
+            <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Admin
+            </Link>
+          </div>
+          
           <NotificationBell />
-          <SignOutButton redirectUrl="/">
-            <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
-              Sign Out
-            </button>
-          </SignOutButton>
+          
+          <div className="hidden md:block">
+            <SignOutButton redirectUrl="/">
+              <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
+                Sign Out
+              </button>
+            </SignOutButton>
+          </div>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-[#b9cacb] hover:text-white"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-[#b9cacb] hover:text-white"
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
       </nav>
 
       {/* Mobile Menu Sidebar */}
