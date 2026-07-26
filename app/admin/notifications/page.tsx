@@ -38,7 +38,7 @@ export default function AdminNotificationsPage() {
     target_id: '',
     action_url: '',
     action_label: '',
-    send_email: false
+    send_email: true
   })
   
   const [submitting, setSubmitting] = useState(false)
@@ -83,7 +83,7 @@ export default function AdminNotificationsPage() {
           target_id: '',
           action_url: '',
           action_label: '',
-          send_email: false
+          send_email: true
         })
         fetchNotifications()
       } else {
