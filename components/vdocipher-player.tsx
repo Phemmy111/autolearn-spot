@@ -56,13 +56,15 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
       if (iframeRef.current && window.VdoPlayer) {
         player = window.VdoPlayer.getInstance(iframeRef.current)
         
-        timeUpdateHandler = (event: any) => {
-          if (!userId || !event) return
+        let progressInterval: NodeJS.Timeout | null = null
+
+        const checkProgress = () => {
+          if (!userId || !player || !player.video) return
           
-          const currentTime = event.currentTime
-          const duration = event.duration
+          const currentTime = Number(player.video.currentTime)
+          const duration = Number(player.video.duration)
           
-          if (typeof currentTime !== 'number' || typeof duration !== 'number' || duration === 0) return
+          if (isNaN(currentTime) || isNaN(duration) || duration === 0) return
           
           const percent = currentTime / duration
           const watchPct = percent * 100
@@ -72,7 +74,6 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
             markVideoComplete(userId, lessonId)
           }
 
-          // Throttle updates: every 30 seconds or 5% progress
           if (currentTime - lastSavedTime >= 30 || watchPct - lastSavedPct >= 5) {
             lastSavedTime = currentTime
             lastSavedPct = watchPct
@@ -89,7 +90,13 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
           }
         }
         
-        player.addEventListener('timeupdate', timeUpdateHandler)
+        timeUpdateHandler = checkProgress
+        player.video.addEventListener('timeupdate', checkProgress)
+        // Polling fallback to guarantee completion triggers even if events fail across iframe
+        progressInterval = setInterval(checkProgress, 2000)
+        
+        // Attach interval to player for cleanup
+        player._progressInterval = progressInterval
       }
     }
 
@@ -104,8 +111,11 @@ export default function VdoCipherPlayer({ videoId, lessonId }: VdoCipherPlayerPr
     }
 
     return () => {
-      if (player && timeUpdateHandler) {
-        player.removeEventListener('timeupdate', timeUpdateHandler)
+      if (player && player.video && timeUpdateHandler) {
+        player.video.removeEventListener('timeupdate', timeUpdateHandler)
+      }
+      if (player && player._progressInterval) {
+        clearInterval(player._progressInterval)
       }
     }
   }, [otp, playbackInfo, videoId, userId])
