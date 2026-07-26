@@ -39,6 +39,9 @@ export async function markVideoComplete(userId: string, videoId: string, courseS
       const current = raw ? JSON.parse(raw) : []
       if (!current.includes(videoId)) {
         localStorage.setItem(storageKey, JSON.stringify([...current, videoId]))
+        // Dispatch events so the UI updates even on fallback
+        window.dispatchEvent(new Event('autolearn-progress-updated'))
+        window.dispatchEvent(new Event('progress-updated'))
       }
     }
   } catch (error) {

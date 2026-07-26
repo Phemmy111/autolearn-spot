@@ -121,6 +121,24 @@ export async function POST(request: Request) {
       } else {
         certificateRecord = newCert
         console.log('[cert/complete] Certificate created successfully:', newCert?.certificate_code)
+        
+        // Send Certificate Ready Notification
+        try {
+          const { createNotification } = await import('@/lib/notifications');
+          await createNotification({
+            title: 'Certificate Ready!',
+            message: 'Congratulations! You have completed the course and your certificate is now available for download.',
+            category: 'certificate',
+            priority: 'important',
+            target_type: 'student',
+            target_id: userId,
+            action_url: '/certificate',
+            action_label: 'Download Certificate',
+            send_email: true
+          });
+        } catch (notifError) {
+          console.error('[cert/complete] Failed to send certificate notification:', notifError);
+        }
       }
     }
 

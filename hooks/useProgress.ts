@@ -14,7 +14,8 @@ export function useProgress() {
     if (!userId) return
 
     try {
-      const res = await fetch('/api/progress')
+      // Add cache-busting timestamp to prevent browser from caching stale progress data
+      const res = await fetch(`/api/progress?_t=${Date.now()}`, { cache: 'no-store' })
       const data = await res.json()
 
       if (data.progress) {

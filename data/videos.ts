@@ -66,7 +66,60 @@ export const videos: VideoCourse[] = [
     duration: '35 mins',
     week: 2,
   },
-  // Add more videos for Week 3 and Week 4 here...
+  {
+    id: 'wk3-vid1',
+    title: 'Session 7: Week 3 Monday',
+    description: 'Week 3 Session 1',
+    vimeoVideoId: '1212926093',
+    availableAt: '2026-07-27T00:00:00Z',
+    duration: '23 mins',
+    week: 3,
+  },
+  {
+    id: 'wk3-vid2',
+    title: 'Session 8: Week 3 Wednesday',
+    description: 'Week 3 Session 2',
+    vimeoVideoId: '1212944798',
+    availableAt: '2026-07-29T00:00:00Z',
+    duration: '1hr 2mins',
+    week: 3,
+  },
+  {
+    id: 'wk3-vid3',
+    title: 'Session 9: Week 3 Friday',
+    description: 'Week 3 Session 3',
+    vimeoVideoId: '1213005975',
+    availableAt: '2026-07-31T00:00:00Z',
+    duration: 'TBD',
+    week: 3,
+  },
+  {
+    id: 'wk4-vid1',
+    title: 'Session 10: Week 4 Monday',
+    description: 'Week 4 Session 1',
+    vimeoVideoId: '1212965316',
+    availableAt: '2026-08-03T00:00:00Z',
+    duration: '25 mins',
+    week: 4,
+  },
+  {
+    id: 'wk4-vid2',
+    title: 'Session 11: Week 4 Wednesday',
+    description: 'Week 4 Session 2',
+    vimeoVideoId: '1212966091',
+    availableAt: '2026-08-05T00:00:00Z',
+    duration: '13 mins',
+    week: 4,
+  },
+  {
+    id: 'wk4-vid3',
+    title: 'Session 12: Week 4 Friday',
+    description: 'Week 4 Session 3',
+    vimeoVideoId: '1212966090',
+    availableAt: '2026-08-07T00:00:00Z',
+    duration: '2 mins',
+    week: 4,
+  }
 ]
 
 // Helper function to check if a video is available

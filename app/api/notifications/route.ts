@@ -32,8 +32,15 @@ export async function GET(req: Request) {
       query = query.in('status', ['unread', 'read'])
     }
 
-    // Sort by created_at desc
-    query = query.order('created_at', { ascending: false }).limit(50)
+    // Filter out expired and soft-deleted notifications at database level
+    const now = new Date().toISOString()
+    query = query.filter('notification.deleted_at', 'is', null)
+                 .or(`notification.expires_at.is.null,notification.expires_at.gte.${now}`)
+
+    // Sort by priority (urgent first), then created_at desc
+    query = query.order('priority', { ascending: false, nullsFirst: false })
+                 .order('created_at', { ascending: false })
+                 .limit(50)
 
     const { data: deliveries, error } = await query
 
@@ -42,17 +49,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 })
     }
 
-    // Filter out expired or soft-deleted notifications
-    const now = new Date().getTime()
-    const validDeliveries = deliveries?.filter(d => {
-      const notif = d.notification
-      if (!notif) return false
-      if (notif.deleted_at) return false
-      if (notif.expires_at && new Date(notif.expires_at).getTime() < now) return false
-      return true
-    }) || []
-
-    return NextResponse.json({ notifications: validDeliveries })
+    return NextResponse.json({ notifications: deliveries || [] })
   } catch (error: any) {
     console.error('Notifications fetch error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
