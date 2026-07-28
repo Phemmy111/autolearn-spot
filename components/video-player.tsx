@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { isVideoEngineV2 } from '@/utils/feature-toggle'
 import { migrationLog } from '@/utils/migration-logger'
 import YouTubePlayer from '@/components/youtube-player'
 import VimeoPlayer from '@/components/vimeo-player'
@@ -21,15 +19,12 @@ interface VideoPlayerProps {
 
 /**
  * Provider-agnostic video player wrapper.
- * 
- * Selects the correct player implementation based on:
- * 1. The localStorage feature toggle (videoEngineV2 = 'true' → YouTube V2)
- * 2. Available video IDs (YouTube → Vimeo → VdoCipher fallback chain)
- * 
- * The legacy Vimeo/VdoCipher components are preserved intact.
- * Toggle can be flipped in browser console without redeployment:
- *   localStorage.setItem('videoEngineV2', 'true')  // enable V2
- *   localStorage.setItem('videoEngineV2', 'false') // revert to legacy
+ *
+ * YouTube (V2) is now the permanent engine for ALL users on ALL devices.
+ * The localStorage toggle has been removed — migration is complete.
+ *
+ * Legacy Vimeo/VdoCipher are kept as a safety fallback only if no
+ * YouTube ID is mapped for a given lesson.
  */
 export default function VideoPlayer({
   lessonId,
@@ -38,42 +33,19 @@ export default function VideoPlayer({
   vdoCipherVideoId,
   resumeFromSeconds,
 }: VideoPlayerProps) {
-  const [engine, setEngine] = useState<'v1' | 'v2' | null>(null)
-
-  useEffect(() => {
-    const v2 = isVideoEngineV2()
-    setEngine(v2 ? 'v2' : 'v1')
-  }, [])
-
-  // Not yet determined (SSR / first paint) — show nothing to avoid flicker
-  if (engine === null) {
+  // ── V2: YouTube Iframe API (permanent engine for all devices) ────
+  if (youtubeVideoId) {
+    migrationLog.mount(lessonId, 'youtube', 'v2')
     return (
-      <div className="flex h-full items-center justify-center bg-[#0c0e12]">
-        <span className="font-mono text-xs uppercase tracking-widest text-[#b9cacb] animate-pulse">
-          Loading player…
-        </span>
-      </div>
+      <YouTubePlayer
+        videoId={youtubeVideoId}
+        lessonId={lessonId}
+        resumeFromSeconds={resumeFromSeconds}
+      />
     )
   }
 
-  // ── V2: YouTube Iframe API ──────────────────────────────────────
-  if (engine === 'v2') {
-    if (!youtubeVideoId) {
-      migrationLog.error(lessonId, 'V2 enabled but no youtubeVideoId available — falling back to legacy')
-      // Fall through to legacy
-    } else {
-      migrationLog.mount(lessonId, 'youtube', 'v2')
-      return (
-        <YouTubePlayer
-          videoId={youtubeVideoId}
-          lessonId={lessonId}
-          resumeFromSeconds={resumeFromSeconds}
-        />
-      )
-    }
-  }
-
-  // ── V1: Legacy — Vimeo preferred, then VdoCipher ────────────────
+  // ── Fallback: Legacy — only if no YouTube ID is mapped yet ───────
   if (vimeoVideoId) {
     migrationLog.mount(lessonId, 'vimeo', 'v1')
     return <VimeoPlayer videoId={vimeoVideoId} lessonId={lessonId} />
