@@ -97,6 +97,15 @@ export default async function AdminPage() {
             <h2 className="font-heading text-xl font-bold text-white mb-2">Health</h2>
             <p className="font-mono text-xs text-[#b9cacb]">System status and metrics</p>
           </Link>
+
+          <Link
+            href="/admin/scholarship"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group lg:col-span-2"
+          >
+            <Sparkles className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Scholarships</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Manage scholarship applications and track status</p>
+          </Link>
         </div>
 
         <div className="mt-8 grid md:grid-cols-2 gap-6">

@@ -61,7 +61,7 @@ const infoCards = [
   {
     icon: CreditCard,
     title: 'Investment',
-    body: '₦3,000 — Full access, all 12 sessions',
+    body: '₦50,000 — Full access, all 12 sessions',
   },
 ]
 
@@ -562,7 +562,7 @@ export default function Page() {
           >
             {isSignedIn ? 'Student Dashboard' : 'Student Login'}
           </Link>
-          <EnrollModal className={`${primaryCtaClass} page-animate page-delay-4`}>Enroll Now - ₦3,000</EnrollModal>
+          <EnrollModal className={`${primaryCtaClass} page-animate page-delay-4`}>Enroll Now - ₦50,000</EnrollModal>
         </div>
       </nav>
 
@@ -582,7 +582,7 @@ export default function Page() {
           <div className="page-animate page-delay-3 mt-10 flex flex-wrap gap-4">
             <EnrollModal className={primaryCtaClass}>
               <Terminal className="h-4 w-4" />
-              Start Learning - ₦3,000
+              Start Learning - ₦50,000
             </EnrollModal>
             <PreviewVideoModal vimeoVideoId="1209374969" className="corner-accent relative inline-flex items-center justify-center gap-2 overflow-hidden border border-[#3b494b] bg-[#0c0e12] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#e2e2e8] transition duration-150 hover:bg-[#1a1c20] hover:text-[#00f0ff] hover:border-[#00f0ff]">
                <Play className="h-4 w-4" />
