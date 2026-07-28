@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { markVideoComplete } from '@/components/progress-tracker'
 import { migrationLog } from '@/utils/migration-logger'
-import { Loader2, AlertCircle, RefreshCw } from 'lucide-react'
+import { Loader2, AlertCircle, RefreshCw, Play, Pause } from 'lucide-react'
 // YT namespace and Window extension are declared in types/youtube.d.ts
 
 interface YouTubePlayerProps {
@@ -63,6 +63,9 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
   const hasResumedRef = useRef(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const progressBarRef = useRef<HTMLDivElement>(null)
 
   // Save progress to the server — reuses the existing /api/progress endpoint
   const saveProgress = useCallback(
@@ -166,14 +169,27 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             playsinline: 1,
             enablejsapi: 1,
             origin: window.location.origin,
-            // Disable keyboard shortcuts and fullscreen button to limit sharing
             disablekb: 1,
             fs: 0,
+            // Hide ALL native controls (they contain the Share button)
+            controls: 0,
+            // Hide video annotations
+            iv_load_policy: 3,
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
               setIsLoading(false)
               migrationLog.mount(lessonId, 'youtube', 'v2')
+
+              // Crop the top title bar by extending the iframe beyond the container
+              const iframe = containerRef.current?.querySelector('iframe')
+              if (iframe) {
+                iframe.style.position = 'absolute'
+                iframe.style.top = '-60px'
+                iframe.style.left = '0'
+                iframe.style.width = '100%'
+                iframe.style.height = 'calc(100% + 120px)' // +60 top +60 bottom
+              }
 
               // Resume from saved position if provided
               if (
@@ -190,9 +206,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               const player = event.target
 
               if (event.data === window.YT.PlayerState.PLAYING) {
+                setIsPlaying(true)
                 migrationLog.playback(lessonId, 'youtube', videoId)
 
-                // Start progress tracking interval (every 15 seconds)
+                // Start progress tracking interval (every 5 seconds for UI + 15s for server)
                 if (progressIntervalRef.current) {
                   clearInterval(progressIntervalRef.current)
                 }
@@ -200,18 +217,25 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                   try {
                     const currentTime = player.getCurrentTime()
                     const duration = player.getDuration()
+                    if (duration > 0) {
+                      setProgress((currentTime / duration) * 100)
+                    }
                     saveProgress(currentTime, duration)
                   } catch {
                     // Player may be unavailable
                   }
-                }, 15000)
+                }, 5000)
               }
 
               if (event.data === window.YT.PlayerState.PAUSED) {
+                setIsPlaying(false)
                 // Save immediately on pause
                 try {
                   const currentTime = player.getCurrentTime()
                   const duration = player.getDuration()
+                  if (duration > 0) {
+                    setProgress((currentTime / duration) * 100)
+                  }
                   migrationLog.pause(lessonId, currentTime)
                   saveProgress(currentTime, duration)
                 } catch {
@@ -226,6 +250,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               }
 
               if (event.data === window.YT.PlayerState.ENDED) {
+                setIsPlaying(false)
+                setProgress(100)
                 // Video finished — save 100% progress
                 try {
                   const duration = player.getDuration()
@@ -311,6 +337,37 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     )
   }
 
+  // Toggle play/pause via the API
+  const handlePlayPause = useCallback(() => {
+    if (!playerRef.current) return
+    try {
+      if (isPlaying) {
+        playerRef.current.pauseVideo()
+      } else {
+        playerRef.current.playVideo()
+      }
+    } catch {
+      // Player may not be ready
+    }
+  }, [isPlaying])
+
+  // Seek when clicking the progress bar
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!playerRef.current || !progressBarRef.current) return
+    try {
+      const rect = progressBarRef.current.getBoundingClientRect()
+      const clickX = e.clientX - rect.left
+      const pct = clickX / rect.width
+      const duration = playerRef.current.getDuration()
+      if (duration > 0) {
+        playerRef.current.seekTo(pct * duration, true)
+        setProgress(pct * 100)
+      }
+    } catch {
+      // Player may not be ready
+    }
+  }, [])
+
   return (
     <div
       className="relative h-full w-full overflow-hidden bg-black"
@@ -324,23 +381,43 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           </p>
         </div>
       )}
-      
-      {/* Top overlay — blocks the title bar, share icon, and "Watch later" */}
-      <div 
-        className="absolute top-0 left-0 right-0 z-10"
-        style={{ height: '60px', pointerEvents: 'auto' }}
-      />
 
-      {/* Bottom overlay — blocks "Share", clock icon, and "Watch on YouTube" */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 z-10"
-        style={{ height: '40px', pointerEvents: 'auto' }}
-      />
-
+      {/* The YouTube iframe (controls: 0 hides native UI) */}
       <div
         ref={containerRef}
-        className="absolute inset-0 z-0"
+        className="absolute inset-0"
       />
+
+      {/* Click-to-play/pause overlay — covers the entire video area */}
+      {!isLoading && (
+        <div
+          className="absolute inset-0 z-10 cursor-pointer"
+          onClick={handlePlayPause}
+        >
+          {/* Show play/pause icon briefly on state change */}
+          {!isPlaying && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#00f0ff]/90 shadow-lg shadow-[#00f0ff]/30">
+                <Play className="h-10 w-10 text-black ml-1" />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Custom progress bar at the bottom */}
+      {!isLoading && (
+        <div
+          ref={progressBarRef}
+          className="absolute bottom-0 left-0 right-0 z-20 h-[6px] cursor-pointer bg-white/20 transition-all hover:h-[10px]"
+          onClick={handleSeek}
+        >
+          <div
+            className="h-full bg-[#00f0ff] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
     </div>
   )
 }
