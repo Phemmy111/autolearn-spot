@@ -1,6 +1,9 @@
 -- AutoLearn Spot Scholarship Programme Schema
 -- Run this in Supabase SQL Editor
 
+-- 0. Enable pgcrypto extension for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- 1. Create Scholarship Applications Table
 CREATE TABLE IF NOT EXISTS public.scholarship_applications (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
