@@ -115,7 +115,8 @@ export async function requestStatusOTP(email: string) {
 
     if (otpError) {
       console.error('OTP DB Error:', otpError);
-      return { success: false, error: 'Failed to generate verification code.' };
+      console.error('OTP Error Details:', JSON.stringify(otpError, null, 2));
+      return { success: false, error: `Database error: ${otpError.message}` };
     }
 
     const emailHtml = `
@@ -127,15 +128,22 @@ export async function requestStatusOTP(email: string) {
       </div>
     `;
 
-    await sendEmail({
-      to: email,
-      subject: 'Your Status Verification Code',
-      html: emailHtml,
-    });
+    try {
+      await sendEmail({
+        to: email,
+        subject: 'Your Status Verification Code',
+        html: emailHtml,
+      });
+    } catch (emailError: any) {
+      console.error('Email send error:', emailError);
+      // OTP was stored successfully, but email failed
+      return { success: false, error: `Email delivery failed: ${emailError.message}` };
+    }
 
     return { success: true };
   } catch (err: any) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('OTP Request Error:', err);
+    return { success: false, error: `Unexpected error: ${err.message}` };
   }
 }
 

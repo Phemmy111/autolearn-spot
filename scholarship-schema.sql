@@ -69,8 +69,8 @@ ON public.scholarship_applications
 FOR UPDATE
 USING (auth.jwt() ->> 'role' = 'super_admin' OR auth.jwt() ->> 'role' = 'admin');
 
--- OTPs: No public access needed, all handled via Server Actions with service role key.
--- We can leave it with no policies so it defaults to deny all for public/anon keys.
+-- OTPs: Service role key bypasses RLS, so no policies needed for server actions.
+-- This ensures only server-side operations can access OTPs.
 
 -- 4. Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_scholarship_email ON public.scholarship_applications(email);
