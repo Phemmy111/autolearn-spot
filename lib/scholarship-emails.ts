@@ -10,14 +10,36 @@ interface EmailData {
 // Email 1: Application Received (Already implemented in actions.ts, keeping for reference)
 export async function sendApplicationReceivedEmail({ to, fullName, referenceNumber }: EmailData) {
   const emailHtml = `
-    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
-      <h2 style="color: #00f0ff; background: #111; padding: 20px;">AutoLearn Spot Scholarship</h2>
-      <p>Hi ${fullName},</p>
-      <p>We have successfully received your application for the AutoLearn Spot AI Automation Scholarship Programme.</p>
-      <p><strong>Your Reference Number: ${referenceNumber}</strong></p>
-      <p>Application reviews take approximately 3 days. Please monitor your email for updates regarding your application status.</p>
-      <br/>
-      <p>Best regards,<br/>The AutoLearn Spot Team</p>
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #0c0e12; color: #e2e2e8;">
+      <div style="background: linear-gradient(135deg, #111 0%, #1a1c20 100%); padding: 30px; border-bottom: 2px solid #00f0ff;">
+        <h1 style="color: #00f0ff; margin: 0; font-size: 24px;">AutoLearn Spot</h1>
+        <p style="color: #b9cacb; margin: 5px 0 0 0; font-size: 14px;">AI Automation Scholarship Programme</p>
+      </div>
+      
+      <div style="padding: 30px;">
+        <h2 style="color: #00f0ff; margin: 0 0 20px 0; font-size: 22px;">Application Received</h2>
+        
+        <p style="font-size: 16px; line-height: 1.6;">Dear ${fullName},</p>
+        
+        <p style="font-size: 16px; line-height: 1.6;">We have successfully received your application for the AutoLearn Spot AI Automation Scholarship Programme.</p>
+        
+        <div style="background: #1a1c20; border-left: 4px solid #00f0ff; padding: 20px; margin: 20px 0;">
+          <p style="margin: 0; font-size: 14px; color: #b9cacb;"><strong>Reference Number:</strong> ${referenceNumber}</p>
+        </div>
+        
+        <p style="font-size: 16px; line-height: 1.6;">Application reviews take approximately 3 days. Please monitor your email for updates regarding your application status.</p>
+        
+        <p style="font-size: 16px; line-height: 1.6;">Thank you for your interest in our programme.</p>
+        
+        <p style="font-size: 16px; line-height: 1.6;">Best regards,<br/>The AutoLearn Spot Team</p>
+      </div>
+      
+      <div style="background: #111; padding: 20px; text-align: center; border-top: 1px solid #1f2229;">
+        <p style="margin: 0; color: #b9cacb; font-size: 12px;">© 2026 AutoLearn Spot. All rights reserved.</p>
+        <p style="margin: 10px 0 0 0; color: #5d5f63; font-size: 12px;">
+          <a href="https://autolearn-spot.vercel.app" style="color: #00f0ff; text-decoration: none;">autolearn-spot.vercel.app</a>
+        </p>
+      </div>
     </div>
   `;
 
