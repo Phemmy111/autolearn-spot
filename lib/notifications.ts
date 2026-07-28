@@ -1,5 +1,14 @@
 import { supabaseAdmin } from './supabase'
 import { sendEmail } from '@/utils/email'
+import webpush from 'web-push'
+
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:test@example.com',
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  )
+}
 
 export type NotificationCategory = 'announcement' | 'assignment' | 'assignment_review' | 'quiz' | 'payment' | 'enrollment' | 'certificate' | 'live_class' | 'system'
 export type NotificationPriority = 'normal' | 'important' | 'urgent'
@@ -164,6 +173,49 @@ export async function createNotification(params: CreateNotificationParams) {
           delivery_summary: { in_app_sent: recipientCount, email_sent: emailSentCount }
         })
         .eq('id', notification.id)
+    }
+
+    // 5. Send Push Notifications
+    if (targetUsers.length > 0) {
+      try {
+        const userIds = targetUsers.map(u => u.id)
+        const { data: subscriptions } = await supabaseAdmin
+          .from('push_subscriptions')
+          .select('*')
+          .in('user_id', userIds)
+
+        if (subscriptions && subscriptions.length > 0) {
+          const payload = JSON.stringify({
+            title: title,
+            body: message,
+            url: action_url || '/',
+            icon: icon || '/icon.png'
+          })
+
+          const pushPromises = subscriptions.map(sub => 
+            webpush.sendNotification({
+              endpoint: sub.endpoint,
+              keys: {
+                p256dh: sub.p256dh,
+                auth: sub.auth
+              }
+            }, payload).catch(err => {
+              if (err.statusCode === 410 || err.statusCode === 404) {
+                // Subscription has expired or is no longer valid, we should delete it
+                return supabaseAdmin
+                  .from('push_subscriptions')
+                  .delete()
+                  .eq('endpoint', sub.endpoint)
+              }
+              console.error('Error sending push notification', err)
+            })
+          )
+
+          await Promise.all(pushPromises)
+        }
+      } catch (err) {
+        console.error('Push notification overall error:', err)
+      }
     }
 
     return notification

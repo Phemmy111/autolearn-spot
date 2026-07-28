@@ -220,6 +220,15 @@ export default async function AdminPage() {
                 Manual Enrollment
               </Link>
             )}
+            {isSuper && (
+              <Link
+                href="/admin/video-debug"
+                className="flex items-center gap-2 border border-[#00f0ff]/50 bg-[#00f0ff]/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#00f0ff] hover:bg-[#00f0ff]/20 transition-colors rounded"
+              >
+                <Activity className="h-4 w-4" />
+                Video Debug
+              </Link>
+            )}
           </div>
         </div>
       </div>

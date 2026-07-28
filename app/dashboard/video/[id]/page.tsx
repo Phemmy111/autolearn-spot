@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { ArrowLeft, Download } from 'lucide-react'
 import { videos, isVideoAvailable } from '@/data/videos'
 import { auth } from '@clerk/nextjs/server'
-import VdoCipherPlayer from '@/components/vdocipher-player'
-import VimeoPlayer from '@/components/vimeo-player'
 import { AutolearnBot } from '@/components/autolearn-bot'
+import VideoPlayer from '@/components/video-player'
+import { getUserProgress, getCurrentCohortId } from '@/lib/progress-service'
+
 interface VideoPageProps {
   params: Promise<{
     id: string
@@ -28,6 +29,20 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
   if (!isVideoAvailable(video)) {
     redirect('/dashboard')
+  }
+
+  // Fetch saved progress so the player can resume from the last position
+  let resumeFromSeconds = 0
+  try {
+    const cohortId = await getCurrentCohortId()
+    const progressRows = await getUserProgress(userId, cohortId)
+    const row = progressRows.find((p) => p.lesson_id === video.id)
+    // Only resume if not yet completed and position is meaningful (> 5s)
+    if (row && !row.completed && row.last_position_seconds > 5) {
+      resumeFromSeconds = row.last_position_seconds
+    }
+  } catch {
+    // Non-fatal — player will start from the beginning
   }
 
   return (
@@ -57,15 +72,13 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
         {/* Video Player Container */}
         <div className="relative aspect-video w-full overflow-hidden border border-[#3b494b] bg-black shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-          {video.vimeoVideoId ? (
-            <VimeoPlayer videoId={video.vimeoVideoId} lessonId={video.id} />
-          ) : video.vdoCipherVideoId ? (
-            <VdoCipherPlayer videoId={video.vdoCipherVideoId} lessonId={video.id} />
-          ) : (
-            <div className="flex h-full items-center justify-center font-mono text-sm text-[#b9cacb]">
-              Video source not found.
-            </div>
-          )}
+          <VideoPlayer
+            lessonId={video.id}
+            youtubeVideoId={video.youtubeVideoId}
+            vimeoVideoId={video.vimeoVideoId}
+            vdoCipherVideoId={video.vdoCipherVideoId}
+            resumeFromSeconds={resumeFromSeconds}
+          />
         </div>
 
         {/* Resources Section */}
