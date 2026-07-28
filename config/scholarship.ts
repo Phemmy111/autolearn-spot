@@ -10,6 +10,10 @@ export const scholarshipConfig = {
   reviewPeriodDays: 3,
   cohortStartDate: '2027-01-15T00:00:00Z',
   
+  // Payment Configuration
+  // TEST MODE - Replace with live payment URL when ready
+  paymentUrl: 'https://paystack.shop/pay/lk12tlisnj',
+  
   // Settings
   isOpen: true, // Master toggle to easily close applications
 };

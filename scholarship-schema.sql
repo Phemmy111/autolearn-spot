@@ -37,6 +37,11 @@ CREATE TABLE IF NOT EXISTS public.scholarship_applications (
     status TEXT NOT NULL DEFAULT 'Submitted',
     admin_notes TEXT,
     
+    -- Payment Status
+    payment_status TEXT DEFAULT 'Waiting', -- Waiting, Pending Verification, Verified, Rejected
+    payment_date TIMESTAMP WITH TIME ZONE,
+    payment_notes TEXT,
+    
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );

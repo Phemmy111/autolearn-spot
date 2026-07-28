@@ -32,6 +32,11 @@ export interface ScholarshipApplication {
   status: ScholarshipStatus;
   admin_notes?: string | null;
   
+  // Payment Status
+  payment_status?: string | null;
+  payment_date?: string | null;
+  payment_notes?: string | null;
+  
   created_at: string;
   updated_at: string;
 }

@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, Mail, KeyRound, Search, CheckCircle, Clock, XCircle, FileText, AlertCircle, Calendar } from 'lucide-react';
-import { requestStatusOTP, verifyOTPAndGetStatus } from '../actions';
+import { ArrowLeft, Loader2, Mail, KeyRound, Search, CheckCircle, Clock, XCircle, FileText, AlertCircle, Calendar, CreditCard } from 'lucide-react';
+import { requestStatusOTP, verifyOTPAndGetStatus, markPaymentPending } from '../actions';
+import { scholarshipConfig } from '@/config/scholarship';
 
 type StatusType = 'Submitted' | 'Under Review' | 'Shortlisted' | 'Accepted' | 'Waitlisted' | 'Not Selected';
 
@@ -14,7 +15,7 @@ export default function ScholarshipStatusPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const [result, setResult] = useState<{ reference_number: string; status: StatusType; full_name: string } | null>(null);
+  const [result, setResult] = useState<{ reference_number: string; status: StatusType; full_name: string; payment_status?: string } | null>(null);
 
   const handleRequestOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,7 +215,47 @@ export default function ScholarshipStatusPage() {
                 <p className="text-sm text-[#00f0ff]">Our team is currently reviewing your application. You'll hear from us soon!</p>
               )}
               {result.status === 'Accepted' && (
-                <p className="text-sm text-green-400">Congratulations! Please check your email for the next steps to secure your spot.</p>
+                <div className="space-y-4">
+                  <p className="text-sm text-green-400">Congratulations! You've been awarded a scholarship.</p>
+                  
+                  {result.payment_status === 'Waiting' && (
+                    <div className="space-y-3">
+                      <a
+                        href={scholarshipConfig.paymentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#00f0ff] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#00f0ff] transition-all"
+                      >
+                        <CreditCard className="w-5 h-5" />
+                        Pay Commitment Fee (₦5,000)
+                      </a>
+                      <button
+                        onClick={async () => {
+                          setIsLoading(true);
+                          const res = await markPaymentPending(email);
+                          setIsLoading(false);
+                          if (res.success) {
+                            setResult({ ...result, payment_status: 'Pending Verification' });
+                          } else {
+                            setError(res.error || 'Failed to mark payment as pending');
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="block w-full text-sm text-[#b9cacb] hover:text-[#00f0ff] border border-[#3b494b] py-3 transition-colors disabled:opacity-50"
+                      >
+                        I Have Completed Payment
+                      </button>
+                    </div>
+                  )}
+                  
+                  {result.payment_status === 'Pending Verification' && (
+                    <p className="text-sm text-yellow-400">Your payment is being verified. You'll receive access shortly.</p>
+                  )}
+                  
+                  {result.payment_status === 'Verified' && (
+                    <p className="text-sm text-green-400">Payment verified! Welcome to AutoLearn Spot.</p>
+                  )}
+                </div>
               )}
               
               <button

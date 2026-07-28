@@ -27,13 +27,17 @@ export async function submitScholarshipApplication(data: ScholarshipFormData) {
       .limit(1)
       .single();
 
-    if (existingApp) {
-      // Email already has an application
+    // Active statuses that prevent reapplication
+    const activeStatuses = ['Submitted', 'Under Review', 'Shortlisted', 'Accepted', 'Payment Pending'];
+
+    if (existingApp && activeStatuses.includes(existingApp.status)) {
+      // Email already has an active application
       return {
         success: false,
-        error: 'An application has already been submitted using this email address. Please use the Check Application Status page to monitor your application.',
+        error: 'You already have an existing scholarship application.',
         existingReference: existingApp.reference_number,
-        existingStatus: existingApp.status
+        existingStatus: existingApp.status,
+        requiresStatusCheck: true
       };
     }
 
@@ -213,7 +217,7 @@ export async function verifyOTPAndGetStatus(email: string, otp: string) {
     // Get application
     const { data: apps, error: appError } = await supabaseAdmin
       .from('scholarship_applications')
-      .select('reference_number, status, full_name')
+      .select('reference_number, status, full_name, payment_status')
       .eq('email', email)
       .order('created_at', { ascending: false })
       .limit(1);
@@ -228,9 +232,33 @@ export async function verifyOTPAndGetStatus(email: string, otp: string) {
         reference_number: apps[0].reference_number,
         status: apps[0].status,
         full_name: apps[0].full_name,
+        payment_status: apps[0].payment_status,
       }
     };
   } catch (err: any) {
+    return { success: false, error: 'An unexpected error occurred' };
+  }
+}
+
+export async function markPaymentPending(email: string) {
+  try {
+    const { error } = await supabaseAdmin
+      .from('scholarship_applications')
+      .update({ 
+        payment_status: 'Pending Verification',
+        updated_at: new Date().toISOString()
+      })
+      .eq('email', email)
+      .eq('status', 'Accepted');
+
+    if (error) {
+      console.error('Payment pending error:', error);
+      return { success: false, error: 'Failed to mark payment as pending.' };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Payment pending error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }

@@ -45,6 +45,7 @@ export default function ScholarshipApplyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<{ referenceNumber: string } | null>(null);
+  const [existingApplication, setExistingApplication] = useState<{ referenceNumber: string; status: string } | null>(null);
 
   const { fullValue, commitmentFee } = scholarshipConfig;
   const formattedFullValue = `₦${fullValue.toLocaleString()}`;
@@ -97,6 +98,12 @@ export default function ScholarshipApplyPage() {
       if (result.success && result.referenceNumber) {
         setSuccessData({ referenceNumber: result.referenceNumber });
         setStep(5);
+      } else if (result.requiresStatusCheck && result.existingReference) {
+        setExistingApplication({ 
+          referenceNumber: result.existingReference, 
+          status: result.existingStatus || 'Unknown' 
+        });
+        setStep(6);
       } else {
         setError(result.error || 'Failed to submit application.');
       }
@@ -131,6 +138,33 @@ export default function ScholarshipApplyPage() {
             className="w-full flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff]/10 px-6 py-3 font-mono text-sm font-bold uppercase text-[#00f0ff] transition-all hover:bg-[#00f0ff] hover:text-black hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
           >
             Check Status Page
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (step === 6 && existingApplication) {
+    return (
+      <main className="min-h-screen bg-[#111317] text-[#e2e2e8] flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[#0c0e12] border border-[#1f2229] p-8 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-orange-400" />
+          
+          <h2 className="font-heading text-2xl font-bold mb-4">You already have an existing scholarship application.</h2>
+          
+          <p className="text-[#b9cacb] mb-6">
+            Reference Number: <span className="text-white font-bold">{existingApplication.referenceNumber}</span>
+          </p>
+          
+          <p className="text-[#b9cacb] mb-8">
+            Please use the Check Application Status page to monitor your application.
+          </p>
+          
+          <Link
+            href="/scholarship/status"
+            className="w-full flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff]/10 px-6 py-3 font-mono text-sm font-bold uppercase text-[#00f0ff] transition-all hover:bg-[#00f0ff] hover:text-black hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
+          >
+            Check Application Status
           </Link>
         </div>
       </main>

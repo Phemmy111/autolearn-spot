@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { ScholarshipApplication, ScholarshipStatus } from '@/types/scholarship';
-import { updateScholarshipStatus, updateAdminNotes } from './actions';
-import { Search, Edit, Eye, X, Loader2 } from 'lucide-react';
+import { updateScholarshipStatus, updateAdminNotes, updatePaymentStatus } from './actions';
+import { Search, Edit, Eye, X, Loader2, CreditCard } from 'lucide-react';
 
 export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialData: ScholarshipApplication[], isSuperAdmin: boolean }) {
   const [data, setData] = useState(initialData);
@@ -14,6 +14,8 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
   const [isUpdating, setIsUpdating] = useState(false);
   const [notes, setNotes] = useState('');
   const [newStatus, setNewStatus] = useState<ScholarshipStatus>('Submitted');
+  const [paymentStatus, setPaymentStatus] = useState('Waiting');
+  const [paymentNotes, setPaymentNotes] = useState('');
 
   const filteredData = data.filter(app => {
     const matchesSearch = 
@@ -38,6 +40,16 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
     }
   };
 
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case 'Waiting': return 'text-[#b9cacb] bg-[#b9cacb]/10 border-[#3b494b]';
+      case 'Pending Verification': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
+      case 'Verified': return 'text-green-400 bg-green-400/10 border-green-400/30';
+      case 'Rejected': return 'text-red-400 bg-red-400/10 border-red-400/30';
+      default: return 'text-[#b9cacb]';
+    }
+  };
+
   const handleUpdate = async () => {
     if (!selectedApp) return;
     setIsUpdating(true);
@@ -49,11 +61,14 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
       if (notes !== (selectedApp.admin_notes || '')) {
         await updateAdminNotes(selectedApp.id, notes);
       }
+      if (paymentStatus !== (selectedApp.payment_status || 'Waiting') || paymentNotes !== (selectedApp.payment_notes || '')) {
+        await updatePaymentStatus(selectedApp.id, paymentStatus, paymentNotes || undefined);
+      }
       
       // Update local state
       setData(prev => prev.map(a => 
         a.id === selectedApp.id 
-          ? { ...a, status: newStatus, admin_notes: notes } 
+          ? { ...a, status: newStatus, admin_notes: notes, payment_status: paymentStatus, payment_notes: paymentNotes } 
           : a
       ));
       
@@ -70,6 +85,8 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
     setSelectedApp(app);
     setNewStatus(app.status);
     setNotes(app.admin_notes || '');
+    setPaymentStatus(app.payment_status || 'Waiting');
+    setPaymentNotes(app.payment_notes || '');
   };
 
   return (
@@ -112,6 +129,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
               <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Applicant</th>
               <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Experience</th>
               <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Status</th>
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Payment</th>
               <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Applied Date</th>
               <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb] text-right">Actions</th>
             </tr>
@@ -119,7 +137,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
           <tbody>
             {filteredData.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-8 text-center text-[#b9cacb] font-mono text-sm">
+                <td colSpan={7} className="p-8 text-center text-[#b9cacb] font-mono text-sm">
                   No applications found matching your criteria.
                 </td>
               </tr>
@@ -138,6 +156,11 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                   <td className="p-4">
                     <span className={`inline-block px-2 py-1 text-xs font-bold border rounded-full ${getStatusColor(app.status)}`}>
                       {app.status}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <span className={`inline-block px-2 py-1 text-xs font-bold border rounded-full ${getPaymentStatusColor(app.payment_status || 'Waiting')}`}>
+                      {app.payment_status || 'Waiting'}
                     </span>
                   </td>
                   <td className="p-4 text-sm text-[#b9cacb]">
@@ -218,6 +241,40 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                         <option value="Not Selected">Not Selected</option>
                       </select>
                     </div>
+
+                    {selectedApp.status === 'Accepted' && (
+                      <div className="space-y-4 border-t border-[#1f2229] pt-4">
+                        <div className="flex items-center gap-2 text-[#00f0ff]">
+                          <CreditCard className="w-4 h-4" />
+                          <h4 className="font-mono text-xs uppercase">Payment Management</h4>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-xs font-mono text-[#b9cacb] mb-1">Payment Status</label>
+                          <select
+                            value={paymentStatus}
+                            onChange={(e) => setPaymentStatus(e.target.value)}
+                            className="w-full bg-[#1a1c20] border border-[#3b494b] px-3 py-2 text-white focus:border-[#00f0ff] focus:outline-none transition-colors text-sm appearance-none"
+                          >
+                            <option value="Waiting">Waiting</option>
+                            <option value="Pending Verification">Pending Verification</option>
+                            <option value="Verified">Verified</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-mono text-[#b9cacb] mb-1">Payment Notes</label>
+                          <textarea
+                            value={paymentNotes}
+                            onChange={(e) => setPaymentNotes(e.target.value)}
+                            rows={2}
+                            placeholder="Add payment verification notes..."
+                            className="w-full bg-[#1a1c20] border border-[#3b494b] p-3 text-white focus:border-[#00f0ff] focus:outline-none transition-colors text-sm resize-none"
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     <div>
                       <label className="block text-xs font-mono text-[#b9cacb] mb-1">Admin Notes (Internal only)</label>
