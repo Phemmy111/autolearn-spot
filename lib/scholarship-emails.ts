@@ -29,6 +29,12 @@ export async function sendApplicationReceivedEmail({ to, fullName, referenceNumb
         
         <p style="font-size: 16px; line-height: 1.6;">Application reviews take approximately 3 days. Please monitor your email for updates regarding your application status.</p>
         
+        <p style="font-size: 16px; line-height: 1.6;">Join our WhatsApp community to stay updated on the programme:</p>
+        
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="${scholarshipConfig.generalWhatsAppGroup}" style="display: inline-block; background: #25D366; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; text-transform: uppercase;">Join WhatsApp Group</a>
+        </div>
+        
         <p style="font-size: 16px; line-height: 1.6;">Thank you for your interest in our programme.</p>
         
         <p style="font-size: 16px; line-height: 1.6;">Best regards,<br/>The AutoLearn Spot Team</p>
@@ -325,7 +331,11 @@ export async function sendWelcomeEmail({ to, fullName, referenceNumber }: EmailD
         
         <p style="font-size: 16px; line-height: 1.6;"><strong>Dashboard Access:</strong> You can access your learning materials and progress through the student dashboard.</p>
         <p style="font-size: 16px; line-height: 1.6;"><strong>Support:</strong> For any questions, contact us at support@autolearnspot.com</p>
-        <p style="font-size: 16px; line-height: 1.6;"><strong>WhatsApp Community:</strong> Join our student community for networking and support (link coming soon)</p>
+        
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="${scholarshipConfig.paidWhatsAppGroup}" style="display: inline-block; background: #25D366; color: white; padding: 15px 30px; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 5px; text-transform: uppercase;">Join Paid Students WhatsApp Group</a>
+        </div>
+        
         <p style="font-size: 16px; line-height: 1.6;"><strong>Live Classes:</strong> Details about upcoming live sessions will be posted in the dashboard and WhatsApp group</p>
         
         <p style="font-size: 16px; line-height: 1.6; margin-top: 25px;">We are excited to have you join us and look forward to seeing you succeed in your AI automation journey!</p>

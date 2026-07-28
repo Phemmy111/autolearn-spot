@@ -164,6 +164,18 @@ export default function ScholarshipLandingPage() {
             Start Your Application Now
           </Link>
         </div>
+
+        <div className="mt-8 text-center">
+          <p className="text-[#b9cacb] mb-3">Join our WhatsApp community for updates:</p>
+          <a
+            href={scholarshipConfig.generalWhatsAppGroup}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3 font-mono text-sm font-bold uppercase transition-all hover:bg-[#128C7E] hover:shadow-[0_0_15px_rgba(37,211,102,0.4)]"
+          >
+            Join WhatsApp Group
+          </a>
+        </div>
       </section>
     </main>
   );

@@ -14,6 +14,10 @@ export const scholarshipConfig = {
   // TEST MODE - Replace with live payment URL when ready
   paymentUrl: 'https://paystack.shop/pay/lk12tlisnj',
   
+  // WhatsApp Group Links
+  generalWhatsAppGroup: 'https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&ilr=1&amv=3', // For all applicants
+  paidWhatsAppGroup: 'https://chat.whatsapp.com/DFTf7Z8il048brWDsvxUHA?s=cl&p=a&ilr=1&amv=3', // For paid students only
+  
   // Settings
   isOpen: true, // Master toggle to easily close applications
 };
