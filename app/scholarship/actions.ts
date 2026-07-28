@@ -19,6 +19,30 @@ function generateOTP() {
 
 export async function submitScholarshipApplication(data: ScholarshipFormData) {
   try {
+    // Check if an application already exists for this email
+    const { data: existingApp, error: checkError } = await supabaseAdmin
+      .from('scholarship_applications')
+      .select('reference_number, status')
+      .eq('email', data.email)
+      .limit(1)
+      .single();
+
+    if (existingApp) {
+      // Email already has an application
+      return {
+        success: false,
+        error: 'An application has already been submitted using this email address. Please use the Check Application Status page to monitor your application.',
+        existingReference: existingApp.reference_number,
+        existingStatus: existingApp.status
+      };
+    }
+
+    // Ignore checkError if no application found (expected case)
+    if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Database check error:', checkError);
+      return { success: false, error: 'Failed to check existing applications. Please try again.' };
+    }
+
     let referenceNumber = generateReference();
     
     // Ensure uniqueness
@@ -54,6 +78,22 @@ export async function submitScholarshipApplication(data: ScholarshipFormData) {
 
     if (dbError) {
       console.error('Database Error:', dbError);
+      // Check if it's a unique constraint violation on email
+      if (dbError.code === '23505' && dbError.message.includes('email')) {
+        const { data: existingApp } = await supabaseAdmin
+          .from('scholarship_applications')
+          .select('reference_number, status')
+          .eq('email', data.email)
+          .limit(1)
+          .single();
+        
+        return {
+          success: false,
+          error: 'An application has already been submitted using this email address. Please use the Check Application Status page to monitor your application.',
+          existingReference: existingApp?.reference_number,
+          existingStatus: existingApp?.status
+        };
+      }
       return { success: false, error: 'Failed to submit application. Please try again.' };
     }
 

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS public.scholarship_applications (
     
     -- Step 1: Personal Info
     full_name TEXT NOT NULL,
-    email TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
     phone TEXT NOT NULL,
     whatsapp TEXT NOT NULL,
     country TEXT NOT NULL,
