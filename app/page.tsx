@@ -38,7 +38,7 @@ import { ThreeAutomationField } from '@/components/three-automation-field'
 import { ToolsCarousel } from '@/components/tools-carousel'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 
-const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ'];
+const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ', 'Scholarship'];
 
 const stats = [
   ['10+', 'Real workflows deployed'],
@@ -544,6 +544,17 @@ export default function Page() {
                 </Link>
               );
             }
+            if (item === 'Scholarship') {
+              return (
+                <Link
+                  key={item}
+                  href="/scholarship"
+                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#00f0ff] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                >
+                  {item}
+                </Link>
+              );
+            }
             return (
               <a
                 key={item}
@@ -562,7 +573,13 @@ export default function Page() {
           >
             {isSignedIn ? 'Student Dashboard' : 'Student Login'}
           </Link>
-          <EnrollModal className={`${primaryCtaClass} page-animate page-delay-4`}>Enroll Now - ₦50,000</EnrollModal>
+          <Link
+            href="/scholarship/apply"
+            className={`${primaryCtaClass} page-animate page-delay-4`}
+          >
+            <Sparkles className="h-4 w-4" />
+            Apply for Scholarship
+          </Link>
         </div>
       </nav>
 
@@ -580,10 +597,13 @@ export default function Page() {
             deployable workflow you built yourself.
           </p>
           <div className="page-animate page-delay-3 mt-10 flex flex-wrap gap-4">
-            <EnrollModal className={primaryCtaClass}>
-              <Terminal className="h-4 w-4" />
-              Start Learning - ₦50,000
-            </EnrollModal>
+            <Link
+              href="/scholarship/apply"
+              className={primaryCtaClass}
+            >
+              <Sparkles className="h-4 w-4" />
+              Apply for Scholarship
+            </Link>
             <PreviewVideoModal vimeoVideoId="1209374969" className="corner-accent relative inline-flex items-center justify-center gap-2 overflow-hidden border border-[#3b494b] bg-[#0c0e12] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#e2e2e8] transition duration-150 hover:bg-[#1a1c20] hover:text-[#00f0ff] hover:border-[#00f0ff]">
                <Play className="h-4 w-4" />
                Watch Preview
@@ -622,6 +642,76 @@ export default function Page() {
             <div className="mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-[#b9cacb]">{label}</div>
           </div>
         ))}
+      </section>
+
+      <section className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-16 sm:px-6 md:py-20">
+        <div className="relative overflow-hidden border border-[#00f0ff]/30 bg-[#0c0e12] p-8 md:p-12">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#00f0ff]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#00f0ff]/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-center">
+            <div className="lg:col-span-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#00f0ff]/50 bg-[#00f0ff]/10 text-[#00f0ff] font-mono text-xs mb-4">
+                <Sparkles className="w-3 h-3" />
+                <span>LIMITED SCHOLARSHIP OPPORTUNITY</span>
+              </div>
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
+                ₦50,000 AI Automation Training
+              </h2>
+              <p className="text-[#b9cacb] text-lg mb-6">
+                Scholarship Available — Successful applicants pay only a <span className="text-[#00f0ff] font-bold">₦5,000 commitment fee</span>
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href="/scholarship/apply"
+                  className="corner-accent blueprint-cta relative inline-flex items-center justify-center gap-2 overflow-hidden border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Apply for Scholarship
+                </Link>
+                <Link
+                  href="/scholarship"
+                  className="inline-flex items-center justify-center gap-2 border border-[#3b494b] bg-transparent px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#e2e2e8] transition duration-150 hover:bg-[#1a1c20] hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                >
+                  Learn More
+                </Link>
+              </div>
+            </div>
+            <div className="border border-[#1f2229] bg-[#050505] p-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-[#00f0ff]" />
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#b9cacb]">Full Value</p>
+                    <p className="font-heading text-xl font-bold text-white">₦50,000</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Sparkles className="h-5 w-5 text-[#00f0ff]" />
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#b9cacb]">Your Cost</p>
+                    <p className="font-heading text-xl font-bold text-[#00f0ff]">₦5,000</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-[#00f0ff]" />
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#b9cacb]">Review Time</p>
+                    <p className="font-heading text-xl font-bold text-white">3 Days</p>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-[#1f2229]">
+                  <Link
+                    href="/scholarship/status"
+                    className="block text-center font-mono text-[11px] uppercase tracking-[0.08em] text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                  >
+                    Check Application Status →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       <section
