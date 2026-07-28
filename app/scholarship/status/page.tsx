@@ -229,6 +229,9 @@ export default function ScholarshipStatusPage() {
                         <CreditCard className="w-5 h-5" />
                         Pay Commitment Fee (₦5,000)
                       </a>
+                      <p className="text-xs text-[#b9cacb] text-center">
+                        Payment verification is automatic. You'll receive a welcome email after successful payment.
+                      </p>
                       <button
                         onClick={async () => {
                           setIsLoading(true);
@@ -241,9 +244,9 @@ export default function ScholarshipStatusPage() {
                           }
                         }}
                         disabled={isLoading}
-                        className="block w-full text-sm text-[#b9cacb] hover:text-[#00f0ff] border border-[#3b494b] py-3 transition-colors disabled:opacity-50"
+                        className="block w-full text-xs text-[#b9cacb] hover:text-[#00f0ff] border border-[#3b494b] py-2 transition-colors disabled:opacity-50"
                       >
-                        I Have Completed Payment
+                        Payment not automatically verified? Click here
                       </button>
                     </div>
                   )}
