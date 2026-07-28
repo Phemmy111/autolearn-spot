@@ -166,6 +166,9 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             playsinline: 1,
             enablejsapi: 1,
             origin: window.location.origin,
+            // Disable keyboard shortcuts and fullscreen button to limit sharing
+            disablekb: 1,
+            fs: 0,
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
@@ -309,19 +312,34 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div
+      className="relative h-full w-full overflow-hidden bg-black"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       {isLoading && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#0c0e12]">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#0c0e12]">
           <Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" />
           <p className="font-mono text-xs uppercase tracking-widest text-[#b9cacb]">
             Loading video…
           </p>
         </div>
       )}
+      
+      {/* Top overlay — blocks the title bar, share icon, and "Watch later" */}
+      <div 
+        className="absolute top-0 left-0 right-0 z-10"
+        style={{ height: '60px', pointerEvents: 'auto' }}
+      />
+
+      {/* Bottom overlay — blocks "Share", clock icon, and "Watch on YouTube" */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 z-10"
+        style={{ height: '40px', pointerEvents: 'auto' }}
+      />
+
       <div
         ref={containerRef}
-        className="h-full w-full"
-        style={{ position: 'absolute', top: 0, left: 0 }}
+        className="absolute inset-0 z-0"
       />
     </div>
   )
