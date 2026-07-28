@@ -11,7 +11,11 @@ export const scholarshipConfig = {
   cohortStartDate: '2027-01-15T00:00:00Z',
   
   // Payment Configuration
-  // TEST MODE - Replace with live payment URL when ready
+  // TEST MODE - Currently using test payment link
+  // TODO: When switching to live mode:
+  // 1. Replace paymentUrl with live Paystack payment link
+  // 2. Add PAYSTACK_WEBHOOK_SECRET to Vercel environment variables
+  // 3. Configure webhook URL in Paystack dashboard: https://autolearn-spot.vercel.app/api/webhook/paystack
   paymentUrl: 'https://paystack.shop/pay/lk12tlisnj',
   
   // WhatsApp Group Links
