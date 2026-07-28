@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail } from '@/lib/scholarship-emails';
+import { scholarshipConfig } from '@/config/scholarship';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const webhookSecret = process.env.PAYSTACK_WEBHOOK_SECRET!;
+
+// Use test or live webhook secret based on paystackMode
+const webhookSecret = scholarshipConfig.paystackMode === 'test' 
+  ? process.env.PAYSTACK_TEST_WEBHOOK_SECRET!
+  : process.env.PAYSTACK_WEBHOOK_SECRET!;
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 

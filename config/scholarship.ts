@@ -12,11 +12,15 @@ export const scholarshipConfig = {
   
   // Payment Configuration
   // TEST MODE - Currently using test payment link
-  // TODO: When switching to live mode:
-  // 1. Replace paymentUrl with live Paystack payment link
-  // 2. Add PAYSTACK_WEBHOOK_SECRET to Vercel environment variables
-  // 3. Configure webhook URL in Paystack dashboard: https://autolearn-spot.vercel.app/api/webhook/paystack
+  paystackMode: 'test' as 'test' | 'live', // Switch to 'live' when going to production
   paymentUrl: 'https://paystack.shop/pay/lk12tlisnj',
+  
+  // When switching to live mode:
+  // 1. Change paystackMode to 'live'
+  // 2. Replace paymentUrl with live Paystack payment link
+  // 3. Configure webhook URL in Paystack live dashboard: https://autolearn-spot.vercel.app/api/webhook/paystack
+  // 4. Ensure PAYSTACK_WEBHOOK_SECRET is set in Vercel (for live mode)
+  // 5. Ensure PAYSTACK_TEST_WEBHOOK_SECRET is set in Vercel (for test mode)
   
   // WhatsApp Group Links
   generalWhatsAppGroup: 'https://chat.whatsapp.com/DJrJYaW3nIy74xtFnZlJM3?s=cl&p=a&ilr=1&amv=3', // For all applicants
