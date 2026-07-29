@@ -1,167 +1,110 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { supabaseAdmin } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { sendWelcomeEmail } from '@/lib/scholarship-emails';
+import { scholarshipConfig } from '@/config/scholarship';
 
-// Helper to log payment events
-async function logPaymentEvent(reference: string, eventType: string, description: string) {
-  try {
-    await supabaseAdmin.from('payment_events').insert({
-      payment_reference: reference,
-      event_type: eventType,
-      description: description
-    });
-  } catch (error) {
-    console.error('Failed to log payment event:', error);
-  }
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
-export async function POST(req: Request) {
+// Use test or live webhook secret based on paystackMode
+const webhookSecret = scholarshipConfig.paystackMode === 'test' 
+  ? process.env.PAYSTACK_TEST_WEBHOOK_SECRET!
+  : process.env.PAYSTACK_WEBHOOK_SECRET!;
+
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+export async function POST(request: NextRequest) {
   try {
-    const bodyText = await req.text();
-    const signature = req.headers.get('x-paystack-signature');
+    const body = await request.text();
+    const signature = request.headers.get('x-paystack-signature');
 
     if (!signature) {
+      console.error('Missing Paystack signature');
       return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
 
-    const secret = process.env.PAYSTACK_SECRET_KEY || '';
-    if (!secret) {
-      console.error('PAYSTACK_SECRET_KEY is not set');
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    // Verify webhook signature
+    const expectedSignature = crypto
+      .createHmac('sha512', webhookSecret)
+      .update(body)
+      .digest('hex');
+
+    if (signature !== expectedSignature) {
+      console.error('Invalid Paystack signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
-    // Verify signature
-    const hash = crypto.createHmac('sha512', secret).update(bodyText).digest('hex');
-    if (hash !== signature) {
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-    }
+    const event = JSON.parse(body);
 
-    const payload = JSON.parse(bodyText);
-    const event = payload.event;
-    const data = payload.data;
-
-    if (event === 'charge.success') {
+    // Handle successful payment event
+    if (event.event === 'charge.success') {
+      const { data } = event;
+      const customerEmail = data.customer.email;
       const reference = data.reference;
-      
-      await logPaymentEvent(reference, 'webhook_received', `Received charge.success for ${data.amount}`);
+      const amount = data.amount;
 
-      // 1. Idempotency Check: See if payment already exists
-      const { data: existingPayment } = await supabaseAdmin
-        .from('payments')
-        .select('id')
-        .eq('reference', reference)
+      console.log('Payment successful:', { reference, customerEmail, amount });
+
+      // Find scholarship application by email
+      const { data: application, error: fetchError } = await supabaseAdmin
+        .from('scholarship_applications')
+        .select('id, full_name, reference_number, email, status, payment_status')
+        .eq('email', customerEmail)
+        .eq('status', 'Accepted')
         .single();
 
-      if (existingPayment) {
-        await logPaymentEvent(reference, 'duplicate_detected', 'Payment reference already processed.');
-        return NextResponse.json({ message: 'Already processed' }, { status: 200 });
+      if (fetchError || !application) {
+        console.error('Application not found for email:', customerEmail);
+        return NextResponse.json({ error: 'Application not found' }, { status: 404 });
       }
 
-      // 2. Save Payment
-      const paymentData = {
-        transaction_id: data.id,
-        reference: reference,
-        gateway_response: data.gateway_response,
-        currency: data.currency,
-        amount: data.amount,
-        paid_at: data.paid_at,
-        channel: data.channel,
-        fees: data.fees,
-        status: data.status,
-        customer_email: data.customer.email,
-        customer_name: `${data.customer.first_name || ''} ${data.customer.last_name || ''}`.trim(),
-        metadata: data.metadata || {},
-      };
-
-      const { error: paymentError } = await supabaseAdmin
-        .from('payments')
-        .insert(paymentData);
-
-      if (paymentError) {
-        console.error('Error saving payment:', paymentError);
-        await logPaymentEvent(reference, 'processing_failed', `Failed to save payment record: ${paymentError.message}`);
-        // Return 500 so Paystack retries if it was a db error
-        return NextResponse.json({ error: 'Database error' }, { status: 500 });
+      // Check if payment is already verified
+      if (application.payment_status === 'Verified') {
+        console.log('Payment already verified for:', customerEmail);
+        return NextResponse.json({ message: 'Payment already verified' }, { status: 200 });
       }
 
-      // 3. Resolve Cohort (Metadata -> Fallback Active Cohort)
-      let resolvedCohortId = data.metadata?.cohort_id;
-      
-      if (!resolvedCohortId && data.metadata?.course_slug) {
-        // Try to look up by slug
-        const { data: slugCohort } = await supabaseAdmin
-          .from('cohorts')
-          .select('id')
-          .eq('slug', data.metadata.course_slug)
-          .single();
-        if (slugCohort) {
-          resolvedCohortId = slugCohort.id;
-        }
+      // Update payment status to Verified
+      const { error: updateError } = await supabaseAdmin
+        .from('scholarship_applications')
+        .update({
+          payment_status: 'Verified',
+          payment_date: new Date().toISOString(),
+          payment_notes: `Paystack Reference: ${reference}, Amount: ₦${amount / 100}`,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', application.id);
+
+      if (updateError) {
+        console.error('Failed to update payment status:', updateError);
+        return NextResponse.json({ error: 'Failed to update payment status' }, { status: 500 });
       }
 
-      if (!resolvedCohortId) {
-        // Fallback to current active cohort
-        const { data: activeCohort } = await supabaseAdmin
-          .from('cohorts')
-          .select('id')
-          .eq('is_current', true)
-          .single();
-        
-        if (activeCohort) {
-          resolvedCohortId = activeCohort.id;
-          console.warn(`[Webhook] Falling back to current active cohort for payment ${reference}`);
-        }
-      }
+      console.log('Payment status updated to Verified for:', customerEmail);
 
-      if (!resolvedCohortId) {
-        await logPaymentEvent(reference, 'processing_failed', 'Could not resolve any cohort for enrollment.');
-        // We saved the payment, but couldn't enroll. Return 200 so Paystack stops retrying, we'll manually fix.
-        return NextResponse.json({ message: 'Payment saved, but cohort missing' }, { status: 200 });
-      }
-
-      // 4. Create/Upsert Enrollment
-      const { error: enrollError } = await supabaseAdmin
-        .from('enrollments')
-        .upsert({
-          cohort_id: resolvedCohortId,
-          email: data.customer.email,
-          payment_ref: reference,
-          amount_paid: data.amount,
-          status: 'active',
-          activated_at: new Date().toISOString()
-        }, {
-          onConflict: 'cohort_id, email'
-        });
-
-      if (enrollError) {
-        console.error('Error creating enrollment:', enrollError);
-        await logPaymentEvent(reference, 'processing_failed', `Failed to create enrollment: ${enrollError.message}`);
-        // Payment is saved, but enrollment failed. Let admin resync later.
-        return NextResponse.json({ message: 'Payment saved, enrollment failed' }, { status: 200 });
-      }
-
-      await logPaymentEvent(reference, 'enrollment_created', `Successfully enrolled ${data.customer.email} into cohort ${resolvedCohortId}`);
-      
-      // Send Enrollment Notification
+      // Send welcome email
       try {
-        const { createNotification } = await import('@/lib/notifications');
-        await createNotification({
-          title: 'Welcome to AutoLearn Spot!',
-          message: `Your payment of ${data.currency} ${data.amount / 100} was successful. You are now enrolled.`,
-          category: 'enrollment',
-          priority: 'important',
-          target_type: 'student',
-          target_id: data.customer.email, // wait, target_id needs to be clerk_user_id. The webhook only has email. The notification lib matches by clerk_user_id. Let's send an email via notif system?
-          send_email: true
+        await sendWelcomeEmail({
+          to: application.email,
+          fullName: application.full_name,
+          referenceNumber: application.reference_number,
         });
-      } catch (notifErr) {
-        console.error('Failed to send enrollment notification:', notifErr);
+        console.log('Welcome email sent to:', customerEmail);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail the webhook if email fails
       }
+
+      return NextResponse.json({ message: 'Payment verified and welcome email sent' }, { status: 200 });
     }
 
-    return NextResponse.json({ received: true }, { status: 200 });
-  } catch (err: any) {
-    console.error('Webhook Error:', err.message);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    // Handle other events
+    console.log('Unhandled Paystack event:', event.event);
+    return NextResponse.json({ message: 'Event received' }, { status: 200 });
+
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
