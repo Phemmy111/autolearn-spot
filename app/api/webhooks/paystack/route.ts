@@ -62,7 +62,18 @@ export async function POST(request: NextRequest) {
       // Check if payment is already verified
       if (application.payment_status === 'Verified') {
         console.log('Payment already verified for:', customerEmail);
-        return NextResponse.json({ message: 'Payment already verified' }, { status: 200 });
+        // Still send welcome email even if already verified
+        try {
+          await sendWelcomeEmail({
+            to: application.email,
+            fullName: application.full_name,
+            referenceNumber: application.reference_number,
+          });
+          console.log('Welcome email sent to:', customerEmail);
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+        }
+        return NextResponse.json({ message: 'Payment already verified, welcome email sent' }, { status: 200 });
       }
 
       // Update payment status to Verified
