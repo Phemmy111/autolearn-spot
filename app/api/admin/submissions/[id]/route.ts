@@ -69,7 +69,8 @@ export async function PUT(
           target_id: existingSubmission.user_id,
           action_url: '/dashboard/assignments',
           action_label: 'View Feedback',
-          send_email: true
+          send_email: true,
+          event_id: `assignment_graded_${id}`,
         });
       } catch (notifErr) {
         console.error('Failed to send assignment review notification:', notifErr);

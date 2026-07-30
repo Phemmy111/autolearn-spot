@@ -90,7 +90,8 @@ export async function POST(request: Request) {
         target_id: cohort_id,
         action_url: '/dashboard/assignments',
         action_label: 'View Assignment',
-        send_email: true
+        send_email: true,
+        event_id: `assignment_created_${assignment.id}`,
       });
     } catch (notifErr) {
       console.error('Failed to send assignment notification:', notifErr);

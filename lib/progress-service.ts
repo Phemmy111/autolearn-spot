@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase'
+import { invalidateAfterLessonProgress } from '@/lib/analytics/integration'
 
 // Fixed Cohort 1 UUID — matches supabase-phase0-schema.sql seed
 const DEFAULT_COHORT_ID = 'a1111111-1111-1111-1111-111111111111'
@@ -108,6 +109,14 @@ export async function upsertLessonProgress(
   if (error) {
     console.error('[progress-service] upsertLessonProgress error:', error)
     return null
+  }
+
+  // Invalidate analytics cache after progress update
+  try {
+    await invalidateAfterLessonProgress(userId, cohortId)
+  } catch (cacheError) {
+    console.error('[progress-service] Failed to invalidate cache:', cacheError)
+    // Don't fail the progress update if cache invalidation fails
   }
 
   return row as LessonProgress

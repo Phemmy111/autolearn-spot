@@ -1,36 +1,31 @@
 -- =============================================================================
--- Notification Center Schema
+-- Notification Center Schema Migration
 -- Phase 4: AutoLearn Spot
 -- 
+-- Migration: Add event_id column for idempotent notification creation
 -- Tables: notifications, notification_deliveries, notification_preferences
 -- RLS: Enabled on all tables, all API operations use supabaseAdmin (service role)
 -- =============================================================================
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 1. notifications
+-- Migration: Add event_id column to notifications table
 -- ─────────────────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS notifications (
-  id              BIGSERIAL     PRIMARY KEY,
-  title           TEXT          NOT NULL,
-  message         TEXT          NOT NULL,
-  media_url       TEXT,
-  icon            TEXT,
-  category        TEXT          NOT NULL CHECK (category IN (
-                    'announcement','assignment','assignment_review','quiz',
-                    'payment','enrollment','certificate','live_class','system')),
-  priority        TEXT          NOT NULL CHECK (priority IN ('normal','important','urgent')),
-  is_pinned       BOOLEAN       NOT NULL DEFAULT false,
-  target_type     TEXT          NOT NULL CHECK (target_type IN ('all','cohort','student')),
-  target_id       TEXT,
-  action_url      TEXT,
-  action_label    TEXT,
-  expires_at      TIMESTAMPTZ,
-  deleted_at      TIMESTAMPTZ,
-  created_by      TEXT,
-  recipient_count INTEGER       NOT NULL DEFAULT 0,
-  delivery_summary JSONB        DEFAULT '{}',
-  created_at      TIMESTAMPTZ   NOT NULL DEFAULT now()
-);
+
+-- Step 1: Add the event_id column (nullable initially to allow existing rows)
+ALTER TABLE notifications ADD COLUMN IF NOT EXISTS event_id TEXT;
+
+-- Step 2: Create unique index on event_id (only for non-null values)
+-- This allows existing rows with NULL event_id while enforcing uniqueness for new rows
+CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_event_id 
+  ON notifications(event_id) 
+  WHERE event_id IS NOT NULL;
+
+-- Step 3: Add comment to document the column
+COMMENT ON COLUMN notifications.event_id IS 'Unique identifier for idempotent notification creation. Prevents duplicate notifications for the same event.';
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Existing Schema (for reference - these should already exist)
+-- ─────────────────────────────────────────────────────────────────────────────
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 2. notification_deliveries

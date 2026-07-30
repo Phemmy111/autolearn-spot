@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import crypto from 'crypto'
+import { createNotification } from '@/lib/notifications'
+import { invalidateAfterCertificateIssuance } from '@/lib/analytics/integration'
 
 export async function POST(request: Request) {
   try {
@@ -121,6 +123,33 @@ export async function POST(request: Request) {
       } else {
         certificateRecord = newCert
         console.log('[cert/complete] Certificate created successfully:', newCert?.certificate_code)
+        
+        // Create notification for certificate issuance (only for new certificates)
+        try {
+          await createNotification({
+            title: 'Certificate Earned',
+            message: 'Congratulations! You have successfully completed the course and earned your certificate.',
+            category: 'certificate',
+            priority: 'important',
+            target_type: 'student',
+            target_id: userId,
+            action_url: '/certificate/download',
+            action_label: 'Download Certificate',
+            send_email: true,
+            event_id: `certificate_issued_${userId}_${cohortId}`,
+          });
+        } catch (notifError) {
+          console.error('Failed to create certificate notification:', notifError);
+          // Don't fail the certificate issuance if notification fails
+        }
+
+        // Invalidate analytics cache after certificate issuance
+        try {
+          await invalidateAfterCertificateIssuance(userId, cohortId)
+        } catch (cacheError) {
+          console.error('Failed to invalidate analytics cache:', cacheError)
+          // Don't fail the certificate issuance if cache invalidation fails
+        }
       }
     }
 

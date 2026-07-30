@@ -28,6 +28,7 @@ export interface CreateNotificationParams {
   expires_at?: string
   created_by?: string
   send_email?: boolean
+  event_id?: string // Unique identifier for idempotent creation (enforced at DB level)
 }
 
 export async function createNotification(params: CreateNotificationParams) {
@@ -35,8 +36,23 @@ export async function createNotification(params: CreateNotificationParams) {
     const { 
       title, message, category, priority = 'normal', 
       target_type, target_id, action_url, action_label, 
-      media_url, icon, expires_at, created_by, send_email = false 
+      media_url, icon, expires_at, created_by, send_email = false,
+      event_id
     } = params
+
+    // Idempotency check: If event_id is provided, check for existing notification by event_id
+    if (event_id) {
+      const { data: existingNotification } = await supabaseAdmin
+        .from('notifications')
+        .select('id, title, message, created_at')
+        .eq('event_id', event_id)
+        .single()
+
+      if (existingNotification) {
+        console.log(`Notification already exists for event ${event_id}, skipping creation`)
+        return existingNotification
+      }
+    }
 
     // 1. Resolve Target Users
     let targetUsers: { id: string, email: string, name?: string }[] = []

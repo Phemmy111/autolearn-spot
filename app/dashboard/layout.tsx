@@ -2,6 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { hasActiveEnrollment } from '@/lib/enrollment-service';
 import { EnrollmentRequired } from '@/components/enrollment-required';
+import { trackAuthentication } from '@/lib/auth-tracking';
 
 export default async function DashboardLayout({
   children,
@@ -37,6 +38,9 @@ export default async function DashboardLayout({
       </div>
     );
   }
+
+  // Track login activity for enrolled users
+  await trackAuthentication();
 
   // They are enrolled, render the normal dashboard layout/pages
   return <>{children}</>;

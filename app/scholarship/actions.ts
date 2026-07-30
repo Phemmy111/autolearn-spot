@@ -4,6 +4,13 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { sendEmail } from '@/utils/email';
 import { ScholarshipFormData } from '@/types/scholarship';
 import { revalidatePath } from 'next/cache';
+import { 
+  logScholarshipEvent, 
+  logScholarshipTimeline, 
+  logSystemError,
+  logEmailEvent 
+} from '@/lib/audit-logging';
+import { createNotification } from '@/lib/notifications';
 
 // Generate a random 4-digit reference suffix
 function generateReference() {
@@ -76,12 +83,25 @@ export async function submitScholarshipApplication(data: ScholarshipFormData) {
       status: 'Submitted',
     };
 
-    const { error: dbError } = await supabaseAdmin
+    const { error: dbError, data: insertedApp } = await supabaseAdmin
       .from('scholarship_applications')
-      .insert(applicationData);
+      .insert(applicationData)
+      .select('id')
+      .single();
 
     if (dbError) {
       console.error('Database Error:', dbError);
+      
+      // Log the error
+      await logSystemError({
+        action: 'application_submission',
+        category: 'database_error',
+        error_message: dbError.message,
+        error_code: dbError.code,
+        user_email: data.email,
+        metadata: { error_details: dbError },
+      });
+      
       // Check if it's a unique constraint violation on email
       if (dbError.code === '23505' && dbError.message.includes('email')) {
         const { data: existingApp } = await supabaseAdmin
@@ -101,6 +121,49 @@ export async function submitScholarshipApplication(data: ScholarshipFormData) {
       return { success: false, error: 'Failed to submit application. Please try again.' };
     }
 
+    // Log successful application submission
+    await logScholarshipEvent({
+      action: 'application_submitted',
+      category: 'application_submission',
+      user_email: data.email,
+      application_id: insertedApp.id,
+      reference_number: referenceNumber,
+      description: `Scholarship application submitted by ${data.full_name}`,
+      metadata: {
+        full_name: data.full_name,
+        country: data.country,
+        occupation: data.occupation,
+      },
+    });
+
+    // Log initial timeline entry
+    await logScholarshipTimeline({
+      application_id: insertedApp.id,
+      reference_number: referenceNumber,
+      from_status: null,
+      to_status: 'Submitted',
+      notes: 'Initial application submission',
+    });
+
+    // Create in-app notification for applicant
+    try {
+      await createNotification({
+        title: 'Application Received',
+        message: `Your scholarship application has been received. Reference: ${referenceNumber}`,
+        category: 'payment',
+        priority: 'normal',
+        target_type: 'student',
+        target_id: data.email,
+        action_url: '/scholarship/status',
+        action_label: 'Check Status',
+        send_email: false, // Email is sent separately
+        event_id: `scholarship_app_submitted_${insertedApp.id}`,
+      });
+    } catch (notifError) {
+      console.error('Failed to create notification:', notifError);
+      // Don't fail the application if notification fails
+    }
+
     // Send confirmation email
     const emailHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
@@ -114,11 +177,35 @@ export async function submitScholarshipApplication(data: ScholarshipFormData) {
       </div>
     `;
 
-    await sendEmail({
-      to: data.email,
-      subject: `Application Received: ${referenceNumber}`,
-      html: emailHtml,
-    });
+    try {
+      await sendEmail({
+        to: data.email,
+        subject: `Application Received: ${referenceNumber}`,
+        html: emailHtml,
+      });
+
+      // Log successful email
+      await logEmailEvent({
+        action: 'application_confirmation_email',
+        recipient_email: data.email,
+        email_type: 'application_received',
+        subject: `Application Received: ${referenceNumber}`,
+        description: `Application confirmation email sent to ${data.email}`,
+        status: 'success',
+      });
+    } catch (emailError: any) {
+      // Log failed email
+      await logEmailEvent({
+        action: 'application_confirmation_email',
+        recipient_email: data.email,
+        email_type: 'application_received',
+        subject: `Application Received: ${referenceNumber}`,
+        description: `Failed to send application confirmation email to ${data.email}`,
+        status: 'failure',
+        error_message: emailError.message,
+      });
+      throw emailError;
+    }
 
     return { success: true, referenceNumber };
   } catch (err: any) {
@@ -137,6 +224,12 @@ export async function requestStatusOTP(email: string) {
       .limit(1);
       
     if (checkError) {
+      await logSystemError({
+        action: 'otp_request',
+        category: 'database_error',
+        error_message: checkError.message,
+        user_email: email,
+      });
       return { success: false, error: 'Failed to verify email.' };
     }
     
@@ -160,6 +253,15 @@ export async function requestStatusOTP(email: string) {
     if (otpError) {
       console.error('OTP DB Error:', otpError);
       console.error('OTP Error Details:', JSON.stringify(otpError, null, 2));
+      
+      await logSystemError({
+        action: 'otp_generation',
+        category: 'database_error',
+        error_message: otpError.message,
+        error_code: otpError.code,
+        user_email: email,
+      });
+      
       return { success: false, error: `Database error: ${otpError.message}` };
     }
 
@@ -178,8 +280,28 @@ export async function requestStatusOTP(email: string) {
         subject: 'Your Status Verification Code',
         html: emailHtml,
       });
+
+      await logEmailEvent({
+        action: 'otp_email',
+        recipient_email: email,
+        email_type: 'status_verification',
+        subject: 'Your Status Verification Code',
+        description: `OTP verification email sent to ${email}`,
+        status: 'success',
+      });
     } catch (emailError: any) {
       console.error('Email send error:', emailError);
+      
+      await logEmailEvent({
+        action: 'otp_email',
+        recipient_email: email,
+        email_type: 'status_verification',
+        subject: 'Your Status Verification Code',
+        description: `Failed to send OTP email to ${email}`,
+        status: 'failure',
+        error_message: emailError.message,
+      });
+      
       // OTP was stored successfully, but email failed
       return { success: false, error: `Email delivery failed: ${emailError.message}` };
     }
@@ -187,6 +309,14 @@ export async function requestStatusOTP(email: string) {
     return { success: true };
   } catch (err: any) {
     console.error('OTP Request Error:', err);
+    
+    await logSystemError({
+      action: 'otp_request',
+      category: 'api_error',
+      error_message: err.message,
+      user_email: email,
+    });
+    
     return { success: false, error: `Unexpected error: ${err.message}` };
   }
 }

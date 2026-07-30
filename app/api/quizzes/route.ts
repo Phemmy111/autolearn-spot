@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
+import { createNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -60,6 +62,24 @@ export async function POST(request: Request) {
     if (error) {
       console.error('Error creating quiz:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Send notification to all active students about new quiz
+    try {
+      await createNotification({
+        title: 'New Quiz Available',
+        message: `Week ${week_number} quiz "${title}" is now available. Test your knowledge!`,
+        category: 'quiz',
+        priority: 'normal',
+        target_type: 'all',
+        action_url: '/quizzes',
+        action_label: 'Take Quiz',
+        send_email: true,
+        event_id: `quiz_created_${quiz.id}`,
+      });
+    } catch (notifErr) {
+      console.error('Failed to send quiz notification:', notifErr);
+      // Don't fail the quiz creation if notification fails
     }
 
     return NextResponse.json({ quiz }, { status: 201 })

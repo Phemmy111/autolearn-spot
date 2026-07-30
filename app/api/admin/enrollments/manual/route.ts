@@ -62,7 +62,10 @@ export async function POST(req: Request) {
         priority: 'important',
         target_type: 'student',
         target_id: clerkUserId || email, // Pass clerkUserId if available, else email
-        send_email: true
+        action_url: '/dashboard',
+        action_label: 'Go to Dashboard',
+        send_email: true,
+        event_id: `enrollment_${email}_${cohortId}`,
       });
     } catch (notifErr) {
       console.error('Failed to send manual enrollment notification:', notifErr);

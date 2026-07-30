@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ScholarshipApplication, ScholarshipStatus } from '@/types/scholarship';
-import { updateScholarshipStatus, updateAdminNotes, updatePaymentStatus } from './actions';
-import { Search, Edit, Eye, X, Loader2, CreditCard } from 'lucide-react';
+import { updateScholarshipStatus, updateAdminNotes, updatePaymentStatus, getApplicationTimeline } from './actions';
+import { Search, Edit, Eye, X, Loader2, CreditCard, Clock, User } from 'lucide-react';
 
 export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialData: ScholarshipApplication[], isSuperAdmin: boolean }) {
   const [data, setData] = useState(initialData);
@@ -16,6 +16,8 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
   const [newStatus, setNewStatus] = useState<ScholarshipStatus>('Submitted');
   const [paymentStatus, setPaymentStatus] = useState('Waiting');
   const [paymentNotes, setPaymentNotes] = useState('');
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [loadingTimeline, setLoadingTimeline] = useState(false);
 
   const filteredData = data.filter(app => {
     const matchesSearch = 
@@ -81,12 +83,24 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
     }
   };
 
-  const openModal = (app: ScholarshipApplication) => {
+  const openModal = async (app: ScholarshipApplication) => {
     setSelectedApp(app);
     setNewStatus(app.status);
     setNotes(app.admin_notes || '');
     setPaymentStatus(app.payment_status || 'Waiting');
     setPaymentNotes(app.payment_notes || '');
+    
+    // Load timeline
+    setLoadingTimeline(true);
+    try {
+      const timelineData = await getApplicationTimeline(app.id);
+      setTimeline(timelineData);
+    } catch (error) {
+      console.error('Failed to load timeline:', error);
+      setTimeline([]);
+    } finally {
+      setLoadingTimeline(false);
+    }
   };
 
   return (
@@ -299,6 +313,59 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
               </div>
 
               <div className="space-y-6">
+                {/* Timeline Section */}
+                <div>
+                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4 flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Application Timeline
+                  </h3>
+                  
+                  {loadingTimeline ? (
+                    <div className="text-sm text-[#b9cacb]">Loading timeline...</div>
+                  ) : timeline.length === 0 ? (
+                    <div className="text-sm text-[#b9cacb]">No timeline events recorded</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {timeline.map((event, index) => (
+                        <div key={event.id} className="relative pl-6 border-l-2 border-[#1f2229]">
+                          <div className="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 bg-[#00f0ff] rounded-full"></div>
+                          <div className="bg-[#1a1c20] p-3 border border-[#1f2229]">
+                            <div className="flex justify-between items-start mb-1">
+                              <span className="text-xs font-bold text-[#00f0ff]">
+                                {event.to_status}
+                              </span>
+                              <span className="text-xs text-[#b9cacb]">
+                                {new Date(event.created_at).toLocaleString()}
+                              </span>
+                            </div>
+                            {event.from_status && (
+                              <div className="text-xs text-[#b9cacb] mb-1">
+                                From: {event.from_status}
+                              </div>
+                            )}
+                            {event.reason && (
+                              <div className="text-xs text-white mb-1">
+                                Reason: {event.reason}
+                              </div>
+                            )}
+                            {event.admin_email && (
+                              <div className="text-xs text-[#b9cacb] flex items-center gap-1">
+                                <User className="w-3 h-3" />
+                                {event.admin_email}
+                              </div>
+                            )}
+                            {event.notes && (
+                              <div className="text-xs text-gray-400 mt-2 italic">
+                                {event.notes}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Motivation</h3>
                   <p className="text-sm bg-[#1a1c20] p-4 border border-[#1f2229] whitespace-pre-wrap">{selectedApp.motivation}</p>

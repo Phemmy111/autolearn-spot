@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { auth, currentUser } from '@clerk/nextjs/server'
+import { createNotification } from '@/lib/notifications'
+import { invalidateAfterAssignmentSubmission } from '@/lib/analytics/integration'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -33,7 +36,7 @@ export async function POST(
     // Check if assignment exists
     const { data: assignment, error: assignmentError } = await supabase
       .from('assignments')
-      .select('id')
+      .select('id, title, week_number')
       .eq('id', assignmentId)
       .single()
 
@@ -97,6 +100,36 @@ export async function POST(
       }
 
       submission = created
+    }
+
+    // Create notification for assignment submission (only for new submissions)
+    if (!existingSubmission) {
+      try {
+        await createNotification({
+          title: 'Assignment Submitted',
+          message: `Your submission for Week ${assignment.week_number} assignment "${assignment.title}" has been received.`,
+          category: 'assignment',
+          priority: 'normal',
+          target_type: 'student',
+          target_id: userId,
+          action_url: '/dashboard/assignments',
+          action_label: 'View Assignments',
+          send_email: false,
+          event_id: `assignment_submission_${submission.id}`,
+        });
+      } catch (notifError) {
+        console.error('Failed to create notification:', notifError);
+        // Don't fail the submission if notification fails
+      }
+    }
+
+    // Invalidate analytics cache after assignment submission
+    try {
+      const cohortId = assignment.cohort_id || 'default'
+      await invalidateAfterAssignmentSubmission(userId, cohortId)
+    } catch (cacheError) {
+      console.error('Failed to invalidate analytics cache:', cacheError)
+      // Don't fail the submission if cache invalidation fails
     }
 
     return NextResponse.json({ submission })

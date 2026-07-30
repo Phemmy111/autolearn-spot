@@ -3,6 +3,13 @@ import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail } from '@/lib/scholarship-emails';
 import { scholarshipConfig } from '@/config/scholarship';
+import { 
+  logPaymentEvent, 
+  logScholarshipTimeline, 
+  logSystemError,
+  logEmailEvent 
+} from '@/lib/audit-logging';
+import { createNotification } from '@/lib/notifications';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -18,9 +25,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     const signature = request.headers.get('x-paystack-signature');
+    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
     if (!signature) {
-      console.error('Missing Paystack signature');
+      await logSystemError({
+        action: 'webhook_received',
+        category: 'validation_error',
+        error_message: 'Missing Paystack signature',
+        ip_address: ipAddress,
+      });
       return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
 
@@ -31,11 +44,26 @@ export async function POST(request: NextRequest) {
       .digest('hex');
 
     if (signature !== expectedSignature) {
-      console.error('Invalid Paystack signature');
+      await logSystemError({
+        action: 'webhook_received',
+        category: 'validation_error',
+        error_message: 'Invalid Paystack signature',
+        ip_address: ipAddress,
+      });
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const event = JSON.parse(body);
+
+    // Log webhook received
+    await logPaymentEvent({
+      action: 'webhook_received',
+      category: 'webhook_received',
+      payment_reference: event.data?.reference,
+      description: `Paystack webhook received: ${event.event}`,
+      metadata: { event_type: event.event },
+      status: 'success',
+    });
 
     // Handle successful payment event
     if (event.event === 'charge.success') {
@@ -56,12 +84,37 @@ export async function POST(request: NextRequest) {
 
       if (fetchError || !application) {
         console.error('Application not found for email:', customerEmail);
+        
+        await logPaymentEvent({
+          action: 'payment_verification_failed',
+          category: 'payment_verified',
+          user_email: customerEmail,
+          payment_reference: reference,
+          amount: amount / 100,
+          description: 'Application not found for payment verification',
+          status: 'failure',
+          error_message: 'Application not found',
+        });
+        
         return NextResponse.json({ error: 'Application not found' }, { status: 404 });
       }
 
       // Check if payment is already verified
       if (application.payment_status === 'Verified') {
         console.log('Payment already verified for:', customerEmail);
+        
+        await logPaymentEvent({
+          action: 'payment_already_verified',
+          category: 'payment_verified',
+          user_email: customerEmail,
+          application_id: application.id,
+          reference_number: application.reference_number,
+          payment_reference: reference,
+          amount: amount / 100,
+          description: 'Payment already verified, resending welcome email',
+          status: 'success',
+        });
+        
         // Still send welcome email even if already verified
         try {
           await sendWelcomeEmail({
@@ -70,8 +123,27 @@ export async function POST(request: NextRequest) {
             referenceNumber: application.reference_number,
           });
           console.log('Welcome email sent to:', customerEmail);
-        } catch (emailError) {
+          
+          await logEmailEvent({
+            action: 'welcome_email',
+            recipient_email: application.email,
+            email_type: 'welcome',
+            subject: 'Welcome to AutoLearn Spot',
+            description: `Welcome email sent to ${application.email} (payment already verified)`,
+            status: 'success',
+          });
+        } catch (emailError: any) {
           console.error('Failed to send welcome email:', emailError);
+          
+          await logEmailEvent({
+            action: 'welcome_email',
+            recipient_email: application.email,
+            email_type: 'welcome',
+            subject: 'Welcome to AutoLearn Spot',
+            description: `Failed to send welcome email to ${application.email}`,
+            status: 'failure',
+            error_message: emailError.message,
+          });
         }
         return NextResponse.json({ message: 'Payment already verified, welcome email sent' }, { status: 200 });
       }
@@ -89,10 +161,66 @@ export async function POST(request: NextRequest) {
 
       if (updateError) {
         console.error('Failed to update payment status:', updateError);
+        
+        await logPaymentEvent({
+          action: 'payment_verification_failed',
+          category: 'payment_verified',
+          user_email: customerEmail,
+          application_id: application.id,
+          reference_number: application.reference_number,
+          payment_reference: reference,
+          amount: amount / 100,
+          description: 'Failed to update payment status in database',
+          status: 'failure',
+          error_message: updateError.message,
+        });
+        
         return NextResponse.json({ error: 'Failed to update payment status' }, { status: 500 });
       }
 
       console.log('Payment status updated to Verified for:', customerEmail);
+
+      // Log successful payment verification
+      await logPaymentEvent({
+        action: 'payment_verified',
+        category: 'payment_verified',
+        user_email: customerEmail,
+        application_id: application.id,
+        reference_number: application.reference_number,
+        payment_reference: reference,
+        amount: amount / 100,
+        description: `Payment verified for ${application.full_name}`,
+        status: 'success',
+      });
+
+      // Log timeline entry for payment verification
+      await logScholarshipTimeline({
+        application_id: application.id,
+        reference_number: application.reference_number,
+        from_status: application.payment_status,
+        to_status: 'Verified',
+        notes: `Payment verified via Paystack webhook. Reference: ${reference}`,
+        reason: 'Payment verification',
+      });
+
+      // Create in-app notification for payment verification
+      try {
+        await createNotification({
+          title: 'Payment Verified',
+          message: 'Your scholarship payment has been verified successfully. Welcome to the programme!',
+          category: 'payment',
+          priority: 'urgent',
+          target_type: 'student',
+          target_id: application.email,
+          action_url: '/dashboard',
+          action_label: 'Go to Dashboard',
+          send_email: false, // Email is sent separately
+          event_id: `payment_verified_${reference}`,
+        });
+      } catch (notifError) {
+        console.error('Failed to create notification:', notifError);
+        // Don't fail the webhook if notification fails
+      }
 
       // Send welcome email
       try {
@@ -102,8 +230,27 @@ export async function POST(request: NextRequest) {
           referenceNumber: application.reference_number,
         });
         console.log('Welcome email sent to:', customerEmail);
-      } catch (emailError) {
+        
+        await logEmailEvent({
+          action: 'welcome_email',
+          recipient_email: application.email,
+          email_type: 'welcome',
+          subject: 'Welcome to AutoLearn Spot',
+          description: `Welcome email sent to ${application.email}`,
+          status: 'success',
+        });
+      } catch (emailError: any) {
         console.error('Failed to send welcome email:', emailError);
+        
+        await logEmailEvent({
+          action: 'welcome_email',
+          recipient_email: application.email,
+          email_type: 'welcome',
+          subject: 'Welcome to AutoLearn Spot',
+          description: `Failed to send welcome email to ${application.email}`,
+          status: 'failure',
+          error_message: emailError.message,
+        });
         // Don't fail the webhook if email fails
       }
 
