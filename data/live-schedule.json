@@ -1,6 +1,8 @@
 {
   "day": "Saturday",
-  "startTime": "21:00",
+  "startTime": "20:00",
   "durationMinutes": 60,
-  "roomPrefix": "autolearn-spot-live"
+  "roomPrefix": "autolearn-spot-live",
+  "timezone": "WAT",
+  "note": "This file is maintained for reference. Actual times are managed in config/live-class.ts"
 }

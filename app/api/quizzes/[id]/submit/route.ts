@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { auth, currentUser } from '@clerk/nextjs/server'
-import { generateCertificatePDF } from '@/lib/certificate'
-import { sendEmail } from '@/utils/email'
+import { createNotification } from '@/lib/notifications'
+import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
+import { triggerBadgeCheck } from '@/lib/badge-system'
 
 export async function POST(
   request: Request,
@@ -47,7 +48,7 @@ export async function POST(
     // Get quiz details (verify quiz exists and is active)
     const { data: quiz, error: quizError } = await supabaseAdmin
       .from('quizzes')
-      .select('passing_score, is_active')
+      .select('passing_score, is_active, cohort_id')
       .eq('id', id)
       .single()
 
@@ -205,53 +206,42 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to save quiz response' }, { status: 500 })
     }
 
-    // Automatically email certificate if passed
-    if (passed && userEmail) {
+    // Send congratulatory notification if passed (NOT certificate notification)
+    if (passed) {
       try {
-        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-        const logoUrl = `${request.headers.get('x-forwarded-proto') || 'http'}://${request.headers.get('host')}/favicon.ico`
-        const pdfBuffer = await generateCertificatePDF(userName, dateStr, logoUrl)
-        
-        await sendEmail({
-          to: userEmail,
-          subject: 'Your Certificate of Completion - AutoLearn Spot',
-          html: `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #00f0ff;">Congratulations, ${userName}!</h2>
-              <p>You have successfully passed the quiz.</p>
-              <p>Your certificate of completion is attached to this email as a PDF.</p>
-              <p>You can also download it in PNG format from your student dashboard at any time.</p>
-              <br/>
-              <p>Best regards,</p>
-              <p><strong>AutoLearn Spot Team</strong></p>
-            </div>
-          `,
-          attachments: [
-            {
-              filename: `AutoLearn-Certificate-${userName.replace(/\s+/g, '-')}.pdf`,
-              content: pdfBuffer,
-              contentType: 'application/pdf'
-            }
-          ]
-        })
-
-        // Also create in-app notification
-        const { createNotification } = await import('@/lib/notifications');
         await createNotification({
-          title: 'Certificate Earned!',
-          message: `You passed the quiz with ${percentage}%. Your certificate is ready!`,
-          category: 'certificate',
+          title: 'Quiz Passed! 🎉',
+          message: `Congratulations! You scored ${percentage}% on this quiz. Keep up the great work and continue your learning journey!`,
+          category: 'quiz',
           priority: 'important',
           target_type: 'student',
           target_id: userId,
-          action_url: '/dashboard/history',
-          action_label: 'View Certificate',
-          send_email: false // we already sent the email with PDF attached just above
+          action_url: '/dashboard',
+          action_label: 'Continue Learning',
+          send_email: true,
+          event_id: `quiz_passed_${userId}_${id}`,
         });
-      } catch (emailErr) {
-        console.error('Error sending certificate email or notification:', emailErr)
-        // Don't fail the submission if email fails
+      } catch (notifError) {
+        console.error('Failed to create quiz pass notification:', notifError);
+        // Don't fail the quiz submission if notification fails
       }
+    }
+
+    // Trigger leaderboard update after quiz submission
+    try {
+      await triggerLeaderboardUpdate(userId, 'quiz')
+    } catch (leaderboardError) {
+      console.error('Failed to trigger leaderboard update:', leaderboardError)
+      // Don't fail the quiz submission if leaderboard update fails
+    }
+
+    // Trigger badge check after quiz submission
+    try {
+      const cohortId = quiz.cohort_id || 'default'
+      await triggerBadgeCheck(userId, cohortId)
+    } catch (badgeError) {
+      console.error('Failed to trigger badge check:', badgeError)
+      // Don't fail the quiz submission if badge check fails
     }
 
     return NextResponse.json({

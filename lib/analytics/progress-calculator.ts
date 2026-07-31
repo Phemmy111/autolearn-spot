@@ -180,7 +180,7 @@ export async function calculateQuizProgress(
   // Get quiz responses for user
   const { data: responses, error } = await supabaseAdmin
     .from('quiz_responses')
-    .select('score, created_at, quizzes(passing_score)')
+    .select('quiz_id, score, created_at, quizzes(passing_score)')
     .eq('user_id', userId)
     .eq('cohort_id', cohortId)
 
@@ -206,6 +206,8 @@ export async function calculateQuizProgress(
 
   const completed = uniqueQuizzes.size
   const total = totalQuizzes || 0
+  
+  // Fix: ensure percentage is calculated even if total is 0
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
 
   // Calculate average score (best attempt per quiz)

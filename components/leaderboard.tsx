@@ -4,9 +4,15 @@ import { useEffect, useState } from 'react'
 import { Trophy, Medal, Award, TrendingUp } from 'lucide-react'
 import { fetchLeaderboard } from '@/lib/api/quiz'
 import { SupabaseLeaderboard } from '@/types/quiz'
+import { BadgeDisplay } from '@/components/badges/badge-display'
+import { UserBadge } from '@/lib/badge-system'
+
+interface LeaderboardEntryWithBadges extends SupabaseLeaderboard {
+  badges?: UserBadge[]
+}
 
 export function Leaderboard() {
-  const [leaderboard, setLeaderboard] = useState<SupabaseLeaderboard[]>([])
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntryWithBadges[]>([]
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -56,18 +62,20 @@ export function Leaderboard() {
           {leaderboard.map((entry, index) => (
             <div
               key={entry.id}
-              className={`group flex items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#00f0ff]/50 hover:bg-[#111317] ${getRankClass(index + 1)}`}
+              className={`group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#00f0ff]/50 hover:bg-[#111317] ${getRankClass(index + 1)}`}
               aria-label={`Rank ${index + 1}: ${entry.name} with ${entry.score} points and ${entry.percentage}% average`}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mb-3 sm:mb-0">
                 <div className="flex items-center justify-center w-10 h-10">
                   {getRankIcon(index + 1)}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="font-heading font-semibold text-white">{entry.name}</p>
-                  <p className="font-mono text-xs text-[#5d5f63]">
-                    Top Performer
-                  </p>
+                  {entry.badges && entry.badges.length > 0 && (
+                    <div className="mt-1">
+                      <BadgeDisplay userBadges={entry.badges} maxDisplay={3} size="sm" showTooltip={false} />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="text-right">

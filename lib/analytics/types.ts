@@ -43,8 +43,6 @@ export interface CertificateStatus {
 }
 
 export interface StudentProgressAnalytics {
-  userId: string
-  cohortId: string
   overallProgress: OverallProgress
   videoProgress: VideoProgress
   assignmentProgress: AssignmentProgress

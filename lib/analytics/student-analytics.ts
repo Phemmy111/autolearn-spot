@@ -55,9 +55,14 @@ export async function getStudentProgressAnalytics(
     quizProgress.lastQuizAt,
   ].filter(Boolean).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] || null
 
+  // Get last activity across all activities
+  const lastActivityAt = [
+    videoProgress.lastActivityAt,
+    assignmentProgress.lastSubmissionAt,
+    quizProgress.lastQuizAt,
+  ].filter(Boolean).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0] || null
+
   return {
-    userId,
-    cohortId: cid,
     overallProgress,
     videoProgress,
     assignmentProgress,

@@ -4,6 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { createNotification } from '@/lib/notifications'
 import { invalidateAfterAssignmentSubmission } from '@/lib/analytics/integration'
+import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
+import { triggerBadgeCheck } from '@/lib/badge-system'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -130,6 +132,23 @@ export async function POST(
     } catch (cacheError) {
       console.error('Failed to invalidate analytics cache:', cacheError)
       // Don't fail the submission if cache invalidation fails
+    }
+
+    // Trigger leaderboard update after assignment submission
+    try {
+      await triggerLeaderboardUpdate(userId, 'assignment')
+    } catch (leaderboardError) {
+      console.error('Failed to trigger leaderboard update:', leaderboardError)
+      // Don't fail the submission if leaderboard update fails
+    }
+
+    // Trigger badge check after assignment submission
+    try {
+      const cohortId = assignment.cohort_id || 'default'
+      await triggerBadgeCheck(userId, cohortId)
+    } catch (badgeError) {
+      console.error('Failed to trigger badge check:', badgeError)
+      // Don't fail the submission if badge check fails
     }
 
     return NextResponse.json({ submission })

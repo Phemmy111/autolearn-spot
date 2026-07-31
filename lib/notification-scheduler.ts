@@ -2,6 +2,7 @@ import { createNotification } from './notifications'
 import { supabaseAdmin } from './supabase'
 import { logAuditEvent, logSystemError } from './audit-logging'
 import { getCurrentCohortId } from './progress-service'
+import { getLiveClassTimeForNotification } from '@/config/live-class'
 
 // Reminder types
 export type ReminderType = 
@@ -38,20 +39,22 @@ export async function sendLiveClassReminder(
     let message: string
     let priority: 'normal' | 'important' | 'urgent' = 'normal'
     
+    const classTime = getLiveClassTimeForNotification()
+    
     switch (reminderType) {
       case '24h':
         title = 'Live Class Tomorrow'
-        message = 'Your live class session starts tomorrow at 8:00 PM (Africa/Lagos). Don\'t miss it!'
+        message = `Your live class session starts tomorrow at ${classTime}. Don't miss it!`
         priority = 'normal'
         break
       case '3h':
         title = 'Live Class in 3 Hours'
-        message = 'Your live class session starts in 3 hours at 8:00 PM (Africa/Lagos). Get ready!'
+        message = `Your live class session starts in 3 hours at ${classTime}. Get ready!`
         priority = 'important'
         break
       case '30m':
         title = 'Live Class Starting Soon'
-        message = 'Your live class session starts in 30 minutes at 8:00 PM (Africa/Lagos). Join now!'
+        message = `Your live class session starts in 30 minutes at ${classTime}. Join now!`
         priority = 'urgent'
         break
       case 'start':

@@ -1,6 +1,6 @@
 "use client";
 import { SignOutButton, useAuth } from '@clerk/nextjs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { videos, isVideoAvailable } from '@/data/videos';
 import { Lock, PlayCircle, Calendar, Menu, X } from 'lucide-react';
@@ -9,6 +9,9 @@ import { AutolearnBot } from '@/components/autolearn-bot';
 import { DashboardWidgets } from '@/components/dashboard-widgets';
 import { Leaderboard } from '@/components/leaderboard';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { BadgeDisplay } from '@/components/badges/badge-display';
+import { UserBadge } from '@/lib/badge-system';
+import { getLiveClassTimeShort } from '@/config/live-class';
 
 export interface VideoCourse {
   id: string
@@ -26,6 +29,26 @@ export default function DashboardPage() {
   const { isSignedIn, user } = useAuth()
   const firstName = user?.firstName || 'Student';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userBadges, setUserBadges] = useState<UserBadge[]>([])
+  const liveClassTime = getLiveClassTimeShort()
+
+  useEffect(() => {
+    async function fetchBadges() {
+      try {
+        const response = await fetch('/api/badges')
+        if (response.ok) {
+          const data = await response.json()
+          setUserBadges(data.badges || [])
+        }
+      } catch (error) {
+        console.error('Failed to fetch badges:', error)
+      }
+    }
+    
+    if (isSignedIn) {
+      fetchBadges()
+    }
+  }, [isSignedIn])
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -186,9 +209,17 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="mb-8 border-l-4 border-[#00f0ff] bg-[#00f0ff]/10 p-4">
           <p className="font-mono text-sm text-[#e2e8e2] leading-relaxed">
-            <strong className="text-[#00f0ff]">Instructor Announcement:</strong> Welcome to the July 13th Cohort, {firstName}! Our first live session is this Saturday at 9PM WAT.
+            <strong className="text-[#00f0ff]">Instructor Announcement:</strong> Welcome to the July 13th Cohort, {firstName}! Our first live session is this Saturday at {liveClassTime}.
           </p>
         </div>
+
+        {/* Badges Section */}
+        {userBadges.length > 0 && (
+          <div className="mb-8 p-4 border border-[#1f2229] bg-[#0c0e12] rounded-lg">
+            <h3 className="font-heading text-lg font-semibold text-white mb-3">Your Achievements</h3>
+            <BadgeDisplay userBadges={userBadges} maxDisplay={5} size="md" />
+          </div>
+        )}
 
         <DashboardWidgets />
 
