@@ -479,8 +479,6 @@ export default function AdminProgressAnalyticsPage() {
               </CardContent>
             </Card>
           </TabsContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </div>
