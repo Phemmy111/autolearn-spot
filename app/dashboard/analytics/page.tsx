@@ -7,39 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BookOpen, FileText, Trophy, Activity, Clock, TrendingUp, CheckCircle, AlertCircle } from 'lucide-react'
-
-interface StudentProgressAnalytics {
-  overallProgress: {
-    percentage: number
-    status: string
-    estimatedCompletionDate: string | null
-  }
-  videoProgress: {
-    completed: number
-    total: number
-    percentage: number
-    averageWatchPct: number
-  }
-  assignmentProgress: {
-    submitted: number
-    total: number
-    percentage: number
-    averageScore: number
-    onTimeRate: number
-  }
-  quizProgress: {
-    completed: number
-    total: number
-    averageScore: number
-    passRate: number
-  }
-  certificate: {
-    eligible: boolean
-    issued: boolean
-    issuedAt: string | null
-  }
-  totalScore: number
-}
+import type { StudentProgressAnalytics } from '@/lib/analytics/types'
 
 export default function StudentAnalyticsPage() {
   const [analytics, setAnalytics] = useState<StudentProgressAnalytics | null>(null)
