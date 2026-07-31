@@ -1,13 +1,13 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { cache } from 'react';
-import { clerkClient } from '@clerk/nextjs';
+import { clerkClient } from '@clerk/nextjs/server';
 
 export interface Enrollment {
   id: string;
   cohort_id: string;
   email: string;
   clerk_user_id: string | null;
-  payment_ref: string | null;
+  payment_ref: string |null;
   amount_paid: number | null;
   status: string;
   starts_at: string | null;
@@ -27,16 +27,26 @@ export interface Enrollment {
  * Automatically link an email-only enrollment to a Clerk User ID
  * Also captures user's name from Clerk metadata
  */
-export async function linkEmailToClerkUser(email: string, clerkUserId: string): Promise<void> {
+export async function linkEmailToClerkUser(
+  email: string,
+  clerkUserId: string
+): Promise<void> {
   try {
-    // Fetch user data from Clerk to get name
-    const user = await clerkClient().users.getUser(clerkUserId);
-    const firstName = user.firstName || null;
-    const lastName = user.lastName || null;
-    const fullName = user.fullName || null;
+    const client = await clerkClient();
 
-    // Update enrollment with clerk_user_id and name fields
-    const updateData: any = { clerk_user_id: clerkUserId };
+    const user = await client.users.getUser(clerkUserId);
+
+    const firstName = user.firstName ?? null;
+    const lastName = user.lastName ?? null;
+    const fullName =
+      user.fullName ??
+      [user.firstName, user.lastName].filter(Boolean).join(' ') ||
+      null;
+
+    const updateData: Record<string, any> = {
+      clerk_user_id: clerkUserId,
+    };
+
     if (firstName) updateData.first_name = firstName;
     if (lastName) updateData.last_name = lastName;
     if (fullName) updateData.full_name = fullName;
@@ -49,9 +59,11 @@ export async function linkEmailToClerkUser(email: string, clerkUserId: string): 
       .select();
 
     if (error) {
-      console.error('Failed to link enrollment to clerk user:', error);
+      console.error('Failed to link enrollment to Clerk user:', error);
     } else if (data && data.length > 0) {
-      console.log(`Successfully linked ${data.length} enrollments to Clerk user ${clerkUserId}`);
+      console.log(
+        `Successfully linked ${data.length} enrollment(s) to Clerk user ${clerkUserId}`
+      );
     }
   } catch (error) {
     console.error('Error in linkEmailToClerkUser:', error);
@@ -59,35 +71,50 @@ export async function linkEmailToClerkUser(email: string, clerkUserId: string): 
 }
 
 /**
- * Fetch all enrollments for a given clerk user (and auto-link if needed by email)
+ * Fetch all enrollments for a given Clerk user (and auto-link if needed)
  */
-export const getUserEnrollments = cache(async (clerkUserId: string, email: string): Promise<Enrollment[]> => {
-  if (!clerkUserId || !email) return [];
+export const getUserEnrollments = cache(
+  async (
+    clerkUserId: string,
+    email: string
+  ): Promise<Enrollment[]> => {
+    if (!clerkUserId || !email) return [];
 
-  // Always attempt to auto-link pending enrollments for this email
-  await linkEmailToClerkUser(email, clerkUserId);
+    // Auto-link email enrollment to Clerk account
+    await linkEmailToClerkUser(email, clerkUserId);
 
-  // Fetch enrollments by clerk_user_id
-  const { data, error } = await supabaseAdmin
-    .from('enrollments')
-    .select(`
-      *,
-      cohort:cohorts (id, name, slug, is_current)
-    `)
-    .eq('clerk_user_id', clerkUserId);
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .select(`
+        *,
+        cohort:cohorts (
+          id,
+          name,
+          slug,
+          is_current
+        )
+      `)
+      .eq('clerk_user_id', clerkUserId);
 
-  if (error) {
-    console.error('Error fetching user enrollments:', error);
-    return [];
+    if (error) {
+      console.error('Error fetching user enrollments:', error);
+      return [];
+    }
+
+    return (data ?? []) as Enrollment[];
   }
-
-  return data as Enrollment[];
-});
+);
 
 /**
  * Helper to check if user has at least one active enrollment
  */
-export async function hasActiveEnrollment(clerkUserId: string, email: string): Promise<boolean> {
+export async function hasActiveEnrollment(
+  clerkUserId: string,
+  email: string
+): Promise<boolean> {
   const enrollments = await getUserEnrollments(clerkUserId, email);
-  return enrollments.some(e => e.status === 'active');
+
+  return enrollments.some(
+    (enrollment) => enrollment.status === 'active'
+  );
 }
