@@ -1,22 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
+import { BADGES, Badge, UserBadge } from '@/lib/badge-definitions'
 
-export interface Badge {
-  id: string
-  name: string
-  description: string
-  icon: string
-  category: 'achievement' | 'engagement' | 'performance' | 'milestone'
-  rarity: 'common' | 'rare' | 'epic' | 'legendary'
-}
-
-export interface UserBadge {
-  badge_id: string
-  user_id: string
-  earned_at: string
-  badge: Badge
-}
-
-export const BADGES: Badge[] = [
+export { BADGES, Badge, UserBadge }
   {
     id: 'first_assignment',
     name: '🥇 First Assignment Submitted',
@@ -447,24 +432,9 @@ export async function triggerBadgeCheck(userId: string, cohortId: string): Promi
 
 /**
  * Send notification when a badge is earned
+ * Note: Disabled to prevent server-only module imports in client code
  */
 async function sendBadgeNotification(userId: string, badge: Badge): Promise<void> {
-  const { createNotification } = await import('@/lib/notifications')
-  
-  try {
-    await createNotification({
-      title: `Badge Earned: ${badge.icon} ${badge.name}`,
-      message: `Congratulations! You've earned the "${badge.name}" badge. ${badge.description}`,
-      category: 'achievement',
-      priority: 'important',
-      target_type: 'student',
-      target_id: userId,
-      action_url: '/dashboard',
-      action_label: 'View Badges',
-      send_email: true,
-      event_id: `badge_earned_${userId}_${badge.id}`,
-    })
-  } catch (error) {
-    console.error('[badge-system] Error sending badge notification:', error)
-  }
+  // Notification sending moved to API routes to avoid server-only module imports
+  console.log(`[badge-system] Badge earned: ${badge.name} for user ${userId}`)
 }

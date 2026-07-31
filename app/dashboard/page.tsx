@@ -10,7 +10,7 @@ import { DashboardWidgets } from '@/components/dashboard-widgets';
 import { Leaderboard } from '@/components/leaderboard';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { BadgeDisplay } from '@/components/badges/badge-display';
-import { UserBadge } from '@/lib/badge-system';
+import { UserBadge } from '@/lib/badge-definitions';
 import { getLiveClassTimeShort } from '@/config/live-class';
 
 export interface VideoCourse {

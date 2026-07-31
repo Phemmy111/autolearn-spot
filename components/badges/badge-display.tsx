@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { UserBadge } from '@/lib/badge-system'
+import { UserBadge, BADGES } from '@/lib/badge-definitions'
 
 interface BadgeDisplayProps {
   userBadges: UserBadge[]
@@ -73,7 +73,6 @@ interface BadgeGridProps {
 }
 
 export function BadgeGrid({ userBadges, showLocked = false }: BadgeGridProps) {
-  const { BADGES } = require('@/lib/badge-system')
   const earnedBadgeIds = new Set(userBadges.map(ub => ub.badge_id))
 
   const getRarityColor = (rarity: string) => {
