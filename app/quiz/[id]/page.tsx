@@ -291,7 +291,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   }
 
   const currentQ = questions[currentQuestion]
-  const options = currentQ.options ? JSON.parse(currentQ.options) : []
+  const options = currentQ.options ? (Array.isArray(currentQ.options) ? currentQ.options : JSON.parse(currentQ.options)) : []
 
   return (
     <div className="mx-auto max-w-3xl">
