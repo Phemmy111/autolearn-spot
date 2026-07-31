@@ -6,9 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    optimizePackageImports: ['@clerk/nextjs', '@clerk/clerk-react'],
-  },
+  optimizePackageImports: ['@clerk/nextjs', '@clerk/clerk-react'],
 }
 
 export default nextConfig

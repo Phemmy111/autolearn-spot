@@ -10,7 +10,7 @@ import { DashboardWidgets } from '@/components/dashboard-widgets';
 import { Leaderboard } from '@/components/leaderboard';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { BadgeDisplay } from '@/components/badges/badge-display';
-import { UserBadge } from '@/lib/badge-definitions';
+import { UserBadge as UserBadgeType } from '@/lib/badge-definitions';
 import { getLiveClassTimeShort } from '@/config/live-class';
 
 export interface VideoCourse {
@@ -29,7 +29,7 @@ export default function DashboardPage() {
   const { isSignedIn, user } = useAuth()
   const [firstName, setFirstName] = useState('Student')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [userBadges, setUserBadges] = useState<UserBadge[]>([])
+  const [userBadges, setUserBadges] = useState<UserBadgeType[]>([])
   const [nextLesson, setNextLesson] = useState<VideoCourse | null>(null)
   const liveClassTime = getLiveClassTimeShort()
 
@@ -113,7 +113,7 @@ export default function DashboardPage() {
         if (response.ok) {
           const data = await response.json()
           console.log('[Dashboard] Badges received:', data.badges)
-          setUserBadges(data.badges || [])
+          setUserBadges((data.badges || []) as UserBadgeType[])
         } else {
           console.error('[Dashboard] Failed to fetch badges:', response.status)
         }

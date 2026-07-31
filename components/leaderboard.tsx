@@ -5,10 +5,10 @@ import { Trophy, Medal, Award, TrendingUp } from 'lucide-react'
 import { fetchLeaderboard } from '@/lib/api/quiz'
 import { SupabaseLeaderboard } from '@/types/quiz'
 import { BadgeDisplay } from '@/components/badges/badge-display'
-import { UserBadge } from '@/lib/badge-definitions'
+import { UserBadge as UserBadgeType } from '@/lib/badge-definitions'
 
 interface LeaderboardEntryWithBadges extends SupabaseLeaderboard {
-  badges?: UserBadge[]
+  badges?: UserBadgeType[]
 }
 
 export function Leaderboard() {

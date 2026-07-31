@@ -1,10 +1,10 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { UserBadge, BADGES } from '@/lib/badge-definitions'
+import { UserBadge as UserBadgeType, BADGES, Badge as BadgeType } from '@/lib/badge-definitions'
 
 interface BadgeDisplayProps {
-  userBadges: UserBadge[]
+  userBadges: UserBadgeType[]
   maxDisplay?: number
   size?: 'sm' | 'md' | 'lg'
   showTooltip?: boolean
@@ -89,7 +89,7 @@ export function BadgeGrid({ userBadges, showLocked = false }: BadgeGridProps) {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-      {badgesToShow.map((badge: any) => {
+      {badgesToShow.map((badge: BadgeType) => {
         const isEarned = earnedBadgeIds.has(badge.id)
         const userBadge = userBadges.find(ub => ub.badge_id === badge.id)
 

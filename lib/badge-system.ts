@@ -1,13 +1,14 @@
 import { supabaseAdmin } from '@/lib/supabase'
-import { BADGES, Badge, UserBadge } from '@/lib/badge-definitions'
+import { BADGES, Badge as BadgeType, UserBadge as UserBadgeType } from '@/lib/badge-definitions'
 
-export { BADGES, Badge, UserBadge } from '@/lib/badge-definitions'
+export { BADGES } from '@/lib/badge-definitions'
+export type { Badge as BadgeType, UserBadge as UserBadgeType } from '@/lib/badge-definitions'
 
 /**
  * Check and award badges for a user based on their progress
  */
-export async function checkAndAwardBadges(userId: string, cohortId: string): Promise<UserBadge[]> {
-  const newBadges: UserBadge[] = []
+export async function checkAndAwardBadges(userId: string, cohortId: string): Promise<UserBadgeType[]> {
+  const newBadges: UserBadgeType[] = []
 
   // Get existing badges to avoid duplicates
   const { data: existingBadges } = await supabaseAdmin
@@ -314,7 +315,7 @@ async function awardBadge(userId: string, badgeId: string): Promise<void> {
 /**
  * Get all badges for a user
  */
-export async function getUserBadges(userId: string): Promise<UserBadge[]> {
+export async function getUserBadges(userId: string): Promise<UserBadgeType[]> {
   const { data: userBadges } = await supabaseAdmin
     .from('user_badges')
     .select('badge_id, earned_at')
@@ -327,13 +328,13 @@ export async function getUserBadges(userId: string): Promise<UserBadge[]> {
     user_id: userId,
     earned_at: ub.earned_at,
     badge: BADGES.find(b => b.id === ub.badge_id)!
-  }))
+  })) as UserBadgeType[]
 }
 
 /**
  * Trigger badge check after user actions
  */
-export async function triggerBadgeCheck(userId: string, cohortId: string): Promise<UserBadge[]> {
+export async function triggerBadgeCheck(userId: string, cohortId: string): Promise<UserBadgeType[]> {
   try {
     const newBadges = await checkAndAwardBadges(userId, cohortId)
     

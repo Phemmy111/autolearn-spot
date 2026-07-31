@@ -45,7 +45,14 @@ export async function linkEmailToClerkUser(
 
     const fullName = user.fullName ?? (fallbackFullName || null);
 
-    const updateData: Record<string, any> = {
+    interface EnrollmentUpdateData {
+      clerk_user_id: string;
+      first_name?: string | null;
+      last_name?: string | null;
+      full_name?: string | null;
+    }
+
+    const updateData: EnrollmentUpdateData = {
       clerk_user_id: clerkUserId,
     };
 

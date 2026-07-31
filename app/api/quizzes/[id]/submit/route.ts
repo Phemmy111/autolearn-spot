@@ -6,6 +6,28 @@ import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
 import { triggerBadgeCheck } from '@/lib/badge-system'
 import { getCurrentCohortId } from '@/lib/progress-service'
 
+interface QuestionResult {
+  id: string;
+  question_text: string;
+  question_type: string;
+  options: string[] | null;
+  user_answer: string;
+  correct_answer: string;
+  is_correct: boolean;
+  explanation: string | null;
+  points: number;
+}
+
+interface QuizQuestion {
+  id: string;
+  question_text: string;
+  question_type: string;
+  options: string[] | null;
+  correct_answer: string;
+  explanation: string | null;
+  points: number;
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -80,11 +102,11 @@ export async function POST(
     // Calculate score
     let correctAnswers = 0
     let totalPoints = 0
-    const questionResults: any[] = []
+    const questionResults: QuestionResult[] = []
 
     console.log('Submitted answers:', JSON.stringify(answers))
 
-    questions.forEach((question: any) => {
+    questions.forEach((question: QuizQuestion) => {
       totalPoints += question.points
       const userAnswer = (answers[question.id] || '').trim()
       const correctAnswer = (question.correct_answer || '').trim()

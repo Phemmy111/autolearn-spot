@@ -1,5 +1,12 @@
 import React from 'react'
 
+interface QRCodeData {
+  modules: {
+    size: number;
+    data: boolean[];
+  };
+}
+
 export function CertificateTemplate({
   name,
   date,
@@ -9,7 +16,7 @@ export function CertificateTemplate({
   name: string
   date: string
   logoSrc?: string
-  qrData?: any
+  qrData?: QRCodeData
   backgroundSrc?: string
 }) {
   return (
