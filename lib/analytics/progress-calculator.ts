@@ -177,12 +177,16 @@ export async function calculateQuizProgress(
     .eq('cohort_id', cohortId)
     .eq('is_active', true)
 
+  console.log('[progress-calculator] calculateQuizProgress - totalQuizzes:', totalQuizzes, 'cohortId:', cohortId)
+
   // Get quiz responses for user
   const { data: responses, error } = await supabaseAdmin
     .from('quiz_responses')
     .select('quiz_id, score, created_at, quizzes(passing_score)')
     .eq('user_id', userId)
     .eq('cohort_id', cohortId)
+
+  console.log('[progress-calculator] calculateQuizProgress - responses:', responses?.length, 'error:', error)
 
   if (error) {
     console.error('[progress-calculator] calculateQuizProgress error:', error)
@@ -263,7 +267,8 @@ export function calculateOverallProgress(
     (assignmentProgress.percentage * assignmentWeight) +
     (quizProgress.percentage * quizWeight)
 
-  const percentage = Math.round(weightedPercentage)
+  // Ensure percentage is a number, not a string
+  const percentage = Math.round(Number(weightedPercentage) || 0)
 
   // Determine status
   let status: OverallProgress['status'] = 'on_track'

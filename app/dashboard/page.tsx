@@ -27,12 +27,43 @@ export interface VideoCourse {
 
 export default function DashboardPage() {
   const { isSignedIn, user } = useAuth()
-  const firstName = user?.firstName || user?.username || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'Student';
+  const [firstName, setFirstName] = useState('Student')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userBadges, setUserBadges] = useState<UserBadge[]>([])
   const liveClassTime = getLiveClassTimeShort()
 
   useEffect(() => {
+    async function fetchUserData() {
+      if (user?.id) {
+        // Try to get user's first name from enrollments table
+        try {
+          const response = await fetch(`/api/user/profile`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.firstName) {
+              setFirstName(data.firstName)
+            } else if (user?.firstName) {
+              setFirstName(user.firstName)
+            } else if (user?.username) {
+              setFirstName(user.username)
+            } else if (user?.emailAddresses?.[0]?.emailAddress) {
+              setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
+            }
+          }
+        } catch (error) {
+          console.error('[Dashboard] Failed to fetch user profile:', error)
+          // Fallback to Clerk data
+          if (user?.firstName) {
+            setFirstName(user.firstName)
+          } else if (user?.username) {
+            setFirstName(user.username)
+          } else if (user?.emailAddresses?.[0]?.emailAddress) {
+            setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
+          }
+        }
+      }
+    }
+    
     async function fetchBadges() {
       try {
         console.log('[Dashboard] Fetching badges for user:', user?.id)
@@ -50,9 +81,10 @@ export default function DashboardPage() {
     }
     
     if (isSignedIn) {
+      fetchUserData()
       fetchBadges()
     }
-  }, [isSignedIn, user?.id])
+  }, [isSignedIn, user?.id, user?.firstName, user?.username, user?.emailAddresses])
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });

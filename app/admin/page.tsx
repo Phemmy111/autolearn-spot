@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin, isSuperAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy, FileText, ClipboardList, FileCheck } from 'lucide-react'
+import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy, FileText, ClipboardList, FileCheck, LineChart, Calendar } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
 import { CourseCompletionCard } from '@/components/admin/CourseCompletionCard'
@@ -43,7 +43,7 @@ export default async function AdminPage() {
 
         <SummaryCard />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link
             href="/admin/quizzes"
             className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
@@ -90,6 +90,15 @@ export default async function AdminPage() {
           </Link>
 
           <Link
+            href="/admin/analytics/progress"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <LineChart className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Student Progress Analytics</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Monitor student engagement, completion rates, and learning trends</p>
+          </Link>
+
+          <Link
             href="/admin/health"
             className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
           >
@@ -100,7 +109,7 @@ export default async function AdminPage() {
 
           <Link
             href="/admin/scholarship"
-            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group lg:col-span-2"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group lg:col-span-3"
           >
             <Sparkles className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
             <h2 className="font-heading text-xl font-bold text-white mb-2">Scholarships</h2>
@@ -161,6 +170,15 @@ export default async function AdminPage() {
             <Settings className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
             <h2 className="font-heading text-xl font-bold text-white mb-2">AI Cost Controls</h2>
             <p className="font-mono text-xs text-[#b9cacb]">Configure AI usage limits and costs (Super Admin only)</p>
+          </Link>
+
+          <Link
+            href="/admin/live-schedule"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <Calendar className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Live Schedule</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Manage live class schedule and times</p>
           </Link>
         </div>
 

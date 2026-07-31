@@ -17,9 +17,37 @@ export function Leaderboard() {
 
   useEffect(() => {
     async function loadLeaderboard() {
-      const data = await fetchLeaderboard()
-      setLeaderboard(data as any[]) // Use any since the API returns LeaderboardEntry but component had SupabaseLeaderboard
-      setLoading(false)
+      try {
+        const data = await fetchLeaderboard()
+        console.log('[Leaderboard] Raw data:', data)
+        
+        // Fetch badges for each leaderboard entry
+        const leaderboardWithBadges = await Promise.all(
+          data.map(async (entry: any) => {
+            try {
+              const badgeResponse = await fetch(`/api/badges?userId=${entry.user_id || entry.id}`)
+              if (badgeResponse.ok) {
+                const badgeData = await badgeResponse.json()
+                return {
+                  ...entry,
+                  badges: badgeData.badges || []
+                }
+              }
+              return entry
+            } catch (error) {
+              console.error('[Leaderboard] Failed to fetch badges for', entry.name, error)
+              return entry
+            }
+          })
+        )
+        
+        console.log('[Leaderboard] Data with badges:', leaderboardWithBadges)
+        setLeaderboard(leaderboardWithBadges as any[])
+      } catch (error) {
+        console.error('[Leaderboard] Error loading leaderboard:', error)
+      } finally {
+        setLoading(false)
+      }
     }
     loadLeaderboard()
   }, [])
@@ -80,7 +108,11 @@ export function Leaderboard() {
               </div>
               <div className="text-right">
                 <p className="font-mono text-lg font-bold text-[#00f0ff]">{entry.score} pts</p>
-                <p className="font-mono text-xs text-[#b9cacb]">{entry.percentage}% avg</p>
+                <div className="text-xs text-[#b9cacb] space-y-1">
+                  <p>Assignments: {entry.assignment_score || 0}</p>
+                  <p>Quizzes: {entry.quiz_score || 0}</p>
+                  <p>Video: {Math.round(entry.video_completion || 0)}%</p>
+                </div>
               </div>
             </div>
           ))}
