@@ -203,6 +203,43 @@ export async function POST(request: NextRequest) {
         reason: 'Payment verification',
       });
 
+      // Create enrollment if not exists
+      try {
+        const { data: currentCohort } = await supabaseAdmin
+          .from('cohorts')
+          .select('id')
+          .eq('is_current', true)
+          .single();
+
+        if (currentCohort) {
+          const enrollmentData: any = {
+            cohort_id: currentCohort.id,
+            email: application.email,
+            payment_ref: reference,
+            amount_paid: amount,
+            status: 'active',
+            activated_at: new Date().toISOString()
+          };
+
+          // Add name fields from application
+          if (application.full_name) {
+            enrollmentData.full_name = application.full_name;
+            const nameParts = application.full_name.split(' ');
+            if (nameParts.length > 0) enrollmentData.first_name = nameParts[0];
+            if (nameParts.length > 1) enrollmentData.last_name = nameParts.slice(1).join(' ');
+          }
+
+          await supabaseAdmin
+            .from('enrollments')
+            .upsert(enrollmentData, { onConflict: 'cohort_id, email' });
+
+          console.log('Enrollment created/updated for:', application.email);
+        }
+      } catch (enrollError) {
+        console.error('Failed to create enrollment:', enrollError);
+        // Don't fail the webhook if enrollment creation fails
+      }
+
       // Create in-app notification for payment verification
       try {
         await createNotification({

@@ -54,7 +54,7 @@ async function checkBadgeCondition(badgeId: string, userId: string, cohortId: st
     case 'perfect_quiz':
       return await checkPerfectQuiz(userId, cohortId)
     
-    case 'seven_day_streak':
+    case 'streak_7':
       return await checkSevenDayStreak(userId)
     
     case 'course_graduate':
@@ -351,9 +351,25 @@ export async function triggerBadgeCheck(userId: string, cohortId: string): Promi
 
 /**
  * Send notification when a badge is earned
- * Note: Disabled to prevent server-only module imports in client code
  */
 async function sendBadgeNotification(userId: string, badge: Badge): Promise<void> {
-  // Notification sending moved to API routes to avoid server-only module imports
-  console.log(`[badge-system] Badge earned: ${badge.name} for user ${userId}`)
+  try {
+    const { createNotification } = await import('./notifications')
+    await createNotification({
+      title: `🏆 Badge Earned: ${badge.name}!`,
+      message: `Congratulations! You've earned the "${badge.name}" badge: ${badge.description}`,
+      category: 'enrollment',
+      priority: 'important',
+      target_type: 'student',
+      target_id: userId,
+      action_url: '/dashboard',
+      action_label: 'View Badges',
+      send_email: true,
+      event_id: `badge_earned_${badge.id}_${userId}_${Date.now()}`,
+    })
+    console.log(`[badge-system] Badge notification sent: ${badge.name} for user ${userId}`)
+  } catch (error) {
+    console.error('[badge-system] Failed to send badge notification:', error)
+    // Don't fail the badge award if notification fails
+  }
 }

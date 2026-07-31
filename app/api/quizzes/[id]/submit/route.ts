@@ -4,6 +4,7 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { createNotification } from '@/lib/notifications'
 import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
 import { triggerBadgeCheck } from '@/lib/badge-system'
+import { getCurrentCohortId } from '@/lib/progress-service'
 
 export async function POST(
   request: Request,
@@ -238,8 +239,8 @@ export async function POST(
 
     // Trigger badge check after quiz submission
     try {
-      const cohortId = quiz.cohort_id || 'default'
-      await triggerBadgeCheck(userId, cohortId)
+      const cohortId = quiz.cohort_id || await getCurrentCohortId()
+      await checkAndAwardBadges(userId, cohortId)
     } catch (badgeError) {
       console.error('Failed to trigger badge check:', badgeError)
       // Don't fail the quiz submission if badge check fails

@@ -14,6 +14,7 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const { userId } = await auth()
+    console.log('[GET /api/analytics/student/progress] userId:', userId)
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -24,6 +25,7 @@ export async function GET() {
       'default' // Will use current cohort
     )
 
+    console.log('[GET /api/analytics/student/progress] analytics:', JSON.stringify(analytics, null, 2))
     return NextResponse.json({ analytics })
   } catch (error) {
     console.error('[GET /api/analytics/student/progress] Error:', error)

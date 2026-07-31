@@ -263,10 +263,63 @@ export function calculateOverallProgress(
     quizProgress: { percentage: quizProgress.percentage, completed: quizProgress.completed, total: quizProgress.total }
   })
 
-  // Weighted calculation: 40% video, 35% assignments, 25% quizzes
-  const videoWeight = 0.4
-  const assignmentWeight = 0.35
-  const quizWeight = 0.25
+  // Count how many categories have content
+  const categoriesWithContent = [
+    videoProgress.total > 0,
+    assignmentProgress.total > 0,
+    quizProgress.total > 0
+  ].filter(Boolean).length
+
+  // If no categories have content, return 0%
+  if (categoriesWithContent === 0) {
+    console.log('[calculateOverallProgress] No content available, returning 0%')
+    return {
+      percentage: 0,
+      status: 'on_track',
+      estimatedCompletionDate: null,
+    }
+  }
+
+  // Adjust weights based on available content
+  // If only some categories have content, redistribute weights proportionally
+  let videoWeight = 0.4
+  let assignmentWeight = 0.35
+  let quizWeight = 0.25
+
+  if (categoriesWithContent < 3) {
+    const totalOriginalWeight = videoWeight + assignmentWeight + quizWeight
+    const availableWeights = []
+    
+    if (videoProgress.total > 0) availableWeights.push(videoWeight)
+    if (assignmentProgress.total > 0) availableWeights.push(assignmentWeight)
+    if (quizProgress.total > 0) availableWeights.push(quizWeight)
+    
+    const totalAvailableWeight = availableWeights.reduce((sum, w) => sum + w, 0)
+    
+    // Normalize weights to sum to 1.0
+    if (videoProgress.total > 0) {
+      videoWeight = (videoWeight / totalAvailableWeight)
+    } else {
+      videoWeight = 0
+    }
+    if (assignmentProgress.total > 0) {
+      assignmentWeight = (assignmentWeight / totalAvailableWeight)
+    } else {
+      assignmentWeight = 0
+    }
+    if (quizProgress.total > 0) {
+      quizWeight = (quizWeight / totalAvailableWeight)
+    } else {
+      quizWeight = 0
+    }
+    
+    console.log('[calculateOverallProgress] Adjusted weights:', {
+      videoWeight,
+      assignmentWeight,
+      quizWeight,
+      categoriesWithContent
+    })
+  }
 
   const weightedPercentage =
     (videoProgress.percentage * videoWeight) +

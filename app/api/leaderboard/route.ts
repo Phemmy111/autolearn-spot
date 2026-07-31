@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
+    console.log('[GET /api/leaderboard] Starting leaderboard fetch')
     const { data: leaderboard, error } = await supabaseAdmin
       .from('leaderboard')
       .select('*')
@@ -16,7 +17,8 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log('[GET /api/leaderboard] Raw leaderboard data:', leaderboard)
+    console.log('[GET /api/leaderboard] Raw leaderboard data:', JSON.stringify(leaderboard, null, 2))
+    console.log('[GET /api/leaderboard] Number of entries:', leaderboard?.length || 0)
 
     // Map to expected frontend LeaderboardEntry format with new scoring system
     const formattedLeaderboard = leaderboard.map((entry: any, index: number) => ({
@@ -34,7 +36,7 @@ export async function GET() {
       certificate_bonus: entry.certificate_bonus || 0
     }))
 
-    console.log('[GET /api/leaderboard] Formatted leaderboard:', formattedLeaderboard)
+    console.log('[GET /api/leaderboard] Formatted leaderboard:', JSON.stringify(formattedLeaderboard, null, 2))
 
     return NextResponse.json({ leaderboard: formattedLeaderboard })
   } catch (error) {

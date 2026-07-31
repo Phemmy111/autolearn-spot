@@ -96,17 +96,27 @@ export async function POST(req: Request) {
     }
 
     // Upsert Enrollment mapping to the logged-in clerkUserId
+    const enrollmentData: any = {
+      cohort_id: resolvedCohortId,
+      email: payment.customer_email,
+      clerk_user_id: userId,
+      payment_ref: reference,
+      amount_paid: payment.amount,
+      status: 'active',
+      activated_at: new Date().toISOString()
+    }
+
+    // Add name fields from payment customer data
+    if (payment.customer_name) {
+      enrollmentData.full_name = payment.customer_name
+      const nameParts = payment.customer_name.split(' ')
+      if (nameParts.length > 0) enrollmentData.first_name = nameParts[0]
+      if (nameParts.length > 1) enrollmentData.last_name = nameParts.slice(1).join(' ')
+    }
+
     const { error: enrollError } = await supabaseAdmin
       .from('enrollments')
-      .upsert({
-        cohort_id: resolvedCohortId,
-        email: payment.customer_email,
-        clerk_user_id: userId,
-        payment_ref: reference,
-        amount_paid: payment.amount,
-        status: 'active',
-        activated_at: new Date().toISOString()
-      }, {
+      .upsert(enrollmentData, {
         onConflict: 'cohort_id, email'
       });
 

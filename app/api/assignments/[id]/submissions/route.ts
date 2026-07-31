@@ -6,6 +6,7 @@ import { createNotification } from '@/lib/notifications'
 import { invalidateAfterAssignmentSubmission } from '@/lib/analytics/integration'
 import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
 import { triggerBadgeCheck } from '@/lib/badge-system'
+import { getCurrentCohortId } from '@/lib/progress-service'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -38,7 +39,7 @@ export async function POST(
     // Check if assignment exists
     const { data: assignment, error: assignmentError } = await supabase
       .from('assignments')
-      .select('id, title, week_number')
+      .select('id, title, week_number, cohort_id')
       .eq('id', assignmentId)
       .single()
 
@@ -127,7 +128,7 @@ export async function POST(
 
     // Invalidate analytics cache after assignment submission
     try {
-      const cohortId = assignment.cohort_id || 'default'
+      const cohortId = assignment.cohort_id || await getCurrentCohortId()
       await invalidateAfterAssignmentSubmission(userId, cohortId)
     } catch (cacheError) {
       console.error('Failed to invalidate analytics cache:', cacheError)
@@ -144,8 +145,8 @@ export async function POST(
 
     // Trigger badge check after assignment submission
     try {
-      const cohortId = assignment.cohort_id || 'default'
-      await triggerBadgeCheck(userId, cohortId)
+      const cohortId = assignment.cohort_id || await getCurrentCohortId()
+      await checkAndAwardBadges(userId, cohortId)
     } catch (badgeError) {
       console.error('Failed to trigger badge check:', badgeError)
       // Don't fail the submission if badge check fails

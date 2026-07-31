@@ -13,6 +13,9 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
   const [formData, setFormData] = useState({
     email: '',
     clerkUserId: '',
+    firstName: '',
+    lastName: '',
+    fullName: '',
     cohortId: cohorts.find(c => c.is_current)?.id || cohorts[0]?.id || '',
     status: 'active',
     reason: ''
@@ -43,6 +46,9 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
         ...prev,
         email: '',
         clerkUserId: '',
+        firstName: '',
+        lastName: '',
+        fullName: '',
         reason: '',
       }))
       
@@ -58,10 +64,17 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
     const { name, value, type } = e.target as HTMLInputElement
     const checked = (e.target as HTMLInputElement).checked
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }
+      // Auto-generate fullName when firstName or lastName changes
+      if (name === 'firstName' || name === 'lastName') {
+        updated.fullName = `${updated.firstName} ${updated.lastName}`.trim()
+      }
+      return updated
+    })
   }
 
   return (
@@ -116,6 +129,53 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="firstName" className="block font-mono text-sm text-[#b9cacb]">
+            First Name <span className="text-red-400">*</span>
+          </label>
+          <input
+            id="firstName"
+            name="firstName"
+            type="text"
+            required
+            placeholder="John"
+            value={formData.firstName}
+            onChange={handleChange}
+            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="lastName" className="block font-mono text-sm text-[#b9cacb]">
+            Last Name <span className="text-red-400">*</span>
+          </label>
+          <input
+            id="lastName"
+            name="lastName"
+            type="text"
+            required
+            placeholder="Doe"
+            value={formData.lastName}
+            onChange={handleChange}
+            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="fullName" className="block font-mono text-sm text-[#b9cacb]">
+            Full Name (Auto-generated)
+          </label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            placeholder="John Doe"
+            value={formData.fullName}
+            onChange={handleChange}
+            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+          />
         </div>
 
         <div className="space-y-2">

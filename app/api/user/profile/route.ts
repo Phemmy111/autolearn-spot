@@ -15,22 +15,30 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    console.log('[GET /api/user/profile] userId:', userId)
+
     // Try to get name from enrollments table
-    const { data: enrollment } = await supabaseAdmin
+    const { data: enrollment, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
-      .select('first_name, last_name, full_name')
+      .select('first_name, last_name, full_name, email')
       .eq('clerk_user_id', userId)
       .single()
 
+    console.log('[GET /api/user/profile] enrollment:', enrollment)
+    console.log('[GET /api/user/profile] enrollmentError:', enrollmentError)
+
     if (enrollment) {
-      return NextResponse.json({ 
+      const result = { 
         firstName: enrollment.first_name,
         lastName: enrollment.last_name,
         fullName: enrollment.full_name || (enrollment.first_name && enrollment.last_name ? `${enrollment.first_name} ${enrollment.last_name}` : null)
-      })
+      }
+      console.log('[GET /api/user/profile] returning:', result)
+      return NextResponse.json(result)
     }
 
     // If not found in enrollments, return empty
+    console.log('[GET /api/user/profile] No enrollment found, returning empty')
     return NextResponse.json({ firstName: null, lastName: null, fullName: null })
   } catch (error) {
     console.error('[GET /api/user/profile] Error:', error)

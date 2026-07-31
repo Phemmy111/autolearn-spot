@@ -36,28 +36,45 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchUserData() {
       if (user?.id) {
+        console.log('[Dashboard] fetchUserData - user:', user)
+        console.log('[Dashboard] fetchUserData - user.id:', user.id)
+        console.log('[Dashboard] fetchUserData - user.firstName:', user.firstName)
+        console.log('[Dashboard] fetchUserData - user.fullName:', user.fullName)
+        console.log('[Dashboard] fetchUserData - user.username:', user.username)
+        console.log('[Dashboard] fetchUserData - user.emailAddresses:', user.emailAddresses)
+
         // Try to get user's name from enrollments table
         try {
           const response = await fetch(`/api/user/profile`)
+          console.log('[Dashboard] fetchUserData - response.ok:', response.ok)
           if (response.ok) {
             const data = await response.json()
+            console.log('[Dashboard] fetchUserData - API data:', data)
             // Fallback chain: firstName → fullName → username → email prefix → "Student"
             if (data.firstName) {
+              console.log('[Dashboard] Using firstName from API:', data.firstName)
               setFirstName(data.firstName)
             } else if (data.fullName) {
+              console.log('[Dashboard] Using fullName from API:', data.fullName)
               setFirstName(data.fullName.split(' ')[0]) // Use first name from full name
             } else if (user?.firstName) {
+              console.log('[Dashboard] Using firstName from Clerk:', user.firstName)
               setFirstName(user.firstName)
             } else if (user?.fullName) {
+              console.log('[Dashboard] Using fullName from Clerk:', user.fullName)
               setFirstName(user.fullName.split(' ')[0])
             } else if (user?.username) {
+              console.log('[Dashboard] Using username from Clerk:', user.username)
               setFirstName(user.username)
             } else if (user?.emailAddresses?.[0]?.emailAddress) {
+              console.log('[Dashboard] Using email from Clerk:', user.emailAddresses[0].emailAddress)
               setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
             } else {
+              console.log('[Dashboard] No name found, using "Student"')
               setFirstName('Student')
             }
           } else {
+            console.log('[Dashboard] API response not ok, falling back to Clerk')
             // Fallback to Clerk data if API fails
             if (user?.firstName) {
               setFirstName(user.firstName)
