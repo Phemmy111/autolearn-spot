@@ -86,11 +86,11 @@ export async function POST(
       return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
     }
 
+    const typedQuiz = quiz as Quiz
+
     if (!typedQuiz.is_active) {
       return NextResponse.json({ error: 'Quiz is not active' }, { status: 403 })
     }
-
-    const typedQuiz = quiz as Quiz
 
     // Get quiz questions to calculate score
     const { data: questions, error: questionsError } = await supabaseAdmin
