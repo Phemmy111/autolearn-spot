@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const adminEmail = adminInfo?.email || 'Unknown Admin'
 
     const body = await req.json()
-    const { email, clerkUserId, cohortId, status, reason } = body
+    const { email, clerkUserId, cohortId, status, reason, firstName, lastName, fullName } = body
 
     if (!email || !cohortId) {
       return NextResponse.json({ error: 'Email and Cohort are required' }, { status: 400 })
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     const formattedNotes = reason ? reason.trim() : null
 
     // 3. Create or update the enrollment
-    const enrollmentData = {
+    const enrollmentData: any = {
       cohort_id: cohortId,
       email: email.toLowerCase().trim(),
       status: status || 'active',
@@ -40,8 +40,13 @@ export async function POST(req: Request) {
     }
 
     if (clerkUserId) {
-      (enrollmentData as any).clerk_user_id = clerkUserId
+      enrollmentData.clerk_user_id = clerkUserId
     }
+
+    // Add name fields if provided
+    if (firstName) enrollmentData.first_name = firstName
+    if (lastName) enrollmentData.last_name = lastName
+    if (fullName) enrollmentData.full_name = fullName
 
     const { error: upsertError } = await supabaseAdmin
       .from('enrollments')

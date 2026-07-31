@@ -162,14 +162,19 @@ export async function updateLeaderboardEntry(
 ): Promise<void> {
   const scoreBreakdown = await calculateLeaderboardScore({ userId, cohortId })
 
-  // Get user name from enrollments
+  // Get user name and email from enrollments (prefer full_name, fallback to email prefix)
   const { data: enrollment } = await supabaseAdmin
     .from('enrollments')
-    .select('email')
+    .select('email, full_name, first_name, last_name')
     .eq('clerk_user_id', userId)
     .single()
 
-  const userName = enrollment?.email?.split('@')[0] || 'Anonymous'
+  const userName = enrollment?.full_name || 
+                    (enrollment?.first_name && enrollment?.last_name ? `${enrollment.first_name} ${enrollment.last_name}` : null) ||
+                    enrollment?.email?.split('@')[0] || 
+                    'Anonymous'
+  
+  const userEmail = enrollment?.email || null
 
   // Check if entry exists
   const { data: existingEntry } = await supabaseAdmin
@@ -191,6 +196,7 @@ export async function updateLeaderboardEntry(
         video_completion: scoreBreakdown.videoScore,
         certificate_bonus: scoreBreakdown.certificateBonus,
         user_name: userName,
+        user_email: userEmail,
         updated_at: new Date().toISOString()
       })
       .eq('id', existingEntry.id)
@@ -208,6 +214,7 @@ export async function updateLeaderboardEntry(
         video_completion: scoreBreakdown.videoScore,
         certificate_bonus: scoreBreakdown.certificateBonus,
         user_name: userName,
+        user_email: userEmail,
         rank: null // Will be calculated by a separate function
       })
   }

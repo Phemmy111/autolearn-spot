@@ -187,6 +187,7 @@ export async function POST(
       .insert({
         quiz_id: id,
         user_id: userId,
+        cohort_id: quiz.cohort_id,
         user_name: userName,
         user_email: userEmail,
         answers,

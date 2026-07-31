@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { cache } from 'react';
+import { clerkClient } from '@clerk/nextjs';
 
 export interface Enrollment {
   id: string;
@@ -11,6 +12,9 @@ export interface Enrollment {
   status: string;
   starts_at: string | null;
   expires_at: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  full_name?: string | null;
   cohort?: {
     id: string;
     name: string;
@@ -21,19 +25,36 @@ export interface Enrollment {
 
 /**
  * Automatically link an email-only enrollment to a Clerk User ID
+ * Also captures user's name from Clerk metadata
  */
 export async function linkEmailToClerkUser(email: string, clerkUserId: string): Promise<void> {
-  const { data, error } = await supabaseAdmin
-    .from('enrollments')
-    .update({ clerk_user_id: clerkUserId })
-    .eq('email', email)
-    .is('clerk_user_id', null)
-    .select();
+  try {
+    // Fetch user data from Clerk to get name
+    const user = await clerkClient().users.getUser(clerkUserId);
+    const firstName = user.firstName || null;
+    const lastName = user.lastName || null;
+    const fullName = user.fullName || null;
 
-  if (error) {
-    console.error('Failed to link enrollment to clerk user:', error);
-  } else if (data && data.length > 0) {
-    console.log(`Successfully linked ${data.length} enrollments to Clerk user ${clerkUserId}`);
+    // Update enrollment with clerk_user_id and name fields
+    const updateData: any = { clerk_user_id: clerkUserId };
+    if (firstName) updateData.first_name = firstName;
+    if (lastName) updateData.last_name = lastName;
+    if (fullName) updateData.full_name = fullName;
+
+    const { data, error } = await supabaseAdmin
+      .from('enrollments')
+      .update(updateData)
+      .eq('email', email)
+      .is('clerk_user_id', null)
+      .select();
+
+    if (error) {
+      console.error('Failed to link enrollment to clerk user:', error);
+    } else if (data && data.length > 0) {
+      console.log(`Successfully linked ${data.length} enrollments to Clerk user ${clerkUserId}`);
+    }
+  } catch (error) {
+    console.error('Error in linkEmailToClerkUser:', error);
   }
 }
 
