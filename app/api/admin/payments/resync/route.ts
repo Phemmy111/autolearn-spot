@@ -4,11 +4,12 @@ import { requireSuperAdmin } from '@/lib/admin';
 
 export async function POST(req: Request) {
   try {
-    const adminCheck = await requireSuperAdmin();
-    if (!adminCheck.success) {
-      return NextResponse.json({ error: 'Unauthorized: Super admin access required' }, { status: 403 });
-    }
+    await requireSuperAdmin();
+  } catch (authError) {
+    return NextResponse.json({ error: 'Unauthorized: Super admin access required' }, { status: 403 });
+  }
 
+  try {
     const { reference } = await req.json();
     if (!reference) {
       return NextResponse.json({ error: 'Payment reference is required' }, { status: 400 });
