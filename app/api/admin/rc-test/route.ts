@@ -213,7 +213,7 @@ async function testBadges() {
       .from('user_badges')
       .select('id', { count: 'exact', head: true })
     
-    const hasBadgeSystem = badgesCount > 0
+    const hasBadgeSystem = (badgesCount || 0) > 0
     
     return {
       name: 'Badges',
