@@ -62,7 +62,7 @@ export async function GET(request: Request) {
 
     // Generate raw QR Code matrix to render as native SVG rects in Satori
     const verifyUrl = `${baseUrl}/certificate/verify?name=${encodeURIComponent(userName)}&date=${encodeURIComponent(dateStr)}`
-    const qrData = QRCode.create(verifyUrl, { margin: 1 })
+    const qrData = QRCode.create(verifyUrl)
     // qrData.modules is a boolean matrix packed into a 1D array (data) with a size property
 
     // Use absolute URL for the background and logo so next/og can fetch them
