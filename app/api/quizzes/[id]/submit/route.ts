@@ -6,6 +6,13 @@ import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
 import { triggerBadgeCheck } from '@/lib/badge-system'
 import { getCurrentCohortId } from '@/lib/progress-service'
 
+interface Quiz {
+  passing_score: number;
+  is_active: boolean;
+  cohort_id: string;
+  time_limit?: number;
+}
+
 interface QuestionResult {
   id: string;
   question_text: string;
@@ -71,7 +78,7 @@ export async function POST(
     // Get quiz details (verify quiz exists and is active)
     const { data: quiz, error: quizError } = await supabaseAdmin
       .from('quizzes')
-      .select('passing_score, is_active, cohort_id')
+      .select('passing_score, is_active, cohort_id, time_limit')
       .eq('id', id)
       .single()
 
@@ -79,9 +86,11 @@ export async function POST(
       return NextResponse.json({ error: 'Quiz not found' }, { status: 404 })
     }
 
-    if (!quiz.is_active) {
+    if (!typedQuiz.is_active) {
       return NextResponse.json({ error: 'Quiz is not active' }, { status: 403 })
     }
+
+    const typedQuiz = quiz as Quiz
 
     // Get quiz questions to calculate score
     const { data: questions, error: questionsError } = await supabaseAdmin
@@ -196,11 +205,11 @@ export async function POST(
 
     console.log(`Score: ${score}/${totalPoints} = ${percentage}%`)
 
-    const passed = percentage >= quiz.passing_score
+    const passed = percentage >= typedQuiz.passing_score
 
     // Validate time limit on server side (security check)
-    if (time_taken && quiz.time_limit && time_taken > quiz.time_limit * 60) {
-      console.error(`Time limit exceeded for quiz ${id} by user ${userId}: ${time_taken}s vs limit ${quiz.time_limit * 60}s`)
+    if (time_taken && typedQuiz.time_limit && time_taken > typedQuiz.time_limit * 60) {
+      console.error(`Time limit exceeded for quiz ${id} by user ${userId}: ${time_taken}s vs limit ${typedQuiz.time_limit * 60}s`)
       return NextResponse.json({ error: 'Time limit exceeded' }, { status: 403 })
     }
 
@@ -210,7 +219,7 @@ export async function POST(
       .insert({
         quiz_id: id,
         user_id: userId,
-        cohort_id: quiz.cohort_id,
+        cohort_id: typedQuiz.cohort_id,
         user_name: userName,
         user_email: userEmail,
         answers,
@@ -261,7 +270,7 @@ export async function POST(
 
     // Trigger badge check after quiz submission
     try {
-      const cohortId = quiz.cohort_id || await getCurrentCohortId()
+      const cohortId = typedQuiz.cohort_id || await getCurrentCohortId()
       await triggerBadgeCheck(userId, cohortId)
     } catch (badgeError) {
       console.error('Failed to trigger badge check:', badgeError)
