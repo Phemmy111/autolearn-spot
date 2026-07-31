@@ -37,10 +37,13 @@ export async function getCohortAnalytics(
   // Calculate active students (last 7 days)
   const activeStudents = await calculateActiveStudents(cid, 7)
 
+  // Ensure activeStudents never exceeds totalStudents
+  const safeActiveStudents = Math.min(activeStudents, totalStudents || 0)
+
   return {
     cohortId: cid,
     totalStudents: totalStudents || 0,
-    activeStudents,
+    activeStudents: safeActiveStudents,
     engagementMetrics,
     performanceDistribution,
     averageProgress,
@@ -54,19 +57,23 @@ export async function getCohortAnalytics(
 async function calculateEngagementMetrics(
   cohortId: string
 ): Promise<EngagementMetrics> {
-  // Active students in last 7 days
-  const { count: active7d } = await supabaseAdmin
+  // Active students in last 7 days (unique students)
+  const { data: active7dData } = await supabaseAdmin
     .from('login_activity')
-    .select('user_id', { count: 'exact', head: true })
+    .select('user_id')
     .eq('cohort_id', cohortId)
     .gte('login_time', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
 
-  // Active students in last 30 days
-  const { count: active30d } = await supabaseAdmin
+  const active7d = new Set(active7dData?.map(l => l.user_id) || []).size
+
+  // Active students in last 30 days (unique students)
+  const { data: active30dData } = await supabaseAdmin
     .from('login_activity')
-    .select('user_id', { count: 'exact', head: true })
+    .select('user_id')
     .eq('cohort_id', cohortId)
     .gte('login_time', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+
+  const active30d = new Set(active30dData?.map(l => l.user_id) || []).size
 
   // Average session duration
   const { data: sessions } = await supabaseAdmin
@@ -92,14 +99,14 @@ async function calculateEngagementMetrics(
     .gte('login_time', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
 
   const averageLoginFrequency =
-    active30d && active30d > 0 ? Math.round((totalLogins30d || 0) / active30d / 4) : 0
+    active30d > 0 ? Math.round((totalLogins30d || 0) / active30d / 4) : 0
 
   // Course completion rate
   const completionRate = await calculateCompletionRate(cohortId)
 
   return {
-    activeStudents7d: active7d || 0,
-    activeStudents30d: active30d || 0,
+    activeStudents7d: active7d,
+    activeStudents30d: active30d,
     averageSessionDuration,
     averageLoginFrequency,
     courseCompletionRate: completionRate,
@@ -317,19 +324,21 @@ async function calculateCompletionRate(cohortId: string): Promise<number> {
 }
 
 /**
- * Calculate active students in a time period
+ * Calculate active students in a time period (unique students)
  */
 async function calculateActiveStudents(
   cohortId: string,
   days: number
 ): Promise<number> {
-  const { count } = await supabaseAdmin
+  const { data } = await supabaseAdmin
     .from('login_activity')
-    .select('user_id', { count: 'exact', head: true })
+    .select('user_id')
     .eq('cohort_id', cohortId)
     .gte('login_time', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString())
 
-  return count || 0
+  // Count unique students
+  const uniqueStudents = new Set(data?.map(l => l.user_id) || []).size
+  return uniqueStudents
 }
 
 /**

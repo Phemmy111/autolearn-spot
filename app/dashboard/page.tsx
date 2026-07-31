@@ -30,24 +30,45 @@ export default function DashboardPage() {
   const [firstName, setFirstName] = useState('Student')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userBadges, setUserBadges] = useState<UserBadge[]>([])
+  const [nextLesson, setNextLesson] = useState<VideoCourse | null>(null)
   const liveClassTime = getLiveClassTimeShort()
 
   useEffect(() => {
     async function fetchUserData() {
       if (user?.id) {
-        // Try to get user's first name from enrollments table
+        // Try to get user's name from enrollments table
         try {
           const response = await fetch(`/api/user/profile`)
           if (response.ok) {
             const data = await response.json()
+            // Fallback chain: firstName → fullName → username → email prefix → "Student"
             if (data.firstName) {
               setFirstName(data.firstName)
+            } else if (data.fullName) {
+              setFirstName(data.fullName.split(' ')[0]) // Use first name from full name
             } else if (user?.firstName) {
               setFirstName(user.firstName)
+            } else if (user?.fullName) {
+              setFirstName(user.fullName.split(' ')[0])
             } else if (user?.username) {
               setFirstName(user.username)
             } else if (user?.emailAddresses?.[0]?.emailAddress) {
               setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
+            } else {
+              setFirstName('Student')
+            }
+          } else {
+            // Fallback to Clerk data if API fails
+            if (user?.firstName) {
+              setFirstName(user.firstName)
+            } else if (user?.fullName) {
+              setFirstName(user.fullName.split(' ')[0])
+            } else if (user?.username) {
+              setFirstName(user.username)
+            } else if (user?.emailAddresses?.[0]?.emailAddress) {
+              setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
+            } else {
+              setFirstName('Student')
             }
           }
         } catch (error) {
@@ -55,10 +76,14 @@ export default function DashboardPage() {
           // Fallback to Clerk data
           if (user?.firstName) {
             setFirstName(user.firstName)
+          } else if (user?.fullName) {
+            setFirstName(user.fullName.split(' ')[0])
           } else if (user?.username) {
             setFirstName(user.username)
           } else if (user?.emailAddresses?.[0]?.emailAddress) {
             setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
+          } else {
+            setFirstName('Student')
           }
         }
       }
@@ -79,12 +104,29 @@ export default function DashboardPage() {
         console.error('[Dashboard] Failed to fetch badges:', error)
       }
     }
+
+    async function fetchNextLesson() {
+      try {
+        const response = await fetch('/api/progress')
+        if (response.ok) {
+          const data = await response.json()
+          // Find the first available video that hasn't been completed
+          const availableVideos = videos.filter(isVideoAvailable)
+          const completedVideoIds = data.completedLessons || []
+          const nextVideo = availableVideos.find(v => !completedVideoIds.includes(v.id))
+          setNextLesson(nextVideo || null)
+        }
+      } catch (error) {
+        console.error('[Dashboard] Failed to fetch next lesson:', error)
+      }
+    }
     
     if (isSignedIn) {
       fetchUserData()
       fetchBadges()
+      fetchNextLesson()
     }
-  }, [isSignedIn, user?.id, user?.firstName, user?.username, user?.emailAddresses])
+  }, [isSignedIn, user?.id, user?.firstName, user?.fullName, user?.username, user?.emailAddresses])
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -254,6 +296,28 @@ export default function DashboardPage() {
           <div className="mb-8 p-4 border border-[#1f2229] bg-[#0c0e12] rounded-lg">
             <h3 className="font-heading text-lg font-semibold text-white mb-3">Your Achievements</h3>
             <BadgeDisplay userBadges={userBadges} maxDisplay={5} size="md" />
+          </div>
+        )}
+
+        {/* Next Lesson / Continue Learning */}
+        {nextLesson && (
+          <div className="mb-8 p-4 border border-[#00f0ff]/30 bg-[#00f0ff]/5 rounded-lg">
+            <div className="flex items-start gap-4">
+              <PlayCircle className="h-8 w-8 text-[#00f0ff] flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-heading text-lg font-semibold text-white mb-2">Continue Learning</h3>
+                <p className="font-mono text-sm text-[#b9cacb] mb-3">
+                  Next Lesson: <span className="text-white font-semibold">{nextLesson.title}</span>
+                </p>
+                <Link
+                  href={`/dashboard/video/${nextLesson.id}`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#00f0ff] text-black font-mono text-xs font-bold uppercase rounded hover:bg-white transition-colors"
+                >
+                  <PlayCircle className="h-4 w-4" />
+                  Watch Now
+                </Link>
+              </div>
+            </div>
           </div>
         )}
 

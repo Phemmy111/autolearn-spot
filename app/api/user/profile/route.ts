@@ -15,22 +15,23 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Try to get first name from enrollments table
+    // Try to get name from enrollments table
     const { data: enrollment } = await supabaseAdmin
       .from('enrollments')
-      .select('first_name, last_name')
+      .select('first_name, last_name, full_name')
       .eq('clerk_user_id', userId)
       .single()
 
-    if (enrollment && enrollment.first_name) {
+    if (enrollment) {
       return NextResponse.json({ 
         firstName: enrollment.first_name,
-        lastName: enrollment.last_name 
+        lastName: enrollment.last_name,
+        fullName: enrollment.full_name || (enrollment.first_name && enrollment.last_name ? `${enrollment.first_name} ${enrollment.last_name}` : null)
       })
     }
 
     // If not found in enrollments, return empty
-    return NextResponse.json({ firstName: null, lastName: null })
+    return NextResponse.json({ firstName: null, lastName: null, fullName: null })
   } catch (error) {
     console.error('[GET /api/user/profile] Error:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })

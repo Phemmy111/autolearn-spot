@@ -152,7 +152,7 @@ export default function StudentAnalyticsPage() {
             )}
           </div>
           <Progress value={analytics.overallProgress.percentage} className="h-3" />
-          {analytics.certificate.issued && (
+          {analytics.certificate.issued && analytics.certificate.eligible && analytics.overallProgress.percentage >= 100 && (
             <div className="flex items-center text-sm text-green-400">
               <Trophy className="mr-2 h-4 w-4" />
               Certificate earned on {new Date(analytics.certificate.issuedAt!).toLocaleDateString()}

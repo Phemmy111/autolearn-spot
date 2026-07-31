@@ -257,6 +257,12 @@ export function calculateOverallProgress(
   assignmentProgress: AssignmentProgress,
   quizProgress: QuizProgress
 ): OverallProgress {
+  console.log('[calculateOverallProgress] Input:', {
+    videoProgress: { percentage: videoProgress.percentage, completed: videoProgress.completed, total: videoProgress.total },
+    assignmentProgress: { percentage: assignmentProgress.percentage, submitted: assignmentProgress.submitted, total: assignmentProgress.total },
+    quizProgress: { percentage: quizProgress.percentage, completed: quizProgress.completed, total: quizProgress.total }
+  })
+
   // Weighted calculation: 40% video, 35% assignments, 25% quizzes
   const videoWeight = 0.4
   const assignmentWeight = 0.35
@@ -269,6 +275,11 @@ export function calculateOverallProgress(
 
   // Ensure percentage is a number, not a string
   const percentage = Math.round(Number(weightedPercentage) || 0)
+
+  console.log('[calculateOverallProgress] Calculated:', {
+    weightedPercentage,
+    finalPercentage: percentage
+  })
 
   // Determine status
   let status: OverallProgress['status'] = 'on_track'

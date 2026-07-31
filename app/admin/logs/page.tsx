@@ -90,19 +90,19 @@ export default function AuditLogsPage() {
   
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-green-400';
+      case 'success': return 'text-emerald-400';
       case 'failure': return 'text-red-400';
-      case 'warning': return 'text-yellow-400';
+      case 'warning': return 'text-amber-400';
       default: return 'text-[#b9cacb]';
     }
   };
-  
+
   const getEventTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
-      user_activity: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+      user_activity: 'bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/30',
       admin_activity: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
-      scholarship_lifecycle: 'bg-green-500/20 text-green-400 border border-green-500/30',
-      payment: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
+      scholarship_lifecycle: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+      payment: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
       email: 'bg-pink-500/20 text-pink-400 border border-pink-500/30',
       system_error: 'bg-red-500/20 text-red-400 border border-red-500/30',
     };

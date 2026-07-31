@@ -37,6 +37,8 @@ export async function calculateLeaderboardScore(
 ): Promise<LeaderboardScoreBreakdown> {
   const { userId, cohortId } = params
 
+  console.log('[calculateLeaderboardScore] Starting calculation for:', { userId, cohortId })
+
   // 1. Get assignment performance (40% weight)
   const assignmentResult = await supabaseAdmin
     .from('submissions')
@@ -56,6 +58,12 @@ export async function calculateLeaderboardScore(
     ? assignmentScores.reduce((sum, score) => sum + score, 0) / assignmentScores.length
     : 0
   const assignmentContribution = averageAssignmentScore * 0.4
+
+  console.log('[calculateLeaderboardScore] Assignment:', {
+    scores: assignmentScores,
+    average: averageAssignmentScore,
+    contribution: assignmentContribution
+  })
 
   // 2. Get quiz performance (40% weight)
   const quizResult = await supabaseAdmin
@@ -79,6 +87,12 @@ export async function calculateLeaderboardScore(
     : 0
   const quizContribution = averageQuizScore * 0.4
 
+  console.log('[calculateLeaderboardScore] Quiz:', {
+    scores: quizScores,
+    average: averageQuizScore,
+    contribution: quizContribution
+  })
+
   // 3. Get video completion (15% weight)
   const { count: totalLessons } = await supabaseAdmin
     .from('lessons')
@@ -97,6 +111,13 @@ export async function calculateLeaderboardScore(
     : 0
   const videoContribution = videoCompletionRate * 100 * 0.15
 
+  console.log('[calculateLeaderboardScore] Video:', {
+    totalLessons,
+    completed: completedLessons?.length || 0,
+    rate: videoCompletionRate,
+    contribution: videoContribution
+  })
+
   // 4. Certificate bonus (5% weight - fixed 5 points if earned)
   const { data: certificate } = await supabaseAdmin
     .from('certificates')
@@ -107,8 +128,21 @@ export async function calculateLeaderboardScore(
 
   const certificateBonus = certificate ? 5 : 0
 
+  console.log('[calculateLeaderboardScore] Certificate:', {
+    hasCertificate: !!certificate,
+    bonus: certificateBonus
+  })
+
   // Calculate total score
   const totalScore = assignmentContribution + quizContribution + videoContribution + certificateBonus
+
+  console.log('[calculateLeaderboardScore] Total:', {
+    assignmentContribution,
+    quizContribution,
+    videoContribution,
+    certificateBonus,
+    totalScore
+  })
 
   return {
     assignmentScore: Math.round(averageAssignmentScore),
