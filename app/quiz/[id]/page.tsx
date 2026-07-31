@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAuth } from '@clerk/nextjs'
+import { useAuth, useUser } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fetchQuizById, submitQuiz } from '@/lib/api/quiz'
 import { SupabaseQuiz, SupabaseQuestion } from '@/types/quiz'
@@ -10,7 +10,8 @@ import { CheckCircle, XCircle, ArrowLeft, Clock, Target } from 'lucide-react'
 import Link from 'next/link'
 
 export default function QuizPage({ params }: { params: Promise<{ id: string }> }) {
-  const { userId, user } = useAuth()
+  const { userId } = useAuth()
+  const { user } = useUser()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [quiz, setQuiz] = useState<SupabaseQuiz | null>(null)
