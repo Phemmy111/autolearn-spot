@@ -245,7 +245,7 @@ async function testNotifications() {
       .from('notification_deliveries')
       .select('id', { count: 'exact', head: true })
     
-    const hasNotificationSystem = notificationsCount >= 0 && deliveriesCount >= 0
+    const hasNotificationSystem = (notificationsCount || 0) >= 0 && (deliveriesCount || 0) >= 0
     
     return {
       name: 'Notifications',
