@@ -96,7 +96,7 @@ export async function updateScholarshipStatus(id: string, status: ScholarshipSta
   // Log admin activity
   await logAdminActivity({
     action: 'status_changed',
-    admin_id: userId,
+    admin_id: userId || undefined,
     admin_email: userId ? 'admin' : undefined,
     resource_type: 'scholarship_application',
     resource_id: id,
@@ -115,7 +115,7 @@ export async function updateScholarshipStatus(id: string, status: ScholarshipSta
     reference_number: application.reference_number,
     from_status: previousStatus,
     to_status: status,
-    admin_id: userId,
+    admin_id: userId || undefined,
     reason: 'Admin status change',
   });
 
@@ -298,7 +298,7 @@ export async function updateAdminNotes(id: string, notes: string) {
   // Log admin activity
   await logAdminActivity({
     action: 'notes_updated',
-    admin_id: userId,
+    admin_id: userId || undefined,
     resource_type: 'scholarship_application',
     resource_id: id,
     resource_reference: application.reference_number,
@@ -371,7 +371,7 @@ export async function updatePaymentStatus(id: string, paymentStatus: string, not
   // Log admin activity
   await logAdminActivity({
     action: 'payment_status_changed',
-    admin_id: userId,
+    admin_id: userId || undefined,
     resource_type: 'scholarship_application',
     resource_id: id,
     resource_reference: application.reference_number,
