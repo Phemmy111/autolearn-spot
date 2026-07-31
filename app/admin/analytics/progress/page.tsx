@@ -80,24 +80,22 @@ export default function AdminProgressAnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10]">
-        <div className="container mx-auto px-4 py-12 max-w-7xl">
-          <div className="space-y-2 mb-8">
-            <Skeleton className="h-8 w-64 bg-[#1f2229]" />
-            <Skeleton className="h-4 w-96 bg-[#1f2229]" />
-          </div>
-          <div className="grid gap-6 md:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="bg-[#0c0e12] border-[#1f2229]">
-                <CardHeader>
-                  <Skeleton className="h-4 w-24 bg-[#1f2229]" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-8 w-16 bg-[#1f2229]" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      <div className="container mx-auto py-8 space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64 bg-[#1f2229]" />
+          <Skeleton className="h-4 w-96 bg-[#1f2229]" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="bg-[#0c0e12] border-[#1f2229]">
+              <CardHeader>
+                <Skeleton className="h-4 w-24 bg-[#1f2229]" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16 bg-[#1f2229]" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     )
@@ -105,14 +103,12 @@ export default function AdminProgressAnalyticsPage() {
 
   if (error || !analytics) {
     return (
-      <div className="min-h-screen bg-[#0a0c10]">
-        <div className="container mx-auto px-4 py-12 max-w-7xl">
-          <Card className="border-red-900 bg-[#0c0e12]">
-            <CardContent className="pt-6">
-              <p className="text-red-400">{error || 'Failed to load analytics'}</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="container mx-auto py-8">
+        <Card className="bg-[#0c0e12] border-destructive">
+          <CardContent className="pt-6">
+            <p className="text-destructive">{error || 'Failed to load analytics'}</p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -146,7 +142,7 @@ export default function AdminProgressAnalyticsPage() {
           <Card className="bg-[#0c0e12] border-[#1f2229]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#b9cacb]">Total Students</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="h-4 w-4 text-[#b9cacb]" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-white">{analytics.totalStudents}</div>
@@ -157,7 +153,7 @@ export default function AdminProgressAnalyticsPage() {
           <Card className="bg-[#0c0e12] border-[#1f2229]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#b9cacb]">Active (7d)</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+              <Activity className="h-4 w-4 text-[#b9cacb]" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-[#00f0ff]">{analytics.activeStudents}</div>
@@ -172,7 +168,7 @@ export default function AdminProgressAnalyticsPage() {
           <Card className="bg-[#0c0e12] border-[#1f2229]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#b9cacb]">Avg Progress</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <TrendingUp className="h-4 w-4 text-[#b9cacb]" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-emerald-400">{analytics.averageProgress}%</div>
@@ -183,7 +179,7 @@ export default function AdminProgressAnalyticsPage() {
           <Card className="bg-[#0c0e12] border-[#1f2229]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-[#b9cacb]">Completion Rate</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
+              <Award className="h-4 w-4 text-[#b9cacb]" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-400">{analytics.completionRate}%</div>

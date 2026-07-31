@@ -23,6 +23,7 @@ export interface AssignmentProgress {
 export interface QuizProgress {
   completed: number
   total: number
+  percentage: number
   averageScore: number
   passRate: number
   passed: number

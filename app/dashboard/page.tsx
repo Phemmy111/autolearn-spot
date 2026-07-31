@@ -77,6 +77,9 @@ export default function DashboardPage() {
             <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
               History
             </Link>
+            <Link href="/dashboard/analytics" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Analytics
+            </Link>
             <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
               Admin
             </Link>

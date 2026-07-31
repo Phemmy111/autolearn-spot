@@ -206,6 +206,7 @@ export async function calculateQuizProgress(
 
   const completed = uniqueQuizzes.size
   const total = totalQuizzes || 0
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
 
   // Calculate average score (best attempt per quiz)
   const scores = Array.from(uniqueQuizzes.values()).map(r => r.score)
@@ -234,6 +235,7 @@ export async function calculateQuizProgress(
   return {
     completed,
     total,
+    percentage,
     averageScore,
     passRate,
     passed,

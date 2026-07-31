@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Bell, Plus, Users, Mail, MessageSquare } from 'lucide-react'
 
-type Category = 'announcement' | 'assignment' | 'assignment_review' | 'quiz' | 'payment' | 'enrollment' | 'certificate' | 'live_class' | 'system'
+type Category = 'announcement' | 'assignment' | 'assignment_review' | 'quiz' | 'payment' | 'enrollment' | 'certificate' | 'live_class' | 'system' | 'content_unlock' | 'progress_milestone' | 'inactivity_reminder'
 type Priority = 'normal' | 'important' | 'urgent'
 type TargetType = 'all' | 'cohort' | 'student'
 
@@ -105,8 +105,8 @@ export default function AdminNotificationsPage() {
   )
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e8e2]">
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
+    <main className="min-h-screen bg-[#0a0c10] text-[#e2e8e2]">
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#1f2229] bg-[#0c0e12]/95 px-4 backdrop-blur sm:px-6">
         <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/admin">
           <ArrowLeft className="h-4 w-4" />
           <span className="text-[#00f0ff]">//</span>
@@ -135,13 +135,13 @@ export default function AdminNotificationsPage() {
             placeholder="Search notifications..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+            className="w-full max-w-md border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
           />
         </div>
 
-        <div className="rounded-xl border border-[#3b494b] bg-[#1a1d24] overflow-hidden">
+        <div className="rounded-xl border border-[#1f2229] bg-[#0c0e12] overflow-hidden">
           <table className="w-full text-left font-mono text-sm">
-            <thead className="bg-[#0c0e12] text-[#b9cacb]">
+            <thead className="bg-[#111317] text-[#b9cacb]">
               <tr>
                 <th className="p-4 font-normal">Notification</th>
                 <th className="p-4 font-normal hidden md:table-cell">Target</th>
@@ -150,7 +150,7 @@ export default function AdminNotificationsPage() {
                 <th className="p-4 font-normal">Created</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#3b494b]">
+            <tbody className="divide-y divide-[#1f2229]">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-[#b9cacb]">Loading...</td>
@@ -166,37 +166,37 @@ export default function AdminNotificationsPage() {
                       <div className="flex flex-col">
                         <span className="font-bold text-white mb-1 flex items-center gap-2">
                           {notif.title}
-                          {notif.priority === 'urgent' && <span className="bg-[#ff6b6b] text-black text-[10px] px-1.5 py-0.5 rounded uppercase">Urgent</span>}
+                          {notif.priority === 'urgent' && <span className="bg-red-500 text-black text-[10px] px-1.5 py-0.5 rounded uppercase">Urgent</span>}
                         </span>
                         <span className="text-xs text-[#b9cacb] truncate max-w-xs">{notif.message}</span>
                         <span className="text-[10px] text-[#00f0ff] uppercase mt-1">{notif.category}</span>
                       </div>
                     </td>
                     <td className="p-4 hidden md:table-cell">
-                      <span className="text-[#e2e8e2] capitalize">{notif.target_type}</span>
-                      {notif.target_id && <div className="text-[10px] text-[#8b9c9d] mt-1 truncate max-w-[150px]">{notif.target_id}</div>}
+                      <span className="text-white capitalize">{notif.target_type}</span>
+                      {notif.target_id && <div className="text-[10px] text-[#5d5f63] mt-1 truncate max-w-[150px]">{notif.target_id}</div>}
                     </td>
                     <td className="p-4 hidden sm:table-cell">
-                      <div className="flex items-center gap-1 text-[#e2e8e2]">
+                      <div className="flex items-center gap-1 text-white">
                         <Users className="h-3 w-3 text-[#b9cacb]" />
                         {notif.recipient_count}
                       </div>
                     </td>
                     <td className="p-4 hidden lg:table-cell">
                       <div className="flex gap-3 text-xs">
-                        <div className="flex items-center gap-1 text-[#e2e8e2]" title="In-App Sent">
+                        <div className="flex items-center gap-1 text-white" title="In-App Sent">
                           <Bell className="h-3 w-3 text-[#00f0ff]" />
                           {notif.delivery_summary?.in_app_sent || 0}
                         </div>
-                        <div className="flex items-center gap-1 text-[#e2e8e2]" title="Emails Sent">
-                          <Mail className="h-3 w-3 text-[#a855f7]" />
+                        <div className="flex items-center gap-1 text-white" title="Emails Sent">
+                          <Mail className="h-3 w-3 text-purple-400" />
                           {notif.delivery_summary?.email_sent || 0}
                         </div>
                       </div>
                     </td>
                     <td className="p-4 text-xs text-[#b9cacb]">
                       <div>{new Date(notif.created_at).toLocaleDateString()}</div>
-                      <div className="text-[10px] text-[#8b9c9d] mt-1">{notif.created_by}</div>
+                      <div className="text-[10px] text-[#5d5f63] mt-1">{notif.created_by}</div>
                     </td>
                   </tr>
                 ))
@@ -227,7 +227,7 @@ export default function AdminNotificationsPage() {
                   required
                   value={formData.title}
                   onChange={e => setFormData({...formData, title: e.target.value})}
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
                 />
               </div>
 
@@ -238,7 +238,7 @@ export default function AdminNotificationsPage() {
                   rows={3}
                   value={formData.message}
                   onChange={e => setFormData({...formData, message: e.target.value})}
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none resize-none"
+                  className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none resize-none"
                 />
               </div>
 
@@ -248,11 +248,19 @@ export default function AdminNotificationsPage() {
                   <select
                     value={formData.category}
                     onChange={e => setFormData({...formData, category: e.target.value as Category})}
-                    className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+                    className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
                   >
                     <option value="announcement">Announcement</option>
                     <option value="assignment">Assignment</option>
+                    <option value="assignment_review">Assignment Review</option>
                     <option value="quiz">Quiz</option>
+                    <option value="payment">Payment</option>
+                    <option value="enrollment">Enrollment</option>
+                    <option value="certificate">Certificate</option>
+                    <option value="live_class">Live Class</option>
+                    <option value="content_unlock">Content Unlock</option>
+                    <option value="progress_milestone">Progress Milestone</option>
+                    <option value="inactivity_reminder">Inactivity Reminder</option>
                     <option value="system">System</option>
                   </select>
                 </div>
@@ -261,7 +269,7 @@ export default function AdminNotificationsPage() {
                   <select
                     value={formData.priority}
                     onChange={e => setFormData({...formData, priority: e.target.value as Priority})}
-                    className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+                    className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
                   >
                     <option value="normal">Normal</option>
                     <option value="important">Important</option>
@@ -276,7 +284,7 @@ export default function AdminNotificationsPage() {
                   <select
                     value={formData.target_type}
                     onChange={e => setFormData({...formData, target_type: e.target.value as TargetType})}
-                    className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+                    className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
                   >
                     <option value="all">All Active Students</option>
                     <option value="cohort">Specific Cohort</option>
@@ -292,7 +300,7 @@ export default function AdminNotificationsPage() {
                       placeholder={formData.target_type === 'cohort' ? 'Cohort ID' : 'Student Clerk ID'}
                       value={formData.target_id}
                       onChange={e => setFormData({...formData, target_id: e.target.value})}
-                      className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+                      className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
                     />
                   </div>
                 )}
@@ -306,7 +314,7 @@ export default function AdminNotificationsPage() {
                     placeholder="e.g. View Details"
                     value={formData.action_label}
                     onChange={e => setFormData({...formData, action_label: e.target.value})}
-                    className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+                    className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
                   />
                 </div>
                 <div>
@@ -316,14 +324,14 @@ export default function AdminNotificationsPage() {
                     placeholder="e.g. /dashboard/quiz"
                     value={formData.action_url}
                     onChange={e => setFormData({...formData, action_url: e.target.value})}
-                    className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
+                    className="w-full border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-sm text-white focus:border-[#00f0ff] focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#3b494b]">
+              <div className="pt-2 border-t border-[#1f2229]">
                 <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${formData.send_email ? 'border-[#00f0ff] bg-[#00f0ff]/20 text-[#00f0ff]' : 'border-[#3b494b] bg-[#1a1d24] text-transparent'}`}>
+                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${formData.send_email ? 'border-[#00f0ff] bg-[#00f0ff]/20 text-[#00f0ff]' : 'border-[#1f2229] bg-[#111317] text-transparent'}`}>
                     <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                   </div>
                   <input
@@ -333,8 +341,8 @@ export default function AdminNotificationsPage() {
                     onChange={e => setFormData({...formData, send_email: e.target.checked})}
                   />
                   <div>
-                    <span className="font-mono text-xs uppercase text-[#e2e8e2] group-hover:text-white transition-colors">Also Send Email</span>
-                    <p className="text-[10px] text-[#8b9c9d] mt-0.5">Sends to users who haven't opted out</p>
+                    <span className="font-mono text-xs uppercase text-white group-hover:text-[#00f0ff] transition-colors">Also Send Email</span>
+                    <p className="text-[10px] text-[#5d5f63] mt-0.5">Sends to users who haven't opted out</p>
                   </div>
                 </label>
               </div>

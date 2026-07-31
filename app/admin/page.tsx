@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin, isSuperAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy, FileText } from 'lucide-react'
+import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings, MessageSquare, ArrowLeft, Trophy, FileText, ClipboardList, FileCheck } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
 import { CourseCompletionCard } from '@/components/admin/CourseCompletionCard'
@@ -128,6 +128,15 @@ export default async function AdminPage() {
           </Link>
 
           <Link
+            href="/admin/logs"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <ClipboardList className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Audit Logs</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">View system audit logs and activity</p>
+          </Link>
+
+          <Link
             href="/admin/ai-providers"
             className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
           >
@@ -217,6 +226,13 @@ export default async function AdminPage() {
             >
               <BarChart3 className="h-4 w-4" />
               Analytics
+            </Link>
+            <Link 
+              href="/admin/rc-testing"
+              className="flex items-center gap-2 border border-[#1f2229] bg-[#111317] px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#b9cacb] hover:bg-[#1a1d24] hover:text-white transition-colors"
+            >
+              <FileCheck className="h-4 w-4" />
+              RC Testing
             </Link>
             <ResetDataButton />
             <CertificateToggle />

@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { invalidateAfterLessonProgress } from '@/lib/analytics/integration'
+import { sendProgressMilestoneNotification } from '@/lib/notification-scheduler'
 
 // Fixed Cohort 1 UUID — matches supabase-phase0-schema.sql seed
 const DEFAULT_COHORT_ID = 'a1111111-1111-1111-1111-111111111111'
@@ -117,6 +118,27 @@ export async function upsertLessonProgress(
   } catch (cacheError) {
     console.error('[progress-service] Failed to invalidate cache:', cacheError)
     // Don't fail the progress update if cache invalidation fails
+  }
+
+  // Check for progress milestones and send notifications if lesson was just completed
+  if (shouldComplete) {
+    try {
+      const summary = await getCompletionSummary(userId, cohortId)
+      
+      // Send milestone notifications based on progress percentage
+      if (summary.percentage >= 25 && summary.percentage < 50) {
+        await sendProgressMilestoneNotification(userId, cohortId, 25)
+      } else if (summary.percentage >= 50 && summary.percentage < 75) {
+        await sendProgressMilestoneNotification(userId, cohortId, 50)
+      } else if (summary.percentage >= 75 && summary.percentage < 100) {
+        await sendProgressMilestoneNotification(userId, cohortId, 75)
+      } else if (summary.percentage === 100) {
+        await sendProgressMilestoneNotification(userId, cohortId, 100)
+      }
+    } catch (notificationError) {
+      console.error('[progress-service] Failed to send progress milestone notification:', notificationError)
+      // Don't fail the progress update if notification fails
+    }
   }
 
   return row as LessonProgress

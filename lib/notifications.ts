@@ -10,7 +10,7 @@ if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   )
 }
 
-export type NotificationCategory = 'announcement' | 'assignment' | 'assignment_review' | 'quiz' | 'payment' | 'enrollment' | 'certificate' | 'live_class' | 'system'
+export type NotificationCategory = 'announcement' | 'assignment' | 'assignment_review' | 'quiz' | 'payment' | 'enrollment' | 'certificate' | 'live_class' | 'system' | 'content_unlock' | 'progress_milestone' | 'inactivity_reminder'
 export type NotificationPriority = 'normal' | 'important' | 'urgent'
 export type NotificationTarget = 'all' | 'cohort' | 'student'
 
