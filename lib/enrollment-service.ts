@@ -7,7 +7,7 @@ export interface Enrollment {
   cohort_id: string;
   email: string;
   clerk_user_id: string | null;
-  payment_ref: string |null;
+  payment_ref: string | null;
   amount_paid: number | null;
   status: string;
   starts_at: string | null;
@@ -25,7 +25,7 @@ export interface Enrollment {
 
 /**
  * Automatically link an email-only enrollment to a Clerk User ID
- * Also captures user's name from Clerk metadata
+ * Also captures the user's name from Clerk
  */
 export async function linkEmailToClerkUser(
   email: string,
@@ -38,10 +38,12 @@ export async function linkEmailToClerkUser(
 
     const firstName = user.firstName ?? null;
     const lastName = user.lastName ?? null;
-    const fullName =
-      user.fullName ??
-      [user.firstName, user.lastName].filter(Boolean).join(' ') ||
-      null;
+
+    const fallbackFullName = [user.firstName, user.lastName]
+      .filter(Boolean)
+      .join(' ');
+
+    const fullName = user.fullName ?? (fallbackFullName || null);
 
     const updateData: Record<string, any> = {
       clerk_user_id: clerkUserId,
@@ -78,7 +80,9 @@ export const getUserEnrollments = cache(
     clerkUserId: string,
     email: string
   ): Promise<Enrollment[]> => {
-    if (!clerkUserId || !email) return [];
+    if (!clerkUserId || !email) {
+      return [];
+    }
 
     // Auto-link email enrollment to Clerk account
     await linkEmailToClerkUser(email, clerkUserId);
@@ -106,7 +110,7 @@ export const getUserEnrollments = cache(
 );
 
 /**
- * Helper to check if user has at least one active enrollment
+ * Check if the user has at least one active enrollment
  */
 export async function hasActiveEnrollment(
   clerkUserId: string,
