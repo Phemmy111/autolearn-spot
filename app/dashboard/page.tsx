@@ -1,5 +1,5 @@
 "use client";
-import { SignOutButton, useAuth } from '@clerk/nextjs';
+import { SignOutButton, useAuth, useUser } from '@clerk/nextjs';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { videos, isVideoAvailable } from '@/data/videos';
@@ -26,7 +26,8 @@ export interface VideoCourse {
 }
 
 export default function DashboardPage() {
-  const { isSignedIn, user } = useAuth()
+  const { isSignedIn } = useAuth()
+  const { user } = useUser()
   const [firstName, setFirstName] = useState('Student')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userBadges, setUserBadges] = useState<UserBadgeType[]>([])
