@@ -156,6 +156,13 @@ export default function DashboardPage() {
                 History
               </Link>
               <Link
+                href="/dashboard/analytics"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Analytics
+              </Link>
+              <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
