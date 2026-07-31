@@ -125,7 +125,7 @@ export async function updateScholarshipStatus(id: string, status: ScholarshipSta
       title: 'Application Status Updated',
       message: `Your scholarship application status has been updated to: ${status}`,
       category: 'payment' as const,
-      priority: 'important' as const,
+      priority: 'important' as 'normal' | 'important' | 'urgent',
       target_type: 'student' as const,
       target_id: application.email,
       action_url: '/scholarship/status',
@@ -139,27 +139,27 @@ export async function updateScholarshipStatus(id: string, status: ScholarshipSta
       case 'Under Review':
         notificationData.title = 'Application Under Review';
         notificationData.message = 'Your scholarship application is now under review. We will notify you of the decision soon.';
-        notificationData.priority = 'normal';
+        notificationData.priority = 'normal' as 'normal' | 'important' | 'urgent';
         break;
       case 'Shortlisted':
         notificationData.title = 'Application Shortlisted';
         notificationData.message = 'Congratulations! Your application has been shortlisted. We will contact you with next steps.';
-        notificationData.priority = 'important';
+        notificationData.priority = 'important' as 'normal' | 'important' | 'urgent';
         break;
       case 'Accepted':
         notificationData.title = 'Application Accepted';
         notificationData.message = 'Congratulations! Your scholarship application has been accepted. Please complete the payment process.';
-        notificationData.priority = 'urgent';
+        notificationData.priority = 'urgent' as 'normal' | 'important' | 'urgent';
         break;
       case 'Waitlisted':
         notificationData.title = 'Application Waitlisted';
         notificationData.message = 'Your application has been placed on the waitlist. We will contact you if a spot becomes available.';
-        notificationData.priority = 'normal';
+        notificationData.priority = 'normal' as 'normal' | 'important' | 'urgent';
         break;
       case 'Not Selected':
         notificationData.title = 'Application Not Selected';
         notificationData.message = 'Thank you for your interest. Unfortunately, your application was not selected for this cohort.';
-        notificationData.priority = 'normal';
+        notificationData.priority = 'normal' as 'normal' | 'important' | 'urgent';
         break;
     }
 
