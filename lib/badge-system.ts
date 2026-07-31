@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { BADGES, Badge, UserBadge } from '@/lib/badge-definitions'
 
-export { BADGES, Badge, UserBadge }
+export { BADGES, Badge, UserBadge } from '@/lib/badge-definitions'
 
 /**
  * Check and award badges for a user based on their progress
