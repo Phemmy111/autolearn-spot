@@ -27,7 +27,7 @@ export interface VideoCourse {
 
 export default function DashboardPage() {
   const { isSignedIn, user } = useAuth()
-  const firstName = user?.firstName || 'Student';
+  const firstName = user?.firstName || user?.username || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0] || 'Student';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userBadges, setUserBadges] = useState<UserBadge[]>([])
   const liveClassTime = getLiveClassTimeShort()
@@ -35,20 +35,24 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchBadges() {
       try {
+        console.log('[Dashboard] Fetching badges for user:', user?.id)
         const response = await fetch('/api/badges')
         if (response.ok) {
           const data = await response.json()
+          console.log('[Dashboard] Badges received:', data.badges)
           setUserBadges(data.badges || [])
+        } else {
+          console.error('[Dashboard] Failed to fetch badges:', response.status)
         }
       } catch (error) {
-        console.error('Failed to fetch badges:', error)
+        console.error('[Dashboard] Failed to fetch badges:', error)
       }
     }
     
     if (isSignedIn) {
       fetchBadges()
     }
-  }, [isSignedIn])
+  }, [isSignedIn, user?.id])
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
