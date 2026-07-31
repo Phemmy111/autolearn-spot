@@ -1,7 +1,6 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { UserBadge } from '@/lib/badge-system'
 
 interface BadgeDisplayProps {
@@ -15,7 +14,7 @@ export function BadgeDisplay({
   userBadges, 
   maxDisplay = 5, 
   size = 'md',
-  showTooltip = true 
+  showTooltip = false 
 }: BadgeDisplayProps) {
   const displayBadges = userBadges.slice(0, maxDisplay)
   const hiddenCount = userBadges.length - maxDisplay
@@ -47,35 +46,24 @@ export function BadgeDisplay({
   }
 
   return (
-    <TooltipProvider>
-      <div className="flex flex-wrap gap-2">
-        {displayBadges.map(({ badge }) => (
-          <Tooltip key={badge.id}>
-            <TooltipTrigger asChild>
-              <Badge 
-                className={`${getSizeClasses()} ${getRarityColor(badge.rarity)} border cursor-pointer hover:opacity-80 transition-opacity`}
-              >
-                <span className="mr-1">{badge.icon}</span>
-                <span className="hidden sm:inline">{badge.name}</span>
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              <div className="max-w-xs">
-                <p className="font-semibold text-white">{badge.name}</p>
-                <p className="text-sm text-[#b9cacb]">{badge.description}</p>
-                <p className="text-xs text-[#5d5f63] mt-1 capitalize">{badge.rarity} • {badge.category}</p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        ))}
-        
-        {hiddenCount > 0 && (
-          <Badge className={`${getSizeClasses()} bg-[#1f2229] border-[#3b494b] text-[#b9cacb]`}>
-            +{hiddenCount} more
-          </Badge>
-        )}
-      </div>
-    </TooltipProvider>
+    <div className="flex flex-wrap gap-2">
+      {displayBadges.map(({ badge }) => (
+        <Badge 
+          key={badge.id}
+          className={`${getSizeClasses()} ${getRarityColor(badge.rarity)} border cursor-pointer hover:opacity-80 transition-opacity`}
+          title={`${badge.name}: ${badge.description}`}
+        >
+          <span className="mr-1">{badge.icon}</span>
+          <span className="hidden sm:inline">{badge.name}</span>
+        </Badge>
+      ))}
+      
+      {hiddenCount > 0 && (
+        <Badge className={`${getSizeClasses()} bg-[#1f2229] border-[#3b494b] text-[#b9cacb]`}>
+          +{hiddenCount} more
+        </Badge>
+      )}
+    </div>
   )
 }
 
@@ -116,6 +104,7 @@ export function BadgeGrid({ userBadges, showLocked = false }: BadgeGridProps) {
               ${isEarned ? 'opacity-100' : 'opacity-40 grayscale'}
               transition-all duration-300 hover:scale-105
             `}
+            title={`${badge.name}: ${badge.description}`}
           >
             <div className="text-3xl mb-2 text-center">{badge.icon}</div>
             <h3 className="font-semibold text-white text-sm text-center mb-1">{badge.name}</h3>

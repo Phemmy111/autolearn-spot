@@ -479,19 +479,6 @@ export default function AdminProgressAnalyticsPage() {
               </CardContent>
             </Card>
           </TabsContent>
-                        key={student.userId}
-                        className="flex items-center justify-between p-3 rounded-lg border border-orange-900/50 bg-orange-950/20"
-                      >
-                        <div>
-                          <p className="text-sm font-medium text-white">{student.userName}</p>
-                          <p className="text-xs text-[#5d5f63]">Last activity: {student.lastActivity}</p>
-                        </div>
-                        <Badge variant="destructive">{student.progressPercentage}%</Badge>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

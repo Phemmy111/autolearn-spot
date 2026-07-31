@@ -12,7 +12,7 @@ interface LeaderboardEntryWithBadges extends SupabaseLeaderboard {
 }
 
 export function Leaderboard() {
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntryWithBadges[]>([]
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntryWithBadges[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
