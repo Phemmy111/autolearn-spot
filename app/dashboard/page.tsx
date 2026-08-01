@@ -199,6 +199,9 @@ export default function DashboardPage() {
             <Link href="/dashboard/analytics" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
               Analytics
             </Link>
+            <Link href="/dashboard/refer-and-earn" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+              Refer & Earn
+            </Link>
             <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
               Admin
             </Link>
@@ -280,6 +283,13 @@ export default function DashboardPage() {
                 className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Analytics
+              </Link>
+              <Link
+                href="/dashboard/refer-and-earn"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+              >
+                Refer & Earn
               </Link>
               <Link
                 href="/admin"
