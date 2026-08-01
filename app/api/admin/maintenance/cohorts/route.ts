@@ -22,7 +22,7 @@ export async function GET() {
       .from('enrollments')
       .select('role')
       .eq('clerk_user_id', userId)
-      .single()
+      .maybeSingle()
 
     if (!enrollment || enrollment.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })

@@ -61,7 +61,7 @@ export async function GET() {
       .select('updated_at')
       .order('updated_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
     // Get last analytics update (we'll use lesson_progress as a proxy)
     const { data: lastAnalyticsUpdate } = await supabaseAdmin
@@ -69,7 +69,7 @@ export async function GET() {
       .select('updated_at')
       .order('updated_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
     return NextResponse.json({ 
       success: true, 

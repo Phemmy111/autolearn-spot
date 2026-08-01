@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       .from('enrollments')
       .select('role')
       .eq('clerk_user_id', userId)
-      .single()
+      .maybeSingle()
 
     if (!enrollment || enrollment.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       
       const { data: enrollments } = await supabaseAdmin
         .from('enrollments')
-        .select('clerk_user_id, enrollments(first_name, last_name)')
+        .select('clerk_user_id')
         .eq('cohort_id', cohortId)
         .eq('status', 'active')
 
@@ -62,15 +62,12 @@ export async function POST(request: Request) {
           if (certificateStatus.eligible && !certificateStatus.issued) {
             // Issue certificate
             const certificateId = crypto.randomUUID()
-            const userName = [enrollment.enrollments?.first_name, enrollment.enrollments?.last_name]
-              .filter(Boolean)
-              .join(' ') || 'Student'
 
             await supabaseAdmin.from('certificates').insert({
               id: certificateId,
               user_id: enrollment.clerk_user_id,
               cohort_id: cohortId,
-              student_name: userName,
+              student_name: 'Student',
               issued_at: new Date().toISOString(),
             })
 
@@ -135,7 +132,7 @@ export async function POST(request: Request) {
         try {
           const { data: enrollments } = await supabaseAdmin
             .from('enrollments')
-            .select('clerk_user_id, enrollments(first_name, last_name)')
+            .select('clerk_user_id')
             .eq('cohort_id', cohort.id)
             .eq('status', 'active')
 
@@ -148,15 +145,12 @@ export async function POST(request: Request) {
                 
                 if (certificateStatus.eligible && !certificateStatus.issued) {
                   const certificateId = crypto.randomUUID()
-                  const userName = [enrollment.enrollments?.first_name, enrollment.enrollments?.last_name]
-                    .filter(Boolean)
-                    .join(' ') || 'Student'
 
                   await supabaseAdmin.from('certificates').insert({
                     id: certificateId,
                     user_id: enrollment.clerk_user_id,
                     cohort_id: cohort.id,
-                    student_name: userName,
+                    student_name: 'Student',
                     issued_at: new Date().toISOString(),
                   })
 
