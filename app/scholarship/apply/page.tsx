@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { submitScholarshipApplication } from '../actions';
@@ -30,6 +30,9 @@ type FormState = {
   
   // Step 4
   commitment_confirmed: boolean;
+  
+  // Growth Engine
+  referred_by_code?: string;
 };
 
 const INITIAL_STATE: FormState = {
@@ -37,6 +40,7 @@ const INITIAL_STATE: FormState = {
   ai_experience: '', automation_experience: '', has_laptop: false, has_internet: false,
   motivation: '', goals: '', impact: '', why_you: '',
   commitment_confirmed: false,
+  referred_by_code: '',
 };
 
 export default function ScholarshipApplyPage() {
@@ -50,6 +54,27 @@ export default function ScholarshipApplyPage() {
   const { fullValue, commitmentFee } = scholarshipConfig;
   const formattedFullValue = `₦${fullValue.toLocaleString()}`;
   const formattedCommitmentFee = `₦${commitmentFee.toLocaleString()}`;
+
+  // Growth Engine: Extract referral code from URL
+  const [refCode, setRefCode] = useState<string | null>(null);
+  
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('ref');
+      if (code) {
+        setRefCode(code);
+        // Track the click asynchronously (fire and forget)
+        fetch('/api/referrals/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        }).catch(console.error);
+      }
+    } catch (e) {
+      console.error('Error parsing referral code:', e);
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -93,7 +118,11 @@ export default function ScholarshipApplyPage() {
     setIsSubmitting(true);
     
     try {
-      const result = await submitScholarshipApplication(formData);
+      // Inject referral code if present
+      const submitData = { ...formData };
+      if (refCode) submitData.referred_by_code = refCode;
+
+      const result = await submitScholarshipApplication(submitData);
       
       if (result.success && result.referenceNumber) {
         setSuccessData({ referenceNumber: result.referenceNumber });

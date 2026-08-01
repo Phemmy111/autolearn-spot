@@ -464,3 +464,30 @@ export async function getAuditLogsCount(params: {
     throw error;
   }
 }
+
+export async function logReferralEvent(params: {
+  action: string;             // e.g. 'referral_code_created', 'referral_click_tracked', 'referral_attributed'
+  category: EventCategory;
+  user_id?: string;
+  user_email?: string;
+  referral_code?: string;
+  description: string;
+  metadata?: Record<string, any>;
+  status?: EventStatus;
+  error_message?: string;
+}): Promise<void> {
+  await logAuditEvent({
+    event_type: 'user_activity',
+    event_category: params.category,
+    event_action: params.action,
+    user_id: params.user_id,
+    user_email: params.user_email,
+    resource_type: 'referral',
+    resource_reference: params.referral_code,
+    description: params.description,
+    metadata: params.metadata,
+    status: params.status,
+    error_message: params.error_message,
+  });
+}
+

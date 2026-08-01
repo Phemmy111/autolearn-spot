@@ -39,6 +39,9 @@ export interface ScholarshipApplication {
   
   created_at: string;
   updated_at: string;
+  
+  // Growth Engine
+  referred_by_code?: string;
 }
 
 export type ScholarshipFormData = Omit<ScholarshipApplication, 'id' | 'reference_number' | 'status' | 'admin_notes' | 'created_at' | 'updated_at'>;

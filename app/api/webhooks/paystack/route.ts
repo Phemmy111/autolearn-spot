@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       // Find scholarship application by email
       const { data: application, error: fetchError } = await supabaseAdmin
         .from('scholarship_applications')
-        .select('id, full_name, reference_number, email, status, payment_status')
+        .select('id, full_name, reference_number, email, status, payment_status, referred_by_code')
         .eq('email', customerEmail)
         .eq('status', 'Accepted')
         .single();
@@ -229,9 +229,34 @@ export async function POST(request: NextRequest) {
             if (nameParts.length > 1) enrollmentData.last_name = nameParts.slice(1).join(' ');
           }
 
+          // Growth Engine: carry over referral code
+          if (application.referred_by_code) {
+            enrollmentData.referred_by_code = application.referred_by_code;
+          }
+
           await supabaseAdmin
             .from('enrollments')
             .upsert(enrollmentData, { onConflict: 'cohort_id, email' });
+
+          // Growth Engine: Record successful registration for referrer
+          if (application.referred_by_code) {
+            try {
+              const { data: currentRef } = await supabaseAdmin
+                .from('referral_codes')
+                .select('total_registrations')
+                .eq('code', application.referred_by_code)
+                .single();
+                
+              if (currentRef) {
+                await supabaseAdmin
+                  .from('referral_codes')
+                  .update({ total_registrations: (currentRef.total_registrations || 0) + 1 })
+                  .eq('code', application.referred_by_code);
+              }
+            } catch (err) {
+              console.error('Failed to update referrer registration count:', err);
+            }
+          }
 
           console.log('Enrollment created/updated for:', application.email);
         }

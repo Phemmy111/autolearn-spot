@@ -11,6 +11,7 @@ import {
   logEmailEvent 
 } from '@/lib/audit-logging';
 import { createNotification } from '@/lib/notifications';
+import { ReferralService } from '@/lib/growth-engine/ReferralService';
 
 // Generate a random 4-digit reference suffix
 function generateReference() {
@@ -77,8 +78,31 @@ export async function submitScholarshipApplication(data: ScholarshipFormData) {
       throw new Error('Failed to generate unique reference number');
     }
 
+    let validReferredByCode = null;
+    if (data.referred_by_code) {
+      const validation = await ReferralService.validateAndAttribute(data.referred_by_code);
+      if (validation.valid) {
+        const codeRecord = await ReferralService.getCodeByValue(data.referred_by_code);
+        if (codeRecord) {
+          const { data: ownerEnrollment } = await supabaseAdmin
+            .from('enrollments')
+            .select('email')
+            .eq('user_id', codeRecord.owner_id)
+            .limit(1)
+            .single();
+            
+          if (ownerEnrollment && ownerEnrollment.email.toLowerCase() === data.email.toLowerCase()) {
+            validReferredByCode = null;
+          } else {
+            validReferredByCode = data.referred_by_code;
+          }
+        }
+      }
+    }
+
     const applicationData = {
       ...data,
+      referred_by_code: validReferredByCode,
       reference_number: referenceNumber,
       status: 'Submitted',
     };
