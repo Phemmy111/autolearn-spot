@@ -174,6 +174,7 @@ export async function updateLeaderboardEntry(
     .from('enrollments')
     .select('email, full_name, first_name, last_name')
     .eq('clerk_user_id', userId)
+    .eq('cohort_id', cohortId)
     .single()
 
   const userName = enrollment?.full_name || 
@@ -183,7 +184,7 @@ export async function updateLeaderboardEntry(
   
   const userEmail = enrollment?.email || null
 
-  // Check if entry exists
+  // Check if entry exists for this user+cohort
   const { data: existingEntry } = await supabaseAdmin
     .from('leaderboard')
     .select('id')

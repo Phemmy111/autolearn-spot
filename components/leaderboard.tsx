@@ -109,9 +109,12 @@ export function Leaderboard() {
               <div className="text-right">
                 <p className="font-mono text-lg font-bold text-[#00f0ff]">{entry.score} pts</p>
                 <div className="text-xs text-[#b9cacb] space-y-1">
-                  <p>Assignments: {entry.assignment_score || 0}</p>
-                  <p>Quizzes: {entry.quiz_score || 0}</p>
+                  <p>Assignments: {Math.round(entry.assignment_score || 0)}%</p>
+                  <p>Quizzes: {Math.round(entry.quiz_score || 0)}%</p>
                   <p>Video: {Math.round(entry.video_completion || 0)}%</p>
+                  {entry.certificate_bonus && entry.certificate_bonus > 0 && (
+                    <p className="text-yellow-400">+{entry.certificate_bonus} Cert Bonus</p>
+                  )}
                 </div>
               </div>
             </div>

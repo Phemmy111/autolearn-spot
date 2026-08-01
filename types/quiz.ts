@@ -103,4 +103,11 @@ export interface SupabaseLeaderboard {
   last_activity: string
   created_at: string
   updated_at: string
+  // New fields from badge system migration
+  assignment_score?: number
+  quiz_score?: number
+  video_completion?: number
+  certificate_bonus?: number
+  rank?: number
+  cohort_id?: string
 }

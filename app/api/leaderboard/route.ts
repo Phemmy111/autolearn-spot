@@ -6,9 +6,21 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     console.log('[GET /api/leaderboard] Starting leaderboard fetch')
+    
+    // Get current cohort to filter leaderboard
+    const { data: currentCohort } = await supabaseAdmin
+      .from('cohorts')
+      .select('id')
+      .eq('is_current', true)
+      .single()
+
+    const cohortId = currentCohort?.id || 'a1111111-1111-1111-1111-111111111111'
+    console.log('[GET /api/leaderboard] Filtering by cohort:', cohortId)
+
     const { data: leaderboard, error } = await supabaseAdmin
       .from('leaderboard')
       .select('*')
+      .eq('cohort_id', cohortId)
       .order('total_score', { ascending: false })
       .limit(50)
 
@@ -21,9 +33,23 @@ export async function GET() {
     console.log('[GET /api/leaderboard] Number of entries:', leaderboard?.length || 0)
 
     // Map to expected frontend LeaderboardEntry format with new scoring system
-    const formattedLeaderboard = leaderboard.map((entry: { id: string; user_id: string; user_name: string; total_score: number; quizzes_completed: number; quizzes_passed: number; average_score: number; last_activity: string }, index: number) => ({
+    const formattedLeaderboard = leaderboard.map((entry: { 
+      id: string; 
+      user_id: string; 
+      user_name: string; 
+      total_score: number; 
+      quizzes_completed: number; 
+      quizzes_passed: number; 
+      average_score: number; 
+      last_activity: string;
+      assignment_score?: number;
+      quiz_score?: number;
+      video_completion?: number;
+      certificate_bonus?: number;
+      rank?: number;
+    }, index: number) => ({
       id: entry.id,
-      rank: index + 1,
+      rank: entry.rank || index + 1,
       studentId: entry.user_id,
       user_id: entry.user_id, // For badge fetching
       name: entry.user_name || 'Anonymous Student',
