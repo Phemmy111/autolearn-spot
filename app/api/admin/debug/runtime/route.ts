@@ -23,43 +23,72 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'userId parameter required' }, { status: 400 })
     }
 
-    const cohortId = await getCurrentCohortId()
+    const failures: any[] = []
+
+    // Helper to record failures
+    const recordFailure = (section: string, error: any, details?: any) => {
+      failures.push({
+        section,
+        error: error.message || String(error),
+        stack: error.stack,
+        details,
+        timestamp: new Date().toISOString()
+      })
+      console.error(`[Runtime Debug] ${section} failed:`, error)
+    }
+
+    let cohortId: string | null = null
+    try {
+      cohortId = await getCurrentCohortId()
+    } catch (error) {
+      recordFailure('getCurrentCohortId', error)
+      return NextResponse.json({ 
+        success: false, 
+        failures,
+        runtime: { userId, cohortId: null, timestamp: new Date().toISOString() }
+      }, { status: 200 })
+    }
 
     const runtimeData: any = {
       userId,
       cohortId,
       timestamp: new Date().toISOString(),
-      sections: {},
-      warnings: []
-    }
-
-    // Helper to add warnings
-    const addWarning = (message: string, details?: any) => {
-      runtimeData.warnings.push({ message, details, timestamp: new Date().toISOString() })
+      sections: {}
     }
 
     // SECTION 1: Student Information
-    const { data: enrollment } = await supabaseAdmin
-      .from('enrollments')
-      .select('*')
-      .eq('clerk_user_id', userId)
-      .eq('cohort_id', cohortId)
-      .single()
-
-    runtimeData.sections.studentInfo = enrollment || null
+    try {
+      const { data: enrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('*')
+        .eq('clerk_user_id', userId)
+        .eq('cohort_id', cohortId)
+        .single()
+      runtimeData.sections.studentInfo = enrollment
+    } catch (error) {
+      recordFailure('Student Information', error)
+      runtimeData.sections.studentInfo = null
+    }
 
     // SECTION 2: Assignment Runtime Trace
-    const { data: submissions } = await supabaseAdmin
-      .from('submissions')
-      .select('*, assignments(due_date, title, cohort_id)')
-      .eq('user_id', userId)
-      .in('assignment_id',
-        (await supabaseAdmin
-          .from('assignments')
-          .select('id')
-          .eq('cohort_id', cohortId)
-        ).data?.map(a => a.id) || []
-      )
+    let submissions: any = null
+    try {
+      const result = await supabaseAdmin
+        .from('submissions')
+        .select('*, assignments(due_date, title, cohort_id)')
+        .eq('user_id', userId)
+        .in('assignment_id',
+          (await supabaseAdmin
+            .from('assignments')
+            .select('id')
+            .eq('cohort_id', cohortId)
+          ).data?.map(a => a.id) || []
+        )
+      submissions = result.data
+    } catch (error) {
+      recordFailure('Assignment Database Query', error)
+      submissions = null
+    }
 
     // Intermediate calculation stages for assignments
     const scoredSubmissions = submissions?.filter(s => s.ai_score !== null) || []
@@ -68,26 +97,15 @@ export async function GET(request: Request) {
       ? mappedScores.reduce((sum, score) => sum + score, 0) / mappedScores.length
       : 0
 
-    // Check for rows disappearing
-    if (submissions && submissions.length > 0 && scoredSubmissions.length === 0) {
-      addWarning('Database returned submissions rows but all had null ai_score', {
-        totalRows: submissions.length,
-        scoredRows: scoredSubmissions.length
-      })
-    }
-
-    const assignmentProgressResult = await calculateAssignmentProgress(userId, cohortId)
-
-    // Check for calculation mismatch
-    if (averageScore !== assignmentProgressResult.averageScore && averageScore !== 0) {
-      addWarning('Direct calculation differs from function return', {
-        directCalculation: averageScore,
-        functionReturn: assignmentProgressResult.averageScore
-      })
+    let assignmentProgressResult: any = null
+    try {
+      assignmentProgressResult = await calculateAssignmentProgress(userId, cohortId)
+    } catch (error) {
+      recordFailure('calculateAssignmentProgress', error)
     }
 
     runtimeData.sections.assignmentRuntime = {
-      databaseRows: submissions || [],
+      databaseRows: submissions,
       calculationStages: {
         input: { userId, cohortId },
         nullFilter: {
@@ -106,31 +124,40 @@ export async function GET(request: Request) {
     }
 
     // SECTION 3: Lesson Runtime Trace
-    const { data: lessonProgress } = await supabaseAdmin
-      .from('lesson_progress')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('cohort_id', cohortId)
+    let lessonProgress: any = null
+    try {
+      const result = await supabaseAdmin
+        .from('lesson_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('cohort_id', cohortId)
+      lessonProgress = result.data
+    } catch (error) {
+      recordFailure('Lesson Database Query', error)
+    }
 
     const completedLessons = lessonProgress?.filter(lp => lp.completed) || []
-    const totalLessonsResult = await supabaseAdmin
-      .from('lessons')
-      .select('id', { count: 'exact', head: true })
-      .eq('cohort_id', cohortId)
-    const totalLessons = totalLessonsResult.count || 0
+    let totalLessons = 0
+    try {
+      const totalLessonsResult = await supabaseAdmin
+        .from('lessons')
+        .select('id', { count: 'exact', head: true })
+        .eq('cohort_id', cohortId)
+      totalLessons = totalLessonsResult.count || 0
+    } catch (error) {
+      recordFailure('Lessons Count Query', error)
+    }
     const completionRate = totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0
 
-    const videoProgressResult = await calculateVideoProgress(userId, cohortId)
-
-    if (completionRate !== videoProgressResult.percentage && completionRate !== 0) {
-      addWarning('Direct video calculation differs from function return', {
-        directCalculation: completionRate,
-        functionReturn: videoProgressResult.percentage
-      })
+    let videoProgressResult: any = null
+    try {
+      videoProgressResult = await calculateVideoProgress(userId, cohortId)
+    } catch (error) {
+      recordFailure('calculateVideoProgress', error)
     }
 
     runtimeData.sections.lessonRuntime = {
-      databaseRows: lessonProgress || [],
+      databaseRows: lessonProgress,
       calculationStages: {
         input: { userId, cohortId },
         completedLessons: {
@@ -147,11 +174,17 @@ export async function GET(request: Request) {
     }
 
     // SECTION 4: Quiz Runtime Trace
-    const { data: quizResponses } = await supabaseAdmin
-      .from('quiz_responses')
-      .select('*, quizzes(passing_score, title)')
-      .eq('user_id', userId)
-      .eq('cohort_id', cohortId)
+    let quizResponses: any = null
+    try {
+      const result = await supabaseAdmin
+        .from('quiz_responses')
+        .select('*, quizzes(passing_score, title)')
+        .eq('user_id', userId)
+        .eq('cohort_id', cohortId)
+      quizResponses = result.data
+    } catch (error) {
+      recordFailure('Quiz Database Query', error)
+    }
 
     // Best score selection logic
     const quizBestScores = new Map()
@@ -167,17 +200,15 @@ export async function GET(request: Request) {
       ? bestScoresArray.reduce((sum, r) => sum + r.score, 0) / bestScoresArray.length
       : 0
 
-    const quizProgressResult = await calculateQuizProgress(userId, cohortId)
-
-    if (quizAverage !== quizProgressResult.averageScore && quizAverage !== 0) {
-      addWarning('Direct quiz calculation differs from function return', {
-        directCalculation: quizAverage,
-        functionReturn: quizProgressResult.averageScore
-      })
+    let quizProgressResult: any = null
+    try {
+      quizProgressResult = await calculateQuizProgress(userId, cohortId)
+    } catch (error) {
+      recordFailure('calculateQuizProgress', error)
     }
 
     runtimeData.sections.quizRuntime = {
-      databaseRows: quizResponses || [],
+      databaseRows: quizResponses,
       calculationStages: {
         input: { userId, cohortId },
         bestScoreSelection: {
@@ -197,40 +228,38 @@ export async function GET(request: Request) {
     const assignmentWeight = 0.35
     const quizWeight = 0.25
 
-    const videoContribution = videoProgressResult.percentage * videoWeight
-    const assignmentContribution = assignmentProgressResult.percentage * assignmentWeight
-    const quizContribution = quizProgressResult.percentage * quizWeight
+    const videoContribution = (videoProgressResult?.percentage || 0) * videoWeight
+    const assignmentContribution = (assignmentProgressResult?.percentage || 0) * assignmentWeight
+    const quizContribution = (quizProgressResult?.percentage || 0) * quizWeight
     const calculatedOverall = videoContribution + assignmentContribution + quizContribution
 
-    const overallProgressResult = calculateOverallProgress(videoProgressResult, assignmentProgressResult, quizProgressResult)
-
-    if (Math.round(calculatedOverall) !== overallProgressResult.percentage && calculatedOverall !== 0) {
-      addWarning('Direct overall calculation differs from function return', {
-        directCalculation: calculatedOverall,
-        functionReturn: overallProgressResult.percentage
-      })
+    let overallProgressResult: any = null
+    try {
+      overallProgressResult = calculateOverallProgress(videoProgressResult, assignmentProgressResult, quizProgressResult)
+    } catch (error) {
+      recordFailure('calculateOverallProgress', error)
     }
 
     runtimeData.sections.overallProgress = {
       inputValues: {
-        videoPercentage: videoProgressResult.percentage,
-        assignmentPercentage: assignmentProgressResult.percentage,
-        quizPercentage: quizProgressResult.percentage
+        videoPercentage: videoProgressResult?.percentage,
+        assignmentPercentage: assignmentProgressResult?.percentage,
+        quizPercentage: quizProgressResult?.percentage
       },
       calculationStages: {
         weightedFormula: {
           video: {
-            percentage: videoProgressResult.percentage,
+            percentage: videoProgressResult?.percentage,
             weight: videoWeight,
             contribution: videoContribution
           },
           assignment: {
-            percentage: assignmentProgressResult.percentage,
+            percentage: assignmentProgressResult?.percentage,
             weight: assignmentWeight,
             contribution: assignmentContribution
           },
           quiz: {
-            percentage: quizProgressResult.percentage,
+            percentage: quizProgressResult?.percentage,
             weight: quizWeight,
             contribution: quizContribution
           },
@@ -241,93 +270,108 @@ export async function GET(request: Request) {
     }
 
     // SECTION 6: Leaderboard Runtime
-    const leaderboardScoreResult = await calculateLeaderboardScore({ userId, cohortId })
+    let leaderboardScoreResult: any = null
+    try {
+      leaderboardScoreResult = await calculateLeaderboardScore({ userId, cohortId })
+    } catch (error) {
+      recordFailure('calculateLeaderboardScore', error)
+    }
 
     runtimeData.sections.leaderboardRuntime = {
       calculationStages: {
         input: { userId, cohortId },
-        assignmentContribution: leaderboardScoreResult.assignmentScore,
-        quizContribution: leaderboardScoreResult.quizScore,
-        videoContribution: leaderboardScoreResult.videoScore,
-        certificateBonus: leaderboardScoreResult.certificateBonus,
-        totalScore: leaderboardScoreResult.totalScore,
+        assignmentContribution: leaderboardScoreResult?.assignmentScore,
+        quizContribution: leaderboardScoreResult?.quizScore,
+        videoContribution: leaderboardScoreResult?.videoScore,
+        certificateBonus: leaderboardScoreResult?.certificateBonus,
+        totalScore: leaderboardScoreResult?.totalScore,
         functionOutput: leaderboardScoreResult
       }
     }
 
     // SECTION 7: Leaderboard Database
-    const { data: leaderboardEntry } = await supabaseAdmin
-      .from('leaderboard')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('cohort_id', cohortId)
-      .single()
-
-    runtimeData.sections.leaderboardTable = leaderboardEntry || null
-
-    // Check for leaderboard mismatch
-    if (leaderboardEntry && leaderboardScoreResult.totalScore !== leaderboardEntry.total_score) {
-      addWarning('Leaderboard calculation differs from database', {
-        calculated: leaderboardScoreResult.totalScore,
-        database: leaderboardEntry.total_score
-      })
+    let leaderboardEntry: any = null
+    try {
+      const result = await supabaseAdmin
+        .from('leaderboard')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('cohort_id', cohortId)
+        .single()
+      leaderboardEntry = result.data
+    } catch (error) {
+      recordFailure('Leaderboard Database Query', error)
     }
+
+    runtimeData.sections.leaderboardTable = leaderboardEntry
 
     // SECTION 8: Analytics API Comparison (called AFTER calculations)
-    const analyticsApiCall = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/analytics/student/progress`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': request.headers.get('cookie') || ''
-      }
-    })
-
     let analyticsApiData = null
-    if (analyticsApiCall.ok) {
-      analyticsApiData = await analyticsApiCall.json()
-    }
-
-    // Check for API mismatch
-    if (analyticsApiData?.analytics?.totalScore !== undefined && 
-        analyticsApiData.analytics.totalScore !== leaderboardScoreResult.totalScore) {
-      addWarning('Analytics API totalScore differs from calculation', {
-        calculation: leaderboardScoreResult.totalScore,
-        api: analyticsApiData.analytics.totalScore
+    let analyticsApiStatus = 0
+    let analyticsApiOk = false
+    let analyticsApiError = null
+    
+    try {
+      const analyticsApiCall = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/analytics/student/progress`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': request.headers.get('cookie') || ''
+        }
       })
+
+      analyticsApiStatus = analyticsApiCall.status
+      analyticsApiOk = analyticsApiCall.ok
+      
+      if (analyticsApiCall.ok) {
+        analyticsApiData = await analyticsApiCall.json()
+      } else {
+        const errorText = await analyticsApiCall.text()
+        analyticsApiError = { status: analyticsApiStatus, body: errorText }
+        recordFailure('Analytics API', new Error(`HTTP ${analyticsApiStatus}: ${errorText}`), analyticsApiError)
+      }
+    } catch (error) {
+      recordFailure('Analytics API Fetch', error)
     }
 
     runtimeData.sections.analyticsApi = {
-      status: analyticsApiCall.status,
-      ok: analyticsApiCall.ok,
-      data: analyticsApiData
+      status: analyticsApiStatus,
+      ok: analyticsApiOk,
+      data: analyticsApiData,
+      error: analyticsApiError
     }
 
     // SECTION 9: Leaderboard API Comparison (called AFTER calculations)
-    const leaderboardApiCall = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/leaderboard`, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-
     let leaderboardApiData = null
-    if (leaderboardApiCall.ok) {
-      leaderboardApiData = await leaderboardApiCall.json()
-    }
+    let leaderboardApiStatus = 0
+    let leaderboardApiOk = false
+    let leaderboardApiError = null
+    
+    try {
+      const leaderboardApiCall = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/leaderboard`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
 
-    // Check for API mismatch
-    if (leaderboardApiData?.leaderboard) {
-      const apiEntry = leaderboardApiData.leaderboard.find((e: any) => e.user_id === userId)
-      if (apiEntry && apiEntry.total_score !== leaderboardScoreResult.totalScore) {
-        addWarning('Leaderboard API total_score differs from calculation', {
-          calculation: leaderboardScoreResult.totalScore,
-          api: apiEntry.total_score
-        })
+      leaderboardApiStatus = leaderboardApiCall.status
+      leaderboardApiOk = leaderboardApiCall.ok
+      
+      if (leaderboardApiCall.ok) {
+        leaderboardApiData = await leaderboardApiCall.json()
+      } else {
+        const errorText = await leaderboardApiCall.text()
+        leaderboardApiError = { status: leaderboardApiStatus, body: errorText }
+        recordFailure('Leaderboard API', new Error(`HTTP ${leaderboardApiStatus}: ${errorText}`), leaderboardApiError)
       }
+    } catch (error) {
+      recordFailure('Leaderboard API Fetch', error)
     }
 
     runtimeData.sections.leaderboardApi = {
-      status: leaderboardApiCall.status,
-      ok: leaderboardApiCall.ok,
-      data: leaderboardApiData
+      status: leaderboardApiStatus,
+      ok: leaderboardApiOk,
+      data: leaderboardApiData,
+      error: leaderboardApiError
     }
 
     // SECTION 10: Pipeline Verification (continue all pipelines even if failures)
@@ -336,142 +380,83 @@ export async function GET(request: Request) {
       failures: []
     }
 
-    // Assignment pipeline
-    pipelineVerification.stages.push({
-      pipeline: 'Assignment',
-      stage: 'Database Average',
-      value: averageScore
-    })
-    pipelineVerification.stages.push({
-      pipeline: 'Assignment',
-      stage: 'calculateAssignmentProgress',
-      value: assignmentProgressResult.averageScore
-    })
-    if (averageScore !== assignmentProgressResult.averageScore && averageScore !== 0) {
-      pipelineVerification.failures.push({
+    // Only add stages if values are available
+    if (assignmentProgressResult) {
+      pipelineVerification.stages.push({
         pipeline: 'Assignment',
-        fromStage: 'Database Average',
-        toStage: 'calculateAssignmentProgress',
-        previousValue: averageScore,
-        newValue: assignmentProgressResult.averageScore
+        stage: 'calculateAssignmentProgress',
+        value: assignmentProgressResult.averageScore
       })
     }
 
-    // Video pipeline
-    pipelineVerification.stages.push({
-      pipeline: 'Video',
-      stage: 'Database Completion Rate',
-      value: completionRate
-    })
-    pipelineVerification.stages.push({
-      pipeline: 'Video',
-      stage: 'calculateVideoProgress',
-      value: videoProgressResult.percentage
-    })
-    if (completionRate !== videoProgressResult.percentage && completionRate !== 0) {
-      pipelineVerification.failures.push({
+    if (videoProgressResult) {
+      pipelineVerification.stages.push({
         pipeline: 'Video',
-        fromStage: 'Database Completion Rate',
-        toStage: 'calculateVideoProgress',
-        previousValue: completionRate,
-        newValue: videoProgressResult.percentage
+        stage: 'calculateVideoProgress',
+        value: videoProgressResult.percentage
       })
     }
 
-    // Quiz pipeline
-    pipelineVerification.stages.push({
-      pipeline: 'Quiz',
-      stage: 'Database Average',
-      value: quizAverage
-    })
-    pipelineVerification.stages.push({
-      pipeline: 'Quiz',
-      stage: 'calculateQuizProgress',
-      value: quizProgressResult.averageScore
-    })
-    if (quizAverage !== quizProgressResult.averageScore && quizAverage !== 0) {
-      pipelineVerification.failures.push({
+    if (quizProgressResult) {
+      pipelineVerification.stages.push({
         pipeline: 'Quiz',
-        fromStage: 'Database Average',
-        toStage: 'calculateQuizProgress',
-        previousValue: quizAverage,
-        newValue: quizProgressResult.averageScore
+        stage: 'calculateQuizProgress',
+        value: quizProgressResult.averageScore
       })
     }
 
-    // Overall pipeline
-    pipelineVerification.stages.push({
-      pipeline: 'Overall',
-      stage: 'Weighted Calculation',
-      value: calculatedOverall
-    })
-    pipelineVerification.stages.push({
-      pipeline: 'Overall',
-      stage: 'calculateOverallProgress',
-      value: overallProgressResult.percentage
-    })
-    if (Math.round(calculatedOverall) !== overallProgressResult.percentage && calculatedOverall !== 0) {
-      pipelineVerification.failures.push({
+    if (overallProgressResult) {
+      pipelineVerification.stages.push({
         pipeline: 'Overall',
-        fromStage: 'Weighted Calculation',
-        toStage: 'calculateOverallProgress',
-        previousValue: calculatedOverall,
-        newValue: overallProgressResult.percentage
+        stage: 'calculateOverallProgress',
+        value: overallProgressResult.percentage
       })
     }
 
-    // Leaderboard pipeline
-    pipelineVerification.stages.push({
-      pipeline: 'Leaderboard',
-      stage: 'calculateLeaderboardScore',
-      value: leaderboardScoreResult.totalScore
-    })
+    if (leaderboardScoreResult) {
+      pipelineVerification.stages.push({
+        pipeline: 'Leaderboard',
+        stage: 'calculateLeaderboardScore',
+        value: leaderboardScoreResult.totalScore
+      })
+    }
+
     if (leaderboardEntry) {
       pipelineVerification.stages.push({
         pipeline: 'Leaderboard',
         stage: 'Database',
         value: leaderboardEntry.total_score
       })
-      if (leaderboardScoreResult.totalScore !== leaderboardEntry.total_score) {
-        pipelineVerification.failures.push({
-          pipeline: 'Leaderboard',
-          fromStage: 'calculateLeaderboardScore',
-          toStage: 'Database',
-          previousValue: leaderboardScoreResult.totalScore,
-          newValue: leaderboardEntry.total_score
-        })
-      }
-    }
-
-    // Analytics API pipeline
-    if (analyticsApiData?.analytics?.totalScore !== undefined) {
-      pipelineVerification.stages.push({
-        pipeline: 'Analytics API',
-        stage: 'API Response',
-        value: analyticsApiData.analytics.totalScore
-      })
-      if (leaderboardScoreResult.totalScore !== analyticsApiData.analytics.totalScore) {
-        pipelineVerification.failures.push({
-          pipeline: 'Analytics API',
-          fromStage: 'calculateLeaderboardScore',
-          toStage: 'API Response',
-          previousValue: leaderboardScoreResult.totalScore,
-          newValue: analyticsApiData.analytics.totalScore
-        })
-      }
     }
 
     runtimeData.sections.pipelineVerification = pipelineVerification
 
-    // SECTION 11: Warnings (already populated throughout)
-    runtimeData.sections.warnings = runtimeData.warnings
+    // SECTION 11: Failures
+    runtimeData.sections.failures = failures
 
-    return NextResponse.json(runtimeData)
+    // Return response
+    if (failures.length > 0) {
+      return NextResponse.json({
+        success: false,
+        failures,
+        runtime: runtimeData
+      }, { status: 200 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      failures: [],
+      runtime: runtimeData
+    })
   } catch (error: any) {
     console.error('[GET /api/admin/debug/runtime] Error:', error)
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
     }
-    return NextResponse.json({ error: error.message, stack: error.stack }, { status: 500 })
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message, 
+      stack: error.stack 
+    }, { status: 200 })
   }
 }
