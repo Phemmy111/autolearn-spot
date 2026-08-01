@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { cache } from 'react';
-import { users } from '@clerk/nextjs/server';
+import { currentUser } from '@clerk/nextjs/server';
 
 export interface Enrollment {
   id: string;
@@ -23,6 +23,10 @@ export interface Enrollment {
   };
 }
 
+interface EnrollmentUpdateData {
+  clerk_user_id: string;
+}
+
 /**
  * Automatically link an email-only enrollment to a Clerk User ID
  * Also captures the user's name from Clerk
@@ -32,31 +36,12 @@ export async function linkEmailToClerkUser(
   clerkUserId: string
 ): Promise<void> {
   try {
-    const user = await users.getUser(clerkUserId);
-
-    const firstName = user.firstName ?? null;
-    const lastName = user.lastName ?? null;
-
-    const fallbackFullName = [user.firstName, user.lastName]
-      .filter(Boolean)
-      .join(' ');
-
-    const fullName = user.fullName ?? (fallbackFullName || null);
-
-    interface EnrollmentUpdateData {
-      clerk_user_id: string;
-      first_name?: string | null;
-      last_name?: string | null;
-      full_name?: string | null;
-    }
-
+    // Simplified: Just link the clerk_user_id without fetching name data
+    // Name data will be updated when user actively uses the application
+    
     const updateData: EnrollmentUpdateData = {
       clerk_user_id: clerkUserId,
     };
-
-    if (firstName) updateData.first_name = firstName;
-    if (lastName) updateData.last_name = lastName;
-    if (fullName) updateData.full_name = fullName;
 
     const { data, error } = await supabaseAdmin
       .from('enrollments')

@@ -336,7 +336,7 @@ export function calculateOverallProgress(
     (quizProgress.percentage * quizWeight)
 
   // Ensure percentage is a number, not a string
-  const percentage = Math.round(Number(weightedPercentage) || 0
+  const percentage = Math.round(Number(weightedPercentage) || 0)
 
   console.log('[calculateOverallProgress] Calculated:', {
     videoProgress: videoProgress.percentage,
