@@ -71,7 +71,7 @@ export async function GET(request: Request) {
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
-      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrData={{ modules: { size: qrData.modules.size, data: qrData.modules.data } }} backgroundSrc={backgroundSrc} />),
+      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrData={{ modules: { size: qrData.modules.size, data: Array.from(qrData.modules.data).map(byte => byte === 1) } }} backgroundSrc={backgroundSrc} />),
       { 
         width: 1200, 
         height: 800,
