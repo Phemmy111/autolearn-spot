@@ -39,7 +39,7 @@ export async function calculateLeaderboardScore(
 
   console.log('[calculateLeaderboardScore] Starting calculation for:', { userId, cohortId })
 
-  // 1. Get assignment performance (40% weight)
+  // 1. Get assignment performance (40% weight) - only count approved assignments
   const assignmentResult = await supabaseAdmin
     .from('submissions')
     .select('ai_score')
@@ -51,6 +51,7 @@ export async function calculateLeaderboardScore(
         .eq('cohort_id', cohortId)
       ).data?.map(a => a.id) || []
     )
+    .eq('status', 'approved')
     .not('ai_score', 'is', null)
 
   const assignmentScores = assignmentResult.data?.map(s => s.ai_score || 0) || []
@@ -65,25 +66,31 @@ export async function calculateLeaderboardScore(
     contribution: assignmentContribution
   })
 
-  // 2. Get quiz performance (40% weight)
+  // 2. Get quiz performance (40% weight) - only count passed quizzes
   const quizResult = await supabaseAdmin
     .from('quiz_responses')
-    .select('score, quiz_id')
+    .select('score, quiz_id, percentage, quizzes(passing_score)')
     .eq('user_id', userId)
     .eq('cohort_id', cohortId)
 
   // Get best score per quiz
-  const quizBestScores = new Map<string, number>()
+  const quizBestScores = new Map<string, { score: number; passed: boolean }>()
   quizResult.data?.forEach(r => {
+    const passingScore = r.quizzes?.passing_score || 70
+    const passed = r.percentage >= passingScore
     const existing = quizBestScores.get(r.quiz_id)
-    if (!existing || r.score > existing) {
-      quizBestScores.set(r.quiz_id, r.score)
+    if (!existing || r.score > existing.score) {
+      quizBestScores.set(r.quiz_id, { score: r.score, passed })
     }
   })
 
-  const quizScores = Array.from(quizBestScores.values())
-  const averageQuizScore = quizScores.length > 0
-    ? quizScores.reduce((sum, score) => sum + score, 0) / quizScores.length
+  // Only count passed quizzes for average
+  const passedQuizScores = Array.from(quizBestScores.values())
+    .filter(q => q.passed)
+    .map(q => q.score)
+  
+  const averageQuizScore = passedQuizScores.length > 0
+    ? passedQuizScores.reduce((sum, score) => sum + score, 0) / passedQuizScores.length
     : 0
   const quizContribution = averageQuizScore * 0.4
 

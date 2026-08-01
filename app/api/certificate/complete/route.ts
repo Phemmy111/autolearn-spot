@@ -84,7 +84,82 @@ export async function POST(request: Request) {
 
     const cohortId = currentCohort?.id || 'a1111111-1111-1111-1111-111111111111'
 
-    // 3. Upsert student certificate record
+    // 3. Verify eligibility before issuing certificate
+    // Certificate eligibility requires: 100% video progress + all assignments approved + all quizzes passed
+    const { count: totalLessons } = await supabaseAdmin
+      .from('lessons')
+      .select('id', { count: 'exact', head: true })
+      .eq('cohort_id', cohortId)
+
+    const { count: completedLessons } = await supabaseAdmin
+      .from('lesson_progress')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('cohort_id', cohortId)
+      .eq('completed', true)
+
+    const videoProgressComplete = totalLessons > 0 && completedLessons === totalLessons
+
+    // Check assignment approval status
+    const { count: totalAssignments } = await supabaseAdmin
+      .from('assignments')
+      .select('id', { count: 'exact', head: true })
+      .eq('cohort_id', cohortId)
+
+    const { count: approvedAssignments } = await supabaseAdmin
+      .from('submissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .in('assignment_id',
+        (await supabaseAdmin
+          .from('assignments')
+          .select('id')
+          .eq('cohort_id', cohortId)
+        ).data?.map(a => a.id) || []
+      )
+      .eq('status', 'approved')
+
+    const assignmentsComplete = totalAssignments > 0 && approvedAssignments === totalAssignments
+
+    // Check quiz pass status
+    const { count: totalQuizzes } = await supabaseAdmin
+      .from('quizzes')
+      .select('id', { count: 'exact', head: true })
+      .eq('cohort_id', cohortId)
+      .eq('is_active', true)
+
+    const { data: quizResponses } = await supabaseAdmin
+      .from('quiz_responses')
+      .select('quiz_id, passed')
+      .eq('user_id', userId)
+      .eq('cohort_id', cohortId)
+
+    // Get unique quizzes passed
+    const passedQuizzes = new Set()
+    quizResponses?.forEach(r => {
+      if (r.passed) passedQuizzes.add(r.quiz_id)
+    })
+
+    const quizzesComplete = totalQuizzes > 0 && passedQuizzes.size === totalQuizzes
+
+    console.log('[cert/complete] Eligibility check:', {
+      videoProgress: { completed: completedLessons, total: totalLessons, complete: videoProgressComplete },
+      assignments: { approved: approvedAssignments, total: totalAssignments, complete: assignmentsComplete },
+      quizzes: { passed: passedQuizzes.size, total: totalQuizzes, complete: quizzesComplete }
+    })
+
+    if (!videoProgressComplete || !assignmentsComplete || !quizzesComplete) {
+      return NextResponse.json({
+        error: 'Not eligible for certificate yet. Complete all lessons, get all assignments approved, and pass all quizzes.',
+        eligibility: {
+          videoProgress: videoProgressComplete,
+          assignments: assignmentsComplete,
+          quizzes: quizzesComplete
+        }
+      }, { status: 400 })
+    }
+
+    // 4. Upsert student certificate record
     const certCode = `CERT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
     
     // Check if certificate already exists

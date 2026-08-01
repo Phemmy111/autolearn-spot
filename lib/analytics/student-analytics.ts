@@ -99,6 +99,7 @@ export async function getStudentAssignmentPerformance(
         .eq('cohort_id', cid)
       ).data?.map(a => a.id) || []
     )
+    .eq('status', 'approved')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -106,7 +107,7 @@ export async function getStudentAssignmentPerformance(
     return []
   }
 
-  return (submissions || []).map((s: { assignment_id: string; assignments?: { title: string }; created_at: string; ai_score: number | null; status: string; ai_feedback: string | null; due_date?: string }) => ({
+  return (submissions || []).map((s: { assignment_id: string; assignments?: { title: string; week_number: number; due_date: string }; created_at: string; ai_score: number | null; status: string; ai_feedback: string | null }) => ({
     assignmentId: s.assignment_id,
     title: s.assignments?.title || 'Unknown Assignment',
     weekNumber: s.assignments?.week_number || 0,
@@ -136,6 +137,7 @@ export async function getStudentQuizPerformance(
       quiz_id,
       created_at,
       score,
+      passed,
       quizzes (
         id,
         title,
@@ -154,20 +156,23 @@ export async function getStudentQuizPerformance(
 
   // Get best attempt per quiz
   const bestAttempts = new Map()
-  ;(responses || []).forEach((r: { quiz_id: string; score: number }) => {
+  ;(responses || []).forEach((r: { quiz_id: string; score: number; passed: boolean }) => {
     const existing = bestAttempts.get(r.quiz_id)
-    if (!existing || r.score > existing.score) {
-      bestAttempts.set(r.quiz_id, r)
+    // Only track if passed, and get the best score among passed attempts
+    if (r.passed) {
+      if (!existing || r.score > existing.score) {
+        bestAttempts.set(r.quiz_id, r)
+      }
     }
   })
 
-  return Array.from(bestAttempts.values()).map((r: { quiz_id: string; quizzes?: { title: string; week_number: number; passing_score: number }; created_at: string; score: number }) => ({
+  return Array.from(bestAttempts.values()).map((r: { quiz_id: string; quizzes?: { title: string; week_number: number; passing_score: number }; created_at: string; score: number; passed: boolean }) => ({
     quizId: r.quiz_id,
     title: r.quizzes?.title || 'Unknown Quiz',
     weekNumber: r.quizzes?.week_number || 0,
     attemptedAt: r.created_at,
     score: r.score,
-    passed: r.score >= (r.quizzes?.passing_score || 70),
+    passed: r.passed,
     passingScore: r.quizzes?.passing_score || 70,
   }))
 }

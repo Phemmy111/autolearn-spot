@@ -146,11 +146,14 @@ async function checkFastLearner(userId: string, cohortId: string): Promise<boole
 async function checkPerfectQuiz(userId: string, cohortId: string): Promise<boolean> {
   const { data: responses } = await supabaseAdmin
     .from('quiz_responses')
-    .select('percentage')
+    .select('percentage, quizzes(passing_score)')
     .eq('user_id', userId)
     .eq('cohort_id', cohortId)
 
-  return responses?.some(r => r.percentage === 100) || false
+  return responses?.some(r => {
+    const passingScore = r.quizzes?.passing_score || 70
+    return r.percentage === 100 && r.percentage >= passingScore
+  }) || false
 }
 
 async function checkSevenDayStreak(userId: string): Promise<boolean> {
@@ -197,7 +200,7 @@ async function checkCourseGraduate(userId: string, cohortId: string): Promise<bo
 async function checkQuizMaster(userId: string, cohortId: string): Promise<boolean> {
   const { data: responses } = await supabaseAdmin
     .from('quiz_responses')
-    .select('percentage, quiz_id')
+    .select('percentage, quiz_id, quizzes(passing_score)')
     .eq('user_id', userId)
     .eq('cohort_id', cohortId)
 
@@ -206,14 +209,19 @@ async function checkQuizMaster(userId: string, cohortId: string): Promise<boolea
   // Get best score per quiz
   const quizBestScores = new Map<string, number>()
   responses.forEach(r => {
-    const existing = quizBestScores.get(r.quiz_id)
-    if (!existing || r.percentage > existing) {
-      quizBestScores.set(r.quiz_id, r.percentage)
+    const passingScore = r.quizzes?.passing_score || 70
+    const passed = r.percentage >= passingScore
+    // Only track if passed
+    if (passed) {
+      const existing = quizBestScores.get(r.quiz_id)
+      if (!existing || r.percentage > existing) {
+        quizBestScores.set(r.quiz_id, r.percentage)
+      }
     }
   })
 
   const scores = Array.from(quizBestScores.values())
-  const average = scores.reduce((sum, score) => sum + score, 0) / scores.length
+  const average = scores.length > 0 ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0
 
   return average >= 80
 }
@@ -230,6 +238,7 @@ async function checkAssignmentExcellence(userId: string, cohortId: string): Prom
         .eq('cohort_id', cohortId)
       ).data?.map(a => a.id) || []
     )
+    .eq('status', 'approved')
     .not('ai_score', 'is', null)
 
   if (!submissions || submissions.length === 0) return false
