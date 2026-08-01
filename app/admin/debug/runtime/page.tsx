@@ -69,17 +69,17 @@ interface RuntimeData {
       }
     }
     leaderboardTable: any
-    analyticsApi: {
+    analyticsApiComparison?: {
       status: number
       ok: boolean
       data: any
     }
-    leaderboardApi: {
+    leaderboardApiComparison?: {
       status: number
       ok: boolean
       data: any
     }
-    pipelineVerification: {
+    pipelineVerification?: {
       stages: any[]
       failures: any[]
     }
@@ -285,7 +285,7 @@ export default function RuntimeDebugPage() {
                     </div>
                   </div>
                   <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Assignment %</div>
+                    <div className="text-xs text-[#b9cacb]">Assignment Progress</div>
                     <div className="text-2xl font-bold text-[#00f0ff]">
                       {runtimeData.sections.assignmentRuntime.calculationStages.functionOutput.percentage}%
                     </div>
@@ -306,25 +306,19 @@ export default function RuntimeDebugPage() {
                   <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.input} title="INPUT" />
                   <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.completedLessons} title="Completed Lessons" />
                 </div>
-                <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.completionRate} title="Completion %" />
-                <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.functionOutput} title="Return" />
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.completionRate} title="Completion Rate" />
+                <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.functionOutput} title="Return Object" />
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
+                    <div className="text-xs text-[#b9cacb]">Video Progress</div>
+                    <div className="text-2xl font-bold text-[#00f0ff]">
+                      {runtimeData.sections.lessonRuntime.calculationStages.functionOutput.percentage}%
+                    </div>
+                  </div>
                   <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
                     <div className="text-xs text-[#b9cacb]">Completed Lessons</div>
                     <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.lessonRuntime.calculationStages.functionOutput.completed}
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Total Lessons</div>
-                    <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.lessonRuntime.calculationStages.functionOutput.total}
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Video %</div>
-                    <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.lessonRuntime.calculationStages.functionOutput.percentage}%
+                      {runtimeData.sections.lessonRuntime.calculationStages.completedLessons.count}
                     </div>
                   </div>
                 </div>
@@ -344,24 +338,18 @@ export default function RuntimeDebugPage() {
                   <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.bestScoreSelection} title="Best Score Selection" />
                 </div>
                 <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.average} title="Average" />
-                <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.functionOutput} title="Return" />
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.functionOutput} title="Return Object" />
+                <div className="grid grid-cols-2 gap-4 mt-4">
                   <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Average Quiz Score</div>
-                    <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.quizRuntime.calculationStages.functionOutput.averageScore}
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Completed Quizzes</div>
-                    <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.quizRuntime.calculationStages.functionOutput.completed}
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Quiz %</div>
+                    <div className="text-xs text-[#b9cacb]">Quiz Progress</div>
                     <div className="text-2xl font-bold text-[#00f0ff]">
                       {runtimeData.sections.quizRuntime.calculationStages.functionOutput.percentage}%
+                    </div>
+                  </div>
+                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
+                    <div className="text-xs text-[#b9cacb]">Passed Quizzes</div>
+                    <div className="text-2xl font-bold text-[#00f0ff]">
+                      {runtimeData.sections.quizRuntime.calculationStages.functionOutput.passed}
                     </div>
                   </div>
                 </div>
@@ -374,49 +362,15 @@ export default function RuntimeDebugPage() {
                 <CardTitle className="text-white">SECTION 5 — Overall Progress</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Video %</div>
-                    <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.overallProgress.inputValues.videoPercentage}%
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Assignment %</div>
-                    <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.overallProgress.inputValues.assignmentPercentage}%
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Quiz %</div>
-                    <div className="text-2xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.overallProgress.inputValues.quizPercentage}%
-                    </div>
-                  </div>
-                </div>
+                <JsonDisplay data={runtimeData.sections.overallProgress.inputValues} title="Input Values" />
                 <div className="border-b border-[#1f2229] my-4" />
                 <JsonDisplay data={runtimeData.sections.overallProgress.calculationStages.weightedFormula} title="Weighted Formula" />
-                <JsonDisplay data={runtimeData.sections.overallProgress.calculationStages.functionOutput} title="Return" />
-                
-                {/* Detailed Weighted Formula Display */}
-                <div className="bg-[#111317] p-4 rounded border border-[#1f2229] space-y-2">
-                  <div className="text-sm font-semibold text-white">Weighted Formula Steps:</div>
-                  <div className="text-xs text-[#b9cacb] font-mono">
-                    Video: {runtimeData.sections.overallProgress.calculationStages.weightedFormula.video.percentage} × {runtimeData.sections.overallProgress.calculationStages.weightedFormula.video.weight} = {runtimeData.sections.overallProgress.calculationStages.weightedFormula.video.contribution.toFixed(1)}
+                <JsonDisplay data={runtimeData.sections.overallProgress.calculationStages.functionOutput} title="Return Object" />
+                <div className="bg-[#111317] p-3 rounded border border-[#1f2229] mt-4">
+                  <div className="text-xs text-[#b9cacb]">Overall Progress</div>
+                  <div className="text-2xl font-bold text-[#00f0ff]">
+                    {runtimeData.sections.overallProgress.calculationStages.functionOutput.percentage}%
                   </div>
-                  <div className="text-xs text-[#b9cacb] font-mono">
-                    Assignment: {runtimeData.sections.overallProgress.calculationStages.weightedFormula.assignment.percentage} × {runtimeData.sections.overallProgress.calculationStages.weightedFormula.assignment.weight} = {runtimeData.sections.overallProgress.calculationStages.weightedFormula.assignment.contribution.toFixed(1)}
-                  </div>
-                  <div className="text-xs text-[#b9cacb] font-mono">
-                    Quiz: {runtimeData.sections.overallProgress.calculationStages.weightedFormula.quiz.percentage} × {runtimeData.sections.overallProgress.calculationStages.weightedFormula.quiz.weight} = {runtimeData.sections.overallProgress.calculationStages.weightedFormula.quiz.contribution.toFixed(1)}
-                  </div>
-                  <div className="border-b border-[#1f2229] my-2" />
-                  <div className="text-sm font-bold text-[#00f0ff] font-mono">
-                    Total: {runtimeData.sections.overallProgress.calculationStages.weightedFormula.total.toFixed(1)}
-                  </div>
-                  {Math.round(runtimeData.sections.overallProgress.calculationStages.weightedFormula.total) !== runtimeData.sections.overallProgress.calculationStages.functionOutput.percentage && (
-                    <Badge variant="destructive" className="mt-2">Mismatch detected</Badge>
-                  )}
                 </div>
               </CardContent>
             </Card>
@@ -428,212 +382,102 @@ export default function RuntimeDebugPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.input} title="INPUT" />
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Assignment Contribution</div>
-                    <div className="text-xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.leaderboardRuntime.calculationStages.assignmentContribution}
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Quiz Contribution</div>
-                    <div className="text-xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.leaderboardRuntime.calculationStages.quizContribution}
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Video Contribution</div>
-                    <div className="text-xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.leaderboardRuntime.calculationStages.videoContribution}
-                    </div>
-                  </div>
-                  <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                    <div className="text-xs text-[#b9cacb]">Certificate Bonus</div>
-                    <div className="text-xl font-bold text-[#00f0ff]">
-                      {runtimeData.sections.leaderboardRuntime.calculationStages.certificateBonus}
-                    </div>
-                  </div>
+                <div className="border-b border-[#1f2229] my-4" />
+                <div className="grid grid-cols-5 gap-4">
+                  <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.assignmentContribution} title="Assignment Contribution" />
+                  <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.quizContribution} title="Quiz Contribution" />
+                  <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.videoContribution} title="Video Contribution" />
+                  <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.certificateBonus} title="Certificate Bonus" />
+                  <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.totalScore} title="Total Score" />
                 </div>
-                <div className="bg-[#111317] p-3 rounded border border-[#1f2229]">
-                  <div className="text-xs text-[#b9cacb]">Total Score</div>
-                  <div className="text-2xl font-bold text-[#00f0ff]">
-                    {runtimeData.sections.leaderboardRuntime.calculationStages.totalScore}
-                  </div>
-                </div>
-                <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.functionOutput} title="Return" />
+                <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.functionOutput} title="Return Object" />
               </CardContent>
             </Card>
 
             {/* SECTION 7: Leaderboard Database */}
             <Card className="bg-[#0c0e12] border-[#1f2229]">
               <CardHeader>
-                <CardTitle className="text-white">SECTION 7 — Leaderboard Database (Raw Row)</CardTitle>
+                <CardTitle className="text-white">SECTION 7 — Leaderboard Database</CardTitle>
               </CardHeader>
               <CardContent>
-                {runtimeData.sections.leaderboardTable ? (
-                  <JsonDisplay data={runtimeData.sections.leaderboardTable} title="leaderboard table row" />
-                ) : (
-                  <div className="text-[#b9cacb]">No leaderboard entry found for this student</div>
-                )}
+                <JsonDisplay data={runtimeData.sections.leaderboardTable} title="Database Entry" />
               </CardContent>
             </Card>
 
             {/* SECTION 8: Analytics API Comparison */}
-            <Card className="bg-[#0c0e12] border-[#1f2229]">
-              <CardHeader>
-                <CardTitle className="text-white">SECTION 8 — Analytics API Comparison</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge variant={runtimeData.sections.analyticsApi.ok ? "default" : "destructive"}>
-                    Status: {runtimeData.sections.analyticsApi.status}
-                  </Badge>
-                  <Badge variant={runtimeData.sections.analyticsApi.ok ? "default" : "destructive"}>
-                    {runtimeData.sections.analyticsApi.ok ? "OK" : "FAILED"}
-                  </Badge>
-                </div>
-                <JsonDisplay data={runtimeData.sections.analyticsApi.data} title="Raw JSON from /api/analytics/student/progress" />
-              </CardContent>
-            </Card>
+            {runtimeData.sections.analyticsApiComparison && (
+              <Card className="bg-[#0c0e12] border-[#1f2229]">
+                <CardHeader>
+                  <CardTitle className="text-white">SECTION 8 — Analytics API Comparison</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant={runtimeData.sections.analyticsApiComparison.ok ? "default" : "destructive"}>
+                      Status: {runtimeData.sections.analyticsApiComparison.status}
+                    </Badge>
+                    <Badge variant={runtimeData.sections.analyticsApiComparison.ok ? "default" : "destructive"}>
+                      {runtimeData.sections.analyticsApiComparison.ok ? "OK" : "FAILED"}
+                    </Badge>
+                  </div>
+                  <JsonDisplay data={runtimeData.sections.analyticsApiComparison.data} title="Raw JSON from /api/analytics/student/progress" />
+                </CardContent>
+              </Card>
+            )}
 
             {/* SECTION 9: Leaderboard API Comparison */}
-            <Card className="bg-[#0c0e12] border-[#1f2229]">
-              <CardHeader>
-                <CardTitle className="text-white">SECTION 9 — Leaderboard API Comparison</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge variant={runtimeData.sections.leaderboardApi.ok ? "default" : "destructive"}>
-                    Status: {runtimeData.sections.leaderboardApi.status}
-                  </Badge>
-                  <Badge variant={runtimeData.sections.leaderboardApi.ok ? "default" : "destructive"}>
-                    {runtimeData.sections.leaderboardApi.ok ? "OK" : "FAILED"}
-                  </Badge>
-                </div>
-                {runtimeData.sections.leaderboardApi.data?.leaderboard && (
-                  <div className="mb-4">
-                    <div className="text-sm text-[#b9cacb] mb-2">Student entry in leaderboard:</div>
-                    <JsonDisplay 
-                      data={runtimeData.sections.leaderboardApi.data.leaderboard.find(
-                        (entry: any) => entry.user_id === runtimeData.userId
-                      ) || "Not found in leaderboard"} 
-                      title="This student's leaderboard entry" 
-                    />
+            {runtimeData.sections.leaderboardApiComparison && (
+              <Card className="bg-[#0c0e12] border-[#1f2229]">
+                <CardHeader>
+                  <CardTitle className="text-white">SECTION 9 — Leaderboard API Comparison</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant={runtimeData.sections.leaderboardApiComparison.ok ? "default" : "destructive"}>
+                      Status: {runtimeData.sections.leaderboardApiComparison.status}
+                    </Badge>
+                    <Badge variant={runtimeData.sections.leaderboardApiComparison.ok ? "default" : "destructive"}>
+                      {runtimeData.sections.leaderboardApiComparison.ok ? "OK" : "FAILED"}
+                    </Badge>
                   </div>
-                )}
-                <JsonDisplay data={runtimeData.sections.leaderboardApi.data} title="Raw JSON from /api/leaderboard" />
-              </CardContent>
-            </Card>
+                  {runtimeData.sections.leaderboardApiComparison.data?.leaderboard && (
+                    <div className="mb-4">
+                      <div className="text-sm text-[#b9cacb] mb-2">Student entry in leaderboard:</div>
+                      <JsonDisplay 
+                        data={runtimeData.sections.leaderboardApiComparison.data.leaderboard.find(
+                            (entry: any) => entry.user_id === runtimeData.userId
+                          ) || "Not found in leaderboard"} 
+                        title="This student's leaderboard entry" 
+                      />
+                    </div>
+                  )}
+                  <JsonDisplay data={runtimeData.sections.leaderboardApiComparison.data} title="Raw JSON from /api/leaderboard" />
+                </CardContent>
+              </Card>
+            )}
 
             {/* SECTION 10: Pipeline Verification */}
-            <Card className="bg-[#0c0e12] border-[#1f2229]">
-              <CardHeader>
-                <CardTitle className="text-white">SECTION 10 — Pipeline Verification</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {runtimeData.sections.pipelineVerification.failures.length > 0 ? (
-                  <div className="space-y-3">
-                    {runtimeData.sections.pipelineVerification.failures.map((failure, index) => (
-                      <div key={index} className="bg-red-500/10 border border-red-500/30 p-4 rounded">
-                        <div className="flex items-center gap-2 text-red-400 font-bold mb-2">
-                          <AlertTriangle className="w-5 h-5" />
-                          FAILURE DETECTED
-                        </div>
-                        <div className="space-y-1 text-sm">
-                          <div><span className="text-[#b9cacb]">Pipeline:</span> {failure.pipeline}</div>
-                          <div><span className="text-[#b9cacb]">From Stage:</span> {failure.fromStage}</div>
-                          <div><span className="text-[#b9cacb]">To Stage:</span> {failure.toStage}</div>
-                          <div><span className="text-[#b9cacb]">Previous Value:</span> <span className="text-green-400">{failure.previousValue}</span></div>
-                          <div><span className="text-[#b9cacb]">New Value:</span> <span className="text-red-400">{failure.newValue}</span></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-green-500/10 border border-green-500/30 p-4 rounded">
-                    <div className="flex items-center gap-2 text-green-400 font-bold">
-                      <CheckCircle className="w-5 h-5" />
-                      ALL PIPELINES PASSED
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm text-[#b9cacb]">All Pipeline Stages:</h4>
-                  {runtimeData.sections.pipelineVerification.stages.map((stage, index) => (
-                    <div key={index} className="flex items-center gap-4 bg-[#111317] p-2 rounded">
-                      <div className="text-xs text-[#b9cacb] w-24">{stage.pipeline}</div>
-                      <div className="flex-1">
-                        <div className="text-sm text-white">{stage.stage}</div>
-                      </div>
-                      <div className={`text-sm font-mono font-bold ${
-                        stage.value === 0 ? 'text-red-400' : 'text-[#00f0ff]'
-                      }`}>
-                        {typeof stage.value === 'number' ? stage.value.toFixed(1) : stage.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* SECTION 11: Warnings */}
-            <Card className="bg-[#0c0e12] border-[#1f2229]">
-              <CardHeader>
-                <CardTitle className="text-white">SECTION 11 — Warnings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {runtimeData.warnings.length > 0 ? (
-                  <div className="space-y-3">
-                    {runtimeData.warnings.map((warning, index) => (
-                      <div key={index} className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded">
-                        <div className="flex items-center gap-2 text-yellow-400 font-bold mb-2">
-                          <AlertTriangle className="w-5 h-5" />
-                          WARNING
-                        </div>
-                        <div className="space-y-1 text-sm">
-                          <div className="text-white">{warning.message}</div>
-                          {warning.details && (
-                            <JsonDisplay data={warning.details} title="Details" />
-                          )}
-                          <div className="text-xs text-[#b9cacb]">{warning.timestamp}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="bg-green-500/10 border border-green-500/30 p-4 rounded">
-                    <div className="flex items-center gap-2 text-green-400 font-bold">
-                      <CheckCircle className="w-5 h-5" />
-                      NO WARNINGS
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Metadata */}
-            <Card className="bg-[#0c0e12] border-[#1f2229]">
-              <CardHeader>
-                <CardTitle className="text-white">Runtime Metadata</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+            {runtimeData.sections.pipelineVerification && (
+              <Card className="bg-[#0c0e12] border-[#1f2229]">
+                <CardHeader>
+                  <CardTitle className="text-white">SECTION 10 — Pipeline Verification</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div>
-                    <span className="text-[#b9cacb]">User ID:</span> {runtimeData.userId}
+                    <h4 className="font-semibold text-sm text-[#b9cacb] mb-2">Pipeline Stages</h4>
+                    <StageDisplay stages={runtimeData.sections.pipelineVerification.stages} />
                   </div>
-                  <div>
-                    <span className="text-[#b9cacb]">Cohort ID:</span> {runtimeData.cohortId}
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-[#b9cacb]">Timestamp:</span> {runtimeData.timestamp}
-                  </div>
-                  <div className="col-span-2">
-                    <span className="text-[#b9cacb]">Warnings Count:</span> {runtimeData.warnings.length}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  {runtimeData.sections.pipelineVerification.failures && runtimeData.sections.pipelineVerification.failures.length > 0 && (
+                    <>
+                      <div className="border-b border-[#1f2229] my-4" />
+                      <div>
+                        <h4 className="font-semibold text-sm text-red-400 mb-2">Failures</h4>
+                        <JsonDisplay data={runtimeData.sections.pipelineVerification.failures} title="Error Details" />
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </>
         )}
       </div>
