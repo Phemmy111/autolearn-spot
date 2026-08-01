@@ -20,10 +20,6 @@ export async function POST(request: Request) {
     let results: any[] = []
     const startTime = Date.now()
 
-    if (!cohortId) {
-      return NextResponse.json({ error: 'cohortId parameter required' }, { status: 400 })
-    }
-
     if (cohortId) {
       // Recalculate analytics for specific cohort
       console.log(`[analytics-maintenance] Starting analytics recalculation for cohort ${cohortId}`)
@@ -41,7 +37,6 @@ export async function POST(request: Request) {
       let successCount = 0
       for (const enrollment of enrollments) {
         try {
-          // This will trigger the analytics calculation and caching
           await getStudentProgressAnalytics(enrollment.clerk_user_id, cohortId)
           successCount++
           results.push({ 
