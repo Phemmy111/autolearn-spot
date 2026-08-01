@@ -70,9 +70,9 @@ export async function invalidateStudentProgressCache(
   cohortId: string
 ): Promise<void> {
   console.log('[cache-manager] Invalidating student progress cache:', { userId, cohortId })
-  revalidateTag('student-progress')
-  revalidateTag(userId)
-  revalidateTag(cohortId)
+  revalidateTag('student-progress', 'max')
+  revalidateTag(userId, 'max')
+  revalidateTag(cohortId, 'max')
 }
 
 /**
@@ -80,8 +80,8 @@ export async function invalidateStudentProgressCache(
  */
 export async function invalidateCohortAnalyticsCache(cohortId: string): Promise<void> {
   console.log('[cache-manager] Invalidating cohort analytics cache:', { cohortId })
-  revalidateTag('cohort-analytics')
-  revalidateTag(cohortId)
+  revalidateTag('cohort-analytics', 'max')
+  revalidateTag(cohortId, 'max')
 }
 
 /**
@@ -89,8 +89,8 @@ export async function invalidateCohortAnalyticsCache(cohortId: string): Promise<
  */
 export async function invalidateLeaderboardCache(cohortId: string): Promise<void> {
   console.log('[cache-manager] Invalidating leaderboard cache:', { cohortId })
-  revalidateTag('leaderboard')
-  revalidateTag(cohortId)
+  revalidateTag('leaderboard', 'max')
+  revalidateTag(cohortId, 'max')
 }
 
 /**
@@ -102,8 +102,8 @@ export async function invalidateStudentListCache(
   sortOrder: string
 ): Promise<void> {
   console.log('[cache-manager] Invalidating student list cache:', { cohortId, sortBy, sortOrder })
-  revalidateTag('student-list')
-  revalidateTag(cohortId)
+  revalidateTag('student-list', 'max')
+  revalidateTag(cohortId, 'max')
 }
 
 /**

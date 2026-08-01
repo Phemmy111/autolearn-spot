@@ -129,6 +129,7 @@ export async function POST(
     // Invalidate analytics cache after assignment submission
     try {
       const cohortId = assignment.cohort_id || await getCurrentCohortId()
+      console.log('[assignment submission] Invalidating analytics cache:', { userId, cohortId })
       await invalidateAfterAssignmentSubmission(userId, cohortId)
     } catch (cacheError) {
       console.error('Failed to invalidate analytics cache:', cacheError)
@@ -137,7 +138,9 @@ export async function POST(
 
     // Trigger leaderboard update after assignment submission
     try {
+      console.log('[assignment submission] Triggering leaderboard update:', { userId })
       await triggerLeaderboardUpdate(userId, 'assignment')
+      console.log('[assignment submission] Leaderboard update completed')
     } catch (leaderboardError) {
       console.error('Failed to trigger leaderboard update:', leaderboardError)
       // Don't fail the submission if leaderboard update fails
