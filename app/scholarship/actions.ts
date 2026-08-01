@@ -140,10 +140,10 @@ export async function submitScholarshipApplication(data: ScholarshipFormData) {
     await logScholarshipTimeline({
       application_id: insertedApp.id,
       reference_number: referenceNumber,
-      from_status: null,
+      from_status: undefined,
       to_status: 'Submitted',
       notes: 'Initial application submission',
-    });
+    } as any);
 
     // Create in-app notification for applicant
     try {
