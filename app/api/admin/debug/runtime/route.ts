@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/admin'
+import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getCurrentCohortId } from '@/lib/progress-service'
 import {
-  calculateVideoProgress,
   calculateAssignmentProgress,
+  calculateVideoProgress,
   calculateQuizProgress,
   calculateOverallProgress,
 } from '@/lib/analytics/progress-calculator'
 import { calculateLeaderboardScore } from '@/lib/leaderboard-scoring'
-import { getCurrentCohortId } from '@/lib/progress-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,6 +28,14 @@ export async function GET(request: Request) {
     console.error(`[Runtime Debug] ${section} failed:`, error)
   }
 
+  // Initialize runtime data structure early
+  const runtimeData: any = {
+    userId: null,
+    cohortId: null,
+    timestamp: new Date().toISOString(),
+    sections: {}
+  }
+
   // Wrap requireAdmin to expose the error
   try {
     await requireAdmin()
@@ -34,7 +43,8 @@ export async function GET(request: Request) {
     recordFailure('requireAdmin', error)
     return NextResponse.json({ 
       success: false, 
-      failures
+      failures,
+      runtime: { ...runtimeData, timestamp: new Date().toISOString() }
     }, { status: 500 })
   }
 
@@ -44,11 +54,13 @@ export async function GET(request: Request) {
   try {
     url = new URL(request.url)
     userId = url.searchParams.get('userId')
+    runtimeData.userId = userId
   } catch (error) {
     recordFailure('URL Parsing', error)
     return NextResponse.json({ 
       success: false, 
-      failures
+      failures,
+      runtime: { ...runtimeData, timestamp: new Date().toISOString() }
     }, { status: 500 })
   }
 
@@ -65,22 +77,22 @@ export async function GET(request: Request) {
       cohortId = null
     }
 
-    const runtimeData: any = {
-      userId,
-      cohortId,
-      timestamp: new Date().toISOString(),
-      sections: {}
-    }
+    runtimeData.cohortId = cohortId
 
     // SECTION 1: Student Information
     try {
-      const { data: enrollment } = await supabaseAdmin
-        .from('enrollments')
-        .select('*')
-        .eq('clerk_user_id', userId)
-        .eq('cohort_id', cohortId)
-        .single()
-      runtimeData.sections.studentInfo = enrollment
+      if (cohortId) {
+        const { data: enrollment } = await supabaseAdmin
+          .from('enrollments')
+          .select('*')
+          .eq('clerk_user_id', userId)
+          .eq('cohort_id', cohortId)
+          .single()
+        runtimeData.sections.studentInfo = enrollment
+      } else {
+        runtimeData.sections.studentInfo = null
+        recordFailure('Student Information', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('Student Information', error)
       runtimeData.sections.studentInfo = null
@@ -89,18 +101,23 @@ export async function GET(request: Request) {
     // SECTION 2: Assignment Runtime Trace
     let submissions: any = null
     try {
-      const result = await supabaseAdmin
-        .from('submissions')
-        .select('*, assignments(due_date, title, cohort_id)')
-        .eq('user_id', userId)
-        .in('assignment_id',
-          (await supabaseAdmin
-            .from('assignments')
-            .select('id')
-            .eq('cohort_id', cohortId)
-          ).data?.map(a => a.id) || []
-        )
-      submissions = result.data
+      if (cohortId) {
+        const result = await supabaseAdmin
+          .from('submissions')
+          .select('*, assignments(due_date, title, cohort_id)')
+          .eq('user_id', userId)
+          .in('assignment_id',
+            (await supabaseAdmin
+              .from('assignments')
+              .select('id')
+              .eq('cohort_id', cohortId)
+            ).data?.map(a => a.id) || []
+          )
+        submissions = result.data
+      } else {
+        recordFailure('Assignment Database Query', new Error('No cohort ID available'))
+        submissions = null
+      }
     } catch (error) {
       recordFailure('Assignment Database Query', error)
       submissions = null
@@ -115,7 +132,11 @@ export async function GET(request: Request) {
 
     let assignmentProgressResult: any = null
     try {
-      assignmentProgressResult = await calculateAssignmentProgress(userId, cohortId)
+      if (cohortId) {
+        assignmentProgressResult = await calculateAssignmentProgress(userId, cohortId)
+      } else {
+        recordFailure('calculateAssignmentProgress', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('calculateAssignmentProgress', error)
     }
@@ -142,12 +163,16 @@ export async function GET(request: Request) {
     // SECTION 3: Lesson Runtime Trace
     let lessonProgress: any = null
     try {
-      const result = await supabaseAdmin
-        .from('lesson_progress')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('cohort_id', cohortId)
-      lessonProgress = result.data
+      if (cohortId) {
+        const result = await supabaseAdmin
+          .from('lesson_progress')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('cohort_id', cohortId)
+        lessonProgress = result.data
+      } else {
+        recordFailure('Lesson Database Query', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('Lesson Database Query', error)
     }
@@ -155,11 +180,15 @@ export async function GET(request: Request) {
     const completedLessons = lessonProgress?.filter(lp => lp.completed) || []
     let totalLessons = 0
     try {
-      const totalLessonsResult = await supabaseAdmin
-        .from('lessons')
-        .select('id', { count: 'exact', head: true })
-        .eq('cohort_id', cohortId)
-      totalLessons = totalLessonsResult.count || 0
+      if (cohortId) {
+        const totalLessonsResult = await supabaseAdmin
+          .from('lessons')
+          .select('id', { count: 'exact', head: true })
+          .eq('cohort_id', cohortId)
+        totalLessons = totalLessonsResult.count || 0
+      } else {
+        recordFailure('Lessons Count Query', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('Lessons Count Query', error)
     }
@@ -167,7 +196,11 @@ export async function GET(request: Request) {
 
     let videoProgressResult: any = null
     try {
-      videoProgressResult = await calculateVideoProgress(userId, cohortId)
+      if (cohortId) {
+        videoProgressResult = await calculateVideoProgress(userId, cohortId)
+      } else {
+        recordFailure('calculateVideoProgress', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('calculateVideoProgress', error)
     }
@@ -192,12 +225,16 @@ export async function GET(request: Request) {
     // SECTION 4: Quiz Runtime Trace
     let quizResponses: any = null
     try {
-      const result = await supabaseAdmin
-        .from('quiz_responses')
-        .select('*, quizzes(passing_score, title)')
-        .eq('user_id', userId)
-        .eq('cohort_id', cohortId)
-      quizResponses = result.data
+      if (cohortId) {
+        const result = await supabaseAdmin
+          .from('quiz_responses')
+          .select('*, quizzes(passing_score, title)')
+          .eq('user_id', userId)
+          .eq('cohort_id', cohortId)
+        quizResponses = result.data
+      } else {
+        recordFailure('Quiz Database Query', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('Quiz Database Query', error)
     }
@@ -218,7 +255,11 @@ export async function GET(request: Request) {
 
     let quizProgressResult: any = null
     try {
-      quizProgressResult = await calculateQuizProgress(userId, cohortId)
+      if (cohortId) {
+        quizProgressResult = await calculateQuizProgress(userId, cohortId)
+      } else {
+        recordFailure('calculateQuizProgress', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('calculateQuizProgress', error)
     }
@@ -288,7 +329,11 @@ export async function GET(request: Request) {
     // SECTION 6: Leaderboard Runtime
     let leaderboardScoreResult: any = null
     try {
-      leaderboardScoreResult = await calculateLeaderboardScore({ userId, cohortId })
+      if (cohortId) {
+        leaderboardScoreResult = await calculateLeaderboardScore({ userId, cohortId })
+      } else {
+        recordFailure('calculateLeaderboardScore', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('calculateLeaderboardScore', error)
     }
@@ -308,13 +353,17 @@ export async function GET(request: Request) {
     // SECTION 7: Leaderboard Database
     let leaderboardEntry: any = null
     try {
-      const result = await supabaseAdmin
-        .from('leaderboard')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('cohort_id', cohortId)
-        .single()
-      leaderboardEntry = result.data
+      if (cohortId) {
+        const result = await supabaseAdmin
+          .from('leaderboard')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('cohort_id', cohortId)
+          .single()
+        leaderboardEntry = result.data
+      } else {
+        recordFailure('Leaderboard Database Query', new Error('No cohort ID available'))
+      }
     } catch (error) {
       recordFailure('Leaderboard Database Query', error)
     }
@@ -330,149 +379,39 @@ export async function GET(request: Request) {
     try {
       const analyticsApiCall = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/analytics/student/progress`, {
         headers: {
-          'Content-Type': 'application/json',
-          'Cookie': request.headers.get('cookie') || ''
-        }
+          Authorization: request.headers.get('Authorization') || '',
+        },
       })
-
       analyticsApiStatus = analyticsApiCall.status
       analyticsApiOk = analyticsApiCall.ok
-      
-      if (analyticsApiCall.ok) {
+      if (analyticsApiOk) {
         analyticsApiData = await analyticsApiCall.json()
       } else {
-        const errorText = await analyticsApiCall.text()
-        analyticsApiError = { status: analyticsApiStatus, body: errorText }
-        recordFailure('Analytics API', new Error(`HTTP ${analyticsApiStatus}: ${errorText}`), analyticsApiError)
+        analyticsApiError = await analyticsApiCall.text()
       }
     } catch (error) {
-      recordFailure('Analytics API Fetch', error)
+      recordFailure('Analytics API Call', error)
+      analyticsApiError = error.message
     }
 
-    runtimeData.sections.analyticsApi = {
+    runtimeData.sections.analyticsApiComparison = {
       status: analyticsApiStatus,
       ok: analyticsApiOk,
-      data: analyticsApiData,
-      error: analyticsApiError
-    }
-
-    // SECTION 9: Leaderboard API Comparison (called AFTER calculations)
-    let leaderboardApiData = null
-    let leaderboardApiStatus = 0
-    let leaderboardApiOk = false
-    let leaderboardApiError = null
-    
-    try {
-      const leaderboardApiCall = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/leaderboard`, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      leaderboardApiStatus = leaderboardApiCall.status
-      leaderboardApiOk = leaderboardApiCall.ok
-      
-      if (leaderboardApiCall.ok) {
-        leaderboardApiData = await leaderboardApiCall.json()
-      } else {
-        const errorText = await leaderboardApiCall.text()
-        leaderboardApiError = { status: leaderboardApiStatus, body: errorText }
-        recordFailure('Leaderboard API', new Error(`HTTP ${leaderboardApiStatus}: ${errorText}`), leaderboardApiError)
-      }
-    } catch (error) {
-      recordFailure('Leaderboard API Fetch', error)
-    }
-
-    runtimeData.sections.leaderboardApi = {
-      status: leaderboardApiStatus,
-      ok: leaderboardApiOk,
-      data: leaderboardApiData,
-      error: leaderboardApiError
-    }
-
-    // SECTION 10: Pipeline Verification (continue all pipelines even if failures)
-    const pipelineVerification: any = {
-      stages: [],
-      failures: []
-    }
-
-    // Only add stages if values are available
-    if (assignmentProgressResult) {
-      pipelineVerification.stages.push({
-        pipeline: 'Assignment',
-        stage: 'calculateAssignmentProgress',
-        value: assignmentProgressResult.averageScore
-      })
-    }
-
-    if (videoProgressResult) {
-      pipelineVerification.stages.push({
-        pipeline: 'Video',
-        stage: 'calculateVideoProgress',
-        value: videoProgressResult.percentage
-      })
-    }
-
-    if (quizProgressResult) {
-      pipelineVerification.stages.push({
-        pipeline: 'Quiz',
-        stage: 'calculateQuizProgress',
-        value: quizProgressResult.averageScore
-      })
-    }
-
-    if (overallProgressResult) {
-      pipelineVerification.stages.push({
-        pipeline: 'Overall',
-        stage: 'calculateOverallProgress',
-        value: overallProgressResult.percentage
-      })
-    }
-
-    if (leaderboardScoreResult) {
-      pipelineVerification.stages.push({
-        pipeline: 'Leaderboard',
-        stage: 'calculateLeaderboardScore',
-        value: leaderboardScoreResult.totalScore
-      })
-    }
-
-    if (leaderboardEntry) {
-      pipelineVerification.stages.push({
-        pipeline: 'Leaderboard',
-        stage: 'Database',
-        value: leaderboardEntry.total_score
-      })
-    }
-
-    runtimeData.sections.pipelineVerification = pipelineVerification
-
-    // SECTION 11: Failures
-    runtimeData.sections.failures = failures
-
-    // Return response
-    if (failures.length > 0) {
-      return NextResponse.json({
-        success: false,
-        failures,
-        runtime: runtimeData
-      }, { status: 500 })
+      error: analyticsApiError,
+      data: analyticsApiData
     }
 
     return NextResponse.json({
       success: true,
-      failures: [],
-      runtime: runtimeData
+      runtime: runtimeData,
+      failures
     })
   } catch (error: any) {
-    console.error('[GET /api/admin/debug/runtime] Error:', error)
-    if (error.message?.includes('Unauthorized')) {
-      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 })
-    }
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message, 
-      stack: error.stack 
+    recordFailure('Overall Process', error)
+    return NextResponse.json({
+      success: false,
+      failures,
+      runtime: runtimeData
     }, { status: 500 })
   }
 }
