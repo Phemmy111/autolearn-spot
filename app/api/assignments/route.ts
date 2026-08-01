@@ -58,7 +58,7 @@ export async function GET() {
 
     // Filter submissions to only show current user's
     const assignmentsWithUserSubmissions = assignments?.map(assignment => {
-      const userSubmissions = assignment.submissions?.filter((s: any) => s.user_id === userId) || []
+      const userSubmissions = assignment.submissions?.filter((s: { user_id: string }) => s.user_id === userId) || []
       console.log(`Assignment ${assignment.id}: ${userSubmissions.length} user submissions`)
       return {
         ...assignment,

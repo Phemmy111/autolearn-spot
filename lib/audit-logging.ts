@@ -83,7 +83,7 @@ const SENSITIVE_PATTERNS = [
 ];
 
 // Function to redact sensitive data from objects
-function redactSensitiveData(data: any): any {
+function redactSensitiveData(data: Record<string, any>): Record<string, any> {
   if (!data || typeof data !== 'object') {
     return data;
   }

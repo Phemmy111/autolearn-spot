@@ -73,7 +73,7 @@ export default function AuditLogsPage() {
     }
   };
   
-  const handleFilterChange = (key: keyof LogFilters, value: any) => {
+  const handleFilterChange = (key: keyof LogFilters, value: string | number | null) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setPage(1); // Reset to first page on filter change
   };

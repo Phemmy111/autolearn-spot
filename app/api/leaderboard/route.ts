@@ -21,7 +21,7 @@ export async function GET() {
     console.log('[GET /api/leaderboard] Number of entries:', leaderboard?.length || 0)
 
     // Map to expected frontend LeaderboardEntry format with new scoring system
-    const formattedLeaderboard = leaderboard.map((entry: any, index: number) => ({
+    const formattedLeaderboard = leaderboard.map((entry: { id: string; user_id: string; user_name: string; total_score: number; quizzes_completed: number; quizzes_passed: number; average_score: number; last_activity: string }, index: number) => ({
       id: entry.id,
       rank: index + 1,
       studentId: entry.user_id,

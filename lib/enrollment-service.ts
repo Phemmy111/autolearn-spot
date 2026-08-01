@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { cache } from 'react';
-import { clerkClient } from '@clerk/nextjs/server';
+import { users } from '@clerk/nextjs/server';
 
 export interface Enrollment {
   id: string;
@@ -32,9 +32,7 @@ export async function linkEmailToClerkUser(
   clerkUserId: string
 ): Promise<void> {
   try {
-    const client = await clerkClient();
-
-    const user = await client.users.getUser(clerkUserId);
+    const user = await users.getUser(clerkUserId);
 
     const firstName = user.firstName ?? null;
     const lastName = user.lastName ?? null;

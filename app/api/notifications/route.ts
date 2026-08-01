@@ -45,14 +45,14 @@ export async function GET(req: Request) {
     // Filter out expired or soft-deleted notifications, and sort by priority in memory
     const now = new Date().getTime()
     const validDeliveries = (deliveries || [])
-      .filter((d: any) => {
+      .filter((d: { notification: any; created_at: string }) => {
         const notif = d.notification
         if (!notif) return false
         if (notif.deleted_at) return false
         if (notif.expires_at && new Date(notif.expires_at).getTime() < now) return false
         return true
       })
-      .sort((a: any, b: any) => {
+      .sort((a: { notification: any; created_at: string }, b: { notification: any; created_at: string }) => {
         // Sort priority: important > normal > low
         const pA = a.notification?.priority === 'important' ? 3 : a.notification?.priority === 'normal' ? 2 : 1
         const pB = b.notification?.priority === 'important' ? 3 : b.notification?.priority === 'normal' ? 2 : 1

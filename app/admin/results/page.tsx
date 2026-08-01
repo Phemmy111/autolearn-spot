@@ -68,7 +68,7 @@ export default async function AdminResultsPage() {
                 </tr>
               </thead>
               <tbody>
-                {responses?.map((response: any) => (
+                {responses?.map((response: { id: string; user_name: string | null; percentage: number; passed: boolean; created_at: string }) => (
                   <tr key={response.id} className="border-b border-[#1f2229] hover:bg-[#111317] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">

@@ -35,7 +35,7 @@ export async function GET() {
     }
 
     // Transform data for frontend
-    const formattedHistory = history.map((entry: any) => ({
+    const formattedHistory = history.map((entry: { id: string; quizzes?: { week_number: number }; score: number; percentage: number; passed: boolean; created_at: string }) => ({
       id: entry.id,
       week: entry.quizzes?.week_number || 0,
       title: entry.quizzes?.title || 'Unknown Quiz',

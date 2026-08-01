@@ -71,7 +71,7 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: { dataIndex: number }) => {
             const index = context.dataIndex
             const q = data[index]
             return [

@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     // Send notification about live class schedule update
     try {
       // Check if there are any upcoming live classes
-      const upcomingClasses = body.filter((cls: any) => {
+      const upcomingClasses = body.filter((cls: { date: string }) => {
         const classDate = new Date(cls.date);
         const now = new Date();
         return classDate >= now;

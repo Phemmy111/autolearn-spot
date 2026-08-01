@@ -3,14 +3,14 @@
 import { useState } from 'react';
 import { Search, RefreshCw, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 
-export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: any) {
+export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { initialEnrollments: any[], cohorts: any[], summary: any }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [cohortFilter, setCohortFilter] = useState('all');
   const [isResyncing, setIsResyncing] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
 
-  const filtered = initialEnrollments.filter((en: any) => {
+  const filtered = initialEnrollments.filter((en: { status: string; [key: string]: any }) => {
     const matchesSearch = en.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           en.payment_ref?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || en.status === statusFilter;
@@ -111,7 +111,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: any) 
           className="bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
         >
           <option value="all">All Cohorts</option>
-          {cohorts.map((c: any) => (
+          {cohorts.map((c: { id: string; name: string }) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
@@ -131,7 +131,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: any) 
             </tr>
           </thead>
           <tbody>
-            {filtered.map((en: any) => (
+            {filtered.map((en: { id: string; email: string; status: string; cohort_id: string; created_at: string }) => (
               <tr key={en.id} className="border-b border-[#3b494b]/50 hover:bg-[#1f2229]/50">
                 <td className="px-4 py-3 text-white">{en.email}</td>
                 <td className="px-4 py-3 text-[#b9cacb]">{en.cohort?.name || en.cohort_id}</td>

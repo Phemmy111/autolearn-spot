@@ -64,7 +64,7 @@ export default async function AdminQuizzesPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {quizzes?.map((quiz: any) => (
+            {quizzes?.map((quiz: { id: string; title: string; week_number: number; is_active: boolean; passing_score: number }) => (
               <div
                 key={quiz.id}
                 className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all"

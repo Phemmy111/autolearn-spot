@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     // Transform AI response to match expected format
-    const transformedQuestions = quizData.questions.map((q: any) => ({
+    const transformedQuestions = quizData.questions.map((q: { question?: string; question_text?: string; question_type?: string; options?: string[]; correct_answer: string; explanation?: string; points?: number }) => ({
       question_text: q.question || q.question_text,
       question_type: q.question_type || 'multiple_choice',
       options: q.options || [],

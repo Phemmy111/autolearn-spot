@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Invalid test type' }, { status: 400 })
     }
     
-    const allPassed = results.tests.every((t: any) => t.passed)
+    const allPassed = results.tests.every((t: { passed: boolean }) => t.passed)
     
     return NextResponse.json({
       success: true,

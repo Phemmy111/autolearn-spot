@@ -154,7 +154,7 @@ export async function getStudentQuizPerformance(
 
   // Get best attempt per quiz
   const bestAttempts = new Map()
-  ;(responses || []).forEach((r: any) => {
+  ;(responses || []).forEach((r: { quiz_id: string; score: number }) => {
     const existing = bestAttempts.get(r.quiz_id)
     if (!existing || r.score > existing.score) {
       bestAttempts.set(r.quiz_id, r)

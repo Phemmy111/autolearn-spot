@@ -46,7 +46,7 @@ export default function HistoryPage() {
         // Load quiz history
         const quizRes = await fetch('/api/quizzes/history')
         const quizData = quizRes.ok ? await quizRes.json() : { history: [] }
-        const quizEntries: QuizHistoryEntry[] = (quizData.history || []).map((h: any) => ({
+        const quizEntries: QuizHistoryEntry[] = (quizData.history || []).map((h: { id: string; week: number; score: number; percentage: number; passed: boolean; created_at: string }) => ({
           ...h,
           type: 'quiz' as const
         }))
@@ -55,8 +55,8 @@ export default function HistoryPage() {
         const assignmentRes = await fetch('/api/assignments')
         const assignmentData = assignmentRes.ok ? await assignmentRes.json() : { assignments: [] }
         const assignmentEntries: AssignmentHistoryEntry[] = (assignmentData.assignments || [])
-          .filter((a: any) => a.submissions && a.submissions.length > 0)
-          .map((a: any) => ({
+          .filter((a: { submissions: any[] }) => a.submissions && a.submissions.length > 0)
+          .map((a: { submissions: any[]; title: string; week_number: number }) => ({
             id: a.submissions[0].id,
             week_number: a.week_number,
             title: a.title,

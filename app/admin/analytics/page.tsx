@@ -53,10 +53,10 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
     if (questions && responses && responses.length > 0) {
       const totalStudents = responses.length
       
-      const questionStats = questions.map((q: any) => {
+      const questionStats = questions.map((q: { id: string; question_text: string }) => {
         let correctCount = 0
 
-        responses.forEach((response: any) => {
+        responses.forEach((response: { answers: Record<string, string> }) => {
           const userAnswer = (response.answers?.[q.id] || '').trim()
           const correctAnswer = (q.correct_answer || '').trim()
           
@@ -102,8 +102,8 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
       const hardest = sortedBySuccess.filter(q => q.difficulty === 'Most Difficult')
       const moderate = sortedBySuccess.filter(q => q.difficulty === 'Moderate')
 
-      const averageScore = responses.reduce((acc: number, r: any) => acc + r.percentage, 0) / totalStudents
-      const passRate = (responses.filter((r: any) => r.passed).length / totalStudents) * 100
+      const averageScore = responses.reduce((acc: number, r: { percentage: number }) => acc + r.percentage, 0) / totalStudents
+      const passRate = (responses.filter((r: { passed: boolean }) => r.passed).length / totalStudents) * 100
 
       analyticsData = {
         totalStudents,
