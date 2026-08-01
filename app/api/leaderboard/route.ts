@@ -17,10 +17,11 @@ export async function GET() {
     const cohortId = currentCohort?.id || 'a1111111-1111-1111-1111-111111111111'
     console.log('[GET /api/leaderboard] Filtering by cohort:', cohortId)
 
+    // Include entries with cohort_id matching OR cohort_id is NULL (for backward compatibility)
     const { data: leaderboard, error } = await supabaseAdmin
       .from('leaderboard')
       .select('*')
-      .eq('cohort_id', cohortId)
+      .or(`cohort_id.eq.${cohortId},cohort_id.is.null`)
       .order('total_score', { ascending: false })
       .limit(50)
 
