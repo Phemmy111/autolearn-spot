@@ -3,6 +3,12 @@
 
 import { useEffect, useRef } from 'react';
 
+declare global {
+  interface Window {
+    JitsiMeetExternalAPI: new (domain: string, options: any) => any;
+  }
+}
+
 interface LiveJitsiProps {
   roomName: string;
   userName: string;
@@ -17,7 +23,7 @@ export default function LiveJitsi({ roomName, userName, onReady }: LiveJitsiProp
     // Load Jitsi script only once
     const loadScript = () => {
       return new Promise<void>((resolve, reject) => {
-        if ((window as any).JitsiMeetExternalAPI) {
+        if (window.JitsiMeetExternalAPI) {
           resolve();
           return;
         }
@@ -62,8 +68,7 @@ export default function LiveJitsi({ roomName, userName, onReady }: LiveJitsiProp
             enableRecording: true,
           },
         };
-        // @ts-ignore – JitsiMeetExternalAPI is added dynamically
-        jitsiApiRef.current = new (window as any).JitsiMeetExternalAPI(domain, options);
+        jitsiApiRef.current = new window.JitsiMeetExternalAPI(domain, options);
         jitsiApiRef.current.addEventListener('videoConferenceJoined', () => {
           if (onReady) onReady();
         });

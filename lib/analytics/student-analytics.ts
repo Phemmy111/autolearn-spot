@@ -106,7 +106,7 @@ export async function getStudentAssignmentPerformance(
     return []
   }
 
-  return (submissions || []).map((s: any) => ({
+  return (submissions || []).map((s: { assignment_id: string; assignments?: { title: string }; created_at: string; ai_score: number | null; status: string; ai_feedback: string | null; due_date?: string }) => ({
     assignmentId: s.assignment_id,
     title: s.assignments?.title || 'Unknown Assignment',
     weekNumber: s.assignments?.week_number || 0,
@@ -161,7 +161,7 @@ export async function getStudentQuizPerformance(
     }
   })
 
-  return Array.from(bestAttempts.values()).map((r: any) => ({
+  return Array.from(bestAttempts.values()).map((r: { quiz_id: string; quizzes?: { title: string; week_number: number; passing_score: number }; created_at: string; score: number }) => ({
     quizId: r.quiz_id,
     title: r.quizzes?.title || 'Unknown Quiz',
     weekNumber: r.quizzes?.week_number || 0,
@@ -191,7 +191,7 @@ export async function getStudentLoginActivity(
     return []
   }
 
-  return (activities || []).map((a: any) => ({
+  return (activities || []).map((a: { login_time: string; session_duration_seconds: number | null; ip_address: string | null }) => ({
     loginTime: a.login_time,
     sessionDurationSeconds: a.session_duration_seconds,
     ipAddress: a.ip_address,

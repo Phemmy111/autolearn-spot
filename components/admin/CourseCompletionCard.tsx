@@ -24,7 +24,7 @@ export function CourseCompletionCard() {
       if (error || !data || data.length === 0) {
         setCourses(DEFAULT_COURSES);
       } else {
-        setCourses(data as any);
+        setCourses(data);
       }
     }
     fetchCourses();

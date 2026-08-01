@@ -23,7 +23,7 @@ export function Leaderboard() {
         
         // Fetch badges for each leaderboard entry
         const leaderboardWithBadges = await Promise.all(
-          data.map(async (entry: any) => {
+          data.map(async (entry: SupabaseLeaderboard) => {
             try {
               const badgeResponse = await fetch(`/api/badges?userId=${entry.user_id || entry.id}`)
               if (badgeResponse.ok) {
@@ -42,7 +42,7 @@ export function Leaderboard() {
         )
         
         console.log('[Leaderboard] Data with badges:', leaderboardWithBadges)
-        setLeaderboard(leaderboardWithBadges as any[])
+        setLeaderboard(leaderboardWithBadges)
       } catch (error) {
         console.error('[Leaderboard] Error loading leaderboard:', error)
       } finally {

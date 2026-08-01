@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    ignoreBuildErrors: true,  // Temporarily disabled to enable deployment
+    ignoreBuildErrors: false,  // Re-enabled for local development
   },
   images: {
     unoptimized: true,

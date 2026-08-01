@@ -34,7 +34,7 @@ export async function GET(
     }
 
     // Enrich submissions with student name/email
-    const userIds = [...new Set((submissions || []).map((s: any) => s.user_id))]
+    const userIds = [...new Set((submissions || []).map((s: { user_id: string }) => s.user_id))]
 
     // Look up emails from enrollments
     const { data: enrollments } = await supabaseAdmin
@@ -51,17 +51,17 @@ export async function GET(
     const emailMap = new Map<string, string>()
     const nameMap = new Map<string, string>()
 
-    enrollments?.forEach((e: any) => {
+    enrollments?.forEach((e: { clerk_user_id: string; email: string }) => {
       if (e.clerk_user_id && e.email) emailMap.set(e.clerk_user_id, e.email)
     })
-    leaderboardEntries?.forEach((l: any) => {
+    leaderboardEntries?.forEach((l: { user_id: string; user_name: string }) => {
       if (l.user_id && l.user_name) nameMap.set(l.user_id, l.user_name)
       if (l.user_id && l.user_email && !emailMap.has(l.user_id)) {
         emailMap.set(l.user_id, l.user_email)
       }
     })
 
-    const enrichedSubmissions = (submissions || []).map((s: any) => ({
+    const enrichedSubmissions = (submissions || []).map((s: { user_id: string; [key: string]: any }) => ({
       ...s,
       student_name: nameMap.get(s.user_id) || null,
       student_email: emailMap.get(s.user_id) || null,

@@ -46,7 +46,7 @@ export default function ScholarshipStatusPage() {
     try {
       const res = await verifyOTPAndGetStatus(email, otp);
       if (res.success && res.data) {
-        setResult(res.data as any);
+        setResult(res.data);
         setStep('result');
       } else {
         setError(res.error || 'Invalid verification code.');
