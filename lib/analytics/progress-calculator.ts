@@ -398,14 +398,6 @@ export async function calculateCertificateStatus(
   userId: string,
   cohortId: string
 ): Promise<CertificateStatus> {
-  if (!cohortId) {
-    return {
-      eligible: false,
-      issued: false,
-      issuedAt: null,
-    }
-  }
-
   // Check if certificate exists
   const { data: certificate, error } = await supabaseAdmin
     .from('certificates')
