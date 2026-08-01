@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { requireAdmin } from '@/lib/admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 
@@ -12,22 +12,7 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth()
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify admin status
-    const { data: enrollment } = await supabaseAdmin
-      .from('enrollments')
-      .select('role')
-      .eq('clerk_user_id', userId)
-      .maybeSingle()
-
-    if (!enrollment || enrollment.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
-    }
+    await requireAdmin()
 
     const body = await request.json().catch(() => ({}))
     const { cohortId, userId: targetUserId, clearAll } = body
@@ -87,7 +72,7 @@ export async function POST(request: Request) {
         .select('cohort_id')
         .eq('clerk_user_id', targetUserId)
         .eq('status', 'active')
-        .maybeSingle()
+        .single()
 
       if (userEnrollment?.cohort_id) {
         revalidatePath(`/admin/analytics/progress?cohort=${userEnrollment.cohort_id}`)

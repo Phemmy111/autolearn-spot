@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { requireAdmin } from '@/lib/admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import { calculateCertificateStatus } from '@/lib/analytics/progress-calculator'
 import crypto from 'crypto'
@@ -14,22 +14,7 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth()
-    
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Verify admin status
-    const { data: enrollment } = await supabaseAdmin
-      .from('enrollments')
-      .select('role')
-      .eq('clerk_user_id', userId)
-      .maybeSingle()
-
-    if (!enrollment || enrollment.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
-    }
+    await requireAdmin()
 
     const body = await request.json()
     const { cohortId } = body
