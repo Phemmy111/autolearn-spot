@@ -7,7 +7,7 @@ import {
   calculateQuizProgress,
   calculateOverallProgress,
 } from '@/lib/analytics/progress-calculator'
-import { calculateLeaderboardScore, updateLeaderboardEntry } from '@/lib/leaderboard-scoring'
+import { calculateLeaderboardScore } from '@/lib/leaderboard-scoring'
 import { getCurrentCohortId } from '@/lib/progress-service'
 
 export const dynamic = 'force-dynamic'

@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Loader2, AlertTriangle, CheckCircle, XCircle, ArrowDown, Download } from 'lucide-react'
+import { Loader2, AlertTriangle, CheckCircle, ArrowDown, Download } from 'lucide-react'
 
 interface Student {
   clerk_user_id: string
@@ -192,18 +190,19 @@ export default function RuntimeDebugPage() {
           </CardHeader>
           <CardContent>
             <div className="flex gap-4 items-center">
-              <Select value={selectedStudent} onValueChange={setSelectedStudent} disabled={studentsLoading}>
-                <SelectTrigger className="w-[400px] bg-[#111317] border-[#1f2229] text-white">
-                  <SelectValue placeholder="Select a student..." />
-                </SelectTrigger>
-                <SelectContent className="bg-[#111317] border-[#1f2229]">
-                  {students.map((student) => (
-                    <SelectItem key={student.clerk_user_id} value={student.clerk_user_id} className="text-white">
-                      {student.full_name || `${student.first_name} ${student.last_name}`} ({student.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <select 
+                value={selectedStudent} 
+                onChange={(e) => setSelectedStudent(e.target.value)}
+                disabled={studentsLoading}
+                className="w-[400px] bg-[#111317] border border-[#1f2229] text-white p-2 rounded"
+              >
+                <option value="">Select a student...</option>
+                {students.map((student) => (
+                  <option key={student.clerk_user_id} value={student.clerk_user_id}>
+                    {student.full_name || `${student.first_name} ${student.last_name}`} ({student.email})
+                  </option>
+                ))}
+              </select>
               <Button 
                 onClick={loadRuntimeData} 
                 disabled={!selectedStudent || loading}
@@ -244,7 +243,7 @@ export default function RuntimeDebugPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.assignmentRuntime.databaseRows} title="Database Rows (submissions)" />
-                <Separator className="bg-[#1f2229]" />
+                <div className="border-b border-[#1f2229] my-4" />
                 <div className="grid grid-cols-2 gap-4">
                   <JsonDisplay data={runtimeData.sections.assignmentRuntime.calculationStages.input} title="INPUT" />
                   <JsonDisplay data={runtimeData.sections.assignmentRuntime.calculationStages.nullFilter} title="Null Filter" />
@@ -284,7 +283,7 @@ export default function RuntimeDebugPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.lessonRuntime.databaseRows} title="Database Rows (lesson_progress)" />
-                <Separator className="bg-[#1f2229]" />
+                <div className="border-b border-[#1f2229] my-4" />
                 <div className="grid grid-cols-2 gap-4">
                   <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.input} title="INPUT" />
                   <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.completedLessons} title="Completed Lessons" />
@@ -321,7 +320,7 @@ export default function RuntimeDebugPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.quizRuntime.databaseRows} title="Database Rows (quiz_responses)" />
-                <Separator className="bg-[#1f2229]" />
+                <div className="border-b border-[#1f2229] my-4" />
                 <div className="grid grid-cols-2 gap-4">
                   <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.input} title="INPUT" />
                   <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.bestScoreSelection} title="Best Score Selection" />
@@ -377,7 +376,7 @@ export default function RuntimeDebugPage() {
                     </div>
                   </div>
                 </div>
-                <Separator className="bg-[#1f2229]" />
+                <div className="border-b border-[#1f2229] my-4" />
                 <JsonDisplay data={runtimeData.sections.overallProgress.calculationStages.weightedFormula} title="Weighted Formula" />
                 <JsonDisplay data={runtimeData.sections.overallProgress.calculationStages.functionOutput} title="Return" />
                 
@@ -393,7 +392,7 @@ export default function RuntimeDebugPage() {
                   <div className="text-xs text-[#b9cacb] font-mono">
                     Quiz: {runtimeData.sections.overallProgress.calculationStages.weightedFormula.quiz.percentage} × {runtimeData.sections.overallProgress.calculationStages.weightedFormula.quiz.weight} = {runtimeData.sections.overallProgress.calculationStages.weightedFormula.quiz.contribution.toFixed(1)}
                   </div>
-                  <Separator className="bg-[#1f2229]" />
+                  <div className="border-b border-[#1f2229] my-2" />
                   <div className="text-sm font-bold text-[#00f0ff] font-mono">
                     Total: {runtimeData.sections.overallProgress.calculationStages.weightedFormula.total.toFixed(1)}
                   </div>
