@@ -54,7 +54,7 @@ export async function GET(
     enrollments?.forEach((e: { clerk_user_id: string; email: string }) => {
       if (e.clerk_user_id && e.email) emailMap.set(e.clerk_user_id, e.email)
     })
-    leaderboardEntries?.forEach((l: { user_id: string; user_name: string }) => {
+    leaderboardEntries?.forEach((l: { user_id: string; user_name: string; user_email: string | null }) => {
       if (l.user_id && l.user_name) nameMap.set(l.user_id, l.user_name)
       if (l.user_id && l.user_email && !emailMap.has(l.user_id)) {
         emailMap.set(l.user_id, l.user_email)
