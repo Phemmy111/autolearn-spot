@@ -62,6 +62,8 @@ export async function calculateVideoProgress(
         }, completedLessons[0].updated_at)
       : null
 
+  console.log('[calculateVideoProgress] Result:', { completed, total, percentage, averageWatchPct })
+
   return {
     completed,
     total,
@@ -115,7 +117,10 @@ export async function calculateAssignmentProgress(
 
   const submitted = submissions?.length || 0
   const total = totalAssignments || 0
-  const percentage = total > 0 ? Math.round((submitted / total) * 100) : 0
+  
+  // Fix: Calculate percentage based on approved assignments, not just submitted
+  const approvedCount = submissions?.filter(s => s.status === 'approved').length || 0
+  const percentage = total > 0 ? Math.round((approvedCount / total) * 100) : 0
 
   // Calculate average score
   const scoredSubmissions = submissions?.filter(s => s.ai_score !== null) || []
@@ -149,6 +154,8 @@ export async function calculateAssignmentProgress(
             : latest
         }, submissions[0].created_at)
       : null
+
+  console.log('[calculateAssignmentProgress] Result:', { submitted, total, percentage, approvedCount, averageScore })
 
   return {
     submitted,
@@ -211,8 +218,12 @@ export async function calculateQuizProgress(
   const completed = uniqueQuizzes.size
   const total = totalQuizzes || 0
   
-  // Fix: ensure percentage is calculated even if total is 0
-  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
+  // Fix: Calculate percentage based on passed quizzes, not just attempted
+  const passed = Array.from(uniqueQuizzes.values()).filter(r => {
+    const passingScore = r.quizzes?.passing_score || 70
+    return r.score >= passingScore
+  }).length
+  const percentage = total > 0 ? Math.round((passed / total) * 100) : 0
 
   // Calculate average score (best attempt per quiz)
   const scores = Array.from(uniqueQuizzes.values()).map(r => r.score)
@@ -222,10 +233,6 @@ export async function calculateQuizProgress(
       : 0
 
   // Calculate pass rate
-  const passed = Array.from(uniqueQuizzes.values()).filter(r => {
-    const passingScore = r.quizzes?.passing_score || 70
-    return r.score >= passingScore
-  }).length
   const passRate = completed > 0 ? Math.round((passed / completed) * 100) : 0
 
   // Get last quiz
@@ -237,6 +244,8 @@ export async function calculateQuizProgress(
             : latest
         }, responses[0].created_at)
       : null
+
+  console.log('[calculateQuizProgress] Result:', { completed, total, percentage, passed, averageScore, passRate })
 
   return {
     completed,
@@ -327,11 +336,15 @@ export function calculateOverallProgress(
     (quizProgress.percentage * quizWeight)
 
   // Ensure percentage is a number, not a string
-  const percentage = Math.round(Number(weightedPercentage) || 0)
+  const percentage = Math.round(Number(weightedPercentage) || 0
 
   console.log('[calculateOverallProgress] Calculated:', {
+    videoProgress: videoProgress.percentage,
+    assignmentProgress: assignmentProgress.percentage,
+    quizProgress: quizProgress.percentage,
     weightedPercentage,
-    finalPercentage: percentage
+    finalPercentage: percentage,
+    weights: { videoWeight, assignmentWeight, quizWeight }
   })
 
   // Determine status
@@ -402,6 +415,13 @@ export async function calculateCertificateStatus(
     videoProgress.percentage >= 100 &&
     assignmentProgress.approved === assignmentProgress.total &&
     quizProgress.passed === quizProgress.total
+
+  console.log('[calculateCertificateStatus] Eligibility check:', {
+    videoProgress: videoProgress.percentage,
+    assignmentProgress: { approved: assignmentProgress.approved, total: assignmentProgress.total },
+    quizProgress: { passed: quizProgress.passed, total: quizProgress.total },
+    eligible
+  })
 
   return {
     eligible,

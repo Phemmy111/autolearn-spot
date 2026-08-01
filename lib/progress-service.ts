@@ -239,5 +239,7 @@ export async function getCompletionSummary(
   const completed = completedCount || 0
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
 
+  console.log('[getCompletionSummary] Summary:', { total, completed, percentage, userId, cohortId: cid })
+
   return { completed, total, percentage }
 }
