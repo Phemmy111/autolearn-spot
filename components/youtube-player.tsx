@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { markVideoComplete } from '@/components/progress-tracker'
 import { migrationLog } from '@/utils/migration-logger'
-import { Loader2, AlertCircle, RefreshCw, Play, Pause } from 'lucide-react'
+import { Loader2, AlertCircle, RefreshCw, Play, Pause, Rewind, FastForward } from 'lucide-react'
 // YT namespace and Window extension are declared in types/youtube.d.ts
 
 interface YouTubePlayerProps {
@@ -368,6 +368,34 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     }
   }, [])
 
+  // Fast forward 10 seconds
+  const handleFastForward = useCallback(() => {
+    if (!playerRef.current) return
+    try {
+      const currentTime = playerRef.current.getCurrentTime()
+      const duration = playerRef.current.getDuration()
+      const newTime = Math.min(currentTime + 10, duration)
+      playerRef.current.seekTo(newTime, true)
+      setProgress((newTime / duration) * 100)
+    } catch {
+      // Player may not be ready
+    }
+  }, [])
+
+  // Rewind 10 seconds
+  const handleRewind = useCallback(() => {
+    if (!playerRef.current) return
+    try {
+      const currentTime = playerRef.current.getCurrentTime()
+      const duration = playerRef.current.getDuration()
+      const newTime = Math.max(currentTime - 10, 0)
+      playerRef.current.seekTo(newTime, true)
+      setProgress((newTime / duration) * 100)
+    } catch {
+      // Player may not be ready
+    }
+  }, [])
+
   return (
     <div
       className="relative h-full w-full overflow-hidden bg-black"
@@ -407,15 +435,36 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
       {/* Custom progress bar at the bottom */}
       {!isLoading && (
-        <div
-          ref={progressBarRef}
-          className="absolute bottom-0 left-0 right-0 z-20 h-[6px] cursor-pointer bg-white/20 transition-all hover:h-[10px]"
-          onClick={handleSeek}
-        >
+        <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center gap-4 px-4 pb-4">
+          {/* Rewind button */}
+          <button
+            onClick={handleRewind}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition-all hover:bg-[#00f0ff] hover:text-black"
+            title="Rewind 10s"
+          >
+            <Rewind className="h-5 w-5" />
+          </button>
+
+          {/* Progress bar */}
           <div
-            className="h-full bg-[#00f0ff] transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
+            ref={progressBarRef}
+            className="flex-1 h-[6px] cursor-pointer bg-white/20 transition-all hover:h-[10px]"
+            onClick={handleSeek}
+          >
+            <div
+              className="h-full bg-[#00f0ff] transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {/* Fast forward button */}
+          <button
+            onClick={handleFastForward}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition-all hover:bg-[#00f0ff] hover:text-black"
+            title="Fast forward 10s"
+          >
+            <FastForward className="h-5 w-5" />
+          </button>
         </div>
       )}
     </div>
