@@ -95,7 +95,7 @@ export async function calculateLeaderboardScore(
   const quizContribution = averageQuizScore * 0.4
 
   console.log('[calculateLeaderboardScore] Quiz:', {
-    scores: quizScores,
+    scores: passedQuizScores,
     average: averageQuizScore,
     contribution: quizContribution
   })
@@ -167,34 +167,42 @@ export async function updateLeaderboardEntry(
   userId: string,
   cohortId: string
 ): Promise<void> {
+  console.log('[updateLeaderboardEntry] START:', { userId, cohortId })
+
   const scoreBreakdown = await calculateLeaderboardScore({ userId, cohortId })
+  console.log('[updateLeaderboardEntry] Score breakdown:', scoreBreakdown)
 
   // Get user name and email from enrollments (prefer full_name, fallback to email prefix)
-  const { data: enrollment } = await supabaseAdmin
+  const { data: enrollment, error: enrollmentError } = await supabaseAdmin
     .from('enrollments')
     .select('email, full_name, first_name, last_name')
     .eq('clerk_user_id', userId)
     .eq('cohort_id', cohortId)
     .single()
 
-  const userName = enrollment?.full_name || 
+  console.log('[updateLeaderboardEntry] Enrollment:', { enrollment, error: enrollmentError })
+
+  const userName = enrollment?.full_name ||
                     (enrollment?.first_name && enrollment?.last_name ? `${enrollment.first_name} ${enrollment.last_name}` : null) ||
-                    enrollment?.email?.split('@')[0] || 
+                    enrollment?.email?.split('@')[0] ||
                     'Anonymous'
-  
+
   const userEmail = enrollment?.email || null
 
   // Check if entry exists for this user+cohort
-  const { data: existingEntry } = await supabaseAdmin
+  const { data: existingEntry, error: existingError } = await supabaseAdmin
     .from('leaderboard')
-    .select('id')
+    .select('id, total_score')
     .eq('user_id', userId)
     .eq('cohort_id', cohortId)
     .single()
 
+  console.log('[updateLeaderboardEntry] Existing entry:', { existingEntry, error: existingError })
+
   if (existingEntry) {
+    console.log('[updateLeaderboardEntry] Updating existing entry:', { existingId: existingEntry.id, oldScore: existingEntry.total_score, newScore: scoreBreakdown.totalScore })
     // Update existing entry
-    await supabaseAdmin
+    const { error: updateError } = await supabaseAdmin
       .from('leaderboard')
       .update({
         total_score: scoreBreakdown.totalScore,
@@ -208,9 +216,12 @@ export async function updateLeaderboardEntry(
         updated_at: new Date().toISOString()
       })
       .eq('id', existingEntry.id)
+
+    console.log('[updateLeaderboardEntry] Update result:', { error: updateError })
   } else {
+    console.log('[updateLeaderboardEntry] Creating new entry')
     // Create new entry
-    await supabaseAdmin
+    const { error: insertError } = await supabaseAdmin
       .from('leaderboard')
       .insert({
         user_id: userId,
@@ -225,7 +236,11 @@ export async function updateLeaderboardEntry(
         user_email: userEmail,
         rank: null // Will be calculated by a separate function
       })
+
+    console.log('[updateLeaderboardEntry] Insert result:', { error: insertError })
   }
+
+  console.log('[updateLeaderboardEntry] END')
 }
 
 /**
@@ -289,17 +304,20 @@ export async function triggerLeaderboardUpdate(
   userId: string,
   eventType: 'assignment' | 'quiz' | 'video' | 'certificate'
 ): Promise<void> {
+  console.log('[triggerLeaderboardUpdate] START:', { userId, eventType })
   try {
     // Get current cohort for user
-    const { data: enrollment } = await supabaseAdmin
+    const { data: enrollment, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .select('cohort_id')
       .eq('clerk_user_id', userId)
       .eq('status', 'active')
       .single()
 
+    console.log('[triggerLeaderboardUpdate] Enrollment lookup:', { enrollment, error: enrollmentError })
+
     if (!enrollment?.cohort_id) {
-      console.log(`[leaderboard-scoring] No active cohort found for user ${userId}`)
+      console.log(`[triggerLeaderboardUpdate] No active cohort found for user ${userId}`)
       return
     }
 
@@ -309,8 +327,9 @@ export async function triggerLeaderboardUpdate(
     // Update ranks to ensure correct ordering
     await updateLeaderboardRanks(enrollment.cohort_id)
 
-    console.log(`[leaderboard-scoring] Updated leaderboard for user ${userId} after ${eventType} event`)
+    console.log(`[triggerLeaderboardUpdate] Updated leaderboard for user ${userId} after ${eventType} event`)
   } catch (error) {
-    console.error(`[leaderboard-scoring] Error triggering leaderboard update:`, error)
+    console.error(`[triggerLeaderboardUpdate] Error triggering leaderboard update:`, error)
   }
+  console.log('[triggerLeaderboardUpdate] END')
 }

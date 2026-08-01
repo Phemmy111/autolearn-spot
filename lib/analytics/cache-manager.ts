@@ -1,4 +1,4 @@
-import { unstable_cache } from 'next/cache'
+import { unstable_cache, revalidateTag } from 'next/cache'
 
 /**
  * Cache configuration
@@ -69,26 +69,28 @@ export async function invalidateStudentProgressCache(
   userId: string,
   cohortId: string
 ): Promise<void> {
-  const cacheKey = getStudentProgressCacheKey(userId, cohortId)
-  // Next.js cache invalidation happens automatically on revalidation
-  // For manual invalidation, we can use revalidatePath or revalidateTag
-  // This is a placeholder for future Redis implementation
+  console.log('[cache-manager] Invalidating student progress cache:', { userId, cohortId })
+  revalidateTag('student-progress')
+  revalidateTag(userId)
+  revalidateTag(cohortId)
 }
 
 /**
  * Invalidate cache for cohort analytics
  */
 export async function invalidateCohortAnalyticsCache(cohortId: string): Promise<void> {
-  const cacheKey = getCohortAnalyticsCacheKey(cohortId)
-  // Placeholder for future Redis implementation
+  console.log('[cache-manager] Invalidating cohort analytics cache:', { cohortId })
+  revalidateTag('cohort-analytics')
+  revalidateTag(cohortId)
 }
 
 /**
  * Invalidate cache for leaderboard
  */
 export async function invalidateLeaderboardCache(cohortId: string): Promise<void> {
-  const cacheKey = getLeaderboardCacheKey(cohortId)
-  // Placeholder for future Redis implementation
+  console.log('[cache-manager] Invalidating leaderboard cache:', { cohortId })
+  revalidateTag('leaderboard')
+  revalidateTag(cohortId)
 }
 
 /**
@@ -99,8 +101,9 @@ export async function invalidateStudentListCache(
   sortBy: string,
   sortOrder: string
 ): Promise<void> {
-  const cacheKey = getStudentListCacheKey(cohortId, sortBy, sortOrder)
-  // Placeholder for future Redis implementation
+  console.log('[cache-manager] Invalidating student list cache:', { cohortId, sortBy, sortOrder })
+  revalidateTag('student-list')
+  revalidateTag(cohortId)
 }
 
 /**
