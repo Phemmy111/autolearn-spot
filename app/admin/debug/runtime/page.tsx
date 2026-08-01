@@ -120,16 +120,23 @@ export default function RuntimeDebugPage() {
       const response = await fetch(`/api/admin/debug/runtime?userId=${selectedStudent}`)
       if (!response.ok) throw new Error('Failed to load runtime data')
       const data = await response.json()
-      setRuntimeData(data)
+      // Only set runtimeData if successful and has sections
+      if (data.success && data.runtime && data.runtime.sections) {
+        setRuntimeData(data.runtime)
+      } else {
+        console.error('Runtime data incomplete:', data)
+        setRuntimeData(null)
+      }
     } catch (error) {
       console.error('Failed to load runtime data:', error)
+      setRuntimeData(null)
     } finally {
       setLoading(false)
     }
   }
 
   const exportRuntimeReport = () => {
-    if (!runtimeData) return
+    if (!runtimeData || !runtimeData.sections) return
     
     const report = {
       metadata: {
@@ -224,7 +231,18 @@ export default function RuntimeDebugPage() {
           </CardContent>
         </Card>
 
-        {runtimeData && (
+        {runtimeData && !runtimeData.sections && (
+          <Card className="bg-[#0c0e12] border-[#1f2229]">
+            <CardHeader>
+              <CardTitle className="text-white">Error Loading Runtime Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-[#b9cacb]">Failed to load runtime data. Please check the console for details.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {runtimeData && runtimeData.sections && (
           <>
             {/* SECTION 1: Student Information */}
             <Card className="bg-[#0c0e12] border-[#1f2229]">
