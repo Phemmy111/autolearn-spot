@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 import { auth } from '@clerk/nextjs/server'
+import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -26,9 +27,12 @@ export async function PUT(
     // Get submission to get user_id for notification
     const { data: existingSubmission } = await supabaseAdmin
       .from('submissions')
-      .select('user_id, assignment_id')
+      .select('*')
       .eq('id', id)
       .single()
+
+    console.log('[GRADING PIPELINE] BEFORE GRADING - Full submission row:', JSON.stringify(existingSubmission, null, 2))
+    console.log('[GRADING PIPELINE] Grading payload:', { score, feedback, status })
 
     if (!existingSubmission) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 })
@@ -37,29 +41,61 @@ export async function PUT(
     // Update submission with review
     const { userId } = await auth()
     
+    const updatePayload = {
+      ai_score: score,
+      ai_feedback: feedback,
+      status,
+      reviewed_by: userId,
+      reviewed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    
+    console.log('[GRADING PIPELINE] UPDATE payload:', JSON.stringify(updatePayload, null, 2))
+    
     const { data: submission, error } = await supabaseAdmin
       .from('submissions')
-      .update({
-        ai_score: score,
-        ai_feedback: feedback,
-        status,
-        reviewed_by: userId,
-        reviewed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', id)
-      .select('*, assignment:assignments(title, week_number)')
+      .select('*')
       .single()
+
+    console.log('[GRADING PIPELINE] AFTER GRADING - Full submission row:', JSON.stringify(submission, null, 2))
+    console.log('[GRADING PIPELINE] Score-related columns:', {
+      ai_score: submission.ai_score,
+      score: submission.score,
+      grade: submission.grade,
+      percentage: submission.percentage,
+      points: submission.points,
+      max_points: submission.max_points,
+      rubric_score: submission.rubric_score
+    })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Trigger leaderboard update after grading
+    try {
+      console.log('[GRADING PIPELINE] Triggering leaderboard update after grading:', { userId: existingSubmission.user_id })
+      await triggerLeaderboardUpdate(existingSubmission.user_id, 'assignment')
+      console.log('[GRADING PIPELINE] Leaderboard update completed')
+    } catch (leaderboardError) {
+      console.error('[GRADING PIPELINE] Failed to trigger leaderboard update:', leaderboardError)
+      // Don't fail the grading if leaderboard update fails
+    }
+
+    // Get assignment info for notification
+    const { data: assignment } = await supabaseAdmin
+      .from('assignments')
+      .select('title, week_number')
+      .eq('id', existingSubmission.assignment_id)
+      .single()
+
     // Send Notification to Student
     if (existingSubmission.user_id) {
       try {
         const { createNotification } = await import('@/lib/notifications');
-        const assignmentTitle = submission.assignment?.title || `Week ${submission.assignment?.week_number}`;
+        const assignmentTitle = assignment?.title || `Week ${assignment?.week_number}`;
         await createNotification({
           title: 'Assignment Graded',
           message: `Your assignment "${assignmentTitle}" has been reviewed. Score: ${score}`,

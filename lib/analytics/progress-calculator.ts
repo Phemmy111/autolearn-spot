@@ -89,7 +89,7 @@ export async function calculateAssignmentProgress(
   // Get submissions for user
   const { data: submissions, error } = await supabaseAdmin
     .from('submissions')
-    .select('ai_score, status, created_at, assignments(due_date)')
+    .select('*')
     .eq('user_id', userId)
     .in('assignment_id', 
       // Get assignment IDs for this cohort
@@ -99,6 +99,8 @@ export async function calculateAssignmentProgress(
         .eq('cohort_id', cohortId)
       ).data?.map(a => a.id) || []
     )
+
+  console.log('[calculateAssignmentProgress] RAW SUBMISSIONS (all fields):', JSON.stringify(submissions, null, 2))
 
   if (error) {
     console.error('[progress-calculator] calculateAssignmentProgress error:', error)
@@ -116,21 +118,34 @@ export async function calculateAssignmentProgress(
   }
 
   const submitted = submissions?.length || 0
+  console.log('[calculateAssignmentProgress] submitted (length):', submitted)
+  
   const total = totalAssignments || 0
+  console.log('[calculateAssignmentProgress] total:', total)
   
   // Fix: Calculate percentage based on approved assignments, not just submitted
   const approvedCount = submissions?.filter(s => s.status === 'approved').length || 0
+  console.log('[calculateAssignmentProgress] approvedCount:', approvedCount)
+  console.log('[calculateAssignmentProgress] percentage formula: Math.round((approvedCount / total) * 100)', `Math.round((${approvedCount} / ${total}) * 100)`)
   const percentage = total > 0 ? Math.round((approvedCount / total) * 100) : 0
+  console.log('[calculateAssignmentProgress] percentage result:', percentage)
 
   // Calculate average score
   const scoredSubmissions = submissions?.filter(s => s.ai_score !== null) || []
-  const averageScore =
-    scoredSubmissions.length > 0
-      ? Math.round(
-          scoredSubmissions.reduce((sum, s) => sum + (s.ai_score || 0), 0) /
-            scoredSubmissions.length
-        )
-      : 0
+  console.log('[calculateAssignmentProgress] scoredSubmissions (ai_score !== null):', scoredSubmissions)
+  console.log('[calculateAssignmentProgress] scoredSubmissions.length:', scoredSubmissions.length)
+  
+  const scoresArray = scoredSubmissions.map(s => s.ai_score || 0)
+  console.log('[calculateAssignmentProgress] scoresArray:', scoresArray)
+  
+  const sumScores = scoresArray.reduce((sum, s) => sum + s, 0)
+  console.log('[calculateAssignmentProgress] sumScores:', sumScores)
+  
+  const averageScore = scoredSubmissions.length > 0
+    ? Math.round(sumScores / scoredSubmissions.length)
+    : 0
+  console.log('[calculateAssignmentProgress] averageScore formula:', `Math.round(${sumScores} / ${scoredSubmissions.length})`)
+  console.log('[calculateAssignmentProgress] averageScore result:', averageScore)
 
   // Calculate on-time submission rate
   const onTimeSubmissions =
@@ -155,7 +170,7 @@ export async function calculateAssignmentProgress(
         }, submissions[0].created_at)
       : null
 
-  console.log('[calculateAssignmentProgress] Result:', { submitted, total, percentage, approvedCount, averageScore })
+  console.log('[calculateAssignmentProgress] FINAL RESULT:', { submitted, total, percentage, approvedCount, averageScore })
 
   return {
     submitted,

@@ -13,40 +13,56 @@ import { getCurrentCohortId } from '@/lib/progress-service'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
+  const failures: any[] = []
+
+  // Helper to record failures
+  const recordFailure = (section: string, error: any, details?: any) => {
+    failures.push({
+      section,
+      error: error.message || String(error),
+      stack: error.stack,
+      details,
+      timestamp: new Date().toISOString()
+    })
+    console.error(`[Runtime Debug] ${section} failed:`, error)
+  }
+
+  // Wrap requireAdmin to expose the error
   try {
     await requireAdmin()
+  } catch (error) {
+    recordFailure('requireAdmin', error)
+    return NextResponse.json({ 
+      success: false, 
+      failures
+    }, { status: 500 })
+  }
 
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
+  // Wrap URL parsing to expose the error
+  let url: URL
+  let userId: string | null = null
+  try {
+    url = new URL(request.url)
+    userId = url.searchParams.get('userId')
+  } catch (error) {
+    recordFailure('URL Parsing', error)
+    return NextResponse.json({ 
+      success: false, 
+      failures
+    }, { status: 500 })
+  }
 
-    if (!userId) {
-      return NextResponse.json({ error: 'userId parameter required' }, { status: 400 })
-    }
+  if (!userId) {
+    return NextResponse.json({ error: 'userId parameter required' }, { status: 400 })
+  }
 
-    const failures: any[] = []
-
-    // Helper to record failures
-    const recordFailure = (section: string, error: any, details?: any) => {
-      failures.push({
-        section,
-        error: error.message || String(error),
-        stack: error.stack,
-        details,
-        timestamp: new Date().toISOString()
-      })
-      console.error(`[Runtime Debug] ${section} failed:`, error)
-    }
-
+  try {
     let cohortId: string | null = null
     try {
       cohortId = await getCurrentCohortId()
     } catch (error) {
       recordFailure('getCurrentCohortId', error)
-      return NextResponse.json({ 
-        success: false, 
-        failures,
-        runtime: { userId, cohortId: null, timestamp: new Date().toISOString() }
-      }, { status: 200 })
+      cohortId = null
     }
 
     const runtimeData: any = {
@@ -440,7 +456,7 @@ export async function GET(request: Request) {
         success: false,
         failures,
         runtime: runtimeData
-      }, { status: 200 })
+      }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -457,6 +473,6 @@ export async function GET(request: Request) {
       success: false, 
       error: error.message, 
       stack: error.stack 
-    }, { status: 200 })
+    }, { status: 500 })
   }
 }
