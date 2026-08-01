@@ -398,13 +398,21 @@ export async function calculateCertificateStatus(
   userId: string,
   cohortId: string
 ): Promise<CertificateStatus> {
+  if (!cohortId) {
+    return {
+      eligible: false,
+      issued: false,
+      issuedAt: null,
+    }
+  }
+
   // Check if certificate exists
   const { data: certificate, error } = await supabaseAdmin
     .from('certificates')
     .select('issued_at')
     .eq('user_id', userId)
     .eq('cohort_id', cohortId)
-    .single()
+    .maybeSingle()
 
   if (error && error.code !== 'PGRST116') {
     // PGRST116 is "not found", which is expected

@@ -21,6 +21,10 @@ export async function POST(request: Request) {
     let results: any[] = []
     const startTime = Date.now()
 
+    if (!cohortId) {
+      return NextResponse.json({ error: 'cohortId parameter required' }, { status: 400 })
+    }
+
     if (cohortId) {
       // Sync leaderboard for specific cohort
       console.log(`[leaderboard-sync] Starting leaderboard sync for cohort ${cohortId}`)

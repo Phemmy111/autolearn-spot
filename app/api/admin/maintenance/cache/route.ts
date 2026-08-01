@@ -17,6 +17,10 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}))
     const { cohortId, userId: targetUserId, clearAll } = body
 
+    if (!cohortId && !targetUserId && !clearAll) {
+      return NextResponse.json({ error: 'At least one parameter required: cohortId, userId, or clearAll' }, { status: 400 })
+    }
+
     const startTime = Date.now()
     let message = ''
     let details: any = {}
@@ -72,7 +76,7 @@ export async function POST(request: Request) {
         .select('cohort_id')
         .eq('clerk_user_id', targetUserId)
         .eq('status', 'active')
-        .single()
+        .maybeSingle()
 
       if (userEnrollment?.cohort_id) {
         revalidatePath(`/admin/analytics/progress?cohort=${userEnrollment.cohort_id}`)

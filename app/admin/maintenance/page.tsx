@@ -342,6 +342,8 @@ export default function MaintenancePage() {
                     let cohortBody = selectedCohort === 'all' ? {} : { cohortId: selectedCohort }
                     let endpoint = confirmDialog === 'leaderboard' 
                       ? '/api/admin/leaderboard/backfill'
+                      : confirmDialog === 'cache-clear'
+                      ? '/api/admin/maintenance/cache'
                       : `/api/admin/maintenance/${confirmDialog === 'leaderboard-sync' ? 'leaderboard-sync' : confirmDialog}`
                     
                     // Special handling for cache clear - always send clearAll for "all cohorts" selection

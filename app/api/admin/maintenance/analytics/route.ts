@@ -20,6 +20,10 @@ export async function POST(request: Request) {
     let results: any[] = []
     const startTime = Date.now()
 
+    if (!cohortId) {
+      return NextResponse.json({ error: 'cohortId parameter required' }, { status: 400 })
+    }
+
     if (cohortId) {
       // Recalculate analytics for specific cohort
       console.log(`[analytics-maintenance] Starting analytics recalculation for cohort ${cohortId}`)

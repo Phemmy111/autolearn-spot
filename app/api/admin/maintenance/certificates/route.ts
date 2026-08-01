@@ -22,6 +22,10 @@ export async function POST(request: Request) {
     let results: any[] = []
     const startTime = Date.now()
 
+    if (!cohortId) {
+      return NextResponse.json({ error: 'cohortId parameter required' }, { status: 400 })
+    }
+
     if (cohortId) {
       // Recalculate certificates for specific cohort
       console.log(`[certificate-maintenance] Starting certificate recalculation for cohort ${cohortId}`)
