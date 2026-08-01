@@ -6,53 +6,47 @@ import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
-/**
- * POST /api/admin/maintenance/certificates
- * 
- * Recalculate certificates for all students in a cohort or all active cohorts
- * Issues certificates to eligible students who don't have one yet
- */
 export async function POST(request: Request) {
   try {
     await requireAdmin()
 
-    const body = await request.json()
+    const body = await request.json().catch(() => ({}))
     const { cohortId } = body
 
     let results: any[] = []
     const startTime = Date.now()
 
-    if (!cohortId) {
-      return NextResponse.json({ error: 'cohortId parameter required' }, { status: 400 })
-    }
+    let studentsProcessed = 0
+    let studentsSucceeded = 0
+    let studentsFailed = 0
+    let certificatesIssued = 0
 
     if (cohortId) {
-      // Recalculate certificates for specific cohort
-      console.log(`[certificate-maintenance] Starting certificate recalculation for cohort ${cohortId}`)
+      console.log(`[maintenance] [certificate-recalculation] Starting for cohort: ${cohortId}`)
       
-      const { data: enrollments } = await supabaseAdmin
+      const { data: enrollments, error: enrollError } = await supabaseAdmin
         .from('enrollments')
         .select('clerk_user_id')
         .eq('cohort_id', cohortId)
         .eq('status', 'active')
 
+      if (enrollError) {
+        console.error(`[maintenance] [certificate-recalculation] DB Error fetching enrollments:`, enrollError)
+        return NextResponse.json({ error: 'Database error fetching enrollments' }, { status: 500 })
+      }
+
       if (!enrollments || enrollments.length === 0) {
         return NextResponse.json({ error: 'No active students found in cohort' }, { status: 404 })
       }
 
-      let successCount = 0
-      let issuedCount = 0
-
       for (const enrollment of enrollments) {
+        studentsProcessed++
         try {
-          // Check certificate eligibility
           const certificateStatus = await calculateCertificateStatus(enrollment.clerk_user_id, cohortId)
           
           if (certificateStatus.eligible && !certificateStatus.issued) {
-            // Issue certificate
             const certificateId = crypto.randomUUID()
-
-            await supabaseAdmin.from('certificates').insert({
+            const { error: insertError } = await supabaseAdmin.from('certificates').insert({
               id: certificateId,
               user_id: enrollment.clerk_user_id,
               cohort_id: cohortId,
@@ -60,7 +54,11 @@ export async function POST(request: Request) {
               issued_at: new Date().toISOString(),
             })
 
-            issuedCount++
+            if (insertError) {
+              throw insertError
+            }
+
+            certificatesIssued++
             results.push({ 
               userId: enrollment.clerk_user_id, 
               status: 'issued',
@@ -80,9 +78,10 @@ export async function POST(request: Request) {
             })
           }
           
-          successCount++
+          studentsSucceeded++
         } catch (error) {
-          console.error(`[certificate-maintenance] Error for user ${enrollment.clerk_user_id}:`, error)
+          studentsFailed++
+          console.error(`[maintenance] [certificate-recalculation] Error for user ${enrollment.clerk_user_id}:`, error)
           results.push({ 
             userId: enrollment.clerk_user_id, 
             status: 'error', 
@@ -91,51 +90,57 @@ export async function POST(request: Request) {
         }
       }
 
-      const executionTime = Date.now() - startTime
+      const executionTimeMs = Date.now() - startTime
       return NextResponse.json({ 
         success: true, 
-        message: `Certificate recalculation completed for cohort ${cohortId}`,
+        operation: 'certificate-recalculation',
+        scope: 'cohort',
         cohortId,
-        totalStudents: enrollments.length,
-        studentsProcessed: successCount,
-        certificatesIssued: issuedCount,
-        executionTimeMs: executionTime,
+        executionTimeMs,
+        studentsProcessed,
+        studentsSucceeded,
+        studentsFailed,
+        certificatesIssued,
         results 
       })
     } else {
-      // Recalculate certificates for all active cohorts
-      const { data: cohorts } = await supabaseAdmin
+      console.log(`[maintenance] [certificate-recalculation] Starting for all active cohorts`)
+      const { data: cohorts, error: cohortError } = await supabaseAdmin
         .from('cohorts')
         .select('id')
         .eq('status', 'active')
+
+      if (cohortError) {
+        console.error(`[maintenance] [certificate-recalculation] DB Error fetching cohorts:`, cohortError)
+        return NextResponse.json({ error: 'Database error fetching cohorts' }, { status: 500 })
+      }
 
       if (!cohorts || cohorts.length === 0) {
         return NextResponse.json({ error: 'No active cohorts found' }, { status: 404 })
       }
 
-      let totalStudents = 0
-      let totalProcessed = 0
-      let totalIssued = 0
-
       for (const cohort of cohorts) {
         try {
-          const { data: enrollments } = await supabaseAdmin
+          const { data: enrollments, error: enrollError } = await supabaseAdmin
             .from('enrollments')
             .select('clerk_user_id')
             .eq('cohort_id', cohort.id)
             .eq('status', 'active')
 
+          if (enrollError) {
+            console.error(`[maintenance] [certificate-recalculation] DB Error fetching enrollments for cohort ${cohort.id}:`, enrollError)
+            continue
+          }
+
           if (enrollments) {
-            totalStudents += enrollments.length
-            
             for (const enrollment of enrollments) {
+              studentsProcessed++
               try {
                 const certificateStatus = await calculateCertificateStatus(enrollment.clerk_user_id, cohort.id)
                 
                 if (certificateStatus.eligible && !certificateStatus.issued) {
                   const certificateId = crypto.randomUUID()
-
-                  await supabaseAdmin.from('certificates').insert({
+                  const { error: insertError } = await supabaseAdmin.from('certificates').insert({
                     id: certificateId,
                     user_id: enrollment.clerk_user_id,
                     cohort_id: cohort.id,
@@ -143,12 +148,16 @@ export async function POST(request: Request) {
                     issued_at: new Date().toISOString(),
                   })
 
-                  totalIssued++
+                  if (insertError) {
+                    throw insertError
+                  }
+                  certificatesIssued++
                 }
                 
-                totalProcessed++
+                studentsSucceeded++
               } catch (error) {
-                console.error(`[certificate-maintenance] Error for user ${enrollment.clerk_user_id}:`, error)
+                studentsFailed++
+                console.error(`[maintenance] [certificate-recalculation] Error for user ${enrollment.clerk_user_id}:`, error)
               }
             }
           }
@@ -159,7 +168,7 @@ export async function POST(request: Request) {
             students: enrollments?.length || 0 
           })
         } catch (error) {
-          console.error(`[certificate-maintenance] Error for cohort ${cohort.id}:`, error)
+          console.error(`[maintenance] [certificate-recalculation] Error for cohort ${cohort.id}:`, error)
           results.push({ 
             cohortId: cohort.id, 
             status: 'error', 
@@ -168,20 +177,21 @@ export async function POST(request: Request) {
         }
       }
 
-      const executionTime = Date.now() - startTime
+      const executionTimeMs = Date.now() - startTime
       return NextResponse.json({ 
         success: true, 
-        message: 'Certificate recalculation completed for all cohorts',
-        totalCohorts: cohorts.length,
-        totalStudents,
-        studentsProcessed: totalProcessed,
-        certificatesIssued: totalIssued,
-        executionTimeMs: executionTime,
+        operation: 'certificate-recalculation',
+        scope: 'all-cohorts',
+        executionTimeMs,
+        studentsProcessed,
+        studentsSucceeded,
+        studentsFailed,
+        certificatesIssued,
         results 
       })
     }
   } catch (error: any) {
-    console.error('[POST /api/admin/maintenance/certificates] Error:', error)
+    console.error('[maintenance] [certificate-recalculation] Error:', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

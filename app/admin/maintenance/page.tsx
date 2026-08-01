@@ -25,9 +25,14 @@ interface MaintenanceResult {
   success: boolean
   message: string
   executionTimeMs?: number
-  totalStudents?: number
-  studentsUpdated?: number
+  studentsProcessed?: number
+  studentsSucceeded?: number
+  studentsFailed?: number
+  badgesAwarded?: number
   certificatesIssued?: number
+  leaderboardEntriesUpdated?: number
+  analyticsRecalculated?: number
+  cacheCleared?: number
   results?: any[]
 }
 
@@ -181,14 +186,34 @@ export default function MaintenancePage() {
                   Execution time: {result.executionTimeMs}ms
                 </p>
               )}
-              {result.totalStudents && (
+              {result.studentsProcessed !== undefined && (
                 <p className="font-mono text-xs text-[#b9cacb]">
-                  Total students: {result.totalStudents} | Updated: {result.studentsUpdated || 0}
+                  Processed: {result.studentsProcessed} | Succeeded: {result.studentsSucceeded || 0} {result.studentsFailed ? `| Failed: ${result.studentsFailed}` : ''}
                 </p>
               )}
               {result.certificatesIssued !== undefined && (
                 <p className="font-mono text-xs text-[#b9cacb]">
                   Certificates issued: {result.certificatesIssued}
+                </p>
+              )}
+              {result.badgesAwarded !== undefined && (
+                <p className="font-mono text-xs text-[#b9cacb]">
+                  Badges awarded: {result.badgesAwarded}
+                </p>
+              )}
+              {result.analyticsRecalculated !== undefined && (
+                <p className="font-mono text-xs text-[#b9cacb]">
+                  Analytics recalculated: {result.analyticsRecalculated}
+                </p>
+              )}
+              {result.leaderboardEntriesUpdated !== undefined && (
+                <p className="font-mono text-xs text-[#b9cacb]">
+                  Leaderboard updated: {result.leaderboardEntriesUpdated}
+                </p>
+              )}
+              {result.cacheCleared !== undefined && (
+                <p className="font-mono text-xs text-[#b9cacb]">
+                  Cache entries cleared: {result.cacheCleared}
                 </p>
               )}
             </div>
