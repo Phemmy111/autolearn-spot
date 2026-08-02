@@ -4,8 +4,18 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Share2, Users, MousePointerClick, Wallet, Copy, Check, TrendingUp, CreditCard } from 'lucide-react';
+import { Share2, Users, MousePointerClick, Wallet, Copy, Check, CreditCard, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface ReferralData {
   referralCode: string;
@@ -22,6 +32,15 @@ export default function ReferAndEarnPage() {
   const [error, setError] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  
+  // Withdrawal State
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -76,6 +95,62 @@ export default function ReferAndEarnPage() {
       currency: 'NGN',
       minimumFractionDigits: 0,
     }).format(amount);
+  };
+
+  const handleWithdrawal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!data) return;
+
+    const numAmount = Number(withdrawAmount);
+    if (numAmount < 2000) {
+      toast({ title: 'Error', description: 'Minimum withdrawal amount is ₦2,000', variant: 'destructive' });
+      return;
+    }
+    if (numAmount > data.availableEarnings) {
+      toast({ title: 'Error', description: 'Insufficient available balance', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await fetch('/api/withdrawals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: numAmount,
+          bankName,
+          accountNumber,
+          accountName
+        })
+      });
+
+      const json = await response.json();
+      if (!json.success) throw new Error(json.error || 'Withdrawal failed');
+
+      toast({
+        title: 'Success',
+        description: 'Withdrawal request submitted successfully.',
+      });
+      setIsWithdrawModalOpen(false);
+      
+      // Refresh data
+      fetchReferralData();
+      
+      // Reset form
+      setWithdrawAmount('');
+      setBankName('');
+      setAccountNumber('');
+      setAccountName('');
+      
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: err instanceof Error ? err.message : 'An error occurred',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -242,20 +317,118 @@ export default function ReferAndEarnPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-[#0c0e12] border-[#1f2229] shadow-[0_0_15px_rgba(0,240,255,0.1)]">
+        <Card className="bg-[#0c0e12] border-[#1f2229] shadow-[0_0_15px_rgba(0,240,255,0.1)] relative overflow-hidden group">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Available Earnings</CardTitle>
             <CreditCard className="h-4 w-4 text-[#00f0ff]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-[#00f0ff]">{formatCurrency(data.availableEarnings)}</div>
-            <p className="text-xs text-[#b9cacb] mt-1">
-              Ready for withdrawal
-            </p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-[#b9cacb]">
+                Ready for withdrawal
+              </p>
+              {data.availableEarnings >= 2000 && (
+                <Button 
+                  size="sm" 
+                  className="h-7 text-xs bg-[#00f0ff] text-black hover:bg-[#00d0dd]"
+                  onClick={() => setIsWithdrawModalOpen(true)}
+                >
+                  Withdraw
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
 
+      <Dialog open={isWithdrawModalOpen} onOpenChange={setIsWithdrawModalOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-[#0c0e12] border-[#1f2229] text-white">
+          <form onSubmit={handleWithdrawal}>
+            <DialogHeader>
+              <DialogTitle>Withdraw Funds</DialogTitle>
+              <DialogDescription className="text-[#b9cacb]">
+                Minimum withdrawal amount is ₦2,000. Available: {formatCurrency(data?.availableEarnings || 0)}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="amount" className="text-[#b9cacb]">Amount (₦)</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  min="2000"
+                  max={data?.availableEarnings || 0}
+                  step="1000"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  placeholder="e.g. 5000"
+                  required
+                  className="bg-[#1f2229] border-[#3b494b] text-white"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="bankName" className="text-[#b9cacb]">Bank Name</Label>
+                <Input
+                  id="bankName"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  placeholder="e.g. Guarantee Trust Bank"
+                  required
+                  className="bg-[#1f2229] border-[#3b494b] text-white"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="accountNumber" className="text-[#b9cacb]">Account Number</Label>
+                <Input
+                  id="accountNumber"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  placeholder="10 digit account number"
+                  required
+                  pattern="\d{10}"
+                  className="bg-[#1f2229] border-[#3b494b] text-white"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="accountName" className="text-[#b9cacb]">Account Name</Label>
+                <Input
+                  id="accountName"
+                  value={accountName}
+                  onChange={(e) => setAccountName(e.target.value)}
+                  placeholder="Name on account"
+                  required
+                  className="bg-[#1f2229] border-[#3b494b] text-white"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsWithdrawModalOpen(false)}
+                className="border-[#3b494b] text-white hover:bg-[#1f2229]"
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="bg-[#00f0ff] text-black hover:bg-[#00d0dd]"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing
+                  </>
+                ) : (
+                  'Submit Request'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
