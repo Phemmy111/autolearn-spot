@@ -1,32 +1,23 @@
 import { NextResponse } from 'next/server';
 import { ReferralService } from '@/lib/growth-engine/ReferralService';
 
-export const dynamic = 'force-dynamic';
-
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { code } = body;
+    const { code, userAgent, referrer } = await request.json();
 
-    if (!code || typeof code !== 'string') {
-      return NextResponse.json({ success: true }); // Silently ignore invalid codes
+    if (!code) {
+      return NextResponse.json({ error: 'Referral code is required' }, { status: 400 });
     }
 
-    // Extract basic metadata
-    const ipAddress = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined;
-    const userAgent = request.headers.get('user-agent') || undefined;
-    const referrerUrl = request.headers.get('referer') || undefined;
-
-    // Track the click asynchronously (wait for it to prevent Vercel from killing the request early)
+    // Track the click
     await ReferralService.trackReferralClick(code, {
-      ipAddress,
       userAgent,
-      referrerUrl
+      referrerUrl: referrer,
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[POST /api/referrals/track] Error:', error);
-    return NextResponse.json({ success: true }); // Never leak errors on tracking
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

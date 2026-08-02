@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
+import { FraudService } from './FraudService';
+import { PartnerEmailService } from './PartnerEmailService';
+import { NotificationService } from './NotificationService';
+import type { EventCategory } from '@/lib/audit-logging';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -31,10 +35,30 @@ export class CommissionService {
     refereeEmail: string;
     referralCode: string;
     paymentReference: string;
+    courseAmount: number; // Amount paid for the course
+    ipAddress?: string; // For fraud detection
   }): Promise<{ success: boolean; error?: string; commission?: Commission }> {
     try {
-      // Amount rule: Influencer gets 2000, others get 1000.
-      const amount = params.referrerType === 'influencer' ? 2000 : 1000;
+      // Only create commissions for ₦8,000 course payments, not scholarship (₦5,000)
+      if (params.courseAmount !== 8000) {
+        return { success: false, error: 'Commissions only eligible for ₦8,000 course purchases' };
+      }
+
+      // Run fraud checks
+      const fraudCheck = await FraudService.runFraudChecks({
+        referrerId: params.referrerId,
+        refereeEmail: params.refereeEmail,
+        ipAddress: params.ipAddress,
+        referralCode: params.referralCode
+      });
+
+      if (fraudCheck.hasFraud) {
+        console.error('[CommissionService] Fraud detected:', fraudCheck.alerts);
+        return { success: false, error: `Fraud detected: ${fraudCheck.alerts.join(', ')}` };
+      }
+
+      // Amount rule: Influencer gets ₦2,500, others get ₦1,500
+      const amount = params.referrerType === 'influencer' ? 2500 : 1500;
       
       // Standard 7-day holding period
       const holdingPeriodEndsAt = new Date();
@@ -65,15 +89,42 @@ export class CommissionService {
 
       await logReferralEvent({
         action: 'commission_created',
-        category: 'payment',
+        category: 'payment' as EventCategory,
         user_id: params.referrerId,
-        description: `Commission of ₦${amount} created for referral ${params.referralCode}`,
+        description: `Commission of ₦${amount} created for referral ${params.referralCode} (₦8,000 course purchase)`,
         metadata: {
           commissionId: data.id,
           refereeEmail: params.refereeEmail,
-          paymentReference: params.paymentReference
+          paymentReference: params.paymentReference,
+          courseAmount: params.courseAmount
         }
       });
+
+      // Send commission earned email
+      // Get partner email
+      const { data: partner } = await supabaseAdmin
+        .from('partners')
+        .select('email, full_name')
+        .eq('id', params.referrerId)
+        .single();
+
+      if (partner) {
+        await PartnerEmailService.sendCommissionEarnedEmail(
+          partner.email,
+          partner.full_name,
+          amount,
+          params.refereeEmail
+        );
+
+        // Create notification
+        await NotificationService.createNotification({
+          partnerId: params.referrerId,
+          type: 'commission_earned',
+          title: `Commission Earned: ₦${amount}`,
+          message: `You earned ₦${amount} from a new referral. This will be available for withdrawal after 7 days.`,
+          metadata: { amount, refereeEmail: params.refereeEmail, commissionId: data.id }
+        });
+      }
 
       return { success: true, commission: data as Commission };
     } catch (error) {
@@ -104,11 +155,35 @@ export class CommissionService {
         for (const commission of data) {
           await logReferralEvent({
             action: 'commission_matured',
-            category: 'status_change',
+            category: 'status_change' as EventCategory,
             user_id: commission.referrer_id,
             description: `Commission ₦${commission.amount} matured and is now available`,
             metadata: { commissionId: commission.id }
           });
+
+          // Send commission released email
+          const { data: partner } = await supabaseAdmin
+            .from('partners')
+            .select('email, full_name')
+            .eq('id', commission.referrer_id)
+            .single();
+
+          if (partner) {
+            await PartnerEmailService.sendCommissionReleasedEmail(
+              partner.email,
+              partner.full_name,
+              commission.amount
+            );
+
+            // Create notification
+            await NotificationService.createNotification({
+              partnerId: commission.referrer_id,
+              type: 'commission_released',
+              title: `Commission Available: ₦${commission.amount}`,
+              message: `Your commission of ₦${commission.amount} is now available for withdrawal.`,
+              metadata: { amount: commission.amount, commissionId: commission.id }
+            });
+          }
         }
       }
     } catch (error) {

@@ -56,7 +56,7 @@ The Growth Engine encompasses:
 ### Business Model
 
 #### Course Pricing
-- **Actual Course Value:** ₦50,000
+- **Actual Course Value:** ₦8,000
 - **Promotional Cohort Price:** ₦5,000
 - **Fixed Price:** Every student pays exactly ₦5,000
 - **No Referral Discounts:** Referrals do not reduce student payment amount

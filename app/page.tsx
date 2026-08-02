@@ -61,7 +61,7 @@ const infoCards = [
   {
     icon: CreditCard,
     title: 'Investment',
-    body: '₦50,000 — Full access, all 12 sessions',
+    body: '₦8,000 — Full access, all 12 sessions',
   },
 ]
 
@@ -667,7 +667,7 @@ export default function Page() {
                 <span>LIMITED SCHOLARSHIP OPPORTUNITY</span>
               </div>
               <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
-                ₦50,000 AI Automation Training
+                ₦8,000 AI Automation Training
               </h2>
               <p className="text-[#b9cacb] text-lg mb-6">
                 Scholarship Available — Successful applicants pay only a <span className="text-[#00f0ff] font-bold">₦5,000 commitment fee</span>
@@ -694,7 +694,7 @@ export default function Page() {
                   <CheckCircle className="h-5 w-5 text-[#00f0ff]" />
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#b9cacb]">Full Value</p>
-                    <p className="font-heading text-xl font-bold text-white">₦50,000</p>
+                    <p className="font-heading text-xl font-bold text-white">₦8,000</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

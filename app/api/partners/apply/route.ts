@@ -1,49 +1,111 @@
 import { NextResponse } from 'next/server';
-import { auth, currentUser } from '@clerk/nextjs/server';
-import { AmbassadorService } from '@/lib/growth-engine/AmbassadorService';
+import { createClient } from '@supabase/supabase-js';
+import { logReferralEvent } from '@/lib/audit-logging';
+import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
 
-export const dynamic = 'force-dynamic';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const user = await currentUser();
-    const userEmail = user?.emailAddresses[0]?.emailAddress || '';
-    const userName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Unknown';
-
     const body = await request.json();
+    
     const {
+      full_name,
+      email,
       phone,
-      organization,
-      websiteOrSocial,
+      whatsapp,
+      state,
+      occupation,
       motivation,
-      marketingPlan
+      promotion_method,
+      // Optional fields
+      organization,
+      website,
+      facebook,
+      instagram,
+      tiktok,
+      linkedin,
+      youtube,
+      experience
     } = body;
 
-    if (!phone || !motivation) {
+    // Validation
+    if (!full_name || !email || !phone || !whatsapp || !state || !occupation || !motivation || !promotion_method) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const result = await AmbassadorService.applyForPartner({
-      userId,
-      userEmail,
-      userName,
-      phone,
-      organization,
-      websiteOrSocial,
-      motivation,
-      marketingPlan
-    });
+    // Check if application already exists for this email
+    const { data: existingApplication } = await supabaseAdmin
+      .from('partner_applications')
+      .select('id, status')
+      .eq('email', email)
+      .single();
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+    if (existingApplication) {
+      if (existingApplication.status === 'pending' || existingApplication.status === 'under_review') {
+        return NextResponse.json({ error: 'You already have a pending application' }, { status: 400 });
+      }
+      if (existingApplication.status === 'approved') {
+        return NextResponse.json({ error: 'You are already a partner' }, { status: 400 });
+      }
     }
 
-    return NextResponse.json({ success: true, application: result.application });
+    // Create application
+    const { data: application, error } = await supabaseAdmin
+      .from('partner_applications')
+      .insert({
+        full_name,
+        email,
+        phone,
+        whatsapp,
+        state,
+        occupation,
+        motivation,
+        promotion_method,
+        organization,
+        website,
+        facebook,
+        instagram,
+        tiktok,
+        linkedin,
+        youtube,
+        experience,
+        status: 'pending'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[POST /api/partners/apply] Database error:', error);
+      return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 });
+    }
+
+    await logReferralEvent({
+      action: 'partner_application_submitted',
+      category: 'application',
+      description: `Community partner application submitted by ${email}`,
+      metadata: { 
+        applicationId: application.id, 
+        email,
+        fullName: full_name 
+      }
+    });
+
+    // Send application received email to applicant
+    await PartnerEmailService.sendApplicationReceivedEmail(email, full_name);
+
+    // Send notification to admin (you can configure admin email in env vars)
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@autolearnspot.com';
+    await PartnerEmailService.sendAdminNewApplicationNotification(adminEmail, full_name, email, application.id);
+
+    return NextResponse.json({ 
+      success: true, 
+      application,
+      message: 'Application submitted successfully' 
+    }, { status: 201 });
+
   } catch (error) {
     console.error('[POST /api/partners/apply] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -31,7 +31,10 @@ export type EventCategory =
   | 'quiz_submission'
   | 'assignment_submission'
   | 'enrollment'
-  | 'certificate_generation';
+  | 'certificate_generation'
+  | 'payment'
+  | 'admin'
+  | 'application';
 
 export type EventStatus = 'success' | 'failure' | 'warning';
 
@@ -82,9 +85,23 @@ const SENSITIVE_PATTERNS = [
   /ssn/i,
 ];
 
-// Function to redact sensitive data from objects
-function redactSensitiveData(data: Record<string, any>): Record<string, any> {
-  if (!data || typeof data !== 'object') {
+// Function to redact sensitive data from objects or strings
+function redactSensitiveData(data: Record<string, any> | string): Record<string, any> | string {
+  if (!data) {
+    return data;
+  }
+
+  if (typeof data === 'string') {
+    // Redact sensitive patterns from strings
+    for (const pattern of SENSITIVE_PATTERNS) {
+      if (pattern.test(data)) {
+        return '[REDACTED]';
+      }
+    }
+    return data;
+  }
+
+  if (typeof data !== 'object') {
     return data;
   }
 
@@ -97,6 +114,8 @@ function redactSensitiveData(data: Record<string, any>): Record<string, any> {
     if (SENSITIVE_PATTERNS.some(pattern => pattern.test(key))) {
       redacted[key] = '[REDACTED]';
     } else if (typeof value === 'object' && value !== null) {
+      redacted[key] = redactSensitiveData(value);
+    } else if (typeof value === 'string') {
       redacted[key] = redactSensitiveData(value);
     } else {
       redacted[key] = value;

@@ -132,15 +132,15 @@ export function EnrollmentRequired() {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#3b494b]/50 pt-6">
                 <div>
                   <span className="block font-mono text-xs text-[#5d5f63] uppercase tracking-wider mb-1">One-time payment</span>
-                  <span className="text-3xl font-bold text-white">₦50,000 <span className="text-sm font-normal text-[#b9cacb]">NGN</span></span>
+                  <span className="text-3xl font-bold text-white">₦8,000 <span className="text-sm font-normal text-[#b9cacb]">NGN</span></span>
                 </div>
-                <Link 
+                <Link
                   href="https://paystack.shop/pay/yoksvlq4xn"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto text-center border border-[#00f0ff] bg-[#00f0ff]/10 px-8 py-4 font-mono text-sm font-bold uppercase text-[#00f0ff] transition-all hover:bg-[#00f0ff] hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] rounded"
                 >
-                  Pay ₦50,000
+                  Pay ₦8,000
                 </Link>
               </div>
             </div>

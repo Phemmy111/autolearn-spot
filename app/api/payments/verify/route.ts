@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { auth } from '@clerk/nextjs/server';
+import { PartnerService } from '@/lib/growth-engine/PartnerService';
+import { CommissionService } from '@/lib/growth-engine/CommissionService';
+import { ReferralService } from '@/lib/growth-engine/ReferralService';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
@@ -123,6 +127,73 @@ export async function POST(req: Request) {
     if (enrollError) {
       console.error('Error creating enrollment during verify:', enrollError);
       return NextResponse.json({ error: 'Failed to create enrollment' }, { status: 500 });
+    }
+
+    // ============================================
+    // GROWTH ENGINE: Auto-create Student Partner
+    // ============================================
+    // Every student who purchases the ₦8,000 course becomes a Student Partner
+    if (payment.amount === 8000) {
+      const partnerResult = await PartnerService.createStudentPartner(
+        userId,
+        payment.customer_email,
+        payment.customer_name || 'Student'
+      );
+
+      if (partnerResult.success) {
+        console.log(`[Growth Engine] Student partner created for ${payment.customer_email}`);
+      }
+    }
+
+    // ============================================
+    // GROWTH ENGINE: Process Referral Commission
+    // ============================================
+    // Check for referral cookie
+    const cookieStore = await cookies();
+    const referralCookie = cookieStore.get('referral_code');
+
+    if (referralCookie && referralCookie.value) {
+      // Validate referral code
+      const validation = await ReferralService.validateAndAttribute(referralCookie.value, userId);
+
+      if (validation.valid && validation.owner_id && validation.owner_type) {
+        // Only create commission for ₦8,000 course purchases (not scholarship ₦5,000)
+        if (payment.amount === 8000) {
+          // Get IP address from request headers for fraud detection
+          const ipAddress = request.headers.get('x-forwarded-for') || 
+                           request.headers.get('x-real-ip') || 
+                           'unknown';
+
+          const commissionResult = await CommissionService.recordCommission({
+            referrerId: validation.owner_id,
+            referrerType: validation.owner_type,
+            refereeEmail: payment.customer_email,
+            referralCode: validation.code,
+            paymentReference: reference,
+            courseAmount: payment.amount,
+            ipAddress
+          });
+
+          if (commissionResult.success) {
+            console.log(`[Growth Engine] Commission created for referral ${validation.code}`);
+
+            // Update referral registration count
+            await supabaseAdmin
+              .from('referral_codes')
+              .update({ 
+                total_registrations: (await supabaseAdmin
+                  .from('referral_codes')
+                  .select('total_registrations')
+                  .eq('code', validation.code)
+                  .single()).data?.total_registrations || 0 + 1
+              })
+              .eq('code', validation.code);
+
+            // Update partner stats
+            await PartnerService.updatePartnerStats(validation.owner_id);
+          }
+        }
+      }
     }
 
     await supabaseAdmin.from('payment_events').insert({

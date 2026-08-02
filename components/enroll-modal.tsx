@@ -197,7 +197,7 @@ export function EnrollModal({
                         Secure via Paystack
                       </p>
                     </div>
-                    <p className="font-heading text-2xl font-semibold text-[#e2e2e8]">₦50,000</p>
+                    <p className="font-heading text-2xl font-semibold text-[#e2e2e8]">₦8,000</p>
                   </div>
 
                   <button

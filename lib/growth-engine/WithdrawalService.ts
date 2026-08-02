@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
 import { Commission } from './CommissionService';
+import { PartnerEmailService } from './PartnerEmailService';
+import { NotificationService } from './NotificationService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -131,6 +133,39 @@ export class WithdrawalService {
         },
       });
 
+      // Send withdrawal submitted email
+      const { data: partner } = await supabaseAdmin
+        .from('partners')
+        .select('email, full_name')
+        .eq('id', params.userId)
+        .single();
+
+      if (partner) {
+        await PartnerEmailService.sendWithdrawalSubmittedEmail(
+          partner.email,
+          partner.full_name,
+          actualWithdrawalAmount
+        );
+
+        // Create notification
+        await NotificationService.createNotification({
+          partnerId: params.userId,
+          type: 'withdrawal_submitted',
+          title: `Withdrawal Request Submitted: ₦${actualWithdrawalAmount}`,
+          message: `Your withdrawal request for ₦${actualWithdrawalAmount} has been submitted and is being processed.`,
+          metadata: { amount: actualWithdrawalAmount, withdrawalId: withdrawal.id }
+        });
+
+        // Send admin notification
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@autolearnspot.com';
+        await PartnerEmailService.sendAdminWithdrawalNotification(
+          adminEmail,
+          partner.full_name,
+          actualWithdrawalAmount,
+          withdrawal.id
+        );
+      }
+
       return { success: true, withdrawal: withdrawal as Withdrawal };
     } catch (error) {
       console.error('[WithdrawalService] Exception in submitWithdrawal:', error);
@@ -195,6 +230,31 @@ export class WithdrawalService {
         },
       });
 
+      // Send withdrawal paid email
+      const { data: partner } = await supabaseAdmin
+        .from('partners')
+        .select('email, full_name')
+        .eq('id', withdrawal.user_id)
+        .single();
+
+      if (partner) {
+        await PartnerEmailService.sendWithdrawalPaidEmail(
+          partner.email,
+          partner.full_name,
+          withdrawal.amount,
+          params.paymentReference
+        );
+
+        // Create notification
+        await NotificationService.createNotification({
+          partnerId: withdrawal.user_id,
+          type: 'withdrawal_paid',
+          title: `Payment Sent: ₦${withdrawal.amount}`,
+          message: `Your withdrawal of ₦${withdrawal.amount} has been paid successfully. Reference: ${params.paymentReference}`,
+          metadata: { amount: withdrawal.amount, paymentReference: params.paymentReference, withdrawalId: withdrawal.id }
+        });
+      }
+
       return { success: true };
     } catch (error) {
       console.error('[WithdrawalService] Exception in approveWithdrawal:', error);
@@ -235,6 +295,31 @@ export class WithdrawalService {
         .eq('id', params.withdrawalId);
 
       if (updateError) return { success: false, error: 'Failed to update withdrawal status' };
+
+      // Send withdrawal rejected email
+      const { data: partner } = await supabaseAdmin
+        .from('partners')
+        .select('email, full_name')
+        .eq('id', withdrawal.user_id)
+        .single();
+
+      if (partner) {
+        await PartnerEmailService.sendWithdrawalRejectedEmail(
+          partner.email,
+          partner.full_name,
+          withdrawal.amount,
+          params.reason
+        );
+
+        // Create notification
+        await NotificationService.createNotification({
+          partnerId: withdrawal.user_id,
+          type: 'withdrawal_rejected',
+          title: `Withdrawal Request Rejected: ₦${withdrawal.amount}`,
+          message: `Your withdrawal request for ₦${withdrawal.amount} could not be processed. Reason: ${params.reason}`,
+          metadata: { amount: withdrawal.amount, reason: params.reason, withdrawalId: withdrawal.id }
+        });
+      }
 
       // Return commissions to 'available' status
       await supabaseAdmin

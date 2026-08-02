@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { ReferralTracker } from '@/components/referral-tracker'
+import { Suspense } from 'react'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -53,6 +55,9 @@ export default function RootLayout({
       <html lang="en" className="dark">
         <body className="font-sans antialiased">
           <ErrorBoundary>
+            <Suspense fallback={null}>
+              <ReferralTracker />
+            </Suspense>
             {children}
           </ErrorBoundary>
           <WhatsAppChatModal variant="floating" />

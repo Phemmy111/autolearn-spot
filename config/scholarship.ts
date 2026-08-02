@@ -1,7 +1,17 @@
+/**
+ * Scholarship Payment Configuration
+ * 
+ * This configuration is for the ₦5,000 Scholarship flow only.
+ * The Direct Enrollment flow (₦8,000) has its own separate configuration in config/direct-enrollment.ts.
+ * 
+ * CRITICAL: These two flows must NEVER be merged or share payment links.
+ */
+
 export const scholarshipConfig = {
   // Scholarship Financials
-  fullValue: 50000,
-  commitmentFee: 5000,
+  // Full course value is ₦8,000, scholarship applicants pay commitment fee of ₦5,000
+  fullValue: 8000, // The full value of the course (₦8,000)
+  commitmentFee: 5000, // What scholarship applicants actually pay (₦5,000)
   
   // Program Dates & Timelines
   // ISO 8601 string formats
@@ -13,11 +23,12 @@ export const scholarshipConfig = {
   // Payment Configuration
   // TEST MODE - Currently using test payment link
   paystackMode: 'test' as 'test' | 'live', // Switch to 'live' when going to production
-  paymentUrl: 'https://paystack.shop/pay/lk12tlisnj',
+  paymentUrl: process.env.NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_URL || 'https://paystack.shop/pay/lk12tlisnj',
+  livePaymentUrl: process.env.NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_LIVE_URL || '',
   
   // When switching to live mode:
   // 1. Change paystackMode to 'live'
-  // 2. Replace paymentUrl with live Paystack payment link
+  // 2. Set NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_LIVE_URL environment variable
   // 3. Configure webhook URL in Paystack live dashboard: https://autolearn-spot.vercel.app/api/webhook/paystack
   // 4. Ensure PAYSTACK_WEBHOOK_SECRET is set in Vercel (for live mode)
   // 5. Ensure PAYSTACK_TEST_WEBHOOK_SECRET is set in Vercel (for test mode)
