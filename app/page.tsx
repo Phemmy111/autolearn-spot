@@ -38,7 +38,7 @@ import { ThreeAutomationField } from '@/components/three-automation-field'
 import { ToolsCarousel } from '@/components/tools-carousel'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 
-const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ', 'Scholarship'];
+const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ', 'Scholarship', 'Partners'];
 
 const stats = [
   ['10+', 'Real workflows deployed'],
@@ -549,6 +549,17 @@ export default function Page() {
                 <Link
                   key={item}
                   href="/scholarship"
+                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#00f0ff] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                >
+                  {item}
+                </Link>
+              );
+            }
+            if (item === 'Partners') {
+              return (
+                <Link
+                  key={item}
+                  href="/partners/apply"
                   className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#00f0ff] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
                 >
                   {item}

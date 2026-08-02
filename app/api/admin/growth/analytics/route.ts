@@ -31,13 +31,13 @@ export async function GET(request: Request) {
       total_commission_amount: 0,
       total_withdrawals: 0,
       total_withdrawal_amount: 0,
-      active_ambassadors: 0,
+      active_partners: 0,
     };
 
     const { data: refs } = await supabaseAdmin.from('referral_clicks').select('id', { count: 'exact' });
     const { data: comms } = await supabaseAdmin.from('commissions').select('amount');
     const { data: withdraws } = await supabaseAdmin.from('withdrawals').select('amount').eq('status', 'paid');
-    const { data: ambs } = await supabaseAdmin.from('ambassadors').select('id', { count: 'exact' }).eq('status', 'active');
+    const { data: ambs } = await supabaseAdmin.from('partners').select('id', { count: 'exact' }).eq('status', 'active');
 
     currentStats.total_referrals = refs?.length || 0;
     if (comms) {
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
       currentStats.total_withdrawals = withdraws.length;
       currentStats.total_withdrawal_amount = withdraws.reduce((a, b) => a + (b.amount || 0), 0);
     }
-    currentStats.active_ambassadors = ambs?.length || 0;
+    currentStats.active_partners = ambs?.length || 0;
 
     return NextResponse.json({ 
       success: true, 

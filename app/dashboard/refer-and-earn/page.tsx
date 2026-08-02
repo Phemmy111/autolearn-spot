@@ -1,434 +1,306 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Share2, Users, MousePointerClick, Wallet, Copy, Check, CreditCard, Loader2 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { Loader2, AlertCircle, Copy, CheckCircle2, Wallet, Users, MousePointerClick, ArrowRightLeft, DollarSign, Clock } from "lucide-react";
+import Link from "next/link";
 
-interface ReferralData {
-  referralCode: string;
-  shareUrl: string;
-  totalClicks: number;
-  totalRegistrations: number;
-  pendingEarnings: number;
-  availableEarnings: number;
-}
-
-export default function ReferAndEarnPage() {
-  const [data, setData] = useState<ReferralData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-  
-  // Withdrawal State
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [bankName, setBankName] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [accountName, setAccountName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { toast } = useToast();
+export default function StudentAmbassadorPage() {
+  const { user, isLoaded } = useUser();
+  const [status, setStatus] = useState<'loading' | 'not_applied' | 'pending' | 'approved'>('loading');
+  const [data, setData] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   useEffect(() => {
-    fetchReferralData();
-  }, []);
+    if (isLoaded && user) {
+      fetchStatus();
+    }
+  }, [isLoaded, user]);
 
-  const fetchReferralData = async () => {
+  const fetchStatus = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/referrals');
-      if (!response.ok) throw new Error('Failed to fetch referral data');
-      const json = await response.json();
-      if (!json.success) throw new Error(json.error || 'Failed to fetch');
+      const res = await fetch(`/api/student/ambassador/status?userId=${user?.id}`);
+      const result = await res.json();
       
-      setData({
-        referralCode: json.referralCode,
-        shareUrl: json.shareUrl,
-        totalClicks: json.totalClicks,
-        totalRegistrations: json.totalRegistrations,
-        pendingEarnings: json.pendingEarnings,
-        availableEarnings: json.availableEarnings,
-      });
+      if (res.ok && result.success) {
+        setStatus(result.status);
+        if (result.status === 'approved') {
+          setData(result.data);
+        }
+      } else {
+        setStatus('not_applied');
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+      console.error(err);
+      setStatus('not_applied');
     }
   };
 
-  const copyToClipboard = (text: string, isLink: boolean) => {
-    navigator.clipboard.writeText(text);
-    if (isLink) {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-      toast({
-        title: "Link Copied",
-        description: "Share link has been copied to your clipboard.",
-      });
-    } else {
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
-      toast({
-        title: "Code Copied",
-        description: "Referral code has been copied to your clipboard.",
-      });
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const handleWithdrawal = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!data) return;
-
-    const numAmount = Number(withdrawAmount);
-    if (numAmount < 2000) {
-      toast({ title: 'Error', description: 'Minimum withdrawal amount is ₦2,000', variant: 'destructive' });
-      return;
-    }
-    if (numAmount > data.availableEarnings) {
-      toast({ title: 'Error', description: 'Insufficient available balance', variant: 'destructive' });
-      return;
-    }
-
+  const handleApply = async () => {
     try {
-      setIsSubmitting(true);
-      const response = await fetch('/api/withdrawals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/ambassador/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: numAmount,
-          bankName,
-          accountNumber,
-          accountName
-        })
+          is_student: true,
+          userId: user?.id,
+          full_name: user?.fullName || "Student",
+          email: user?.primaryEmailAddress?.emailAddress,
+          phone: "0000000000",
+          whatsapp: "0000000000",
+          state: "N/A",
+          promotion_method: "Student Network",
+          reason: "I am an active student and want to share this platform.",
+        }),
       });
-
-      const json = await response.json();
-      if (!json.success) throw new Error(json.error || 'Withdrawal failed');
-
-      toast({
-        title: 'Success',
-        description: 'Withdrawal request submitted successfully.',
-      });
-      setIsWithdrawModalOpen(false);
-      
-      // Refresh data
-      fetchReferralData();
-      
-      // Reset form
-      setWithdrawAmount('');
-      setBankName('');
-      setAccountNumber('');
-      setAccountName('');
-      
+      if (res.ok) {
+        setStatus('pending');
+      }
     } catch (err) {
-      toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'An error occurred',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsSubmitting(false);
+      console.error(err);
     }
   };
 
-  if (loading) {
+  const handleCopyLink = () => {
+    if (data?.shareUrl) {
+      navigator.clipboard.writeText(data.shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleWithdraw = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!withdrawAmount || Number(withdrawAmount) < 2000) return;
+    
+    setIsWithdrawing(true);
+    try {
+      const res = await fetch("/api/withdrawals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          userId: user?.id,
+          amount: Number(withdrawAmount),
+          userType: 'student',
+          bankName: "Select Bank",
+          accountNumber: "0000000000",
+          accountName: user?.fullName
+        }),
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        alert("Withdrawal request submitted successfully!");
+        setWithdrawAmount("");
+        fetchStatus();
+      } else {
+        alert(result.error || "Failed to submit withdrawal");
+      }
+    } catch (err) {
+      alert("An unexpected error occurred.");
+    } finally {
+      setIsWithdrawing(false);
+    }
+  };
+
+  if (!isLoaded || status === 'loading') {
+    return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" /></div>;
+  }
+
+  if (status === 'not_applied') {
     return (
-      <div className="container mx-auto py-8 space-y-6">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-64 bg-[#1f2229]" />
-          <Skeleton className="h-4 w-96 bg-[#1f2229]" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="bg-[#0c0e12] border-[#1f2229]">
-            <CardContent className="pt-6 h-32 flex flex-col justify-center">
-              <Skeleton className="h-6 w-32 bg-[#1f2229] mb-4" />
-              <Skeleton className="h-10 w-full bg-[#1f2229]" />
-            </CardContent>
-          </Card>
-          <Card className="bg-[#0c0e12] border-[#1f2229]">
-            <CardContent className="pt-6 h-32 flex flex-col justify-center">
-              <Skeleton className="h-6 w-32 bg-[#1f2229] mb-4" />
-              <Skeleton className="h-10 w-full bg-[#1f2229]" />
-            </CardContent>
-          </Card>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="bg-[#0c0e12] border-[#1f2229]">
-              <CardHeader>
-                <Skeleton className="h-4 w-24 bg-[#1f2229]" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-8 w-16 bg-[#1f2229]" />
-              </CardContent>
-            </Card>
-          ))}
+      <div className="max-w-4xl mx-auto py-12">
+        <div className="bg-[#111317] border border-[#1f2229] rounded-3xl p-8 text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f0ff]/10 blur-3xl rounded-full" />
+          <div className="w-16 h-16 rounded-full bg-[#00f0ff]/10 flex items-center justify-center text-[#00f0ff] mx-auto mb-6 relative z-10">
+            <DollarSign className="h-8 w-8" />
+          </div>
+          <h1 className="text-3xl font-bold mb-4 relative z-10">Become a Student Partner</h1>
+          <p className="text-[#b9cacb] mb-8 max-w-lg mx-auto relative z-10">
+            Earn ₦1,000 for every student you refer who completes their enrollment. Turn your network into an income stream while helping others learn.
+          </p>
+          <button 
+            onClick={handleApply}
+            className="px-8 py-4 bg-[#00f0ff] text-black font-bold rounded-xl hover:bg-white transition-colors relative z-10"
+          >
+            Apply Now with 1-Click
+          </button>
         </div>
       </div>
     );
   }
 
-  if (error || !data) {
+  if (status === 'pending') {
     return (
-      <div className="container mx-auto py-8">
-        <Card className="bg-[#0c0e12] border-destructive">
-          <CardContent className="pt-6">
-            <p className="text-destructive">{error || 'Failed to load referral data'}</p>
-            <Button 
-              variant="outline" 
-              className="mt-4 border-[#3b494b] text-white hover:bg-[#1a1d24]"
-              onClick={fetchReferralData}
-            >
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="max-w-2xl mx-auto py-12">
+        <div className="bg-[#111317] border border-[#1f2229] rounded-3xl p-8 text-center">
+          <Clock className="h-16 w-16 text-yellow-500 mx-auto mb-6" />
+          <h1 className="text-2xl font-bold mb-4">Application Under Review</h1>
+          <p className="text-[#b9cacb]">
+            Your application to become a Student Partner is currently being reviewed by our team. You will be notified once it is approved.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8 px-4 sm:px-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-          <Share2 className="h-8 w-8 text-[#00f0ff]" />
-          Refer & Earn
-        </h1>
-        <p className="text-[#b9cacb]">
-          Share your referral code with friends and earn commissions when they enroll.
-        </p>
+    <div className="space-y-8 pb-10">
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Partner Dashboard</h1>
+        <p className="text-[#b9cacb]">Manage your referrals and withdrawals.</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Referral Code Card */}
-        <Card className="bg-[#0c0e12] border-[#1f2229]">
-          <CardHeader>
-            <CardTitle className="text-white text-lg flex justify-between items-center">
-              Your Referral Code
-            </CardTitle>
-            <CardDescription className="text-[#b9cacb]">
-              Students can enter this code during registration
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 rounded bg-[#1f2229] px-4 py-3 text-2xl font-mono font-bold text-[#00f0ff] text-center border border-[#3b494b] tracking-wider">
-                {data.referralCode}
-              </code>
-              <Button
-                size="icon"
-                className="h-[58px] w-[58px] bg-[#00f0ff] text-black hover:bg-[#00d0dd] shrink-0"
-                onClick={() => copyToClipboard(data.referralCode, false)}
-                title="Copy Code"
-              >
-                {copiedCode ? <Check className="h-6 w-6" /> : <Copy className="h-6 w-6" />}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Referral Link Card */}
+      <div className="bg-gradient-to-r from-[#00f0ff]/10 to-transparent border border-[#00f0ff]/20 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <h2 className="text-xl font-bold mb-2">Your Referral Link</h2>
+          <p className="text-[#b9cacb] text-sm max-w-xl">Share this unique link with your network. When they enroll through it, you earn ₦1,000 commission.</p>
+        </div>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-white/80 truncate w-full md:w-64">
+            {data?.shareUrl}
+          </div>
+          <button 
+            onClick={handleCopyLink}
+            className="bg-[#00f0ff] text-black px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2"
+          >
+            {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+      </div>
 
-        {/* Share Link Card */}
-        <Card className="bg-[#0c0e12] border-[#1f2229]">
-          <CardHeader>
-            <CardTitle className="text-white text-lg flex justify-between items-center">
-              Your Share Link
-            </CardTitle>
-            <CardDescription className="text-[#b9cacb]">
-              Share this direct link to auto-apply your code
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 truncate rounded bg-[#1f2229] px-4 py-3 text-sm font-mono text-[#dbfcff] border border-[#3b494b]">
-                {data.shareUrl}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+              <MousePointerClick className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="text-sm text-[#b9cacb] mb-1">Total Clicks</p>
+          <h3 className="text-2xl font-bold">{data?.totalClicks || 0}</h3>
+        </div>
+        
+        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
+              <Users className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="text-sm text-[#b9cacb] mb-1">Registrations</p>
+          <h3 className="text-2xl font-bold">{data?.totalRegistrations || 0}</h3>
+        </div>
+
+        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
+              <Clock className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="text-sm text-[#b9cacb] mb-1">Pending Earnings</p>
+          <h3 className="text-2xl font-bold text-yellow-400">₦{data?.earnings?.pendingEarnings?.toLocaleString() || 0}</h3>
+        </div>
+
+        <div className="bg-[#111317] border border-[#00f0ff]/30 rounded-2xl p-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[#00f0ff]/5 blur-3xl rounded-full" />
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <div className="w-10 h-10 rounded-full bg-[#00f0ff]/10 flex items-center justify-center text-[#00f0ff]">
+              <Wallet className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="text-sm text-[#00f0ff] mb-1 relative z-10">Available Balance</p>
+          <h3 className="text-3xl font-bold relative z-10">₦{data?.earnings?.availableEarnings?.toLocaleString() || 0}</h3>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Recent Activity */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6">
+            <h3 className="text-lg font-bold mb-6">Recent Commissions</h3>
+            {data?.commissions?.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-sm text-[#b9cacb] border-b border-[#1f2229]">
+                      <th className="pb-3 font-medium">Date</th>
+                      <th className="pb-3 font-medium">Amount</th>
+                      <th className="pb-3 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {data.commissions.map((comm: any) => (
+                      <tr key={comm.id} className="border-b border-[#1f2229] last:border-0">
+                        <td className="py-4">{new Date(comm.created_at).toLocaleDateString()}</td>
+                        <td className="py-4 font-medium text-white">₦{comm.amount.toLocaleString()}</td>
+                        <td className="py-4">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                            comm.status === 'available' ? 'bg-[#00f0ff]/10 text-[#00f0ff]' :
+                            comm.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
+                            comm.status === 'paid' ? 'bg-green-500/10 text-green-400' :
+                            'bg-gray-500/10 text-gray-400'
+                          }`}>
+                            {comm.status.charAt(0).toUpperCase() + comm.status.slice(1)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <Button
-                size="icon"
-                className="h-[46px] w-[46px] border border-[#3b494b] bg-[#1a1d24] text-white hover:bg-[#252830] shrink-0"
-                onClick={() => copyToClipboard(data.shareUrl, true)}
-                title="Copy Link"
-              >
-                {copiedLink ? <Check className="h-5 w-5 text-[#00f0ff]" /> : <Copy className="h-5 w-5" />}
-              </Button>
+            ) : (
+              <div className="text-center py-8 text-[#b9cacb]">
+                <p>No commissions yet. Start sharing your link!</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Withdrawal Panel */}
+        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6 flex flex-col h-fit">
+          <h3 className="text-lg font-bold mb-6">Withdraw Funds</h3>
+          
+          <div className="bg-[#0c0e12] rounded-xl p-4 mb-6 border border-[#1f2229]">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-[#b9cacb]">Available</span>
+              <span className="font-bold text-[#00f0ff]">₦{data?.earnings?.availableEarnings?.toLocaleString() || 0}</span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-[#0c0e12] border-[#1f2229]">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Total Clicks</CardTitle>
-            <MousePointerClick className="h-4 w-4 text-[#00f0ff]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{data.totalClicks}</div>
-            <p className="text-xs text-[#b9cacb] mt-1">
-              Visits via your link
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-[#0c0e12] border-[#1f2229]">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Registrations</CardTitle>
-            <Users className="h-4 w-4 text-[#00f0ff]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{data.totalRegistrations}</div>
-            <p className="text-xs text-[#b9cacb] mt-1">
-              Successful enrollments
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-[#0c0e12] border-[#1f2229]">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Pending Earnings</CardTitle>
-            <Wallet className="h-4 w-4 text-orange-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-400">{formatCurrency(data.pendingEarnings)}</div>
-            <p className="text-xs text-[#b9cacb] mt-1">
-              Awaiting verification
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-[#0c0e12] border-[#1f2229] shadow-[0_0_15px_rgba(0,240,255,0.1)] relative overflow-hidden group">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-white">Available Earnings</CardTitle>
-            <CreditCard className="h-4 w-4 text-[#00f0ff]" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-[#00f0ff]">{formatCurrency(data.availableEarnings)}</div>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-[#b9cacb]">
-                Ready for withdrawal
-              </p>
-              {data.availableEarnings >= 2000 && (
-                <Button 
-                  size="sm" 
-                  className="h-7 text-xs bg-[#00f0ff] text-black hover:bg-[#00d0dd]"
-                  onClick={() => setIsWithdrawModalOpen(true)}
-                >
-                  Withdraw
-                </Button>
-              )}
+            <div className="w-full bg-[#1f2229] h-2 rounded-full overflow-hidden">
+              <div className="bg-[#00f0ff] h-full" style={{ width: `${Math.min(100, ((data?.earnings?.availableEarnings || 0) / 2000) * 100)}%` }} />
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <p className="text-xs text-[#b9cacb] mt-2 text-right">Min. ₦2,000</p>
+          </div>
 
-      <Dialog open={isWithdrawModalOpen} onOpenChange={setIsWithdrawModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-[#0c0e12] border-[#1f2229] text-white">
-          <form onSubmit={handleWithdrawal}>
-            <DialogHeader>
-              <DialogTitle>Withdraw Funds</DialogTitle>
-              <DialogDescription className="text-[#b9cacb]">
-                Minimum withdrawal amount is ₦2,000. Available: {formatCurrency(data?.availableEarnings || 0)}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="amount" className="text-[#b9cacb]">Amount (₦)</Label>
-                <Input
-                  id="amount"
+          <form onSubmit={handleWithdraw} className="mt-auto space-y-4">
+            <div>
+              <label className="text-sm text-[#b9cacb] mb-1.5 block">Amount to withdraw</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#b9cacb]">₦</span>
+                <input
                   type="number"
                   min="2000"
-                  max={data?.availableEarnings || 0}
-                  step="1000"
+                  max={data?.earnings?.availableEarnings || 0}
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="e.g. 5000"
-                  required
-                  className="bg-[#1f2229] border-[#3b494b] text-white"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="bankName" className="text-[#b9cacb]">Bank Name</Label>
-                <Input
-                  id="bankName"
-                  value={bankName}
-                  onChange={(e) => setBankName(e.target.value)}
-                  placeholder="e.g. Guarantee Trust Bank"
-                  required
-                  className="bg-[#1f2229] border-[#3b494b] text-white"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="accountNumber" className="text-[#b9cacb]">Account Number</Label>
-                <Input
-                  id="accountNumber"
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value)}
-                  placeholder="10 digit account number"
-                  required
-                  pattern="\d{10}"
-                  className="bg-[#1f2229] border-[#3b494b] text-white"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="accountName" className="text-[#b9cacb]">Account Name</Label>
-                <Input
-                  id="accountName"
-                  value={accountName}
-                  onChange={(e) => setAccountName(e.target.value)}
-                  placeholder="Name on account"
-                  required
-                  className="bg-[#1f2229] border-[#3b494b] text-white"
+                  className="w-full bg-[#0c0e12] border border-[#1f2229] rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#00f0ff] transition-colors"
+                  placeholder="2000"
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setIsWithdrawModalOpen(false)}
-                className="border-[#3b494b] text-white hover:bg-[#1f2229]"
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmitting}
-                className="bg-[#00f0ff] text-black hover:bg-[#00d0dd]"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing
-                  </>
-                ) : (
-                  'Submit Request'
-                )}
-              </Button>
-            </DialogFooter>
+            <button
+              type="submit"
+              disabled={isWithdrawing || !withdrawAmount || Number(withdrawAmount) < 2000 || Number(withdrawAmount) > (data?.earnings?.availableEarnings || 0)}
+              className="w-full py-3 rounded-xl bg-[#00f0ff] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isWithdrawing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRightLeft className="h-4 w-4" />}
+              Withdraw
+            </button>
           </form>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
     </div>
   );
 }

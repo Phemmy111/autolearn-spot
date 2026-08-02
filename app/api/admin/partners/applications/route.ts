@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
-import { AmbassadorService } from '@/lib/growth-engine/AmbassadorService';
 import { createClient } from '@supabase/supabase-js';
+import { AmbassadorService } from '@/lib/growth-engine/AmbassadorService';
 import { auth } from '@clerk/nextjs/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -13,20 +13,15 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   try {
     await requireAdmin();
-
     const { data, error } = await supabaseAdmin
-      .from('ambassador_applications')
+      .from('partner_applications')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('[GET /api/admin/ambassadors/applications] DB Error:', error);
-      return NextResponse.json({ error: 'Database error' }, { status: 500 });
-    }
-
+    if (error) throw error;
     return NextResponse.json({ success: true, applications: data });
   } catch (error) {
-    console.error('[GET /api/admin/ambassadors/applications] Error:', error);
+    console.error('[GET /api/admin/partners/applications] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -38,15 +33,15 @@ export async function POST(request: Request) {
     if (!adminId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    const { applicationId, action, notes } = body; // action: 'approve' | 'reject'
+    const { applicationId, action, notes } = body;
 
-    if (!applicationId || !action) {
-      return NextResponse.json({ error: 'Missing applicationId or action' }, { status: 400 });
+    if (!applicationId || !action || !['approve', 'reject'].includes(action)) {
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
     const result = await AmbassadorService.processApplication({
       applicationId,
-      action,
+      action: action as 'approve' | 'reject',
       adminId,
       notes
     });
@@ -57,7 +52,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[POST /api/admin/ambassadors/applications] Error:', error);
+    console.error('[POST /api/admin/partners/applications] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

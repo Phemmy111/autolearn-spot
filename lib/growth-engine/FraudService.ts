@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { logReferralEvent } from '@/lib/audit-logging';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -7,49 +6,50 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export class FraudService {
   /**
-   * Log a new fraud alert
+   * Logs a potential fraud alert for admin review.
    */
-  static async logFraudAlert(params: {
-    alertType: 'self_referral' | 'duplicate_commission' | 'suspicious_pattern' | 'rate_limit_exceeded' | 'payment_anomaly';
-    severity: 'low' | 'medium' | 'high' | 'critical';
-    userId?: string;
-    referralCode?: string;
-    paymentReference?: string;
-    ipAddress?: string;
+  static async flagActivity(params: {
+    type: 'self_referral' | 'duplicate_ip' | 'referral_loop' | 'mass_registration' | 'vpn_abuse' | 'duplicate_payment' | 'suspicious_withdrawal';
+    severity: 'low' | 'medium' | 'high';
     description: string;
+    userId?: string;
+    relatedEntityId?: string;
     metadata?: any;
   }) {
     try {
-      const { data, error } = await supabaseAdmin
-        .from('fraud_alerts')
-        .insert({
-          alert_type: params.alertType,
-          severity: params.severity,
-          user_id: params.userId,
-          referral_code: params.referralCode,
-          payment_reference: params.paymentReference,
-          ip_address: params.ipAddress,
-          description: params.description,
-          metadata: params.metadata,
-          status: 'open'
-        });
-
-      if (error) {
-        console.error('[FraudService] Failed to insert fraud alert:', error);
-      }
-
-      await logReferralEvent({
-        action: 'fraud_alert_created',
-        category: 'validation_error',
+      await supabaseAdmin.from('fraud_alerts').insert({
+        type: params.type,
+        severity: params.severity,
+        description: params.description,
         user_id: params.userId,
-        description: `Fraud alert: ${params.description}`,
-        metadata: { type: params.alertType, severity: params.severity }
+        related_entity_id: params.relatedEntityId,
+        metadata: params.metadata,
+        status: 'open'
       });
-
-      return { success: !error };
     } catch (err) {
-      console.error('[FraudService] logFraudAlert err:', err);
-      return { success: false };
+      console.error('[FraudService] Failed to flag activity:', err);
+    }
+  }
+
+  /**
+   * Basic self-referral check
+   */
+  static async checkSelfReferral(referrerId: string, refereeEmail: string): Promise<boolean> {
+    try {
+      // Very naive check: if the referee email matches the referrer email
+      const { data: user } = await supabaseAdmin.auth.admin.getUserById(referrerId);
+      if (user && user.user.email === refereeEmail) {
+        await this.flagActivity({
+          type: 'self_referral',
+          severity: 'high',
+          description: `User ${referrerId} attempted to refer their own email: ${refereeEmail}`,
+          userId: referrerId,
+        });
+        return true;
+      }
+      return false;
+    } catch (err) {
+      return false;
     }
   }
 }

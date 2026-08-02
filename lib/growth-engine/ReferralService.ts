@@ -13,6 +13,7 @@ export interface ReferralCode {
   status: 'Active' | 'Inactive';
   total_clicks: number;
   total_registrations: number;
+  owner_type: 'student' | 'community' | 'influencer';
   created_at: string;
   updated_at: string;
 }
@@ -21,12 +22,12 @@ export class ReferralService {
   /**
    * Lazily fetches or creates a referral code for a user.
    */
-  static async getOrCreateReferralCode(userId: string): Promise<ReferralCode | null> {
+  static async getOrCreateReferralCode(ownerId: string, ownerType: 'student' | 'community' | 'influencer' = 'student'): Promise<ReferralCode | null> {
     try {
       const { data: existingCode, error: fetchError } = await supabaseAdmin
         .from('referral_codes')
         .select('*')
-        .eq('owner_id', userId)
+        .eq('owner_id', ownerId)
         .single();
 
       if (existingCode) {
@@ -43,9 +44,10 @@ export class ReferralService {
       const { data: createdCode, error: insertError } = await supabaseAdmin
         .from('referral_codes')
         .insert({
-          owner_id: userId,
+          owner_id: ownerId,
           code: newCode,
-          status: 'Active'
+          status: 'Active',
+          owner_type: ownerType
         })
         .select()
         .single();
@@ -58,9 +60,9 @@ export class ReferralService {
       await logReferralEvent({
         action: 'referral_code_created',
         category: 'enrollment',
-        user_id: userId,
+        user_id: ownerId,
         referral_code: newCode,
-        description: `Referral code ${newCode} generated for user ${userId}`
+        description: `Referral code ${newCode} generated for ${ownerType} ${ownerId}`
       });
 
       return createdCode as ReferralCode;
@@ -73,13 +75,13 @@ export class ReferralService {
   /**
    * Validates a referral code and ensures it doesn't belong to the applicant (self-referral prevention).
    */
-  static async validateAndAttribute(code: string, applicantUserId?: string): Promise<{ valid: boolean; code?: string }> {
+  static async validateAndAttribute(code: string, applicantUserId?: string): Promise<{ valid: boolean; code?: string; owner_type?: string; owner_id?: string }> {
     if (!code || code.length !== 8) return { valid: false };
 
     try {
       const { data, error } = await supabaseAdmin
         .from('referral_codes')
-        .select('status, owner_id')
+        .select('status, owner_id, owner_type')
         .eq('code', code)
         .single();
 
@@ -92,7 +94,7 @@ export class ReferralService {
         return { valid: false };
       }
       
-      return { valid: true, code };
+      return { valid: true, code, owner_type: data.owner_type, owner_id: data.owner_id };
     } catch (error) {
       console.error('Exception in validateAndAttribute:', error);
       return { valid: false };
@@ -144,67 +146,19 @@ export class ReferralService {
   /**
    * Gets referral stats for the dashboard
    */
-  static async getReferralStats(userId: string): Promise<{ code: string; totalClicks: number; totalRegistrations: number } | null> {
+  static async getReferralStats(ownerId: string): Promise<{ code: string; totalClicks: number; totalRegistrations: number; ownerType: string } | null> {
     try {
       const { data, error } = await supabaseAdmin
         .from('referral_codes')
-        .select('code, total_clicks, total_registrations')
-        .eq('owner_id', userId)
+        .select('code, total_clicks, total_registrations, owner_type')
+        .eq('owner_id', ownerId)
         .single();
 
       if (error || !data) return null;
-      return { code: data.code, totalClicks: data.total_clicks, totalRegistrations: data.total_registrations };
+      return { code: data.code, totalClicks: data.total_clicks, totalRegistrations: data.total_registrations, ownerType: data.owner_type };
     } catch (error) {
       console.error('Exception in getReferralStats:', error);
       return null;
-    }
-  }
-
-  /**
-   * Gets a single code by its value
-   */
-  static async getCodeByValue(code: string): Promise<ReferralCode | null> {
-    if (!code) return null;
-    try {
-      const { data, error } = await supabaseAdmin
-        .from('referral_codes')
-        .select('*')
-        .eq('code', code)
-        .single();
-
-      if (error || !data) return null;
-      return data as ReferralCode;
-    } catch (error) {
-      console.error('Exception in getCodeByValue:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Lists all referral codes for admin
-   */
-  static async listAllReferralCodes(filters: { cohortId?: string, ownerId?: string, code?: string, status?: string, startDate?: Date, endDate?: Date } = {}): Promise<ReferralCode[]> {
-    try {
-      let query = supabaseAdmin
-        .from('referral_codes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (filters.ownerId) query = query.eq('owner_id', filters.ownerId);
-      if (filters.code) query = query.eq('code', filters.code);
-      if (filters.status) query = query.eq('status', filters.status);
-      if (filters.startDate) query = query.gte('created_at', filters.startDate.toISOString());
-      if (filters.endDate) query = query.lte('created_at', filters.endDate.toISOString());
-
-      const { data, error } = await query;
-      if (error) {
-        console.error('Database Error in listAllReferralCodes:', error);
-        return [];
-      }
-      return data as ReferralCode[];
-    } catch (error) {
-      console.error('Exception in listAllReferralCodes:', error);
-      return [];
     }
   }
 

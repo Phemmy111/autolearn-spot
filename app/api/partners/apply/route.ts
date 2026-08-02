@@ -18,35 +18,25 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       phone,
-      institution,
-      campusLocation,
-      studentId,
-      levelOfStudy,
-      courseOfStudy,
-      graduationYear,
+      organization,
+      websiteOrSocial,
       motivation,
-      marketingPlan,
-      socialMediaLinks
+      marketingPlan
     } = body;
 
-    if (!phone || !institution || !campusLocation || !motivation) {
+    if (!phone || !motivation) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const result = await AmbassadorService.applyForAmbassador({
+    const result = await AmbassadorService.applyForPartner({
       userId,
       userEmail,
       userName,
       phone,
-      institution,
-      campusLocation,
-      studentId,
-      levelOfStudy,
-      courseOfStudy,
-      graduationYear,
+      organization,
+      websiteOrSocial,
       motivation,
-      marketingPlan,
-      socialMediaLinks
+      marketingPlan
     });
 
     if (!result.success) {
@@ -55,7 +45,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, application: result.application });
   } catch (error) {
-    console.error('[POST /api/ambassadors/apply] Error:', error);
+    console.error('[POST /api/partners/apply] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

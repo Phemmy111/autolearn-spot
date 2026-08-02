@@ -258,13 +258,23 @@ export async function POST(request: NextRequest) {
               console.error('Failed to update referrer registration count:', err);
             }
 
-            // Growth Engine M3: Create commission for referrer (idempotent)
+            // Growth Engine M3/M9: Create commission for referrer (idempotent)
             try {
-              await CommissionService.createCommission({
-                paymentReference: reference,
-                referralCode: application.referred_by_code,
-                refereeEmail: customerEmail,
-              });
+              const { data: refData } = await supabaseAdmin
+                .from('referral_codes')
+                .select('owner_id, owner_type')
+                .eq('code', application.referred_by_code)
+                .single();
+
+              if (refData) {
+                await CommissionService.recordCommission({
+                  referrerId: refData.owner_id,
+                  referrerType: refData.owner_type,
+                  paymentReference: reference,
+                  referralCode: application.referred_by_code,
+                  refereeEmail: customerEmail,
+                });
+              }
             } catch (commissionErr) {
               console.error('Failed to create commission:', commissionErr);
               // Don't fail the webhook if commission creation fails

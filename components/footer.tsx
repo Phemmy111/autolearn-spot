@@ -1,6 +1,6 @@
 "use client"
 
-import { Github, Twitter, Linkedin, Mail } from "lucide-react"
+import { Mail } from "lucide-react"
 
 export function Footer() {
   return (
@@ -77,19 +77,19 @@ export function Footer() {
                 href="#"
                 className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
               >
-                <Github className="w-5 h-5" />
+                <span className="w-5 h-5 flex items-center justify-center font-bold">GH</span>
               </a>
               <a
                 href="#"
                 className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
               >
-                <Twitter className="w-5 h-5" />
+                <span className="w-5 h-5 flex items-center justify-center font-bold">X</span>
               </a>
               <a
                 href="#"
                 className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
               >
-                <Linkedin className="w-5 h-5" />
+                <span className="w-5 h-5 flex items-center justify-center font-bold">IN</span>
               </a>
               <a
                 href="#"

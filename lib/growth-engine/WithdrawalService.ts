@@ -30,6 +30,7 @@ export class WithdrawalService {
    */
   static async submitWithdrawal(params: {
     userId: string;
+    userType: 'student' | 'community' | 'influencer';
     amount: number;
     bankName: string;
     accountNumber: string;
@@ -68,8 +69,6 @@ export class WithdrawalService {
         currentSum += commission.amount;
       }
 
-      // Due to integer commission amounts, we might slightly overshoot the requested amount if partial
-      // but in this system commissions are atomic. For simplicity we withdraw exactly the commissions selected.
       const actualWithdrawalAmount = currentSum;
 
       // 2. Create the withdrawal record
@@ -77,7 +76,7 @@ export class WithdrawalService {
         .from('withdrawals')
         .insert({
           user_id: params.userId,
-          user_type: 'student', // Default for now
+          user_type: params.userType,
           amount: actualWithdrawalAmount,
           bank_name: params.bankName,
           account_number: params.accountNumber,
@@ -106,7 +105,6 @@ export class WithdrawalService {
 
       if (updateError) {
         console.error('[WithdrawalService] Error updating commission statuses:', updateError);
-        // Ideally we'd rollback, but for now we'll log
       }
 
       // 4. Insert into junction table
@@ -128,7 +126,8 @@ export class WithdrawalService {
           withdrawal_id: withdrawal.id,
           amount: actualWithdrawalAmount,
           bank_name: params.bankName,
-          account_number: params.accountNumber
+          account_number: params.accountNumber,
+          user_type: params.userType
         },
       });
 
