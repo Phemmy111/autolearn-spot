@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { ReferralService } from '@/lib/growth-engine/ReferralService';
+import { CommissionService } from '@/lib/growth-engine/CommissionService';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Failed to retrieve referral code' }, { status: 500 });
     }
 
+    // Release any matured commissions (pending → available)
+    await CommissionService.releaseMaturedCommissions();
+
+    // Get real earnings from CommissionService
+    const earnings = await CommissionService.getEarnings(userId);
+
     // Always use the primary domain / scholarship application for the link
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com';
     const shareUrl = `${baseUrl}/scholarship/apply?ref=${referralCode.code}`;
@@ -27,8 +34,8 @@ export async function GET(request: Request) {
       shareUrl,
       totalClicks: referralCode.total_clicks || 0,
       totalRegistrations: referralCode.total_registrations || 0,
-      pendingEarnings: 0, // Stub for Milestone 3
-      availableEarnings: 0 // Stub for Milestone 3
+      pendingEarnings: earnings.pendingEarnings,
+      availableEarnings: earnings.availableEarnings,
     });
   } catch (error) {
     console.error('[GET /api/referrals] Error:', error);

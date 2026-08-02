@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { requireAdmin } from '@/lib/admin';
 import { ReferralService } from '@/lib/growth-engine/ReferralService';
 import { logAuditEvent } from '@/lib/audit-logging';
@@ -12,10 +13,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const adminUser = await requireAdmin();
-    if (!adminUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    await requireAdmin();
+
+    const { userId } = await auth();
 
     const { searchParams } = new URL(request.url);
     const cohortId = searchParams.get('cohortId') || undefined;
@@ -87,10 +87,9 @@ export async function GET(request: Request) {
     // Log the action
     await logAuditEvent({
       event_type: 'admin_activity',
-      event_category: 'status_change', // Fallback, could be something else
+      event_category: 'status_change',
       event_action: 'admin_referral_list_viewed',
-      user_id: adminUser.id,
-      user_email: adminUser.emailAddresses[0]?.emailAddress,
+      user_id: userId || undefined,
       resource_type: 'referral',
       description: 'Admin viewed referral list',
       metadata: { filters: Object.fromEntries(searchParams.entries()) }

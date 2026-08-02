@@ -10,6 +10,7 @@ import {
   logEmailEvent 
 } from '@/lib/audit-logging';
 import { createNotification } from '@/lib/notifications';
+import { CommissionService } from '@/lib/growth-engine/CommissionService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -255,6 +256,18 @@ export async function POST(request: NextRequest) {
               }
             } catch (err) {
               console.error('Failed to update referrer registration count:', err);
+            }
+
+            // Growth Engine M3: Create commission for referrer (idempotent)
+            try {
+              await CommissionService.createCommission({
+                paymentReference: reference,
+                referralCode: application.referred_by_code,
+                refereeEmail: customerEmail,
+              });
+            } catch (commissionErr) {
+              console.error('Failed to create commission:', commissionErr);
+              // Don't fail the webhook if commission creation fails
             }
           }
 
