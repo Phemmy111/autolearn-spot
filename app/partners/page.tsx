@@ -130,9 +130,9 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 items-center">
-          <div className="space-y-4 sm:space-y-6 lg:space-y-8 flex flex-col justify-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+          <div className="space-y-5 sm:space-y-6 lg:space-y-8 flex flex-col justify-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
               Earn More.
               <span className="text-[#00F5FF]"> Impact More.</span>
@@ -219,9 +219,9 @@ function HeroSection() {
 
 function TrustSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Join our growing community of successful partners</p>
         </div>
@@ -249,9 +249,9 @@ function TrustSection() {
 
 function PartnerTypesSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#070B12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Choose Your Partner Type</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Select the partnership model that suits you best</p>
         </div>
@@ -292,9 +292,9 @@ function PartnerTypesSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Simple steps to start earning</p>
         </div>
@@ -319,9 +319,9 @@ function HowItWorksSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#070B12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">What Partners Say</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Hear from our successful partners</p>
         </div>
@@ -360,9 +360,9 @@ function TestimonialsSection() {
 
 function ActivityFeedSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Real-time partner activity</p>
         </div>
@@ -384,9 +384,9 @@ function ActivityFeedSection() {
 
 function LeaderboardSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#070B12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Top Partners</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Leaderboard of this month</p>
         </div>
@@ -437,9 +437,9 @@ function FAQSection() {
   ];
   
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-4 sm:mb-6 lg:mb-10">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Got questions? We've got answers</p>
         </div>
@@ -472,9 +472,9 @@ function FAQSection() {
 
 function PartnersFooter() {
   return (
-    <footer className="border-t border-[#1f2229] bg-[#070B12] py-8 sm:py-12 lg:py-16">
+    <footer className="border-t border-[#1f2229] bg-[#070B12] py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 mb-6 sm:mb-8 lg:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <Image

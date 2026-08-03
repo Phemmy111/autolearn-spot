@@ -74,4 +74,33 @@ export class CommunityAuthService {
       return { success: false, error: 'Internal server error' };
     }
   }
+
+  static async createCommunityAmbassador(params: { email: string; password: string; full_name: string; phone: string }): Promise<{ success: boolean; user?: any; error?: string }> {
+    try {
+      const passwordHash = this.hashPassword(params.password);
+      
+      const { data: user, error } = await supabaseAdmin
+        .from('community_ambassadors')
+        .insert({
+          email: params.email,
+          password_hash: passwordHash,
+          full_name: params.full_name,
+          phone: params.phone,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[CommunityAuthService] Error creating ambassador:', error);
+        return { success: false, error: 'Failed to create account' };
+      }
+
+      const { password_hash, ...safeUser } = user;
+      return { success: true, user: safeUser };
+    } catch (e) {
+      console.error('[CommunityAuthService] Exception creating ambassador:', e);
+      return { success: false, error: 'Internal server error' };
+    }
+  }
 }
