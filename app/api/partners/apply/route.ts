@@ -9,31 +9,60 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const formData = await request.formData();
     
-    const {
-      full_name,
-      email,
-      phone,
-      whatsapp,
-      state,
-      occupation,
-      motivation,
-      promotion_method,
-      // Optional fields
-      organization,
-      website,
-      facebook,
-      instagram,
-      tiktok,
-      linkedin,
-      youtube,
-      experience
-    } = body;
+    const full_name = formData.get('full_name') as string;
+    const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
+    const whatsapp = formData.get('whatsapp') as string;
+    const state = formData.get('state') as string;
+    const occupation = formData.get('occupation') as string;
+    const motivation = formData.get('motivation') as string;
+    const promotion_method = formData.get('promotion_method') as string;
+    
+    // Optional fields
+    const organization = formData.get('organization') as string | null;
+    const website = formData.get('website') as string | null;
+    const facebook = formData.get('facebook') as string | null;
+    const instagram = formData.get('instagram') as string | null;
+    const tiktok = formData.get('tiktok') as string | null;
+    const linkedin = formData.get('linkedin') as string | null;
+    const youtube = formData.get('youtube') as string | null;
+    const experience = formData.get('experience') as string | null;
+    const passport = formData.get('passport') as File | null;
 
     // Validation
     if (!full_name || !email || !phone || !whatsapp || !state || !occupation || !motivation || !promotion_method) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Handle passport upload if provided
+    let passport_url = null;
+    if (passport && passport.size > 0) {
+      try {
+        const fileExt = passport.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `partner-passports/${fileName}`;
+        
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
+          .storage
+          .from('partner-documents')
+          .upload(filePath, passport);
+        
+        if (uploadError) {
+          console.error('[POST /api/partners/apply] Upload error:', uploadError);
+          // Continue without passport if upload fails
+        } else {
+          const { data: { publicUrl } } = supabaseAdmin
+            .storage
+            .from('partner-documents')
+            .getPublicUrl(filePath);
+          passport_url = publicUrl;
+        }
+      } catch (uploadError) {
+        console.error('[POST /api/partners/apply] Upload exception:', uploadError);
+        // Continue without passport if upload fails
+      }
     }
 
     // Check if application already exists for this email
@@ -72,6 +101,7 @@ export async function POST(request: Request) {
         linkedin,
         youtube,
         experience,
+        passport_url,
         status: 'pending'
       })
       .select()
