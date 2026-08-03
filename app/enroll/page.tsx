@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link } from "next/link";
 import { ArrowLeft, CheckCircle, Lock, Sparkles, User, Mail, Phone, MapPin, Briefcase, Users } from "lucide-react";
@@ -9,6 +9,8 @@ import { getPaymentUrl } from "@/config/payment";
 
 function EnrollForm() {
   const searchParams = useSearchParams();
+  const refCode = searchParams.get("ref") || "";
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -19,29 +21,17 @@ function EnrollForm() {
     occupation: "",
     gender: "",
     referralSource: "",
-    referralCode: ""
+    referralCode: refCode
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const refCode = searchParams.get("ref");
-    if (refCode) {
-      setFormData(prev => ({ ...prev, referralCode: refCode }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
     }
-  }, [searchParams]);
-
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
-          <span className="text-[#b9cacb]">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -129,14 +119,6 @@ function EnrollForm() {
         submit: error instanceof Error ? error.message : "Failed to process enrollment. Please try again." 
       });
       setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
     }
   };
 
@@ -241,102 +223,105 @@ function EnrollForm() {
                   </label>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block">
-                      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
-                        Phone Number *
-                      </span>
-                      <input
-                        type="tel"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        placeholder="08120934828"
-                        className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
-                          errors.phoneNumber 
-                            ? 'border-red-500 focus:border-red-500' 
-                            : 'border-[#1f2229] focus:border-[#00f0ff]'
-                        }`}
-                        required
-                      />
-                      {errors.phoneNumber && (
-                        <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
-                      )}
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="block">
-                      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
-                        WhatsApp Number
-                      </span>
-                      <input
-                        type="tel"
-                        name="whatsappNumber"
-                        value={formData.whatsappNumber}
-                        onChange={handleChange}
-                        placeholder="Same as phone"
-                        className="mt-2 h-12 w-full border border-[#1f2229] bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#00f0ff] focus:bg-[#10151b]"
-                      />
-                    </label>
-                  </div>
+                <div>
+                  <label className="block">
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
+                      Phone Number *
+                    </span>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleChange}
+                      placeholder="e.g., 08012345678"
+                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
+                        errors.phoneNumber 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                      }`}
+                      required
+                    />
+                    {errors.phoneNumber && (
+                      <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>
+                    )}
+                  </label>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block">
-                      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
-                        State *
-                      </span>
-                      <select
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
-                          errors.state 
-                            ? 'border-red-500 focus:border-red-500' 
-                            : 'border-[#1f2229] focus:border-[#00f0ff]'
-                        }`}
-                        required
-                      >
-                        <option value="">Select State</option>
-                        {NIGERIAN_STATES.map(state => (
-                          <option key={state} value={state}>{state}</option>
-                        ))}
-                      </select>
-                      {errors.state && (
-                        <p className="mt-1 text-xs text-red-500">{errors.state}</p>
-                      )}
-                    </label>
-                  </div>
+                <div>
+                  <label className="block">
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
+                      WhatsApp Number
+                    </span>
+                    <input
+                      type="tel"
+                      name="whatsappNumber"
+                      value={formData.whatsappNumber}
+                      onChange={handleChange}
+                      placeholder="e.g., 08012345678"
+                      className="mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] border-[#1f2229] focus:border-[#00f0ff]"
+                    />
+                  </label>
+                </div>
 
-                  <div>
-                    <label className="block">
-                      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
-                        Gender *
-                      </span>
-                      <select
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleChange}
-                        className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
-                          errors.gender 
-                            ? 'border-red-500 focus:border-red-500' 
-                            : 'border-[#1f2229] focus:border-[#00f0ff]'
-                        }`}
-                        required
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                      {errors.gender && (
-                        <p className="mt-1 text-xs text-red-500">{errors.gender}</p>
-                      )}
-                    </label>
-                  </div>
+                <div>
+                  <label className="block">
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
+                      State *
+                    </span>
+                    <select
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
+                        errors.state 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                      }`}
+                      required
+                    >
+                      <option value="">Select your state</option>
+                      <option value="Abia">Abia</option>
+                      <option value="Adamawa">Adamawa</option>
+                      <option value="Akwa Ibom">Akwa Ibom</option>
+                      <option value="Anambra">Anambra</option>
+                      <option value="Bauchi">Bauchi</option>
+                      <option value="Bayelsa">Bayelsa</option>
+                      <option value="Benue">Benue</option>
+                      <option value="Borno">Borno</option>
+                      <option value="Cross River">Cross River</option>
+                      <option value="Delta">Delta</option>
+                      <option value="Ebonyi">Ebonyi</option>
+                      <option value="Edo">Edo</option>
+                      <option value="Ekiti">Ekiti</option>
+                      <option value="Enugu">Enugu</option>
+                      <option value="Gombe">Gombe</option>
+                      <option value="Imo">Imo</option>
+                      <option value="Jigawa">Jigawa</option>
+                      <option value="Kaduna">Kaduna</option>
+                      <option value="Kano">Kano</option>
+                      <option value="Katsina">Katsina</option>
+                      <option value="Kebbi">Kebbi</option>
+                      <option value="Kogi">Kogi</option>
+                      <option value="Kwara">Kwara</option>
+                      <option value="Lagos">Lagos</option>
+                      <option value="Nasarawa">Nasarawa</option>
+                      <option value="Niger">Niger</option>
+                      <option value="Ogun">Ogun</option>
+                      <option value="Ondo">Ondo</option>
+                      <option value="Osun">Osun</option>
+                      <option value="Oyo">Oyo</option>
+                      <option value="Plateau">Plateau</option>
+                      <option value="Rivers">Rivers</option>
+                      <option value="Sokoto">Sokoto</option>
+                      <option value="Taraba">Taraba</option>
+                      <option value="Yobe">Yobe</option>
+                      <option value="Zamfara">Zamfara</option>
+                      <option value="FCT">FCT</option>
+                    </select>
+                    {errors.state && (
+                      <p className="mt-1 text-xs text-red-500">{errors.state}</p>
+                    )}
+                  </label>
                 </div>
 
                 <div>
@@ -352,27 +337,53 @@ function EnrollForm() {
                         errors.occupation 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-[#1f2229] focus:border-[#00f0ff]'
-                        }`}
+                      }`}
                       required
                     >
-                      <option value="">Select Occupation</option>
-                      {OCCUPATIONS.map(occ => (
-                        <option key={occ} value={occ}>{occ}</option>
-                      ))}
+                      <option value="">Select your occupation</option>
+                      <option value="Student">Student</option>
+                      <option value="Freelancer">Freelancer</option>
+                      <option value="Software Developer">Software Developer</option>
+                      <option value="Business Owner">Business Owner</option>
+                      <option value="Marketer">Marketer</option>
+                      <option value="Content Creator">Content Creator</option>
+                      <option value="Data Analyst">Data Analyst</option>
+                      <option value="Project Manager">Project Manager</option>
+                      <option value="Consultant">Consultant</option>
+                      <option value="Other">Other</option>
                     </select>
                     {errors.occupation && (
                       <p className="mt-1 text-xs text-red-500">{errors.occupation}</p>
                     )}
                   </label>
                 </div>
-              </div>
 
-              {/* Referral Information */}
-              <div className="space-y-4 pt-6 border-t border-[#1f2229]">
-                <h2 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#dbfcff] flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Referral Information
-                </h2>
+                <div>
+                  <label className="block">
+                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
+                      Gender *
+                    </span>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
+                        errors.gender 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                      }`}
+                      required
+                    >
+                      <option value="">Select your gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    {errors.gender && (
+                      <p className="mt-1 text-xs text-red-500">{errors.gender}</p>
+                    )}
+                  </label>
+                </div>
 
                 <div>
                   <label className="block">
@@ -390,10 +401,17 @@ function EnrollForm() {
                       }`}
                       required
                     >
-                      <option value="">Select Option</option>
-                      {REFERRAL_SOURCES.map(source => (
-                        <option key={source} value={source}>{source}</option>
-                      ))}
+                      <option value="">Select an option</option>
+                      <option value="Social Media">Social Media</option>
+                      <option value="Friend/Colleague">Friend/Colleague</option>
+                      <option value="Google Search">Google Search</option>
+                      <option value="YouTube">YouTube</option>
+                      <option value="LinkedIn">LinkedIn</option>
+                      <option value="Twitter/X">Twitter/X</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="WhatsApp">WhatsApp</option>
+                      <option value="Blog/Article">Blog/Article</option>
+                      <option value="Other">Other</option>
                     </select>
                     {errors.referralSource && (
                       <p className="mt-1 text-xs text-red-500">{errors.referralSource}</p>
@@ -404,137 +422,118 @@ function EnrollForm() {
                 <div>
                   <label className="block">
                     <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
-                      Referral Code
+                      Referral Code (Optional)
                     </span>
                     <input
                       type="text"
                       name="referralCode"
                       value={formData.referralCode}
                       onChange={handleChange}
-                      placeholder="Optional 8-character code"
-                      disabled={!!searchParams.get("ref")}
+                      placeholder="Enter referral code"
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
-                        searchParams.get("ref") 
-                          ? 'border-[#2a2d35] text-[#5d5f63] cursor-not-allowed' 
-                          : errors.referralCode 
-                            ? 'border-red-500 focus:border-red-500' 
-                            : 'border-[#1f2229] focus:border-[#00f0ff]'
+                        errors.referralCode 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-[#1f2229] focus:border-[#00f0ff]'
                       }`}
                     />
                     {errors.referralCode && (
                       <p className="mt-1 text-xs text-red-500">{errors.referralCode}</p>
                     )}
-                    {searchParams.get("ref") && (
-                      <p className="mt-1 text-xs text-[#00f0ff]">
-                        Referral code applied from link
-                      </p>
-                    )}
                   </label>
                 </div>
               </div>
 
-              {/* Payment Summary */}
-              <div className="border border-[#1f2229] bg-[#0c0e12] p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5d5f63]">
-                      Total Investment
-                    </p>
-                    <p className="mt-1 text-2xl font-mono font-bold text-[#00f0ff]">
-                      ₦{DIRECT_ENROLLMENT_CONFIG.price.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 text-[#b9cacb]">
-                    <Lock className="h-4 w-4" />
-                    <span className="font-mono text-[10px]">Secure via Paystack</span>
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-12 flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#00363a] border-t-transparent" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Proceed to Payment
-                      <ArrowLeft className="h-4 w-4 rotate-180" />
-                    </>
-                  )}
-                </button>
-              </div>
-
               {errors.submit && (
-                <div className="p-4 border border-red-500/50 bg-red-500/10 text-red-500 text-sm">
-                  {errors.submit}
+                <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4">
+                  <p className="text-sm text-red-500">{errors.submit}</p>
                 </div>
               )}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-4 bg-[#00f0ff] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="h-4 w-4 border-2 border-[#050505] border-t-transparent rounded-full animate-spin" />
+                    Processing...
+                  </span>
+                ) : (
+                  "Continue to Payment"
+                )}
+              </button>
             </form>
           </div>
 
-          {/* Right Column - Program Details */}
+          {/* Right Column - Information */}
           <div className="space-y-8">
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6">
-              <h2 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#dbfcff] mb-6 flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-[#00f0ff]" />
-                What You'll Get
-              </h2>
-              <ul className="space-y-3">
-                {DIRECT_ENROLLMENT_CONFIG.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 mt-0.5">
-                      <CheckCircle className="h-3 w-3 text-[#00f0ff]" />
-                    </div>
-                    <span className="text-sm text-[#b9cacb]">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6">
-              <h2 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#dbfcff] mb-4">
-                Program Overview
-              </h2>
+            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+              <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Program Details</h2>
               <div className="space-y-4">
-                <div className="flex items-center justify-between pb-4 border-b border-[#1f2229]">
-                  <span className="text-sm text-[#b9cacb]">Duration</span>
-                  <span className="font-mono text-sm text-[#e2e2e8]">4 Weeks</span>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-[#e2e2e8]">4-Week Program</p>
+                    <p className="text-xs text-[#b9cacb]">Hands-on n8n automation training</p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between pb-4 border-b border-[#1f2229]">
-                  <span className="text-sm text-[#b9cacb]">Live Sessions</span>
-                  <span className="font-mono text-sm text-[#e2e2e8]">12 Sessions</span>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-[#e2e2e8]">Live Sessions</p>
+                    <p className="text-xs text-[#b9cacb]">Every Saturday, 2 hours</p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between pb-4 border-b border-[#1f2229]">
-                  <span className="text-sm text-[#bbacb]">Projects</span>
-                  <span className="font-mono text-sm text-[#e2e8]">10+ Workflows</span>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-[#e2e2e8]">10+ Real Projects</p>
+                    <p className="text-xs text-[#b9cacb]">Build production-ready workflows</p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[#b9cacb]">Certificate</span>
-                  <span className="font-mono text-sm text-[#e2e2e8]">Included</span>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-[#e2e2e8]">Certificate</p>
+                    <p className="text-xs text-[#b9cacb]">Verified credential upon completion</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6">
-              <h2 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#dbfcff] mb-4">
-                Need Help?
-              </h2>
-              <p className="text-sm text-[#b9cacb] mb-4">
-                Have questions about the program? Our team is here to help you make the right decision.
-              </p>
-              <a
-                href="https://wa.me/2348120934828"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-[#00f0ff] hover:text-[#00f0ff]/80 transition-colors"
-              >
-                <span>Chat on WhatsApp</span>
-                <ArrowLeft className="h-4 w-4 rotate-[-45deg]" />
-              </a>
+            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+              <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">What You'll Learn</h2>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <span>n8n Fundamentals & Setup</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <span>AI-Powered Workflows</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <span>Deployment on Railway</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <span>Capstone Project</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+              <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Investment</h2>
+              <div className="text-center">
+                <div className="text-4xl font-bold text-[#00f0ff] mb-2">₦8,000</div>
+                <p className="text-sm text-[#b9cacb] mb-4">One-time payment</p>
+                <div className="flex items-center justify-center gap-2 text-xs text-[#b9cacb]">
+                  <Lock className="h-4 w-4" />
+                  <span>Secure payment via Paystack</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -542,18 +541,6 @@ function EnrollForm() {
     </div>
   );
 }
-
-const NIGERIAN_STATES = [
-  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River", 
-  "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", 
-  "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", 
-  "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara", "FCT"
-];
-
-const OCCUPATIONS = [
-  "Student", "Freelancer", "Software Developer", "Business Owner", "Marketer", 
-  "Content Creator", "Data Analyst", "Project Manager", "Consultant", "Other"
-];
 
 const REFERRAL_SOURCES = [
   "Social Media", "Friend/Colleague", "Google Search", "YouTube", "LinkedIn",
