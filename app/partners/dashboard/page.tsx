@@ -346,28 +346,28 @@ export default function PartnerDashboard() {
                   <Wallet className="h-4 w-4 text-[#00F5FF]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Available Balance</span>
                 </div>
-                <div className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableBalance || 0}</div>
+                <div className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</div>
               </div>
               <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-[#e2e2e8]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Pending Earnings</span>
                 </div>
-                <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings || 0}</div>
+                <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</div>
               </div>
               <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-4 w-4 text-[#e2e2e8]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Total Earned</span>
                 </div>
-                <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.totalEarned || 0}</div>
+                <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</div>
               </div>
               <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-[#e2e2e8]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Total Referrals</span>
                 </div>
-                <div className="text-2xl font-bold text-[#e2e2e8]">{stats?.totalReferrals || 0}</div>
+                <div className="text-2xl font-bold text-[#e2e2e8]">{stats?.totalRegistrations || 0}</div>
               </div>
             </div>
 
@@ -406,7 +406,17 @@ export default function PartnerDashboard() {
                       Monthly Earnings
                     </h3>
                     <div className="h-48 flex items-end gap-2">
-                      {[15, 25, 20, 35, 30, 45, 40, 55, 50, 65, 60, 75].map((height, i) => (
+                      {data?.recentCommissions?.slice(0, 12).map((commission: any, i: number) => {
+                        const height = Math.min((commission.amount / 2000) * 100, 100);
+                        return (
+                          <div
+                            key={i}
+                            className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
+                            style={{ height: `${height}%` }}
+                            title={`Commission ${i + 1}: ₦${commission.amount}`}
+                          />
+                        );
+                      }) || [15, 25, 20, 35, 30, 45, 40, 55, 50, 65, 60, 75].map((height, i) => (
                         <div
                           key={i}
                           className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
@@ -431,28 +441,28 @@ export default function PartnerDashboard() {
                       <div>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#b9cacb]">Clicks</span>
-                          <span className="text-[#e2e2e8]">{stats?.clicks || 0}</span>
+                          <span className="text-[#e2e2e8]">{stats?.totalClicks || 0}</span>
                         </div>
                         <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
-                          <div className="h-full bg-[#00F5FF] rounded-full" style={{ width: "75%" }} />
+                          <div className="h-full bg-[#00F5FF] rounded-full" style={{ width: `${Math.min((stats?.totalClicks || 0) / 100 * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#b9cacb]">Conversions</span>
-                          <span className="text-[#e2e2e8]">{stats?.conversions || 0}</span>
+                          <span className="text-[#e2e2e8]">{stats?.totalSuccessfulPurchases || 0}</span>
                         </div>
                         <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-500 rounded-full" style={{ width: "45%" }} />
+                          <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min((stats?.totalSuccessfulPurchases || 0) / (stats?.totalRegistrations || 1) * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#b9cacb]">Success Rate</span>
-                          <span className="text-[#e2e2e8]">{stats?.successRate || 0}%</span>
+                          <span className="text-[#e2e2e8]">{stats?.totalRegistrations > 0 ? Math.round((stats?.totalSuccessfulPurchases || 0) / stats?.totalRegistrations * 100) : 0}%</span>
                         </div>
                         <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
-                          <div className="h-full bg-green-500 rounded-full" style={{ width: `${stats?.successRate || 0}%` }} />
+                          <div className="h-full bg-green-500 rounded-full" style={{ width: `${stats?.totalRegistrations > 0 ? Math.round((stats?.totalSuccessfulPurchases || 0) / stats?.totalRegistrations * 100) : 0}%` }} />
                         </div>
                       </div>
                     </div>
@@ -466,25 +476,22 @@ export default function PartnerDashboard() {
                     Recent Activity
                   </h3>
                   <div className="space-y-4">
-                    {[
-                      { action: "New referral", user: "John Doe", time: "2 hours ago", icon: Users },
-                      { action: "Commission earned", user: "₦1,500", time: "5 hours ago", icon: DollarSign },
-                      { action: "Link clicked", user: "25 clicks", time: "1 day ago", icon: MousePointerClick },
-                    ].map((activity, i) => {
-                      const Icon = activity.icon;
-                      return (
-                        <div key={i} className="flex items-center gap-4 p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                    {data?.recentCommissions && data.recentCommissions.length > 0 ? (
+                      data.recentCommissions.slice(0, 5).map((commission: any) => (
+                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
                           <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
-                            <Icon className="h-5 w-5 text-[#00F5FF]" />
+                            <DollarSign className="h-5 w-5 text-[#00F5FF]" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-[#e2e2e8]">{activity.action}</p>
-                            <p className="text-xs text-[#b9cacb]">{activity.user}</p>
+                            <p className="text-sm font-medium text-[#e2e2e8]">Commission earned</p>
+                            <p className="text-xs text-[#b9cacb]">₦{commission.amount?.toLocaleString()}</p>
                           </div>
-                          <p className="text-xs text-[#b9cacb]">{activity.time}</p>
+                          <p className="text-xs text-[#b9cacb]">{new Date(commission.created_at).toLocaleDateString()}</p>
                         </div>
-                      );
-                    })}
+                      ))
+                    ) : (
+                      <p className="text-sm text-[#b9cacb] text-center py-4">No recent activity</p>
+                    )}
                   </div>
                 </div>
               </>
@@ -603,24 +610,27 @@ export default function PartnerDashboard() {
                 <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
                   <h3 className="font-semibold text-[#e2e2e8] mb-4">Withdrawal History</h3>
                   <div className="space-y-4">
-                    {[
-                      { amount: "₦10,000", status: "Paid", date: "Jan 10, 2026" },
-                      { amount: "₦5,000", status: "Pending", date: "Jan 20, 2026" },
-                    ].map((withdrawal, i) => (
-                      <div key={i} className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
-                        <div>
-                          <p className="text-sm font-medium text-[#e2e2e8]">{withdrawal.amount}</p>
-                          <p className="text-xs text-[#b9cacb]">{withdrawal.date}</p>
+                    {data?.withdrawals && data.withdrawals.length > 0 ? (
+                      data.withdrawals.map((withdrawal: any) => (
+                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                          <div>
+                            <p className="text-sm font-medium text-[#e2e2e8]">₦{withdrawal.amount?.toLocaleString()}</p>
+                            <p className="text-xs text-[#b9cacb]">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <span className={`px-3 py-1 text-xs rounded-full ${
+                            withdrawal.status === "completed" 
+                              ? "bg-green-500/10 text-green-400" 
+                              : withdrawal.status === "pending"
+                              ? "bg-yellow-500/10 text-yellow-400"
+                              : "bg-red-500/10 text-red-400"
+                          }`}>
+                            {withdrawal.status}
+                          </span>
                         </div>
-                        <span className={`px-3 py-1 text-xs rounded-full ${
-                          withdrawal.status === "Paid" 
-                            ? "bg-green-500/10 text-green-400" 
-                            : "bg-yellow-500/10 text-yellow-400"
-                        }`}>
-                          {withdrawal.status}
-                        </span>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-sm text-[#b9cacb] text-center py-4">No withdrawal history yet</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -630,32 +640,32 @@ export default function PartnerDashboard() {
               <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
                 <h3 className="font-semibold text-[#e2e2e8] mb-4">Marketing Kit</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {[
-                    { name: "Flyers", icon: FileText, downloads: 125 },
-                    { name: "Videos", icon: Download, downloads: 89 },
-                    { name: "Posters", icon: FileText, downloads: 67 },
-                    { name: "Referral Guide", icon: FileText, downloads: 203 },
-                    { name: "WhatsApp Captions", icon: MessageCircle, downloads: 156 },
-                    { name: "Marketing Templates", icon: FileText, downloads: 98 },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <div key={item.name} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all cursor-pointer">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
-                            <Icon className="h-5 w-5 text-[#00F5FF]" />
+                  {data?.marketingResources && data.marketingResources.length > 0 ? (
+                    data.marketingResources.map((item: any) => {
+                      const Icon = FileText; // Default icon, can be customized based on type
+                      return (
+                        <div key={item.id} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all cursor-pointer">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
+                              <Icon className="h-5 w-5 text-[#00F5FF]" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-[#e2e2e8]">{item.name}</p>
+                              <p className="text-xs text-[#b9cacb]">{item.downloads || 0} downloads</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium text-[#e2e2e8]">{item.name}</p>
-                            <p className="text-xs text-[#b9cacb]">{item.downloads} downloads</p>
-                          </div>
+                          <button 
+                            onClick={() => window.open(item.url, '_blank')}
+                            className="w-full py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors"
+                          >
+                            Download
+                          </button>
                         </div>
-                        <button className="w-full py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors">
-                          Download
-                        </button>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  ) : (
+                    <p className="text-sm text-[#b9cacb] text-center py-4 col-span-2">No marketing resources available</p>
+                  )}
                 </div>
               </div>
             )}

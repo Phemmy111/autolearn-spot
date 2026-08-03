@@ -78,6 +78,13 @@ export async function GET(request: Request) {
       .eq('partner_id', partner.id)
       .eq('read', false);
 
+    // Get marketing resources
+    const { data: marketingResources } = await supabaseAdmin
+      .from('marketing_materials')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
     return NextResponse.json({
       success: true,
       partner: {
@@ -108,7 +115,8 @@ export async function GET(request: Request) {
       recentCommissions,
       withdrawals,
       notifications,
-      unreadCount: unreadCount || 0
+      unreadCount: unreadCount || 0,
+      marketingResources
     });
 
   } catch (error) {
