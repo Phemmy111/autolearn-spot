@@ -398,19 +398,26 @@ function Navigation() {
         </div>
       </div>
 
+      {/* Mobile Menu Sidebar - Following student dashboard pattern */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-[#1f2229] bg-[#0c0e12]">
-          <div className="px-4 py-4 space-y-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed right-0 top-0 h-full w-64 bg-[#0c0e12] border-l border-[#1f2229] p-6">
+            <div className="flex flex-col gap-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#111317] hover:text-[#00f0ff]"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}

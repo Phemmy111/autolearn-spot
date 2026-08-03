@@ -51,7 +51,7 @@ export default function AdminPartnersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('pending');
   const [showAddPartnerModal, setShowAddPartnerModal] = useState(false);
   const [newPartner, setNewPartner] = useState({
     full_name: '',
@@ -202,6 +202,11 @@ export default function AdminPartnersPage() {
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  // Only show pending applications by default
+  const displayApplications = statusFilter === 'all' 
+    ? filteredApplications.filter(app => app.status === 'pending')
+    : filteredApplications;
 
   const getStatusColor = (status: string) => {
     switch (status) {
