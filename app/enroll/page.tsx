@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link } from "next/link";
 import { ArrowLeft, CheckCircle, Lock, Sparkles, User, Mail, Phone, MapPin, Briefcase, Users } from "lucide-react";
@@ -560,6 +560,19 @@ const REFERRAL_SOURCES = [
   "Twitter/X", "Instagram", "WhatsApp", "Blog/Article", "Other"
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default function EnrollPage() {
-  return <EnrollForm />;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
+          <span className="text-[#b9cacb]">Loading...</span>
+        </div>
+      </div>
+    }>
+      <EnrollForm />
+    </Suspense>
+  );
 }
