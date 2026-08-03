@@ -106,16 +106,42 @@ export async function PUT(request: Request) {
     const passwordHash = CommunityAuthService.hashPassword(temporaryPassword);
     console.log('[PUT /api/admin/partners/applications] Generated password hash:', passwordHash.substring(0, 20) + '...');
 
-    // Update community ambassador password
-    const { error: updateError } = await supabaseAdmin
+    // First, try to create the ambassador account if it doesn't exist
+    const { data: existingAmbassador } = await supabaseAdmin
       .from('community_ambassadors')
-      .update({ password_hash: passwordHash })
-      .eq('email', application.email);
+      .select('id')
+      .eq('email', application.email)
+      .single();
 
-    if (updateError) {
-      console.error('Failed to update ambassador password:', updateError);
-      // Continue anyway to send email with current password
+    if (!existingAmbassador) {
+      console.log('[PUT /api/admin/partners/applications] Ambassador account not found, creating new one');
+      const { error: createError } = await supabaseAdmin
+        .from('community_ambassadors')
+        .insert({
+          email: application.email,
+          password_hash: passwordHash,
+          full_name: application.full_name,
+          phone: application.phone,
+          status: 'active'
+        });
+
+      if (createError) {
+        console.error('[PUT /api/admin/partners/applications] Failed to create ambassador account:', createError);
+        return NextResponse.json({ error: 'Failed to create ambassador account' }, { status: 500 });
+      }
+      console.log('[PUT /api/admin/partners/applications] Successfully created ambassador account');
     } else {
+      // Update existing password
+      console.log('[PUT /api/admin/partners/applications] Ambassador account exists, updating password');
+      const { error: updateError } = await supabaseAdmin
+        .from('community_ambassadors')
+        .update({ password_hash: passwordHash })
+        .eq('email', application.email);
+
+      if (updateError) {
+        console.error('Failed to update ambassador password:', updateError);
+        return NextResponse.json({ error: 'Failed to update ambassador password' }, { status: 500 });
+      }
       console.log('[PUT /api/admin/partners/applications] Password updated successfully in database');
     }
 
