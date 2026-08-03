@@ -106,15 +106,15 @@ export class AmbassadorService {
 
         // Create community ambassador account with credentials
         const temporaryPassword = Math.random().toString(36).slice(-8);
-        const { error: authError } = await CommunityAuthService.createCommunityAmbassador({
+        const authResult = await CommunityAuthService.createCommunityAmbassador({
           email: application.email,
           password: temporaryPassword,
           full_name: application.full_name,
           phone: application.phone
         });
 
-        if (authError) {
-          console.error('Failed to create community ambassador account:', authError);
+        if (!authResult.success) {
+          console.error('Failed to create community ambassador account:', authResult.error);
           // Continue anyway as partner record was created
         }
 

@@ -33,9 +33,11 @@ export async function POST(request: Request) {
     if (!adminId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
+    console.log('[POST /api/admin/partners/applications] Request body:', body);
     const { applicationId, action, notes } = body;
 
     if (!applicationId || !action || !['approve', 'reject'].includes(action)) {
+      console.error('[POST /api/admin/partners/applications] Invalid payload:', { applicationId, action });
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
@@ -45,6 +47,8 @@ export async function POST(request: Request) {
       adminId,
       notes
     });
+
+    console.log('[POST /api/admin/partners/applications] Result:', result);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

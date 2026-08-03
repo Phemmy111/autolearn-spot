@@ -424,9 +424,9 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
-          <div className="space-y-5 sm:space-y-6 lg:space-y-8 flex flex-col justify-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 items-center">
+          <div className="space-y-3 sm:space-y-4 lg:space-y-6 flex flex-col justify-center">
             <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2">
               <Sparkles className="h-4 w-4 text-[#00f0ff]" />
               <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
@@ -472,7 +472,7 @@ function HeroSection() {
 
 function InfoCards() {
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
@@ -491,7 +491,7 @@ function InfoCards() {
 
 function StatsSection() {
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-[#050505]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {stats.map((stat) => (
@@ -508,10 +508,10 @@ function StatsSection() {
 
 function EnrollmentSection() {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-[#0c0e12]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 lg:p-8 xl:p-10">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
+          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-4 sm:mb-6">
               Enroll Now
             </h2>
@@ -578,9 +578,9 @@ function EnrollmentSection() {
 
 function ScholarshipSection() {
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-[#050505]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 lg:p-8 xl:p-10">
+        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8] mb-2">
@@ -605,9 +605,9 @@ function ScholarshipSection() {
 
 function CurriculumSection() {
   return (
-    <section id="curriculum" className="py-12 sm:py-16 lg:py-20 bg-[#0c0e12]">
+    <section id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+        <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             Curriculum
           </h2>
@@ -663,9 +663,9 @@ function CurriculumSection() {
 
 function FeaturesSection() {
   return (
-    <section id="tools" className="py-12 sm:py-16 lg:py-20 bg-[#050505]">
+    <section id="tools" className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+        <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             What You'll Learn
           </h2>
@@ -695,9 +695,9 @@ function FeaturesSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-[#0c0e12]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+        <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             What Our Students Say
           </h2>
@@ -723,7 +723,7 @@ function TestimonialsSection() {
 
 function SocialProofSection() {
   return (
-    <section className="py-16 sm:py-20 bg-[#050505]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <LiveActivityFeed />
@@ -735,7 +735,7 @@ function SocialProofSection() {
 
 function TrustBadgesSection() {
   return (
-    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 lg:gap-4">
           {trustBadges.map((badge) => {
@@ -775,10 +775,10 @@ function FAQSection() {
   ]
 
   return (
-    <section id="faq" className="py-16 sm:py-20 bg-[#050505]">
+    <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-4 sm:mb-6 lg:mb-8">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
               Frequently Asked Questions
             </h2>
@@ -813,9 +813,9 @@ function FAQSection() {
 
 function ContactSection() {
   return (
-    <section className="py-12 sm:py-16 lg:py-20 bg-[#050505]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
+        <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             Get In Touch
           </h2>
@@ -867,9 +867,9 @@ function ContactSection() {
 
 function Footer() {
   return (
-    <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-12 sm:py-16">
+    <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-6 sm:py-8 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <Image
