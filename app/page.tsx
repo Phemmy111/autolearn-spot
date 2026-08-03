@@ -1,171 +1,104 @@
 "use client";
 import { useAuth } from '@clerk/nextjs';
 import {
-  Bot,
-  BrainCircuit,
-  Calendar,
   CheckCircle,
-  CreditCard,
-  Database,
-  GraduationCap,
-  GitFork,
-  Infinity,
-  Mail,
-  MessageCircle,
-  Play,
-  Plus,
-  Rocket,
-  Send,
-  Server,
-  Sheet,
   Sparkles,
-  Terminal,
-  Trophy,
-  UserCheck,
+  Play,
+  GraduationCap,
+  Users,
+  Award,
+  Clock,
+  Video,
+  FileText,
+  MessageCircle,
+  Globe,
+  Menu,
+  X,
+  Rocket,
   Webhook,
-  Wrench,
+  BrainCircuit,
+  GitFork,
+  Sheet,
+  Plus,
+  Repeat,
+  Infinity
 } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
-import { AutolearnBot } from '@/components/autolearn-bot'
+import { useState } from 'react'
+import { StudentTestimonialCard } from '@/components/student-testimonial-card'
+import { LiveActivityFeed } from '@/components/live-activity-feed'
+import { SocialIcon } from '@/components/social-icon'
+import { socialLinks } from '@/config/social'
+import { studentTestimonials } from '@/config/testimonials'
+import './page.css'
 
-import { EnrollModal } from '@/components/enroll-modal'
-import { PreviewVideoModal } from '@/components/preview-video-modal'
-import { SectionFadeController } from '@/components/section-fade-controller'
-import { ThreeAiBackground } from '@/components/three-ai-background'
-import { ThreeAutomationField } from '@/components/three-automation-field'
-import { ToolsCarousel } from '@/components/tools-carousel'
-import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
-
-const navItems = ['Curriculum', 'Tools', 'Why', 'FAQ', 'Scholarship', 'Partners'];
-
-const stats = [
-  ['10+', 'Real workflows deployed'],
-  ['12', 'Live hands-on sessions'],
-  ['4 weeks', 'Program duration'],
-  ['100%', 'Practical, no fluff'],
+const navItems = [
+  { name: 'Curriculum', href: '#curriculum' },
+  { name: 'Tools', href: '#tools' },
+  { name: 'Why', href: '#why' },
+  { name: 'FAQ', href: '#faq' },
+  { name: 'Partners', href: '/partners' },
 ]
 
-const infoCards = [
-  {
-    icon: Calendar,
-    title: 'Schedule',
-    body: 'Mon, Wed, Fri — 30 mins each session',
-  },
-  {
-    icon: Trophy,
-    title: 'Certificate',
-    body: 'Issued by Moon Space Network on completion',
-  },
-  {
-    icon: CreditCard,
-    title: 'Investment',
-    body: '₦8,000 — Full access, all 12 sessions',
-  },
+const stats = [
+  { value: '10+', label: 'Real Workflows Built' },
+  { value: '12', label: 'Hands-on Sessions' },
+  { value: '4 Weeks', label: 'Program Duration' },
+  { value: '100%', label: 'Practical' },
+]
+
+const enrollmentBenefits = [
+  'Lifetime access',
+  'Live Saturday classes',
+  'Videos',
+  'Practical projects',
+  'Quizzes',
+  'Assignments',
+  'Certificate',
+  'Community',
 ]
 
 const curriculumWeeks = [
   {
     step: '01',
     title: 'n8n Fundamentals',
-    phase: 'WEEK_1',
+    phase: 'WEEK 1',
     body: 'Build your first workflow from scratch.',
     items: ['Theory + Account Setup', 'Form -> Email Automation', 'Add Google Sheets'],
   },
   {
     step: '02',
     title: 'AI-Powered Workflows',
-    phase: 'WEEK_2',
+    phase: 'WEEK 2',
     body: 'Connect ChatGPT to your automations.',
     items: ['AI Telegram Bot', 'AI Email Auto-Responder', 'AI Content Summarizer'],
   },
   {
     step: '03',
     title: 'Deploy & Scale',
-    phase: 'WEEK_3',
+    phase: 'WEEK 3',
     body: 'Take your workflows live on Railway.',
     items: ['Deploy n8n on Railway', 'AI Customer Support Bot', 'Lead Capture + AI Qualifier'],
   },
   {
     step: '04',
     title: 'Capstone Project',
-    phase: 'WEEK_4',
+    phase: 'WEEK 4',
     body: 'Build a full product and get certified.',
     items: ['Social Media Content Bot', 'Capstone Build Day', 'Presentation + Certificate'],
     active: true,
   },
 ]
 
-const whyCards = [
-  {
-    icon: CheckCircle,
-    title: '100% Practical',
-    body: 'No slides and lectures. Every session is a live workflow you build and deploy.',
-  },
-  {
-    icon: Sparkles,
-    title: 'AI-Native Training',
-    body: 'ChatGPT, OpenRouter, Claude — you learn how to wire AI into real business workflows from Day 4.',
-  },
-  {
-    icon: Rocket,
-    title: 'Deploy Live in Week 3',
-    body: 'Your automation goes to production on Railway. Real URL. Real users. Not a sandbox toy.',
-  },
-  {
-    icon: GraduationCap,
-    title: 'MSN Certificate',
-    body: 'Earn a verified certificate from Moon Space Network to display on LinkedIn and your portfolio.',
-  },
-  {
-    icon: UserCheck,
-    title: 'Direct Instructor Access',
-    body: 'You get direct Q&A time with Femi. No generic support queues. Get unblocked fast.',
-  },
-  {
-    icon: Infinity,
-    title: 'Lifetime Recordings',
-    body: 'Miss a session? Replay all 12 recorded sessions forever at your own pace.',
-  },
-]
-
-const faqs = [
-  {
-    question: 'Do I need coding experience?',
-    answer:
-      'No. AutoLearn Spot is 100% beginner-friendly. n8n is visual — no coding required. Many learners had zero technical background before joining.',
-  },
-  {
-    question: 'What if I miss a session?',
-    answer:
-      'All 12 sessions are recorded and available for lifetime access. You can catch up anytime, though live sessions offer real-time Q&A.',
-  },
-  {
-    question: 'Is the certificate recognized?',
-    answer:
-      'Yes. The certificate is issued by Moon Space Network, a trusted organization. You can display it on LinkedIn and professional profiles.',
-  },
-  {
-    question: 'What payment methods do you accept?',
-    answer:
-      'We use Paystack for secure payments — Visa, Mastercard, bank transfer, or USSD. All transactions are encrypted.',
-  },
-  {
-    question: 'Can I get a refund?',
-    answer: "We offer a full refund within the first 3 days if you're not satisfied. No questions asked.",
-  },
-  {
-    question: 'How long do I have access?',
-    answer: 'Lifetime. Once enrolled, you have access to all 12 recordings and any future updates to the curriculum.',
-  },
-]
-
-const instructorStats = [
-  { icon: Wrench, title: '10+ Production Projects' },
-  { icon: Server, title: 'Flutter & React Expert' },
-  { icon: BrainCircuit, title: 'AI Integration Specialist' },
-  { icon: GraduationCap, title: 'Educator & Trainer' },
+const whatYouGet = [
+  { icon: Infinity, title: 'Lifetime Access', description: 'Access all content forever' },
+  { icon: Rocket, title: 'Real Projects', description: 'Build 10+ production workflows' },
+  { icon: Users, title: 'Community', description: 'Join a network of automation experts' },
+  { icon: GraduationCap, title: 'Certificate', description: 'Verified credential from Moon Space Network' },
+  { icon: MessageCircle, title: 'Support', description: 'Direct access to instructors' },
+  { icon: FileText, title: 'Quizzes', description: 'Test your knowledge with assessments' },
+  { icon: Award, title: 'Partner Opportunity', description: 'Earn commissions through referrals' },
+  { icon: Video, title: 'Recorded Sessions', description: 'Never miss a class with lifetime recordings' },
 ]
 
 const workflowNodes = [
@@ -218,30 +151,140 @@ const workflowNodes = [
 
 const workflowLog = ['Form submitted', 'AI score: 94%', 'Student added to sheet']
 
-function CornerButton({
-  children,
-  variant = 'primary',
-  className = '',
-}: {
-  children: ReactNode
-  variant?: 'primary' | 'secondary'
-  className?: string
-}) {
+
+
+const faqs = [
+  {
+    question: 'Do I need coding experience?',
+    answer: 'No. AutoLearn Spot is 100% beginner-friendly. n8n is visual — no coding required. Many learners had zero technical background before joining.',
+  },
+  {
+    question: 'What if I miss a session?',
+    answer: 'All 12 sessions are recorded and available for lifetime access. You can catch up anytime, though live sessions offer real-time Q&A.',
+  },
+  {
+    question: 'Is the certificate recognized?',
+    answer: 'Yes. The certificate is issued by Moon Space Network, a trusted organization. You can display it on LinkedIn and professional profiles.',
+  },
+  {
+    question: 'What payment methods do you accept?',
+    answer: 'We use Paystack for secure payments — Visa, Mastercard, bank transfer, or USSD. All transactions are encrypted.',
+  },
+  {
+    question: 'Can I get a refund?',
+    answer: "We offer a full refund within the first 3 days if you're not satisfied. No questions asked.",
+  },
+  {
+    question: 'How long do I have access?',
+    answer: 'Lifetime. Once enrolled, you have access to all 12 recordings and any future updates to the curriculum.',
+  },
+]
+
+function Navigation() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isSignedIn } = useAuth()
+
   return (
-    <button
-      className={
-        variant === 'primary'
-          ? `corner-accent blueprint-cta relative inline-flex items-center justify-center gap-2 overflow-hidden border border-cyan-300 bg-[#00f0ff] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] ${className}`
-          : `inline-flex items-center justify-center gap-2 border border-cyan-300 bg-transparent px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 ${className}`
-      }
-    >
-      {children}
-    </button>
+    <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff] group-hover:border-[#00f0ff] transition-colors">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+              AutoLearn Spot
+            </span>
+          </Link>
+
+          <div className="hidden md:flex items-center gap-8">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          <div className="hidden md:flex items-center gap-4">
+            {isSignedIn ? (
+              <Link
+                href="/dashboard"
+                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              >
+                Student Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              >
+                Login
+              </Link>
+            )}
+            <Link
+              href="/enroll"
+              className="flex items-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+            >
+              Enroll Now — ₦8,000
+            </Link>
+          </div>
+
+          <button
+            className="md:hidden text-[#b9cacb]"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+      </div>
+
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-[#1f2229] bg-[#0c0e12]">
+          <div className="px-4 py-4 space-y-3">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+            {isSignedIn ? (
+              <Link
+                href="/dashboard"
+                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Student Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
+            <Link
+              href="/enroll"
+              className="block w-full text-center border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a]"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Enroll Now — ₦8,000
+            </Link>
+          </div>
+        </div>
+      )}
+    </nav>
   )
 }
-
-const primaryCtaClass =
-  'corner-accent blueprint-cta relative inline-flex items-center justify-center gap-2 overflow-hidden border border-cyan-300 bg-[#00f0ff] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]'
 
 function WorkflowNode({
   node,
@@ -420,577 +463,463 @@ function N8nWorkflowPanel() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="truncate font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8]">
+                    <h3 className="trunc... font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8]">
                       {node.label}
                     </h3>
-                    <span className="workflow-status-dot h-2 w-2 shrink-0 rounded-full bg-[#00f0ff]" />
+                    <span className="workflow-status-dot h-2 w-2 rounded-full bg-[#00f0ff]" />
                   </div>
-                  <p className="mt-1 truncate font-mono text-[10px] text-[#b9cacb]">{node.detail}</p>
+                  <p className="mt-1 font-mono text-[10px] text-[#b9cacb]">{node.detail}</p>
                 </div>
-                {index < workflowNodes.length - 1 ? (
-                  <span className="workflow-mobile-packet absolute -bottom-3 left-[21px] h-2 w-2 rotate-45 bg-[#00f0ff]" />
-                ) : null}
               </div>
             )
           })}
         </div>
+      </div>
+    </div>
+  )
+}
 
-        <div className="mt-4 border border-[#1f2229] bg-[#111317]/95 p-3">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#b9cacb]">Execution Log</span>
-            <span className="workflow-status-dot h-2 w-2 bg-[#00f0ff]" />
+function HeroSection() {
+  return (
+    <section className="relative min-h-screen flex items-center bg-[#050505] overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
+      <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1">
+              <Sparkles className="h-4 w-4 text-[#00f0ff]" />
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+                4-Week Hands-On Training
+              </span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#e2e2e8] leading-tight">
+              BUILD REAL AI AUTOMATIONS.
+              <span className="text-[#00f0ff]"> GET CERTIFIED.</span>
+            </h1>
+            
+            <p className="text-lg text-[#b9cacb] leading-relaxed">
+              Master n8n automation and build powerful AI-powered workflows without coding. 
+              Go from beginner to certified automation expert in just 4 weeks.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/enroll"
+                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+              >
+                Enroll Now — ₦8,000
+              </Link>
+              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10">
+                <Play className="h-4 w-4" />
+                Watch Preview
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 border-t border-[#1f2229]">
+              {stats.map((stat) => (
+                <div key={stat.label}>
+                  <div className="text-2xl sm:text-3xl font-bold text-[#00f0ff]">{stat.value}</div>
+                  <div className="text-xs text-[#b9cacb] mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="space-y-2 font-mono text-[10px] text-[#b9cacb]">
-            {workflowLog.map((item, index) => (
-              <p key={item}>
-                <span className={index === workflowLog.length - 1 ? 'text-[#00f0ff]' : 'text-[#00f0ff]'}>&gt;</span>{' '}
-                {item}
+          
+          <div className="relative">
+            <N8nWorkflowPanel />
+            <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
+            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function EnrollmentSection() {
+  return (
+    <section className="py-20 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+              Enroll Now
+            </h2>
+            <div className="text-5xl sm:text-6xl font-bold text-[#00f0ff] mb-4">
+              ₦8,000
+            </div>
+            <p className="text-[#b9cacb]">
+              Full access to the complete 4-week automation training program
+            </p>
+          </div>
+          
+          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              {enrollmentBenefits.map((benefit) => (
+                <div key={benefit} className="flex items-center gap-3">
+                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
+                  <span className="text-[#e2e2e8]">{benefit}</span>
+                </div>
+              ))}
+            </div>
+            
+            <a
+              href="https://paystack.shop/pay/wnkntnzlcd"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-6 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+            >
+              Enroll Now — ₦8,000
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ScholarshipSection() {
+  return (
+    <section className="py-20 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-4">
+                Need Financial Support?
+              </h2>
+              <p className="text-[#b9cacb] leading-relaxed">
+                Apply for the AutoLearn Spot Scholarship and, if approved, gain access to the full ₦8,000 training for only a ₦5,000 commitment fee.
               </p>
+            </div>
+            
+            <Link
+              href="/scholarship"
+              className="flex items-center justify-center gap-2 w-full border border-purple-500 bg-purple-500/10 px-6 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400 transition duration-150 hover:bg-purple-500/20"
+            >
+              Apply for Scholarship
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function CurriculumSection() {
+  return (
+    <section id="curriculum" className="py-20 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            Curriculum
+          </h2>
+          <p className="text-[#b9cacb] max-w-2xl mx-auto">
+            A structured 4-week program designed to take you from beginner to certified automation expert
+          </p>
+        </div>
+        
+        <div className="space-y-6">
+          {curriculumWeeks.map((week) => (
+            <div
+              key={week.step}
+              className={`border ${
+                week.active 
+                  ? 'border-[#00f0ff] bg-[#00f0ff]/5' 
+                  : 'border-[#1f2229] bg-[#050505]/80'
+              } backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300`}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+                <div className="flex-shrink-0">
+                  <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
+                    week.active 
+                      ? 'bg-[#00f0ff] text-[#00363a]' 
+                      : 'bg-[#1f2229] text-[#00f0ff]'
+                  }`}>
+                    <span className="text-2xl font-bold">{week.step}</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+                      {week.phase}
+                    </span>
+                    {week.active && (
+                      <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] text-xs font-mono uppercase tracking-wider">
+                        Current
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
+                  <p className="text-[#b9cacb] mb-4">{week.body}</p>
+                  <ul className="space-y-2">
+                    {week.items.map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                        <CheckCircle className="h-4 w-4 text-[#00f0ff] flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function WhatYouGetSection() {
+  return (
+    <section className="py-20 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            What You Get
+          </h2>
+          <p className="text-[#b9cacb] max-w-2xl mx-auto">
+            Everything you need to become a certified automation expert
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {whatYouGet.map((item) => {
+            const Icon = item.icon
+            return (
+              <div
+                key={item.title}
+                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
+              >
+                <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mb-4">
+                  <Icon className="h-6 w-6 text-[#00f0ff]" />
+                </div>
+                <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">{item.title}</h3>
+                <p className="text-sm text-[#b9cacb]">{item.description}</p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TestimonialsSection() {
+  return (
+    <section className="py-20 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            What Our Students Say
+          </h2>
+          <p className="text-[#b9cacb] max-w-2xl mx-auto">
+            Real students from across Nigeria sharing their experience
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {studentTestimonials.map((testimonial) => (
+            <StudentTestimonialCard
+              key={testimonial.name}
+              name={testimonial.name}
+              school={testimonial.school}
+              rating={testimonial.rating}
+              testimonial={testimonial.testimonial}
+              verified={testimonial.verified}
+              image={testimonial.image}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function LiveActivitySection() {
+  return (
+    <section className="py-20 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto">
+          <LiveActivityFeed />
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TrustSection() {
+  return (
+    <section className="py-20 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            Trusted by Students Across Nigeria
+          </h2>
+          <p className="text-xl text-[#b9cacb] mb-8">
+            Real students. Real projects. Real AI skills.
+          </p>
+          <div className="flex justify-center gap-8 text-[#b9cacb]">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-[#00f0ff]">500+</div>
+              <div className="text-sm mt-1">Students Enrolled</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-[#00f0ff]">50+</div>
+              <div className="text-sm mt-1">Universities</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-[#00f0ff]">1000+</div>
+              <div className="text-sm mt-1">Projects Built</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
+  return (
+    <section id="faq" className="py-20 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
+              >
+                <button
+                  className="w-full px-6 py-4 text-left flex items-center justify-between"
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                >
+                  <span className="font-medium text-[#e2e2e8]">{faq.question}</span>
+                  <CheckCircle className={`h-5 w-5 text-[#00f0ff] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
+                </button>
+                {openIndex === index && (
+                  <div className="px-6 pb-4 text-[#b9cacb]">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 
-function LogicFlow() {
+function Footer() {
   return (
-    <div className="relative min-h-[220px] w-full overflow-hidden border border-[#1f2229] bg-[#050505] p-4 sm:min-h-[260px]">
-      <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(#1f2229_1px,transparent_1px),linear-gradient(90deg,#1f2229_1px,transparent_1px)] [background-size:28px_28px]" />
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 760 260" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M90 130 C160 130 170 92 236 92" fill="none" stroke="#3b494b" strokeWidth="1.5" />
-        <path d="M330 100 C395 100 405 130 462 130" fill="none" stroke="#3b494b" strokeWidth="1.5" />
-        <path d="M536 105 C580 72 620 58 670 58" fill="none" stroke="#3b494b" strokeWidth="1.5" />
-        <path d="M536 130 C590 130 615 130 670 130" fill="none" stroke="#3b494b" strokeWidth="1.5" />
-        <path d="M536 155 C580 188 620 202 670 202" fill="none" stroke="#3b494b" strokeWidth="1.5" />
-        <path className="workflow-path" d="M90 130 C160 130 170 92 236 92" fill="none" stroke="#00f0ff" strokeDasharray="8 16" strokeLinecap="round" strokeWidth="2" />
-        <path className="workflow-path workflow-path-2" d="M330 100 C395 100 405 130 462 130" fill="none" stroke="#00f0ff" strokeDasharray="8 16" strokeLinecap="round" strokeWidth="2" />
-        <path className="workflow-path workflow-path-3" d="M536 105 C580 72 620 58 670 58" fill="none" stroke="#00f0ff" strokeDasharray="8 16" strokeLinecap="round" strokeWidth="2" />
-        <path className="workflow-path workflow-path-4" d="M536 130 C590 130 615 130 670 130" fill="none" stroke="#00f0ff" strokeDasharray="8 16" strokeLinecap="round" strokeWidth="2" />
-        <path className="workflow-path workflow-path-3" d="M536 155 C580 188 620 202 670 202" fill="none" stroke="#00f0ff" strokeDasharray="8 16" strokeLinecap="round" strokeWidth="2" />
-        <circle className="workflow-packet workflow-packet-1" r="4" fill="#00f0ff">
-          <animateMotion dur="3.2s" repeatCount="indefinite" path="M90 130 C160 130 170 92 236 92" />
-        </circle>
-        <circle className="workflow-packet workflow-packet-2" r="4" fill="#00f0ff">
-          <animateMotion begin="0.6s" dur="3.2s" repeatCount="indefinite" path="M330 100 C395 100 405 130 462 130" />
-        </circle>
-        <circle className="workflow-packet workflow-packet-3" r="4" fill="#00f0ff">
-          <animateMotion begin="1.1s" dur="3.2s" repeatCount="indefinite" path="M536 105 C580 72 620 58 670 58" />
-        </circle>
-        <circle className="workflow-packet workflow-packet-4" r="4" fill="#00f0ff">
-          <animateMotion begin="1.35s" dur="3.2s" repeatCount="indefinite" path="M536 130 C590 130 615 130 670 130" />
-        </circle>
-        <circle className="workflow-packet workflow-packet-3" r="4" fill="#00f0ff">
-          <animateMotion begin="1.6s" dur="3.2s" repeatCount="indefinite" path="M536 155 C580 188 620 202 670 202" />
-        </circle>
-      </svg>
-
-      <div className="relative z-10 grid min-h-[188px] grid-cols-2 gap-3 sm:min-h-[228px] sm:grid-cols-5 sm:items-center">
-        <div className="flex h-20 flex-col items-center justify-center border border-[#1f2229] bg-[#111317] font-mono text-[10px] uppercase tracking-[0.08em] text-[#e2e2e8]">
-          <Webhook className="mb-2 h-5 w-5 text-[#00f0ff]" />
-          Form Trigger
-        </div>
-        <div className="flex h-24 flex-col items-center justify-center border border-[#00f0ff] bg-[#00f0ff]/5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#00f0ff] shadow-[0_0_18px_rgba(0,240,255,0.18)]">
-          <BrainCircuit className="mb-2 h-6 w-6" />
-          AI Agent
-          <span className="mt-1 text-[9px] text-[#b9cacb]">score + classify</span>
-        </div>
-        <div className="flex h-20 flex-col items-center justify-center border border-[#1f2229] bg-[#111317] font-mono text-[10px] uppercase tracking-[0.08em] text-[#e2e2e8]">
-          <GitFork className="mb-2 h-5 w-5 text-[#00f0ff]" />
-          Route
-        </div>
-        <div className="col-span-2 grid grid-cols-1 gap-2 sm:col-span-2">
-          <div className="flex h-12 items-center gap-3 border border-[#1f2229] bg-[#111317] px-4 font-mono text-[10px] uppercase tracking-[0.08em] text-[#e2e2e8]">
-            <Mail className="h-4 w-4 text-[#00f0ff]" />
-            Gmail Reply
-          </div>
-          <div className="flex h-12 items-center gap-3 border border-[#1f2229] bg-[#111317] px-4 font-mono text-[10px] uppercase tracking-[0.08em] text-[#e2e2e8]">
-            <Sheet className="h-4 w-4 text-[#00f0ff]" />
-            Save to Sheets
-          </div>
-          <div className="flex h-12 items-center gap-3 border border-[#1f2229] bg-[#111317] px-4 font-mono text-[10px] uppercase tracking-[0.08em] text-[#e2e2e8]">
-            <MessageCircle className="h-4 w-4 text-[#00f0ff]" />
-            WhatsApp Notify
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default function Page() {
-  const { isSignedIn } = useAuth()
-
-  return (
-    <main className="page-shell min-h-screen bg-[#111317] text-[#e2e2e8]">
-      <SectionFadeController />
-      <ThreeAiBackground />
-      <nav className="page-nav sticky top-0 z-50 mx-auto flex h-16 max-w-[1440px] items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
-        <a className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="#">
-          <span className="text-[#00f0ff]">//</span>
-          <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
-        </a>
-        <div className="hidden items-center gap-8 md:flex">
-          {navItems.map((item) => {
-            if (item === 'Live Class') {
-              return (
-                <Link
-                  key={item}
-                  href="/live-class"
-                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
-                >
-                  {item}
-                </Link>
-              );
-            }
-            if (item === 'Scholarship') {
-              return (
-                <Link
-                  key={item}
-                  href="/scholarship"
-                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#00f0ff] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
-                >
-                  {item}
-                </Link>
-              );
-            }
-            if (item === 'Partners') {
-              return (
-                <Link
-                  key={item}
-                  href="/partners/apply"
-                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#00f0ff] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
-                >
-                  {item}
-                </Link>
-              );
-            }
-            return (
-              <a
-                key={item}
-                href={`#${item.toLowerCase().replace(' ', '')}`}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
-              >
-                {item}
-              </a>
-            );
-          })}
-        </div>
-        <div className="flex items-center gap-4">
-          <Link
-            href={isSignedIn ? "/dashboard" : "/sign-in"}
-            className="font-mono text-[10px] sm:text-xs font-semibold uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-          >
-            {isSignedIn ? 'Student Dashboard' : 'Student Login'}
-          </Link>
-          <Link
-            href="/scholarship/apply"
-            className={`${primaryCtaClass} page-animate page-delay-4`}
-          >
-            <Sparkles className="h-4 w-4" />
-            Apply for Scholarship
-          </Link>
-        </div>
-      </nav>
-
-      <section className="section-fade mx-auto grid max-w-[1440px] grid-cols-1 gap-8 px-4 py-16 sm:px-6 md:grid-cols-12 md:py-28">
-        <div className="relative z-10 flex flex-col justify-center border-[#1f2229] md:col-span-6 md:border-r md:pr-8">
-          <h1 className="page-animate page-delay-1 max-w-2xl font-heading text-4xl font-bold uppercase leading-[1.08] tracking-normal text-[#e2e2e8] sm:text-5xl lg:text-6xl">
-            <span className="typewriter-headline" aria-label="Build Real AI Automations. Get Certified.">
-              <span className="typewriter-line typewriter-line-1">Build Real AI</span>
-              <span className="typewriter-line typewriter-line-2">Automations.</span>
-              <span className="typewriter-line typewriter-line-3">Get Certified.</span>
-            </span>
-          </h1>
-          <p className="page-animate page-delay-2 mt-6 max-w-xl font-mono text-sm leading-6 text-[#b9cacb]">
-            A 4-week, hands-on n8n automation training. No theory overload — every session ends with a working,
-            deployable workflow you built yourself.
-          </p>
-          <div className="page-animate page-delay-3 mt-10 flex flex-wrap gap-4">
-            <Link
-              href="/scholarship/apply"
-              className={primaryCtaClass}
-            >
-              <Sparkles className="h-4 w-4" />
-              Apply for Scholarship
-            </Link>
-            <PreviewVideoModal vimeoVideoId="1209374969" className="corner-accent relative inline-flex items-center justify-center gap-2 overflow-hidden border border-[#3b494b] bg-[#0c0e12] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#e2e2e8] transition duration-150 hover:bg-[#1a1c20] hover:text-[#00f0ff] hover:border-[#00f0ff]">
-               <Play className="h-4 w-4" />
-               Watch Preview
-            </PreviewVideoModal>
-          </div>
-          <div className="page-animate page-delay-4 mt-16 flex items-center gap-6 text-[#b9cacb]/70">
-            <div>
-              <span className="block font-mono text-[10px] uppercase tracking-[0.1em]">COHORT</span>
-              <div className="mt-2 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#00f0ff]" />
-                <span className="font-mono text-[10px]">JULY 13</span>
-              </div>
-            </div>
-            <div className="h-8 w-px bg-[#1f2229]" />
-            <div>
-              <span className="block font-mono text-[10px] uppercase tracking-[0.1em]">SEATS</span>
-              <span className="mt-2 block font-mono text-[10px]">15 AVAILABLE</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="page-animate page-delay-5 relative flex items-center justify-center p-0 md:col-span-6 md:p-8">
-          <div className="hero-aura pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(40,42,46,0.35),rgba(17,19,23,0.65),#111317_70%)]" />
-          <ThreeAutomationField />
-          <N8nWorkflowPanel />
-        </div>
-      </section>
-
-      <section
-        className="section-fade mx-auto grid max-w-[1440px] grid-cols-2 gap-4 border-t border-[#1f2229] px-4 py-12 sm:px-6 md:grid-cols-4"
-        id="stats"
-      >
-        {stats.map(([value, label], index) => (
-          <div className="page-animate border border-[#1f2229] bg-[#0c0e12] p-5 text-center" key={label} style={{ animationDelay: `${0.08 + index * 0.08}s` }}>
-            <div className="font-heading text-3xl font-bold text-[#00f0ff]">{value}</div>
-            <div className="mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-[#b9cacb]">{label}</div>
-          </div>
-        ))}
-      </section>
-
-      <section className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-16 sm:px-6 md:py-20">
-        <div className="relative overflow-hidden border border-[#00f0ff]/30 bg-[#0c0e12] p-8 md:p-12">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#00f0ff]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#00f0ff]/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
-          
-          <div className="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 items-center">
-            <div className="lg:col-span-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#00f0ff]/50 bg-[#00f0ff]/10 text-[#00f0ff] font-mono text-xs mb-4">
-                <Sparkles className="w-3 h-3" />
-                <span>LIMITED SCHOLARSHIP OPPORTUNITY</span>
-              </div>
-              <h2 className="font-heading text-3xl md:text-4xl font-bold text-white mb-4">
-                ₦8,000 AI Automation Training
-              </h2>
-              <p className="text-[#b9cacb] text-lg mb-6">
-                Scholarship Available — Successful applicants pay only a <span className="text-[#00f0ff] font-bold">₦5,000 commitment fee</span>
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/scholarship/apply"
-                  className="corner-accent blueprint-cta relative inline-flex items-center justify-center gap-2 overflow-hidden border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Apply for Scholarship
-                </Link>
-                <Link
-                  href="/scholarship"
-                  className="inline-flex items-center justify-center gap-2 border border-[#3b494b] bg-transparent px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#e2e2e8] transition duration-150 hover:bg-[#1a1c20] hover:border-[#00f0ff] hover:text-[#00f0ff]"
-                >
-                  Learn More
-                </Link>
-              </div>
-            </div>
-            <div className="border border-[#1f2229] bg-[#050505] p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff]" />
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#b9cacb]">Full Value</p>
-                    <p className="font-heading text-xl font-bold text-white">₦8,000</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Sparkles className="h-5 w-5 text-[#00f0ff]" />
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#b9cacb]">Your Cost</p>
-                    <p className="font-heading text-xl font-bold text-[#00f0ff]">₦5,000</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-5 w-5 text-[#00f0ff]" />
-                  <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#b9cacb]">Review Time</p>
-                    <p className="font-heading text-xl font-bold text-white">3 Days</p>
-                  </div>
-                </div>
-                <div className="pt-4 border-t border-[#1f2229]">
-                  <Link
-                    href="/scholarship/status"
-                    className="block text-center font-mono text-[11px] uppercase tracking-[0.08em] text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                  >
-                    Check Application Status →
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
-        id="curriculum"
-      >
-        <div className="page-animate mb-12 text-center">
-          <span className="border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#00f0ff]">
-            4-week curriculum
-          </span>
-          <h2 className="mt-6 font-heading text-3xl font-semibold tracking-normal text-[#e2e2e8]">
-            What You&apos;ll Build
-          </h2>
-          <p className="mx-auto mt-3 max-w-2xl font-mono text-sm leading-6 text-[#b9cacb]">
-            Every session is 100% practical. You leave with a working workflow, not just notes.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          {curriculumWeeks.map((week, index) => {
-            return (
-              <article
-                className="page-animate group border border-[#1f2229] bg-[#0c0e12] p-6 transition hover:border-[#00f0ff] hover:shadow-[0_0_15px_rgba(0,240,255,0.25)]"
-                style={{ animationDelay: `${0.1 + index * 0.12}s` }}
-                key={week.title}
-              >
-                <div className="mb-12 flex items-start justify-between">
-                  <span className="flex h-10 w-10 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 font-mono text-xs text-[#00f0ff]">
-                    {week.step}
-                  </span>
-                  <span className="font-mono text-[10px] text-[#b9cacb]">{week.phase}</span>
-                </div>
-                <h3 className="font-heading text-xl font-semibold tracking-normal text-[#e2e2e8]">{week.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#b9cacb]">{week.body}</p>
-                <ul className="mt-8 space-y-3 font-mono text-xs text-[#b9cacb]">
-                  {week.items.map((item) => (
-                    <li className="flex gap-2" key={item}>
-                      <span className="text-[#00f0ff]">✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            )
-          })}
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-          {infoCards.map((card, index) => {
-            const Icon = card.icon
-            return (
-              <article className="page-animate border border-[#1f2229] bg-[#050505] p-5" key={card.title} style={{ animationDelay: `${0.2 + index * 0.1}s` }}>
-                <div className="flex items-start gap-4">
-                  <Icon className="h-6 w-6 text-[#00f0ff]" />
-                  <div>
-                    <h3 className="font-heading text-lg font-semibold text-[#e2e2e8]">{card.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[#b9cacb]">{card.body}</p>
-                  </div>
-                </div>
-              </article>
-            )
-          })}
-        </div>
-      </section>
-
-      <section
-        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
-        id="tools"
-      >
-        <div className="page-animate mb-12 text-center">
-          <h2 className="font-heading text-3xl font-semibold tracking-normal text-[#e2e2e8]">Tools You&apos;ll Master</h2>
-          <p className="mx-auto mt-3 max-w-2xl font-mono text-sm leading-6 text-[#b9cacb]">
-            From triggering workflows to deploying production bots — you&apos;ll use the same tools professionals use
-            every day.
-          </p>
-        </div>
-
-        <ToolsCarousel />
-      </section>
-
-      <section
-        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
-        id="why"
-      >
-        <div className="page-animate mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+    <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h2 className="font-heading text-3xl font-semibold tracking-normal text-[#e2e2e8]">
-              Why AutoLearn Spot?
-            </h2>
-            <p className="mt-3 max-w-2xl font-mono text-sm leading-6 text-[#b9cacb]">
-              Core learning advantages engineered for practical, beginner-friendly, outcome-focused automation.
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff]">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+                AutoLearn Spot
+              </span>
+            </div>
+            <p className="text-sm text-[#b9cacb]">
+              Master AI automation with hands-on training and get certified.
             </p>
           </div>
-          <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#00f0ff]">
-            ALS_STACK_V2
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-          <article className="page-animate border border-[#1f2229] bg-[#0c0e12]/95 p-6 md:col-span-4">
-            <div className="flex items-start justify-between">
-              <CheckCircle className="h-8 w-8 text-[#00f0ff]" />
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5d5f63]">MOD_01</span>
-            </div>
-            <h3 className="mt-16 font-heading text-xl font-semibold text-[#e2e2e8]">100% Practical</h3>
-            <p className="mt-3 text-sm leading-6 text-[#b9cacb]">
-              No slides and lectures. Every session is a live workflow you build and deploy.
-            </p>
-            <div className="mt-12 space-y-2 border-t border-[#1f2229] pt-3 font-mono text-[11px] text-[#b9cacb]">
-              <div className="flex justify-between gap-4 border-b border-[#1f2229] pb-2">
-                <span>Session Format</span>
-                <span className="text-[#e2e2e8]">Live Builds</span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span>Outcome Focus</span>
-                <span className="text-[#e2e2e8]">Deployable</span>
-              </div>
-            </div>
-          </article>
-
-          <article className="page-animate relative overflow-hidden border border-[#1f2229] bg-[#0c0e12]/95 p-6 md:col-span-8">
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-2/3 bg-[linear-gradient(90deg,rgba(0,240,255,0),rgba(0,240,255,0.45))]" />
-            <div className="relative">
-              <div className="flex items-start justify-between">
-                <Sparkles className="h-8 w-8 text-[#00f0ff]" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#b9cacb]">MOD_02</span>
-              </div>
-              <h3 className="mt-20 max-w-xl font-heading text-2xl font-semibold text-[#e2e2e8]">
-                AI-Native Training
-              </h3>
-              <p className="mt-4 max-w-xl text-base leading-7 text-[#b9cacb]">
-                ChatGPT, OpenRouter, Claude — you learn how to wire AI into real business workflows from Day 4.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-2">
-                {['ChatGPT', 'OpenRouter', 'Claude', 'Real Workflows'].map((tag) => (
-                  <span
-                    className="border border-[#00f0ff]/30 bg-[#00f0ff]/10 px-3 py-2 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#00f0ff]"
-                    key={tag}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </article>
-
-          <article className="page-animate grid grid-cols-1 gap-6 border border-[#1f2229] bg-[#0c0e12]/95 p-6 md:col-span-12 md:grid-cols-12 md:items-center">
-            <div className="md:col-span-4">
-              <div className="flex items-start justify-between">
-                <Rocket className="h-8 w-8 text-[#00f0ff]" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5d5f63]">MOD_03</span>
-              </div>
-              <h3 className="mt-12 font-heading text-2xl font-semibold text-[#e2e2e8]">Deploy Live in Week 3</h3>
-              <p className="mt-3 text-sm leading-6 text-[#b9cacb]">
-                Your automation goes to production on Railway. Real URL. Real users. Not a sandbox toy.
-              </p>
-              <div className="mt-6 grid grid-cols-1 gap-2 font-mono text-[11px] text-[#b9cacb] sm:grid-cols-3 md:grid-cols-1">
-                <span className="border border-[#1f2229] px-3 py-2">MSN Certificate</span>
-                <span className="border border-[#1f2229] px-3 py-2">Direct Instructor Access</span>
-                <span className="border border-[#1f2229] px-3 py-2">Lifetime Recordings</span>
-              </div>
-            </div>
-            <div className="border border-[#1f2229] bg-[#050505] p-6 md:col-span-8">
-              <LogicFlow />
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section className="section-fade mx-auto grid max-w-[1440px] grid-cols-1 gap-8 border-t border-[#1f2229] px-4 py-20 sm:px-6 md:grid-cols-12 md:py-24">
-        <div className="page-animate md:col-span-5">
-          <div className="border border-[#1f2229] bg-[#050505] p-6">
-            <div className="relative aspect-square overflow-hidden border border-[#3b494b] bg-[#050505]">
-              <Image
-                alt="Femi Adeleke"
-                className="h-full w-full object-cover"
-                fill
-                priority={false}
-                sizes="(min-width: 768px) 40vw, 100vw"
-                src="/femi-headshot.webp"
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              {navItems.map((item) => (
+                <li key={item.name}>
+                  <Link href={item.href} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Connect With Us</h3>
+            <div className="flex gap-3 flex-wrap">
+              <SocialIcon
+                src={socialLinks.facebook.icon}
+                alt={socialLinks.facebook.name}
+                href={socialLinks.facebook.url}
+              />
+              <SocialIcon
+                src={socialLinks.instagram.icon}
+                alt={socialLinks.instagram.name}
+                href={socialLinks.instagram.url}
+              />
+              <SocialIcon
+                src={socialLinks.linkedin.icon}
+                alt={socialLinks.linkedin.name}
+                href={socialLinks.linkedin.url}
+              />
+              <SocialIcon
+                src={socialLinks.youtube.icon}
+                alt={socialLinks.youtube.name}
+                href={socialLinks.youtube.url}
+              />
+              <SocialIcon
+                src={socialLinks.tiktok.icon}
+                alt={socialLinks.tiktok.name}
+                href={socialLinks.tiktok.url}
+              />
+              <SocialIcon
+                src={socialLinks.x.icon}
+                alt={socialLinks.x.name}
+                href={socialLinks.x.url}
+              />
+              <SocialIcon
+                src={socialLinks.whatsapp.icon}
+                alt={socialLinks.whatsapp.name}
+                href={socialLinks.whatsapp.url}
               />
             </div>
           </div>
         </div>
-        <div className="page-animate md:col-span-7">
-          <span className="border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[#00f0ff]">
-            Your instructor
-          </span>
-          <h2 className="mt-6 font-heading text-3xl font-semibold tracking-normal text-[#e2e2e8]">Meet Femi Adeleke</h2>
-          <p className="mt-5 text-sm leading-7 text-[#b9cacb]">
-            I&apos;m a full-stack developer and automation engineer based in Ibadan, Nigeria. I specialize in building
-            production-grade n8n workflows, connecting LLMs to real business applications, and AI-powered solutions.
+        
+        <div className="border-t border-[#1f2229] pt-8 text-center">
+          <p className="text-sm text-[#b9cacb]">
+            © 2026 AutoLearn Spot. All Rights Reserved.
           </p>
-          <p className="mt-4 text-sm leading-7 text-[#b9cacb]">
-            AutoLearn Spot is my first formal training program — and that&apos;s your advantage. You get direct access to
-            me, real-time problem-solving, and curriculum built from workflows I&apos;m deploying right now.
-          </p>
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {instructorStats.map((item) => {
-              const Icon = item.icon
-              return (
-                <div className="border border-[#1f2229] bg-[#0c0e12] p-4" key={item.title}>
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-5 w-5 text-[#00f0ff]" />
-                    <span className="font-mono text-xs font-semibold text-[#e2e2e8]">{item.title}</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
         </div>
-      </section>
+      </div>
+    </footer>
+  )
+}
 
-      <section
-        className="section-fade mx-auto max-w-[1440px] border-t border-[#1f2229] px-4 py-20 sm:px-6 md:py-24"
-        id="faq"
-      >
-        <div className="page-animate mb-12 text-center">
-          <h2 className="font-heading text-3xl font-semibold tracking-normal text-[#e2e2e8]">
-            Frequently Asked Questions
-          </h2>
-          <p className="mt-3 font-mono text-sm text-[#b9cacb]">Got questions? We&apos;ve got answers.</p>
-        </div>
-        <div className="mx-auto max-w-3xl space-y-3">
-          {faqs.map((item, index) => (
-            <details
-              className="page-animate group border border-[#1f2229] bg-[#0c0e12]"
-              key={item.question}
-              style={{ animationDelay: `${0.08 + index * 0.06}s` }}
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 marker:content-none">
-                <h3 className="font-mono text-sm font-semibold text-[#e2e2e8]">{item.question}</h3>
-                <span className="shrink-0 text-[#00f0ff] transition-transform group-open:rotate-180">⌄</span>
-              </summary>
-              <div className="border-t border-[#1f2229] px-5 pb-5 pt-4">
-                <p className="text-sm leading-6 text-[#b9cacb]">{item.answer}</p>
-              </div>
-            </details>
-          ))}
-          <div className="page-animate border border-[#1f2229] bg-[#050505] p-6 text-center">
-            <p className="font-mono text-sm text-[#b9cacb]">Still have questions?</p>
-            <WhatsAppChatModal />
-          </div>
-        </div>
-      </section>
-
-      <footer className="section-fade page-animate mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 border-t border-[#3b494b] px-4 py-8 sm:px-6 md:flex-row">
-        <div className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
-          ©2026 AUTOLEARN_SPOT // NEXT_COHORT_JULY_13
-        </div>
-        <div className="flex flex-wrap justify-center gap-6">
-          {[
-            { label: 'Curriculum', id: 'curriculum' },
-            { label: 'Tools', id: 'tools' },
-            { label: 'Why Autolearn', id: 'why' },
-            { label: 'FAQ', id: 'faq' }
-          ].map((link) => (
-            <a
-              key={link.id}
-              href={`#${link.id}`}
-              className="font-mono text-[11px] uppercase tracking-[0.1em] text-[#5d5f63] underline decoration-[#00f0ff] underline-offset-4 transition hover:text-[#dbfcff]"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
-      </footer>
-      <AutolearnBot context="landing" />
+export default function Page() {
+  return (
+    <main className="min-h-screen bg-[#050505]">
+      <Navigation />
+      <HeroSection />
+      <EnrollmentSection />
+      <ScholarshipSection />
+      <CurriculumSection />
+      <WhatYouGetSection />
+      <TestimonialsSection />
+      <LiveActivitySection />
+      <TrustSection />
+      <FAQSection />
+      <Footer />
     </main>
   )
 }
