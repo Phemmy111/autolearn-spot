@@ -356,7 +356,6 @@ function N8nWorkflowPanel() {
 
 function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { isSignedIn } = useAuth()
 
   return (
     <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl">
