@@ -75,28 +75,28 @@ const PARTNER_TESTIMONIALS = [
   {
     name: "Marvellous Olaoluwa",
     school: "University of Ibadan",
-    image: "/Ola.png",
+    image: "/Partners/Ola.png",
     review: "I joined because I believe AI automation is one of the most valuable digital skills anyone can learn today. AutoLearn Spot provides everything a partner needs to confidently recommend the training.",
     rating: 5
   },
   {
     name: "Oluwapelumi Samson",
     school: "University of Ibadan",
-    image: "/Samson.png",
+    image: "/Partners/Samson.png",
     review: "The referral dashboard and marketing materials are easy to use. I already have my referral link and I'm excited to introduce more students to AI automation.",
     rating: 5
   },
   {
     name: "Isaac Moon",
     school: "Data Analyst - LAUTECH Graduate",
-    image: "/Isaac.png",
+    image: "/Partners/Isaac.png",
     review: "What impressed me most is the professionalism of the entire program. The partner system is transparent and makes referral tracking very easy.",
     rating: 5
   },
   {
     name: "Beloved Justina",
     school: "Data Analyst - University of Ilorin Graduate",
-    image: "/Beloved.png",
+    image: "/Partners/Beloved.png",
     review: "I partnered with AutoLearn Spot because I genuinely believe more students deserve access to practical AI skills while partners also earn legitimate commissions.",
     rating: 5
   }
@@ -112,10 +112,10 @@ const ACTIVITY_FEED = [
 ];
 
 const TRUST_PARTNERS = [
-  { name: "Marvellous Olaoluwa", image: "/Ola.png" },
-  { name: "Oluwapelumi Samson", image: "/Samson.png" },
-  { name: "Isaac Moon", image: "/Isaac.png" },
-  { name: "Beloved Justina", image: "/Beloved.png" }
+  { name: "Marvellous Olaoluwa", image: "/Partners/Ola.png" },
+  { name: "Oluwapelumi Samson", image: "/Partners/Samson.png" },
+  { name: "Isaac Moon", image: "/Partners/Isaac.png" },
+  { name: "Beloved Justina", image: "/Partners/Beloved.png" }
 ];
 
 const LEADERBOARD = [
