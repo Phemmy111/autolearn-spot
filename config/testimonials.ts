@@ -3,7 +3,7 @@ export const studentTestimonials = [
     name: 'Jimoh Naheemot Oluwakemi',
     school: 'University of Ibadan',
     rating: 4.5,
-    testimonial: 'Before joining AutoLearn Spot, I had absolutely no experience with AI automation. In just three weeks, I went from knowing nothing to building my own AI-powered customer support agent. I\'m excited to keep building even more projects. The teaching approach at AutoLearn Spot is exceptional. Everything is explained in a practical and easy-to-follow way. I highly recommend this training to anyone looking to start AI automation.',
+    testimonial: 'Before this training, I had zero experience with automation. In just 3 weeks, I went from knowing nothing to building an AI agent for customer support. I look forward to building more too.',
     verified: true,
     image: '/students/jimoh-naheemot.jpg'
   },
@@ -11,15 +11,15 @@ export const studentTestimonials = [
     name: 'Ruth Ngozi Nwoke',
     school: 'Imo State University',
     rating: 5,
-    testimonial: 'I absolutely love the teaching techniques at AutoLearn Spot. For an online course, the learning experience is outstanding. The tutors genuinely follow up on students\' progress and make learning enjoyable.',
+    testimonial: 'I love their teaching techniques, especially for an online course. Learning is made easy with AutoLearn Spot.',
     verified: true,
     image: '/students/ruth-nwoke.jpg'
   },
   {
     name: 'Ajagbe Emmanuel Oluwatimilehin',
-    school: 'Ladoke Akintola University of Technology (LAUTECH)',
+    school: 'Ladoke Akintola University of Technology Graduate',
     rating: 5,
-    testimonial: 'The training has been truly mind-blowing. The assignments and quizzes strengthened my reasoning and problem-solving skills. The curriculum is well structured and the training team is always available. God bless AutoLearn Spot.',
+    testimonial: 'Beyond learning AI Automation, the assignments and quizzes trained my reasoning abilities to solve real problems.',
     verified: true,
     image: '/students/ajagbe-emmanuel.jpg'
   }

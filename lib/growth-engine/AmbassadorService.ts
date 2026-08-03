@@ -5,11 +5,25 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
+// Helper function to generate partner ID
+function generatePartnerId(): string {
+  const prefix = 'ALS';
+  const suffix = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  return `${prefix}${suffix}`;
+}
+
+// Helper function to generate referral code
+function generateReferralCode(): string {
+  const prefix = 'REF';
+  const suffix = Math.floor(Math.random() * 100000).toString().padStart(6, '0');
+  return `${prefix}${suffix}`;
+}
+
 export class AmbassadorService {
   static async processApplication(params: { applicationId: string; action: 'approve' | 'reject'; adminId: string; notes?: string }) {
     try {
       const { data: application, error: appError } = await supabaseAdmin
-        .from('ambassador_applications')
+        .from('partner_applications')
         .select('*')
         .eq('id', params.applicationId)
         .single();
@@ -25,8 +39,13 @@ export class AmbassadorService {
       const newStatus = params.action === 'approve' ? 'approved' : 'rejected';
 
       const { error: updateError } = await supabaseAdmin
-        .from('ambassador_applications')
-        .update({ status: newStatus, reviewed_by: params.adminId, reviewed_at: new Date().toISOString() })
+        .from('partner_applications')
+        .update({ 
+          status: newStatus, 
+          reviewed_by: params.adminId, 
+          reviewed_at: new Date().toISOString(),
+          rejection_reason: params.notes
+        })
         .eq('id', params.applicationId);
 
       if (updateError) {
@@ -34,11 +53,55 @@ export class AmbassadorService {
       }
 
       if (newStatus === 'approved') {
-        // Create community ambassador if not student? Wait, we can just create community ambassador.
-        // The schema for community_ambassadors requires password_hash which we might not have.
-        // Let's just do a basic implementation or skip inserting if missing data for now.
-        // Assuming we need to insert to community_ambassadors or influencers based on the application.
-        // For now, returning success.
+        // Generate partner ID and referral code
+        const partnerId = generatePartnerId();
+        const referralCode = generateReferralCode();
+        
+        // Create partner record
+        const { error: partnerError } = await supabaseAdmin
+          .from('partners')
+          .insert({
+            partner_id: partnerId,
+            full_name: application.full_name,
+            email: application.email,
+            phone: application.phone,
+            whatsapp: application.whatsapp,
+            state: application.state,
+            occupation: application.occupation,
+            partner_type: application.partner_type || 'community',
+            status: 'active',
+            commission_rate: application.partner_type === 'influencer' ? 2500 : 1500,
+            passport_url: application.passport_url,
+            organization: application.organization,
+            website: application.website,
+            facebook: application.facebook,
+            instagram: application.instagram,
+            tiktok: application.tiktok,
+            linkedin: application.linkedin,
+            youtube: application.youtube,
+            experience: application.experience,
+            motivation: application.motivation,
+            promotion_method: application.promotion_method
+          })
+          .select('id')
+          .single();
+
+        if (partnerError) {
+          console.error('Failed to create partner:', partnerError);
+          return { success: false, error: 'Failed to create partner account' };
+        }
+
+        // Create referral record
+        const partnerIdResult = partnerError ? null : partnerError;
+        if (partnerIdResult) {
+          await supabaseAdmin
+            .from('partner_referrals')
+            .insert({
+              partner_id: partnerIdResult.id,
+              referral_code: referralCode,
+              status: 'clicked'
+            });
+        }
       }
 
       return { success: true };

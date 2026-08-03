@@ -1,64 +1,763 @@
-import { auth, currentUser } from '@clerk/nextjs/server';
-import { AmbassadorService } from '@/lib/growth-engine/AmbassadorService';
-import { CommissionService } from '@/lib/growth-engine/CommissionService';
-import { ReferralService } from '@/lib/growth-engine/ReferralService';
-import Link from 'next/link';
+"use client";
 
-export default async function PartnersDashboard() {
-  const { userId } = await auth();
-  if (!userId) return null;
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { 
+  ArrowRight, 
+  ArrowDown,
+  Users, 
+  DollarSign, 
+  Building2, 
+  Award, 
+  CheckCircle, 
+  Zap, 
+  BarChart3,
+  TrendingUp,
+  Star,
+  MessageCircle,
+  Menu,
+  X,
+  Sparkles,
+  Shield,
+  Rocket,
+  Target,
+  Globe,
+  FileText,
+  Clock,
+  Crown,
+  Medal,
+  Building,
+  Infinity
+} from "lucide-react";
+import { socialLinks } from "@/config/social";
 
-  // Make sure referral code is created if they visit here
-  await ReferralService.getOrCreateReferralCode(userId);
+const PARTNER_TYPES = [
+  {
+    title: "Student Partner",
+    commission: "₦1,500",
+    description: "Automatically activated after purchasing the ₦8,000 course",
+    features: ["Referral link", "Dashboard", "Referral statistics", "Instant activation"],
+    cta: "Go to Dashboard",
+    ctaLink: "/dashboard",
+    color: "cyan"
+  },
+  {
+    title: "Community Partner", 
+    commission: "₦1,500",
+    description: "Application required for this tier",
+    features: ["Approval process", "Weekly payout", "Marketing kit", "Dedicated dashboard"],
+    cta: "Apply Now",
+    ctaLink: "/partners/apply",
+    color: "purple"
+  },
+  {
+    title: "Corporate / Campus Ambassador",
+    commission: "Custom",
+    description: "Perfect for schools, student associations and organizations",
+    features: ["Dedicated support", "Bulk campaigns", "Campus activation", "Custom rates"],
+    cta: "Contact Us",
+    ctaLink: `https://wa.me/2348120934828?text=${encodeURIComponent("Hello AutoLearn Spot. I would like to make an enquiry about the Partner Program.")}`,
+    color: "gold"
+  }
+];
 
-  const partnerStats = await AmbassadorService.getPartnerStats(userId);
-  const earnings = await CommissionService.getEarnings(userId);
-  const referralStats = await ReferralService.getReferralStats(userId);
+const HOW_IT_WORKS = [
+  { step: "1", title: "Apply", description: "Submit your partner application" },
+  { step: "2", title: "Get Approved", description: "Review and approval process" },
+  { step: "3", title: "Receive Dashboard", description: "Get access to partner dashboard" },
+  { step: "4", title: "Share Referral Link", description: "Promote using your unique link" },
+  { step: "5", title: "Student Enrolls", description: "Students enroll via your link" },
+  { step: "6", title: "Receive Commission", description: "Earn commissions on successful enrollments" }
+];
 
-  const isDefault = partnerStats.is_default;
+const PARTNER_TESTIMONIALS = [
+  {
+    name: "Marvellous Olaoluwa",
+    school: "University of Ibadan",
+    image: "/Ola.png",
+    review: "I joined because I believe AI automation is one of the most valuable digital skills anyone can learn today. AutoLearn Spot provides everything a partner needs to confidently recommend the training.",
+    rating: 5
+  },
+  {
+    name: "Oluwapelumi Samson",
+    school: "University of Ibadan",
+    image: "/Samson.png",
+    review: "The referral dashboard and marketing materials are easy to use. I already have my referral link and I'm excited to introduce more students to AI automation.",
+    rating: 5
+  },
+  {
+    name: "Isaac Moon",
+    school: "Data Analyst - LAUTECH Graduate",
+    image: "/Isaac.png",
+    review: "What impressed me most is the professionalism of the entire program. The partner system is transparent and makes referral tracking very easy.",
+    rating: 5
+  },
+  {
+    name: "Beloved Justina",
+    school: "Data Analyst - University of Ilorin Graduate",
+    image: "/Beloved.png",
+    review: "I partnered with AutoLearn Spot because I genuinely believe more students deserve access to practical AI skills while partners also earn legitimate commissions.",
+    rating: 5
+  }
+];
+
+const ACTIVITY_FEED = [
+  "Deborah from Lagos just enrolled for ₦8,000",
+  "Samuel became a Community Partner",
+  "John from Ibadan completed payment",
+  "Isaac received ₦6,000 commission",
+  "Blessing withdrew ₦18,000",
+  "Ruth from Imo joined AutoLearn Spot"
+];
+
+const TRUST_PARTNERS = [
+  { name: "Marvellous Olaoluwa", image: "/Ola.png" },
+  { name: "Oluwapelumi Samson", image: "/Samson.png" },
+  { name: "Isaac Moon", image: "/Isaac.png" },
+  { name: "Beloved Justina", image: "/Beloved.png" }
+];
+
+const LEADERBOARD = [
+  { rank: 1, name: "Emmanuel David", earnings: "₦45,000", badge: "gold" },
+  { rank: 2, name: "Ruth Nwoke", earnings: "₦38,500", badge: "silver" },
+  { rank: 3, name: "Jimoh Naheemot", earnings: "₦32,000", badge: "bronze" }
+];
+
+function Navigation() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold text-white mb-6 font-heading">Partner Portal</h1>
-      <div className="grid md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
-          <h3 className="text-[#b9cacb] mb-2 font-mono text-sm uppercase">Partner Tier</h3>
-          <div className="text-2xl text-[#00f0ff] uppercase font-bold">{partnerStats.partner_type || 'Student'}</div>
-        </div>
-        <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
-          <h3 className="text-[#b9cacb] mb-2 font-mono text-sm uppercase">Total Earnings</h3>
-          <div className="text-2xl text-white font-bold">₦{earnings.availableEarnings + earnings.pendingEarnings}</div>
-        </div>
-        <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
-          <h3 className="text-[#b9cacb] mb-2 font-mono text-sm uppercase">Total Referrals</h3>
-          <div className="text-2xl text-white font-bold">{referralStats?.totalRegistrations || 0}</div>
-        </div>
-      </div>
+    <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#070B12]/95 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2 group">
+            <Image
+              src="/icon-dark-32x32.png"
+              alt="AutoLearn Spot"
+              width={32}
+              height={32}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+              AutoLearn Spot
+            </span>
+          </Link>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
-          <h2 className="text-xl font-bold text-white mb-4">Your Referral Link</h2>
-          {referralStats ? (
-             <div className="bg-[#0a0c10] p-4 rounded text-[#b9cacb] font-mono break-all border border-[#1f2229]">
-               {process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/register?ref={referralStats.code}
-             </div>
-          ) : (
-             <p className="text-[#b9cacb]">Link not yet generated.</p>
-          )}
-        </div>
-
-        {isDefault && (
-          <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
-             <h2 className="text-xl font-bold text-white mb-4">Upgrade Your Tier</h2>
-             <p className="text-[#b9cacb] mb-4 text-sm">
-               You are currently on the Student tier (₦1,000 commission). Want to earn more? Apply to become a Community Partner!
-             </p>
-             <Link href="/partners/apply" className="inline-block bg-[#00f0ff] text-black px-4 py-2 rounded font-bold hover:bg-white transition-colors">
-               Apply Now
-             </Link>
+          <div className="hidden lg:flex items-center gap-6">
+            <Link href="/" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              Home
+            </Link>
+            <Link href="/partners" className="text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors">
+              Partner Program
+            </Link>
+            <Link href="/partners/dashboard" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              Partner Dashboard
+            </Link>
+            <Link href="#faq" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              FAQ
+            </Link>
           </div>
-        )}
+
+          <div className="hidden lg:flex items-center gap-4">
+            <Link
+              href="/partners/dashboard"
+              className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-[#00F5FF] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
+            >
+              Partner Dashboard
+            </Link>
+            <Link
+              href="/partners/login"
+              className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors"
+            >
+              Partner Login
+            </Link>
+          </div>
+
+          <button
+            className="lg:hidden text-[#b9cacb]"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t border-[#1f2229] bg-[#070B12]">
+          <div className="px-4 py-4 space-y-3">
+            <Link href="/" className="block text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              Home
+            </Link>
+            <Link href="/partners" className="block text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              Partner Program
+            </Link>
+            <Link href="/partners/dashboard" className="block text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              Partner Dashboard
+            </Link>
+            <Link href="#faq" className="block text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              FAQ
+            </Link>
+            <Link href="/partners/dashboard" className="block w-full text-center border border-[#00F5FF] bg-[#00F5FF] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] mt-4" onClick={() => setMobileMenuOpen(false)}>
+              Partner Dashboard
+            </Link>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+function HeroSection() {
+  return (
+    <section className="relative min-h-screen flex items-center bg-[#070B12] overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
+      <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          <div className="space-y-8">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-[#e2e2e8] leading-tight">
+              Earn More.
+              <span className="text-[#00F5FF]"> Impact More.</span>
+            </h1>
+            
+            <p className="text-lg text-[#b9cacb] leading-relaxed max-w-xl">
+              Become an AutoLearn Spot Community Partner and earn commissions by referring students to our AI Automation Training.
+            </p>
+            
+            <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 px-4 py-2">
+              <DollarSign className="h-5 w-5 text-[#00F5FF]" />
+              <span className="font-mono text-sm font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
+                Earn up to ₦1,500 for every successful enrollment
+              </span>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/partners/apply"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-[#00F5FF] px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
+              >
+                Apply as Community Partner
+              </Link>
+              <Link
+                href="/partners/dashboard"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-[#00F5FF]/10 w-full sm:w-auto"
+              >
+                Partner Dashboard
+              </Link>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Partner Dashboard Preview</span>
+                <div className="flex gap-2">
+                  <div className="h-2 w-2 rounded-full bg-[#00F5FF]" />
+                  <div className="h-2 w-2 rounded-full bg-[#333539]" />
+                  <div className="h-2 w-2 rounded-full bg-[#333539]" />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Available Balance</div>
+                  <div className="text-xl font-bold text-[#00F5FF]">₦24,500</div>
+                </div>
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Pending Earnings</div>
+                  <div className="text-xl font-bold text-[#e2e2e8]">₦7,500</div>
+                </div>
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Total Referrals</div>
+                  <div className="text-xl font-bold text-[#e2e2e8]">127</div>
+                </div>
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Successful Enrollments</div>
+                  <div className="text-xl font-bold text-[#e2e2e8]">89</div>
+                </div>
+              </div>
+              
+              <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-4">
+                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">Monthly Earnings</div>
+                <div className="h-24 flex items-end gap-1">
+                  {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
+                      style={{ height: `${height}%` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="absolute -top-4 -right-4 w-32 h-32 bg-[#00F5FF]/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrustSection() {
+  return (
+    <section className="py-16 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <div className="flex justify-center gap-4 mb-6">
+            {TRUST_PARTNERS.map((partner) => (
+              <div
+                key={partner.name}
+                className="relative"
+              >
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#00F5FF]/50 p-1">
+                  <Image
+                    src={partner.image}
+                    alt={partner.name}
+                    width={64}
+                    height={64}
+                    className="rounded-full object-cover"
+                  />
+                </div>
+                <div className="absolute -bottom-1 -right-1 bg-[#00F5FF] rounded-full p-1">
+                  <CheckCircle className="h-3 w-3 text-[#070B12]" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-lg text-[#b9cacb]">
+            Trusted by hundreds of aspiring AI ambassadors across Nigeria.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PartnerTypesSection() {
+  return (
+    <section className="py-16 bg-[#070B12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            Choose Your Partner Type
+          </h2>
+          <p className="text-[#b9cacb] max-w-2xl mx-auto">
+            Select the partner tier that best fits your goals and influence
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          {PARTNER_TYPES.map((type) => {
+            const Icon = type.color === "cyan" ? Users : type.color === "purple" ? Building2 : Building;
+            const colorClass = type.color === "cyan" ? "border-[#00F5FF]" : type.color === "purple" ? "border-purple-500" : "border-yellow-500";
+            const bgClass = type.color === "cyan" ? "bg-[#00F5FF]/10" : type.color === "purple" ? "bg-purple-500/10" : "bg-yellow-500/10";
+            const textClass = type.color === "cyan" ? "text-[#00F5FF]" : type.color === "purple" ? "text-purple-400" : "text-yellow-400";
+            
+            return (
+              <div
+                key={type.title}
+                className={`border ${colorClass} ${bgClass} backdrop-blur-xl rounded-2xl p-6 hover:shadow-[0_0_20px_rgba(0,245,255,0.1)] transition-all duration-300`}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`flex h-12 w-12 items-center justify-center ${colorClass} ${bgClass} rounded-xl`}>
+                    <Icon className={`h-6 w-6 ${textClass}`} />
+                  </div>
+                  <div className="text-2xl font-bold text-[#e2e2e8]">{type.commission}</div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-[#e2e2e8] mb-2">{type.title}</h3>
+                <p className="text-sm text-[#b9cacb] mb-4">{type.description}</p>
+                
+                <ul className="space-y-2 mb-6">
+                  {type.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                      <CheckCircle className="h-4 w-4 text-[#00F5FF] flex-shrink-0" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                
+                {type.ctaLink.startsWith("http") ? (
+                  <a
+                    href={type.ctaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center justify-center gap-2 w-full border ${colorClass} ${bgClass} ${textClass} px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition duration-150 hover:translate-y-[-1px]`}
+                  >
+                    {type.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                ) : (
+                  <Link
+                    href={type.ctaLink}
+                    className={`flex items-center justify-center gap-2 w-full border ${colorClass} ${bgClass} ${textClass} px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition duration-150 hover:translate-y-[-1px]`}
+                  >
+                    {type.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorksSection() {
+  return (
+    <section className="py-16 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            How It Works
+          </h2>
+          <p className="text-[#b9cacb] max-w-2xl mx-auto">
+            Simple steps to start earning commissions
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {HOW_IT_WORKS.map((item, index) => (
+            <div
+              key={item.step}
+              className="relative border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-2xl p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex h-12 w-12 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-xl">
+                  <span className="text-xl font-bold text-[#00F5FF]">{item.step}</span>
+                </div>
+                {index < HOW_IT_WORKS.length - 1 && (
+                  <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2">
+                    <ArrowDown className="h-6 w-6 text-[#00F5FF]/50" />
+                  </div>
+                )}
+              </div>
+              
+              <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">{item.title}</h3>
+              <p className="text-sm text-[#b9cacb]">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TestimonialsSection() {
+  return (
+    <section className="py-16 bg-[#070B12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            Partner Testimonials
+          </h2>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+          {PARTNER_TESTIMONIALS.map((testimonial) => (
+            <div
+              key={testimonial.name}
+              className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00F5FF]/50 transition-all duration-300"
+            >
+              <div className="flex items-start gap-4 mb-4">
+                <div className="relative flex-shrink-0">
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#00F5FF]/50 p-1">
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      width={64}
+                      height={64}
+                      className="rounded-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 bg-[#00F5FF] rounded-full p-1">
+                    <CheckCircle className="h-3 w-3 text-[#070B12]" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-[#e2e2e8] text-base">{testimonial.name}</h3>
+                  <p className="text-sm text-[#b9cacb] mt-1">{testimonial.school}</p>
+                  <div className="flex items-center gap-1 mt-2">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm text-[#b9cacb] leading-relaxed">"{testimonial.review}"</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ActivityFeedSection() {
+  const [currentActivity, setCurrentActivity] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentActivity((prev) => (prev + 1) % ACTIVITY_FEED.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section className="py-16 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto">
+          <div className="border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-2 w-2 rounded-full bg-[#00F5FF] animate-pulse" />
+              <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#00F5FF]">
+                Live Activity
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <CheckCircle className="h-5 w-5 text-[#00F5FF]" />
+              <p className="text-sm text-[#e2e2e8]">{ACTIVITY_FEED[currentActivity]}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LeaderboardSection() {
+  return (
+    <section className="py-16 bg-[#070B12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+            Monthly Top Partners
+          </h2>
+        </div>
+        
+        <div className="max-w-3xl mx-auto space-y-4">
+          {LEADERBOARD.map((partner) => {
+            const badgeIcon = partner.badge === "gold" ? Crown : partner.badge === "silver" ? Medal : Award;
+            const badgeColor = partner.badge === "gold" ? "text-yellow-400" : partner.badge === "silver" ? "text-gray-300" : "text-orange-400";
+            
+            return (
+              <div
+                key={partner.rank}
+                className="flex items-center gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all duration-300"
+              >
+                <div className="flex items-center justify-center w-10 h-10 border border-[#1f2229] bg-[#070B12] rounded-lg font-bold text-[#e2e2e8]">
+                  {partner.rank}
+                </div>
+                <div className="flex items-center gap-3">
+                  {badgeIcon && <badgeIcon className={`h-5 w-5 ${badgeColor}`} />}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-[#e2e2e8]">{partner.name}</h3>
+                  </div>
+                </div>
+                <div className="font-mono text-lg font-bold text-[#00F5FF]">
+                  {partner.earnings}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: "How do I become a partner?",
+      answer: "You can apply as a Community Partner through our application process. Students who purchase the course automatically become Student Partners."
+    },
+    {
+      question: "How and when do I get paid?",
+      answer: "Commissions are paid weekly after a 7-day holding period. Minimum withdrawal amount is ₦5,000."
+    },
+    {
+      question: "What's the difference between partner types?",
+      answer: "Student Partners are automatically activated after purchase. Community Partners require approval. Corporate Ambassadors have custom rates for bulk campaigns."
+    }
+  ];
+
+  return (
+    <section id="faq" className="py-16 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
+              >
+                <button
+                  className="w-full px-6 py-4 text-left flex items-center justify-between"
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                >
+                  <span className="font-medium text-[#e2e2e8]">{faq.question}</span>
+                  <CheckCircle className={`h-5 w-5 text-[#00F5FF] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
+                </button>
+                {openIndex === index && (
+                  <div className="px-6 pb-4 text-[#b9cacb]">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-[#1f2229] bg-[#070B12] py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <Image
+                src="/icon-dark-32x32.png"
+                alt="AutoLearn Spot"
+                width={32}
+                height={32}
+              />
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+                AutoLearn Spot
+              </span>
+            </div>
+            <p className="text-sm text-[#b9cacb] mb-4">
+              Become a partner and earn commissions while helping others learn valuable AI automation skills.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                Facebook
+              </a>
+              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                LinkedIn
+              </a>
+              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                Instagram
+              </a>
+              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                TikTok
+              </a>
+              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[##00F5FF] transition-colors">
+                YouTube
+              </a>
+              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                X
+              </a>
+              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                WhatsApp
+              </a>
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Program</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/curriculum" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Scholarship Program
+                </Link>
+              </li>
+              <li>
+                <Link href="/partners" className="text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors">
+                  Partner Program
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Student Dashboard
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Community</h3>
+            <ul className="space-y-2">
+              <li>
+                <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  WhatsApp Community
+                </a>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/about" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  About
+                </Link>
+              </li>
+              <li>
+                <a href={`https://wa.me/2348120934828?text=${encodeURIComponent("Hello AutoLearn Spot. I would like to make an enquiry about the Partner Program.")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Contact
+                </a>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Terms
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div className="border-t border-[#1f2229] pt-8 text-center">
+          <p className="text-sm text-[#b9cacb]">
+            © 2026 AutoLearn Spot. All Rights Reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default function PartnersPage() {
+  return (
+    <main className="min-h-screen bg-[#070B12]">
+      <Navigation />
+      <HeroSection />
+      <TrustSection />
+      <PartnerTypesSection />
+      <HowItWorksSection />
+      <TestimonialsSection />
+      <ActivityFeedSection />
+      <LeaderboardSection />
+      <FAQSection />
+      <Footer />
+    </main>
   );
 }

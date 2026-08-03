@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 export default function AdminGrowthCenter() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'partners' | 'withdrawals' | 'fraud'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'partners' | 'withdrawals' | 'fraud' | 'referrals' | 'commissions' | 'marketing'>('overview');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);

@@ -164,7 +164,7 @@ function EnrollForm() {
                   Direct Enrollment
                 </span>
               </div>
-              <h1 className="font-heading text-3xl sm:text-4xl font-semibold tracking-normal text-[#e2e2e8] mb-4">
+              <h1 className="text-3xl sm:text-4xl font-semibold tracking-normal text-[#e2e2e8] mb-4">
                 Start Your Automation Journey
               </h1>
               <p className="text-base leading-7 text-[#b9cacb]">

@@ -8,6 +8,8 @@ import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
 import { NotificationService } from '@/lib/growth-engine/NotificationService';
 import { FounderEmailService } from '@/lib/growth-engine/FounderEmailService';
 import { logUserActivity } from '@/lib/audit-logging';
+import { PartnerReferralService } from '@/lib/partner-system/PartnerReferralService';
+import { PartnerCommissionService } from '@/lib/partner-system/PartnerCommissionService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -213,6 +215,7 @@ export async function POST(request: NextRequest) {
     // Handle referral commission if applicable
     if (pendingEnrollment.referred_by && pendingEnrollment.referral_code) {
       try {
+        // Existing commission system
         await CommissionService.createCommission({
           referrerId: pendingEnrollment.referred_by,
           refereeEmail: pendingEnrollment.email,
@@ -229,6 +232,28 @@ export async function POST(request: NextRequest) {
           paymentAmount: amountInNaira,
           paymentReference: reference,
         });
+
+        // New partner commission system integration
+        const { data: partnerReferral } = await supabaseAdmin
+          .from('partner_referrals')
+          .select('id, partner_id')
+          .eq('referral_code', pendingEnrollment.referral_code)
+          .single();
+
+        if (partnerReferral) {
+          await PartnerReferralService.recordReferralEnrollment(
+            pendingEnrollment.referral_code,
+            newUser.id,
+            amountInNaira
+          );
+
+          await PartnerCommissionService.createCommission(
+            partnerReferral.partner_id,
+            partnerReferral.id,
+            newUser.id,
+            amountInNaira
+          );
+        }
       } catch (commissionError) {
         console.error('Error creating commission:', commissionError);
         // Continue anyway, user creation was successful

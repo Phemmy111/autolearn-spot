@@ -19,8 +19,8 @@ export function SocialIcon({ src, alt, href, className = '' }: SocialIconProps) 
       <Image
         src={src}
         alt={alt}
-        width={20}
-        height={20}
+        width={24}
+        height={24}
         className="text-[#b9cacb] hover:text-[#00f0ff]"
       />
     </a>

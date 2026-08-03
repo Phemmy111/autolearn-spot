@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { SessionService } from '@/lib/growth-engine/SessionService';
 import { PartnerService } from '@/lib/growth-engine/PartnerService';
 import { WithdrawalService } from '@/lib/growth-engine/WithdrawalService';
+import { PartnerWithdrawalService } from '@/lib/partner-system/PartnerWithdrawalService';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -45,18 +46,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Bank profile not found. Please add your bank details first.' }, { status: 400 });
     }
 
-    // Submit withdrawal
-    const result = await WithdrawalService.submitWithdrawal({
-      userId: partner.id,
-      userType: partner.partner_type,
+    // Submit withdrawal using new service
+    const result = await PartnerWithdrawalService.createWithdrawal(
+      partner.id,
       amount,
-      bankName: bankProfile.bank_name,
-      accountNumber: bankProfile.account_number,
-      accountName: bankProfile.account_name
-    });
+      bankProfile.bank_name,
+      bankProfile.account_number,
+      bankProfile.account_name
+    );
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+    if (!result) {
+      return NextResponse.json({ error: 'Failed to submit withdrawal' }, { status: 400 });
     }
 
     // Update partner stats

@@ -20,7 +20,11 @@ import {
   GitFork,
   Sheet,
   Plus,
-  Repeat,
+  Target,
+  Zap,
+  Shield,
+  Trophy,
+  Star,
   Infinity
 } from 'lucide-react'
 import Link from 'next/link'
@@ -30,30 +34,30 @@ import { LiveActivityFeed } from '@/components/live-activity-feed'
 import { SocialIcon } from '@/components/social-icon'
 import { socialLinks } from '@/config/social'
 import { studentTestimonials } from '@/config/testimonials'
+import Image from 'next/image'
 import './page.css'
 
 const navItems = [
   { name: 'Curriculum', href: '#curriculum' },
   { name: 'Tools', href: '#tools' },
-  { name: 'Why', href: '#why' },
+  { name: 'Why AutoLearn Spot', href: '#why' },
   { name: 'FAQ', href: '#faq' },
   { name: 'Partners', href: '/partners' },
+  { name: 'Student Dashboard', href: '/dashboard' },
+  { name: 'Scholarship', href: '/scholarship' },
 ]
 
 const stats = [
   { value: '10+', label: 'Real Workflows Built' },
-  { value: '12', label: 'Hands-on Sessions' },
+  { value: '12', label: 'Live Hands-on Sessions' },
   { value: '4 Weeks', label: 'Program Duration' },
-  { value: '100%', label: 'Practical' },
+  { value: '100%', label: 'Practical Learning' },
 ]
 
 const enrollmentBenefits = [
-  'Lifetime access',
-  'Live Saturday classes',
-  'Videos',
-  'Practical projects',
-  'Quizzes',
-  'Assignments',
+  'Live classes every Saturday',
+  'Recorded lessons',
+  'Practical assignments',
   'Certificate',
   'Community',
 ]
@@ -90,15 +94,21 @@ const curriculumWeeks = [
   },
 ]
 
-const whatYouGet = [
-  { icon: Infinity, title: 'Lifetime Access', description: 'Access all content forever' },
-  { icon: Rocket, title: 'Real Projects', description: 'Build 10+ production workflows' },
-  { icon: Users, title: 'Community', description: 'Join a network of automation experts' },
-  { icon: GraduationCap, title: 'Certificate', description: 'Verified credential from Moon Space Network' },
-  { icon: MessageCircle, title: 'Support', description: 'Direct access to instructors' },
-  { icon: FileText, title: 'Quizzes', description: 'Test your knowledge with assessments' },
-  { icon: Award, title: 'Partner Opportunity', description: 'Earn commissions through referrals' },
-  { icon: Video, title: 'Recorded Sessions', description: 'Never miss a class with lifetime recordings' },
+const featureIcons = [
+  { icon: Webhook, title: 'n8n Automation', description: 'Master visual workflow automation' },
+  { icon: BrainCircuit, title: 'AI Integration', description: 'Connect ChatGPT to real workflows' },
+  { icon: Rocket, title: 'Real Projects', description: 'Build 10+ production-ready automations' },
+  { icon: MessageCircle, title: 'Live Support', description: 'Direct access to instructors' },
+  { icon: GraduationCap, title: 'Certification', description: 'Verified credential from Moon Space Network' },
+  { icon: Target, title: 'Career Opportunities', description: 'Launch your automation career' },
+]
+
+const trustBadges = [
+  { icon: Award, text: 'Certificate Issued' },
+  { icon: Video, text: 'Live Classes' },
+  { icon: Rocket, text: 'Practical Projects' },
+  { icon: Infinity, text: 'Lifetime Access' },
+  { icon: Users, text: 'Community Support' },
 ]
 
 const workflowNodes = [
@@ -151,141 +161,6 @@ const workflowNodes = [
 
 const workflowLog = ['Form submitted', 'AI score: 94%', 'Student added to sheet']
 
-
-
-const faqs = [
-  {
-    question: 'Do I need coding experience?',
-    answer: 'No. AutoLearn Spot is 100% beginner-friendly. n8n is visual — no coding required. Many learners had zero technical background before joining.',
-  },
-  {
-    question: 'What if I miss a session?',
-    answer: 'All 12 sessions are recorded and available for lifetime access. You can catch up anytime, though live sessions offer real-time Q&A.',
-  },
-  {
-    question: 'Is the certificate recognized?',
-    answer: 'Yes. The certificate is issued by Moon Space Network, a trusted organization. You can display it on LinkedIn and professional profiles.',
-  },
-  {
-    question: 'What payment methods do you accept?',
-    answer: 'We use Paystack for secure payments — Visa, Mastercard, bank transfer, or USSD. All transactions are encrypted.',
-  },
-  {
-    question: 'Can I get a refund?',
-    answer: "We offer a full refund within the first 3 days if you're not satisfied. No questions asked.",
-  },
-  {
-    question: 'How long do I have access?',
-    answer: 'Lifetime. Once enrolled, you have access to all 12 recordings and any future updates to the curriculum.',
-  },
-]
-
-function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { isSignedIn } = useAuth()
-
-  return (
-    <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff] group-hover:border-[#00f0ff] transition-colors">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-              AutoLearn Spot
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
-            {isSignedIn ? (
-              <Link
-                href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-              >
-                Student Dashboard
-              </Link>
-            ) : (
-              <Link
-                href="/sign-in"
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-              >
-                Login
-              </Link>
-            )}
-            <Link
-              href="/enroll"
-              className="flex items-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
-            >
-              Enroll Now — ₦8,000
-            </Link>
-          </div>
-
-          <button
-            className="md:hidden text-[#b9cacb]"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[#1f2229] bg-[#0c0e12]">
-          <div className="px-4 py-4 space-y-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
-            {isSignedIn ? (
-              <Link
-                href="/dashboard"
-                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Student Dashboard
-              </Link>
-            ) : (
-              <Link
-                href="/sign-in"
-                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Login
-              </Link>
-            )}
-            <Link
-              href="/enroll"
-              className="block w-full text-center border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a]"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Enroll Now — ₦8,000
-            </Link>
-          </div>
-        </div>
-      )}
-    </nav>
-  )
-}
-
 function WorkflowNode({
   node,
 }: {
@@ -326,7 +201,7 @@ function WorkflowNode({
 
 function N8nWorkflowPanel() {
   return (
-    <div className="relative z-10 w-full max-w-[620px] border border-[#1f2229] bg-[#0c0e12]">
+    <div className="relative z-10 w-full max-w-[620px] border border-[#1f2229] bg-[#0c0e12] rounded-2xl overflow-hidden">
       <div className="flex h-8 items-center justify-between border-b border-[#1f2229] bg-[#1a1c20] px-4">
         <span className="font-mono text-[10px] text-[#b9cacb]">live_workflow.n8n</span>
         <div className="flex items-center gap-2">
@@ -463,7 +338,7 @@ function N8nWorkflowPanel() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="trunc... font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8]">
+                    <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8]">
                       {node.label}
                     </h3>
                     <span className="workflow-status-dot h-2 w-2 rounded-full bg-[#00f0ff]" />
@@ -479,52 +354,106 @@ function N8nWorkflowPanel() {
   )
 }
 
+function Navigation() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isSignedIn } = useAuth()
+
+  return (
+    <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2 group">
+            <Image
+              src="/icon-dark-32x32.png"
+              alt="AutoLearn Spot"
+              width={32}
+              height={32}
+              className="group-hover:scale-110 transition-transform"
+            />
+            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+              AutoLearn Spot
+            </span>
+          </Link>
+
+          <div className="hidden lg:flex items-center gap-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          <button
+            className="lg:hidden text-[#b9cacb]"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+      </div>
+
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t border-[#1f2229] bg-[#0c0e12]">
+          <div className="px-4 py-4 space-y-3">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  )
+}
+
 function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center bg-[#050505] overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <div className="space-y-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="space-y-6">
             <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1">
               <Sparkles className="h-4 w-4 text-[#00f0ff]" />
               <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
-                4-Week Hands-On Training
+                4 WEEK HANDS-ON TRAINING
               </span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#e2e2e8] leading-tight">
-              BUILD REAL AI AUTOMATIONS.
-              <span className="text-[#00f0ff]"> GET CERTIFIED.</span>
+              BUILD REAL AI
+              <span className="text-[#00f0ff]"> AUTOMATIONS.</span>
+              <br />
+              GET CERTIFIED.
             </h1>
             
             <p className="text-lg text-[#b9cacb] leading-relaxed">
-              Master n8n automation and build powerful AI-powered workflows without coding. 
-              Go from beginner to certified automation expert in just 4 weeks.
+              Master n8n automation and build powerful AI-powered workflows without coding.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/enroll"
-                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] w-full sm:w-auto"
               >
                 Enroll Now — ₦8,000
               </Link>
-              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10">
+              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 w-full sm:w-auto">
                 <Play className="h-4 w-4" />
                 Watch Preview
               </button>
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 border-t border-[#1f2229]">
-              {stats.map((stat) => (
-                <div key={stat.label}>
-                  <div className="text-2xl sm:text-3xl font-bold text-[#00f0ff]">{stat.value}</div>
-                  <div className="text-xs text-[#b9cacb] mt-1">{stat.label}</div>
-                </div>
-              ))}
             </div>
           </div>
           
@@ -539,25 +468,56 @@ function HeroSection() {
   )
 }
 
+function InfoCards() {
+  return (
+    <section className="py-8 bg-[#0c0e12]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">COHORT</div>
+            <div className="text-xl font-bold text-[#e2e2e8]">Current Cohort</div>
+          </div>
+          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">SEATS LEFT</div>
+            <div className="text-xl font-bold text-[#00f0ff]">Remaining Seats</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function StatsSection() {
+  return (
+    <section className="py-8 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {stats.map((stat) => (
+            <div key={stat.label} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-[#00f0ff]">{stat.value}</div>
+              <div className="text-xs text-[#b9cacb] mt-1">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function EnrollmentSection() {
   return (
-    <section className="py-20 bg-[#0c0e12]">
+    <section className="py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+        <div className="grid lg:grid-cols-2 gap-8">
+          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-4">
               Enroll Now
             </h2>
-            <div className="text-5xl sm:text-6xl font-bold text-[#00f0ff] mb-4">
+            <div className="text-4xl sm:text-5xl font-bold text-[#00f0ff] mb-4">
               ₦8,000
             </div>
-            <p className="text-[#b9cacb]">
-              Full access to the complete 4-week automation training program
-            </p>
-          </div>
-          
-          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            
+            <div className="space-y-3 mb-6">
               {enrollmentBenefits.map((benefit) => (
                 <div key={benefit} className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
@@ -574,6 +534,39 @@ function EnrollmentSection() {
             >
               Enroll Now — ₦8,000
             </a>
+            
+            <p className="text-center text-xs text-[#b9cacb] mt-4">
+              Secure payment powered by Paystack
+            </p>
+          </div>
+          
+          <div>
+            <h3 className="text-xl font-bold text-[#e2e2e8] mb-6">What You'll Get</h3>
+            <div className="space-y-4">
+              {[
+                { icon: Star, title: 'Lifetime Access', description: 'Access all content forever' },
+                { icon: Rocket, title: 'Real Projects', description: 'Build 10+ production workflows' },
+                { icon: Users, title: 'Community', description: 'Join a network of automation experts' },
+                { icon: GraduationCap, title: 'Certificate', description: 'Verified credential from Moon Space Network' },
+                { icon: MessageCircle, title: 'Support', description: 'Direct access to instructors' },
+              ].map((item) => {
+                const Icon = item.icon
+                return (
+                  <div
+                    key={item.title}
+                    className="flex items-start gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 hover:border-[#00f0ff]/50 transition-all duration-300"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-lg flex-shrink-0">
+                      <Icon className="h-5 w-5 text-[#00f0ff]" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-[#e2e2e8] text-sm">{item.title}</h4>
+                      <p className="text-xs text-[#b9cacb] mt-1">{item.description}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -583,24 +576,23 @@ function EnrollmentSection() {
 
 function ScholarshipSection() {
   return (
-    <section className="py-20 bg-[#050505]">
+    <section className="py-12 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-4">
+        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#e2e2e8] mb-2">
                 Need Financial Support?
               </h2>
-              <p className="text-[#b9cacb] leading-relaxed">
-                Apply for the AutoLearn Spot Scholarship and, if approved, gain access to the full ₦8,000 training for only a ₦5,000 commitment fee.
+              <p className="text-[#b9cacb] text-sm sm:text-base">
+                Apply for our scholarship programme and get trained at a reduced rate.
               </p>
             </div>
-            
             <Link
-              href="/scholarship"
-              className="flex items-center justify-center gap-2 w-full border border-purple-500 bg-purple-500/10 px-6 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400 transition duration-150 hover:bg-purple-500/20"
+              href="/scholarship/apply"
+              className="flex items-center justify-center gap-2 border border-purple-500 bg-purple-500/10 px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400 transition duration-150 hover:bg-purple-500/20 whitespace-nowrap"
             >
-              Apply for Scholarship
+              Apply For Scholarship
             </Link>
           </div>
         </div>
@@ -611,9 +603,9 @@ function ScholarshipSection() {
 
 function CurriculumSection() {
   return (
-    <section id="curriculum" className="py-20 bg-[#0c0e12]">
+    <section id="curriculum" className="py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
             Curriculum
           </h2>
@@ -622,7 +614,7 @@ function CurriculumSection() {
           </p>
         </div>
         
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {curriculumWeeks.map((week) => (
             <div
               key={week.step}
@@ -632,39 +624,33 @@ function CurriculumSection() {
                   : 'border-[#1f2229] bg-[#050505]/80'
               } backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300`}
             >
-              <div className="flex flex-col sm:flex-row sm:items-start gap-6">
-                <div className="flex-shrink-0">
-                  <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
-                    week.active 
-                      ? 'bg-[#00f0ff] text-[#00363a]' 
-                      : 'bg-[#1f2229] text-[#00f0ff]'
-                  }`}>
-                    <span className="text-2xl font-bold">{week.step}</span>
-                  </div>
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  week.active 
+                    ? 'bg-[#00f0ff] text-[#00363a]' 
+                    : 'bg-[#1f2229] text-[#00f0ff]'
+                }`}>
+                  <span className="text-xl font-bold">{week.step}</span>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
-                      {week.phase}
-                    </span>
-                    {week.active && (
-                      <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] text-xs font-mono uppercase tracking-wider">
-                        Current
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-xl font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
-                  <p className="text-[#b9cacb] mb-4">{week.body}</p>
-                  <ul className="space-y-2">
-                    {week.items.map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                        <CheckCircle className="h-4 w-4 text-[#00f0ff] flex-shrink-0" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {week.active && (
+                  <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] text-xs font-mono uppercase tracking-wider">
+                    Current
+                  </span>
+                )}
               </div>
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff] mb-2">
+                {week.phase}
+              </div>
+              <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
+              <p className="text-sm text-[#b9cacb] mb-4">{week.body}</p>
+              <ul className="space-y-2">
+                {week.items.map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-xs text-[#b9cacb]">
+                    <CheckCircle className="h-3 w-3 text-[#00f0ff] flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -673,32 +659,29 @@ function CurriculumSection() {
   )
 }
 
-function WhatYouGetSection() {
+function FeaturesSection() {
   return (
-    <section className="py-20 bg-[#050505]">
+    <section id="tools" className="py-16 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-            What You Get
+            What You'll Learn
           </h2>
-          <p className="text-[#b9cacb] max-w-2xl mx-auto">
-            Everything you need to become a certified automation expert
-          </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {whatYouGet.map((item) => {
-            const Icon = item.icon
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {featureIcons.map((feature) => {
+            const Icon = feature.icon
             return (
               <div
-                key={item.title}
+                key={feature.title}
                 className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
               >
                 <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mb-4">
                   <Icon className="h-6 w-6 text-[#00f0ff]" />
                 </div>
-                <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">{item.title}</h3>
-                <p className="text-sm text-[#b9cacb]">{item.description}</p>
+                <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>
+                <p className="text-sm text-[#b9cacb]">{feature.description}</p>
               </div>
             )
           })}
@@ -710,15 +693,12 @@ function WhatYouGetSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-20 bg-[#0c0e12]">
+    <section className="py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
             What Our Students Say
           </h2>
-          <p className="text-[#b9cacb] max-w-2xl mx-auto">
-            Real students from across Nigeria sharing their experience
-          </p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -739,9 +719,9 @@ function TestimonialsSection() {
   )
 }
 
-function LiveActivitySection() {
+function SocialProofSection() {
   return (
-    <section className="py-20 bg-[#050505]">
+    <section className="py-16 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <LiveActivityFeed />
@@ -751,31 +731,23 @@ function LiveActivitySection() {
   )
 }
 
-function TrustSection() {
+function TrustBadgesSection() {
   return (
-    <section className="py-20 bg-[#0c0e12]">
+    <section className="py-12 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-            Trusted by Students Across Nigeria
-          </h2>
-          <p className="text-xl text-[#b9cacb] mb-8">
-            Real students. Real projects. Real AI skills.
-          </p>
-          <div className="flex justify-center gap-8 text-[#b9cacb]">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#00f0ff]">500+</div>
-              <div className="text-sm mt-1">Students Enrolled</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#00f0ff]">50+</div>
-              <div className="text-sm mt-1">Universities</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#00f0ff]">1000+</div>
-              <div className="text-sm mt-1">Projects Built</div>
-            </div>
-          </div>
+        <div className="flex flex-wrap justify-center gap-4">
+          {trustBadges.map((badge) => {
+            const Icon = badge.icon
+            return (
+              <div
+                key={badge.text}
+                className="flex items-center gap-2 border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-full px-4 py-2"
+              >
+                <Icon className="h-4 w-4 text-[#00f0ff]" />
+                <span className="text-sm text-[#e2e2e8]">{badge.text}</span>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>
@@ -785,11 +757,26 @@ function TrustSection() {
 function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
+  const faqs = [
+    {
+      question: 'Do I need coding experience?',
+      answer: 'No. AutoLearn Spot is 100% beginner-friendly. n8n is visual — no coding required.',
+    },
+    {
+      question: 'What if I miss a session?',
+      answer: 'All sessions are recorded and available for lifetime access.',
+    },
+    {
+      question: 'Is the certificate recognized?',
+      answer: 'Yes. The certificate is issued by Moon Space Network.',
+    },
+  ]
+
   return (
-    <section id="faq" className="py-20 bg-[#050505]">
+    <section id="faq" className="py-16 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
               Frequently Asked Questions
             </h2>
@@ -826,36 +813,22 @@ function Footer() {
   return (
     <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff]">
-                <Sparkles className="h-4 w-4" />
-              </div>
+              <Image
+                src="/icon-dark-32x32.png"
+                alt="AutoLearn Spot"
+                width={32}
+                height={32}
+              />
               <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
                 AutoLearn Spot
               </span>
             </div>
-            <p className="text-sm text-[#b9cacb]">
+            <p className="text-sm text-[#b9cacb] mb-4">
               Master AI automation with hands-on training and get certified.
             </p>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              {navItems.map((item) => (
-                <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Connect With Us</h3>
             <div className="flex gap-3 flex-wrap">
               <SocialIcon
                 src={socialLinks.facebook.icon}
@@ -894,6 +867,35 @@ function Footer() {
               />
             </div>
           </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Navigation</h3>
+            <ul className="space-y-2">
+              {navItems.map((item) => (
+                <li key={item.name}>
+                  <Link href={item.href} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Contact</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                  Scholarship
+                </Link>
+              </li>
+              <li>
+                <a href={socialLinks.whatsapp.url} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                  WhatsApp Community
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
         
         <div className="border-t border-[#1f2229] pt-8 text-center">
@@ -911,13 +913,15 @@ export default function Page() {
     <main className="min-h-screen bg-[#050505]">
       <Navigation />
       <HeroSection />
+      <InfoCards />
+      <StatsSection />
       <EnrollmentSection />
       <ScholarshipSection />
       <CurriculumSection />
-      <WhatYouGetSection />
+      <FeaturesSection />
       <TestimonialsSection />
-      <LiveActivitySection />
-      <TrustSection />
+      <SocialProofSection />
+      <TrustBadgesSection />
       <FAQSection />
       <Footer />
     </main>

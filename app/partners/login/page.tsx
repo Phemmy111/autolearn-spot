@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, LogIn } from "lucide-react";
+import Image from "next/image";
+import { Loader2, LogIn, ArrowRight } from "lucide-react";
 
 export default function PartnerLoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [partnerType, setPartnerType] = useState<"community" | "influencer">("community");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,7 +20,6 @@ export default function PartnerLoginPage() {
     const data = {
       email: formData.get("email"),
       password: formData.get("password"),
-      partnerType,
     };
 
     try {
@@ -44,40 +43,29 @@ export default function PartnerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] flex items-center justify-center p-6 text-white">
+    <div className="min-h-screen bg-[#070B12] flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Partner Portal</h1>
-          <p className="text-[#b9cacb]">Sign in to manage your referrals and earnings</p>
+          <Link href="/" className="inline-flex items-center gap-2 mb-6">
+            <Image
+              src="/icon-dark-32x32.png"
+              alt="AutoLearn Spot"
+              width={32}
+              height={32}
+            />
+            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+              AutoLearn Spot
+            </span>
+          </Link>
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-2">
+            Partner Portal
+          </h1>
+          <p className="text-[#b9cacb]">
+            Sign in to manage your referrals and earnings
+          </p>
         </div>
 
-        <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl">
-          {/* Partner Type Selection */}
-          <div className="flex gap-2 mb-6">
-            <button
-              type="button"
-              onClick={() => setPartnerType("community")}
-              className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
-                partnerType === "community"
-                  ? "bg-[#00f0ff] text-black"
-                  : "bg-white/5 text-[#b9cacb] hover:bg-white/10"
-              }`}
-            >
-              Community Partner
-            </button>
-            <button
-              type="button"
-              onClick={() => setPartnerType("influencer")}
-              className={`flex-1 py-3 rounded-xl font-medium transition-colors ${
-                partnerType === "influencer"
-                  ? "bg-[#00f0ff] text-black"
-                  : "bg-white/5 text-[#b9cacb] hover:bg-white/10"
-              }`}
-            >
-              Influencer
-            </button>
-          </div>
-
+        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
           {error && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
               {error}
@@ -91,7 +79,7 @@ export default function PartnerLoginPage() {
                 required
                 type="email"
                 name="email"
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors"
+                className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="your@email.com"
               />
             </div>
@@ -102,7 +90,7 @@ export default function PartnerLoginPage() {
                 required
                 type="password"
                 name="password"
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors"
+                className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="••••••••"
               />
             </div>
@@ -110,7 +98,7 @@ export default function PartnerLoginPage() {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="w-full py-4 rounded-xl bg-[#00f0ff] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -127,14 +115,15 @@ export default function PartnerLoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/partners/apply" className="text-[#b9cacb] hover:text-[#00f0ff] text-sm transition-colors">
+            <Link href="/partners/apply" className="text-[#b9cacb] hover:text-[#00F5FF] text-sm transition-colors inline-flex items-center gap-1">
               Apply to become a Community Partner
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-[#b9cacb] hover:text-white text-sm transition-colors">
+          <Link href="/" className="text-[#b9cacb] hover:text-[#00F5FF] text-sm transition-colors">
             ← Back to AutoLearn Spot
           </Link>
         </div>
