@@ -195,23 +195,61 @@ export default function PartnerApplicationPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Client-side validation
+    const formData = new FormData(e.currentTarget);
+    const full_name = formData.get("full_name") as string;
+    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
+    const whatsapp = formData.get("whatsapp") as string;
+    const state = formData.get("state") as string;
+    const occupation = formData.get("occupation") as string;
+    const motivation = formData.get("motivation") as string;
+    const promotion_method = formData.get("promotion_method") as string;
+
     if (!agreed) {
       setError("Please agree to the terms and conditions");
       return;
     }
+
+    if (!full_name || !email || !phone || !whatsapp || !state || !occupation || !motivation || !promotion_method) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setIsSubmitting(true);
     setError("");
 
-    const formData = new FormData(e.currentTarget);
+    // Log form data for debugging
+    console.log('Form data submitted:', {
+      full_name,
+      email,
+      phone,
+      whatsapp,
+      state,
+      occupation,
+      motivation,
+      promotion_method,
+      passportFile: passportFile?.name,
+      hasPassport: !!passportFile
+    });
+
     const data = {
-      full_name: formData.get("full_name"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      whatsapp: formData.get("whatsapp"),
-      state: formData.get("state"),
-      occupation: formData.get("occupation"),
-      motivation: formData.get("motivation"),
-      promotion_method: formData.get("promotion_method"),
+      full_name,
+      email,
+      phone,
+      whatsapp,
+      state,
+      occupation,
+      motivation,
+      promotion_method,
       passport: passportFile,
       // Optional fields
       organization: formData.get("organization"),
@@ -232,18 +270,25 @@ export default function PartnerApplicationPage() {
         }
       });
 
+      console.log('Sending form data to API, entries:', Array.from(formDataToSend.entries()));
+
       const res = await fetch("/api/partners/apply", {
         method: "POST",
         body: formDataToSend,
       });
 
+      console.log('API response status:', res.status);
+      
       const result = await res.json();
+      console.log('API response data:', result);
+      
       if (res.ok && result.success) {
         setSuccess(true);
       } else {
         setError(result.error || "Failed to submit application");
       }
     } catch (err) {
+      console.error('Form submission error:', err);
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);

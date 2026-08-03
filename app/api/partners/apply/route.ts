@@ -11,6 +11,8 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     
+    console.log('[POST /api/partners/apply] Received form data entries:', Array.from(formData.entries()));
+    
     const full_name = formData.get('full_name') as string;
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
@@ -31,6 +33,18 @@ export async function POST(request: Request) {
     const experience = formData.get('experience') as string | null;
     const passport = formData.get('passport') as File | null;
 
+    console.log('[POST /api/partners/apply] Parsed fields:', {
+      full_name: !!full_name,
+      email: !!email,
+      phone: !!phone,
+      whatsapp: !!whatsapp,
+      state: !!state,
+      occupation: !!occupation,
+      motivation: !!motivation,
+      promotion_method: !!promotion_method,
+      hasPassport: !!passport
+    });
+
     // Validation
     if (!full_name || !email || !phone || !whatsapp || !state || !occupation || !motivation || !promotion_method) {
       console.error('[POST /api/partners/apply] Missing required fields:', { 
@@ -43,12 +57,25 @@ export async function POST(request: Request) {
         motivation: !!motivation, 
         promotion_method: !!promotion_method 
       });
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ 
+        error: 'Missing required fields. Please fill in all required fields.',
+        missing: {
+          full_name: !full_name,
+          email: !email,
+          phone: !phone,
+          whatsapp: !whatsapp,
+          state: !state,
+          occupation: !occupation,
+          motivation: !motivation,
+          promotion_method: !promotion_method
+        }
+      }, { status: 400 });
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.error('[POST /api/partners/apply] Invalid email:', email);
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
@@ -56,6 +83,8 @@ export async function POST(request: Request) {
     let passport_url = null;
     if (passport && passport.size > 0) {
       try {
+        console.log('[POST /api/partners/apply] Attempting passport upload:', passport.name, passport.size);
+        
         const fileExt = passport.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const filePath = `partner-passports/${fileName}`;
@@ -74,6 +103,7 @@ export async function POST(request: Request) {
             .from('partner-documents')
             .getPublicUrl(filePath);
           passport_url = publicUrl;
+          console.log('[POST /api/partners/apply] Passport uploaded successfully:', passport_url);
         }
       } catch (uploadError) {
         console.error('[POST /api/partners/apply] Upload exception:', uploadError);
@@ -98,6 +128,20 @@ export async function POST(request: Request) {
     }
 
     // Create application
+    console.log('[POST /api/partners/apply] Creating application with data:', {
+      full_name,
+      email,
+      phone,
+      whatsapp,
+      state,
+      occupation,
+      motivation,
+      promotion_method,
+      has_organization: !!organization,
+      has_website: !!website,
+      has_passport_url: !!passport_url
+    });
+
     const { data: application, error } = await supabaseAdmin
       .from('partner_applications')
       .insert({
@@ -125,8 +169,10 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('[POST /api/partners/apply] Database error:', error);
-      return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to submit application', details: error.message }, { status: 500 });
     }
+
+    console.log('[POST /api/partners/apply] Application created successfully:', application.id);
 
     await logReferralEvent({
       action: 'partner_application_submitted',
@@ -140,11 +186,23 @@ export async function POST(request: Request) {
     });
 
     // Send application received email to applicant
-    await PartnerEmailService.sendApplicationReceivedEmail(email, full_name);
+    try {
+      await PartnerEmailService.sendApplicationReceivedEmail(email, full_name);
+      console.log('[POST /api/partners/apply] Application email sent successfully');
+    } catch (emailError) {
+      console.error('[POST /api/partners/apply] Email error:', emailError);
+      // Continue even if email fails
+    }
 
     // Send notification to admin (you can configure admin email in env vars)
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@autolearnspot.com';
-    await PartnerEmailService.sendAdminNewApplicationNotification(adminEmail, full_name, email, application.id);
+    try {
+      await PartnerEmailService.sendAdminNewApplicationNotification(adminEmail, full_name, email, application.id);
+      console.log('[POST /api/partners/apply] Admin notification sent successfully');
+    } catch (adminEmailError) {
+      console.error('[POST /api/partners/apply] Admin email error:', adminEmailError);
+      // Continue even if admin email fails
+    }
 
     return NextResponse.json({ 
       success: true, 
