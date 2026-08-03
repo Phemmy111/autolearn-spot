@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { socialLinks } from "@/config/social";
 import { 
   ArrowLeft, 
   CheckCircle, 
@@ -64,6 +65,125 @@ const BENEFITS = [
     description: "Begin earning immediately after approval"
   }
 ];
+
+function PartnersFooter() {
+  return (
+    <footer className="border-t border-[#1f2229] bg-[#070B12] py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2 mb-4">
+              <Image
+                src="/icon-dark-32x32.png"
+                alt="AutoLearn Spot"
+                width={32}
+                height={32}
+              />
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+                AutoLearn Spot
+              </span>
+            </div>
+            <p className="text-sm text-[#b9cacb] mb-4">
+              Become a partner and earn commissions while helping others learn valuable AI automation skills.
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                Facebook
+              </a>
+              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                LinkedIn
+              </a>
+              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                Instagram
+              </a>
+              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                TikTok
+              </a>
+              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                YouTube
+              </a>
+              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                X
+              </a>
+              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                WhatsApp
+              </a>
+            </div>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Program</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/partners" className="text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors">
+                  Partner Program
+                </Link>
+              </li>
+              <li>
+                <Link href="/partners/apply" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Apply Now
+                </Link>
+              </li>
+              <li>
+                <Link href="/partners/dashboard" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Partner Dashboard
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Support</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/contact" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <a href={`https://wa.me/2348120934828?text=${encodeURIComponent("Hello AutoLearn Spot. I need assistance with the partner program.")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  WhatsApp Support
+                </a>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Terms
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div className="border-t border-[#1f2229] pt-8 text-center">
+          <p className="text-sm text-[#b9cacb]">
+            © 2026 AutoLearn Spot. All Rights Reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
 
 export default function PartnerApplicationPage() {
   const router = useRouter();
@@ -132,24 +252,27 @@ export default function PartnerApplicationPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#070B12] flex items-center justify-center p-6">
-        <div className="max-w-md w-full">
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-8 text-center">
-            <div className="flex items-center justify-center w-20 h-20 border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-full mx-auto mb-6">
-              <CheckCircle className="h-10 w-10 text-[#00F5FF]" />
+      <div className="min-h-screen bg-[#070B12] flex flex-col">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="max-w-md w-full">
+            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-8 text-center">
+              <div className="flex items-center justify-center w-20 h-20 border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-full mx-auto mb-6">
+                <CheckCircle className="h-10 w-10 text-[#00F5FF]" />
+              </div>
+              <h2 className="text-2xl font-bold text-[#e2e2e8] mb-4">Application Received!</h2>
+              <p className="text-[#b9cacb] mb-8 leading-relaxed">
+                Thank you for applying to become a Community Partner with AutoLearn Spot. Our team will review your application and get back to you via email within 2-3 business days.
+              </p>
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center gap-2 w-full border border-[#00F5FF] bg-[#00F5FF] px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
+              >
+                Return Home
+              </Link>
             </div>
-            <h2 className="text-2xl font-bold text-[#e2e2e8] mb-4">Application Received!</h2>
-            <p className="text-[#b9cacb] mb-8 leading-relaxed">
-              Thank you for applying to become a Community Partner with AutoLearn Spot. Our team will review your application and get back to you via email within 2-3 business days.
-            </p>
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center gap-2 w-full border border-[#00F5FF] bg-[#00F5FF] px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
-            >
-              Return Home
-            </Link>
           </div>
         </div>
+        <PartnersFooter />
       </div>
     );
   }
@@ -520,6 +643,7 @@ export default function PartnerApplicationPage() {
           </div>
         </div>
       </main>
+      <PartnersFooter />
     </div>
   );
 }
