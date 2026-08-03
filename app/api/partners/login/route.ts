@@ -60,28 +60,37 @@ export async function POST(request: Request) {
         }
       } else {
         console.log('[POST /api/partners/login] Partner not found by email either, creating new partner record');
-        // Create partner record as fallback
-        const { data: newPartner, error: createError } = await supabaseAdmin
-          .from('partners')
-          .insert({
+        // Create partner record as fallback with minimal required fields
+        try {
+          const partnerData = {
             partner_type: 'community',
             community_ambassador_id: authResult.user.id,
-            full_name: authResult.user.full_name,
+            full_name: authResult.user.full_name || 'Partner',
             email: authResult.user.email,
-            phone: authResult.user.phone,
             commission_rate: 1500,
             status: 'active'
-          })
-          .select()
-          .single();
-        
-        if (createError) {
-          console.error('[POST /api/partners/login] Failed to create partner record:', createError);
-          return NextResponse.json({ error: 'Partner record not found and could not be created' }, { status: 404 });
+          };
+          
+          console.log('[POST /api/partners/login] Creating partner with data:', partnerData);
+          
+          const { data: newPartner, error: createError } = await supabaseAdmin
+            .from('partners')
+            .insert(partnerData)
+            .select()
+            .single();
+          
+          if (createError) {
+            console.error('[POST /api/partners/login] Failed to create partner record:', createError);
+            console.error('[POST /api/partners/login] Error details:', JSON.stringify(createError));
+            return NextResponse.json({ error: 'Partner record not found and could not be created: ' + createError.message }, { status: 500 });
+          }
+          
+          console.log('[POST /api/partners/login] Created new partner record:', newPartner.id);
+          partner = newPartner;
+        } catch (e) {
+          console.error('[POST /api/partners/login] Exception creating partner record:', e);
+          return NextResponse.json({ error: 'Partner record not found and could not be created' }, { status: 500 });
         }
-        
-        console.log('[POST /api/partners/login] Created new partner record:', newPartner.id);
-        partner = newPartner;
       }
     }
 
