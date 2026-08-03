@@ -1,4 +1,3 @@
-"use client";
 import {
   CheckCircle,
   Sparkles,
@@ -11,8 +10,6 @@ import {
   FileText,
   MessageCircle,
   Globe,
-  Menu,
-  X,
   Rocket,
   Webhook,
   BrainCircuit,
@@ -28,7 +25,8 @@ import {
   Mail
 } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import Image from 'next/image'
+import Navigation from '@/components/Navigation'
 import { StudentTestimonialCard } from '@/components/student-testimonial-card'
 import { LiveActivityFeed } from '@/components/live-activity-feed'
 import { SocialIcon } from '@/components/social-icon'
@@ -351,75 +349,6 @@ function N8nWorkflowPanel() {
         </div>
       </div>
     </div>
-  )
-}
-
-function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  return (
-    <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
-          <Link href="/" className="flex items-center gap-2 group">
-            <Image
-              src="/icon-dark-32x32.png"
-              alt="AutoLearn Spot"
-              width={32}
-              height={32}
-              className="group-hover:scale-110 transition-transform"
-            />
-            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-              AutoLearn Spot
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-6 sm:gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-
-          <button
-            className="lg:hidden text-[#b9cacb]"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu Sidebar - Following student dashboard pattern */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <div className="fixed right-0 top-0 h-full w-64 bg-[#0c0e12] border-l border-[#1f2229] p-6">
-            <div className="flex flex-col gap-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#111317] hover:text-[#00f0ff]"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </nav>
   )
 }
 
