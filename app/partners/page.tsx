@@ -132,7 +132,7 @@ function HeroSection() {
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
-          <div className="space-y-5 sm:space-y-6 lg:space-y-8 order-2 lg:order-1">
+          <div className="space-y-5 sm:space-y-6 lg:space-y-8 order-2 lg:order-1 flex flex-col justify-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
               Earn More.
               <span className="text-[#00F5FF]"> Impact More.</span>

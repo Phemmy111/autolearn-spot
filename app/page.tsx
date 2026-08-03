@@ -426,7 +426,7 @@ function HeroSection() {
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
-          <div className="space-y-5 sm:space-y-6 lg:space-y-8 order-2 lg:order-1">
+          <div className="space-y-5 sm:space-y-6 lg:space-y-8 order-2 lg:order-1 flex flex-col justify-center">
             <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2">
               <Sparkles className="h-4 w-4 text-[#00f0ff]" />
               <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
