@@ -382,7 +382,7 @@ export default function PartnerDashboard() {
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <div className="bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 font-mono text-sm text-[#b9cacb] truncate flex-1 sm:w-64">
-                    {referral?.link || "Loading..."}
+                    {data?.referral?.link || "Loading..."}
                   </div>
                   <button
                     onClick={handleCopyLink}
@@ -441,28 +441,28 @@ export default function PartnerDashboard() {
                       <div>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#b9cacb]">Clicks</span>
-                          <span className="text-[#e2e2e8]">{stats?.totalClicks || 0}</span>
+                          <span className="text-[#e2e2e8]">{data?.referral?.totalClicks || 0}</span>
                         </div>
                         <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
-                          <div className="h-full bg-[#00F5FF] rounded-full" style={{ width: `${Math.min((stats?.totalClicks || 0) / 100 * 100, 100)}%` }} />
+                          <div className="h-full bg-[#00F5FF] rounded-full" style={{ width: `${Math.min((data?.referral?.totalClicks || 0) / 100 * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#b9cacb]">Conversions</span>
-                          <span className="text-[#e2e2e8]">{stats?.totalSuccessfulPurchases || 0}</span>
+                          <span className="text-[#e2e2e8]">{data?.referral?.totalRegistrations || 0}</span>
                         </div>
                         <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min((stats?.totalSuccessfulPurchases || 0) / (stats?.totalRegistrations || 1) * 100, 100)}%` }} />
+                          <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min((data?.referral?.totalRegistrations || 0) / (data?.referral?.totalClicks || 1) * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#b9cacb]">Success Rate</span>
-                          <span className="text-[#e2e2e8]">{stats?.totalRegistrations > 0 ? Math.round((stats?.totalSuccessfulPurchases || 0) / stats?.totalRegistrations * 100) : 0}%</span>
+                          <span className="text-[#e2e2e8]">{data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%</span>
                         </div>
                         <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
-                          <div className="h-full bg-green-500 rounded-full" style={{ width: `${stats?.totalRegistrations > 0 ? Math.round((stats?.totalSuccessfulPurchases || 0) / stats?.totalRegistrations * 100) : 0}%` }} />
+                          <div className="h-full bg-green-500 rounded-full" style={{ width: `${data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%` }} />
                         </div>
                       </div>
                     </div>
@@ -511,22 +511,30 @@ export default function PartnerDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="border-b border-[#1f2229]">
-                        <td className="py-3 px-4 text-sm text-[#e2e2e8]">John Doe</td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-green-500/10 text-green-400 text-xs rounded-full">Paid</span>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-[#b9cacb]">Jan 15, 2026</td>
-                        <td className="py-3 px-4 text-sm text-[#00F5FF]">₦1,500</td>
-                      </tr>
-                      <tr className="border-b border-[#1f2229]">
-                        <td className="py-3 px-4 text-sm text-[#e2e2e8]">Jane Smith</td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-yellow-500/10 text-yellow-400 text-xs rounded-full">Pending</span>
-                        </td>
-                        <td className="py-3 px-4 text-sm text-[#b9cacb]">Jan 18, 2026</td>
-                        <td className="py-3 px-4 text-sm text-[#b9cacb]">₦1,500</td>
-                      </tr>
+                      {data?.recentCommissions && data.recentCommissions.length > 0 ? (
+                        data.recentCommissions.map((commission: any) => (
+                          <tr key={commission.id} className="border-b border-[#1f2229]">
+                            <td className="py-3 px-4 text-sm text-[#e2e2e8]">{commission.referred_name || 'Unknown'}</td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2 py-1 text-xs rounded-full ${
+                                commission.status === 'paid' 
+                                  ? 'bg-green-500/10 text-green-400' 
+                                  : commission.status === 'pending'
+                                  ? 'bg-yellow-500/10 text-yellow-400'
+                                  : 'bg-red-500/10 text-red-400'
+                              }`}>
+                                {commission.status || 'Pending'}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-sm text-[#b9cacb]">{new Date(commission.created_at).toLocaleDateString()}</td>
+                            <td className="py-3 px-4 text-sm text-[#00F5FF]">₦{commission.amount?.toLocaleString()}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="py-4 text-center text-sm text-[#b9cacb]">No referral history yet</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
