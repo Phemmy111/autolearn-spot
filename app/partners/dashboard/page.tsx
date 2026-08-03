@@ -51,6 +51,12 @@ export default function PartnerDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [bankFormData, setBankFormData] = useState({
+    bank_name: '',
+    account_number: '',
+    account_name: ''
+  });
+  const [isSavingBank, setIsSavingBank] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -696,6 +702,96 @@ export default function PartnerDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Bank Profile Modal */}
+      {showBankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6 sm:p-8 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-[#e2e2e8]">Setup Bank Profile</h2>
+              <button
+                onClick={() => setShowBankModal(false)}
+                className="text-[#b9cacb] hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setIsSavingBank(true);
+              try {
+                const res = await fetch('/api/partners/bank-profile', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(bankFormData)
+                });
+                if (res.ok) {
+                  setShowBankModal(false);
+                  fetchDashboardData();
+                  alert('Bank profile saved successfully');
+                } else {
+                  alert('Failed to save bank profile');
+                }
+              } catch (error) {
+                alert('Error saving bank profile');
+              } finally {
+                setIsSavingBank(false);
+              }
+            }} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Bank Name</label>
+                <input
+                  type="text"
+                  required
+                  value={bankFormData.bank_name}
+                  onChange={(e) => setBankFormData({...bankFormData, bank_name: e.target.value})}
+                  className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  placeholder="Enter bank name"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Account Number</label>
+                <input
+                  type="text"
+                  required
+                  value={bankFormData.account_number}
+                  onChange={(e) => setBankFormData({...bankFormData, account_number: e.target.value})}
+                  className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  placeholder="Enter account number"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Account Name</label>
+                <input
+                  type="text"
+                  required
+                  value={bankFormData.account_name}
+                  onChange={(e) => setBankFormData({...bankFormData, account_name: e.target.value})}
+                  className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  placeholder="Enter account name"
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowBankModal(false)}
+                  className="flex-1 py-3 border border-[#1f2229] text-[#b9cacb] rounded-lg font-medium hover:bg-[#070B12] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingBank}
+                  className="flex-1 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingBank ? 'Saving...' : 'Save Profile'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
