@@ -13,14 +13,35 @@ export class CommunityAuthService {
   }
 
   static verifyPassword(password: string, storedHash: string): boolean {
-    const [salt, key] = storedHash.split(':');
-    const hashBuffer = crypto.scryptSync(password, salt, 64);
-    const keyBuffer = Buffer.from(key, 'hex');
-    return crypto.timingSafeEqual(hashBuffer, keyBuffer);
+    try {
+      console.log('[CommunityAuthService] verifyPassword called');
+      const parts = storedHash.split(':');
+      console.log('[CommunityAuthService] Hash parts length:', parts.length);
+      
+      if (parts.length !== 2) {
+        console.error('[CommunityAuthService] Invalid hash format');
+        return false;
+      }
+      
+      const [salt, key] = parts;
+      console.log('[CommunityAuthService] Salt length:', salt.length, 'Key length:', key.length);
+      
+      const hashBuffer = crypto.scryptSync(password, salt, 64);
+      const keyBuffer = Buffer.from(key, 'hex');
+      
+      const result = crypto.timingSafeEqual(hashBuffer, keyBuffer);
+      console.log('[CommunityAuthService] Password verification result:', result);
+      
+      return result;
+    } catch (error) {
+      console.error('[CommunityAuthService] Password verification error:', error);
+      return false;
+    }
   }
 
   static async authenticate(email: string, password: string): Promise<{ success: boolean; user?: any; error?: string }> {
     try {
+      console.log('[CommunityAuthService] authenticate called for email:', email);
       const { data: user, error } = await supabaseAdmin
         .from('community_ambassadors')
         .select('*')
@@ -28,14 +49,20 @@ export class CommunityAuthService {
         .single();
 
       if (error || !user) {
+        console.log('[CommunityAuthService] User not found or error:', error);
         return { success: false, error: 'Invalid credentials' };
       }
 
       if (user.status !== 'active') {
+        console.log('[CommunityAuthService] User not active:', user.status);
         return { success: false, error: 'Account is not active' };
       }
 
-      if (this.verifyPassword(password, user.password_hash)) {
+      console.log('[CommunityAuthService] Verifying password for user:', email);
+      const isValid = this.verifyPassword(password, user.password_hash);
+      console.log('[CommunityAuthService] Password verification result:', isValid);
+      
+      if (isValid) {
         // Exclude password hash
         const { password_hash, ...safeUser } = user;
         return { success: true, user: safeUser };
@@ -43,6 +70,7 @@ export class CommunityAuthService {
       
       return { success: false, error: 'Invalid credentials' };
     } catch (e) {
+      console.error('[CommunityAuthService] Authentication error:', e);
       return { success: false, error: 'Internal server error' };
     }
   }

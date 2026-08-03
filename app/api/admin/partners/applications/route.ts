@@ -102,7 +102,9 @@ export async function PUT(request: Request) {
 
     // Generate new temporary password
     const temporaryPassword = Math.random().toString(36).slice(-8);
+    console.log('[PUT /api/admin/partners/applications] Generated temporary password for email:', temporaryPassword);
     const passwordHash = CommunityAuthService.hashPassword(temporaryPassword);
+    console.log('[PUT /api/admin/partners/applications] Generated password hash:', passwordHash.substring(0, 20) + '...');
 
     // Update community ambassador password
     const { error: updateError } = await supabaseAdmin
@@ -113,6 +115,8 @@ export async function PUT(request: Request) {
     if (updateError) {
       console.error('Failed to update ambassador password:', updateError);
       // Continue anyway to send email with current password
+    } else {
+      console.log('[PUT /api/admin/partners/applications] Password updated successfully in database');
     }
 
     // Send email
