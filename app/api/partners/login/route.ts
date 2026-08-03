@@ -38,11 +38,13 @@ export async function POST(request: Request) {
     // Fallback: try to find partner by email if not found by ID
     if (!partner) {
       console.log('[POST /api/partners/login] Partner not found by ID, trying email lookup');
-      const { data: partnerByEmail } = await supabaseAdmin
+      const { data: partnerByEmail, error: emailError } = await supabaseAdmin
         .from('partners')
         .select('*')
         .eq('email', email)
         .single();
+      
+      console.log('[POST /api/partners/login] Email lookup result:', { found: !!partnerByEmail, error: emailError });
       
       if (partnerByEmail) {
         console.log('[POST /api/partners/login] Found partner by email:', partnerByEmail.id);
@@ -56,6 +58,30 @@ export async function POST(request: Request) {
             .update({ community_ambassador_id: authResult.user.id })
             .eq('id', partnerByEmail.id);
         }
+      } else {
+        console.log('[POST /api/partners/login] Partner not found by email either, creating new partner record');
+        // Create partner record as fallback
+        const { data: newPartner, error: createError } = await supabaseAdmin
+          .from('partners')
+          .insert({
+            partner_type: 'community',
+            community_ambassador_id: authResult.user.id,
+            full_name: authResult.user.full_name,
+            email: authResult.user.email,
+            phone: authResult.user.phone,
+            commission_rate: 1500,
+            status: 'active'
+          })
+          .select()
+          .single();
+        
+        if (createError) {
+          console.error('[POST /api/partners/login] Failed to create partner record:', createError);
+          return NextResponse.json({ error: 'Partner record not found and could not be created' }, { status: 404 });
+        }
+        
+        console.log('[POST /api/partners/login] Created new partner record:', newPartner.id);
+        partner = newPartner;
       }
     }
 
