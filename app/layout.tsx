@@ -2,7 +2,6 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
-import { ErrorBoundary } from '@/components/error-boundary'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -52,9 +51,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="dark">
         <body className="font-sans antialiased">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          {children}
           <WhatsAppChatModal variant="floating" />
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </body>
