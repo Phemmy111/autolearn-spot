@@ -130,15 +130,15 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div className="space-y-6 sm:space-y-8 order-2 lg:order-1">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#e2e2e8] leading-tight">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+          <div className="space-y-5 sm:space-y-6 lg:space-y-8 order-2 lg:order-1">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
               Earn More.
               <span className="text-[#00F5FF]"> Impact More.</span>
             </h1>
             
-            <p className="text-base sm:text-lg text-[#b9cacb] leading-relaxed max-w-xl">
+            <p className="text-sm sm:text-base lg:text-lg text-[#b9cacb] leading-relaxed max-w-xl">
               Become an AutoLearn Spot Community Partner and earn commissions by referring students to our AI Automation Training.
             </p>
             
@@ -149,25 +149,25 @@ function HeroSection() {
               </span>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/partners/apply"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-[#00F5FF] px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-[#00F5FF] px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
               >
                 Apply as Community Partner
               </Link>
               <Link
                 href="/partners/dashboard"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-[#00F5FF]/10 w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-[#00F5FF]/10 w-full sm:w-auto"
               >
                 Partner Dashboard
               </Link>
             </div>
           </div>
           
-          <div className="relative order-1 lg:order-2">
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
+          <div className="relative order-1 lg:order-2 mt-4 sm:mt-0">
+            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Partner Dashboard Preview</span>
                 <div className="flex gap-2">
                   <div className="h-2 w-2 rounded-full bg-[#00F5FF]" />
@@ -176,28 +176,28 @@ function HeroSection() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Available Balance</div>
-                  <div className="text-lg sm:text-xl font-bold text-[#00F5FF]">₦24,500</div>
+                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#00F5FF]">₦24,500</div>
                 </div>
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Pending Earnings</div>
-                  <div className="text-lg sm:text-xl font-bold text-[#e2e2e8]">₦7,500</div>
+                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">₦7,500</div>
                 </div>
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Total Referrals</div>
-                  <div className="text-lg sm:text-xl font-bold text-[#e2e2e8]">127</div>
+                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">127</div>
                 </div>
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3">
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Successful Enrollments</div>
-                  <div className="text-lg sm:text-xl font-bold text-[#e2e2e8]">89</div>
+                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">89</div>
                 </div>
               </div>
               
-              <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-3 sm:p-4">
+              <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3 lg:p-4">
                 <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">Monthly Earnings</div>
-                <div className="h-20 sm:h-24 flex items-end gap-1">
+                <div className="h-16 sm:h-20 lg:h-24 flex items-end gap-1">
                   {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
                     <div
                       key={i}
@@ -219,17 +219,17 @@ function HeroSection() {
 
 function TrustSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">Trusted by Partners</h2>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Join our growing community of successful partners</p>
         </div>
         
-        <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8">
           {TRUST_PARTNERS.map((partner, index) => (
             <div key={index} className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden">
                 <Image
                   src={partner.image}
                   alt={partner.name}
@@ -238,7 +238,7 @@ function TrustSection() {
                   className="object-cover"
                 />
               </div>
-              <span className="text-sm text-[#e2e2e8]">{partner.name}</span>
+              <span className="text-xs sm:text-sm text-[#e2e2e8]">{partner.name}</span>
             </div>
           ))}
         </div>
@@ -249,25 +249,25 @@ function TrustSection() {
 
 function PartnerTypesSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#070B12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">Choose Your Partner Type</h2>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Choose Your Partner Type</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Select the partnership model that suits you best</p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {PARTNER_TYPES.map((type, index) => (
-            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 hover:border-[#00F5FF]/50 transition-colors">
-              <div className="flex items-center justify-between mb-4">
+            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00F5FF]/50 transition-colors">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Commission</span>
-                <div className="text-xl sm:text-2xl font-bold text-[#00F5FF]">{type.commission}</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#00F5FF]">{type.commission}</div>
               </div>
               
-              <h3 className="text-lg sm:text-xl font-bold text-[#e2e2e8] mb-2">{type.title}</h3>
-              <p className="text-sm text-[#b9cacb] mb-6">{type.description}</p>
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8] mb-2">{type.title}</h3>
+              <p className="text-sm text-[#b9cacb] mb-4 sm:mb-6">{type.description}</p>
               
-              <ul className="space-y-2 mb-6">
+              <ul className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
                 {type.features.map((feature, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-[#e2e2e8]">
                     <CheckCircle className="h-4 w-4 text-[#00F5FF]" />
@@ -278,7 +278,7 @@ function PartnerTypesSection() {
               
               <Link
                 href={type.ctaLink}
-                className="block w-full text-center border border-[#00F5FF] bg-[#00F5FF] px-4 py-3 sm:px-6 sm:py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
+                className="block w-full text-center border border-[#00F5FF] bg-[#00F5FF] px-4 py-3 sm:px-5 sm:py-3 lg:px-6 lg:py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
               >
                 {type.cta}
               </Link>
@@ -292,18 +292,18 @@ function PartnerTypesSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">How It Works</h2>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Simple steps to start earning</p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {HOW_IT_WORKS.map((item, index) => (
-            <div key={index} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-5 sm:p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex h-12 w-12 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-lg font-bold text-[#00F5FF]">
+            <div key={index} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 sm:p-5 lg:p-6">
+              <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-base sm:text-lg font-bold text-[#00F5FF]">
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-sm sm:text-base text-[#e2e2e8]">{item.title}</h3>
@@ -319,18 +319,18 @@ function HowItWorksSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#070B12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">What Partners Say</h2>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">What Partners Say</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Hear from our successful partners</p>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {PARTNER_TESTIMONIALS.map((testimonial, index) => (
-            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden flex-shrink-0">
+            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
+              <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden flex-shrink-0">
                   <Image
                     src={testimonial.image}
                     alt={testimonial.name}
@@ -360,15 +360,15 @@ function TestimonialsSection() {
 
 function ActivityFeedSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">Live Activity</h2>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Real-time partner activity</p>
         </div>
         
-        <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-2xl p-5 sm:p-6">
-          <div className="space-y-3 sm:space-y-4">
+        <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-2xl p-4 sm:p-5 lg:p-6">
+          <div className="space-y-2 sm:space-y-3 lg:space-y-4">
             {ACTIVITY_FEED.map((activity, index) => (
               <div key={index} className="flex items-center gap-3 text-sm text-[#b9cacb]">
                 <div className="h-2 w-2 rounded-full bg-[#00F5FF]" />
@@ -384,27 +384,27 @@ function ActivityFeedSection() {
 
 function LeaderboardSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#070B12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">Top Partners</h2>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Top Partners</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Leaderboard of this month</p>
         </div>
         
         <div className="border border-[#1f2229] bg-[#0c0e12]/50 rounded-2xl overflow-hidden">
           {LEADERBOARD.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-4 sm:p-5 border-b border-[#1f2229] last:border-b-0">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-sm font-bold text-[#00F5FF]">
+            <div key={index} className="flex items-center justify-between p-3 sm:p-4 lg:p-5 border-b border-[#1f2229] last:border-b-0">
+              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-[#00F5FF]">
                   {item.rank}
                 </div>
-                <span className="text-sm sm:text-base text-[#e2e2e8]">{item.name}</span>
+                <span className="text-xs sm:text-sm lg:text-base text-[#e2e2e8]">{item.name}</span>
               </div>
-              <div className="flex items-center gap-3 sm:gap-4">
-                <span className="text-sm sm:text-base text-[#00F5FF] font-semibold">{item.earnings}</span>
-                {item.badge === 'gold' && <Crown className="h-5 w-5 text-yellow-500" />}
-                {item.badge === 'silver' && <Medal className="h-5 w-5 text-gray-400" />}
-                {item.badge === 'bronze' && <Award className="h-5 w-5 text-orange-500" />}
+              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                <span className="text-xs sm:text-sm lg:text-base text-[#00F5FF] font-semibold">{item.earnings}</span>
+                {item.badge === 'gold' && <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />}
+                {item.badge === 'silver' && <Medal className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />}
+                {item.badge === 'bronze' && <Award className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />}
               </div>
             </div>
           ))}
@@ -437,28 +437,28 @@ function FAQSection() {
   ];
   
   return (
-    <section className="py-12 sm:py-16 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">Frequently Asked Questions</h2>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Got questions? We've got answers</p>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
               className="border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
             >
               <button
-                className="w-full px-5 sm:px-6 py-4 text-left flex items-center justify-between"
+                className="w-full px-4 sm:px-5 lg:px-6 py-3 sm:py-4 text-left flex items-center justify-between"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
                 <span className="font-medium text-sm sm:text-base text-[#e2e2e8]">{faq.question}</span>
                 <CheckCircle className={`h-5 w-5 text-[#00F5FF] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
               </button>
               {openIndex === index && (
-                <div className="px-5 sm:px-6 pb-4 text-sm text-[#b9cacb]">
+                <div className="px-4 sm:px-5 lg:px-6 pb-3 sm:pb-4 text-sm text-[#b9cacb]">
                   {faq.answer}
                 </div>
               )}

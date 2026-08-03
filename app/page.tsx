@@ -423,9 +423,9 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div className="space-y-6 sm:space-y-8">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
+          <div className="space-y-5 sm:space-y-6 lg:space-y-8 order-2 lg:order-1">
             <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2">
               <Sparkles className="h-4 w-4 text-[#00f0ff]" />
               <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
@@ -433,32 +433,32 @@ function HeroSection() {
               </span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#e2e2e8] leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
               BUILD REAL AI
               <span className="text-[#00f0ff]"> AUTOMATIONS.</span>
               <br />
               GET CERTIFIED.
             </h1>
             
-            <p className="text-base sm:text-lg text-[#b9cacb] leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg text-[#b9cacb] leading-relaxed">
               Master n8n automation and build powerful AI-powered workflows without coding.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/enroll"
-                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] w-full sm:w-auto"
               >
                 Enroll Now — ₦8,000
               </Link>
-              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 w-full sm:w-auto">
+              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 w-full sm:w-auto">
                 <Play className="h-4 w-4" />
                 Watch Preview
               </button>
             </div>
           </div>
           
-          <div className="relative order-first lg:order-last">
+          <div className="relative order-1 lg:order-2 mt-4 sm:mt-0">
             <N8nWorkflowPanel />
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
             <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
@@ -471,16 +471,16 @@ function HeroSection() {
 
 function InfoCards() {
   return (
-    <section className="py-12 sm:py-16 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-4 sm:gap-6">
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 text-center">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">COHORT</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#e2e2e8]">Current Cohort</div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1 sm:mb-2">COHORT</div>
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8]">Current Cohort</div>
           </div>
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 text-center">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">SEATS LEFT</div>
-            <div className="text-xl sm:text-2xl font-bold text-[#00f0ff]">Remaining Seats</div>
+          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1 sm:mb-2">SEATS LEFT</div>
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#00f0ff]">Remaining Seats</div>
           </div>
         </div>
       </div>
@@ -490,13 +490,13 @@ function InfoCards() {
 
 function StatsSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#050505]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {stats.map((stat) => (
-            <div key={stat.label} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 text-center">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#00f0ff]">{stat.value}</div>
-              <div className="text-xs sm:text-sm text-[#b9cacb] mt-2">{stat.label}</div>
+            <div key={stat.label} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
+              <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#00f0ff]">{stat.value}</div>
+              <div className="text-xs sm:text-sm text-[#b9cacb] mt-1 sm:mt-2">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -507,18 +507,18 @@ function StatsSection() {
 
 function EnrollmentSection() {
   return (
-    <section className="py-16 sm:py-20 bg-[#0c0e12]">
+    <section className="py-12 sm:py-16 lg:py-20 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-6">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 lg:p-8 xl:p-10">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-4 sm:mb-6">
               Enroll Now
             </h2>
-            <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#00f0ff] mb-6">
+            <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#00f0ff] mb-4 sm:mb-6">
               ₦8,000
             </div>
             
-            <div className="space-y-3 sm:space-y-4 mb-8">
+            <div className="space-y-2 sm:space-y-3 lg:space-y-4 mb-6 sm:mb-8">
               {enrollmentBenefits.map((benefit) => (
                 <div key={benefit} className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
@@ -531,19 +531,19 @@ function EnrollmentSection() {
               href="https://paystack.shop/pay/wnkntnzlcd"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-6 py-4 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+              className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
             >
               Enroll Now — ₦8,000
             </a>
             
-            <p className="text-center text-xs sm:text-sm text-[#b9cacb] mt-4">
+            <p className="text-center text-xs sm:text-sm text-[#b9cacb] mt-3 sm:mt-4">
               Secure payment powered by Paystack
             </p>
           </div>
           
           <div>
-            <h3 className="text-xl sm:text-2xl font-bold text-[#e2e2e8] mb-6 sm:mb-8">What You'll Get</h3>
-            <div className="space-y-4">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8] mb-4 sm:mb-6 lg:mb-8">What You'll Get</h3>
+            <div className="space-y-3 sm:space-y-4">
               {[
                 { icon: Star, title: 'Lifetime Access', description: 'Access all content forever' },
                 { icon: Rocket, title: 'Real Projects', description: 'Build 10+ production workflows' },
@@ -555,7 +555,7 @@ function EnrollmentSection() {
                 return (
                   <div
                     key={item.title}
-                    className="flex items-start gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 hover:border-[#00f0ff]/50 transition-all duration-300"
+                    className="flex items-start gap-3 sm:gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 hover:border-[#00f0ff]/50 transition-all duration-300"
                   >
                     <div className="flex h-10 w-10 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-lg flex-shrink-0">
                       <Icon className="h-5 w-5 text-[#00f0ff]" />
@@ -577,12 +577,12 @@ function EnrollmentSection() {
 
 function ScholarshipSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#050505]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8">
+        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 lg:p-8 xl:p-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-xl sm:text-2xl font-bold text-[#e2e2e8] mb-2">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8] mb-2">
                 Need Financial Support?
               </h2>
               <p className="text-sm sm:text-base text-[#b9cacb]">
@@ -591,7 +591,7 @@ function ScholarshipSection() {
             </div>
             <Link
               href="/scholarship/apply"
-              className="flex items-center justify-center gap-2 border border-purple-500 bg-purple-500/10 px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400 transition duration-150 hover:bg-purple-500/20 whitespace-nowrap"
+              className="flex items-center justify-center gap-2 border border-purple-500 bg-purple-500/10 px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400 transition duration-150 hover:bg-purple-500/20 whitespace-nowrap"
             >
               Apply For Scholarship
             </Link>
@@ -604,10 +604,10 @@ function ScholarshipSection() {
 
 function CurriculumSection() {
   return (
-    <section id="curriculum" className="py-16 sm:py-20 bg-[#0c0e12]">
+    <section id="curriculum" className="py-12 sm:py-16 lg:py-20 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             Curriculum
           </h2>
           <p className="text-sm sm:text-base text-[#b9cacb] max-w-2xl mx-auto">
@@ -615,7 +615,7 @@ function CurriculumSection() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {curriculumWeeks.map((week) => (
             <div
               key={week.step}
@@ -623,15 +623,15 @@ function CurriculumSection() {
                 week.active 
                   ? 'border-[#00f0ff] bg-[#00f0ff]/5' 
                   : 'border-[#1f2229] bg-[#050505]/80'
-              } backdrop-blur-xl rounded-2xl p-5 sm:p-6 hover:border-[#00f0ff]/50 transition-all duration-300`}
+              } backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00f0ff]/50 transition-all duration-300`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${
                   week.active 
                     ? 'bg-[#00f0ff] text-[#00363a]' 
                     : 'bg-[#1f2229] text-[#00f0ff]'
                 }`}>
-                  <span className="text-xl font-bold">{week.step}</span>
+                  <span className="text-lg sm:text-xl font-bold">{week.step}</span>
                 </div>
                 {week.active && (
                   <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] text-xs font-mono uppercase tracking-wider">
@@ -643,8 +643,8 @@ function CurriculumSection() {
                 {week.phase}
               </div>
               <h3 className="text-base sm:text-lg font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
-              <p className="text-sm text-[#b9cacb] mb-4">{week.body}</p>
-              <ul className="space-y-2">
+              <p className="text-sm text-[#b9cacb] mb-3 sm:mb-4">{week.body}</p>
+              <ul className="space-y-1 sm:space-y-2">
                 {week.items.map((item) => (
                   <li key={item} className="flex items-center gap-2 text-xs text-[#b9cacb]">
                     <CheckCircle className="h-3 w-3 text-[#00f0ff] flex-shrink-0" />
@@ -662,24 +662,24 @@ function CurriculumSection() {
 
 function FeaturesSection() {
   return (
-    <section id="tools" className="py-16 sm:py-20 bg-[#050505]">
+    <section id="tools" className="py-12 sm:py-16 lg:py-20 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             What You'll Learn
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {featureIcons.map((feature) => {
             const Icon = feature.icon
             return (
               <div
                 key={feature.title}
-                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
+                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
               >
-                <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mb-4">
-                  <Icon className="h-6 w-6 text-[#00f0ff]" />
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mb-3 sm:mb-4">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#00f0ff]" />
                 </div>
                 <h3 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>
                 <p className="text-sm text-[#b9cacb]">{feature.description}</p>
@@ -694,15 +694,15 @@ function FeaturesSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-16 sm:py-20 bg-[#0c0e12]">
+    <section className="py-12 sm:py-16 lg:py-20 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             What Our Students Say
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {studentTestimonials.map((testimonial) => (
             <StudentTestimonialCard
               key={testimonial.name}
@@ -734,18 +734,18 @@ function SocialProofSection() {
 
 function TrustBadgesSection() {
   return (
-    <section className="py-12 sm:py-16 bg-[#0c0e12]">
+    <section className="py-8 sm:py-12 lg:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 lg:gap-4">
           {trustBadges.map((badge) => {
             const Icon = badge.icon
             return (
               <div
                 key={badge.text}
-                className="flex items-center gap-2 border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-full px-4 py-2 sm:px-5 sm:py-2.5"
+                className="flex items-center gap-2 border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-full px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2.5"
               >
                 <Icon className="h-4 w-4 text-[#00f0ff]" />
-                <span className="text-sm text-[#e2e2e8]">{badge.text}</span>
+                <span className="text-xs sm:text-sm text-[#e2e2e8]">{badge.text}</span>
               </div>
             )
           })}
