@@ -141,9 +141,14 @@ function PartnersFooter() {
                 </Link>
               </li>
               <li>
-                <a href={`https://wa.me/2348120934828?text=${encodeURIComponent("Hello AutoLearn Spot. I need assistance with the partner program.")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <a href={socialLinks.whatsapp.url} className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
                   WhatsApp Support
                 </a>
+              </li>
+              <li>
+                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Scholarship
+                </Link>
               </li>
             </ul>
           </div>

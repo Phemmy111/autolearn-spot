@@ -25,7 +25,8 @@ import {
   Shield,
   Trophy,
   Star,
-  Infinity
+  Infinity,
+  Mail
 } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -810,6 +811,60 @@ function FAQSection() {
   )
 }
 
+function ContactSection() {
+  return (
+    <section className="py-12 sm:py-16 lg:py-20 bg-[#050505]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
+            Get In Touch
+          </h2>
+          <p className="text-sm sm:text-base text-[#b9cacb]">
+            Have questions? We'd love to hear from you.
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
+          <a
+            href={socialLinks.whatsapp.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 text-center"
+          >
+            <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mx-auto mb-4">
+              <MessageCircle className="h-6 w-6 text-[#00f0ff]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">WhatsApp</h3>
+            <p className="text-sm text-[#b9cacb]">Chat with us directly</p>
+          </a>
+          
+          <Link
+            href="/contact"
+            className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 text-center"
+          >
+            <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mx-auto mb-4">
+              <Mail className="h-6 w-6 text-[#00f0ff]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">Email</h3>
+            <p className="text-sm text-[#b9cacb]">Send us a message</p>
+          </Link>
+          
+          <Link
+            href="/partners"
+            className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 text-center"
+          >
+            <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mx-auto mb-4">
+              <Users className="h-6 w-6 text-[#00f0ff]" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">Partners</h3>
+            <p className="text-sm text-[#b9cacb]">Join our partner program</p>
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function Footer() {
   return (
     <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-12 sm:py-16">
@@ -883,8 +938,18 @@ function Footer() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Contact</h3>
+            <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
             <ul className="space-y-2">
+              <li>
+                <Link href="/" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/partners" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                  Partners
+                </Link>
+              </li>
               <li>
                 <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
                   Scholarship
@@ -892,13 +957,8 @@ function Footer() {
               </li>
               <li>
                 <Link href="/contact" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                  Contact Us
+                  Contact
                 </Link>
-              </li>
-              <li>
-                <a href={socialLinks.whatsapp.url} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                  WhatsApp Community
-                </a>
               </li>
             </ul>
           </div>
@@ -929,6 +989,7 @@ export default function Page() {
       <SocialProofSection />
       <TrustBadgesSection />
       <FAQSection />
+      <ContactSection />
       <Footer />
     </main>
   )
