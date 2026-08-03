@@ -1,5 +1,4 @@
 "use client";
-import { useAuth } from '@clerk/nextjs';
 import {
   CheckCircle,
   Sparkles,
