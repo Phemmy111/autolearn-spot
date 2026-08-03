@@ -108,6 +108,7 @@ export async function PUT(request: Request) {
             .eq('email', ambassador.email)
             .single();
           partner = partnerByEmail;
+          console.log('[PUT /api/partners/bank-profile] Found partner by email:', partner?.id);
         }
       }
     } else if (session.role === 'influencer') {
@@ -129,6 +130,7 @@ export async function PUT(request: Request) {
             .eq('email', influencer.email)
             .single();
           partner = partnerByEmail;
+          console.log('[PUT /api/partners/bank-profile] Found partner by email:', partner?.id);
         }
       }
     } else {
@@ -151,18 +153,47 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Upsert bank profile
-    console.log('[PUT /api/partners/bank-profile] Attempting to upsert bank profile for partner:', partner.id);
-    const { data: bankProfile, error } = await supabaseAdmin
+    // Check if bank profile already exists
+    const { data: existingBankProfile } = await supabaseAdmin
       .from('partner_bank_profiles')
-      .upsert({
-        partner_id: partner.id,
-        bank_name,
-        account_number,
-        account_name
-      })
-      .select()
+      .select('*')
+      .eq('partner_id', partner.id)
       .single();
+
+    let bankProfile;
+    let error;
+
+    if (existingBankProfile) {
+      // Update existing
+      console.log('[PUT /api/partners/bank-profile] Updating existing bank profile');
+      const result = await supabaseAdmin
+        .from('partner_bank_profiles')
+        .update({
+          bank_name,
+          account_number,
+          account_name
+        })
+        .eq('partner_id', partner.id)
+        .select()
+        .single();
+      bankProfile = result.data;
+      error = result.error;
+    } else {
+      // Insert new
+      console.log('[PUT /api/partners/bank-profile] Creating new bank profile');
+      const result = await supabaseAdmin
+        .from('partner_bank_profiles')
+        .insert({
+          partner_id: partner.id,
+          bank_name,
+          account_number,
+          account_name
+        })
+        .select()
+        .single();
+      bankProfile = result.data;
+      error = result.error;
+    }
 
     if (error) {
       console.error('[PUT /api/partners/bank-profile] Database error:', error);
