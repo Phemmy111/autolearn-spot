@@ -3,6 +3,11 @@ import { CommunityAuthService } from '@/lib/growth-engine/CommunityAuthService';
 import { SessionService } from '@/lib/growth-engine/SessionService';
 import { PartnerService } from '@/lib/growth-engine/PartnerService';
 import { logReferralEvent } from '@/lib/audit-logging';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(request: Request) {
   try {
@@ -26,9 +31,33 @@ export async function POST(request: Request) {
     }
 
     // Get partner record
-    const partner = partnerType === 'community'
+    let partner = partnerType === 'community'
       ? await PartnerService.getPartnerByCommunityAmbassadorId(authResult.user.id)
       : await PartnerService.getPartnerByInfluencerId(authResult.user.id);
+
+    // Fallback: try to find partner by email if not found by ID
+    if (!partner) {
+      console.log('[POST /api/partners/login] Partner not found by ID, trying email lookup');
+      const { data: partnerByEmail } = await supabaseAdmin
+        .from('partners')
+        .select('*')
+        .eq('email', email)
+        .single();
+      
+      if (partnerByEmail) {
+        console.log('[POST /api/partners/login] Found partner by email:', partnerByEmail.id);
+        partner = partnerByEmail;
+        
+        // Link the ambassador to the partner if not already linked
+        if (partnerType === 'community' && !partnerByEmail.community_ambassador_id) {
+          console.log('[POST /api/partners/login] Linking ambassador to partner');
+          await supabaseAdmin
+            .from('partners')
+            .update({ community_ambassador_id: authResult.user.id })
+            .eq('id', partnerByEmail.id);
+        }
+      }
+    }
 
     if (!partner) {
       return NextResponse.json({ error: 'Partner record not found' }, { status: 404 });
