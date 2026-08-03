@@ -79,8 +79,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
-    // Handle passport upload if provided
+    // Handle passport upload if provided - temporarily disabled due to schema issues
     let passport_url = null;
+    /*
     if (passport && passport.size > 0) {
       try {
         console.log('[POST /api/partners/apply] Attempting passport upload:', passport.name, passport.size);
@@ -110,6 +111,7 @@ export async function POST(request: Request) {
         // Continue without passport if upload fails
       }
     }
+    */
 
     // Check if application already exists for this email
     const { data: existingApplication } = await supabaseAdmin
@@ -138,8 +140,7 @@ export async function POST(request: Request) {
       motivation,
       promotion_method,
       has_organization: !!organization,
-      has_website: !!website,
-      has_passport_url: !!passport_url
+      has_website: !!website
     });
 
     const { data: application, error } = await supabaseAdmin
@@ -161,7 +162,7 @@ export async function POST(request: Request) {
         linkedin,
         youtube,
         experience,
-        passport_url,
+        // passport_url - temporarily removed due to schema issues
         status: 'pending'
       })
       .select()
