@@ -60,8 +60,9 @@ export async function GET(request: Request) {
     const earnings = await CommissionService.getEarnings(partner.id);
 
     // Get referral link
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
     const referralLink = referralStats 
-      ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/register?ref=${referralStats.code}`
+      ? `${appUrl}/register?ref=${referralStats.code}`
       : null;
 
     // Get recent commissions

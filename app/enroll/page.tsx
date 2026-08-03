@@ -19,7 +19,7 @@ function EnrollForm() {
     occupation: "",
     gender: "",
     referralSource: "",
-    referralCode: searchParams.get("ref") || ""
+    referralCode: ""
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -530,17 +530,6 @@ function EnrollForm() {
   );
 }
 
-function LoadingSpinner() {
-  return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-      <div className="flex items-center gap-3">
-        <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
-        <span className="text-[#b9cacb]">Loading...</span>
-      </div>
-    </div>
-  );
-}
-
 const NIGERIAN_STATES = [
   "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno", "Cross River", 
   "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", 
@@ -560,7 +549,14 @@ const REFERRAL_SOURCES = [
 
 export default function EnrollPage() {
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
+          <span className="text-[#b9cacb]">Loading...</span>
+        </div>
+      </div>
+    }>
       <EnrollForm />
     </Suspense>
   );

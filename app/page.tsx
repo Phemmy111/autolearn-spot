@@ -535,14 +535,12 @@ function EnrollmentSection() {
               ))}
             </div>
             
-            <a
-              href="https://paystack.shop/pay/wnkntnzlcd"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/enroll"
               className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
             >
               Enroll Now — ₦8,000
-            </a>
+            </Link>
             
             <p className="text-center text-xs sm:text-sm text-[#b9cacb] mt-3 sm:mt-4">
               Secure payment powered by Paystack
