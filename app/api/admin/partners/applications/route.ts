@@ -28,22 +28,6 @@ export async function GET(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
-  try {
-    await requireAdmin();
-    const { data, error } = await supabaseAdmin
-      .from('partner_applications')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return NextResponse.json({ success: true, applications: data });
-  } catch (error) {
-    console.error('[GET /api/admin/partners/applications] Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
-}
-
 export async function POST(request: Request) {
   try {
     await requireAdmin();
