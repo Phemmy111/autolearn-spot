@@ -96,24 +96,6 @@ export default function AdminPartnersPage() {
       if (aRes.ok) {
         const aData = await aRes.json();
         setApplications(aData.applications || []);
-        
-        // Fetch email statuses for approved applications
-        const approvedApps = aData.applications.filter((app: any) => app.status === 'approved');
-        const emailStatusMap: Record<string, string> = {};
-        
-        for (const app of approvedApps) {
-          try {
-            const response = await fetch(`/api/admin/partners/email-status?email=${app.email}`);
-            if (response.ok) {
-              const statusData = await response.json();
-              emailStatusMap[app.id] = statusData.status || 'unknown';
-            }
-          } catch (e) {
-            console.error('Failed to fetch email status:', e);
-          }
-        }
-        
-        setEmailStatuses(emailStatusMap);
       }
     } catch (e) {
       console.error(e);
