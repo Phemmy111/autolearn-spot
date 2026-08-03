@@ -33,7 +33,23 @@ export async function POST(request: Request) {
 
     // Validation
     if (!full_name || !email || !phone || !whatsapp || !state || !occupation || !motivation || !promotion_method) {
+      console.error('[POST /api/partners/apply] Missing required fields:', { 
+        full_name: !!full_name, 
+        email: !!email, 
+        phone: !!phone, 
+        whatsapp: !!whatsapp, 
+        state: !!state, 
+        occupation: !!occupation, 
+        motivation: !!motivation, 
+        promotion_method: !!promotion_method 
+      });
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
     // Handle passport upload if provided

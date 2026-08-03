@@ -891,6 +891,11 @@ function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/contact" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
                 <a href={socialLinks.whatsapp.url} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
                   WhatsApp Community
                 </a>

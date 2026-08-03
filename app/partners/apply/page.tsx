@@ -157,18 +157,13 @@ function PartnersFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  About
+                <Link href="/partners" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Partners
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Terms
+                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                  Scholarship
                 </Link>
               </li>
             </ul>
