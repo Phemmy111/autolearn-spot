@@ -43,15 +43,6 @@ const navItems = [
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
-const overviewCards = [
-  { id: 'total', label: 'Total Partners', value: '127', growth: '+12%', icon: Users, positive: true },
-  { id: 'pending', label: 'Pending Applications', value: '23', growth: '+5%', icon: Clock, positive: true },
-  { id: 'community', label: 'Community Partners', value: '89', growth: '+8%', icon: Users, positive: true },
-  { id: 'influencer', label: 'Influencers', value: '38', growth: '+15%', icon: Award, positive: true },
-  { id: 'commission', label: 'Total Commission Paid', value: '₦245,000', growth: '+22%', icon: DollarSign, positive: true },
-  { id: 'withdrawals', label: 'Pending Withdrawals', value: '₦18,500', growth: '-3%', icon: TrendingUp, positive: false },
-];
-
 export default function AdminPartnersPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -80,6 +71,15 @@ export default function AdminPartnersPage() {
     category: 'general',
     description: ''
   });
+
+  const overviewCards = [
+    { id: 'total', label: 'Total Partners', value: partners.length.toString(), growth: null, icon: Users, positive: true },
+    { id: 'pending', label: 'Pending Applications', value: applications.filter(a => a.status === 'pending').length.toString(), growth: null, icon: Clock, positive: true },
+    { id: 'community', label: 'Community Partners', value: partners.filter(p => p.partner_type === 'community').length.toString(), growth: null, icon: Users, positive: true },
+    { id: 'influencer', label: 'Influencers', value: partners.filter(p => p.partner_type === 'influencer').length.toString(), growth: null, icon: Award, positive: true },
+    { id: 'commission', label: 'Total Commission Paid', value: '₦0', growth: null, icon: DollarSign, positive: true },
+    { id: 'withdrawals', label: 'Pending Withdrawals', value: '₦0', growth: null, icon: TrendingUp, positive: false },
+  ];
 
   const fetchAll = async () => {
     setLoading(true);
@@ -177,38 +177,28 @@ export default function AdminPartnersPage() {
 
   const handleProcessApplication = async (applicationId: string, action: 'approve' | 'reject') => {
     try {
-      const res = await fetch('/api/admin/partners', {
+      const res = await fetch('/api/admin/partners/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPartner)
+        body: JSON.stringify({ applicationId, action })
       });
       
       if (res.ok) {
-        setShowAddPartnerModal(false);
-        setNewPartner({
-          full_name: '',
-          email: '',
-          phone: '',
-          whatsapp: '',
-          partner_type: 'community',
-          commission_rate: 1500,
-          password: '',
-          status: 'active'
-        });
         fetchAll();
+        alert(`Application ${action}d successfully`);
       } else {
-        alert('Failed to add partner');
+        alert(`Failed to ${action} application`);
       }
     } catch (e) {
       console.error(e);
-      alert('Failed to add partner');
+      alert(`Failed to ${action} application`);
     }
   };
 
   const filteredApplications = applications.filter(app => {
     const matchesSearch = 
-      app.user_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.user_email?.toLowerCase().includes(searchQuery.toLowerCase());
+      app.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -306,10 +296,12 @@ export default function AdminPartnersPage() {
                   <div className="flex h-10 w-10 items-center justify-center border border-[#12E6F3]/30 bg-[#12E6F3]/10 rounded-lg">
                     <Icon className="h-5 w-5 text-[#12E6F3]" />
                   </div>
-                  <div className={`flex items-center gap-1 text-xs ${card.positive ? 'text-green-400' : 'text-red-400'}`}>
-                    {card.positive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                    {card.growth}
-                  </div>
+                  {card.growth && (
+                    <div className={`flex items-center gap-1 text-xs ${card.positive ? 'text-green-400' : 'text-red-400'}`}>
+                      {card.positive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                      {card.growth}
+                    </div>
+                  )}
                 </div>
                 <div className="text-2xl font-bold text-[#e2e2e8] mb-1">{card.value}</div>
                 <div className="text-xs text-[#b9cacb]">{card.label}</div>
@@ -362,12 +354,12 @@ export default function AdminPartnersPage() {
                         <tr key={app.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors">
                           <td className="p-4">
                             <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
-                              {app.user_name?.charAt(0) || '?'}
+                              {app.full_name?.charAt(0) || '?'}
                             </div>
                           </td>
-                          <td className="p-4 text-sm text-[#e2e2e8]">{app.user_name}</td>
-                          <td className="p-4 text-sm text-[#b9cacb]">{app.user_email}</td>
-                          <td className="p-4 text-sm text-[#b9cacb]">{app.phone_number || 'N/A'}</td>
+                          <td className="p-4 text-sm text-[#e2e2e8]">{app.full_name}</td>
+                          <td className="p-4 text-sm text-[#b9cacb]">{app.email}</td>
+                          <td className="p-4 text-sm text-[#b9cacb]">{app.phone || 'N/A'}</td>
                           <td className="p-4 text-sm text-[#e2e2e8] capitalize">{app.partner_type || 'Community'}</td>
                           <td className="p-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(app.status)}`}>
@@ -640,11 +632,11 @@ export default function AdminPartnersPage() {
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
                   <div className="h-20 w-20 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-2xl">
-                    {selectedApp.user_name?.charAt(0) || '?'}
+                    {selectedApp.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedApp.user_name}</h3>
-                    <p className="text-sm text-[#b9cacb]">{selectedApp.user_email}</p>
+                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedApp.full_name}</h3>
+                    <p className="text-sm text-[#b9cacb]">{selectedApp.email}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedApp.status)}`}>
                         {selectedApp.status}
@@ -660,14 +652,14 @@ export default function AdminPartnersPage() {
                       <Phone className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-[#b9cacb]">Phone</span>
                     </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.phone_number || 'N/A'}</p>
+                    <p className="text-sm text-[#e2e2e8]">{selectedApp.phone || 'N/A'}</p>
                   </div>
                   <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <MessageCircle className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-[#b9cacb]">WhatsApp</span>
                     </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.whatsapp_number || 'N/A'}</p>
+                    <p className="text-sm text-[#e2e2e8]">{selectedApp.whatsapp || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -754,11 +746,11 @@ export default function AdminPartnersPage() {
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
                   <div className="h-20 w-20 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-2xl">
-                    {selectedApp.user_name?.charAt(0) || '?'}
+                    {selectedApp.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedApp.user_name}</h3>
-                    <p className="text-sm text-[#b9cacb]">{selectedApp.user_email}</p>
+                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedApp.full_name}</h3>
+                    <p className="text-sm text-[#b9cacb]">{selectedApp.email}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedApp.status)}`}>
                         {selectedApp.status}
@@ -774,14 +766,14 @@ export default function AdminPartnersPage() {
                       <Phone className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-[#b9cacb]">Phone</span>
                     </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.phone_number || 'N/A'}</p>
+                    <p className="text-sm text-[#e2e2e8]">{selectedApp.phone || 'N/A'}</p>
                   </div>
                   <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <MessageCircle className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-[#b9cacb]">WhatsApp</span>
                     </div>
-                    <p className="text-sm text-[#e2e2e8]">{selectedApp.whatsapp_number || 'N/A'}</p>
+                    <p className="text-sm text-[#e2e2e8]">{selectedApp.whatsapp || 'N/A'}</p>
                   </div>
                 </div>
 
