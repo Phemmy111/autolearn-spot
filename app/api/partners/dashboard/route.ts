@@ -35,8 +35,26 @@ export async function GET(request: Request) {
     // Update partner stats
     await PartnerService.updatePartnerStats(partner.id);
 
-    // Get referral code
-    const referralStats = await ReferralService.getReferralStats(partner.id);
+    // Get referral code, create one if it doesn't exist
+    let referralStats = await ReferralService.getReferralStats(partner.id);
+    
+    if (!referralStats) {
+      // Determine owner type based on partner type
+      const ownerType = partner.partner_type === 'influencer' ? 'influencer' : 
+                       partner.partner_type === 'student' ? 'student' : 'community';
+      
+      // Create referral code
+      const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, ownerType);
+      
+      if (referralCode) {
+        referralStats = {
+          code: referralCode.code,
+          totalClicks: referralCode.total_clicks,
+          totalRegistrations: referralCode.total_registrations,
+          ownerType: referralCode.owner_type
+        };
+      }
+    }
 
     // Get earnings
     const earnings = await CommissionService.getEarnings(partner.id);

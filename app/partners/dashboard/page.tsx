@@ -34,7 +34,8 @@ import {
   Globe,
   Calendar,
   CheckCircle,
-  MessageCircle
+  MessageCircle,
+  RefreshCw
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -393,15 +394,25 @@ export default function PartnerDashboard() {
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <div className="bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 font-mono text-sm text-[#b9cacb] truncate flex-1 sm:w-64">
-                    {data?.referral?.link || "Loading..."}
+                    {data?.referral?.link || "Generating referral link..."}
                   </div>
                   <button
                     onClick={handleCopyLink}
-                    className="border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2"
+                    disabled={!data?.referral?.link}
+                    className="border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied!" : "Copy"}
                   </button>
+                  {!data?.referral?.link && (
+                    <button
+                      onClick={fetchDashboardData}
+                      className="border border-[#1f2229] bg-[#070B12] text-[#b9cacb] px-3 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors flex-shrink-0"
+                      title="Refresh referral link"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
