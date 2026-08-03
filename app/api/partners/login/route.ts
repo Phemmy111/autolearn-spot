@@ -107,11 +107,17 @@ export async function POST(request: Request) {
 
     // Update last login
     const tableName = partnerType === 'community' ? 'community_ambassadors' : 'influencers';
-    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/internal/update-last-login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ table: tableName, userId: authResult.user.id })
-    });
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    try {
+      await fetch(`${appUrl}/api/internal/update-last-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: tableName, userId: authResult.user.id })
+      });
+    } catch (e) {
+      console.error('[POST /api/partners/login] Failed to update last login:', e);
+      // Continue anyway - this is not critical for login
+    }
 
     await logReferralEvent({
       action: 'partner_login',
