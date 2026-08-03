@@ -59,7 +59,7 @@ export class AmbassadorService {
         const partnerId = generatePartnerId();
         const referralCode = generateReferralCode();
         
-        // Create partner record
+        // Create partner record - only use columns that exist in the table
         const { data: partnerData, error: partnerError } = await supabaseAdmin
           .from('partners')
           .insert({
@@ -81,7 +81,6 @@ export class AmbassadorService {
             tiktok: application.tiktok,
             linkedin: application.linkedin,
             youtube: application.youtube,
-            experience: application.experience,
             motivation: application.motivation,
             promotion_method: application.promotion_method
           })
