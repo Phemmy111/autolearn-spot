@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
+import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
+import { CommunityAuthService } from '@/lib/growth-engine/CommunityAuthService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -58,7 +60,7 @@ export class AmbassadorService {
         const referralCode = generateReferralCode();
         
         // Create partner record
-        const { error: partnerError } = await supabaseAdmin
+        const { data: partnerData, error: partnerError } = await supabaseAdmin
           .from('partners')
           .insert({
             partner_id: partnerId,
@@ -92,15 +94,43 @@ export class AmbassadorService {
         }
 
         // Create referral record
-        const partnerIdResult = partnerError ? null : partnerError;
-        if (partnerIdResult) {
+        if (partnerData) {
           await supabaseAdmin
             .from('partner_referrals')
             .insert({
-              partner_id: partnerIdResult.id,
+              partner_id: partnerData.id,
               referral_code: referralCode,
               status: 'clicked'
             });
+        }
+
+        // Create community ambassador account with credentials
+        const temporaryPassword = Math.random().toString(36).slice(-8);
+        const { error: authError } = await CommunityAuthService.createCommunityAmbassador({
+          email: application.email,
+          password: temporaryPassword,
+          full_name: application.full_name,
+          phone: application.phone
+        });
+
+        if (authError) {
+          console.error('Failed to create community ambassador account:', authError);
+          // Continue anyway as partner record was created
+        }
+
+        // Send approval email with credentials
+        try {
+          await PartnerEmailService.sendApplicationApprovedEmail(
+            application.email,
+            application.full_name,
+            temporaryPassword,
+            `${process.env.NEXT_PUBLIC_APP_URL}/partners/login`,
+            `${process.env.NEXT_PUBLIC_APP_URL}/partners/dashboard`,
+            application.partner_type === 'influencer' ? 2500 : 1500
+          );
+        } catch (emailError) {
+          console.error('Failed to send approval email:', emailError);
+          // Continue anyway
         }
       }
 
