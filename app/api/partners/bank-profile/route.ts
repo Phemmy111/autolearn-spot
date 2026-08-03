@@ -43,7 +43,10 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    console.log('[PUT /api/partners/bank-profile] Starting request');
     const session = await SessionService.getSession();
+    console.log('[PUT /api/partners/bank-profile] Session:', session);
+    
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -57,17 +60,21 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
+    console.log('[PUT /api/partners/bank-profile] Partner:', partner);
+
     if (!partner) {
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
     }
 
     const { bank_name, account_number, account_name } = await request.json();
+    console.log('[PUT /api/partners/bank-profile] Request body:', { bank_name, account_number, account_name });
 
     if (!bank_name || !account_number || !account_name) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Upsert bank profile
+    console.log('[PUT /api/partners/bank-profile] Attempting to upsert bank profile for partner:', partner.id);
     const { data: bankProfile, error } = await supabaseAdmin
       .from('partner_bank_profiles')
       .upsert({
@@ -80,9 +87,11 @@ export async function PUT(request: Request) {
       .single();
 
     if (error) {
-      console.error('[PUT /api/partners/bank-profile] Error:', error);
+      console.error('[PUT /api/partners/bank-profile] Database error:', error);
       return NextResponse.json({ error: 'Failed to save bank profile' }, { status: 500 });
     }
+
+    console.log('[PUT /api/partners/bank-profile] Bank profile saved:', bankProfile);
 
     await logReferralEvent({
       action: 'bank_profile_updated',
