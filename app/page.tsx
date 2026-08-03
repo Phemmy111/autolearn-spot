@@ -32,7 +32,6 @@ import { LiveActivityFeed } from '@/components/live-activity-feed'
 import { SocialIcon } from '@/components/social-icon'
 import { socialLinks } from '@/config/social'
 import { studentTestimonials } from '@/config/testimonials'
-import Image from 'next/image'
 import './page.css'
 
 const navItems = [
