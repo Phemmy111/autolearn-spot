@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
 import { AmbassadorService } from '@/lib/growth-engine/AmbassadorService';
+import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
+import { CommunityAuthService } from '@/lib/growth-engine/CommunityAuthService';
 import { auth } from '@clerk/nextjs/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -9,6 +11,22 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
+  try {
+    await requireAdmin();
+    const { data, error } = await supabaseAdmin
+      .from('partner_applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return NextResponse.json({ success: true, applications: data });
+  } catch (error) {
+    console.error('[GET /api/admin/partners/applications] Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
 
 export async function GET(request: Request) {
   try {
@@ -57,6 +75,78 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[POST /api/admin/partners/applications] Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    await requireAdmin();
+    const body = await request.json();
+    const { applicationId } = body;
+
+    if (!applicationId) {
+      return NextResponse.json({ error: 'Application ID required' }, { status: 400 });
+    }
+
+    // Get application details
+    const { data: application, error: appError } = await supabaseAdmin
+      .from('partner_applications')
+      .select('*')
+      .eq('id', applicationId)
+      .single();
+
+    if (appError || !application) {
+      return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+    }
+
+    if (application.status !== 'approved') {
+      return NextResponse.json({ error: 'Only approved applications can have emails resent' }, { status: 400 });
+    }
+
+    // Get partner record to get referral code and commission rate
+    const { data: partner, error: partnerError } = await supabaseAdmin
+      .from('partners')
+      .select('*')
+      .eq('email', application.email)
+      .single();
+
+    if (partnerError || !partner) {
+      return NextResponse.json({ error: 'Partner record not found' }, { status: 404 });
+    }
+
+    // Generate new temporary password
+    const temporaryPassword = Math.random().toString(36).slice(-8);
+    const passwordHash = CommunityAuthService.hashPassword(temporaryPassword);
+
+    // Update community ambassador password
+    const { error: updateError } = await supabaseAdmin
+      .from('community_ambassadors')
+      .update({ password_hash: passwordHash })
+      .eq('email', application.email);
+
+    if (updateError) {
+      console.error('Failed to update ambassador password:', updateError);
+      // Continue anyway to send email with current password
+    }
+
+    // Send email
+    const emailResult = await PartnerEmailService.sendApplicationApprovedEmail(
+      application.email,
+      application.full_name,
+      temporaryPassword,
+      `${process.env.NEXT_PUBLIC_APP_URL}/partners/login`,
+      `${process.env.NEXT_PUBLIC_APP_URL}/partners/dashboard`,
+      partner.commission_rate
+    );
+
+    if (!emailResult) {
+      return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Email resent successfully' });
+  } catch (error) {
+    console.error('[PUT /api/admin/partners/applications] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

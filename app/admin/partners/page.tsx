@@ -96,6 +96,24 @@ export default function AdminPartnersPage() {
       if (aRes.ok) {
         const aData = await aRes.json();
         setApplications(aData.applications || []);
+        
+        // Fetch email statuses for approved applications
+        const approvedApps = aData.applications.filter((app: any) => app.status === 'approved');
+        const emailStatusMap: Record<string, string> = {};
+        
+        for (const app of approvedApps) {
+          try {
+            const response = await fetch(`/api/admin/partners/email-status?email=${app.email}`);
+            if (response.ok) {
+              const statusData = await response.json();
+              emailStatusMap[app.id] = statusData.status || 'unknown';
+            }
+          } catch (e) {
+            console.error('Failed to fetch email status:', e);
+          }
+        }
+        
+        setEmailStatuses(emailStatusMap);
       }
     } catch (e) {
       console.error(e);
@@ -192,6 +210,26 @@ export default function AdminPartnersPage() {
     } catch (e) {
       console.error(e);
       alert(`Failed to ${action} application`);
+    }
+  };
+
+  const handleResendEmail = async (applicationId: string) => {
+    try {
+      const res = await fetch('/api/admin/partners/applications', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId })
+      });
+      
+      if (res.ok) {
+        alert('Email resent successfully');
+      } else {
+        const error = await res.json();
+        alert(`Failed to resend email: ${error.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to resend email');
     }
   };
 
@@ -379,18 +417,31 @@ export default function AdminPartnersPage() {
                               >
                                 <Eye className="h-4 w-4" />
                               </button>
-                              <button
-                                onClick={() => handleProcessApplication(app.id, 'approve')}
-                                className="p-2 hover:bg-green-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-green-400"
-                              >
-                                <CheckCircle className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleProcessApplication(app.id, 'reject')}
-                                className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-red-400"
-                              >
-                                <XCircle className="h-4 w-4" />
-                              </button>
+                              {app.status === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={() => handleProcessApplication(app.id, 'approve')}
+                                    className="p-2 hover:bg-green-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-green-400"
+                                  >
+                                    <CheckCircle className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleProcessApplication(app.id, 'reject')}
+                                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-red-400"
+                                  >
+                                    <XCircle className="h-4 w-4" />
+                                  </button>
+                                </>
+                              )}
+                              {app.status === 'approved' && (
+                                <button
+                                  onClick={() => handleResendEmail(app.id)}
+                                  className="p-2 hover:bg-blue-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-blue-400"
+                                  title="Resend approval email"
+                                >
+                                  <Mail className="h-4 w-4" />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
