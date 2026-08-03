@@ -63,6 +63,17 @@ export default function PartnerDashboard() {
     fetchDashboardData();
   }, []);
 
+  // Initialize bank form data when bank profile exists
+  useEffect(() => {
+    if (data?.bankProfile && !showBankModal) {
+      setBankFormData({
+        bank_name: data.bankProfile.bank_name,
+        account_number: data.bankProfile.account_number,
+        account_name: data.bankProfile.account_name
+      });
+    }
+  }, [data?.bankProfile, showBankModal]);
+
   const fetchNotifications = async () => {
     try {
       const res = await fetch("/api/partners/notifications");
@@ -155,17 +166,6 @@ export default function PartnerDashboard() {
   const stats = data?.stats;
   const referral = data?.referral;
   const bankProfile = data?.bankProfile;
-
-  // Initialize bank form data when bank profile exists
-  useEffect(() => {
-    if (bankProfile && !showBankModal) {
-      setBankFormData({
-        bank_name: bankProfile.bank_name,
-        account_number: bankProfile.account_number,
-        account_name: bankProfile.account_name
-      });
-    }
-  }, [bankProfile, showBankModal]);
 
   const navItems = [
     { id: "overview", label: "Overview", icon: BarChart3 },
