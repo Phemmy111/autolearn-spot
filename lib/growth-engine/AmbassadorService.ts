@@ -105,6 +105,7 @@ export class AmbassadorService {
 
         // Create community ambassador account with credentials
         const temporaryPassword = Math.random().toString(36).slice(-8);
+        console.log('[AmbassadorService] Creating community ambassador account for:', application.email);
         const authResult = await CommunityAuthService.createCommunityAmbassador({
           email: application.email,
           password: temporaryPassword,
@@ -113,8 +114,27 @@ export class AmbassadorService {
         });
 
         if (!authResult.success) {
-          console.error('Failed to create community ambassador account:', authResult.error);
-          // Continue anyway as partner record was created
+          console.error('[AmbassadorService] Failed to create community ambassador account:', authResult.error);
+          // Check if it's a duplicate email error
+          if (authResult.error?.includes('duplicate') || authResult.error?.includes('unique')) {
+            console.log('[AmbassadorService] Ambassador account might already exist, trying to update password');
+            // Try to update existing account password
+            const passwordHash = CommunityAuthService.hashPassword(temporaryPassword);
+            const { error: updateError } = await supabaseAdmin
+              .from('community_ambassadors')
+              .update({ password_hash: passwordHash })
+              .eq('email', application.email);
+            
+            if (updateError) {
+              console.error('[AmbassadorService] Failed to update existing ambassador password:', updateError);
+              return { success: false, error: 'Failed to create or update ambassador account' };
+            }
+            console.log('[AmbassadorService] Successfully updated existing ambassador password');
+          } else {
+            return { success: false, error: 'Failed to create ambassador account: ' + authResult.error };
+          }
+        } else {
+          console.log('[AmbassadorService] Successfully created community ambassador account');
         }
 
         // Send approval email with credentials
