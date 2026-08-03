@@ -426,7 +426,7 @@ function HeroSection() {
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
-          <div className="space-y-5 sm:space-y-6 lg:space-y-8 order-2 lg:order-1 flex flex-col justify-center">
+          <div className="space-y-5 sm:space-y-6 lg:space-y-8 flex flex-col justify-center">
             <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2">
               <Sparkles className="h-4 w-4 text-[#00f0ff]" />
               <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
@@ -459,7 +459,7 @@ function HeroSection() {
             </div>
           </div>
           
-          <div className="relative order-1 lg:order-2 mt-4 sm:mt-0">
+          <div className="relative order-2 lg:order-2 mt-4 sm:mt-0">
             <N8nWorkflowPanel />
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
             <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
