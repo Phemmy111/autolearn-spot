@@ -748,7 +748,6 @@ function Footer() {
 export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-[#070B12]">
-      <Navigation />
       <HeroSection />
       <TrustSection />
       <PartnerTypesSection />
@@ -757,7 +756,6 @@ export default function PartnersPage() {
       <ActivityFeedSection />
       <LeaderboardSection />
       <FAQSection />
-      <Footer />
     </main>
   );
 }
