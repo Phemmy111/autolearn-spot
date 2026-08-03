@@ -31,6 +31,7 @@ import {
   Infinity
 } from "lucide-react";
 import { socialLinks } from "@/config/social";
+import { Footer } from "@/components/footer";
 
 const PARTNER_TYPES = [
   {
@@ -123,90 +124,6 @@ const LEADERBOARD = [
   { rank: 2, name: "Ruth Nwoke", earnings: "₦38,500", badge: "silver" },
   { rank: 3, name: "Jimoh Naheemot", earnings: "₦32,000", badge: "bronze" }
 ];
-
-function Navigation() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  return (
-    <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#070B12]/95 backdrop-blur-xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 group">
-            <Image
-              src="/icon-dark-32x32.png"
-              alt="AutoLearn Spot"
-              width={32}
-              height={32}
-              className="group-hover:scale-110 transition-transform"
-            />
-            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-              AutoLearn Spot
-            </span>
-          </Link>
-
-          <div className="hidden lg:flex items-center gap-6">
-            <Link href="/" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-              Home
-            </Link>
-            <Link href="/partners" className="text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors">
-              Partner Program
-            </Link>
-            <Link href="/partners/dashboard" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-              Partner Dashboard
-            </Link>
-            <Link href="#faq" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-              FAQ
-            </Link>
-          </div>
-
-          <div className="hidden lg:flex items-center gap-4">
-            <Link
-              href="/partners/dashboard"
-              className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-[#00F5FF] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
-            >
-              Partner Dashboard
-            </Link>
-            <Link
-              href="/partners/login"
-              className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors"
-            >
-              Partner Login
-            </Link>
-          </div>
-
-          <button
-            className="lg:hidden text-[#b9cacb]"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-[#1f2229] bg-[#070B12]">
-          <div className="px-4 py-4 space-y-3">
-            <Link href="/" className="block text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors" onClick={() => setMobileMenuOpen(false)}>
-              Home
-            </Link>
-            <Link href="/partners" className="block text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors" onClick={() => setMobileMenuOpen(false)}>
-              Partner Program
-            </Link>
-            <Link href="/partners/dashboard" className="block text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors" onClick={() => setMobileMenuOpen(false)}>
-              Partner Dashboard
-            </Link>
-            <Link href="#faq" className="block text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors" onClick={() => setMobileMenuOpen(false)}>
-              FAQ
-            </Link>
-            <Link href="/partners/dashboard" className="block w-full text-center border border-[#00F5FF] bg-[#00F5FF] px-4 py-2 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] mt-4" onClick={() => setMobileMenuOpen(false)}>
-              Partner Dashboard
-            </Link>
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-}
 
 function HeroSection() {
   return (
@@ -306,30 +223,25 @@ function TrustSection() {
     <section className="py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <div className="flex justify-center gap-4 mb-6">
-            {TRUST_PARTNERS.map((partner) => (
-              <div
-                key={partner.name}
-                className="relative"
-              >
-                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#00F5FF]/50 p-1">
-                  <Image
-                    src={partner.image}
-                    alt={partner.name}
-                    width={64}
-                    height={64}
-                    className="rounded-full object-cover"
-                  />
-                </div>
-                <div className="absolute -bottom-1 -right-1 bg-[#00F5FF] rounded-full p-1">
-                  <CheckCircle className="h-3 w-3 text-[#070B12]" />
-                </div>
+          <h2 className="text-3xl font-bold text-[#e2e2e8] mb-4">Trusted by Partners</h2>
+          <p className="text-[#b9cacb]">Join our growing community of successful partners</p>
+        </div>
+        
+        <div className="flex flex-wrap justify-center gap-8">
+          {TRUST_PARTNERS.map((partner, index) => (
+            <div key={index} className="flex flex-col items-center gap-3">
+              <div className="w-20 h-20 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden">
+                <Image
+                  src={partner.image}
+                  alt={partner.name}
+                  width={80}
+                  height={80}
+                  className="object-cover"
+                />
               </div>
-            ))}
-          </div>
-          <p className="text-lg text-[#b9cacb]">
-            Trusted by hundreds of aspiring AI ambassadors across Nigeria.
-          </p>
+              <span className="text-sm text-[#e2e2e8]">{partner.name}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -341,67 +253,38 @@ function PartnerTypesSection() {
     <section className="py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-            Choose Your Partner Type
-          </h2>
-          <p className="text-[#b9cacb] max-w-2xl mx-auto">
-            Select the partner tier that best fits your goals and influence
-          </p>
+          <h2 className="text-3xl font-bold text-[#e2e2e8] mb-4">Choose Your Partner Type</h2>
+          <p className="text-[#b9cacb]">Select the partnership model that suits you best</p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8">
-          {PARTNER_TYPES.map((type) => {
-            const Icon = type.color === "cyan" ? Users : type.color === "purple" ? Building2 : Building;
-            const colorClass = type.color === "cyan" ? "border-[#00F5FF]" : type.color === "purple" ? "border-purple-500" : "border-yellow-500";
-            const bgClass = type.color === "cyan" ? "bg-[#00F5FF]/10" : type.color === "purple" ? "bg-purple-500/10" : "bg-yellow-500/10";
-            const textClass = type.color === "cyan" ? "text-[#00F5FF]" : type.color === "purple" ? "text-purple-400" : "text-yellow-400";
-            
-            return (
-              <div
-                key={type.title}
-                className={`border ${colorClass} ${bgClass} backdrop-blur-xl rounded-2xl p-6 hover:shadow-[0_0_20px_rgba(0,245,255,0.1)] transition-all duration-300`}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`flex h-12 w-12 items-center justify-center ${colorClass} ${bgClass} rounded-xl`}>
-                    <Icon className={`h-6 w-6 ${textClass}`} />
-                  </div>
-                  <div className="text-2xl font-bold text-[#e2e2e8]">{type.commission}</div>
-                </div>
-                
-                <h3 className="text-xl font-bold text-[#e2e2e8] mb-2">{type.title}</h3>
-                <p className="text-sm text-[#b9cacb] mb-4">{type.description}</p>
-                
-                <ul className="space-y-2 mb-6">
-                  {type.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                      <CheckCircle className="h-4 w-4 text-[#00F5FF] flex-shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                
-                {type.ctaLink.startsWith("http") ? (
-                  <a
-                    href={type.ctaLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center justify-center gap-2 w-full border ${colorClass} ${bgClass} ${textClass} px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition duration-150 hover:translate-y-[-1px]`}
-                  >
-                    {type.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
-                ) : (
-                  <Link
-                    href={type.ctaLink}
-                    className={`flex items-center justify-center gap-2 w-full border ${colorClass} ${bgClass} ${textClass} px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] transition duration-150 hover:translate-y-[-1px]`}
-                  >
-                    {type.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                )}
+        <div className="grid md:grid-cols-3 gap-6">
+          {PARTNER_TYPES.map((type, index) => (
+            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00F5FF]/50 transition-colors">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Commission</span>
+                <div className="text-2xl font-bold text-[#00F5FF]">{type.commission}</div>
               </div>
-            );
-          })}
+              
+              <h3 className="text-xl font-bold text-[#e2e2e8] mb-2">{type.title}</h3>
+              <p className="text-sm text-[#b9cacb] mb-6">{type.description}</p>
+              
+              <ul className="space-y-2 mb-6">
+                {type.features.map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-[#e2e2e8]">
+                    <CheckCircle className="h-4 w-4 text-[#00F5FF]" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              
+              <Link
+                href={type.ctaLink}
+                className="block w-full text-center border border-[#00F5FF] bg-[#00F5FF] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
+              >
+                {type.cta}
+              </Link>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -413,32 +296,19 @@ function HowItWorksSection() {
     <section className="py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-            How It Works
-          </h2>
-          <p className="text-[#b9cacb] max-w-2xl mx-auto">
-            Simple steps to start earning commissions
-          </p>
+          <h2 className="text-3xl font-bold text-[#e2e2e8] mb-4">How It Works</h2>
+          <p className="text-[#b9cacb]">Simple steps to start earning</p>
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {HOW_IT_WORKS.map((item, index) => (
-            <div
-              key={item.step}
-              className="relative border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-2xl p-6"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex h-12 w-12 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-xl">
-                  <span className="text-xl font-bold text-[#00F5FF]">{item.step}</span>
+            <div key={index} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex h-12 w-12 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-lg font-bold text-[#00F5FF]">
+                  {item.step}
                 </div>
-                {index < HOW_IT_WORKS.length - 1 && (
-                  <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2">
-                    <ArrowDown className="h-6 w-6 text-[#00F5FF]/50" />
-                  </div>
-                )}
+                <h3 className="font-semibold text-[#e2e2e8]">{item.title}</h3>
               </div>
-              
-              <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">{item.title}</h3>
               <p className="text-sm text-[#b9cacb]">{item.description}</p>
             </div>
           ))}
@@ -453,43 +323,34 @@ function TestimonialsSection() {
     <section className="py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-            Partner Testimonials
-          </h2>
+          <h2 className="text-3xl font-bold text-[#e2e2e8] mb-4">What Partners Say</h2>
+          <p className="text-[#b9cacb]">Hear from our successful partners</p>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
-          {PARTNER_TESTIMONIALS.map((testimonial) => (
-            <div
-              key={testimonial.name}
-              className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00F5FF]/50 transition-all duration-300"
-            >
+          {PARTNER_TESTIMONIALS.map((testimonial, index) => (
+            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
               <div className="flex items-start gap-4 mb-4">
-                <div className="relative flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#00F5FF]/50 p-1">
-                    <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      width={64}
-                      height={64}
-                      className="rounded-full object-cover"
-                    />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 bg-[#00F5FF] rounded-full p-1">
-                    <CheckCircle className="h-3 w-3 text-[#070B12]" />
-                  </div>
+                <div className="w-16 h-16 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden flex-shrink-0">
+                  <Image
+                    src={testimonial.image}
+                    alt={testimonial.name}
+                    width={64}
+                    height={64}
+                    className="object-cover"
+                  />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-[#e2e2e8] text-base">{testimonial.name}</h3>
-                  <p className="text-sm text-[#b9cacb] mt-1">{testimonial.school}</p>
-                  <div className="flex items-center gap-1 mt-2">
+                <div>
+                  <h3 className="font-semibold text-[#e2e2e8]">{testimonial.name}</h3>
+                  <p className="text-sm text-[#b9cacb]">{testimonial.school}</p>
+                  <div className="flex gap-1 mt-1">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="h-4 w-4 text-[#00F5FF] fill-current" />
                     ))}
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-[#b9cacb] leading-relaxed">"{testimonial.review}"</p>
+              <p className="text-sm text-[#b9cacb] italic">"{testimonial.review}"</p>
             </div>
           ))}
         </div>
@@ -499,30 +360,22 @@ function TestimonialsSection() {
 }
 
 function ActivityFeedSection() {
-  const [currentActivity, setCurrentActivity] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentActivity((prev) => (prev + 1) % ACTIVITY_FEED.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section className="py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md mx-auto">
-          <div className="border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-2xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-2 w-2 rounded-full bg-[#00F5FF] animate-pulse" />
-              <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#00F5FF]">
-                Live Activity
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-[#00F5FF]" />
-              <p className="text-sm text-[#e2e2e8]">{ACTIVITY_FEED[currentActivity]}</p>
-            </div>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-[#e2e2e8] mb-4">Live Activity</h2>
+          <p className="text-[#b9cacb]">Real-time partner activity</p>
+        </div>
+        
+        <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-2xl p-6">
+          <div className="space-y-4">
+            {ACTIVITY_FEED.map((activity, index) => (
+              <div key={index} className="flex items-center gap-3 text-sm text-[#b9cacb]">
+                <div className="h-2 w-2 rounded-full bg-[#00F5FF]" />
+                {activity}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -535,36 +388,27 @@ function LeaderboardSection() {
     <section className="py-16 bg-[#070B12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-            Monthly Top Partners
-          </h2>
+          <h2 className="text-3xl font-bold text-[#e2e2e8] mb-4">Top Partners</h2>
+          <p className="text-[#b9cacb]">Leaderboard of this month</p>
         </div>
         
-        <div className="max-w-3xl mx-auto space-y-4">
-          {LEADERBOARD.map((partner) => {
-            const badgeIcon = partner.badge === "gold" ? Crown : partner.badge === "silver" ? Medal : Award;
-            const badgeColor = partner.badge === "gold" ? "text-yellow-400" : partner.badge === "silver" ? "text-gray-300" : "text-orange-400";
-            
-            return (
-              <div
-                key={partner.rank}
-                className="flex items-center gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all duration-300"
-              >
-                <div className="flex items-center justify-center w-10 h-10 border border-[#1f2229] bg-[#070B12] rounded-lg font-bold text-[#e2e2e8]">
-                  {partner.rank}
+        <div className="border border-[#1f2229] bg-[#0c0e12]/50 rounded-2xl overflow-hidden">
+          {LEADERBOARD.map((item, index) => (
+            <div key={index} className="flex items-center justify-between p-4 border-b border-[#1f2229] last:border-b-0">
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-sm font-bold text-[#00F5FF]">
+                  {item.rank}
                 </div>
-                <div className="flex items-center gap-3">
-                  {badgeIcon && <badgeIcon className={`h-5 w-5 ${badgeColor}`} />}
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-[#e2e2e8]">{partner.name}</h3>
-                  </div>
-                </div>
-                <div className="font-mono text-lg font-bold text-[#00F5FF]">
-                  {partner.earnings}
-                </div>
+                <span className="text-[#e2e2e8]">{item.name}</span>
               </div>
-            );
-          })}
+              <div className="flex items-center gap-4">
+                <span className="text-[#00F5FF] font-semibold">{item.earnings}</span>
+                {item.badge === 'gold' && <Crown className="h-5 w-5 text-yellow-500" />}
+                {item.badge === 'silver' && <Medal className="h-5 w-5 text-gray-400" />}
+                {item.badge === 'bronze' && <Award className="h-5 w-5 text-orange-500" />}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -573,175 +417,57 @@ function LeaderboardSection() {
 
 function FAQSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-
+  
   const faqs = [
     {
       question: "How do I become a partner?",
-      answer: "You can apply as a Community Partner through our application process. Students who purchase the course automatically become Student Partners."
+      answer: "Simply apply through our partner application form. Once approved, you'll receive your referral link and dashboard access."
     },
     {
-      question: "How and when do I get paid?",
-      answer: "Commissions are paid weekly after a 7-day holding period. Minimum withdrawal amount is ₦5,000."
+      question: "How much can I earn?",
+      answer: "You earn ₦1,500 for every successful enrollment through your referral link. There's no limit to your earnings."
     },
     {
-      question: "What's the difference between partner types?",
-      answer: "Student Partners are automatically activated after purchase. Community Partners require approval. Corporate Ambassadors have custom rates for bulk campaigns."
+      question: "When do I get paid?",
+      answer: "Commissions are paid weekly on Fridays after the 7-day withdrawal window closes."
+    },
+    {
+      question: "What's the minimum withdrawal amount?",
+      answer: "The minimum withdrawal amount is ₦5,000 to ensure efficient processing."
     }
   ];
-
+  
   return (
-    <section id="faq" className="py-16 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-              Frequently Asked Questions
-            </h2>
-          </div>
-          
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <div
-                key={index}
-                className="border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
+    <section className="py-16 bg-[#0c0e12]">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-[#e2e2e8] mb-4">Frequently Asked Questions</h2>
+          <p className="text-[#b9cacb]">Got questions? We've got answers</p>
+        </div>
+        
+        <div className="space-y-4">
+          {faqs.map((faq, index) => (
+            <div
+              key={index}
+              className="border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
+            >
+              <button
+                className="w-full px-6 py-4 text-left flex items-center justify-between"
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <button
-                  className="w-full px-6 py-4 text-left flex items-center justify-between"
-                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                >
-                  <span className="font-medium text-[#e2e2e8]">{faq.question}</span>
-                  <CheckCircle className={`h-5 w-5 text-[#00F5FF] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
-                </button>
-                {openIndex === index && (
-                  <div className="px-6 pb-4 text-[#b9cacb]">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                <span className="font-medium text-[#e2e2e8]">{faq.question}</span>
+                <CheckCircle className={`h-5 w-5 text-[#00F5FF] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
+              </button>
+              {openIndex === index && (
+                <div className="px-6 pb-4 text-[#b9cacb]">
+                  {faq.answer}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="border-t border-[#1f2229] bg-[#070B12] py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <Image
-                src="/icon-dark-32x32.png"
-                alt="AutoLearn Spot"
-                width={32}
-                height={32}
-              />
-              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-                AutoLearn Spot
-              </span>
-            </div>
-            <p className="text-sm text-[#b9cacb] mb-4">
-              Become a partner and earn commissions while helping others learn valuable AI automation skills.
-            </p>
-            <div className="flex gap-3 flex-wrap">
-              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                Facebook
-              </a>
-              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                LinkedIn
-              </a>
-              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                Instagram
-              </a>
-              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                TikTok
-              </a>
-              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[##00F5FF] transition-colors">
-                YouTube
-              </a>
-              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                X
-              </a>
-              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                WhatsApp
-              </a>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Program</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/curriculum" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Courses
-                </Link>
-              </li>
-              <li>
-                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Scholarship Program
-                </Link>
-              </li>
-              <li>
-                <Link href="/partners" className="text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors">
-                  Partner Program
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Student Dashboard
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Community</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  WhatsApp Community
-                </a>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/about" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  About
-                </Link>
-              </li>
-              <li>
-                <a href={`https://wa.me/2348120934828?text=${encodeURIComponent("Hello AutoLearn Spot. I would like to make an enquiry about the Partner Program.")}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Contact
-                </a>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
-                  Terms
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="border-t border-[#1f2229] pt-8 text-center">
-          <p className="text-sm text-[#b9cacb]">
-            © 2026 AutoLearn Spot. All Rights Reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
   );
 }
 
@@ -756,6 +482,7 @@ export default function PartnersPage() {
       <ActivityFeedSection />
       <LeaderboardSection />
       <FAQSection />
+      <Footer />
     </main>
   );
 }
