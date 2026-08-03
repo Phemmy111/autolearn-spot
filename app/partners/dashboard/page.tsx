@@ -155,6 +155,17 @@ export default function PartnerDashboard() {
   const referral = data?.referral;
   const bankProfile = data?.bankProfile;
 
+  // Initialize bank form data when bank profile exists
+  useEffect(() => {
+    if (bankProfile && !showBankModal) {
+      setBankFormData({
+        bank_name: bankProfile.bank_name,
+        account_number: bankProfile.account_number,
+        account_name: bankProfile.account_name
+      });
+    }
+  }, [bankProfile, showBankModal]);
+
   const navItems = [
     { id: "overview", label: "Overview", icon: BarChart3 },
     { id: "referrals", label: "Referrals", icon: Users },
@@ -377,7 +388,7 @@ export default function PartnerDashboard() {
                 <div>
                   <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">Your Referral Link</h3>
                   <p className="text-sm text-[#b9cacb]">
-                    Share this unique link with your network. When they enroll in the ₦8,000 course, you earn ₦{partner?.commissionRate || 1500} commission.
+                    Share this unique link with your network. When they enroll in the ₦8,000 course, you earn ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} commission.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -550,21 +561,21 @@ export default function PartnerDashboard() {
                       <p className="text-sm font-medium text-[#e2e2e8]">Available Balance</p>
                       <p className="text-xs text-[#b9cacb]">Ready for withdrawal</p>
                     </div>
-                    <p className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableBalance || 0}</p>
+                    <p className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</p>
                   </div>
                   <div className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Pending Earnings</p>
                       <p className="text-xs text-[#b9cacb]">Being processed</p>
                     </div>
-                    <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings || 0}</p>
+                    <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</p>
                   </div>
                   <div className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Total Earned</p>
                       <p className="text-xs text-[#b9cacb]">All time earnings</p>
                     </div>
-                    <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.totalEarned || 0}</p>
+                    <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</p>
                   </div>
                 </div>
               </div>
@@ -698,15 +709,66 @@ export default function PartnerDashboard() {
                     <label className="text-sm font-medium text-[#b9cacb] block mb-2">Partner Type</label>
                     <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg text-sm text-[#e2e2e8]">
                       {partner?.type === "student" ? "Student Partner" : 
-                       partner?.type === "community" ? "Community Partner" : "Influencer"}
+                       partner?.type === "community" ? "Community Partner" : 
+                       partner?.type === "influencer" ? "Influencer" : "Partner"}
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[#b9cacb] block mb-2">Commission Rate</label>
                     <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg text-sm text-[#00F5FF]">
-                      ₦{partner?.commissionRate || 1500} per referral
+                      ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} per referral
                     </div>
                   </div>
+                  
+                  {/* Bank Details Section */}
+                  <div className="border-t border-[#1f2229] pt-4 mt-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-sm font-medium text-[#e2e2e8]">Bank Details</h4>
+                      <button
+                        onClick={() => {
+                          if (bankProfile) {
+                            setBankFormData({
+                              bank_name: bankProfile.bank_name,
+                              account_number: bankProfile.account_number,
+                              account_name: bankProfile.account_name
+                            });
+                          }
+                          setShowBankModal(true);
+                        }}
+                        className="text-xs text-[#00F5FF] hover:text-white transition-colors"
+                      >
+                        {bankProfile ? 'Edit' : 'Add Bank Details'}
+                      </button>
+                    </div>
+                    
+                    {bankProfile ? (
+                      <div className="space-y-3">
+                        <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                          <p className="text-xs text-[#b9cacb] mb-1">Bank Name</p>
+                          <p className="text-sm text-[#e2e2e8]">{bankProfile.bank_name}</p>
+                        </div>
+                        <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                          <p className="text-xs text-[#b9cacb] mb-1">Account Number</p>
+                          <p className="text-sm text-[#e2e2e8]">{bankProfile.account_number}</p>
+                        </div>
+                        <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                          <p className="text-xs text-[#b9cacb] mb-1">Account Name</p>
+                          <p className="text-sm text-[#e2e2e8]">{bankProfile.account_name}</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 border border-dashed border-[#1f2229] bg-[#070B12]/30 rounded-lg text-center">
+                        <p className="text-sm text-[#b9cacb] mb-2">No bank details added yet</p>
+                        <button
+                          onClick={() => setShowBankModal(true)}
+                          className="text-xs text-[#00F5FF] hover:text-white transition-colors"
+                        >
+                          Add bank details to enable withdrawals
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
                   <button
                     onClick={handleContactSupport}
                     className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-white rounded-lg font-medium hover:bg-[#25D366]/90 transition-colors mt-4"
@@ -726,7 +788,7 @@ export default function PartnerDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6 sm:p-8 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-[#e2e2e8]">Setup Bank Profile</h2>
+              <h2 className="text-xl font-bold text-[#e2e2e8]">{bankProfile ? 'Edit Bank Profile' : 'Setup Bank Profile'}</h2>
               <button
                 onClick={() => setShowBankModal(false)}
                 className="text-[#b9cacb] hover:text-white transition-colors"
