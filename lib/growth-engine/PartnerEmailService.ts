@@ -151,10 +151,12 @@ export class PartnerEmailService {
               <p><strong>Commission Rate:</strong> ₦${commissionRate} per referral</p>
             </div>
             
+            <p><strong>Partner Type:</strong> Community Partner</p>
             <p><strong>Login URL:</strong> <a href="${loginUrl}">${loginUrl}</a></p>
             <p><strong>Dashboard URL:</strong> <a href="${dashboardUrl}">${dashboardUrl}</a></p>
             
             <p>Please log in with your temporary password and change it immediately for security.</p>
+            <p><strong>Important:</strong> When logging in, select "Community Partner" as your partner type.</p>
             
             <p>You can now start referring students and earning commissions!</p>
             <p>For every successful student who enrolls in the ₦8,000 course using your referral link, you will earn ₦${commissionRate}.</p>

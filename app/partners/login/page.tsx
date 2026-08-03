@@ -10,6 +10,7 @@ export default function PartnerLoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [partnerType, setPartnerType] = useState("community");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,6 +21,7 @@ export default function PartnerLoginPage() {
     const data = {
       email: formData.get("email"),
       password: formData.get("password"),
+      partnerType: partnerType,
     };
 
     try {
@@ -73,6 +75,34 @@ export default function PartnerLoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#b9cacb]">Partner Type</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="partnerType"
+                    value="community"
+                    checked={partnerType === "community"}
+                    onChange={() => setPartnerType("community")}
+                    className="accent-[#00F5FF]"
+                  />
+                  <span className="text-[#e2e2e8]">Community Partner</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="partnerType"
+                    value="influencer"
+                    checked={partnerType === "influencer"}
+                    onChange={() => setPartnerType("influencer")}
+                    className="accent-[#00F5FF]"
+                  />
+                  <span className="text-[#e2e2e8]">Influencer</span>
+                </label>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-[#b9cacb]">Email Address</label>
               <input
