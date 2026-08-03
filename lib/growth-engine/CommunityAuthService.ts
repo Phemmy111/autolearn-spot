@@ -59,6 +59,9 @@ export class CommunityAuthService {
       }
 
       console.log('[CommunityAuthService] Verifying password for user:', email);
+      console.log('[CommunityAuthService] Stored hash:', user.password_hash.substring(0, 30) + '...');
+      console.log('[CommunityAuthService] Input password:', password);
+      
       const isValid = this.verifyPassword(password, user.password_hash);
       console.log('[CommunityAuthService] Password verification result:', isValid);
       

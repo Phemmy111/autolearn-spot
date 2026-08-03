@@ -124,8 +124,8 @@ export async function PUT(request: Request) {
       application.email,
       application.full_name,
       temporaryPassword,
-      `${process.env.NEXT_PUBLIC_APP_URL}/partners/login`,
-      `${process.env.NEXT_PUBLIC_APP_URL}/partners/dashboard`,
+      'https://autolearn-spot.vercel.app/partners/login',
+      'https://autolearn-spot.vercel.app/partners/dashboard',
       commissionRate
     );
 
