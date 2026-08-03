@@ -88,15 +88,16 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Only approved applications can have emails resent' }, { status: 400 });
     }
 
-    // Get partner record to get referral code and commission rate
+    // Get partner record to get commission rate (fallback to application partner_type)
+    let commissionRate = application.partner_type === 'influencer' ? 2500 : 1500;
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
-      .select('*')
+      .select('commission_rate')
       .eq('email', application.email)
       .single();
 
-    if (partnerError || !partner) {
-      return NextResponse.json({ error: 'Partner record not found' }, { status: 404 });
+    if (!partnerError && partner) {
+      commissionRate = partner.commission_rate;
     }
 
     // Generate new temporary password
@@ -121,7 +122,7 @@ export async function PUT(request: Request) {
       temporaryPassword,
       `${process.env.NEXT_PUBLIC_APP_URL}/partners/login`,
       `${process.env.NEXT_PUBLIC_APP_URL}/partners/dashboard`,
-      partner.commission_rate
+      commissionRate
     );
 
     if (!emailResult) {
