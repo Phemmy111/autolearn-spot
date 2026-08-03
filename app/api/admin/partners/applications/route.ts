@@ -146,6 +146,7 @@ export async function PUT(request: Request) {
     }
 
     // Send email
+    console.log('[PUT /api/admin/partners/applications] Attempting to send email to:', application.email);
     const emailResult = await PartnerEmailService.sendApplicationApprovedEmail(
       application.email,
       application.full_name,
@@ -155,7 +156,10 @@ export async function PUT(request: Request) {
       commissionRate
     );
 
+    console.log('[PUT /api/admin/partners/applications] Email result:', emailResult);
+
     if (!emailResult) {
+      console.error('[PUT /api/admin/partners/applications] Email sending failed');
       return NextResponse.json({ error: 'Failed to send email' }, { status: 500 });
     }
 

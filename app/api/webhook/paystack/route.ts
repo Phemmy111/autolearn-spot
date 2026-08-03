@@ -201,12 +201,87 @@ async function handleDirectEnrollmentPayment(data: any) {
 
 async function sendEnrollmentConfirmation(enrollment: any) {
   console.log('[Paystack Webhook] Sending enrollment confirmation to:', enrollment.email);
-  // WhatsApp group link and email confirmation would go here
-  // You would need to integrate with WhatsApp API and email service
+  
+  try {
+    // Send email confirmation with WhatsApp group link
+    const { data: emailResult } = await supabaseAdmin
+      .from('email_queue')
+      .insert({
+        to: enrollment.email,
+        subject: 'Welcome to AutoLearn Spot - Your Enrollment is Confirmed!',
+        body: `
+          <h1>Welcome to AutoLearn Spot!</h1>
+          <p>Dear ${enrollment.full_name},</p>
+          <p>Congratulations! Your enrollment has been successfully confirmed.</p>
+          <p><strong>Course Details:</strong></p>
+          <ul>
+            <li>4-week hands-on n8n automation training</li>
+            <li>Duration: ${new Date().toLocaleDateString()} to ${new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toLocaleDateString()}</li>
+            <li>Investment: ₦8,000</li>
+          </ul>
+          <p><strong>Next Steps:</strong></p>
+          <p>Join our WhatsApp community group for announcements, support, and networking:</p>
+          <p><a href="${process.env.WHATSAPP_GROUP_LINK || 'https://chat.whatsapp.com/your-group-link'}" style="background: #25D366; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin: 10px 0;">Join WhatsApp Group</a></p>
+          <p>Your login credentials will be sent shortly.</p>
+          <p>If you have any questions, feel free to reach out to our support team.</p>
+          <p>Best regards,<br>AutoLearn Spot Team</p>
+        `,
+        status: 'pending',
+        type: 'enrollment_confirmation'
+      })
+      .select()
+      .single();
+
+    console.log('[Paystack Webhook] Email queued:', emailResult?.id);
+  } catch (error) {
+    console.error('[Paystack Webhook] Failed to queue enrollment confirmation email:', error);
+  }
 }
 
 async function sendFounderNotification(enrollment: any) {
   console.log('[Paystack Webhook] Sending founder notification for:', enrollment.email);
-  // Email notification to femiadeleke2020@gmail.com would go here
-  // You would need to integrate with email service
+  
+  try {
+    // Send notification to founder
+    const { data: emailResult } = await supabaseAdmin
+      .from('email_queue')
+      .insert({
+        to: process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com',
+        subject: `New Enrollment: ${enrollment.full_name}`,
+        body: `
+          <h1>New Student Enrollment</h1>
+          <p>A new student has enrolled in the AutoLearn Spot automation course.</p>
+          <p><strong>Student Details:</strong></p>
+          <ul>
+            <li>Name: ${enrollment.full_name}</li>
+            <li>Email: ${enrollment.email}</li>
+            <li>Phone: ${enrollment.phone_number}</li>
+            <li>WhatsApp: ${enrollment.whatsapp_number}</li>
+            <li>State: ${enrollment.state}</li>
+            <li>Occupation: ${enrollment.occupation}</li>
+            <li>Gender: ${enrollment.gender}</li>
+            <li>Referral Code: ${enrollment.referral_code || 'None'}</li>
+            <li>Referral Source: ${enrollment.referral_source}</li>
+          </ul>
+          <p><strong>Payment Details:</strong></p>
+          <ul>
+            <li>Amount: ₦${enrollment.payment_amount}</li>
+            <li>Reference: ${enrollment.payment_reference}</li>
+            <li>Status: ${enrollment.payment_status}</li>
+            <li>Enrolled At: ${new Date(enrollment.enrolled_at).toLocaleString()}</li>
+          </ul>
+          <p><strong>Enrollment ID:</strong> ${enrollment.id}</p>
+          <p>Please ensure to add the student to the WhatsApp group and provide dashboard access.</p>
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        `,
+        status: 'pending',
+        type: 'founder_notification'
+      })
+      .select()
+      .single();
+
+    console.log('[Paystack Webhook] Founder notification queued:', emailResult?.id);
+  } catch (error) {
+    console.error('[Paystack Webhook] Failed to queue founder notification email:', error);
+  }
 }
