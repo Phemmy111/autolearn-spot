@@ -134,6 +134,53 @@ export class PartnerEmailService {
         commissionRate
       });
 
+      // Check SMTP configuration
+      if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+        console.error('[PartnerEmailService] SMTP configuration incomplete:', {
+          hasHost: !!process.env.SMTP_HOST,
+          hasUser: !!process.env.SMTP_USER,
+          hasPass: !!process.env.SMTP_PASS
+        });
+        
+        // Fallback: Queue email for manual processing
+        await supabaseAdmin.from('email_queue').insert({
+          to: applicantEmail,
+          subject: 'Application Approved - Welcome to AutoLearn Spot Partners!',
+          body: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2 style="color: #00f0ff;">Congratulations! 🎉</h2>
+              <p>Dear ${applicantName},</p>
+              <p>We are pleased to inform you that your Community Partner application has been <strong>approved</strong>!</p>
+              
+              <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Your Partner Account Details</h3>
+                <p><strong>Email:</strong> ${applicantEmail}</p>
+                <p><strong>Temporary Password:</strong> ${temporaryPassword}</p>
+                <p><strong>Commission Rate:</strong> ₦${commissionRate} per referral</p>
+              </div>
+              
+              <p><strong>Partner Type:</strong> Community Partner</p>
+              <p><strong>Login URL:</strong> <a href="${loginUrl}">${loginUrl}</a></p>
+              <p><strong>Dashboard URL:</strong> <a href="${dashboardUrl}">${dashboardUrl}</a></p>
+              
+              <p>Please log in with your temporary password and change it immediately for security.</p>
+              <p><strong>Important:</strong> When logging in, select "Community Partner" as your partner type.</p>
+              
+              <p>You can now start referring students and earning commissions!</p>
+              <p>For every successful student who enrolls in the ₦8,000 course using your referral link, you will earn ₦${commissionRate}.</p>
+              
+              <p>Best regards,<br>AutoLearn Spot Team</p>
+            </div>
+          `,
+          status: 'pending',
+          type: 'application_approved',
+          metadata: { applicantName, temporaryPassword, commissionRate, loginUrl, dashboardUrl }
+        });
+
+        console.log('[PartnerEmailService] Email queued for manual processing (SMTP not configured)');
+        return true; // Return true to prevent blocking the flow
+      }
+
       const mailOptions = {
         from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
         to: applicantEmail,
@@ -181,6 +228,48 @@ export class PartnerEmailService {
       return true;
     } catch (error) {
       console.error('[PartnerEmailService] Error sending approval email:', error);
+      
+      // Fallback: Queue email for manual processing
+      try {
+        await supabaseAdmin.from('email_queue').insert({
+          to: applicantEmail,
+          subject: 'Application Approved - Welcome to AutoLearn Spot Partners!',
+          body: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2 style="color: #00f0ff;">Congratulations! 🎉</h2>
+              <p>Dear ${applicantName},</p>
+              <p>We are pleased to inform you that your Community Partner application has been <strong>approved</strong>!</p>
+              
+              <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Your Partner Account Details</h3>
+                <p><strong>Email:</strong> ${applicantEmail}</p>
+                <p><strong>Temporary Password:</strong> ${temporaryPassword}</p>
+                <p><strong>Commission Rate:</strong> ₦${commissionRate} per referral</p>
+              </div>
+              
+              <p><strong>Partner Type:</strong> Community Partner</p>
+              <p><strong>Login URL:</strong> <a href="${loginUrl}">${loginUrl}</a></p>
+              <p><strong>Dashboard URL:</strong> <a href="${dashboardUrl}">${dashboardUrl}</a></p>
+              
+              <p>Please log in with your temporary password and change it immediately for security.</p>
+              <p><strong>Important:</strong> When logging in, select "Community Partner" as your partner type.</p>
+              
+              <p>You can now start referring students and earning commissions!</p>
+              <p>For every successful student who enrolls in the ₦8,000 course using your referral link, you will earn ₦${commissionRate}.</p>
+              
+              <p>Best regards,<br>AutoLearn Spot Team</p>
+            </div>
+          `,
+          status: 'pending',
+          type: 'application_approved',
+          metadata: { applicantName, temporaryPassword, commissionRate, loginUrl, dashboardUrl, error: String(error) }
+        });
+
+        console.log('[PartnerEmailService] Email queued for manual processing (SMTP failed)');
+        return true; // Return true to prevent blocking the flow
+      } catch (logError) {
+        console.error('[PartnerEmailService] Failed to queue email:', logError);
+      }
       
       // Log failed email attempt
       try {
