@@ -32,7 +32,7 @@ const quickMessages = [
 ];
 
 import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { createPortal } from 'react-dom/client'
 
 const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '2348120934828'
 const whatsappCommunityUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL
@@ -46,16 +46,11 @@ function whatsappHref(message: string) {
 
 export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' | 'floating' } = {}) {
   const [isOpen, setIsOpen] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
   const [message, setMessage] = useState('')
   const communityHref = useMemo(
     () => whatsappCommunityUrl || whatsappHref('Hi Femi, I want to join the AutoLearn Spot WhatsApp community.'),
     [],
   )
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   useEffect(() => {
     if (!isOpen) return
@@ -94,8 +89,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
         </button>
       )}
 
-      {isOpen && isMounted
-        ? createPortal(
+      {isOpen && createPortal(
         <div
           aria-labelledby="whatsapp-chat-title"
           aria-modal="true"
@@ -213,8 +207,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
           </div>
         </div>,
           document.body,
-        )
-        : null}
+        )}
     </>
   )
 }
