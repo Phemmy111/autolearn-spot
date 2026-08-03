@@ -361,7 +361,7 @@ function Navigation() {
   return (
     <nav className="sticky top-0 z-50 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           <Link href="/" className="flex items-center gap-2 group">
             <Image
               src="/icon-dark-32x32.png"
@@ -375,7 +375,7 @@ function Navigation() {
             </span>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6 sm:gap-8">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -390,6 +390,7 @@ function Navigation() {
           <button
             className="lg:hidden text-[#b9cacb]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -403,7 +404,7 @@ function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                className="block text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
@@ -422,12 +423,12 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1">
+          <div className="space-y-6 sm:space-y-8">
+            <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2">
               <Sparkles className="h-4 w-4 text-[#00f0ff]" />
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+              <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
                 4 WEEK HANDS-ON TRAINING
               </span>
             </div>
@@ -439,25 +440,25 @@ function HeroSection() {
               GET CERTIFIED.
             </h1>
             
-            <p className="text-lg text-[#b9cacb] leading-relaxed">
+            <p className="text-base sm:text-lg text-[#b9cacb] leading-relaxed">
               Master n8n automation and build powerful AI-powered workflows without coding.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/enroll"
-                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] w-full sm:w-auto"
               >
                 Enroll Now — ₦8,000
               </Link>
-              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 w-full sm:w-auto">
+              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 w-full sm:w-auto">
                 <Play className="h-4 w-4" />
                 Watch Preview
               </button>
             </div>
           </div>
           
-          <div className="relative">
+          <div className="relative order-first lg:order-last">
             <N8nWorkflowPanel />
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
             <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
@@ -470,16 +471,16 @@ function HeroSection() {
 
 function InfoCards() {
   return (
-    <section className="py-8 bg-[#0c0e12]">
+    <section className="py-12 sm:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 text-center">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">COHORT</div>
-            <div className="text-xl font-bold text-[#e2e2e8]">Current Cohort</div>
+        <div className="grid grid-cols-2 gap-4 sm:gap-6">
+          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">COHORT</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#e2e2e8]">Current Cohort</div>
           </div>
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 text-center">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">SEATS LEFT</div>
-            <div className="text-xl font-bold text-[#00f0ff]">Remaining Seats</div>
+          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">SEATS LEFT</div>
+            <div className="text-xl sm:text-2xl font-bold text-[#00f0ff]">Remaining Seats</div>
           </div>
         </div>
       </div>
@@ -489,13 +490,13 @@ function InfoCards() {
 
 function StatsSection() {
   return (
-    <section className="py-8 bg-[#050505]">
+    <section className="py-12 sm:py-16 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
           {stats.map((stat) => (
-            <div key={stat.label} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-[#00f0ff]">{stat.value}</div>
-              <div className="text-xs text-[#b9cacb] mt-1">{stat.label}</div>
+            <div key={stat.label} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-6 text-center">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#00f0ff]">{stat.value}</div>
+              <div className="text-xs sm:text-sm text-[#b9cacb] mt-2">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -506,22 +507,22 @@ function StatsSection() {
 
 function EnrollmentSection() {
   return (
-    <section className="py-16 bg-[#0c0e12]">
+    <section className="py-16 sm:py-20 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-4">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-6">
               Enroll Now
             </h2>
-            <div className="text-4xl sm:text-5xl font-bold text-[#00f0ff] mb-4">
+            <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#00f0ff] mb-6">
               ₦8,000
             </div>
             
-            <div className="space-y-3 mb-6">
+            <div className="space-y-3 sm:space-y-4 mb-8">
               {enrollmentBenefits.map((benefit) => (
                 <div key={benefit} className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
-                  <span className="text-[#e2e2e8]">{benefit}</span>
+                  <span className="text-sm sm:text-base text-[#e2e2e8]">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -530,18 +531,18 @@ function EnrollmentSection() {
               href="https://paystack.shop/pay/wnkntnzlcd"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-6 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+              className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-6 py-4 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
             >
               Enroll Now — ₦8,000
             </a>
             
-            <p className="text-center text-xs text-[#b9cacb] mt-4">
+            <p className="text-center text-xs sm:text-sm text-[#b9cacb] mt-4">
               Secure payment powered by Paystack
             </p>
           </div>
           
           <div>
-            <h3 className="text-xl font-bold text-[#e2e2e8] mb-6">What You'll Get</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-[#e2e2e8] mb-6 sm:mb-8">What You'll Get</h3>
             <div className="space-y-4">
               {[
                 { icon: Star, title: 'Lifetime Access', description: 'Access all content forever' },
@@ -554,14 +555,14 @@ function EnrollmentSection() {
                 return (
                   <div
                     key={item.title}
-                    className="flex items-start gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 hover:border-[#00f0ff]/50 transition-all duration-300"
+                    className="flex items-start gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 hover:border-[#00f0ff]/50 transition-all duration-300"
                   >
                     <div className="flex h-10 w-10 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-lg flex-shrink-0">
                       <Icon className="h-5 w-5 text-[#00f0ff]" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#e2e2e8] text-sm">{item.title}</h4>
-                      <p className="text-xs text-[#b9cacb] mt-1">{item.description}</p>
+                      <h4 className="font-semibold text-[#e2e2e8] text-sm sm:text-base">{item.title}</h4>
+                      <p className="text-xs sm:text-sm text-[#b9cacb] mt-1">{item.description}</p>
                     </div>
                   </div>
                 )
@@ -576,21 +577,21 @@ function EnrollmentSection() {
 
 function ScholarshipSection() {
   return (
-    <section className="py-12 bg-[#050505]">
+    <section className="py-12 sm:py-16 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex-1">
+        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8">
+            <div className="flex-1 text-center sm:text-left">
               <h2 className="text-xl sm:text-2xl font-bold text-[#e2e2e8] mb-2">
                 Need Financial Support?
               </h2>
-              <p className="text-[#b9cacb] text-sm sm:text-base">
+              <p className="text-sm sm:text-base text-[#b9cacb]">
                 Apply for our scholarship programme and get trained at a reduced rate.
               </p>
             </div>
             <Link
               href="/scholarship/apply"
-              className="flex items-center justify-center gap-2 border border-purple-500 bg-purple-500/10 px-6 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400 transition duration-150 hover:bg-purple-500/20 whitespace-nowrap"
+              className="flex items-center justify-center gap-2 border border-purple-500 bg-purple-500/10 px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400 transition duration-150 hover:bg-purple-500/20 whitespace-nowrap"
             >
               Apply For Scholarship
             </Link>
@@ -603,18 +604,18 @@ function ScholarshipSection() {
 
 function CurriculumSection() {
   return (
-    <section id="curriculum" className="py-16 bg-[#0c0e12]">
+    <section id="curriculum" className="py-16 sm:py-20 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
             Curriculum
           </h2>
-          <p className="text-[#b9cacb] max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-[#b9cacb] max-w-2xl mx-auto">
             A structured 4-week program designed to take you from beginner to certified automation expert
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {curriculumWeeks.map((week) => (
             <div
               key={week.step}
@@ -622,7 +623,7 @@ function CurriculumSection() {
                 week.active 
                   ? 'border-[#00f0ff] bg-[#00f0ff]/5' 
                   : 'border-[#1f2229] bg-[#050505]/80'
-              } backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300`}
+              } backdrop-blur-xl rounded-2xl p-5 sm:p-6 hover:border-[#00f0ff]/50 transition-all duration-300`}
             >
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -641,7 +642,7 @@ function CurriculumSection() {
               <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff] mb-2">
                 {week.phase}
               </div>
-              <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
               <p className="text-sm text-[#b9cacb] mb-4">{week.body}</p>
               <ul className="space-y-2">
                 {week.items.map((item) => (
@@ -661,26 +662,26 @@ function CurriculumSection() {
 
 function FeaturesSection() {
   return (
-    <section id="tools" className="py-16 bg-[#050505]">
+    <section id="tools" className="py-16 sm:py-20 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
             What You'll Learn
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {featureIcons.map((feature) => {
             const Icon = feature.icon
             return (
               <div
                 key={feature.title}
-                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
+                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
               >
                 <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mb-4">
                   <Icon className="h-6 w-6 text-[#00f0ff]" />
                 </div>
-                <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>
                 <p className="text-sm text-[#b9cacb]">{feature.description}</p>
               </div>
             )
@@ -693,15 +694,15 @@ function FeaturesSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-16 bg-[#0c0e12]">
+    <section className="py-16 sm:py-20 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
             What Our Students Say
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {studentTestimonials.map((testimonial) => (
             <StudentTestimonialCard
               key={testimonial.name}
@@ -721,7 +722,7 @@ function TestimonialsSection() {
 
 function SocialProofSection() {
   return (
-    <section className="py-16 bg-[#050505]">
+    <section className="py-16 sm:py-20 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <LiveActivityFeed />
@@ -733,15 +734,15 @@ function SocialProofSection() {
 
 function TrustBadgesSection() {
   return (
-    <section className="py-12 bg-[#0c0e12]">
+    <section className="py-12 sm:py-16 bg-[#0c0e12]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
           {trustBadges.map((badge) => {
             const Icon = badge.icon
             return (
               <div
                 key={badge.text}
-                className="flex items-center gap-2 border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-full px-4 py-2"
+                className="flex items-center gap-2 border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-full px-4 py-2 sm:px-5 sm:py-2.5"
               >
                 <Icon className="h-4 w-4 text-[#00f0ff]" />
                 <span className="text-sm text-[#e2e2e8]">{badge.text}</span>
@@ -773,10 +774,10 @@ function FAQSection() {
   ]
 
   return (
-    <section id="faq" className="py-16 bg-[#050505]">
+    <section id="faq" className="py-16 sm:py-20 bg-[#050505]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
               Frequently Asked Questions
             </h2>
@@ -789,14 +790,14 @@ function FAQSection() {
                 className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
               >
                 <button
-                  className="w-full px-6 py-4 text-left flex items-center justify-between"
+                  className="w-full px-5 sm:px-6 py-4 text-left flex items-center justify-between"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 >
-                  <span className="font-medium text-[#e2e2e8]">{faq.question}</span>
+                  <span className="font-medium text-sm sm:text-base text-[#e2e2e8]">{faq.question}</span>
                   <CheckCircle className={`h-5 w-5 text-[#00f0ff] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
                 </button>
                 {openIndex === index && (
-                  <div className="px-6 pb-4 text-[#b9cacb]">
+                  <div className="px-5 sm:px-6 pb-4 text-sm text-[#b9cacb]">
                     {faq.answer}
                   </div>
                 )}
@@ -811,9 +812,9 @@ function FAQSection() {
 
 function Footer() {
   return (
-    <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-12">
+    <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <Image
