@@ -6,6 +6,14 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Email configuration
+console.log('[PartnerEmailService] SMTP Config:', {
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
+  hasUser: !!process.env.SMTP_USER,
+  hasPass: !!process.env.SMTP_PASS,
+  from: process.env.SMTP_FROM
+});
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
@@ -117,6 +125,15 @@ export class PartnerEmailService {
     commissionRate: number
   ): Promise<boolean> {
     try {
+      console.log('[PartnerEmailService] sendApplicationApprovedEmail called with:', {
+        applicantEmail,
+        applicantName,
+        hasPassword: !!temporaryPassword,
+        loginUrl,
+        dashboardUrl,
+        commissionRate
+      });
+
       const mailOptions = {
         from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
         to: applicantEmail,
@@ -147,19 +164,40 @@ export class PartnerEmailService {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      console.log('[PartnerEmailService] Attempting to send email via nodemailer...');
+      const info = await transporter.sendMail(mailOptions);
+      console.log('[PartnerEmailService] Email sent successfully:', info);
 
       await supabaseAdmin.from('partner_email_history').insert({
         recipient_email: applicantEmail,
         email_type: 'application_approved',
         subject: 'Application Approved - Welcome to AutoLearn Spot Partners!',
         status: 'sent',
-        metadata: { applicantName, commissionRate }
+        metadata: { applicantName, commissionRate, messageId: info.messageId }
       });
 
       return true;
     } catch (error) {
       console.error('[PartnerEmailService] Error sending approval email:', error);
+      
+      // Log failed email attempt
+      try {
+        await supabaseAdmin.from('partner_email_history').insert({
+          recipient_email: applicantEmail,
+          email_type: 'application_approved',
+          subject: 'Application Approved - Welcome to AutoLearn Spot Partners!',
+          status: 'failed',
+          metadata: { 
+            applicantName, 
+            commissionRate, 
+            error: String(error),
+            errorMessage: error instanceof Error ? error.message : 'Unknown error'
+          }
+        });
+      } catch (logError) {
+        console.error('[PartnerEmailService] Failed to log email error:', logError);
+      }
+
       return false;
     }
   }

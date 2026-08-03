@@ -120,7 +120,8 @@ export class AmbassadorService {
 
         // Send approval email with credentials
         try {
-          await PartnerEmailService.sendApplicationApprovedEmail(
+          console.log('[AmbassadorService] Attempting to send approval email to:', application.email);
+          const emailResult = await PartnerEmailService.sendApplicationApprovedEmail(
             application.email,
             application.full_name,
             temporaryPassword,
@@ -128,8 +129,12 @@ export class AmbassadorService {
             `${process.env.NEXT_PUBLIC_APP_URL}/partners/dashboard`,
             application.partner_type === 'influencer' ? 2500 : 1500
           );
+          console.log('[AmbassadorService] Email send result:', emailResult);
+          if (!emailResult) {
+            console.error('[AmbassadorService] Email sending returned false');
+          }
         } catch (emailError) {
-          console.error('Failed to send approval email:', emailError);
+          console.error('[AmbassadorService] Failed to send approval email:', emailError);
           // Continue anyway
         }
       }
