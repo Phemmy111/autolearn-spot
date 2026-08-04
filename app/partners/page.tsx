@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { socialLinks } from "@/config/social";
 import { AutolearnBot } from '@/components/autolearn-bot';
-import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal';
+import { WhatsAppWrapper } from '@/components/WhatsAppWrapper';
 
 const PARTNER_TYPES = [
   {
@@ -596,7 +596,7 @@ export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-[#070B12]">
       <Navigation />
-      <WhatsAppChatModal variant="floating" />
+      <WhatsAppWrapper />
       <AutolearnBot />
       <HeroSection />
       <TrustSection />

@@ -33,6 +33,7 @@ import { SocialIcon } from '@/components/social-icon'
 import { socialLinks } from '@/config/social'
 import { studentTestimonials } from '@/config/testimonials'
 import { AutolearnBot } from '@/components/autolearn-bot'
+import { WhatsAppWrapper } from '@/components/WhatsAppWrapper'
 import './page.css'
 
 const navItems = [
@@ -849,7 +850,7 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-[#050505]">
       <Navigation />
-      <WhatsAppChatModal variant="floating" />
+      <WhatsAppWrapper />
       <AutolearnBot />
       <HeroSection />
       <InfoCards />
