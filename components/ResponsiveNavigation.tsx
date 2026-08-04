@@ -1,29 +1,62 @@
 "use client";
 
-import { useState } from 'react'
-import { Menu, X, MessageCircle, Share2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Menu, X, Share2, User, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { socialLinks } from '@/config/social'
 
 export default function ResponsiveNavigation() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isDesktopMode, setIsDesktopMode] = useState(false)
 
-  const navItems = [
+  // Detect Desktop Mode on mobile devices
+  useEffect(() => {
+    const checkDesktopMode = () => {
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches
+      const userAgent = navigator.userAgent
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
+      setIsDesktopMode(isDesktop && isMobileUA)
+    }
+
+    checkDesktopMode()
+    window.addEventListener('resize', checkDesktopMode)
+    return () => window.removeEventListener('resize', checkDesktopMode)
+  }, [])
+
+  // ESC key handler
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [isOpen])
+
+  const desktopNavItems = [
     { name: 'Home', href: '/' },
     { name: 'Curriculum', href: '#curriculum' },
-    { name: 'Tools', href: '#tools' },
-    { name: 'Why', href: '#why' },
-    { name: 'FAQ', href: '#faq' },
+    { name: 'Why AutoLearn', href: '#why' },
     { name: 'Scholarship', href: '/scholarship' },
     { name: 'Partner Program', href: '/partners' },
-    { name: 'Student Dashboard', href: '/dashboard' },
+    { name: 'Contact', href: '#contact' },
+  ]
+
+  const mobileNavItems = [
+    { name: 'Home', href: '/' },
+    { name: 'Curriculum', href: '#curriculum' },
+    { name: 'Why AutoLearn', href: '#why' },
+    { name: 'Scholarship', href: '/scholarship' },
+    { name: 'Partner Program', href: '/partners' },
+    { name: 'Contact', href: '#contact' },
   ]
 
   return (
     <>
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center justify-between h-20 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-6 lg:px-8">
+      {/* Desktop Navigation - Uses proper breakpoints to handle Desktop Mode */}
+      <nav className={`hidden md:flex items-center justify-between h-20 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-6 lg:px-8 ${isDesktopMode ? 'flex' : ''}`}>
         <Link href="/" className="flex items-center gap-2 group">
           <Image
             src="/icon-dark-32x32.png"
@@ -38,12 +71,12 @@ export default function ResponsiveNavigation() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-8">
-          {navItems.map((item) => (
+        <div className="flex items-center gap-6 lg:gap-8">
+          {desktopNavItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
             >
               {item.name}
             </Link>
@@ -58,17 +91,17 @@ export default function ResponsiveNavigation() {
         </Link>
       </nav>
 
-      {/* Mobile Navigation */}
-      <nav className="md:hidden sticky top-0 z-50 h-[64px] border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-4">
+      {/* Mobile Navigation - Udemy-style hamburger */}
+      <nav className={`md:hidden sticky top-0 z-50 h-[64px] border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-4 ${isDesktopMode ? 'hidden' : ''}`}>
         <div className="flex items-center justify-between h-full">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="text-[#e2e2e8] hover:text-[#00f0ff] transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
           <Link href="/" className="flex items-center gap-2">
-            <button
-              onClick={() => setIsOpen(true)}
-              className="text-[#e2e2e8] hover:text-[#00f0ff] transition-colors"
-              aria-label="Open menu"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
             <Image
               src="/icon-dark-32x32.png"
               alt="AutoLearn Spot"
@@ -81,6 +114,7 @@ export default function ResponsiveNavigation() {
               AutoLearn Spot
             </span>
           </Link>
+          <div className="w-6" /> {/* Spacer for balance */}
         </div>
       </nav>
 
@@ -109,7 +143,7 @@ export default function ResponsiveNavigation() {
 
               {/* Navigation Links */}
               <div className="flex-1 overflow-y-auto p-4 space-y-1">
-                {navItems.map((item) => (
+                {mobileNavItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
@@ -121,8 +155,11 @@ export default function ResponsiveNavigation() {
                 ))}
               </div>
 
+              {/* Divider */}
+              <div className="border-t border-[#1f2229]" />
+
               {/* Enroll Button */}
-              <div className="p-4 border-t border-[#1f2229]">
+              <div className="p-4">
                 <Link
                   href="/enroll"
                   onClick={() => setIsOpen(false)}
@@ -132,55 +169,24 @@ export default function ResponsiveNavigation() {
                 </Link>
               </div>
 
-              {/* Social Links */}
-              <div className="p-4 border-t border-[#1f2229]">
-                <div className="grid grid-cols-5 gap-3">
-                  <a
-                    href={socialLinks.facebook.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                  >
-                    <Share2 className="h-5 w-5" />
-                    <span className="text-[10px]">Facebook</span>
-                  </a>
-                  <a
-                    href={socialLinks.linkedin.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                  >
-                    <Share2 className="h-5 w-5" />
-                    <span className="text-[10px]">LinkedIn</span>
-                  </a>
-                  <a
-                    href={socialLinks.youtube.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                  >
-                    <Share2 className="h-5 w-5" />
-                    <span className="text-[10px]">YouTube</span>
-                  </a>
-                  <a
-                    href={socialLinks.instagram.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                  >
-                    <Share2 className="h-5 w-5" />
-                    <span className="text-[10px]">Instagram</span>
-                  </a>
-                  <a
-                    href={socialLinks.whatsapp.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                    <span className="text-[10px]">WhatsApp</span>
-                  </a>
-                </div>
+              {/* Login Buttons */}
+              <div className="px-4 pb-4 space-y-2">
+                <Link
+                  href="/partners/login"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-center gap-2 border border-[#1f2229] bg-[#0c0e12] px-4 py-2 text-sm text-[#e2e2e8] hover:border-[#00f0ff] hover:text-[#00f0ff] transition-colors"
+                >
+                  <User className="h-4 w-4" />
+                  Partner Login
+                </Link>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-center gap-2 border border-[#1f2229] bg-[#0c0e12] px-4 py-2 text-sm text-[#e2e2e8] hover:border-[#00f0ff] hover:text-[#00f0ff] transition-colors"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Student Login
+                </Link>
               </div>
             </div>
           </div>
