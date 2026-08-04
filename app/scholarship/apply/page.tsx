@@ -214,10 +214,11 @@ export default function ScholarshipApplyPage() {
             <div className="font-mono text-sm text-[#b9cacb] mb-2">
               Step {step} of 4
             </div>
-        <div className="mb-8">
-          <h1 className="font-heading text-3xl font-bold mb-2">Scholarship Application</h1>
-          <p className="text-[#b9cacb]">Complete all steps to be considered for the {formattedFullValue} scholarship.</p>
-        </div>
+          </div>
+          <div className="mb-8">
+            <h1 className="font-heading text-3xl font-bold mb-2">Scholarship Application</h1>
+            <p className="text-[#b9cacb]">Complete all steps to be considered for the {formattedFullValue} scholarship.</p>
+          </div>
 
         {/* Progress Bar */}
         <div className="flex gap-2 mb-12">
@@ -269,6 +270,8 @@ export default function ScholarshipApplyPage() {
               </div>
             </div>
           )}
+
+          {step === 2 && (
 
           {step === 2 && (
             <div className="space-y-6 animate-fade-in-up">
@@ -339,6 +342,8 @@ export default function ScholarshipApplyPage() {
               </div>
             </div>
           )}
+
+          {step === 4 && (
 
           {step === 4 && (
             <div className="space-y-6 animate-fade-in-up">
