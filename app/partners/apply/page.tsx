@@ -74,7 +74,7 @@ function PartnersFooter() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/icon-dark-32x32.png"
+                src="/logo.png"
                 alt="AutoLearn Spot"
                 width={32}
                 height={32}
@@ -330,7 +330,7 @@ export default function PartnerApplicationPage() {
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
               <Image
-                src="/icon-dark-32x32.png"
+                src="/logo.png"
                 alt="AutoLearn Spot"
                 width={32}
                 height={32}

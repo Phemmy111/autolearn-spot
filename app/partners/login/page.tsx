@@ -50,7 +50,7 @@ export default function PartnerLoginPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <Image
-              src="/icon-dark-32x32.png"
+              src="/logo.png"
               alt="AutoLearn Spot"
               width={32}
               height={32}

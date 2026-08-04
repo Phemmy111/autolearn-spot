@@ -59,7 +59,7 @@ export default function ResponsiveNavigation() {
       <nav className={`hidden md:flex items-center justify-between h-20 border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-6 lg:px-8 ${isDesktopMode ? 'flex' : ''}`}>
         <Link href="/" className="flex items-center gap-2 group">
           <Image
-            src="/icon-dark-32x32.png"
+            src="/logo.png"
             alt="AutoLearn Spot"
             width={32}
             height={32}
@@ -103,7 +103,7 @@ export default function ResponsiveNavigation() {
           </button>
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/icon-dark-32x32.png"
+              src="/logo.png"
               alt="AutoLearn Spot"
               width={24}
               height={24}
