@@ -61,8 +61,8 @@ export async function GET(request: Request) {
 
     // Get referral link
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
-    const referralLink = referralStats 
-      ? `${appUrl}/register?ref=${referralStats.code}`
+    const referralLink = referralStats
+      ? `${appUrl}/enroll?ref=${referralStats.code}`
       : null;
 
     // Get recent commissions

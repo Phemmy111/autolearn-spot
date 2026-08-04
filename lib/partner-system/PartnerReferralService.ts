@@ -59,7 +59,7 @@ export class PartnerReferralService {
         referralCode = newReferral.referral_code;
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com';
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
       const link = `${baseUrl}/enroll?ref=${referralCode}`;
 
       return { code: referralCode, link };
