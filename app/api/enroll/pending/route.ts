@@ -8,6 +8,8 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Received enrollment data:', body);
+
     const {
       fullName,
       email,
@@ -22,6 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!fullName || !email || !phoneNumber || !state || !occupation || !gender || !referralSource) {
+      console.error('Missing required fields:', { fullName, email, phoneNumber, state, occupation, gender, referralSource });
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -29,18 +32,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if there's already a pending enrollment for this email
-    const { data: existingPending } = await supabaseAdmin
+    const { data: existingPending, error: existingError } = await supabaseAdmin
       .from('pending_enrollments')
       .select('*')
       .eq('email', email)
       .eq('payment_status', 'pending')
-      .single();
+      .maybeSingle();
+
+    if (existingError && existingError.code !== 'PGRST116') {
+      console.error('Error checking existing pending enrollment:', existingError);
+    }
 
     if (existingPending) {
       // If existing pending enrollment is less than 24 hours old, return it
       const createdAt = new Date(existingPending.created_at);
       const hoursSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
-      
+
       if (hoursSinceCreation < 24) {
         return NextResponse.json({
           pendingId: existingPending.id,
@@ -56,11 +63,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists as a student
-    const { data: existingStudent } = await supabaseAdmin
+    const { data: existingStudent, error: studentError } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
+
+    if (studentError && studentError.code !== 'PGRST116') {
+      console.error('Error checking existing student:', studentError);
+    }
 
     if (existingStudent) {
       return NextResponse.json(
@@ -72,12 +83,16 @@ export async function POST(request: NextRequest) {
     // Validate referral code if provided
     let referredBy = null;
     if (referralCode && referralCode.length === 8) {
-      const { data: partner } = await supabaseAdmin
+      const { data: partner, error: partnerError } = await supabaseAdmin
         .from('partners')
         .select('id, referral_code, status')
         .eq('referral_code', referralCode)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
+
+      if (partnerError && partnerError.code !== 'PGRST116') {
+        console.error('Error validating referral code:', partnerError);
+      }
 
       if (partner) {
         referredBy = partner.id;
@@ -107,13 +122,21 @@ export async function POST(request: NextRequest) {
         user_agent: request.headers.get('user-agent') || null,
         ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
       })
-      .select('id')
+      .select()
       .single();
 
     if (error) {
       console.error('Error creating pending enrollment:', error);
       return NextResponse.json(
         { error: 'Failed to create pending enrollment' },
+        { status: 500 }
+      );
+    }
+
+    if (!pendingEnrollment || !pendingEnrollment.id) {
+      console.error('No pending enrollment ID returned');
+      return NextResponse.json(
+        { error: 'Failed to create pending enrollment - no ID returned' },
         { status: 500 }
       );
     }

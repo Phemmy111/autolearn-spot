@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Youtube, MessageCircle } from 'lucide-react';
+import { MessageCircle, Share2 } from 'lucide-react';
 
 interface SocialIconProps {
   platform: string;
@@ -6,18 +6,18 @@ interface SocialIconProps {
   className?: string;
 }
 
-const iconMap = {
-  facebook: Facebook,
-  instagram: Instagram,
-  linkedin: Linkedin,
-  youtube: Youtube,
-  tiktok: Youtube, // Using YouTube as fallback for TikTok
-  x: MessageCircle, // Using MessageCircle as fallback for X
+const iconMap: Record<string, any> = {
+  facebook: Share2,
+  instagram: Share2,
+  linkedin: Share2,
+  youtube: Share2,
+  tiktok: Share2,
+  x: Share2,
   whatsapp: MessageCircle,
 };
 
 export function SocialIcon({ platform, href, className = '' }: SocialIconProps) {
-  const Icon = iconMap[platform as keyof typeof iconMap] || MessageCircle;
+  const Icon = iconMap[platform] || Share2;
 
   return (
     <a

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react'
-import { Menu, X, Facebook, Linkedin, Youtube, Instagram, MessageCircle } from 'lucide-react'
+import { Menu, X, MessageCircle, Share2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { socialLinks } from '@/config/social'
@@ -141,7 +141,7 @@ export default function ResponsiveNavigation() {
                     rel="noopener noreferrer"
                     className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
                   >
-                    <Facebook className="h-5 w-5" />
+                    <Share2 className="h-5 w-5" />
                     <span className="text-[10px]">Facebook</span>
                   </a>
                   <a
@@ -150,7 +150,7 @@ export default function ResponsiveNavigation() {
                     rel="noopener noreferrer"
                     className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
                   >
-                    <Linkedin className="h-5 w-5" />
+                    <Share2 className="h-5 w-5" />
                     <span className="text-[10px]">LinkedIn</span>
                   </a>
                   <a
@@ -159,7 +159,7 @@ export default function ResponsiveNavigation() {
                     rel="noopener noreferrer"
                     className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
                   >
-                    <Youtube className="h-5 w-5" />
+                    <Share2 className="h-5 w-5" />
                     <span className="text-[10px]">YouTube</span>
                   </a>
                   <a
@@ -168,7 +168,7 @@ export default function ResponsiveNavigation() {
                     rel="noopener noreferrer"
                     className="flex flex-col items-center gap-1 text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
                   >
-                    <Instagram className="h-5 w-5" />
+                    <Share2 className="h-5 w-5" />
                     <span className="text-[10px]">Instagram</span>
                   </a>
                   <a
@@ -180,10 +180,6 @@ export default function ResponsiveNavigation() {
                     <MessageCircle className="h-5 w-5" />
                     <span className="text-[10px]">WhatsApp</span>
                   </a>
-                </div>
-              </div>
-                    )
-                  })}
                 </div>
               </div>
             </div>
