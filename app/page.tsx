@@ -32,6 +32,8 @@ import { LiveActivityFeed } from '@/components/live-activity-feed'
 import { SocialIcon } from '@/components/social-icon'
 import { socialLinks } from '@/config/social'
 import { studentTestimonials } from '@/config/testimonials'
+import { AutolearnBot } from '@/components/autolearn-bot'
+import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 import './page.css'
 
 const navItems = [
@@ -764,38 +766,31 @@ function Footer() {
             </p>
             <div className="flex gap-3 flex-wrap">
               <SocialIcon
-                src={socialLinks.facebook.icon}
-                alt={socialLinks.facebook.name}
+                label="Facebook"
                 href={socialLinks.facebook.url}
               />
               <SocialIcon
-                src={socialLinks.instagram.icon}
-                alt={socialLinks.instagram.name}
+                label="Instagram"
                 href={socialLinks.instagram.url}
               />
               <SocialIcon
-                src={socialLinks.linkedin.icon}
-                alt={socialLinks.linkedin.name}
+                label="LinkedIn"
                 href={socialLinks.linkedin.url}
               />
               <SocialIcon
-                src={socialLinks.youtube.icon}
-                alt={socialLinks.youtube.name}
+                label="YouTube"
                 href={socialLinks.youtube.url}
               />
               <SocialIcon
-                src={socialLinks.tiktok.icon}
-                alt={socialLinks.tiktok.name}
+                label="TikTok"
                 href={socialLinks.tiktok.url}
               />
               <SocialIcon
-                src={socialLinks.x.icon}
-                alt={socialLinks.x.name}
+                label="X (Twitter)"
                 href={socialLinks.x.url}
               />
               <SocialIcon
-                src={socialLinks.whatsapp.icon}
-                alt={socialLinks.whatsapp.name}
+                label="WhatsApp"
                 href={socialLinks.whatsapp.url}
               />
             </div>
@@ -855,6 +850,8 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-[#050505]">
       <Navigation />
+      <WhatsAppChatModal />
+      <AutolearnBot />
       <HeroSection />
       <InfoCards />
       <StatsSection />
