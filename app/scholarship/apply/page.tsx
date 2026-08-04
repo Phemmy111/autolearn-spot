@@ -396,7 +396,7 @@ export default function ScholarshipApplyPage() {
                 {isSubmitting ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
                 ) : (
-                  'Submit Application'
+                  <>Submit Application</>
                 )}
               </button>
             )}
