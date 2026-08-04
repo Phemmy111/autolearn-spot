@@ -72,7 +72,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
     <>
       {variant === 'floating' ? (
         <button
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-[#00f0ff] px-4 py-3 text-xs font-mono font-semibold uppercase tracking-[0.1em] text-[#050505] shadow-[0_4px_12px_rgba(0,240,255,0.2)] transition-transform hover:scale-105 hover:shadow-[0_6px_16px_rgba(0,240,255,0.3)]"
+          className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-[#00f0ff] px-4 py-3 text-xs font-mono font-semibold uppercase tracking-[0.1em] text-[#050505] shadow-[0_4px_12px_rgba(0,240,255,0.2)] transition-transform hover:scale-105 hover:shadow-[0_6px_16px_rgba(0,240,255,0.3)]"
           onClick={() => setIsOpen(true)}
           type="button"
         >

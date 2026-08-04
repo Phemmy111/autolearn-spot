@@ -29,7 +29,6 @@ import {
   Infinity
 } from "lucide-react";
 import { socialLinks } from "@/config/social";
-import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal';
 import { AutolearnBot } from '@/components/autolearn-bot';
 
 const PARTNER_TYPES = [
@@ -596,7 +595,6 @@ export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-[#070B12]">
       <Navigation />
-      <WhatsAppChatModal />
       <AutolearnBot />
       <HeroSection />
       <TrustSection />

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Bot, X, Send, Sparkles, Loader2, MessageCircle, Trash2 } from 'lucide-react'
+import { WhatsAppChatModal } from './whatsapp-chat-modal'
 
 interface Message {
   id: string
@@ -192,6 +193,9 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
         </span>
       </span>
     </button>
+
+    {/* WhatsApp Chat Modal - Lower z-index than bot */}
+    <WhatsAppChatModal variant="floating" />
   )
 
   // Chat modal
