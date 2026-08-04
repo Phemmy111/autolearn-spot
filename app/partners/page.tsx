@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import ResponsiveNavigation from "@/components/ResponsiveNavigation";
+import Navigation from "@/components/Navigation";
 import {
   ArrowRight,
   ArrowDown,
@@ -128,9 +128,9 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
 
-      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-[110px] md:pt-[90px] sm:pt-[70px] pb-12">
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-center">
-          <div className="space-y-4 lg:space-y-6 flex flex-col justify-center" style={{ maxWidth: '48%' }}>
+      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-24 md:pt-20 lg:pt-16 pb-12">
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="space-y-6 lg:space-y-8 flex flex-col justify-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
               Earn More.
               <span className="text-[#00F5FF]"> Impact More.</span>
@@ -146,7 +146,7 @@ function HeroSection() {
                 Earn up to ₦1,500 for every successful enrollment
               </span>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/partners/apply"
@@ -162,8 +162,8 @@ function HeroSection() {
               </Link>
             </div>
           </div>
-          
-          <div className="relative order-2 md:order-2 mt-4 sm:mt-0" style={{ maxWidth: '52%' }}>
+
+          <div className="relative order-2 md:order-2 mt-8 md:mt-0">
             <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
               <div className="absolute inset-0 bg-[#00F5FF]/5 rounded-2xl blur-xl" />
               <div className="relative z-10">
@@ -593,7 +593,7 @@ function PartnersFooter() {
 export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-[#070B12]">
-      <ResponsiveNavigation />
+      <Navigation />
       <HeroSection />
       <TrustSection />
       <PartnerTypesSection />

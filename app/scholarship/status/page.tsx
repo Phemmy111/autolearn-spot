@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Loader2, Mail, KeyRound, Search, CheckCircle, Clock, XCircle, FileText, AlertCircle, Calendar, CreditCard } from 'lucide-react';
 import { requestStatusOTP, verifyOTPAndGetStatus, markPaymentPending } from '../actions';
 import { scholarshipConfig } from '@/config/scholarship';
+import Navigation from '@/components/Navigation';
 
 type StatusType = 'Submitted' | 'Under Review' | 'Shortlisted' | 'Accepted' | 'Waitlisted' | 'Not Selected';
 
@@ -91,14 +92,13 @@ export default function ScholarshipStatusPage() {
 
   return (
     <main className="min-h-screen bg-[#111317] text-[#e2e2e8] flex flex-col">
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
-        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/scholarship">
-          <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Back to Scholarship Info</span>
-        </Link>
-      </nav>
-
-      <div className="flex-1 flex items-center justify-center p-4">
+      <Navigation />
+      <div className="pt-24 flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white mb-8 hover:text-[#00f0ff] transition-colors" href="/scholarship">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back to Scholarship Info</span>
+          </Link>
         <div className="w-full max-w-md">
           {error && (
             <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 mb-6 font-mono text-sm text-center">
@@ -275,6 +275,7 @@ export default function ScholarshipStatusPage() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </main>
   );

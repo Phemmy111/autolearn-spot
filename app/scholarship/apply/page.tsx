@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ChevronRight, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { submitScholarshipApplication } from '../actions';
 import { scholarshipConfig } from '@/config/scholarship';
+import Navigation from '@/components/Navigation';
 
 type FormState = {
   // Step 1
@@ -202,17 +203,17 @@ export default function ScholarshipApplyPage() {
 
   return (
     <main className="min-h-screen bg-[#111317] text-[#e2e2e8] pb-24">
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
-        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/scholarship">
-          <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Back to Scholarship Info</span>
-        </Link>
-        <div className="font-mono text-sm text-[#b9cacb]">
-          Step {step} of 4
-        </div>
-      </nav>
-
-      <div className="max-w-3xl mx-auto px-4 py-12">
+      <Navigation />
+      <div className="pt-24">
+        <div className="max-w-3xl mx-auto px-4 py-12">
+          <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white mb-8 hover:text-[#00f0ff] transition-colors" href="/scholarship">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back to Scholarship Info</span>
+          </Link>
+          <div className="mb-8">
+            <div className="font-mono text-sm text-[#b9cacb] mb-2">
+              Step {step} of 4
+            </div>
         <div className="mb-8">
           <h1 className="font-heading text-3xl font-bold mb-2">Scholarship Application</h1>
           <p className="text-[#b9cacb]">Complete all steps to be considered for the {formattedFullValue} scholarship.</p>
@@ -401,6 +402,7 @@ export default function ScholarshipApplyPage() {
             )}
           </div>
         </form>
+      </div>
       </div>
     </main>
   );

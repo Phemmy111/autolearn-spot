@@ -25,7 +25,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import ResponsiveNavigation from '@/components/ResponsiveNavigation'
+import Navigation from '@/components/Navigation'
 import FAQSection from '@/components/FAQSection'
 import { StudentTestimonialCard } from '@/components/student-testimonial-card'
 import { LiveActivityFeed } from '@/components/live-activity-feed'
@@ -854,7 +854,7 @@ function Footer() {
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#050505]">
-      <ResponsiveNavigation />
+      <Navigation />
       <HeroSection />
       <InfoCards />
       <StatsSection />
