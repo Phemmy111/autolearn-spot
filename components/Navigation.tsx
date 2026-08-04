@@ -134,12 +134,32 @@ export default function Navigation() {
           </Link>
         </div>
 
-        <Link
-          href="/enroll"
-          className="border border-[#00f0ff] bg-[#00f0ff] px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-white transition-colors"
-        >
-          Enroll Now
-        </Link>
+        <div className="flex items-center gap-4">
+          {/* Student Login/Dashboard */}
+          {isLoaded && (
+            isSignedIn ? (
+              <Link
+                href="/dashboard"
+                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/dashboard"
+                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+              >
+                Student Login
+              </Link>
+            )
+          )}
+          <Link
+            href="/enroll"
+            className="border border-[#00f0ff] bg-[#00f0ff] px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-white transition-colors"
+          >
+            Enroll Now
+          </Link>
+        </div>
       </nav>
 
       {/* Mobile Navigation */}
