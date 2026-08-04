@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link"
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Link } from "next/link";
 import { ArrowLeft, CheckCircle, Star, User, Mail, Phone, Briefcase, Users } from "lucide-react";
 import { DIRECT_ENROLLMENT_CONFIG } from "@/config/direct-enrollment";
 import { getPaymentUrl } from "@/config/payment";
