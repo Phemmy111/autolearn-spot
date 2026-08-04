@@ -1,6 +1,6 @@
 import {
   CheckCircle,
-  Sparkles,
+  Star,
   Play,
   GraduationCap,
   Users,
@@ -20,13 +20,12 @@ import {
   Zap,
   Shield,
   Trophy,
-  Star,
   Infinity,
   Mail
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import Navigation from '@/components/Navigation'
+import ResponsiveNavigation from '@/components/ResponsiveNavigation'
 import FAQSection from '@/components/FAQSection'
 import { StudentTestimonialCard } from '@/components/student-testimonial-card'
 import { LiveActivityFeed } from '@/components/live-activity-feed'
@@ -122,7 +121,7 @@ const workflowNodes = [
   {
     label: 'AI Agent',
     detail: 'Score intent',
-    icon: Sparkles,
+    icon: Star,
     x: '31%',
     y: '18%',
     tone: 'active',
@@ -199,7 +198,8 @@ function WorkflowNode({
 
 function N8nWorkflowPanel() {
   return (
-    <div className="relative z-10 w-full max-w-[620px] border border-[#1f2229] bg-[#0c0e12] rounded-2xl overflow-hidden">
+    <div className="relative z-10 w-full border border-[#1f2229] bg-[#0c0e12] rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,240,255,0.1)]">
+      <div className="absolute inset-0 bg-[#00f0ff]/5 rounded-2xl blur-xl" />
       <div className="flex h-8 items-center justify-between border-b border-[#1f2229] bg-[#1a1c20] px-4">
         <span className="font-mono text-[10px] text-[#b9cacb]">live_workflow.n8n</span>
         <div className="flex items-center gap-2">
@@ -225,9 +225,9 @@ function N8nWorkflowPanel() {
         </div>
       </div>
 
-      <div className="relative hidden min-h-[360px] overflow-hidden bg-[#050505] sm:block">
+      <div className="relative min-h-[300px] sm:min-h-[360px] overflow-hidden bg-[#050505]">
         <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(#1f2229_1px,transparent_1px),linear-gradient(90deg,#1f2229_1px,transparent_1px)] [background-size:32px_32px]" />
-        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 620 360" preserveAspectRatio="none" aria-hidden="true">
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 620 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <path d="M92 185 C170 185 162 112 242 112" fill="none" stroke="#3b494b" strokeWidth="1.5" />
           <path d="M335 138 C385 170 390 185 430 185" fill="none" stroke="#3b494b" strokeWidth="1.5" />
           <path d="M512 170 C532 138 535 105 560 86" fill="none" stroke="#3b494b" strokeWidth="1.5" />
@@ -358,11 +358,11 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
       
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 items-center">
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6 flex flex-col justify-center">
+      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-[110px] md:pt-[90px] sm:pt-[70px] pb-12">
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-center">
+          <div className="space-y-4 lg:space-y-6 flex flex-col justify-center" style={{ maxWidth: '48%' }}>
             <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2">
-              <Sparkles className="h-4 w-4 text-[#00f0ff]" />
+              <Star className="h-4 w-4 text-[#00f0ff]" />
               <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
                 4 WEEK HANDS-ON TRAINING
               </span>
@@ -393,7 +393,7 @@ function HeroSection() {
             </div>
           </div>
           
-          <div className="relative order-2 lg:order-2 mt-4 sm:mt-0">
+          <div className="relative order-2 md:order-2 mt-4 sm:mt-0" style={{ maxWidth: '52%' }}>
             <N8nWorkflowPanel />
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
             <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
@@ -407,7 +407,7 @@ function HeroSection() {
 function InfoCards() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1 sm:mb-2">COHORT</div>
@@ -426,8 +426,8 @@ function InfoCards() {
 function StatsSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {stats.map((stat) => (
             <div key={stat.label} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
               <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#00f0ff]">{stat.value}</div>
@@ -443,8 +443,8 @@ function StatsSection() {
 function EnrollmentSection() {
   return (
     <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
           <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-4 sm:mb-6">
               Enroll Now
@@ -511,7 +511,7 @@ function EnrollmentSection() {
 function ScholarshipSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
@@ -538,7 +538,7 @@ function ScholarshipSection() {
 function CurriculumSection() {
   return (
     <section id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             Curriculum
@@ -548,7 +548,7 @@ function CurriculumSection() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {curriculumWeeks.map((week) => (
             <div
               key={week.step}
@@ -596,7 +596,7 @@ function CurriculumSection() {
 function FeaturesSection() {
   return (
     <section id="tools" className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             What You'll Learn
@@ -628,14 +628,14 @@ function FeaturesSection() {
 function TestimonialsSection() {
   return (
     <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             What Our Students Say
           </h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {studentTestimonials.map((testimonial) => (
             <StudentTestimonialCard
               key={testimonial.name}
@@ -656,7 +656,7 @@ function TestimonialsSection() {
 function SocialProofSection() {
   return (
     <section className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <LiveActivityFeed />
         </div>
@@ -668,7 +668,7 @@ function SocialProofSection() {
 function TrustBadgesSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 lg:gap-4">
           {trustBadges.map((badge) => {
             const Icon = badge.icon
@@ -691,7 +691,7 @@ function TrustBadgesSection() {
 function ContactSection() {
   return (
     <section className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             Get In Touch
@@ -745,7 +745,7 @@ function ContactSection() {
 function Footer() {
   return (
     <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-6 sm:py-8 lg:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
@@ -764,38 +764,31 @@ function Footer() {
             </p>
             <div className="flex gap-3 flex-wrap">
               <SocialIcon
-                src={socialLinks.facebook.icon}
-                alt={socialLinks.facebook.name}
+                platform="facebook"
                 href={socialLinks.facebook.url}
               />
               <SocialIcon
-                src={socialLinks.instagram.icon}
-                alt={socialLinks.instagram.name}
+                platform="instagram"
                 href={socialLinks.instagram.url}
               />
               <SocialIcon
-                src={socialLinks.linkedin.icon}
-                alt={socialLinks.linkedin.name}
+                platform="linkedin"
                 href={socialLinks.linkedin.url}
               />
               <SocialIcon
-                src={socialLinks.youtube.icon}
-                alt={socialLinks.youtube.name}
+                platform="youtube"
                 href={socialLinks.youtube.url}
               />
               <SocialIcon
-                src={socialLinks.tiktok.icon}
-                alt={socialLinks.tiktok.name}
+                platform="tiktok"
                 href={socialLinks.tiktok.url}
               />
               <SocialIcon
-                src={socialLinks.x.icon}
-                alt={socialLinks.x.name}
+                platform="x"
                 href={socialLinks.x.url}
               />
               <SocialIcon
-                src={socialLinks.whatsapp.icon}
-                alt={socialLinks.whatsapp.name}
+                platform="whatsapp"
                 href={socialLinks.whatsapp.url}
               />
             </div>
@@ -854,7 +847,7 @@ function Footer() {
 export default function Page() {
   return (
     <main className="min-h-screen bg-[#050505]">
-      <Navigation />
+      <ResponsiveNavigation />
       <HeroSection />
       <InfoCards />
       <StatsSection />

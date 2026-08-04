@@ -3,22 +3,20 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  ArrowRight, 
+import ResponsiveNavigation from "@/components/ResponsiveNavigation";
+import {
+  ArrowRight,
   ArrowDown,
-  Users, 
-  DollarSign, 
-  Building2, 
-  Award, 
-  CheckCircle, 
-  Zap, 
+  Users,
+  DollarSign,
+  Building2,
+  Award,
+  CheckCircle,
+  Zap,
   BarChart3,
   TrendingUp,
   Star,
   MessageCircle,
-  Menu,
-  X,
-  Sparkles,
   Shield,
   Rocket,
   Target,
@@ -129,19 +127,19 @@ function HeroSection() {
     <section className="relative min-h-screen flex items-center bg-[#070B12] overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
-        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 items-center">
-          <div className="space-y-3 sm:space-y-4 lg:space-y-6 flex flex-col justify-center">
+
+      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-[110px] md:pt-[90px] sm:pt-[70px] pb-12">
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-12 items-center">
+          <div className="space-y-4 lg:space-y-6 flex flex-col justify-center" style={{ maxWidth: '48%' }}>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
               Earn More.
               <span className="text-[#00F5FF]"> Impact More.</span>
             </h1>
-            
+
             <p className="text-sm sm:text-base lg:text-lg text-[#b9cacb] leading-relaxed max-w-xl">
               Become an AutoLearn Spot Community Partner and earn commissions by referring students to our AI Automation Training.
             </p>
-            
+
             <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 px-4 py-2 sm:px-5 sm:py-2.5">
               <DollarSign className="h-5 w-5 text-[#00F5FF]" />
               <span className="font-mono text-sm font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
@@ -165,46 +163,49 @@ function HeroSection() {
             </div>
           </div>
           
-          <div className="relative mt-4 sm:mt-0">
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Partner Dashboard Preview</span>
-                <div className="flex gap-2">
-                  <div className="h-2 w-2 rounded-full bg-[#00F5FF]" />
-                  <div className="h-2 w-2 rounded-full bg-[#333539]" />
-                  <div className="h-2 w-2 rounded-full bg-[#333539]" />
+          <div className="relative order-2 md:order-2 mt-4 sm:mt-0" style={{ maxWidth: '52%' }}>
+            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
+              <div className="absolute inset-0 bg-[#00F5FF]/5 rounded-2xl blur-xl" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Partner Dashboard Preview</span>
+                  <div className="flex gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#00F5FF]" />
+                    <div className="h-2 w-2 rounded-full bg-[#333539]" />
+                    <div className="h-2 w-2 rounded-full bg-[#333539]" />
+                  </div>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Available Balance</div>
-                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#00F5FF]">₦24,500</div>
+
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
+                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Available Balance</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#00F5FF]">₦24,500</div>
+                  </div>
+                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Pending Earnings</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">₦7,500</div>
+                  </div>
+                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Total Referrals</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">127</div>
+                  </div>
+                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Successful Enrollments</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">89</div>
+                  </div>
                 </div>
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Pending Earnings</div>
-                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">₦7,500</div>
-                </div>
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Total Referrals</div>
-                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">127</div>
-                </div>
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Successful Enrollments</div>
-                  <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">89</div>
-                </div>
-              </div>
-              
-              <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3 lg:p-4">
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">Monthly Earnings</div>
-                <div className="h-16 sm:h-20 lg:h-24 flex items-end gap-1">
-                  {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
-                      style={{ height: `${height}%` }}
-                    />
-                  ))}
+
+                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3 lg:p-4">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">Monthly Earnings</div>
+                  <div className="h-16 sm:h-20 lg:h-24 flex items-end gap-1">
+                    {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
+                      <div
+                        key={i}
+                        className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
+                        style={{ height: `${height}%` }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -220,7 +221,7 @@ function HeroSection() {
 function TrustSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Join our growing community of successful partners</p>
@@ -250,13 +251,13 @@ function TrustSection() {
 function PartnerTypesSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#070B12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Choose Your Partner Type</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Select the partnership model that suits you best</p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {PARTNER_TYPES.map((type, index) => (
             <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00F5FF]/50 transition-colors">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -293,13 +294,13 @@ function PartnerTypesSection() {
 function HowItWorksSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Simple steps to start earning</p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {HOW_IT_WORKS.map((item, index) => (
             <div key={index} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -320,13 +321,13 @@ function HowItWorksSection() {
 function TestimonialsSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#070B12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">What Partners Say</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Hear from our successful partners</p>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {PARTNER_TESTIMONIALS.map((testimonial, index) => (
             <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -361,7 +362,7 @@ function TestimonialsSection() {
 function ActivityFeedSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Real-time partner activity</p>
@@ -385,7 +386,7 @@ function ActivityFeedSection() {
 function LeaderboardSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#070B12]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Top Partners</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Leaderboard of this month</p>
@@ -438,7 +439,7 @@ function FAQSection() {
   
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Got questions? We've got answers</p>
@@ -473,7 +474,7 @@ function FAQSection() {
 function PartnersFooter() {
   return (
     <footer className="border-t border-[#1f2229] bg-[#070B12] py-6 sm:py-8 lg:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
@@ -592,6 +593,7 @@ function PartnersFooter() {
 export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-[#070B12]">
+      <ResponsiveNavigation />
       <HeroSection />
       <TrustSection />
       <PartnerTypesSection />
