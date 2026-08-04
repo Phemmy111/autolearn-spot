@@ -272,8 +272,6 @@ export default function ScholarshipApplyPage() {
           )}
 
           {step === 2 && (
-
-          {step === 2 && (
             <div className="space-y-6 animate-fade-in-up">
               <h2 className="font-heading text-xl font-bold border-b border-[#1f2229] pb-4 mb-6 text-[#00f0ff]">2. Technology Background</h2>
               
@@ -344,8 +342,6 @@ export default function ScholarshipApplyPage() {
           )}
 
           {step === 4 && (
-
-          {step === 4 && (
             <div className="space-y-6 animate-fade-in-up">
               <h2 className="font-heading text-xl font-bold border-b border-[#1f2229] pb-4 mb-6 text-[#00f0ff]">4. Final Commitment</h2>
               
@@ -412,3 +408,4 @@ export default function ScholarshipApplyPage() {
     </main>
   );
 }
+
