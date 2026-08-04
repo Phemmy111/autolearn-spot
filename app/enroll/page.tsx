@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Link } from "next/link";
-import { ArrowLeft, CheckCircle, Lock, Sparkles, User, Mail, Phone, MapPin, Briefcase, Users } from "lucide-react";
+import { ArrowLeft, CheckCircle, Star, User, Mail, Phone, Briefcase, Users } from "lucide-react";
 import { DIRECT_ENROLLMENT_CONFIG } from "@/config/direct-enrollment";
 import { getPaymentUrl } from "@/config/payment";
 
@@ -130,7 +130,7 @@ function EnrollForm() {
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
               <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff] group-hover:border-[#00f0ff] transition-colors">
-                <Sparkles className="h-4 w-4" />
+                <Star className="h-4 w-4" />
               </div>
               <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
                 AutoLearn Spot
@@ -154,7 +154,7 @@ function EnrollForm() {
           <div>
             <div className="mb-8">
               <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1 mb-4">
-                <Sparkles className="h-4 w-4 text-[#00f0ff]" />
+                <Star className="h-4 w-4 text-[#00f0ff]" />
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
                   Direct Enrollment
                 </span>
@@ -171,7 +171,7 @@ function EnrollForm() {
               {/* Personal Information */}
               <div className="space-y-4">
                 <h2 className="font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[#dbfcff] flex items-center gap-2">
-                  <User className="h-4 w-4" />
+                  <CheckCircle className="h-4 w-4" />
                   Personal Information
                 </h2>
 
@@ -530,7 +530,7 @@ function EnrollForm() {
                 <div className="text-4xl font-bold text-[#00f0ff] mb-2">₦8,000</div>
                 <p className="text-sm text-[#b9cacb] mb-4">One-time payment</p>
                 <div className="flex items-center justify-center gap-2 text-xs text-[#b9cacb]">
-                  <Lock className="h-4 w-4" />
+                  <Star className="h-4 w-4" />
                   <span>Secure payment via Paystack</span>
                 </div>
               </div>
