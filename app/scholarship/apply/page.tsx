@@ -376,7 +376,7 @@ export default function ScholarshipApplyPage() {
                 <ArrowLeft className="w-4 h-4" /> Previous
               </button>
             ) : (
-              <div /> {/* Spacer */}
+              <div />
             )}
             
             {step < 4 ? (
