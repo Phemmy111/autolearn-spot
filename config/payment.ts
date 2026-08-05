@@ -37,7 +37,7 @@ export function getPaymentConfig(flow: PaymentFlow): PaymentConfig {
       name: 'AutoLearn Spot Scholarship Program',
       description: 'Scholarship commitment fee for approved applicants',
       testUrl: process.env.NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_URL || 'https://paystack.shop/pay/lk12tlisnj',
-      liveUrl: process.env.NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_LIVE_URL || '',
+      liveUrl: process.env.NEXT_PUBLIC_PAYSTACK_SCHOLARSHIP_LIVE_URL || 'https://paystack.shop/pay/lk12tlisnj',
       useTestMode: isTestMode,
     };
   }
@@ -50,7 +50,7 @@ export function getPaymentConfig(flow: PaymentFlow): PaymentConfig {
       name: 'AutoLearn Spot Direct Enrollment',
       description: '4-week hands-on n8n automation training',
       testUrl: process.env.NEXT_PUBLIC_PAYSTACK_DIRECT_ENROLLMENT_URL || 'https://paystack.shop/pay/wnkntnzlcd',
-      liveUrl: process.env.NEXT_PUBLIC_PAYSTACK_DIRECT_ENROLLMENT_LIVE_URL || '',
+      liveUrl: process.env.NEXT_PUBLIC_PAYSTACK_DIRECT_ENROLLMENT_LIVE_URL || 'https://paystack.shop/pay/wnkntnzlcd',
       useTestMode: isTestMode,
     };
   }

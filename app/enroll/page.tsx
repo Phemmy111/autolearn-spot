@@ -101,9 +101,14 @@ function EnrollForm() {
       }
 
       const data = await response.json();
-      
+
       // Get the correct Direct Enrollment payment URL
       const paystackUrl = getPaymentUrl('direct-enrollment');
+      console.log('Payment URL:', paystackUrl);
+
+      if (!paystackUrl || paystackUrl === '') {
+        throw new Error('Payment URL is not configured');
+      }
 
       const url = new URL(paystackUrl);
       url.searchParams.set("name", formData.fullName);
@@ -112,6 +117,7 @@ function EnrollForm() {
       url.searchParams.set("referral", formData.referralCode);
       url.searchParams.set("pending_id", data.pendingId);
 
+      console.log('Redirecting to:', url.toString());
       window.location.href = url.toString();
     } catch (error) {
       console.error("Enrollment error:", error);
