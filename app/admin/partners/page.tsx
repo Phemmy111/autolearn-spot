@@ -29,7 +29,9 @@ import {
   ChevronDown,
   ArrowUp,
   ArrowDown,
-  Upload
+  Upload,
+  Bell,
+  Settings as EditIcon
 } from 'lucide-react';
 
 const navItems = [
@@ -208,7 +210,17 @@ export default function AdminPartnersPage() {
           status: 'active'
         });
         fetchAll();
-        alert('Partner added successfully');
+        
+        // Show email status
+        const emailStatus = data.emailStatus || {};
+        let message = 'Partner added successfully';
+        if (!emailStatus.partnerEmail) {
+          message += '. Warning: Partner welcome email failed to send';
+        }
+        if (!emailStatus.adminEmail) {
+          message += '. Warning: Admin notification email failed to send';
+        }
+        alert(message);
       } else {
         const errorData = await res.json();
         console.error('[Admin Partners] Failed to add partner:', errorData);
@@ -301,6 +313,26 @@ export default function AdminPartnersPage() {
     } catch (e) {
       console.error('[Admin Partners] Failed to delete material:', e);
       alert('Failed to delete material');
+    }
+  };
+
+  const handleResendEmail = async (partnerId: string, emailType: 'welcome' | 'admin_notification') => {
+    try {
+      const res = await fetch(`/api/admin/partners/${partnerId}/resend-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailType })
+      });
+
+      const data = await res.json();
+      if (data.emailSent) {
+        alert('Email sent successfully');
+      } else {
+        alert(`Failed to send email: ${data.errorMessage || 'Unknown error'}`);
+      }
+    } catch (e) {
+      console.error('[Admin Partners] Failed to resend email:', e);
+      alert('Failed to resend email');
     }
   };
 
@@ -906,7 +938,7 @@ export default function AdminPartnersPage() {
                             className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
                             title="Edit"
                           >
-                            <Settings className="h-4 w-4" />
+                            <EditIcon className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleMaterialDelete(material.id)}
@@ -1664,6 +1696,27 @@ export default function AdminPartnersPage() {
                       No recent referrals found
                     </div>
                   )}
+                </div>
+
+                {/* Email Actions */}
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Email Actions</h4>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleResendEmail(selectedPartner.id, 'welcome')}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                    >
+                      <Mail className="h-4 w-4" />
+                      Resend Welcome Email
+                    </button>
+                    <button
+                      onClick={() => handleResendEmail(selectedPartner.id, 'admin_notification')}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
+                    >
+                      <Bell className="h-4 w-4" />
+                      Resend Admin Notification
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

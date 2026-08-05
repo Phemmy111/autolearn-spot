@@ -22,21 +22,35 @@ export async function PUT(
     const { name, type, category, description } = body;
 
     console.log('[PUT /api/admin/marketing/materials/:id] Request body:', body);
-    console.log('[PUT /api/admin/marketing/materials/:id] Params:', params);
+    
+    // Wait for params to resolve
+    const resolvedParams = await params;
+    console.log('[PUT /api/admin/marketing/materials/:id] Resolved params:', resolvedParams);
 
-    // Build update object with only provided fields
-    const updateData: any = {};
-    if (name) updateData.resource_name = name;
-    if (type) updateData.resource_type = type;
-    if (category) updateData.category = category;
-    if (description !== undefined) updateData.description = description;
+    // Build update object with only provided fields (avoid UUID columns)
+    const updateData: any = {
+      updated_at: new Date().toISOString()
+    };
+    
+    if (name !== undefined && name !== null && name !== '') {
+      updateData.resource_name = name;
+    }
+    if (type !== undefined && type !== null && type !== '') {
+      updateData.resource_type = type;
+    }
+    if (category !== undefined && category !== null && category !== '') {
+      updateData.category = category;
+    }
+    if (description !== undefined) {
+      updateData.description = description;
+    }
 
     console.log('[PUT /api/admin/marketing/materials/:id] Update data:', updateData);
 
     const { data, error } = await supabaseAdmin
       .from('partner_marketing_downloads')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', resolvedParams.id)
       .select()
       .single();
 

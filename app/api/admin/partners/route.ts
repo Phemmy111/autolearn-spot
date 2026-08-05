@@ -123,6 +123,7 @@ export async function POST(request: Request) {
     // Future: implement referral tracking when database schema is ready
 
     // Send email notification to admin about new partner
+    let adminEmailSent = false;
     try {
       await AdminEmailService.sendPartnerCreatedEmail({
         partnerName: full_name,
@@ -131,12 +132,15 @@ export async function POST(request: Request) {
         partnerId: partner.id,
         referralCode: referralCode
       });
+      adminEmailSent = true;
+      console.log('[POST /api/admin/partners] Admin email sent successfully');
     } catch (emailError) {
       console.error('[POST /api/admin/partners] Failed to send admin email:', emailError);
       // Continue anyway
     }
 
     // Send welcome email to new partner with login details
+    let partnerEmailSent = false;
     try {
       await AdminEmailService.sendPartnerWelcomeEmail({
         partnerName: full_name,
@@ -145,12 +149,21 @@ export async function POST(request: Request) {
         referralCode: referralCode,
         tempPassword: password || 'Set your password via the login link'
       });
+      partnerEmailSent = true;
+      console.log('[POST /api/admin/partners] Partner welcome email sent successfully');
     } catch (emailError) {
       console.error('[POST /api/admin/partners] Failed to send partner email:', emailError);
       // Continue anyway
     }
 
-    return NextResponse.json({ success: true, partner });
+    return NextResponse.json({ 
+      success: true, 
+      partner,
+      emailStatus: {
+        adminEmail: adminEmailSent,
+        partnerEmail: partnerEmailSent
+      }
+    });
   } catch (error) {
     console.error('[POST /api/admin/partners] Error:', error);
     console.error('[POST /api/admin/partners] Error details:', JSON.stringify(error, null, 2));
