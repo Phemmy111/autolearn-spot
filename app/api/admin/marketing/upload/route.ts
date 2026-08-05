@@ -63,16 +63,15 @@ export async function POST(request: Request) {
         file_name: fileName
       });
 
-      // Build insert object with only required fields
+      // Build insert object with correct column names from actual table structure
       const insertData: any = {
-        name,
-        file_url: publicUrl,
-        file_name: fileName,
+        resource_name: name,
+        resource_url: publicUrl,
+        resource_type: type || 'flyer',
         download_count: 0
       };
 
       // Only add optional fields if they have values
-      if (type) insertData.type = type;
       if (category) insertData.category = category;
       if (description) insertData.description = description;
 

@@ -31,7 +31,20 @@ export async function GET(request: Request) {
     }
 
     console.log('[GET /api/admin/marketing/materials] Successfully fetched materials:', data?.length || 0);
-    return NextResponse.json({ success: true, materials: data });
+    
+    // Transform data to match frontend expectations
+    const transformedData = data?.map(item => ({
+      id: item.id,
+      name: item.resource_name,
+      type: item.resource_type,
+      category: item.category,
+      description: item.description,
+      file_url: item.resource_url,
+      download_count: item.download_count,
+      created_at: item.created_at
+    })) || [];
+
+    return NextResponse.json({ success: true, materials: transformedData });
   } catch (error) {
     console.error('[GET /api/admin/marketing/materials] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
