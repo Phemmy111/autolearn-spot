@@ -35,7 +35,8 @@ import {
   Calendar,
   CheckCircle,
   MessageCircle,
-  RefreshCw
+  RefreshCw,
+  Eye
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -716,8 +717,9 @@ export default function PartnerDashboard() {
                           <div className="flex gap-2">
                             <button 
                               onClick={() => openMaterialDetail(item)}
-                              className="flex-1 py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors"
+                              className="flex-1 py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors flex items-center justify-center gap-2"
                             >
+                              <Eye className="h-4 w-4" />
                               View Details
                             </button>
                             <button 
