@@ -888,6 +888,13 @@ export default function AdminPartnersPage() {
                         <span className="text-xs text-[#b9cacb]">{material.download_count || 0} downloads</span>
                         <div className="flex gap-2">
                           <button
+                            onClick={() => window.open(`/api/marketing/download/${material.id}`, '_blank')}
+                            className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                            title="Download"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                          <button
                             onClick={() => openMaterialPreview(material)}
                             className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
                             title="Preview"
@@ -1080,7 +1087,7 @@ export default function AdminPartnersPage() {
                       />
                     ) : (
                       <a 
-                        href={selectedMaterial.file_url} 
+                        href={`/api/marketing/download/${selectedMaterial.id}`}
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-[#12E6F3] hover:underline"

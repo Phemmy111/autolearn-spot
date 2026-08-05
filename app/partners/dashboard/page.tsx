@@ -681,11 +681,11 @@ export default function PartnerDashboard() {
                             </div>
                             <div>
                               <p className="text-sm font-medium text-[#e2e2e8]">{item.name}</p>
-                              <p className="text-xs text-[#b9cacb]">{item.downloads || 0} downloads</p>
+                              <p className="text-xs text-[#b9cacb]">{item.download_count || 0} downloads</p>
                             </div>
                           </div>
                           <button 
-                            onClick={() => window.open(item.url, '_blank')}
+                            onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
                             className="w-full py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors"
                           >
                             Download
