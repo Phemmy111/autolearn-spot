@@ -19,6 +19,10 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
     }
     
+    // Wait for params to resolve
+    const resolvedParams = await params;
+    console.log('[POST /api/admin/partners/:id/resend-email] Resolved params:', resolvedParams);
+    
     const body = await request.json();
     const { emailType } = body; // 'welcome' or 'admin_notification'
 
@@ -26,12 +30,15 @@ export async function POST(
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', resolvedParams.id)
       .single();
 
     if (partnerError || !partner) {
+      console.error('[POST /api/admin/partners/:id/resend-email] Partner not found:', partnerError);
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
     }
+
+    console.log('[POST /api/admin/partners/:id/resend-email] Partner found:', partner.email);
 
     // Generate referral code
     const referralCode = `REF${Math.floor(Math.random() * 100000).toString().padStart(6, '0')}`;
@@ -49,6 +56,7 @@ export async function POST(
           tempPassword: 'Set your password via the login link'
         });
         emailSent = true;
+        console.log('[POST /api/admin/partners/:id/resend-email] Welcome email sent successfully');
       } catch (emailError) {
         console.error('[POST /api/admin/partners/:id/resend-email] Failed to send welcome email:', emailError);
         errorMessage = String(emailError);
@@ -63,6 +71,7 @@ export async function POST(
           referralCode: referralCode
         });
         emailSent = true;
+        console.log('[POST /api/admin/partners/:id/resend-email] Admin notification email sent successfully');
       } catch (emailError) {
         console.error('[POST /api/admin/partners/:id/resend-email] Failed to send admin email:', emailError);
         errorMessage = String(emailError);
