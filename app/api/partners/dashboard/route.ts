@@ -97,12 +97,23 @@ export async function GET(request: Request) {
       .eq('partner_id', partner.id)
       .eq('read', false);
 
-    // Get marketing resources
+    // Get marketing resources from the correct table
     const { data: marketingResources } = await supabaseAdmin
-      .from('marketing_materials')
+      .from('partner_marketing_downloads')
       .select('*')
-      .eq('status', 'active')
       .order('created_at', { ascending: false });
+
+    // Transform marketing resources to match frontend expectations
+    const transformedMarketingResources = marketingResources?.map(item => ({
+      id: item.id,
+      name: item.resource_name,
+      type: item.resource_type,
+      category: item.category,
+      description: item.description,
+      file_url: item.resource_url,
+      download_count: item.download_count,
+      created_at: item.created_at
+    })) || [];
 
     return NextResponse.json({
       success: true,
@@ -135,7 +146,7 @@ export async function GET(request: Request) {
       withdrawals,
       notifications,
       unreadCount: unreadCount || 0,
-      marketingResources
+      marketingResources: transformedMarketingResources
     });
 
   } catch (error) {

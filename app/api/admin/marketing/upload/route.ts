@@ -94,6 +94,33 @@ export async function POST(request: Request) {
         }, { status: 500 });
       } else {
         console.log('[POST /api/admin/marketing/upload] Metadata saved successfully');
+        
+        // Create notifications for all partners about new marketing material
+        try {
+          const { data: partners } = await supabaseAdmin
+            .from('partners')
+            .select('id, full_name')
+            .eq('status', 'active');
+
+          if (partners && partners.length > 0) {
+            const notifications = partners.map(partner => ({
+              partner_id: partner.id,
+              title: 'New Marketing Material Available',
+              message: `A new marketing material "${name}" has been uploaded to the marketing kit.`,
+              type: 'marketing',
+              read: false
+            }));
+
+            await supabaseAdmin
+              .from('partner_notifications')
+              .insert(notifications);
+            
+            console.log('[POST /api/admin/marketing/upload] Notifications sent to', partners.length, 'partners');
+          }
+        } catch (notificationError) {
+          console.error('[POST /api/admin/marketing/upload] Failed to send notifications:', notificationError);
+          // Continue anyway, material was uploaded successfully
+        }
       }
     } catch (dbError) {
       console.error('[POST /api/admin/marketing/upload] Database insert error:', dbError);
