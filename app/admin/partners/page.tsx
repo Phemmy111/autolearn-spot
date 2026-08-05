@@ -72,6 +72,15 @@ export default function AdminPartnersPage() {
     description: ''
   });
   const [marketingMaterials, setMarketingMaterials] = useState<any[]>([]);
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+  const [showMaterialPreviewModal, setShowMaterialPreviewModal] = useState(false);
+  const [showMaterialEditModal, setShowMaterialEditModal] = useState(false);
+  const [editMaterialData, setEditMaterialData] = useState({
+    name: '',
+    type: 'flyer',
+    category: 'general',
+    description: ''
+  });
   const [selectedPartner, setSelectedPartner] = useState<any>(null);
   const [showPartnerDetailModal, setShowPartnerDetailModal] = useState(false);
   const [settings, setSettings] = useState({
@@ -242,12 +251,73 @@ export default function AdminPartnersPage() {
         fetchMarketingMaterials(); // Refresh the materials list
         alert('Marketing material uploaded successfully');
       } else {
-        alert('Failed to upload marketing material');
+        const errorData = await res.json();
+        alert(`Failed to upload marketing material: ${errorData.details || errorData.error}`);
       }
     } catch (e) {
-      console.error(e);
+      console.error('[Admin Partners] Failed to upload marketing material:', e);
       alert('Failed to upload marketing material');
     }
+  };
+
+  const handleMaterialEdit = async () => {
+    if (!selectedMaterial) return;
+
+    try {
+      const res = await fetch(`/api/admin/marketing/materials/${selectedMaterial.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editMaterialData)
+      });
+
+      if (res.ok) {
+        setShowMaterialEditModal(false);
+        setSelectedMaterial(null);
+        fetchMarketingMaterials();
+        alert('Material updated successfully');
+      } else {
+        alert('Failed to update material');
+      }
+    } catch (e) {
+      console.error('[Admin Partners] Failed to update material:', e);
+      alert('Failed to update material');
+    }
+  };
+
+  const handleMaterialDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this material?')) return;
+
+    try {
+      const res = await fetch(`/api/admin/marketing/materials/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        fetchMarketingMaterials();
+        alert('Material deleted successfully');
+      } else {
+        alert('Failed to delete material');
+      }
+    } catch (e) {
+      console.error('[Admin Partners] Failed to delete material:', e);
+      alert('Failed to delete material');
+    }
+  };
+
+  const openMaterialPreview = (material: any) => {
+    setSelectedMaterial(material);
+    setShowMaterialPreviewModal(true);
+  };
+
+  const openMaterialEdit = (material: any) => {
+    setSelectedMaterial(material);
+    setEditMaterialData({
+      name: material.name,
+      type: material.type,
+      category: material.category,
+      description: material.description
+    });
+    setShowMaterialEditModal(true);
   };
 
   const handlePartnerClick = async (partner: any) => {
@@ -805,7 +875,7 @@ export default function AdminPartnersPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {marketingMaterials.map((material) => (
-                    <div key={material.id} className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
+                    <div key={material.id} className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors">
                       <div className="flex items-center justify-between mb-3">
                         <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
                           <Download className="h-6 w-6 text-[#12E6F3]" />
@@ -816,7 +886,29 @@ export default function AdminPartnersPage() {
                       <p className="text-xs text-[#b9cacb]">{material.description || 'No description'}</p>
                       <div className="mt-3 flex items-center justify-between">
                         <span className="text-xs text-[#b9cacb]">{material.download_count || 0} downloads</span>
-                        <Download className="h-4 w-4 text-[#12E6F3]" />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => openMaterialPreview(material)}
+                            className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                            title="Preview"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openMaterialEdit(material)}
+                            className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                            title="Edit"
+                          >
+                            <Settings className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleMaterialDelete(material.id)}
+                            className="p-1 hover:bg-red-500/10 rounded transition-colors text-[#b9cacb] hover:text-red-400"
+                            title="Delete"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -932,6 +1024,154 @@ export default function AdminPartnersPage() {
                   </button>
                   <button
                     onClick={() => setShowUploadModal(false)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Material Preview Modal */}
+        {showMaterialPreviewModal && selectedMaterial && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
+                <h2 className="text-xl font-bold text-[#e2e2e8]">Material Preview</h2>
+                <button
+                  onClick={() => setShowMaterialPreviewModal(false)}
+                  className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#e2e2e8]"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.name}</h3>
+                  <span className="px-3 py-1 bg-[#12E6F3]/10 text-[#12E6F3] rounded-full text-xs font-medium">
+                    {selectedMaterial.type.toUpperCase()}
+                  </span>
+                </div>
+                
+                <p className="text-sm text-[#b9cacb]">{selectedMaterial.description || 'No description'}</p>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-[#070B12] p-3 rounded-lg">
+                    <p className="text-[#b9cacb]">Downloads</p>
+                    <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.download_count || 0}</p>
+                  </div>
+                  <div className="bg-[#070B12] p-3 rounded-lg">
+                    <p className="text-[#b9cacb]">Category</p>
+                    <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.category || 'general'}</p>
+                  </div>
+                </div>
+                
+                {selectedMaterial.file_url && (
+                  <div className="bg-[#070B12] p-4 rounded-lg">
+                    <p className="text-sm text-[#b9cacb] mb-2">Preview</p>
+                    {selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' ? (
+                      <img 
+                        src={selectedMaterial.file_url} 
+                        alt={selectedMaterial.name}
+                        className="w-full h-auto rounded-lg"
+                      />
+                    ) : (
+                      <a 
+                        href={selectedMaterial.file_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[#12E6F3] hover:underline"
+                      >
+                        Open File
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Material Edit Modal */}
+        {showMaterialEditModal && selectedMaterial && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
+                <h2 className="text-xl font-bold text-[#e2e2e8]">Edit Material</h2>
+                <button
+                  onClick={() => setShowMaterialEditModal(false)}
+                  className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#e2e2e8]"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Material Name</label>
+                  <input
+                    type="text"
+                    value={editMaterialData.name}
+                    onChange={(e) => setEditMaterialData({...editMaterialData, name: e.target.value})}
+                    className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Type</label>
+                    <select
+                      value={editMaterialData.type}
+                      onChange={(e) => setEditMaterialData({...editMaterialData, type: e.target.value})}
+                      className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    >
+                      <option value="flyer">Flyer</option>
+                      <option value="video">Video</option>
+                      <option value="image">Image</option>
+                      <option value="reel">Reel</option>
+                      <option value="pdf">PDF</option>
+                      <option value="script">Script</option>
+                      <option value="caption">Caption</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Category</label>
+                    <select
+                      value={editMaterialData.category}
+                      onChange={(e) => setEditMaterialData({...editMaterialData, category: e.target.value})}
+                      className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    >
+                      <option value="general">General</option>
+                      <option value="social">Social Media</option>
+                      <option value="email">Email</option>
+                      <option value="print">Print</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Description</label>
+                  <textarea
+                    value={editMaterialData.description}
+                    onChange={(e) => setEditMaterialData({...editMaterialData, description: e.target.value})}
+                    className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3] resize-none"
+                    rows={3}
+                  />
+                </div>
+                
+                <div className="flex items-center gap-3 pt-4 border-t border-[#1f2229]">
+                  <button
+                    onClick={handleMaterialEdit}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => setShowMaterialEditModal(false)}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
                   >
                     Cancel
