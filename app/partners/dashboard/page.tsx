@@ -52,6 +52,8 @@ export default function PartnerDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+  const [showMaterialDetailModal, setShowMaterialDetailModal] = useState(false);
   const [bankFormData, setBankFormData] = useState({
     bank_name: '',
     account_number: '',
@@ -84,6 +86,16 @@ export default function PartnerDashboard() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const openMaterialDetail = (material: any) => {
+    setSelectedMaterial(material);
+    setShowMaterialDetailModal(true);
+  };
+
+  const copyTextToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert('Text copied to clipboard!');
   };
 
   const fetchDashboardData = async () => {
@@ -674,28 +686,124 @@ export default function PartnerDashboard() {
                     data.marketingResources.map((item: any) => {
                       const Icon = FileText; // Default icon, can be customized based on type
                       return (
-                        <div key={item.id} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all cursor-pointer">
+                        <div key={item.id} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all">
                           <div className="flex items-center gap-3 mb-3">
                             <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
                               <Icon className="h-5 w-5 text-[#00F5FF]" />
                             </div>
-                            <div>
-                              <p className="text-sm font-medium text-[#e2e2e8]">{item.name}</p>
-                              <p className="text-xs text-[#b9cacb]">{item.download_count || 0} downloads</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-[#e2e2e8] truncate cursor-pointer hover:text-[#00F5FF]" onClick={() => openMaterialDetail(item)} title={item.name}>{item.name}</p>
+                              <div className="flex items-center gap-2 text-xs text-[#b9cacb]">
+                                <span className="px-2 py-0.5 bg-[#00F5FF]/10 text-[#00F5FF] rounded-full">{item.type?.toUpperCase() || 'FLYER'}</span>
+                                <span>{item.download_count || 0} downloads</span>
+                              </div>
                             </div>
                           </div>
-                          <button 
-                            onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
-                            className="w-full py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors"
-                          >
-                            Download
-                          </button>
+                          {item.description && (
+                            <div className="mb-3 p-2 bg-[#0c0e12] rounded-lg">
+                              <p className="text-xs text-[#b9cacb] whitespace-pre-wrap break-words" style={{
+                                maxHeight: '60px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical'
+                              }} title={item.description}>
+                                {item.description}
+                              </p>
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => openMaterialDetail(item)}
+                              className="flex-1 py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors"
+                            >
+                              View Details
+                            </button>
+                            <button 
+                              onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
+                              className="flex-1 py-2 border border-[#1f2229] bg-[#070B12] text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-[#0c0e12] transition-colors"
+                            >
+                              Download
+                            </button>
+                          </div>
                         </div>
                       );
                     })
                   ) : (
                     <p className="text-sm text-[#b9cacb] text-center py-4 col-span-2">No marketing resources available</p>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Material Detail Modal */}
+            {selectedMaterial && showMaterialDetailModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-[#e2e2e8]">Material Details</h2>
+                    <button
+                      onClick={() => setShowMaterialDetailModal(false)}
+                      className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#e2e2e8]"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  
+                  <div className="p-6 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.name}</h3>
+                      <span className="px-3 py-1 bg-[#00F5FF]/10 text-[#00F5FF] rounded-full text-xs font-medium">
+                        {selectedMaterial.type?.toUpperCase() || 'FLYER'}
+                      </span>
+                    </div>
+                    
+                    {selectedMaterial.description && (
+                      <div className="bg-[#070B12] p-4 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-medium text-[#e2e2e8]">Description</p>
+                          <button
+                            onClick={() => copyTextToClipboard(selectedMaterial.description)}
+                            className="p-1 hover:bg-[#00F5FF]/10 rounded transition-colors text-[#b9cacb] hover:text-[#00F5FF]"
+                            title="Copy text"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        </div>
+                        <p className="text-sm text-[#b9cacb] whitespace-pre-wrap break-words bg-[#0c0e12] p-3 rounded-lg max-h-64 overflow-y-auto">
+                          {selectedMaterial.description}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="bg-[#070B12] p-3 rounded-lg">
+                        <p className="text-[#b9cacb]">Downloads</p>
+                        <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.download_count || 0}</p>
+                      </div>
+                      <div className="bg-[#070B12] p-3 rounded-lg">
+                        <p className="text-[#b9cacb]">Category</p>
+                        <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.category || 'general'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-3 pt-4 border-t border-[#1f2229]">
+                      <button
+                        onClick={() => window.open(`/api/partners/marketing/download/${selectedMaterial.id}`, '_blank')}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-medium hover:bg-[#00F5FF]/90 transition-colors"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download
+                      </button>
+                      <button
+                        onClick={() => setShowMaterialDetailModal(false)}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
