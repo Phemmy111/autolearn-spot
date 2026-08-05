@@ -596,7 +596,7 @@ export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-[#070B12]">
       <Navigation />
-      <WhatsAppWrapper />
+      <WhatsAppChatModal variant="floating" />
       <AutolearnBot />
       <HeroSection />
       <TrustSection />
