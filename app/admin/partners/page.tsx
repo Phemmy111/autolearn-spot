@@ -86,6 +86,23 @@ export default function AdminPartnersPage() {
     theme: 'dark'
   });
 
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('partnerSettings');
+    if (savedSettings) {
+      try {
+        setSettings(JSON.parse(savedSettings));
+      } catch (e) {
+        console.error('Failed to parse saved settings:', e);
+      }
+    }
+  }, []);
+
+  // Save settings to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('partnerSettings', JSON.stringify(settings));
+  }, [settings]);
+
   const overviewCards = [
     { id: 'total', label: 'Total Partners', value: partners.length.toString(), growth: null, icon: Users, positive: true },
     { id: 'pending', label: 'Pending Applications', value: applications.filter(a => a.status === 'pending').length.toString(), growth: null, icon: Clock, positive: true },
@@ -202,12 +219,12 @@ export default function AdminPartnersPage() {
       
       if (bankRes.ok) {
         const bankData = await bankRes.json();
-        setSelectedPartner(prev => ({ ...prev, bankDetails: bankData }));
+        setSelectedPartner(prev => ({ ...prev, bankDetails: bankData.bankDetails }));
       }
       
       if (referralsRes.ok) {
         const referralsData = await referralsRes.json();
-        setSelectedPartner(prev => ({ ...prev, recentReferrals: referralsData }));
+        setSelectedPartner(prev => ({ ...prev, recentReferrals: referralsData.referrals }));
       }
     } catch (error) {
       console.error('Error fetching partner details:', error);
@@ -1044,11 +1061,12 @@ export default function AdminPartnersPage() {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-[#1f2229] flex items-center justify-between">
+            <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Program Settings</h2>
               <button
                 onClick={() => {
                   // Save settings logic here
+                  localStorage.setItem('partnerSettings', JSON.stringify(settings));
                   alert('Settings saved successfully!');
                 }}
                 className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"

@@ -29,8 +29,8 @@ export async function POST(request: Request) {
     // Upload file to Supabase Storage
     const fileName = `${Date.now()}-${file.name}`;
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-      .from('marketing-materials')
-      .upload(fileName, file);
+      .from('assignment-submissions')
+      .upload(`marketing/${fileName}`, file);
 
     if (uploadError) {
       console.error('File upload error:', uploadError);
@@ -49,8 +49,8 @@ export async function POST(request: Request) {
 
     // Get public URL
     const { data: { publicUrl } } = supabaseAdmin.storage
-      .from('marketing-materials')
-      .getPublicUrl(fileName);
+      .from('assignment-submissions')
+      .getPublicUrl(`marketing/${fileName}`);
 
     // Save metadata to database
     const { error: dbError } = await supabaseAdmin

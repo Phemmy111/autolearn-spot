@@ -69,16 +69,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
 
-    // Generate partner ID and referral code
-    const partnerId = generatePartnerId();
+    // Generate referral code
     const referralCode = generateReferralCode();
-    console.log('[POST /api/admin/partners] Generated IDs:', { partnerId, referralCode });
+    console.log('[POST /api/admin/partners] Generated referral code:', referralCode);
 
     // Create partner record
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .insert({
-        partner_id: partnerId,
         full_name,
         email,
         phone,
@@ -121,7 +119,7 @@ export async function POST(request: Request) {
         partnerName: full_name,
         partnerEmail: email,
         partnerType: partner_type || 'community',
-        partnerId: partnerId,
+        partnerId: partner.id,
         referralCode: referralCode
       });
     } catch (emailError) {
@@ -134,7 +132,7 @@ export async function POST(request: Request) {
       await AdminEmailService.sendPartnerWelcomeEmail({
         partnerName: full_name,
         partnerEmail: email,
-        partnerId: partnerId,
+        partnerId: partner.id,
         referralCode: referralCode,
         tempPassword: password || 'Set your password via the login link'
       });
