@@ -117,13 +117,20 @@ export default function AdminPartnersPage() {
   // Fetch marketing materials from database
   const fetchMarketingMaterials = async () => {
     try {
+      console.log('[Admin Partners] Fetching marketing materials');
       const res = await fetch('/api/admin/marketing/materials');
+      console.log('[Admin Partners] Materials response status:', res.status);
+      
       if (res.ok) {
         const data = await res.json();
+        console.log('[Admin Partners] Materials data:', data);
         setMarketingMaterials(data.materials || []);
+      } else {
+        const errorData = await res.json();
+        console.error('[Admin Partners] Failed to fetch materials:', errorData);
       }
     } catch (e) {
-      console.error('Failed to fetch marketing materials:', e);
+      console.error('[Admin Partners] Failed to fetch marketing materials:', e);
     }
   };
 
@@ -168,13 +175,18 @@ export default function AdminPartnersPage() {
 
   const handleAddPartner = async () => {
     try {
+      console.log('[Admin Partners] Creating partner with data:', newPartner);
       const res = await fetch('/api/admin/partners', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPartner)
       });
       
+      console.log('[Admin Partners] Partner creation response status:', res.status);
+      
       if (res.ok) {
+        const data = await res.json();
+        console.log('[Admin Partners] Partner created successfully:', data);
         setShowAddPartnerModal(false);
         setNewPartner({
           full_name: '',
@@ -187,11 +199,14 @@ export default function AdminPartnersPage() {
           status: 'active'
         });
         fetchAll();
+        alert('Partner added successfully');
       } else {
-        alert('Failed to add partner');
+        const errorData = await res.json();
+        console.error('[Admin Partners] Failed to add partner:', errorData);
+        alert(`Failed to add partner: ${errorData.details || errorData.error}`);
       }
     } catch (e) {
-      console.error(e);
+      console.error('[Admin Partners] Failed to add partner:', e);
       alert('Failed to add partner');
     }
   };

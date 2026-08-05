@@ -54,6 +54,15 @@ export async function POST(request: Request) {
 
     // Save metadata to database
     try {
+      console.log('[POST /api/admin/marketing/upload] Attempting to save metadata:', {
+        name,
+        type,
+        category,
+        description,
+        file_url: publicUrl,
+        file_name: fileName
+      });
+
       const { error: dbError } = await supabaseAdmin
         .from('partner_marketing_downloads')
         .insert({
@@ -67,12 +76,17 @@ export async function POST(request: Request) {
         });
 
       if (dbError) {
-        console.error('Database error:', dbError);
+        console.error('[POST /api/admin/marketing/upload] Database error:', dbError);
+        console.error('[POST /api/admin/marketing/upload] Error code:', dbError.code);
+        console.error('[POST /api/admin/marketing/upload] Error message:', dbError.message);
+        console.error('[POST /api/admin/marketing/upload] Error details:', dbError.details);
         // Still return success even if database insert fails, as file was uploaded
-        console.log('File uploaded successfully but metadata save failed:', dbError.message);
+        console.log('[POST /api/admin/marketing/upload] File uploaded successfully but metadata save failed:', dbError.message);
+      } else {
+        console.log('[POST /api/admin/marketing/upload] Metadata saved successfully');
       }
     } catch (dbError) {
-      console.error('Database insert error:', dbError);
+      console.error('[POST /api/admin/marketing/upload] Database insert error:', dbError);
       // Continue anyway, file was uploaded successfully
     }
 

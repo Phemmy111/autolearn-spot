@@ -96,9 +96,15 @@ export async function POST(request: Request) {
     if (partnerError) {
       console.error('[POST /api/admin/partners] Failed to create partner:', partnerError);
       console.error('[POST /api/admin/partners] Error details:', JSON.stringify(partnerError, null, 2));
+      console.error('[POST /api/admin/partners] Error code:', partnerError.code);
+      console.error('[POST /api/admin/partners] Error message:', partnerError.message);
+      console.error('[POST /api/admin/partners] Error hint:', partnerError.hint);
+      console.error('[POST /api/admin/partners] Error details:', partnerError.details);
       return NextResponse.json({ 
         error: 'Failed to create partner', 
-        details: partnerError.message 
+        details: partnerError.message,
+        code: partnerError.code,
+        hint: partnerError.hint
       }, { status: 500 });
     }
 
