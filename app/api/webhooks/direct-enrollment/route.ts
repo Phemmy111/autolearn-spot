@@ -7,6 +7,7 @@ import { CommissionService } from '@/lib/growth-engine/CommissionService';
 import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
 import { NotificationService } from '@/lib/growth-engine/NotificationService';
 import { FounderEmailService } from '@/lib/growth-engine/FounderEmailService';
+import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 import { logUserActivity } from '@/lib/audit-logging';
 import { PartnerReferralService } from '@/lib/partner-system/PartnerReferralService';
 import { PartnerCommissionService } from '@/lib/partner-system/PartnerCommissionService';
@@ -191,6 +192,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
     }
 
+    // Send admin notification about successful payment
+    await AdminEmailService.sendStudentPaymentEmail({
+      fullName: pendingEnrollment.full_name,
+      email: pendingEnrollment.email,
+      phoneNumber: pendingEnrollment.phone_number,
+      paymentAmount: amountInNaira,
+      paymentReference: reference,
+      cohort: 'Cohort 2'
+    });
+
     // Create Student Partner (automatic for Direct Enrollment)
     const { data: studentPartner, error: partnerError } = await supabaseAdmin
       .from('partners')
@@ -253,6 +264,23 @@ export async function POST(request: NextRequest) {
             newUser.id,
             amountInNaira
           );
+
+          // Send email notification to partner about successful referral
+          const { data: partnerData } = await supabaseAdmin
+            .from('partners')
+            .select('full_name, email')
+            .eq('id', partnerReferral.partner_id)
+            .single();
+
+          if (partnerData) {
+            await AdminEmailService.sendPartnerReferralEmail({
+              partnerName: partnerData.full_name,
+              partnerEmail: partnerData.email,
+              refereeEmail: pendingEnrollment.email,
+              commissionAmount: 1500,
+              referralCode: pendingEnrollment.referral_code
+            });
+          }
         }
       } catch (commissionError) {
         console.error('Error creating commission:', commissionError);

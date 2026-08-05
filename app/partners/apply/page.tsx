@@ -190,7 +190,7 @@ export default function PartnerApplicationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-  const [passportFile, setPassportFile] = useState<File | null>(null);
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [agreed, setAgreed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -237,8 +237,8 @@ export default function PartnerApplicationPage() {
       occupation,
       motivation,
       promotion_method,
-      passportFile: passportFile?.name,
-      hasPassport: !!passportFile
+      profilePicture: profilePicture?.name,
+      hasProfilePicture: !!profilePicture
     });
 
     const data = {
@@ -250,7 +250,7 @@ export default function PartnerApplicationPage() {
       occupation,
       motivation,
       promotion_method,
-      passport: passportFile,
+      profile_picture: profilePicture,
       // Optional fields
       organization: formData.get("organization"),
       website: formData.get("website"),
@@ -507,37 +507,6 @@ export default function PartnerApplicationPage() {
                     </select>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">Passport Photo *</label>
-                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <input
-                          required
-                          type="file"
-                          name="passport"
-                          accept="image/*"
-                          onChange={(e) => setPassportFile(e.target.files?.[0] || null)}
-                          className="hidden"
-                          id="passport-upload"
-                        />
-                        <label
-                          htmlFor="passport-upload"
-                          className="flex items-center justify-center gap-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 px-4 py-3 rounded-xl cursor-pointer hover:bg-[#00F5FF]/20 transition-colors"
-                        >
-                          <Upload className="h-4 w-4 text-[#00F5FF]" />
-                          <span className="text-sm text-[#00F5FF]">
-                            {passportFile ? passportFile.name : "Upload Passport Photo"}
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                    <p className="text-xs text-[#b9cacb] mt-2">
-                      Accepted formats: JPG, PNG. Max size: 5MB
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Professional Information */}
@@ -564,6 +533,43 @@ export default function PartnerApplicationPage() {
                     className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="https://yourwebsite.com"
                   />
+                </div>
+              </div>
+
+              {/* Profile Picture Upload */}
+              <div className="space-y-4">
+                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
+                  Profile Picture
+                </h3>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[#b9cacb]">Profile Photo</label>
+                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          name="profile_picture"
+                          accept="image/*"
+                          onChange={(e) => setProfilePicture(e.target.files?.[0] || null)}
+                          className="hidden"
+                          id="profile-upload"
+                        />
+                        <label
+                          htmlFor="profile-upload"
+                          className="flex items-center justify-center gap-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 px-4 py-3 rounded-xl cursor-pointer hover:bg-[#00F5FF]/20 transition-colors"
+                        >
+                          <Upload className="h-4 w-4 text-[#00F5FF]" />
+                          <span className="text-sm text-[#00F5FF]">
+                            {profilePicture ? profilePicture.name : "Upload Profile Photo"}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                    <p className="text-xs text-[#b9cacb] mt-2">
+                      Accepted formats: JPG, PNG. Max size: 5MB. This will be displayed in your partner dashboard.
+                    </p>
+                  </div>
                 </div>
               </div>
 

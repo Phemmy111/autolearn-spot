@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
 import { PartnerEmailService } from '@/lib/partner-system/PartnerEmailService';
+import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -195,10 +196,15 @@ export async function POST(request: Request) {
       // Continue even if email fails
     }
 
-    // Send notification to admin (you can configure admin email in env vars)
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@autolearnspot.com';
+    // Send notification to admin about new application
     try {
-      await PartnerEmailService.sendAdminNewApplicationNotification(adminEmail, full_name, email, application.id);
+      await AdminEmailService.sendPartnerApplicationEmail({
+        applicantName: full_name,
+        applicantEmail: email,
+        applicantPhone: phone,
+        partnerType: 'community',
+        motivation: motivation
+      });
       console.log('[POST /api/partners/apply] Admin notification sent successfully');
     } catch (adminEmailError) {
       console.error('[POST /api/partners/apply] Admin email error:', adminEmailError);

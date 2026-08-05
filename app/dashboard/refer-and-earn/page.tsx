@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Loader2, Copy, CheckCircle2, Wallet, Users, MousePointerClick, DollarSign, Clock, TrendingUp, ArrowRight, Link as LinkIcon, Share2 } from "lucide-react";
+import { Loader2, Copy, CheckCircle2, Wallet, Users, MousePointerClick, DollarSign, Clock, TrendingUp, ArrowRight, Link as LinkIcon, Share2, FileText } from "lucide-react";
 import Link from "next/link";
 
 export default function StudentPartnerPage() {
@@ -19,7 +19,7 @@ export default function StudentPartnerPage() {
 
   const fetchPartnerStatus = async () => {
     try {
-      const res = await fetch(`/api/partners/dashboard?userId=${user?.id}`);
+      const res = await fetch(`/api/partners/student-dashboard?userId=${user?.id}`);
       const result = await res.json();
       
       if (res.ok && result.success) {
@@ -70,9 +70,9 @@ export default function StudentPartnerPage() {
               <Users className="h-10 w-10" />
             </div>
             
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 relative z-10">Student Partner Program</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 relative z-10">Complete Your Enrollment</h1>
             <p className="text-[#b9cacb] mb-8 max-w-lg mx-auto relative z-10 text-lg">
-              As an enrolled student, you're automatically eligible for our Student Partner program. Share your referral link and earn ₦1,500 for every successful enrollment.
+              The Student Partner program is automatically activated when you complete your course enrollment. Once enrolled, you'll earn ₦1,500 for every successful referral.
             </p>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8 relative z-10">
@@ -94,10 +94,10 @@ export default function StudentPartnerPage() {
             </div>
             
             <Link 
-              href="/dashboard"
+              href="/enroll"
               className="inline-flex items-center gap-2 px-8 py-4 bg-[#00f0ff] text-black font-bold rounded-xl hover:bg-white transition-colors relative z-10"
             >
-              Go to Dashboard
+              Complete Enrollment
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -294,6 +294,44 @@ export default function StudentPartnerPage() {
             <div className="text-center py-12 text-[#b9cacb]">
               <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No commissions earned yet. Refer your first student!</p>
+            </div>
+          )}
+        </div>
+
+        {/* Marketing Kits */}
+        <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+          <h2 className="text-xl font-bold mb-6">Marketing Kits</h2>
+          
+          {data?.marketingResources && data.marketingResources.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {data.marketingResources.map((resource: any, index: number) => (
+                <div key={index} className="bg-[#111317] border border-[#1f2229] rounded-xl p-4 hover:border-[#00f0ff]/50 transition-colors">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-sm mb-1">{resource.name}</h3>
+                      <p className="text-xs text-[#b9cacb] mb-2">{resource.category}</p>
+                    </div>
+                    <FileText className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
+                  </div>
+                  {resource.description && (
+                    <p className="text-xs text-[#b9cacb] mb-3 line-clamp-2">{resource.description}</p>
+                  )}
+                  <a
+                    href={resource.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#00f0ff] hover:text-white transition-colors"
+                  >
+                    Download
+                    <ArrowRight className="h-3 w-3" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-[#b9cacb]">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No marketing kits available yet. Check back soon!</p>
             </div>
           )}
         </div>

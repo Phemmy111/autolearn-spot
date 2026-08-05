@@ -71,6 +71,8 @@ export default function AdminPartnersPage() {
     category: 'general',
     description: ''
   });
+  const [selectedPartner, setSelectedPartner] = useState<any>(null);
+  const [showPartnerDetailModal, setShowPartnerDetailModal] = useState(false);
 
   const overviewCards = [
     { id: 'total', label: 'Total Partners', value: partners.length.toString(), growth: null, icon: Users, positive: true },
@@ -173,6 +175,11 @@ export default function AdminPartnersPage() {
       console.error(e);
       alert('Failed to upload marketing material');
     }
+  };
+
+  const handlePartnerClick = async (partner: any) => {
+    setSelectedPartner(partner);
+    setShowPartnerDetailModal(true);
   };
 
   const handleProcessApplication = async (applicationId: string, action: 'approve' | 'reject') => {
@@ -447,34 +454,48 @@ export default function AdminPartnersPage() {
                       <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Passport</th>
                       <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Name</th>
                       <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Tier</th>
+                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Type</th>
                       <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Referrals</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Commissions</th>
+                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Earnings</th>
                       <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
+                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {partners.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="p-8 text-center text-[#b9cacb]">No active partners</td>
+                        <td colSpan={8} className="p-8 text-center text-[#b9cacb]">No active partners</td>
                       </tr>
                     ) : (
                       partners.map((p) => (
-                        <tr key={p.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors">
+                        <tr key={p.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
                           <td className="p-4">
                             <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
-                              {p.user_name?.charAt(0) || '?'}
+                              {p.full_name?.charAt(0) || '?'}
                             </div>
                           </td>
-                          <td className="p-4 text-sm text-[#e2e2e8]">{p.user_name}</td>
-                          <td className="p-4 text-sm text-[#b9cacb]">{p.user_email}</td>
+                          <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
+                          <td className="p-4 text-sm text-[#b9cacb]">{p.email}</td>
                           <td className="p-4 text-sm text-[#e2e2e8] capitalize">{p.partner_type}</td>
-                          <td className="p-4 text-sm text-[#e2e2e8]">{p.total_referrals || 0}</td>
-                          <td className="p-4 text-sm text-[#12E6F3]">₦{p.total_earned || 0}</td>
+                          <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
+                          <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
                           <td className="p-4">
-                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
-                              Active
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              p.status === 'active' 
+                                ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                                : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                            }`}>
+                              {p.status}
                             </span>
+                          </td>
+                          <td className="p-4">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
+                              className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                              title="View Details"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
                           </td>
                         </tr>
                       ))
@@ -628,13 +649,74 @@ export default function AdminPartnersPage() {
         {activeTab === 'analytics' && (
           <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-[#1f2229]">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Analytics</h2>
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Analytics</h2>
             </div>
             
-            <div className="p-8 text-center text-[#b9cacb]">
-              <BarChart3 className="h-12 w-12 mx-auto mb-4 text-[#12E6F3]" />
-              <p>Analytics dashboard coming soon</p>
-              <p className="text-sm mt-2">Total referrals, conversions, revenue, commission tracking</p>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Users className="h-5 w-5 text-[#12E6F3]" />
+                    <span className="text-xs text-[#b9cacb]">Total Partners</span>
+                  </div>
+                  <p className="text-2xl font-bold text-[#e2e2e8]">{partners.length}</p>
+                </div>
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <DollarSign className="h-5 w-5 text-green-400" />
+                    <span className="text-xs text-[#b9cacb]">Total Commissions</span>
+                  </div>
+                  <p className="text-2xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
+                </div>
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <TrendingUp className="h-5 w-5 text-blue-400" />
+                    <span className="text-xs text-[#b9cacb]">Total Referrals</span>
+                  </div>
+                  <p className="text-2xl font-bold text-[#e2e2e8]">{partners.reduce((sum, p) => sum + (p.total_registrations || 0), 0)}</p>
+                </div>
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Shield className="h-5 w-5 text-purple-400" />
+                    <span className="text-xs text-[#b9cacb]">Active Partners</span>
+                  </div>
+                  <p className="text-2xl font-bold text-[#e2e2e8]">{partners.filter(p => p.status === 'active').length}</p>
+                </div>
+              </div>
+
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Partner Performance</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[#1f2229]">
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Partner</th>
+                        <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Type</th>
+                        <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Referrals</th>
+                        <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Earnings</th>
+                        <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {partners.slice(0, 10).map((partner) => (
+                        <tr key={partner.id} className="border-b border-[#1f2229] last:border-0">
+                          <td className="py-4 px-4 text-sm">{partner.full_name}</td>
+                          <td className="py-4 px-4 text-sm capitalize">{partner.partner_type}</td>
+                          <td className="py-4 px-4 text-sm text-right">{partner.total_registrations || 0}</td>
+                          <td className="py-4 px-4 text-sm text-right">₦{(partner.available_earnings || 0).toLocaleString()}</td>
+                          <td className="py-4 px-4">
+                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                              partner.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+                            }`}>
+                              {partner.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -643,13 +725,207 @@ export default function AdminPartnersPage() {
         {activeTab === 'settings' && (
           <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-[#1f2229]">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Settings</h2>
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Program Settings</h2>
             </div>
             
-            <div className="p-8 text-center text-[#b9cacb]">
-              <Settings className="h-12 w-12 mx-auto mb-4 text-[#12E6F3]" />
-              <p>Settings configuration coming soon</p>
-              <p className="text-sm mt-2">Theme customization, commission rates, notification settings</p>
+            <div className="p-6 space-y-6">
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Commission Rates</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Student Partner</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-[#12E6F3]">₦1,500</span>
+                      <span className="text-xs text-[#b9cacb]">per referral</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Community Partner</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-[#12E6F3]">₦2,000</span>
+                      <span className="text-xs text-[#b9cacb]">per referral</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Influencer Partner</label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-[#12E6F3]">₦3,000</span>
+                      <span className="text-xs text-[#b9cacb]">per referral</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Payment Settings</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-[#e2e2e8]">Commission Holding Period</p>
+                      <p className="text-sm text-[#b9cacb]">Days before commission becomes available</p>
+                    </div>
+                    <span className="text-xl font-bold text-[#12E6F3]">7 days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-[#e2e2e8]">Minimum Withdrawal Amount</p>
+                      <p className="text-sm text-[#b9cacb]">Minimum amount partners can withdraw</p>
+                    </div>
+                    <span className="text-xl font-bold text-[#12E6F3]">₦5,000</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-[#e2e2e8]">Withdrawal Schedule</p>
+                      <p className="text-sm text-[#b9cacb]">How often partners can withdraw</p>
+                    </div>
+                    <span className="text-xl font-bold text-[#12E6F3]">Weekly</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Notification Settings</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-[#e2e2e8]">Admin Email Notifications</p>
+                      <p className="text-sm text-[#b9cacb]">Receive notifications for new applications and payments</p>
+                    </div>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-medium">
+                      <CheckCircle className="h-4 w-4" />
+                      Enabled
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-[#e2e2e8]">Partner Email Notifications</p>
+                      <p className="text-sm text-[#b9cacb]">Partners receive notifications for successful referrals</p>
+                    </div>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-medium">
+                      <CheckCircle className="h-4 w-4" />
+                      Enabled
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Program Information</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-medium text-[#e2e2e8]">Current Cohort</p>
+                    <p className="text-sm text-[#b9cacb]">Active cohort for student enrollments</p>
+                    <p className="text-xl font-bold text-[#12E6F3] mt-1">Cohort 2</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-[#e2e2e8]">Course Price</p>
+                    <p className="text-sm text-[#b9cacb]">Current price for direct enrollment</p>
+                    <p className="text-xl font-bold text-[#12E6F3] mt-1">₦8,000</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {selectedPartner && showPartnerDetailModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
+                <h2 className="text-xl font-bold text-[#e2e2e8]">Partner Details</h2>
+                <button
+                  onClick={() => setShowPartnerDetailModal(false)}
+                  className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#e2e2e8]"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                {/* Profile Section */}
+                <div className="flex items-start gap-4">
+                  <div className="h-20 w-20 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-2xl">
+                    {selectedPartner.full_name?.charAt(0) || '?'}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedPartner.full_name}</h3>
+                    <p className="text-sm text-[#b9cacb]">{selectedPartner.email}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                        selectedPartner.status === 'active' 
+                          ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                          : 'bg-red-500/10 text-red-400 border-red-500/20'
+                      }`}>
+                        {selectedPartner.status}
+                      </span>
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 capitalize">
+                        {selectedPartner.partner_type}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Contact Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-[#b9cacb] mb-1">Phone</p>
+                      <p className="text-[#e2e2e8]">{selectedPartner.phone || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-[#b9cacb] mb-1">WhatsApp</p>
+                      <p className="text-[#e2e2e8]">{selectedPartner.whatsapp || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-[#b9cacb] mb-1">Partner ID</p>
+                      <p className="text-[#e2e2e8] font-mono">{selectedPartner.partner_id || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-[#b9cacb] mb-1">Referral Code</p>
+                      <p className="text-[#12E6F3] font-mono">{selectedPartner.referral_code || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Performance Stats */}
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Performance Statistics</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-[#12E6F3]">{selectedPartner.total_clicks || 0}</p>
+                      <p className="text-sm text-[#b9cacb]">Total Clicks</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-[#12E6F3]">{selectedPartner.total_registrations || 0}</p>
+                      <p className="text-sm text-[#b9cacb]">Registrations</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-green-400">₦{(selectedPartner.available_earnings || 0).toLocaleString()}</p>
+                      <p className="text-sm text-[#b9cacb]">Available</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-yellow-400">₦{(selectedPartner.pending_earnings || 0).toLocaleString()}</p>
+                      <p className="text-sm text-[#b9cacb]">Pending</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bank Details */}
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Bank Details</h4>
+                  <div className="text-sm text-[#b9cacb] italic">
+                    Bank details will be loaded from partner bank profile...
+                  </div>
+                </div>
+
+                {/* Recent Referrals */}
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Recent Referrals</h4>
+                  <div className="text-sm text-[#b9cacb]">
+                    Recent referral history will be loaded...
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

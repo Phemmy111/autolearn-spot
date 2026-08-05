@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
+import { isAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
+import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -24,7 +25,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    await requireAdmin();
+    const isAdminUser = await isAdmin();
+    if (!isAdminUser) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+    
     const { data, error } = await supabaseAdmin
       .from('partners')
       .select('*')
@@ -40,7 +45,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    await requireAdmin();
+    const isAdminUser = await isAdmin();
+    if (!isAdminUser) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
+    }
+    
     const body = await request.json();
     
     const {
@@ -91,6 +100,24 @@ export async function POST(request: Request) {
         referral_code: referralCode,
         status: 'clicked'
       });
+
+    // Send email notification to admin about new partner
+    await AdminEmailService.sendPartnerCreatedEmail({
+      partnerName: full_name,
+      partnerEmail: email,
+      partnerType: partner_type || 'community',
+      partnerId: partnerId,
+      referralCode: referralCode
+    });
+
+    // Send welcome email to new partner with login details
+    await AdminEmailService.sendPartnerWelcomeEmail({
+      partnerName: full_name,
+      partnerEmail: email,
+      partnerId: partnerId,
+      referralCode: referralCode,
+      tempPassword: password || 'Set your password via the login link'
+    });
 
     return NextResponse.json({ success: true, partner });
   } catch (error) {
