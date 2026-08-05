@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Check if there's already a pending enrollment for this email
     const { data: existingPending, error: existingError } = await supabaseAdmin
-      .from('enrollments')
+      .from('pending_enrollments')
       .select('*')
       .eq('email', email)
       .eq('payment_status', 'pending')
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       } else {
         // Expire the old one
         await supabaseAdmin
-          .from('enrollments')
+          .from('pending_enrollments')
           .update({ payment_status: 'expired' })
           .eq('id', existingPending.id);
       }
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // Create pending enrollment
     const { data: pendingEnrollment, error } = await supabaseAdmin
-      .from('enrollments')
+      .from('pending_enrollments')
       .insert({
         full_name: fullName,
         email: email.toLowerCase(),

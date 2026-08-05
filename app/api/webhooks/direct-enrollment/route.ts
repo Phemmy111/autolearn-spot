@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 
     // Check if this payment has already been processed (idempotency)
     const { data: existingPayment } = await supabaseAdmin
-      .from('enrollments')
+      .from('pending_enrollments')
       .select('*')
       .eq('payment_reference', reference)
       .eq('payment_status', 'completed')
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     let pendingEnrollment;
     if (pendingId) {
       const { data: pending } = await supabaseAdmin
-        .from('enrollments')
+        .from('pending_enrollments')
         .select('*')
         .eq('id', pendingId)
         .eq('payment_status', 'pending')
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Fallback: find by email if pending_id not provided
       const { data: pending } = await supabaseAdmin
-        .from('enrollments')
+        .from('pending_enrollments')
         .select('*')
         .eq('email', email.toLowerCase())
         .eq('payment_status', 'pending')
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     // Check if pending enrollment has expired
     if (new Date(pendingEnrollment.expires_at) < new Date()) {
       await supabaseAdmin
-        .from('enrollments')
+        .from('pending_enrollments')
         .update({ payment_status: 'expired' })
         .eq('id', pendingEnrollment.id);
       return NextResponse.json({ error: 'Pending enrollment has expired' }, { status: 400 });
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       console.error(`User already exists: ${pendingEnrollment.email}`);
       // Update pending enrollment to completed but don't create duplicate user
       await supabaseAdmin
-        .from('enrollments')
+        .from('pending_enrollments')
         .update({
           payment_status: 'completed',
           payment_reference: reference,
@@ -342,7 +342,7 @@ export async function POST(request: NextRequest) {
 
     // Update pending enrollment to completed
     await supabaseAdmin
-      .from('enrollments')
+      .from('pending_enrollments')
       .update({
         payment_status: 'completed',
         payment_reference: reference,
