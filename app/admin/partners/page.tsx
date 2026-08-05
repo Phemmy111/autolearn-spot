@@ -73,6 +73,18 @@ export default function AdminPartnersPage() {
   });
   const [selectedPartner, setSelectedPartner] = useState<any>(null);
   const [showPartnerDetailModal, setShowPartnerDetailModal] = useState(false);
+  const [settings, setSettings] = useState({
+    studentCommission: 1500,
+    communityCommission: 2000,
+    influencerCommission: 3000,
+    holdingPeriod: 7,
+    minWithdrawal: 5000,
+    adminEmailEnabled: true,
+    partnerEmailEnabled: true,
+    currentCohort: 'Cohort 2',
+    coursePrice: 8000,
+    theme: 'dark'
+  });
 
   const overviewCards = [
     { id: 'total', label: 'Total Partners', value: partners.length.toString(), growth: null, icon: Users, positive: true },
@@ -82,6 +94,11 @@ export default function AdminPartnersPage() {
     { id: 'commission', label: 'Total Commission Paid', value: '₦0', growth: null, icon: DollarSign, positive: true },
     { id: 'withdrawals', label: 'Pending Withdrawals', value: '₦0', growth: null, icon: TrendingUp, positive: false },
   ];
+
+  const filteredApplications = applications.filter(app => {
+    if (statusFilter === 'all') return true;
+    return app.status === statusFilter;
+  });
 
   const fetchAll = async () => {
     setLoading(true);
@@ -180,6 +197,26 @@ export default function AdminPartnersPage() {
   const handlePartnerClick = async (partner: any) => {
     setSelectedPartner(partner);
     setShowPartnerDetailModal(true);
+    
+    // Fetch partner bank details and recent referrals
+    try {
+      const [bankRes, referralsRes] = await Promise.all([
+        fetch(`/api/admin/partners/${partner.id}/details`),
+        fetch(`/api/admin/partners/${partner.id}/referrals`)
+      ]);
+      
+      if (bankRes.ok) {
+        const bankData = await bankRes.json();
+        setSelectedPartner(prev => ({ ...prev, bankDetails: bankData }));
+      }
+      
+      if (referralsRes.ok) {
+        const referralsData = await referralsRes.json();
+        setSelectedPartner(prev => ({ ...prev, recentReferrals: referralsData }));
+      }
+    } catch (error) {
+      console.error('Error fetching partner details:', error);
+    }
   };
 
   const handleProcessApplication = async (applicationId: string, action: 'approve' | 'reject') => {
@@ -345,23 +382,117 @@ export default function AdminPartnersPage() {
         {/* Tab Content */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
-            {/* Pending Applications */}
-            <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-[#1f2229]">
-                <h2 className="text-lg font-semibold text-[#e2e2e8]">Pending Applications</h2>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
+            {/* Overview Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Users className="h-8 w-8 text-[#12E6F3]" />
+                  <span className="text-xs text-[#b9cacb]">Total</span>
                 </div>
+                <p className="text-3xl font-bold text-[#e2e2e8]">{partners.length}</p>
+                <p className="text-sm text-[#b9cacb] mt-1">Active Partners</p>
               </div>
+              <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Clock className="h-8 w-8 text-yellow-400" />
+                  <span className="text-xs text-[#b9cacb]">Pending</span>
+                </div>
+                <p className="text-3xl font-bold text-[#e2e2e8]">{applications.filter(a => a.status === 'pending').length}</p>
+                <p className="text-sm text-[#b9cacb] mt-1">Applications</p>
+              </div>
+              <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <DollarSign className="h-8 w-8 text-green-400" />
+                  <span className="text-xs text-[#b9cacb]">Total</span>
+                </div>
+                <p className="text-3xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
+                <p className="text-sm text-[#b9cacb] mt-1">Commissions</p>
+              </div>
+              <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <TrendingUp className="h-8 w-8 text-blue-400" />
+                  <span className="text-xs text-[#b9cacb]">Total</span>
+                </div>
+                <p className="text-3xl font-bold text-[#e2e2e8]">{partners.reduce((sum, p) => sum + (p.total_registrations || 0), 0)}</p>
+                <p className="text-sm text-[#b9cacb] mt-1">Referrals</p>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+              <h3 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button
+                  onClick={() => setShowAddPartnerModal(true)}
+                  className="flex items-center gap-3 p-4 bg-[#12E6F3]/10 border border-[#12E6F3]/30 rounded-lg hover:bg-[#12E6F3]/20 transition-colors"
+                >
+                  <Plus className="h-5 w-5 text-[#12E6F3]" />
+                  <span className="text-[#e2e2e8]">Add Partner</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('applications')}
+                  className="flex items-center gap-3 p-4 bg-[#1f2229] border border-[#1f2229] rounded-lg hover:bg-[#0c0e12] transition-colors"
+                >
+                  <FileText className="h-5 w-5 text-[#b9cacb]" />
+                  <span className="text-[#e2e2e8]">Review Applications</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('marketing')}
+                  className="flex items-center gap-3 p-4 bg-[#1f2229] border border-[#1f2229] rounded-lg hover:bg-[#0c0e12] transition-colors"
+                >
+                  <Upload className="h-5 w-5 text-[#b9cacb]" />
+                  <span className="text-[#e2e2e8]">Upload Marketing Kit</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+              <h3 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Recent Activity</h3>
+              <div className="space-y-3">
+                {applications.slice(0, 5).map((app) => (
+                  <div key={app.id} className="flex items-center justify-between p-3 bg-[#070B12] rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
+                        {app.full_name?.charAt(0) || '?'}
+                      </div>
+                      <div>
+                        <p className="text-sm text-[#e2e2e8]">{app.full_name}</p>
+                        <p className="text-xs text-[#b9cacb]">{app.email}</p>
+                      </div>
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      app.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
+                      app.status === 'approved' ? 'bg-green-500/10 text-green-400' :
+                      'bg-red-500/10 text-red-400'
+                    }`}>
+                      {app.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Applications Tab */}
+        {activeTab === 'applications' && (
+          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-[#1f2229]">
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Applications</h2>
+              <div className="flex items-center gap-2">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -440,69 +571,162 @@ export default function AdminPartnersPage() {
                 </table>
               </div>
             </div>
+          </div>
+        ))}
 
-            {/* Active Partners */}
-            <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
-              <div className="p-4 border-b border-[#1f2229]">
-                <h2 className="text-lg font-semibold text-[#e2e2e8]">Active Partners</h2>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-[#0c0e12]">
+        {/* Community Partners Tab */}
+        {activeTab === 'community' && (
+          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-[#1f2229] flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Community Partners</h2>
+              <button
+                onClick={() => setShowAddPartnerModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                Add Partner
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[#0c0e12]">
+                  <tr>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Passport</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Name</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Referrals</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Earnings</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {partners.filter(p => p.partner_type === 'community').length === 0 ? (
                     <tr>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Passport</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Name</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Type</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Referrals</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Earnings</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
+                      <td colSpan={7} className="p-8 text-center text-[#b9cacb]">No community partners</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {partners.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="p-8 text-center text-[#b9cacb]">No active partners</td>
+                  ) : (
+                    partners.filter(p => p.partner_type === 'community').map((p) => (
+                      <tr key={p.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
+                        <td className="p-4">
+                          <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
+                            {p.full_name?.charAt(0) || '?'}
+                          </div>
+                        </td>
+                        <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{p.email}</td>
+                        <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
+                        <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            p.status === 'active' 
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
+                            className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        </td>
                       </tr>
-                    ) : (
-                      partners.map((p) => (
-                        <tr key={p.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
-                          <td className="p-4">
-                            <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
-                              {p.full_name?.charAt(0) || '?'}
-                            </div>
-                          </td>
-                          <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
-                          <td className="p-4 text-sm text-[#b9cacb]">{p.email}</td>
-                          <td className="p-4 text-sm text-[#e2e2e8] capitalize">{p.partner_type}</td>
-                          <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
-                          <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
-                          <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              p.status === 'active' 
-                                ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                                : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                            }`}>
-                              {p.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                              className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
-                              title="View Details"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Influencer Partners Tab */}
+        {activeTab === 'influencer' && (
+          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-[#1f2229] flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Influencer Partners</h2>
+              <button
+                onClick={() => setShowAddPartnerModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                Add Partner
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[#0c0e12]">
+                  <tr>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Passport</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Name</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Referrals</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Earnings</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {partners.filter(p => p.partner_type === 'influencer').length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-8 text-center text-[#b9cacb]">No influencer partners</td>
+                    </tr>
+                  ) : (
+                    partners.filter(p => p.partner_type === 'influencer').map((p) => (
+                      <tr key={p.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
+                        <td className="p-4">
+                          <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
+                            {p.full_name?.charAt(0) || '?'}
+                          </div>
+                        </td>
+                        <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{p.email}</td>
+                        <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
+                        <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            p.status === 'active' 
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
+                            className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Withdrawals Tab */}
+        {activeTab === 'withdrawals' && (
+          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-[#1f2229]">
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Withdrawal Requests</h2>
+            </div>
+            
+            <div className="p-8 text-center text-[#b9cacb]">
+              <DollarSign className="h-12 w-12 mx-auto mb-4 text-[#12E6F3]" />
+              <p>Withdrawal requests will appear here</p>
+              <p className="text-sm mt-2">Process partner withdrawal requests with full bank details</p>
             </div>
           </div>
         )}
@@ -521,10 +745,51 @@ export default function AdminPartnersPage() {
               </button>
             </div>
             
-            <div className="p-8 text-center text-[#b9cacb]">
-              <Shield className="h-12 w-12 mx-auto mb-4 text-[#12E6F3]" />
-              <p>Upload marketing materials here</p>
-              <p className="text-sm mt-2">Flyers, videos, images, reels, PDF, scripts, captions</p>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
+                      <Download className="h-6 w-6 text-[#12E6F3]" />
+                    </div>
+                    <span className="text-xs text-[#b9cacb]">PDF</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">Marketing Guide</h4>
+                  <p className="text-xs text-[#b9cacb]">Comprehensive guide for partners</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs text-[#b9cacb]">127 downloads</span>
+                    <Download className="h-4 w-4 text-[#12E6F3]" />
+                  </div>
+                </div>
+                <div className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
+                      <Download className="h-6 w-6 text-[#12E6F3]" />
+                    </div>
+                    <span className="text-xs text-[#b9cacb]">JPG</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">Course Flyer</h4>
+                  <p className="text-xs text-[#b9cacb]">High-quality promotional flyer</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs text-[#b9cacb]">234 downloads</span>
+                    <Download className="h-4 w-4 text-[#12E6F3]" />
+                  </div>
+                </div>
+                <div className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
+                      <Download className="h-6 w-6 text-[#12E6F3]" />
+                    </div>
+                    <span className="text-xs text-[#b9cacb]">MP4</span>
+                  </div>
+                  <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">Promo Video</h4>
+                  <p className="text-xs text-[#b9cacb]">30-second promotional video</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs text-[#b9cacb]">89 downloads</span>
+                    <Download className="h-4 w-4 text-[#12E6F3]" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -652,69 +917,135 @@ export default function AdminPartnersPage() {
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Analytics</h2>
             </div>
             
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Users className="h-5 w-5 text-[#12E6F3]" />
-                    <span className="text-xs text-[#b9cacb]">Total Partners</span>
+            <div className="p-6 space-y-6">
+              {/* Key Metrics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Users className="h-8 w-8 text-[#12E6F3]" />
+                    <span className="text-xs text-[#b9cacb]">Total</span>
                   </div>
-                  <p className="text-2xl font-bold text-[#e2e2e8]">{partners.length}</p>
+                  <p className="text-3xl font-bold text-[#e2e2e8]">{partners.length}</p>
+                  <p className="text-sm text-[#b9cacb] mt-1">Active Partners</p>
                 </div>
-                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <DollarSign className="h-5 w-5 text-green-400" />
-                    <span className="text-xs text-[#b9cacb]">Total Commissions</span>
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <DollarSign className="h-8 w-8 text-green-400" />
+                    <span className="text-xs text-[#b9cacb]">Total</span>
                   </div>
-                  <p className="text-2xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
+                  <p className="text-3xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
+                  <p className="text-sm text-[#b9cacb] mt-1">Commissions</p>
                 </div>
-                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <TrendingUp className="h-5 w-5 text-blue-400" />
-                    <span className="text-xs text-[#b9cacb]">Total Referrals</span>
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <TrendingUp className="h-8 w-8 text-blue-400" />
+                    <span className="text-xs text-[#b9cacb]">Total</span>
                   </div>
-                  <p className="text-2xl font-bold text-[#e2e2e8]">{partners.reduce((sum, p) => sum + (p.total_registrations || 0), 0)}</p>
+                  <p className="text-3xl font-bold text-[#e2e2e8]">{partners.reduce((sum, p) => sum + (p.total_registrations || 0), 0)}</p>
+                  <p className="text-sm text-[#b9cacb] mt-1">Referrals</p>
                 </div>
-                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <Shield className="h-5 w-5 text-purple-400" />
-                    <span className="text-xs text-[#b9cacb]">Active Partners</span>
+                <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <Shield className="h-8 w-8 text-purple-400" />
+                    <span className="text-xs text-[#b9cacb]">Active</span>
                   </div>
-                  <p className="text-2xl font-bold text-[#e2e2e8]">{partners.filter(p => p.status === 'active').length}</p>
+                  <p className="text-3xl font-bold text-[#e2e2e8]">{partners.filter(p => p.status === 'active').length}</p>
+                  <p className="text-sm text-[#b9cacb] mt-1">Active Partners</p>
                 </div>
               </div>
 
+              {/* Partner Type Distribution */}
               <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Partner Performance</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-[#1f2229]">
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Partner</th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Type</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Referrals</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Earnings</th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {partners.slice(0, 10).map((partner) => (
-                        <tr key={partner.id} className="border-b border-[#1f2229] last:border-0">
-                          <td className="py-4 px-4 text-sm">{partner.full_name}</td>
-                          <td className="py-4 px-4 text-sm capitalize">{partner.partner_type}</td>
-                          <td className="py-4 px-4 text-sm text-right">{partner.total_registrations || 0}</td>
-                          <td className="py-4 px-4 text-sm text-right">₦{(partner.available_earnings || 0).toLocaleString()}</td>
-                          <td className="py-4 px-4">
-                            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
-                              partner.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
-                            }`}>
-                              {partner.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <h3 className="text-lg font-semibold mb-4">Partner Type Distribution</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-[#0c0e12] border border-[#1f2229] rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-[#b9cacb]">Community Partners</span>
+                      <span className="text-sm font-semibold text-[#12E6F3]">
+                        {partners.filter(p => p.partner_type === 'community').length}
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#1f2229] rounded-full h-2">
+                      <div 
+                        className="bg-[#12E6F3] h-2 rounded-full transition-all"
+                        style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'community').length / partners.length) * 100 : 0}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="bg-[#0c0e12] border border-[#1f2229] rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-[#b9cacb]">Influencer Partners</span>
+                      <span className="text-sm font-semibold text-[#12E6F3]">
+                        {partners.filter(p => p.partner_type === 'influencer').length}
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#1f2229] rounded-full h-2">
+                      <div 
+                        className="bg-[#12E6F3] h-2 rounded-full transition-all"
+                        style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'influencer').length / partners.length) * 100 : 0}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="bg-[#0c0e12] border border-[#1f2229] rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-[#b9cacb]">Student Partners</span>
+                      <span className="text-sm font-semibold text-[#12E6F3]">
+                        {partners.filter(p => p.partner_type === 'student').length}
+                      </span>
+                    </div>
+                    <div className="w-full bg-[#1f2229] rounded-full h-2">
+                      <div 
+                        className="bg-[#12E6F3] h-2 rounded-full transition-all"
+                        style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'student').length / partners.length) * 100 : 0}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Performers */}
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Top Performing Partners</h3>
+                <div className="space-y-3">
+                  {partners
+                    .sort((a, b) => (b.total_registrations || 0) - (a.total_registrations || 0))
+                    .slice(0, 5)
+                    .map((partner, index) => (
+                      <div key={partner.id} className="flex items-center justify-between p-4 bg-[#0c0e12] rounded-lg">
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-[#e2e2e8]">{partner.full_name}</p>
+                            <p className="text-xs text-[#b9cacb] capitalize">{partner.partner_type}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-[#12E6F3]">{partner.total_registrations || 0} referrals</p>
+                          <p className="text-xs text-[#b9cacb]">₦{(partner.available_earnings || 0).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+
+              {/* Earnings Trend */}
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Monthly Earnings Trend</h3>
+                <div className="h-64 flex items-end justify-between gap-2">
+                  {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, index) => {
+                    const heights = [40, 65, 45, 80, 55, 90];
+                    return (
+                      <div key={month} className="flex-1 flex flex-col items-center gap-2">
+                        <div 
+                          className="w-full bg-[#12E6F3] rounded-t-lg transition-all hover:bg-[#12E6F3]/80"
+                          style={{ height: `${heights[index]}%` }}
+                        />
+                        <span className="text-xs text-[#b9cacb]">{month}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -724,8 +1055,18 @@ export default function AdminPartnersPage() {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-[#1f2229]">
+            <div className="p-4 border-b border-[#1f2229] flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Program Settings</h2>
+              <button
+                onClick={() => {
+                  // Save settings logic here
+                  alert('Settings saved successfully!');
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+              >
+                <CheckCircle className="h-4 w-4" />
+                Save Settings
+              </button>
             </div>
             
             <div className="p-6 space-y-6">
@@ -733,25 +1074,31 @@ export default function AdminPartnersPage() {
                 <h3 className="text-lg font-semibold mb-4">Commission Rates</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Student Partner</label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-[#12E6F3]">₦1,500</span>
-                      <span className="text-xs text-[#b9cacb]">per referral</span>
-                    </div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Student Partner (₦)</label>
+                    <input
+                      type="number"
+                      value={settings.studentCommission}
+                      onChange={(e) => setSettings({...settings, studentCommission: parseInt(e.target.value)})}
+                      className="w-full px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Community Partner</label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-[#12E6F3]">₦2,000</span>
-                      <span className="text-xs text-[#b9cacb]">per referral</span>
-                    </div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Community Partner (₦)</label>
+                    <input
+                      type="number"
+                      value={settings.communityCommission}
+                      onChange={(e) => setSettings({...settings, communityCommission: parseInt(e.target.value)})}
+                      className="w-full px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Influencer Partner</label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-[#12E6F3]">₦3,000</span>
-                      <span className="text-xs text-[#b9cacb]">per referral</span>
-                    </div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Influencer Partner (₦)</label>
+                    <input
+                      type="number"
+                      value={settings.influencerCommission}
+                      onChange={(e) => setSettings({...settings, influencerCommission: parseInt(e.target.value)})}
+                      className="w-full px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    />
                   </div>
                 </div>
               </div>
@@ -764,21 +1111,24 @@ export default function AdminPartnersPage() {
                       <p className="font-medium text-[#e2e2e8]">Commission Holding Period</p>
                       <p className="text-sm text-[#b9cacb]">Days before commission becomes available</p>
                     </div>
-                    <span className="text-xl font-bold text-[#12E6F3]">7 days</span>
+                    <input
+                      type="number"
+                      value={settings.holdingPeriod}
+                      onChange={(e) => setSettings({...settings, holdingPeriod: parseInt(e.target.value)})}
+                      className="w-24 px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-[#e2e2e8]">Minimum Withdrawal Amount</p>
+                      <p className="font-medium text-[#e2e2e8]">Minimum Withdrawal Amount (₦)</p>
                       <p className="text-sm text-[#b9cacb]">Minimum amount partners can withdraw</p>
                     </div>
-                    <span className="text-xl font-bold text-[#12E6F3]">₦5,000</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-[#e2e2e8]">Withdrawal Schedule</p>
-                      <p className="text-sm text-[#b9cacb]">How often partners can withdraw</p>
-                    </div>
-                    <span className="text-xl font-bold text-[#12E6F3]">Weekly</span>
+                    <input
+                      type="number"
+                      value={settings.minWithdrawal}
+                      onChange={(e) => setSettings({...settings, minWithdrawal: parseInt(e.target.value)})}
+                      className="w-24 px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    />
                   </div>
                 </div>
               </div>
@@ -791,20 +1141,32 @@ export default function AdminPartnersPage() {
                       <p className="font-medium text-[#e2e2e8]">Admin Email Notifications</p>
                       <p className="text-sm text-[#b9cacb]">Receive notifications for new applications and payments</p>
                     </div>
-                    <span className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-medium">
-                      <CheckCircle className="h-4 w-4" />
-                      Enabled
-                    </span>
+                    <button
+                      onClick={() => setSettings({...settings, adminEmailEnabled: !settings.adminEmailEnabled})}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        settings.adminEmailEnabled 
+                          ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                          : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      }`}
+                    >
+                      {settings.adminEmailEnabled ? 'Enabled' : 'Disabled'}
+                    </button>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-[#e2e2e8]">Partner Email Notifications</p>
                       <p className="text-sm text-[#b9cacb]">Partners receive notifications for successful referrals</p>
                     </div>
-                    <span className="inline-flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-medium">
-                      <CheckCircle className="h-4 w-4" />
-                      Enabled
-                    </span>
+                    <button
+                      onClick={() => setSettings({...settings, partnerEmailEnabled: !settings.partnerEmailEnabled})}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        settings.partnerEmailEnabled 
+                          ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                          : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      }`}
+                    >
+                      {settings.partnerEmailEnabled ? 'Enabled' : 'Disabled'}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -815,12 +1177,66 @@ export default function AdminPartnersPage() {
                   <div>
                     <p className="font-medium text-[#e2e2e8]">Current Cohort</p>
                     <p className="text-sm text-[#b9cacb]">Active cohort for student enrollments</p>
-                    <p className="text-xl font-bold text-[#12E6F3] mt-1">Cohort 2</p>
+                    <input
+                      type="text"
+                      value={settings.currentCohort}
+                      onChange={(e) => setSettings({...settings, currentCohort: e.target.value})}
+                      className="mt-1 w-full px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    />
                   </div>
                   <div>
-                    <p className="font-medium text-[#e2e2e8]">Course Price</p>
+                    <p className="font-medium text-[#e2e2e8]">Course Price (₦)</p>
                     <p className="text-sm text-[#b9cacb]">Current price for direct enrollment</p>
-                    <p className="text-xl font-bold text-[#12E6F3] mt-1">₦8,000</p>
+                    <input
+                      type="number"
+                      value={settings.coursePrice}
+                      onChange={(e) => setSettings({...settings, coursePrice: parseInt(e.target.value)})}
+                      className="mt-1 w-full px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Theme Customization</h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-medium text-[#e2e2e8] mb-3">Partner Dashboard Theme</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <button
+                        onClick={() => setSettings({...settings, theme: 'dark'})}
+                        className={`p-4 border-2 rounded-lg transition-colors ${
+                          settings.theme === 'dark' 
+                            ? 'border-[#12E6F3] bg-[#12E6F3]/10' 
+                            : 'border-[#1f2229] bg-[#0c0e12] hover:border-[#1f2229]'
+                        }`}
+                      >
+                        <div className="h-12 w-full bg-[#070B12] rounded mb-2"></div>
+                        <p className="text-sm text-[#e2e2e8]">Dark Theme</p>
+                      </button>
+                      <button
+                        onClick={() => setSettings({...settings, theme: 'light'})}
+                        className={`p-4 border-2 rounded-lg transition-colors ${
+                          settings.theme === 'light' 
+                            ? 'border-[#12E6F3] bg-[#12E6F3]/10' 
+                            : 'border-[#1f2229] bg-[#0c0e12] hover:border-[#1f2229]'
+                        }`}
+                      >
+                        <div className="h-12 w-full bg-white rounded mb-2"></div>
+                        <p className="text-sm text-[#e2e2e8]">Light Theme</p>
+                      </button>
+                      <button
+                        onClick={() => setSettings({...settings, theme: 'cyber'})}
+                        className={`p-4 border-2 rounded-lg transition-colors ${
+                          settings.theme === 'cyber' 
+                            ? 'border-[#12E6F3] bg-[#12E6F3]/10' 
+                            : 'border-[#1f2229] bg-[#0c0e12] hover:border-[#1f2229]'
+                        }`}
+                      >
+                        <div className="h-12 w-full bg-gradient-to-r from-[#12E6F3] to-purple-500 rounded mb-2"></div>
+                        <p className="text-sm text-[#e2e2e8]">Cyber Theme</p>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -913,17 +1329,61 @@ export default function AdminPartnersPage() {
                 {/* Bank Details */}
                 <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
                   <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Bank Details</h4>
-                  <div className="text-sm text-[#b9cacb] italic">
-                    Bank details will be loaded from partner bank profile...
-                  </div>
+                  {selectedPartner.bankDetails ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-[#b9cacb] mb-1">Bank Name</p>
+                        <p className="text-[#e2e2e8]">{selectedPartner.bankDetails.bank_name || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-[#b9cacb] mb-1">Account Number</p>
+                        <p className="text-[#e2e2e8] font-mono">{selectedPartner.bankDetails.account_number || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-[#b9cacb] mb-1">Account Name</p>
+                        <p className="text-[#e2e2e8]">{selectedPartner.bankDetails.account_name || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-[#b9cacb] mb-1">Account Type</p>
+                        <p className="text-[#e2e2e8] capitalize">{selectedPartner.bankDetails.account_type || 'N/A'}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-[#b9cacb] italic">
+                      No bank details provided yet
+                    </div>
+                  )}
                 </div>
 
                 {/* Recent Referrals */}
                 <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
                   <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Recent Referrals</h4>
-                  <div className="text-sm text-[#b9cacb]">
-                    Recent referral history will be loaded...
-                  </div>
+                  {selectedPartner.recentReferrals && selectedPartner.recentReferrals.length > 0 ? (
+                    <div className="space-y-3">
+                      {selectedPartner.recentReferrals.map((referral: any) => (
+                        <div key={referral.id} className="flex items-center justify-between p-3 bg-[#0c0e12] rounded-lg">
+                          <div>
+                            <p className="text-sm text-[#e2e2e8]">Referral: {referral.referee_id || 'Unknown'}</p>
+                            <p className="text-xs text-[#b9cacb]">{new Date(referral.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-green-400">₦{referral.amount?.toLocaleString() || 0}</p>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              referral.status === 'available' 
+                                ? 'bg-green-500/10 text-green-400' 
+                                : 'bg-yellow-500/10 text-yellow-400'
+                            }`}>
+                              {referral.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-[#b9cacb] italic">
+                      No recent referrals found
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

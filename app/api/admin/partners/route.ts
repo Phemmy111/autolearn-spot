@@ -47,10 +47,12 @@ export async function POST(request: Request) {
   try {
     const isAdminUser = await isAdmin();
     if (!isAdminUser) {
+      console.error('[POST /api/admin/partners] Unauthorized access attempt');
       return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 401 });
     }
     
     const body = await request.json();
+    console.log('[POST /api/admin/partners] Request body:', body);
     
     const {
       full_name,
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
     // Generate partner ID and referral code
     const partnerId = generatePartnerId();
     const referralCode = generateReferralCode();
+    console.log('[POST /api/admin/partners] Generated IDs:', { partnerId, referralCode });
 
     // Create partner record
     const { data: partner, error: partnerError } = await supabaseAdmin
@@ -88,12 +91,18 @@ export async function POST(request: Request) {
       .single();
 
     if (partnerError) {
-      console.error('Failed to create partner:', partnerError);
-      return NextResponse.json({ error: 'Failed to create partner' }, { status: 500 });
+      console.error('[POST /api/admin/partners] Failed to create partner:', partnerError);
+      console.error('[POST /api/admin/partners] Error details:', JSON.stringify(partnerError, null, 2));
+      return NextResponse.json({ 
+        error: 'Failed to create partner', 
+        details: partnerError.message 
+      }, { status: 500 });
     }
 
+    console.log('[POST /api/admin/partners] Partner created successfully:', partner);
+
     // Create referral record
-    await supabaseAdmin
+    const { error: referralError } = await supabaseAdmin
       .from('partner_referrals')
       .insert({
         partner_id: partner.id,
@@ -101,27 +110,43 @@ export async function POST(request: Request) {
         status: 'clicked'
       });
 
+    if (referralError) {
+      console.error('[POST /api/admin/partners] Failed to create referral record:', referralError);
+      // Continue anyway, partner was created successfully
+    }
+
     // Send email notification to admin about new partner
-    await AdminEmailService.sendPartnerCreatedEmail({
-      partnerName: full_name,
-      partnerEmail: email,
-      partnerType: partner_type || 'community',
-      partnerId: partnerId,
-      referralCode: referralCode
-    });
+    try {
+      await AdminEmailService.sendPartnerCreatedEmail({
+        partnerName: full_name,
+        partnerEmail: email,
+        partnerType: partner_type || 'community',
+        partnerId: partnerId,
+        referralCode: referralCode
+      });
+    } catch (emailError) {
+      console.error('[POST /api/admin/partners] Failed to send admin email:', emailError);
+      // Continue anyway
+    }
 
     // Send welcome email to new partner with login details
-    await AdminEmailService.sendPartnerWelcomeEmail({
-      partnerName: full_name,
-      partnerEmail: email,
-      partnerId: partnerId,
-      referralCode: referralCode,
-      tempPassword: password || 'Set your password via the login link'
-    });
+    try {
+      await AdminEmailService.sendPartnerWelcomeEmail({
+        partnerName: full_name,
+        partnerEmail: email,
+        partnerId: partnerId,
+        referralCode: referralCode,
+        tempPassword: password || 'Set your password via the login link'
+      });
+    } catch (emailError) {
+      console.error('[POST /api/admin/partners] Failed to send partner email:', emailError);
+      // Continue anyway
+    }
 
     return NextResponse.json({ success: true, partner });
   } catch (error) {
     console.error('[POST /api/admin/partners] Error:', error);
+    console.error('[POST /api/admin/partners] Error details:', JSON.stringify(error, null, 2));
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

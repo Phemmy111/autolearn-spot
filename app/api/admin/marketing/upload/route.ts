@@ -34,7 +34,17 @@ export async function POST(request: Request) {
 
     if (uploadError) {
       console.error('File upload error:', uploadError);
-      return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
+      console.error('Upload error details:', JSON.stringify(uploadError, null, 2));
+      
+      // Check if bucket exists
+      const { data: buckets } = await supabaseAdmin.storage.listBuckets();
+      console.log('Available buckets:', buckets?.map(b => b.name));
+      
+      return NextResponse.json({ 
+        error: 'Failed to upload file', 
+        details: uploadError.message,
+        availableBuckets: buckets?.map(b => b.name)
+      }, { status: 500 });
     }
 
     // Get public URL
