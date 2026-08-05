@@ -77,19 +77,28 @@ export async function POST(request: Request) {
     const referralCode = generateReferralCode();
     console.log('[POST /api/admin/partners] Generated referral code:', referralCode);
 
+    // Build insert object with only columns that exist
+    const insertData: any = {
+      partner_id: partnerId,
+      full_name,
+      email,
+      partner_type: partner_type || 'community',
+      status: status || 'active',
+      commission_rate: commission_rate || 1500
+    };
+
+    // Only add phone if provided
+    if (phone) insertData.phone = phone;
+
+    // Only add whatsapp if provided
+    if (whatsapp) insertData.whatsapp = whatsapp;
+
+    console.log('[POST /api/admin/partners] Insert data:', insertData);
+
     // Create partner record
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
-      .insert({
-        partner_id: partnerId,
-        full_name,
-        email,
-        phone,
-        whatsapp,
-        partner_type: partner_type || 'community',
-        status: status || 'active',
-        commission_rate: commission_rate || 1500
-      })
+      .insert(insertData)
       .select()
       .single();
 
