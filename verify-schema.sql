@@ -55,3 +55,6 @@ SELECT * FROM partner_marketing_downloads LIMIT 5;
 
 -- Check current data in partners table
 SELECT id, partner_id, full_name, email, partner_type, status FROM partners LIMIT 5;
+
+-- Check if any marketing materials were uploaded
+SELECT COUNT(*) as total_materials FROM partner_marketing_downloads;
