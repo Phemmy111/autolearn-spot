@@ -80,8 +80,12 @@ export async function POST(request: Request) {
         console.error('[POST /api/admin/marketing/upload] Error code:', dbError.code);
         console.error('[POST /api/admin/marketing/upload] Error message:', dbError.message);
         console.error('[POST /api/admin/marketing/upload] Error details:', dbError.details);
-        // Still return success even if database insert fails, as file was uploaded
-        console.log('[POST /api/admin/marketing/upload] File uploaded successfully but metadata save failed:', dbError.message);
+        // Return error since metadata save failed
+        return NextResponse.json({ 
+          error: 'File uploaded but metadata save failed', 
+          details: dbError.message,
+          code: dbError.code
+        }, { status: 500 });
       } else {
         console.log('[POST /api/admin/marketing/upload] Metadata saved successfully');
       }
