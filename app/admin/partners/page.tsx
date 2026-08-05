@@ -95,11 +95,6 @@ export default function AdminPartnersPage() {
     { id: 'withdrawals', label: 'Pending Withdrawals', value: '₦0', growth: null, icon: TrendingUp, positive: false },
   ];
 
-  const filteredApplications = applications.filter(app => {
-    if (statusFilter === 'all') return true;
-    return app.status === statusFilter;
-  });
-
   const fetchAll = async () => {
     setLoading(true);
     try {
@@ -266,11 +261,6 @@ export default function AdminPartnersPage() {
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  // Only show pending applications by default
-  const displayApplications = statusFilter === 'all' 
-    ? filteredApplications.filter(app => app.status === 'pending')
-    : filteredApplications;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -494,85 +484,84 @@ export default function AdminPartnersPage() {
               </div>
             </div>
               
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-[#0c0e12]">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[#0c0e12]">
+                  <tr>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Passport</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Name</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Phone</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Partner Type</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredApplications.length === 0 ? (
                     <tr>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Passport</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Name</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Phone</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Partner Type</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
-                      <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
+                      <td colSpan={7} className="p-8 text-center text-[#b9cacb]">No applications found</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredApplications.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="p-8 text-center text-[#b9cacb]">No applications found</td>
-                      </tr>
-                    ) : (
-                      filteredApplications.map((app) => (
-                        <tr key={app.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors">
-                          <td className="p-4">
-                            <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
-                              {app.full_name?.charAt(0) || '?'}
-                            </div>
-                          </td>
-                          <td className="p-4 text-sm text-[#e2e2e8]">{app.full_name}</td>
-                          <td className="p-4 text-sm text-[#b9cacb]">{app.email}</td>
-                          <td className="p-4 text-sm text-[#b9cacb]">{app.phone || 'N/A'}</td>
-                          <td className="p-4 text-sm text-[#e2e2e8] capitalize">{app.partner_type || 'Community'}</td>
-                          <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(app.status)}`}>
-                              {app.status}
-                            </span>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => setSelectedApp(app)}
-                                className="p-2 hover:bg-[#0c0e12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </button>
-                              {app.status === 'pending' && (
-                                <>
-                                  <button
-                                    onClick={() => handleProcessApplication(app.id, 'approve')}
-                                    className="p-2 hover:bg-green-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-green-400"
-                                  >
-                                    <CheckCircle className="h-4 w-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleProcessApplication(app.id, 'reject')}
-                                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-red-400"
-                                  >
-                                    <XCircle className="h-4 w-4" />
-                                  </button>
-                                </>
-                              )}
-                              {app.status === 'approved' && (
+                  ) : (
+                    filteredApplications.map((app) => (
+                      <tr key={app.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors">
+                        <td className="p-4">
+                          <div className="h-10 w-10 rounded-full bg-[#1f2229] flex items-center justify-center text-[#b9cacb] text-xs">
+                            {app.full_name?.charAt(0) || '?'}
+                          </div>
+                        </td>
+                        <td className="p-4 text-sm text-[#e2e2e8]">{app.full_name}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{app.email}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{app.phone || 'N/A'}</td>
+                        <td className="p-4 text-sm text-[#e2e2e8] capitalize">{app.partner_type || 'Community'}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(app.status)}`}>
+                            {app.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setSelectedApp(app)}
+                              className="p-2 hover:bg-[#0c0e12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            {app.status === 'pending' && (
+                              <>
                                 <button
-                                  onClick={() => handleResendEmail(app.id)}
-                                  className="p-2 hover:bg-blue-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-blue-400"
-                                  title="Resend approval email"
+                                  onClick={() => handleProcessApplication(app.id, 'approve')}
+                                  className="p-2 hover:bg-green-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-green-400"
                                 >
-                                  <Mail className="h-4 w-4" />
+                                  <CheckCircle className="h-4 w-4" />
                                 </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                                <button
+                                  onClick={() => handleProcessApplication(app.id, 'reject')}
+                                  className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-red-400"
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                </button>
+                              </>
+                            )}
+                            {app.status === 'approved' && (
+                              <button
+                                onClick={() => handleResendEmail(app.id)}
+                                className="p-2 hover:bg-blue-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-blue-400"
+                                title="Resend approval email"
+                              >
+                                <Mail className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        ))}
+        )}
 
         {/* Community Partners Tab */}
         {activeTab === 'community' && (
