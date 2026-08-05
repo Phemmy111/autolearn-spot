@@ -20,6 +20,38 @@
    - Verify that all columns were added
    - Ensure no errors occurred
 
+## Run Verification Script
+
+After running the main script, also run `verify-schema.sql` to check:
+
+1. **Check if tables exist** with correct columns
+2. **Check if columns were added** to partners table
+3. **Check current data** in the tables
+4. **Identify any missing** schema elements
+
+## Check Vercel Logs for Errors
+
+To see the real production errors:
+
+1. **Go to Vercel Dashboard**
+   - Go to https://vercel.com/dashboard
+   - Select your project (autolearn-spot)
+
+2. **View Function Logs**
+   - Click on "Functions" in the left sidebar
+   - Look for recent function invocations
+   - Check the logs for:
+     - `/api/admin/partners` - Partner creation errors
+     - `/api/admin/marketing/upload` - Marketing upload errors
+     - `/api/admin/marketing/materials` - Marketing materials fetch errors
+
+3. **Look for specific error messages**
+   - The enhanced logging will show:
+     - Database error codes
+     - Error messages and hints
+     - Detailed error information
+     - Request/response flow
+
 ## What This Script Does
 
 The `fix-partner-schema.sql` script will:
@@ -86,3 +118,12 @@ After running the script, test:
 3. Click on a partner to see their details
 4. Check if bank details show (if partner has added them)
 5. Verify theme customization persists across sessions
+
+## Debug Production Issues
+
+If issues persist after deployment:
+
+1. **Check Vercel Logs** - Look for specific error messages
+2. **Run Verification Script** - Ensure database schema is correct
+3. **Check Browser Console** - Look for client-side errors
+4. **Test APIs Locally** - Use curl or Postman to test endpoints directly
