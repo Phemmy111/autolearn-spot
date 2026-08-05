@@ -69,14 +69,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
 
+    // Generate partner ID
+    const partnerId = generatePartnerId();
+    console.log('[POST /api/admin/partners] Generated partner ID:', partnerId);
+
     // Generate referral code
     const referralCode = generateReferralCode();
     console.log('[POST /api/admin/partners] Generated referral code:', referralCode);
 
-    // Create partner record (without partner_id - use auto-generated id)
+    // Create partner record
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .insert({
+        partner_id: partnerId,
         full_name,
         email,
         phone,

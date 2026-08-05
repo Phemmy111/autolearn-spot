@@ -71,6 +71,7 @@ export default function AdminPartnersPage() {
     category: 'general',
     description: ''
   });
+  const [marketingMaterials, setMarketingMaterials] = useState<any[]>([]);
   const [selectedPartner, setSelectedPartner] = useState<any>(null);
   const [showPartnerDetailModal, setShowPartnerDetailModal] = useState(false);
   const [settings, setSettings] = useState({
@@ -98,10 +99,37 @@ export default function AdminPartnersPage() {
     }
   }, []);
 
+  // Apply theme to document
+  useEffect(() => {
+    const root = document.documentElement;
+    if (settings.theme === 'light') {
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+    }
+  }, [settings.theme]);
+
   // Save settings to localStorage when they change
   useEffect(() => {
     localStorage.setItem('partnerSettings', JSON.stringify(settings));
   }, [settings]);
+
+  // Fetch marketing materials from database
+  const fetchMarketingMaterials = async () => {
+    try {
+      const res = await fetch('/api/admin/marketing/materials');
+      if (res.ok) {
+        const data = await res.json();
+        setMarketingMaterials(data.materials || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch marketing materials:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchMarketingMaterials();
+  }, []);
 
   const overviewCards = [
     { id: 'total', label: 'Total Partners', value: partners.length.toString(), growth: null, icon: Users, positive: true },
@@ -196,6 +224,7 @@ export default function AdminPartnersPage() {
           category: 'general',
           description: ''
         });
+        fetchMarketingMaterials(); // Refresh the materials list
         alert('Marketing material uploaded successfully');
       } else {
         alert('Failed to upload marketing material');
@@ -752,50 +781,32 @@ export default function AdminPartnersPage() {
             </div>
             
             <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
-                      <Download className="h-6 w-6 text-[#12E6F3]" />
-                    </div>
-                    <span className="text-xs text-[#b9cacb]">PDF</span>
-                  </div>
-                  <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">Marketing Guide</h4>
-                  <p className="text-xs text-[#b9cacb]">Comprehensive guide for partners</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs text-[#b9cacb]">127 downloads</span>
-                    <Download className="h-4 w-4 text-[#12E6F3]" />
-                  </div>
+              {marketingMaterials.length === 0 ? (
+                <div className="text-center text-[#b9cacb] py-12">
+                  <Download className="h-12 w-12 mx-auto mb-4 text-[#12E6F3]" />
+                  <p>No marketing materials uploaded yet</p>
+                  <p className="text-sm mt-2">Upload your first marketing material to get started</p>
                 </div>
-                <div className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
-                      <Download className="h-6 w-6 text-[#12E6F3]" />
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {marketingMaterials.map((material) => (
+                    <div key={material.id} className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
+                          <Download className="h-6 w-6 text-[#12E6F3]" />
+                        </div>
+                        <span className="text-xs text-[#b9cacb]">{material.type.toUpperCase()}</span>
+                      </div>
+                      <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">{material.name}</h4>
+                      <p className="text-xs text-[#b9cacb]">{material.description || 'No description'}</p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="text-xs text-[#b9cacb]">{material.download_count || 0} downloads</span>
+                        <Download className="h-4 w-4 text-[#12E6F3]" />
+                      </div>
                     </div>
-                    <span className="text-xs text-[#b9cacb]">JPG</span>
-                  </div>
-                  <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">Course Flyer</h4>
-                  <p className="text-xs text-[#b9cacb]">High-quality promotional flyer</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs text-[#b9cacb]">234 downloads</span>
-                    <Download className="h-4 w-4 text-[#12E6F3]" />
-                  </div>
+                  ))}
                 </div>
-                <div className="border border-[#1f2229] bg-[#070B12] rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors cursor-pointer">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="h-12 w-12 bg-[#1f2229] rounded-lg flex items-center justify-center">
-                      <Download className="h-6 w-6 text-[#12E6F3]" />
-                    </div>
-                    <span className="text-xs text-[#b9cacb]">MP4</span>
-                  </div>
-                  <h4 className="text-sm font-semibold text-[#e2e2e8] mb-1">Promo Video</h4>
-                  <p className="text-xs text-[#b9cacb]">30-second promotional video</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs text-[#b9cacb]">89 downloads</span>
-                    <Download className="h-4 w-4 text-[#12E6F3]" />
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         )}
