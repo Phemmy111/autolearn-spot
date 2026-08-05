@@ -63,17 +63,24 @@ export async function POST(request: Request) {
         file_name: fileName
       });
 
+      // Build insert object with only required fields
+      const insertData: any = {
+        name,
+        file_url: publicUrl,
+        file_name: fileName,
+        download_count: 0
+      };
+
+      // Only add optional fields if they have values
+      if (type) insertData.type = type;
+      if (category) insertData.category = category;
+      if (description) insertData.description = description;
+
+      console.log('[POST /api/admin/marketing/upload] Insert data:', insertData);
+
       const { error: dbError } = await supabaseAdmin
         .from('partner_marketing_downloads')
-        .insert({
-          name,
-          type,
-          category,
-          description,
-          file_url: publicUrl,
-          file_name: fileName,
-          download_count: 0
-        });
+        .insert(insertData);
 
       if (dbError) {
         console.error('[POST /api/admin/marketing/upload] Database error:', dbError);
@@ -91,7 +98,11 @@ export async function POST(request: Request) {
       }
     } catch (dbError) {
       console.error('[POST /api/admin/marketing/upload] Database insert error:', dbError);
-      // Continue anyway, file was uploaded successfully
+      // Return error since metadata save failed
+      return NextResponse.json({ 
+        error: 'File uploaded but metadata save failed', 
+        details: String(dbError)
+      }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, url: publicUrl });
