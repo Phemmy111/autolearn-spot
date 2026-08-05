@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log('Received enrollment data:', body);
+    console.log('Supabase URL:', supabaseUrl);
+    console.log('Service key exists:', !!supabaseServiceKey);
 
     const {
       fullName,
@@ -37,6 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if there's already a pending enrollment for this email
+    console.log('Checking for existing pending enrollment for email:', email);
     const { data: existingPending, error: existingError } = await supabaseAdmin
       .from('pending_enrollments')
       .select('*')
@@ -46,6 +49,7 @@ export async function POST(request: NextRequest) {
 
     if (existingError && existingError.code !== 'PGRST116') {
       console.error('Error checking existing pending enrollment:', existingError);
+      console.error('Error details:', JSON.stringify(existingError, null, 2));
     }
 
     if (existingPending) {
@@ -108,6 +112,15 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     // Create pending enrollment
+    console.log('Creating pending enrollment with data:', {
+      full_name: fullName,
+      email: email.toLowerCase(),
+      phone_number: phoneNumber,
+      payment_amount: 8000,
+      payment_status: 'pending',
+      expires_at: expiresAt
+    });
+
     const { data: pendingEnrollment, error } = await supabaseAdmin
       .from('pending_enrollments')
       .insert({
@@ -132,8 +145,12 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating pending enrollment:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error hint:', error.hint);
       return NextResponse.json(
-        { error: 'Failed to create pending enrollment' },
+        { error: 'Failed to create pending enrollment', details: error.message },
         { status: 500 }
       );
     }
@@ -153,8 +170,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in pending enrollment API:', error);
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
