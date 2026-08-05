@@ -397,7 +397,7 @@ export default function AdminPartnersPage() {
     }
   };
 
-  const handleResendEmail = async (applicationId: string) => {
+  const handleResendApplicationEmail = async (applicationId: string) => {
     try {
       const res = await fetch('/api/admin/partners/applications', {
         method: 'PUT',
@@ -708,7 +708,7 @@ export default function AdminPartnersPage() {
                             )}
                             {app.status === 'approved' && (
                               <button
-                                onClick={() => handleResendEmail(app.id)}
+                                onClick={() => handleResendApplicationEmail(app.id)}
                                 className="p-2 hover:bg-blue-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-blue-400"
                                 title="Resend approval email"
                               >
