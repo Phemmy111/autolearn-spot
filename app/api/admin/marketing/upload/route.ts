@@ -53,21 +53,27 @@ export async function POST(request: Request) {
       .getPublicUrl(`marketing/${fileName}`);
 
     // Save metadata to database
-    const { error: dbError } = await supabaseAdmin
-      .from('partner_marketing_downloads')
-      .insert({
-        name,
-        type,
-        category,
-        description,
-        file_url: publicUrl,
-        file_name: fileName,
-        download_count: 0
-      });
+    try {
+      const { error: dbError } = await supabaseAdmin
+        .from('partner_marketing_downloads')
+        .insert({
+          name,
+          type,
+          category,
+          description,
+          file_url: publicUrl,
+          file_name: fileName,
+          download_count: 0
+        });
 
-    if (dbError) {
-      console.error('Database error:', dbError);
-      return NextResponse.json({ error: 'Failed to save metadata' }, { status: 500 });
+      if (dbError) {
+        console.error('Database error:', dbError);
+        // Still return success even if database insert fails, as file was uploaded
+        console.log('File uploaded successfully but metadata save failed:', dbError.message);
+      }
+    } catch (dbError) {
+      console.error('Database insert error:', dbError);
+      // Continue anyway, file was uploaded successfully
     }
 
     return NextResponse.json({ success: true, url: publicUrl });

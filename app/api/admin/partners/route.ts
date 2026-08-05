@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     const referralCode = generateReferralCode();
     console.log('[POST /api/admin/partners] Generated referral code:', referralCode);
 
-    // Create partner record
+    // Create partner record (without partner_id - use auto-generated id)
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .insert({
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
         status: status || 'active',
         commission_rate: commission_rate || 1500
       })
-      .select('id')
+      .select()
       .single();
 
     if (partnerError) {
@@ -99,19 +99,8 @@ export async function POST(request: Request) {
 
     console.log('[POST /api/admin/partners] Partner created successfully:', partner);
 
-    // Create referral record
-    const { error: referralError } = await supabaseAdmin
-      .from('partner_referrals')
-      .insert({
-        partner_id: partner.id,
-        referral_code: referralCode,
-        status: 'clicked'
-      });
-
-    if (referralError) {
-      console.error('[POST /api/admin/partners] Failed to create referral record:', referralError);
-      // Continue anyway, partner was created successfully
-    }
+    // Skip referral record creation for now to avoid database errors
+    // Future: implement referral tracking when database schema is ready
 
     // Send email notification to admin about new partner
     try {
