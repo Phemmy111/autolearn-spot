@@ -269,6 +269,7 @@ export class AdminEmailService {
     partnerName: string;
     partnerEmail: string;
     partnerId: string;
+    partnerType: string;
     referralCode: string;
     tempPassword: string;
   }): Promise<boolean> {
@@ -288,7 +289,7 @@ export class AdminEmailService {
               <h2 style="color: #00f0ff; margin-top: 0;">Welcome to the Team!</h2>
               <p style="color: #e2e2e8; margin: 10px 0;">Dear ${partnerData.partnerName},</p>
               <p style="color: #b9cacb; margin: 10px 0;">
-                Congratulations! You have been successfully added to the AutoLearn Spot Partner Program. Your account is now active and ready to start earning commissions.
+                Congratulations! You have been successfully added to the AutoLearn Spot Partner Program as a <strong style="color: #00f0ff;">${partnerData.partnerType.toUpperCase()}</strong> partner. Your account is now active and ready to start earning commissions.
               </p>
             </div>
             
@@ -297,12 +298,20 @@ export class AdminEmailService {
               
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Partner Type:</p>
+                  <p style="color: #00f0ff; margin: 0; font-weight: bold; text-transform: uppercase;">${partnerData.partnerType}</p>
+                </div>
+                <div>
                   <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Partner ID:</p>
                   <p style="color: #e2e2e8; margin: 0; font-weight: bold; font-family: monospace;">${partnerData.partnerId}</p>
                 </div>
                 <div>
                   <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Referral Code:</p>
                   <p style="color: #00f0ff; margin: 0; font-weight: bold; font-family: monospace;">${partnerData.referralCode}</p>
+                </div>
+                <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Password:</p>
+                  <p style="color: #e2e2e8; margin: 0; font-weight: bold; font-family: monospace;">${partnerData.tempPassword}</p>
                 </div>
               </div>
             </div>
@@ -312,9 +321,16 @@ export class AdminEmailService {
               <ul style="color: #b9cacb; margin: 10px 0; padding-left: 20px;">
                 <li style="margin-bottom: 10px;">Login to your partner dashboard at <a href="https://autolearn-spot.vercel.app/partners/login" style="color: #00f0ff;">autolearn-spot.vercel.app/partners/login</a></li>
                 <li style="margin-bottom: 10px;">Access your marketing materials and referral link</li>
-                <li style="margin-bottom: 10px;">Start sharing your referral code to earn ₦1,500 per successful enrollment</li>
+                <li style="margin-bottom: 10px;">Start sharing your referral code to earn commissions</li>
                 <li style="margin-bottom: 10px;">Track your performance and earnings in real-time</li>
               </ul>
+            </div>
+            
+            <div style="background-color: #111317; border: 1px solid #1f2229; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+              <h3 style="color: #00f0ff; margin-top: 0;">Commission Structure</h3>
+              <p style="color: #b9cacb; margin: 10px 0;">
+                <strong style="color: #e2e2e8;">${partnerData.partnerType === 'influencer' ? '₦3,000' : partnerData.partnerType === 'community' ? '₦2,000' : '₦1,500'}</strong> per successful enrollment
+              </p>
             </div>
             
             <div style="text-align: center; margin-top: 30px;">

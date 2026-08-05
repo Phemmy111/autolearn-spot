@@ -38,7 +38,7 @@ export async function POST(
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
     }
 
-    console.log('[POST /api/admin/partners/:id/resend-email] Partner found:', partner.email);
+    console.log('[POST /api/admin/partners/:id/resend-email] Partner found:', partner.email, 'Type:', partner.partner_type);
 
     // Generate referral code
     const referralCode = `REF${Math.floor(Math.random() * 100000).toString().padStart(6, '0')}`;
@@ -52,8 +52,9 @@ export async function POST(
           partnerName: partner.full_name,
           partnerEmail: partner.email,
           partnerId: partner.id,
+          partnerType: partner.partner_type,
           referralCode: referralCode,
-          tempPassword: 'Set your password via the login link'
+          tempPassword: 'Use your login link to set your password'
         });
         emailSent = true;
         console.log('[POST /api/admin/partners/:id/resend-email] Welcome email sent successfully');

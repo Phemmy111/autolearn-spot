@@ -77,6 +77,10 @@ export async function POST(request: Request) {
     const referralCode = generateReferralCode();
     console.log('[POST /api/admin/partners] Generated referral code:', referralCode);
 
+    // Generate temporary password if not provided
+    const tempPassword = password || Math.random().toString(36).slice(-8).toUpperCase();
+    console.log('[POST /api/admin/partners] Generated temp password:', tempPassword);
+
     // Build insert object with only columns that exist
     const insertData: any = {
       partner_id: partnerId,
@@ -84,7 +88,9 @@ export async function POST(request: Request) {
       email,
       partner_type: partner_type || 'community',
       status: status || 'active',
-      commission_rate: commission_rate || 1500
+      commission_rate: commission_rate || 1500,
+      referral_code: referralCode,
+      password: tempPassword
     };
 
     // Only add phone if provided
@@ -146,8 +152,9 @@ export async function POST(request: Request) {
         partnerName: full_name,
         partnerEmail: email,
         partnerId: partner.id,
+        partnerType: partner_type || 'community',
         referralCode: referralCode,
-        tempPassword: password || 'Set your password via the login link'
+        tempPassword: tempPassword
       });
       partnerEmailSent = true;
       console.log('[POST /api/admin/partners] Partner welcome email sent successfully');
