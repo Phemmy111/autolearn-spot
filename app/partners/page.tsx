@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { socialLinks } from "@/config/social";
 import { AutolearnBot } from '@/components/autolearn-bot';
-import { WhatsAppWrapper } from '@/components/WhatsAppWrapper';
+import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal';
 
 const PARTNER_TYPES = [
   {

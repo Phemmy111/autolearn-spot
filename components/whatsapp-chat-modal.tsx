@@ -32,7 +32,7 @@ const quickMessages = [
 ];
 
 import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom/client'
+import { createPortal } from 'react-dom'
 
 const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '2348120934828'
 const whatsappCommunityUrl = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL

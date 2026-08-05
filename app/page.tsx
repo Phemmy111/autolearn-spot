@@ -33,7 +33,7 @@ import { SocialIcon } from '@/components/social-icon'
 import { socialLinks } from '@/config/social'
 import { studentTestimonials } from '@/config/testimonials'
 import { AutolearnBot } from '@/components/autolearn-bot'
-import { WhatsAppWrapper } from '@/components/WhatsAppWrapper'
+import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 import './page.css'
 
 const navItems = [

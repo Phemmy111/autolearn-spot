@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     // Create pending enrollment
     const { data: pendingEnrollment, error } = await supabaseAdmin
-      .from('pending_enrollments')
+      .from('enrollments')
       .insert({
         full_name: fullName,
         email: email.toLowerCase(),
