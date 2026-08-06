@@ -716,11 +716,11 @@ export default function PartnerDashboard() {
                           )}
                           <div className="flex gap-2">
                             <button 
-                              onClick={() => window.open(item.url, '_blank')}
+                              onClick={() => openMaterialDetail(item)}
                               className="flex-1 py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors flex items-center justify-center gap-2"
                             >
                               <Eye className="h-4 w-4" />
-                              Preview
+                              View Details
                             </button>
                             <button 
                               onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
@@ -762,18 +762,6 @@ export default function PartnerDashboard() {
                       </span>
                     </div>
                     
-                    {/* Image Preview */}
-                    {selectedMaterial.url && (selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-[#070B12] p-4 rounded-lg">
-                        <p className="text-sm font-medium text-[#e2e2e8] mb-3">Preview</p>
-                        <img 
-                          src={selectedMaterial.url} 
-                          alt={selectedMaterial.name}
-                          className="w-full h-auto rounded-lg max-h-96 object-contain"
-                        />
-                      </div>
-                    )}
-                    
                     {selectedMaterial.description && (
                       <div className="bg-[#070B12] p-4 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
@@ -803,17 +791,40 @@ export default function PartnerDashboard() {
                       </div>
                     </div>
                     
+                    {/* Integrated Preview */}
+                    {selectedMaterial.url && (selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
+                      <div className="bg-[#070B12] p-4 rounded-lg">
+                        <p className="text-sm font-medium text-[#e2e2e8] mb-3">Preview</p>
+                        <img 
+                          src={selectedMaterial.url} 
+                          alt={selectedMaterial.name}
+                          className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => window.open(selectedMaterial.url, '_blank')}
+                        />
+                        <p className="text-xs text-[#b9cacb] mt-2 text-center">Click image to open in new tab</p>
+                      </div>
+                    )}
+                    
+                    {/* File Preview for non-image types */}
+                    {selectedMaterial.url && !(selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
+                      <div className="bg-[#070B12] p-4 rounded-lg">
+                        <p className="text-sm font-medium text-[#e2e2e8] mb-3">File Preview</p>
+                        <a 
+                          href={selectedMaterial.url}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[#12E6F3] hover:underline flex items-center gap-2"
+                        >
+                          <FileText className="h-4 w-4" />
+                          Open file in new tab
+                        </a>
+                      </div>
+                    )}
+                    
                     <div className="flex gap-3 pt-4 border-t border-[#1f2229]">
                       <button
-                        onClick={() => window.open(selectedMaterial.url, '_blank')}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-medium hover:bg-[#00F5FF]/90 transition-colors"
-                      >
-                        <Eye className="h-4 w-4" />
-                        Preview
-                      </button>
-                      <button
                         onClick={() => window.open(`/api/partners/marketing/download/${selectedMaterial.id}`, '_blank')}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-medium hover:bg-[#00F5FF]/90 transition-colors"
                       >
                         <Download className="h-4 w-4" />
                         Download
