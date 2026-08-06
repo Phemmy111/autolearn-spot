@@ -15,13 +15,6 @@ function generatePartnerId(): string {
   return `${prefix}${suffix}`;
 }
 
-// Helper function to generate referral code
-function generateReferralCode(): string {
-  const prefix = 'REF';
-  const suffix = Math.floor(Math.random() * 100000).toString().padStart(6, '0');
-  return `${prefix}${suffix}`;
-}
-
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
@@ -74,10 +67,6 @@ export async function POST(request: Request) {
     const partnerId = generatePartnerId();
     console.log('[POST /api/admin/partners] Generated partner ID:', partnerId);
 
-    // Generate referral code
-    const referralCode = generateReferralCode();
-    console.log('[POST /api/admin/partners] Generated referral code:', referralCode);
-
     // Generate temporary password if not provided
     const tempPassword = password || Math.random().toString(36).slice(-8).toUpperCase();
     console.log('[POST /api/admin/partners] Generated temp password:', tempPassword);
@@ -89,8 +78,7 @@ export async function POST(request: Request) {
       email,
       partner_type: partner_type || 'community',
       status: status || 'active',
-      commission_rate: commission_rate || 1500,
-      referral_code: referralCode
+      commission_rate: commission_rate || 1500
     };
 
     // Only add phone if provided
@@ -185,7 +173,7 @@ export async function POST(request: Request) {
         partnerEmail: email,
         partnerType: partner_type || 'community',
         partnerId: partner.id,
-        referralCode: referralCode
+        referralCode: partnerId // Use partner_id as referral code
       });
       adminEmailSent = true;
       console.log('[POST /api/admin/partners] Admin email sent successfully');
@@ -202,7 +190,7 @@ export async function POST(request: Request) {
         partnerEmail: email,
         partnerId: partner.id,
         partnerType: partner_type || 'community',
-        referralCode: referralCode,
+        referralCode: partnerId, // Use partner_id as referral code
         tempPassword: tempPassword
       });
       partnerEmailSent = true;
