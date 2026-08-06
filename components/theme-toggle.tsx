@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Monitor } from 'lucide-react'
 import { useTheme } from 'next-themes'
 
 export function ThemeToggle() {
@@ -20,17 +20,34 @@ export function ThemeToggle() {
     )
   }
 
+  const cycleTheme = () => {
+    if (theme === 'light') {
+      setTheme('dark')
+    } else if (theme === 'dark') {
+      setTheme('system')
+    } else {
+      setTheme('light')
+    }
+  }
+
+  const getIcon = () => {
+    if (theme === 'light') {
+      return <Sun className="h-5 w-5" />
+    } else if (theme === 'dark') {
+      return <Moon className="h-5 w-5" />
+    } else {
+      return <Monitor className="h-5 w-5" />
+    }
+  }
+
   return (
     <button
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      onClick={cycleTheme}
       className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-gray-800 transition-colors"
       aria-label="Toggle theme"
+      title={`Current theme: ${theme || 'system'}`}
     >
-      {theme === 'dark' ? (
-        <Sun className="h-5 w-5" />
-      ) : (
-        <Moon className="h-5 w-5" />
-      )}
+      {getIcon()}
     </button>
   )
 }
