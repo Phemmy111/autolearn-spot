@@ -200,35 +200,35 @@ function WorkflowNode({
 
 function N8nWorkflowPanel() {
   return (
-    <div className="relative z-10 w-full border border-[#1f2229] bg-[#0c0e12] rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,240,255,0.1)]">
-      <div className="absolute inset-0 bg-[#00f0ff]/5 rounded-2xl blur-xl" />
-      <div className="flex h-8 items-center justify-between border-b border-[#1f2229] bg-[#1a1c20] px-4">
-        <span className="font-mono text-[10px] text-[#b9cacb]">live_workflow.n8n</span>
+    <div className="relative z-10 w-full border border-border bg-card rounded-2xl overflow-hidden shadow-lg">
+      <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl" />
+      <div className="flex h-8 items-center justify-between border-b border-border bg-popover px-4">
+        <span className="font-mono text-[10px] text-muted-foreground">live_workflow.n8n</span>
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#333539]" />
-          <span className="h-2 w-2 rounded-full bg-[#333539]" />
-          <span className="h-2 w-2 rounded-full bg-[#333539]" />
+          <span className="h-2 w-2 rounded-full bg-muted" />
+          <span className="h-2 w-2 rounded-full bg-muted" />
+          <span className="h-2 w-2 rounded-full bg-muted" />
         </div>
       </div>
 
-      <div className="flex h-10 items-center justify-between border-b border-[#1f2229] bg-[#111317] px-4">
+      <div className="flex h-10 items-center justify-between border-b border-border bg-card px-4">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#00f0ff]">n8n canvas</span>
-          <span className="hidden h-4 w-px bg-[#1f2229] sm:block" />
-          <span className="hidden font-mono text-[10px] text-[#b9cacb] sm:block">real training workflow / active</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-primary">n8n canvas</span>
+          <span className="hidden h-4 w-px bg-border sm:block" />
+          <span className="hidden font-mono text-[10px] text-muted-foreground sm:block">real training workflow / active</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex h-6 w-6 items-center justify-center border border-[#1f2229] text-[#00f0ff]">
+          <button className="flex h-6 w-6 items-center justify-center border border-border text-primary">
             <Plus className="h-3.5 w-3.5" />
           </button>
-          <span className="workflow-running border border-[#00f0ff]/70 bg-[#00f0ff]/10 px-2 py-1 font-mono text-[10px] text-[#00f0ff]">
+          <span className="workflow-running border border-primary/70 bg-primary/10 px-2 py-1 font-mono text-[10px] text-primary">
             RUNNING
           </span>
         </div>
       </div>
 
-      <div className="relative min-h-[300px] sm:min-h-[360px] overflow-hidden bg-[#050505]">
-        <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(#1f2229_1px,transparent_1px),linear-gradient(90deg,#1f2229_1px,transparent_1px)] [background-size:32px_32px]" />
+      <div className="relative min-h-[300px] sm:min-h-[360px] overflow-hidden bg-background">
+        <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(border-color_1px,transparent_1px),linear-gradient(90deg,border-color_1px,transparent_1px)] [background-size:32px_32px]" />
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 620 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <path d="M92 185 C170 185 162 112 242 112" fill="none" stroke="#3b494b" strokeWidth="1.5" />
           <path d="M335 138 C385 170 390 185 430 185" fill="none" stroke="#3b494b" strokeWidth="1.5" />
@@ -292,12 +292,12 @@ function N8nWorkflowPanel() {
           <WorkflowNode key={node.label} node={node} />
         ))}
 
-        <div className="absolute bottom-4 left-4 w-[196px] border border-[#1f2229] bg-[#111317]/95 p-3">
+        <div className="absolute bottom-4 left-4 w-[196px] border border-border bg-card/95 p-3">
           <div className="mb-3 flex items-center justify-between">
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#b9cacb]">Execution Log</span>
-            <span className="workflow-status-dot h-2 w-2 bg-[#00f0ff]" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">Execution Log</span>
+            <span className="workflow-status-dot h-2 w-2 bg-primary" />
           </div>
-          <div className="space-y-2 font-mono text-[10px] text-[#b9cacb]">
+          <div className="space-y-2 font-mono text-[10px] text-muted-foreground">
             {workflowLog.map((item, index) => (
               <p key={item}>
                 <span className={index === workflowLog.length - 1 ? 'text-[#00f0ff]' : 'text-[#00f0ff]'}>&gt;</span>{' '}
