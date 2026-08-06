@@ -18,6 +18,10 @@ export async function POST(request: Request) {
     const formData = await request.formData()
     const file = formData.get('file') as File
 
+    console.log('[Profile Picture POST] userId:', userId)
+    console.log('[Profile Picture POST] userEmail:', user?.emailAddresses?.[0]?.emailAddress)
+    console.log('[Profile Picture POST] file:', file?.name, file?.size)
+
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
@@ -38,6 +42,8 @@ export async function POST(request: Request) {
     const base64 = buffer.toString('base64')
     const dataUrl = `data:${file.type};base64,${base64}`
 
+    console.log('[Profile Picture POST] dataUrl length:', dataUrl.length)
+
     // Try to update in enrollments table (students)
     let updateError = null
     const { error: enrollmentError } = await supabaseAdmin
@@ -45,7 +51,10 @@ export async function POST(request: Request) {
       .update({ profile_picture: dataUrl })
       .eq('user_id', userId)
 
+    console.log('[Profile Picture POST] enrollmentError:', enrollmentError)
+
     if (!enrollmentError) {
+      console.log('[Profile Picture POST] Successfully updated enrollments table')
       return NextResponse.json({ 
         success: true, 
         profilePicture: dataUrl 
@@ -58,7 +67,10 @@ export async function POST(request: Request) {
       .update({ profile_picture: dataUrl })
       .eq('email', user?.emailAddresses?.[0]?.emailAddress || '')
 
+    console.log('[Profile Picture POST] influencerError:', influencerError)
+
     if (!influencerError) {
+      console.log('[Profile Picture POST] Successfully updated influencers table')
       return NextResponse.json({ 
         success: true, 
         profilePicture: dataUrl 
@@ -71,7 +83,10 @@ export async function POST(request: Request) {
       .update({ profile_picture: dataUrl })
       .eq('email', user?.emailAddresses?.[0]?.emailAddress || '')
 
+    console.log('[Profile Picture POST] ambassadorError:', ambassadorError)
+
     if (!ambassadorError) {
+      console.log('[Profile Picture POST] Successfully updated community_ambassadors table')
       return NextResponse.json({ 
         success: true, 
         profilePicture: dataUrl 
@@ -79,10 +94,10 @@ export async function POST(request: Request) {
     }
 
     // If all updates failed
-    console.error('Error updating profile picture in all tables:', { enrollmentError, influencerError, ambassadorError })
+    console.error('[Profile Picture POST] All updates failed:', { enrollmentError, influencerError, ambassadorError })
     return NextResponse.json({ error: 'Failed to update profile picture' }, { status: 500 })
   } catch (error) {
-    console.error('Profile picture upload error:', error)
+    console.error('[Profile Picture POST] Profile picture upload error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
