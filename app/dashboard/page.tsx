@@ -36,11 +36,17 @@ export default function DashboardPage() {
   const liveClassTime = getLiveClassTimeShort()
 
   async function fetchProfilePicture() {
+    console.log('[Dashboard] fetchProfilePicture called')
     try {
       const response = await fetch('/api/user/profile-picture')
+      console.log('[Dashboard] fetchProfilePicture response status:', response.status)
       const result = await response.json()
+      console.log('[Dashboard] fetchProfilePicture result:', result)
       if (response.ok) {
         setProfilePicture(result.profilePicture)
+        console.log('[Dashboard] fetchProfilePicture success, setProfilePicture called with:', result.profilePicture ? 'data present' : 'null')
+      } else {
+        console.error('[Dashboard] fetchProfilePicture failed with status:', response.status)
       }
     } catch (error) {
       console.error('[Dashboard] Failed to fetch profile picture:', error)
