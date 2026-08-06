@@ -99,10 +99,10 @@ export default function InfluencerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[#0c0e12] text-white overflow-x-hidden">
       {/* Topbar */}
       <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-md sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase">
             <Star className="text-purple-400 h-4 w-4" />
             <span className="underline decoration-purple-500 decoration-2 underline-offset-2">Influencer Partner Portal</span>
@@ -130,7 +130,7 @@ export default function InfluencerDashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-8">
         {/* Referral Link Card */}
         <div className="bg-gradient-to-r from-purple-500/10 to-transparent border border-purple-500/20 rounded-2xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-transparent" />

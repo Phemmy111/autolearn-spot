@@ -94,8 +94,7 @@ export default function AdminPartnersPage() {
     adminEmailEnabled: true,
     partnerEmailEnabled: true,
     currentCohort: 'Cohort 2',
-    coursePrice: 8000,
-    theme: 'dark'
+    coursePrice: 8000
   });
 
   // Load settings from localStorage on mount
@@ -109,16 +108,6 @@ export default function AdminPartnersPage() {
       }
     }
   }, []);
-
-  // Apply theme to document
-  useEffect(() => {
-    const root = document.documentElement;
-    if (settings.theme === 'light') {
-      root.classList.remove('dark');
-    } else {
-      root.classList.add('dark');
-    }
-  }, [settings.theme]);
 
   // Save settings to localStorage when they change
   useEffect(() => {
@@ -1505,50 +1494,6 @@ export default function AdminPartnersPage() {
                       onChange={(e) => setSettings({...settings, coursePrice: parseInt(e.target.value)})}
                       className="mt-1 w-full px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#070B12] border border-[#1f2229] rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Theme Customization</h3>
-                <div className="space-y-4">
-                  <div>
-                    <p className="font-medium text-[#e2e2e8] mb-3">Partner Dashboard Theme</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <button
-                        onClick={() => setSettings({...settings, theme: 'dark'})}
-                        className={`p-4 border-2 rounded-lg transition-colors ${
-                          settings.theme === 'dark' 
-                            ? 'border-[#12E6F3] bg-[#12E6F3]/10' 
-                            : 'border-[#1f2229] bg-[#0c0e12] hover:border-[#1f2229]'
-                        }`}
-                      >
-                        <div className="h-12 w-full bg-[#070B12] rounded mb-2"></div>
-                        <p className="text-sm text-[#e2e2e8]">Dark Theme</p>
-                      </button>
-                      <button
-                        onClick={() => setSettings({...settings, theme: 'light'})}
-                        className={`p-4 border-2 rounded-lg transition-colors ${
-                          settings.theme === 'light' 
-                            ? 'border-[#12E6F3] bg-[#12E6F3]/10' 
-                            : 'border-[#1f2229] bg-[#0c0e12] hover:border-[#1f2229]'
-                        }`}
-                      >
-                        <div className="h-12 w-full bg-white rounded mb-2"></div>
-                        <p className="text-sm text-[#e2e2e8]">Light Theme</p>
-                      </button>
-                      <button
-                        onClick={() => setSettings({...settings, theme: 'cyber'})}
-                        className={`p-4 border-2 rounded-lg transition-colors ${
-                          settings.theme === 'cyber' 
-                            ? 'border-[#12E6F3] bg-[#12E6F3]/10' 
-                            : 'border-[#1f2229] bg-[#0c0e12] hover:border-[#1f2229]'
-                        }`}
-                      >
-                        <div className="h-12 w-full bg-gradient-to-r from-[#12E6F3] to-purple-500 rounded mb-2"></div>
-                        <p className="text-sm text-[#e2e2e8]">Cyber Theme</p>
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
