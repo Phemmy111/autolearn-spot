@@ -200,7 +200,7 @@ function WorkflowNode({
 
 function N8nWorkflowPanel() {
   return (
-    <div className="relative z-10 w-full border border-border bg-card rounded-2xl overflow-hidden shadow-lg">
+    <div className="relative z-10 w-full border border-border bg-card rounded-2xl overflow-hidden shadow-md p-6">
       <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl" />
       <div className="flex h-8 items-center justify-between border-b border-border bg-popover px-4">
         <span className="font-mono text-[10px] text-muted-foreground">live_workflow.n8n</span>
@@ -292,7 +292,7 @@ function N8nWorkflowPanel() {
           <WorkflowNode key={node.label} node={node} />
         ))}
 
-        <div className="absolute bottom-4 left-4 w-[196px] border border-border bg-card/95 p-3">
+        <div className="absolute bottom-4 left-4 w-[196px] border border-border bg-card/95 p-3 shadow-md">
           <div className="mb-3 flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">Execution Log</span>
             <span className="workflow-status-dot h-2 w-2 bg-primary" />
@@ -399,6 +399,8 @@ function HeroSection() {
             <N8nWorkflowPanel />
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/20 rounded-full blur-2xl" />
             <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
+            {/* Soft radial gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent rounded-2xl" />
           </div>
         </div>
       </div>
@@ -444,10 +446,10 @@ function StatsSection() {
 
 function EnrollmentSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-card">
+    <section className="py-6 sm:py-8 lg:py-12 bg-surface-alt">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
-          <div className="border border-border bg-background/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
+          <div className="border border-border bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-6">
               Enroll Now
             </h2>
@@ -466,7 +468,7 @@ function EnrollmentSection() {
             
             <Link
               href="/enroll"
-              className="flex items-center justify-center gap-2 w-full border border-primary bg-primary px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-primary-foreground transition duration-150 hover:translate-y-[-1px] hover:shadow-lg"
+              className="flex items-center justify-center gap-2 w-full border border-primary bg-primary px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-primary-foreground transition duration-150 hover:translate-y-[-2px] hover:shadow-primary"
             >
               Enroll Now — ₦8,000
             </Link>
@@ -490,7 +492,7 @@ function EnrollmentSection() {
                 return (
                   <div
                     key={item.title}
-                    className="flex items-start gap-3 sm:gap-4 border border-border bg-card/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 hover:border-primary/50 transition-all duration-300"
+                    className="flex items-start gap-3 sm:gap-4 border border-border bg-card rounded-xl p-4 sm:p-5 hover:border-primary/50 hover:bg-surface-hover transition-all duration-300 shadow-sm hover:shadow-md"
                   >
                     <div className="flex h-10 w-10 items-center justify-center border border-primary/60 bg-primary/10 rounded-lg flex-shrink-0">
                       <Icon className="h-5 w-5 text-primary" />
@@ -514,7 +516,7 @@ function ScholarshipSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-background">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="border border-border bg-card/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
+        <div className="border border-border bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-2">
@@ -539,7 +541,7 @@ function ScholarshipSection() {
 
 function CurriculumSection() {
   return (
-    <section id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-card">
+    <section id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-surface">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
