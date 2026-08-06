@@ -23,12 +23,29 @@ export default function AmbassadorSettingsPage() {
       const result = await res.json()
       if (res.ok && result.success) {
         setUserData(result)
-        setProfilePicture(result.user?.profile_picture || null)
       }
     } catch (err) {
       console.error('Failed to fetch user data:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!loading) {
+      fetchProfilePicture()
+    }
+  }, [loading])
+
+  const fetchProfilePicture = async () => {
+    try {
+      const response = await fetch('/api/user/profile-picture')
+      const result = await response.json()
+      if (response.ok) {
+        setProfilePicture(result.profilePicture)
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile picture:', error)
     }
   }
 

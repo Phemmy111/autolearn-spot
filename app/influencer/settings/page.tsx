@@ -23,7 +23,6 @@ export default function InfluencerSettingsPage() {
       const result = await res.json()
       if (res.ok && result.success) {
         setUserData(result)
-        setProfilePicture(result.user?.profile_picture || null)
       }
     } catch (err) {
       console.error('Failed to fetch user data:', err)
@@ -32,10 +31,28 @@ export default function InfluencerSettingsPage() {
     }
   }
 
+  useEffect(() => {
+    if (!loading) {
+      fetchProfilePicture()
+    }
+  }, [loading])
+
   const handleProfilePictureUpdate = (newPicture: string) => {
     setProfilePicture(newPicture)
     setSaveSuccess(true)
     setTimeout(() => setSaveSuccess(false), 2000)
+  }
+
+  const fetchProfilePicture = async () => {
+    try {
+      const response = await fetch('/api/user/profile-picture')
+      const result = await response.json()
+      if (response.ok) {
+        setProfilePicture(result.profilePicture)
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile picture:', error)
+    }
   }
 
   const handleLogout = () => {
