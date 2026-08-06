@@ -98,6 +98,9 @@ export async function GET(request: Request) {
     const user = await currentUser()
     const userEmail = user?.emailAddresses?.[0]?.emailAddress || ''
 
+    console.log('[Profile Picture GET] userId:', userId)
+    console.log('[Profile Picture GET] userEmail:', userEmail)
+
     // Try to get from enrollments table (students)
     const { data: enrollment, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
@@ -105,7 +108,11 @@ export async function GET(request: Request) {
       .eq('user_id', userId)
       .single()
 
+    console.log('[Profile Picture GET] enrollmentError:', enrollmentError)
+    console.log('[Profile Picture GET] enrollment:', enrollment)
+
     if (!enrollmentError && enrollment) {
+      console.log('[Profile Picture GET] Found in enrollments')
       return NextResponse.json({ 
         profilePicture: enrollment?.profile_picture || null 
       })
@@ -118,7 +125,11 @@ export async function GET(request: Request) {
       .eq('email', userEmail)
       .single()
 
+    console.log('[Profile Picture GET] influencerError:', influencerError)
+    console.log('[Profile Picture GET] influencer:', influencer)
+
     if (!influencerError && influencer) {
+      console.log('[Profile Picture GET] Found in influencers')
       return NextResponse.json({ 
         profilePicture: influencer?.profile_picture || null 
       })
@@ -131,13 +142,18 @@ export async function GET(request: Request) {
       .eq('email', userEmail)
       .single()
 
+    console.log('[Profile Picture GET] ambassadorError:', ambassadorError)
+    console.log('[Profile Picture GET] ambassador:', ambassador)
+
     if (!ambassadorError && ambassador) {
+      console.log('[Profile Picture GET] Found in community_ambassadors')
       return NextResponse.json({ 
         profilePicture: ambassador?.profile_picture || null 
       })
     }
 
     // If all lookups failed, return null
+    console.log('[Profile Picture GET] Not found in any table')
     return NextResponse.json({ 
       profilePicture: null 
     })
