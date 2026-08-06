@@ -38,8 +38,11 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
-  themeColor: [{ color: '#111317' }],
+  colorScheme: 'light dark',
+  themeColor: [
+    { color: '#111317', media: '(prefers-color-scheme: dark)' },
+    { color: '#ffffff', media: '(prefers-color-scheme: light)' }
+  ],
 }
 
 // Test commit to trigger deployment
@@ -53,7 +56,7 @@ export default function RootLayout({
     <ClerkProvider>
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="system"
         enableSystem
         disableTransitionOnChange
       >
