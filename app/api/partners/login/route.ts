@@ -13,6 +13,8 @@ export async function POST(request: Request) {
   try {
     const { email, password, partnerType } = await request.json();
 
+    console.log('[POST /api/partners/login] Login attempt:', { email, partnerType });
+
     if (!email || !password || !partnerType) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
@@ -25,6 +27,8 @@ export async function POST(request: Request) {
     const authResult = partnerType === 'community' 
       ? await CommunityAuthService.authenticate(email, password)
       : await CommunityAuthService.authenticateInfluencer(email, password);
+
+    console.log('[POST /api/partners/login] Auth result:', { success: authResult.success, error: authResult.error });
 
     if (!authResult.success || !authResult.user) {
       return NextResponse.json({ error: authResult.error || 'Invalid credentials' }, { status: 401 });
@@ -44,10 +48,17 @@ export async function POST(request: Request) {
         .eq('email', email)
         .single();
       
-      console.log('[POST /api/partners/login] Email lookup result:', { found: !!partnerByEmail, error: emailError });
+      console.log('[POST /api/partners/login] Email lookup result:', { found: !!partnerByEmail, error: emailError, partnerType: partnerByEmail?.partner_type });
       
       if (partnerByEmail) {
-        console.log('[POST /api/partners/login] Found partner by email:', partnerByEmail.id);
+        console.log('[POST /api/partners/login] Found partner by email:', partnerByEmail.id, 'Partner type:', partnerByEmail.partner_type);
+        
+        // Check if partner type matches the login attempt
+        if (partnerByEmail.partner_type !== partnerType) {
+          console.log('[POST /api/partners/login] Partner type mismatch:', { dbType: partnerByEmail.partner_type, loginType: partnerType });
+          return NextResponse.json({ error: `Please login as ${partnerByEmail.partner_type} partner` }, { status: 401 });
+        }
+        
         partner = partnerByEmail;
         
         // Link the ambassador to the partner if not already linked
