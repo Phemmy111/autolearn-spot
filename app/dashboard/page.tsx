@@ -35,6 +35,36 @@ export default function DashboardPage() {
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
   const liveClassTime = getLiveClassTimeShort()
 
+  async function fetchProfilePicture() {
+    try {
+      const response = await fetch('/api/user/profile-picture')
+      const result = await response.json()
+      if (response.ok) {
+        setProfilePicture(result.profilePicture)
+      }
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch profile picture:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserData()
+    fetchBadges()
+    fetchNextLesson()
+    fetchProfilePicture()
+  }, [])
+
+  // Refetch profile picture when component mounts (e.g., when returning from settings)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchProfilePicture()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
+
   useEffect(() => {
     async function fetchUserData() {
       if (user?.id) {
@@ -105,17 +135,6 @@ export default function DashboardPage() {
             setFirstName('Student')
           }
         }
-      }
-
-      // Fetch profile picture
-      try {
-        const response = await fetch('/api/user/profile-picture')
-        const result = await response.json()
-        if (response.ok) {
-          setProfilePicture(result.profilePicture)
-        }
-      } catch (error) {
-        console.error('[Dashboard] Failed to fetch profile picture:', error)
       }
     }
     
@@ -264,7 +283,7 @@ export default function DashboardPage() {
             className="fixed inset-0 bg-black/50"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="fixed right-0 top-0 h-full w-64 bg-[#111317] border-l border-[#3b494b] p-6">
+          <div className="fixed right-0 top-0 h-full w-64 bg-[#111317] border-l border-[#3b494b] p-6 pt-20 overflow-y-auto">
             <div className="flex flex-col items-center gap-4 mb-6">
               <Link
                 href="/dashboard/settings"
