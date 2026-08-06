@@ -363,9 +363,9 @@ function HeroSection() {
       <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-24 md:pt-20 lg:pt-16 pb-12">
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="space-y-6 lg:space-y-8 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2">
-              <Star className="h-4 w-4 text-[#00f0ff]" />
-              <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+            <div className="inline-flex items-center gap-2 border border-primary/60 bg-primary/10 px-3 py-1.5 sm:px-4 sm:py-2">
+              <Star className="h-4 w-4 text-primary" />
+              <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
                 4 WEEK HANDS-ON TRAINING
               </span>
             </div>
@@ -384,11 +384,11 @@ function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/enroll"
-                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-primary bg-primary px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-primary-foreground transition duration-150 hover:translate-y-[-1px] hover:shadow-lg w-full sm:w-auto"
               >
                 Enroll Now — ₦8,000
               </Link>
-              <button className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 w-full sm:w-auto">
+              <button className="flex items-center justify-center gap-2 border border-primary bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-primary transition duration-150 hover:bg-primary/10 w-full sm:w-auto">
                 <Play className="h-4 w-4" />
                 Watch Preview
               </button>
@@ -397,7 +397,7 @@ function HeroSection() {
 
           <div className="relative order-2 md:order-2 mt-8 md:mt-0">
             <N8nWorkflowPanel />
-            <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
+            <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/20 rounded-full blur-2xl" />
             <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
           </div>
         </div>
@@ -444,11 +444,11 @@ function StatsSection() {
 
 function EnrollmentSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
-          <div className="border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-4 sm:mb-6">
+          <div className="border border-border bg-background/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-6">
               Enroll Now
             </h2>
             <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#00f0ff] mb-4 sm:mb-6">
@@ -466,7 +466,7 @@ function EnrollmentSection() {
             
             <Link
               href="/enroll"
-              className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)]"
+              className="flex items-center justify-center gap-2 w-full border border-primary bg-primary px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-primary-foreground transition duration-150 hover:translate-y-[-1px] hover:shadow-lg"
             >
               Enroll Now — ₦8,000
             </Link>
@@ -490,10 +490,10 @@ function EnrollmentSection() {
                 return (
                   <div
                     key={item.title}
-                    className="flex items-start gap-3 sm:gap-4 border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 hover:border-[#00f0ff]/50 transition-all duration-300"
+                    className="flex items-start gap-3 sm:gap-4 border border-border bg-card/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 hover:border-primary/50 transition-all duration-300"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-lg flex-shrink-0">
-                      <Icon className="h-5 w-5 text-[#00f0ff]" />
+                    <div className="flex h-10 w-10 items-center justify-center border border-primary/60 bg-primary/10 rounded-lg flex-shrink-0">
+                      <Icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-[#e2e2e8] text-sm sm:text-base">{item.title}</h4>
@@ -512,12 +512,12 @@ function EnrollmentSection() {
 
 function ScholarshipSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#050505]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-background">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
+        <div className="border border-border bg-card/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8] mb-2">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-2">
                 Need Financial Support?
               </h2>
               <p className="text-sm sm:text-base text-[#b9cacb]">
@@ -539,10 +539,10 @@ function ScholarshipSection() {
 
 function CurriculumSection() {
   return (
-    <section id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             Curriculum
           </h2>
           <p className="text-sm sm:text-base text-[#b9cacb] max-w-2xl mx-auto">
