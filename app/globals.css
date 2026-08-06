@@ -703,6 +703,19 @@
   animation: workflowNodePulse 3.8s ease-in-out infinite;
 }
 
+/* Legacy color mappings for backward compatibility with existing components */
+:root {
+  /* Map existing hex colors to CSS variables for smooth theme transitions */
+  --color-0c0e12: var(--card);
+  --color-111317: var(--background);
+  --color-1f2229: var(--border);
+  --color-1e2024: var(--accent);
+  --color-b9cacb: var(--muted-foreground);
+  --color-e2e2e8: var(--foreground);
+  --color-00f0ff: var(--primary);
+  --color-00363a: var(--primary-foreground);
+}
+
 .workflow-path {
   animation: workflowDash 1.45s linear infinite;
 }
