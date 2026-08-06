@@ -126,14 +126,14 @@ const LEADERBOARD = [
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center bg-background overflow-hidden">
+    <section className="relative min-h-screen flex items-center bg-[var(--background)] overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
 
       <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-24 md:pt-20 lg:pt-16 pb-12">
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="space-y-6 lg:space-y-8 flex flex-col justify-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--foreground)] leading-tight">
               Earn More.
               <span className="text-primary"> Impact More.</span>
             </h1>
@@ -152,7 +152,7 @@ function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/partners/apply"
-                className="flex items-center justify-center gap-2 border border-primary bg-primary px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-foreground transition duration-150 hover:translate-y-[-1px] hover:shadow-primary w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-primary bg-primary px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--foreground)] transition duration-150 hover:translate-y-[-1px] hover:shadow-primary w-full sm:w-auto"
               >
                 Apply as Community Partner
               </Link>
@@ -179,25 +179,25 @@ function HeroSection() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
-                  <div className="border border-border bg-background/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-border bg-[var(--background)]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-1">Available Balance</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-primary">₦24,500</div>
                   </div>
-                  <div className="border border-border bg-background/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-border bg-[var(--background)]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-1">Pending Earnings</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-foreground">₦7,500</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[var(--foreground)]">₦7,500</div>
                   </div>
-                  <div className="border border-border bg-background/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-border bg-[var(--background)]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-1">Total Referrals</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-foreground">127</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[var(--foreground)]">127</div>
                   </div>
-                  <div className="border border-border bg-background/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-border bg-[var(--background)]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-1">Successful Enrollments</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-foreground">89</div>
+                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[var(--foreground)]">89</div>
                   </div>
                 </div>
 
-                <div className="border border-border bg-background/50 rounded-lg p-2 sm:p-3 lg:p-4">
+                <div className="border border-border bg-[var(--background)]/50 rounded-lg p-2 sm:p-3 lg:p-4">
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-2">Monthly Earnings</div>
                   <div className="h-16 sm:h-20 lg:h-24 flex items-end gap-1">
                     {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
@@ -225,7 +225,7 @@ function TrustSection() {
     <section className="py-4 sm:py-6 lg:py-8 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Join our growing community of successful partners</p>
         </div>
         
@@ -241,7 +241,7 @@ function TrustSection() {
                   className="object-cover"
                 />
               </div>
-              <span className="text-xs sm:text-sm text-foreground">{partner.name}</span>
+              <span className="text-xs sm:text-sm text-[var(--foreground)]">{partner.name}</span>
             </div>
           ))}
         </div>
@@ -252,10 +252,10 @@ function TrustSection() {
 
 function PartnerTypesSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-background">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 lg:mb-4">Choose Your Partner Type</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-2 sm:mb-3 lg:mb-4">Choose Your Partner Type</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Select the partnership model that suits you best</p>
         </div>
         
@@ -267,12 +267,12 @@ function PartnerTypesSection() {
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{type.commission}</div>
               </div>
               
-              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-foreground mb-2">{type.title}</h3>
+              <h3 className="text-base sm:text-lg lg:text-xl font-bold text-[var(--foreground)] mb-2">{type.title}</h3>
               <p className="text-sm text-muted-foreground mb-4 sm:mb-6">{type.description}</p>
               
               <ul className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
                 {type.features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-foreground">
+                  <li key={i} className="flex items-center gap-2 text-sm text-[var(--foreground)]">
                     <CheckCircle className="h-4 w-4 text-primary" />
                     {feature}
                   </li>
@@ -281,7 +281,7 @@ function PartnerTypesSection() {
               
               <Link
                 href={type.ctaLink}
-                className="block w-full text-center border border-primary bg-primary px-4 py-3 sm:px-5 sm:py-3 lg:px-6 lg:py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-foreground transition duration-150 hover:translate-y-[-1px] hover:shadow-primary"
+                className="block w-full text-center border border-primary bg-primary px-4 py-3 sm:px-5 sm:py-3 lg:px-6 lg:py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--foreground)] transition duration-150 hover:translate-y-[-1px] hover:shadow-primary"
               >
                 {type.cta}
               </Link>
@@ -298,18 +298,18 @@ function HowItWorksSection() {
     <section className="py-4 sm:py-6 lg:py-8 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Simple steps to start earning</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {HOW_IT_WORKS.map((item, index) => (
-            <div key={index} className="border border-border bg-background/50 rounded-xl p-4 sm:p-5 lg:p-6">
+            <div key={index} className="border border-border bg-[var(--background)]/50 rounded-xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-primary/30 bg-primary/10 rounded-lg font-mono text-base sm:text-lg font-bold text-primary">
                   {item.step}
                 </div>
-                <h3 className="font-semibold text-sm sm:text-base text-foreground">{item.title}</h3>
+                <h3 className="font-semibold text-sm sm:text-base text-[var(--foreground)]">{item.title}</h3>
               </div>
               <p className="text-sm text-muted-foreground">{item.description}</p>
             </div>
@@ -322,10 +322,10 @@ function HowItWorksSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-background">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 lg:mb-4">What Partners Say</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-2 sm:mb-3 lg:mb-4">What Partners Say</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Hear from our successful partners</p>
         </div>
         
@@ -343,7 +343,7 @@ function TestimonialsSection() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm sm:text-base text-foreground">{testimonial.name}</h3>
+                  <h3 className="font-semibold text-sm sm:text-base text-[var(--foreground)]">{testimonial.name}</h3>
                   <p className="text-xs sm:text-sm text-muted-foreground">{testimonial.school}</p>
                   <div className="flex gap-1 mt-1">
                     {[...Array(testimonial.rating)].map((_, i) => (
@@ -366,11 +366,11 @@ function ActivityFeedSection() {
     <section className="py-4 sm:py-6 lg:py-8 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Real-time partner activity</p>
         </div>
         
-        <div className="border border-border bg-background/50 rounded-2xl p-4 sm:p-5 lg:p-6">
+        <div className="border border-border bg-[var(--background)]/50 rounded-2xl p-4 sm:p-5 lg:p-6">
           <div className="space-y-2 sm:space-y-3 lg:space-y-4">
             {ACTIVITY_FEED.map((activity, index) => (
               <div key={index} className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -387,10 +387,10 @@ function ActivityFeedSection() {
 
 function LeaderboardSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-background">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 lg:mb-4">Top Partners</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-2 sm:mb-3 lg:mb-4">Top Partners</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Leaderboard of this month</p>
         </div>
         
@@ -401,7 +401,7 @@ function LeaderboardSection() {
                 <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-primary/30 bg-primary/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-primary">
                   {item.rank}
                 </div>
-                <span className="text-xs sm:text-sm lg:text-base text-foreground">{item.name}</span>
+                <span className="text-xs sm:text-sm lg:text-base text-[var(--foreground)]">{item.name}</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                 <span className="text-xs sm:text-sm lg:text-base text-primary font-semibold">{item.earnings}</span>
@@ -443,7 +443,7 @@ function FAQSection() {
     <section className="py-4 sm:py-6 lg:py-8 bg-card">
       <div className="max-w-3xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Got questions? We've got answers</p>
         </div>
         
@@ -457,7 +457,7 @@ function FAQSection() {
                 className="w-full px-4 sm:px-5 lg:px-6 py-3 sm:py-4 text-left flex items-center justify-between"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <span className="font-medium text-sm sm:text-base text-foreground">{faq.question}</span>
+                <span className="font-medium text-sm sm:text-base text-[var(--foreground)]">{faq.question}</span>
                 <CheckCircle className={`h-5 w-5 text-primary transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
               </button>
               {openIndex === index && (
@@ -475,7 +475,7 @@ function FAQSection() {
 
 function PartnersFooter() {
   return (
-    <footer className="border-t border-border bg-background py-6 sm:py-8 lg:py-12">
+    <footer className="border-t border-border bg-[var(--background)] py-6 sm:py-8 lg:py-12">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
@@ -486,7 +486,7 @@ function PartnersFooter() {
                 width={32}
                 height={32}
               />
-              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-foreground">
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[var(--foreground)]">
                 AutoLearn Spot
               </span>
             </div>
@@ -519,7 +519,7 @@ function PartnersFooter() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Program</h3>
+            <h3 className="font-semibold text-[var(--foreground)] mb-4">Program</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/partners" className="text-sm text-primary hover:text-primary/80 transition-colors">
@@ -540,7 +540,7 @@ function PartnersFooter() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Support</h3>
+            <h3 className="font-semibold text-[var(--foreground)] mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -561,7 +561,7 @@ function PartnersFooter() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Company</h3>
+            <h3 className="font-semibold text-[var(--foreground)] mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -594,7 +594,7 @@ function PartnersFooter() {
 
 export default function PartnersPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[var(--background)]">
       <Navigation />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />

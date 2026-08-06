@@ -169,7 +169,7 @@ function WorkflowNode({
 
   return (
     <div
-      className={`workflow-node absolute z-10 w-[108px] border bg-card p-3 shadow-md sm:w-[132px] ${
+      className={`workflow-node absolute z-10 w-[108px] border bg-[var(--card)] p-3 shadow-md sm:w-[132px] ${
         node.tone === 'active'
           ? 'border-primary shadow-primary'
           : node.tone === 'brand'
@@ -190,7 +190,7 @@ function WorkflowNode({
         </div>
         <span className="workflow-status-dot h-2 w-2 rounded-full bg-primary" />
       </div>
-      <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-foreground sm:text-[11px]">
+      <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--foreground)] sm:text-[11px]">
         {node.label}
       </h3>
       <p className="mt-1 font-mono text-[10px] text-muted-foreground">{node.detail}</p>
@@ -200,7 +200,7 @@ function WorkflowNode({
 
 function N8nWorkflowPanel() {
   return (
-    <div className="relative z-10 w-full border border-border bg-card rounded-2xl overflow-hidden shadow-md p-6">
+    <div className="relative z-10 w-full border border-border bg-[var(--card)] rounded-2xl overflow-hidden shadow-md p-6">
       <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl" />
       <div className="flex h-8 items-center justify-between border-b border-border bg-popover px-4">
         <span className="font-mono text-[10px] text-muted-foreground">live_workflow.n8n</span>
@@ -211,7 +211,7 @@ function N8nWorkflowPanel() {
         </div>
       </div>
 
-      <div className="flex h-10 items-center justify-between border-b border-border bg-card px-4">
+      <div className="flex h-10 items-center justify-between border-b border-border bg-[var(--card)] px-4">
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-primary">n8n canvas</span>
           <span className="hidden h-4 w-px bg-border sm:block" />
@@ -227,7 +227,7 @@ function N8nWorkflowPanel() {
         </div>
       </div>
 
-      <div className="relative min-h-[300px] sm:min-h-[360px] overflow-hidden bg-background">
+      <div className="relative min-h-[300px] sm:min-h-[360px] overflow-hidden bg-[var(--background)]">
         <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(border-color_1px,transparent_1px),linear-gradient(90deg,border-color_1px,transparent_1px)] [background-size:32px_32px]" />
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 620 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
           <path d="M92 185 C170 185 162 112 242 112" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" />
@@ -292,7 +292,7 @@ function N8nWorkflowPanel() {
           <WorkflowNode key={node.label} node={node} />
         ))}
 
-        <div className="absolute bottom-4 left-4 w-[196px] border border-border bg-card/95 p-3 shadow-md">
+        <div className="absolute bottom-4 left-4 w-[196px] border border-border bg-[var(--card)]/95 p-3 shadow-md">
           <div className="mb-3 flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">Execution Log</span>
             <span className="workflow-status-dot h-2 w-2 bg-primary" />
@@ -308,7 +308,7 @@ function N8nWorkflowPanel() {
         </div>
       </div>
 
-      <div className="bg-background p-4 sm:hidden">
+      <div className="bg-[var(--background)] p-4 sm:hidden">
         <div className="relative space-y-4">
           <div className="absolute bottom-16 left-6 top-8 w-px bg-border" />
           {workflowNodes.map((node, index) => {
@@ -320,7 +320,7 @@ function N8nWorkflowPanel() {
                 style={{ animationDelay: node.delay }}
               >
                 <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center border bg-card ${
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center border bg-[var(--card)] ${
                     node.tone === 'brand'
                       ? 'border-primary/70 text-primary'
                       : 'border-primary/70 text-primary'
@@ -329,7 +329,7 @@ function N8nWorkflowPanel() {
                   <Icon className="h-5 w-5" />
                 </div>
                 <div
-                  className={`min-w-0 flex-1 border bg-card p-3 ${
+                  className={`min-w-0 flex-1 border bg-[var(--card)] p-3 ${
                     node.tone === 'active'
                       ? 'border-primary'
                       : node.tone === 'brand'
@@ -338,7 +338,7 @@ function N8nWorkflowPanel() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-foreground">
+                    <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--foreground)]">
                       {node.label}
                     </h3>
                     <span className="workflow-status-dot h-2 w-2 rounded-full bg-primary" />
@@ -356,7 +356,7 @@ function N8nWorkflowPanel() {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center bg-background overflow-hidden">
+    <section className="relative min-h-screen flex items-center bg-[var(--background)] overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
 
@@ -370,7 +370,7 @@ function HeroSection() {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--foreground)] leading-tight">
               BUILD REAL AI
               <span className="text-primary"> AUTOMATIONS.</span>
               <br />
@@ -410,14 +410,14 @@ function HeroSection() {
 
 function InfoCards() {
   return (
-    <section className="py-6 lg:py-8 bg-card">
+    <section className="py-6 lg:py-8 bg-[var(--card)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-4 lg:gap-6">
-          <div className="border border-border bg-card rounded-xl p-4 lg:p-6 text-center">
+          <div className="border border-border bg-[var(--card)] rounded-xl p-4 lg:p-6 text-center">
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-2">COHORT</div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Current Cohort</div>
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[var(--foreground)]">Current Cohort</div>
           </div>
-          <div className="border border-border bg-card rounded-xl p-4 lg:p-6 text-center">
+          <div className="border border-border bg-[var(--card)] rounded-xl p-4 lg:p-6 text-center">
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-2">SEATS LEFT</div>
             <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">Remaining Seats</div>
           </div>
@@ -429,11 +429,11 @@ function InfoCards() {
 
 function StatsSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-background">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {stats.map((stat) => (
-            <div key={stat.label} className="border border-border bg-card rounded-xl p-3 sm:p-4 lg:p-6 text-center">
+            <div key={stat.label} className="border border-border bg-[var(--card)] rounded-xl p-3 sm:p-4 lg:p-6 text-center">
               <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-primary">{stat.value}</div>
               <div className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">{stat.label}</div>
             </div>
@@ -449,8 +449,8 @@ function EnrollmentSection() {
     <section className="py-6 sm:py-8 lg:py-12 bg-surface-alt">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
-          <div className="border border-border bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-6">
+          <div className="border border-border bg-[var(--card)] rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--foreground)] mb-4 sm:mb-6">
               Enroll Now
             </h2>
             <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary mb-4 sm:mb-6">
@@ -461,7 +461,7 @@ function EnrollmentSection() {
               {enrollmentBenefits.map((benefit) => (
                 <div key={benefit} className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                  <span className="text-sm sm:text-base text-foreground">{benefit}</span>
+                  <span className="text-sm sm:text-base text-[var(--foreground)]">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -479,7 +479,7 @@ function EnrollmentSection() {
           </div>
           
           <div>
-            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-4 sm:mb-6 lg:mb-8">What You'll Get</h3>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-[var(--foreground)] mb-4 sm:mb-6 lg:mb-8">What You'll Get</h3>
             <div className="space-y-3 sm:space-y-4">
               {[
                 { icon: Star, title: 'Lifetime Access', description: 'Access all content forever' },
@@ -492,13 +492,13 @@ function EnrollmentSection() {
                 return (
                   <div
                     key={item.title}
-                    className="flex items-start gap-3 sm:gap-4 border border-border bg-card rounded-xl p-4 sm:p-5 hover:border-primary/50 hover:bg-surface-hover transition-all duration-300 shadow-sm hover:shadow-md"
+                    className="flex items-start gap-3 sm:gap-4 border border-border bg-[var(--card)] rounded-xl p-4 sm:p-5 hover:border-primary/50 hover:bg-surface-hover transition-all duration-300 shadow-sm hover:shadow-md"
                   >
                     <div className="flex h-10 w-10 items-center justify-center border border-primary/60 bg-primary/10 rounded-lg flex-shrink-0">
                       <Icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground text-sm sm:text-base">{item.title}</h4>
+                      <h4 className="font-semibold text-[var(--foreground)] text-sm sm:text-base">{item.title}</h4>
                       <p className="text-xs sm:text-sm text-muted-foreground mt-1">{item.description}</p>
                     </div>
                   </div>
@@ -514,12 +514,12 @@ function EnrollmentSection() {
 
 function ScholarshipSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-background">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="border border-border bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
+        <div className="border border-border bg-[var(--card)] rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-2">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[var(--foreground)] mb-2">
                 Need Financial Support?
               </h2>
               <p className="text-sm sm:text-base text-muted-foreground">
@@ -544,7 +544,7 @@ function CurriculumSection() {
     <section id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-surface">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--foreground)] mb-3 sm:mb-4">
             Curriculum
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
@@ -559,7 +559,7 @@ function CurriculumSection() {
               className={`border ${
                 week.active 
                   ? 'border-primary bg-primary/5' 
-                  : 'border-border bg-background/80'
+                  : 'border-border bg-[var(--background)]/80'
               } rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-all duration-300`}
             >
               <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -579,7 +579,7 @@ function CurriculumSection() {
               <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-primary mb-2">
                 {week.phase}
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">{week.title}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-[var(--foreground)] mb-2">{week.title}</h3>
               <p className="text-sm text-muted-foreground mb-3 sm:mb-4">{week.body}</p>
               <ul className="space-y-1 sm:space-y-2">
                 {week.items.map((item) => (
@@ -599,10 +599,10 @@ function CurriculumSection() {
 
 function FeaturesSection() {
   return (
-    <section id="tools" className="py-6 sm:py-8 lg:py-12 bg-background">
+    <section id="tools" className="py-6 sm:py-8 lg:py-12 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--foreground)] mb-3 sm:mb-4">
             What You'll Learn
           </h2>
         </div>
@@ -613,12 +613,12 @@ function FeaturesSection() {
             return (
               <div
                 key={feature.title}
-                className="border border-border bg-card rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
+                className="border border-border bg-[var(--card)] rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
               >
                 <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mb-3 sm:mb-4">
                   <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-[var(--foreground)] mb-2">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">{feature.description}</p>
               </div>
             )
@@ -631,10 +631,10 @@ function FeaturesSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-card">
+    <section className="py-6 sm:py-8 lg:py-12 bg-[var(--card)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--foreground)] mb-3 sm:mb-4">
             What Our Students Say
           </h2>
         </div>
@@ -659,7 +659,7 @@ function TestimonialsSection() {
 
 function SocialProofSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-background">
+    <section className="py-6 sm:py-8 lg:py-12 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <LiveActivityFeed />
@@ -671,7 +671,7 @@ function SocialProofSection() {
 
 function TrustBadgesSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-card">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--card)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 lg:gap-4">
           {trustBadges.map((badge) => {
@@ -682,7 +682,7 @@ function TrustBadgesSection() {
                 className="flex items-center gap-2 border border-border bg-surface-hover rounded-full px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2.5"
               >
                 <Icon className="h-4 w-4 text-primary" />
-                <span className="text-xs sm:text-sm text-foreground">{badge.text}</span>
+                <span className="text-xs sm:text-sm text-[var(--foreground)]">{badge.text}</span>
               </div>
             )
           })}
@@ -694,10 +694,10 @@ function TrustBadgesSection() {
 
 function ContactSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-background">
+    <section className="py-6 sm:py-8 lg:py-12 bg-[var(--background)]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[var(--foreground)] mb-3 sm:mb-4">
             Get In Touch
           </h2>
           <p className="text-sm sm:text-base text-muted-foreground">
@@ -710,34 +710,34 @@ function ContactSection() {
             href={socialLinks.whatsapp.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="border border-border bg-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
+            className="border border-border bg-[var(--card)] rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
           >
             <div className="flex h-12 w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mx-auto mb-4">
               <MessageCircle className="h-6 w-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">WhatsApp</h3>
+            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">WhatsApp</h3>
             <p className="text-sm text-muted-foreground">Chat with us directly</p>
           </a>
           
           <Link
             href="/contact"
-            className="border border-border bg-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
+            className="border border-border bg-[var(--card)] rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
           >
             <div className="flex h-12 w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mx-auto mb-4">
               <Mail className="h-6 w-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Email</h3>
+            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">Email</h3>
             <p className="text-sm text-muted-foreground">Send us a message</p>
           </Link>
           
           <Link
             href="/partners"
-            className="border border-border bg-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
+            className="border border-border bg-[var(--card)] rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
           >
             <div className="flex h-12 w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mx-auto mb-4">
               <Users className="h-6 w-6 text-primary" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">Partners</h3>
+            <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">Partners</h3>
             <p className="text-sm text-muted-foreground">Join our partner program</p>
           </Link>
         </div>
@@ -748,7 +748,7 @@ function ContactSection() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border bg-card py-6 sm:py-8 lg:py-12">
+    <footer className="border-t border-border bg-[var(--card)] py-6 sm:py-8 lg:py-12">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
@@ -759,7 +759,7 @@ function Footer() {
                 width={32}
                 height={32}
               />
-              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-foreground">
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[var(--foreground)]">
                 AutoLearn Spot
               </span>
             </div>
@@ -799,7 +799,7 @@ function Footer() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Navigation</h3>
+            <h3 className="font-semibold text-[var(--foreground)] mb-4">Navigation</h3>
             <ul className="space-y-2">
               {navItems.map((item) => (
                 <li key={item.name}>
@@ -812,7 +812,7 @@ function Footer() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Company</h3>
+            <h3 className="font-semibold text-[var(--foreground)] mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
@@ -850,7 +850,7 @@ function Footer() {
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-[var(--background)]">
       <Navigation />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />
