@@ -36,8 +36,21 @@ export async function GET(
       .update({ download_count: (material.download_count || 0) + 1 })
       .eq('id', resolvedParams.id);
 
-    // Redirect to the file URL
-    return NextResponse.redirect(material.resource_url);
+    // Fetch the file and return with download headers
+    const response = await fetch(material.resource_url);
+    const blob = await response.blob();
+    
+    // Get filename from URL or use default
+    const urlParts = material.resource_url.split('/');
+    const filename = urlParts[urlParts.length - 1] || `marketing-material-${material.id}`;
+
+    return new NextResponse(blob, {
+      headers: {
+        'Content-Type': response.headers.get('Content-Type') || 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Cache-Control': 'no-cache',
+      },
+    });
   } catch (error) {
     console.error('[GET /api/marketing/download/:id] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -716,16 +716,17 @@ export default function PartnerDashboard() {
                           )}
                           <div className="flex gap-2">
                             <button 
-                              onClick={() => openMaterialDetail(item)}
+                              onClick={() => window.open(item.url, '_blank')}
                               className="flex-1 py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors flex items-center justify-center gap-2"
                             >
                               <Eye className="h-4 w-4" />
-                              View Details
+                              Preview
                             </button>
                             <button 
                               onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
-                              className="flex-1 py-2 border border-[#1f2229] bg-[#070B12] text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-[#0c0e12] transition-colors"
+                              className="flex-1 py-2 border border-[#1f2229] bg-[#070B12] text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-[#0c0e12] transition-colors flex items-center justify-center gap-2"
                             >
+                              <Download className="h-4 w-4" />
                               Download
                             </button>
                           </div>
@@ -792,8 +793,15 @@ export default function PartnerDashboard() {
                     
                     <div className="flex gap-3 pt-4 border-t border-[#1f2229]">
                       <button
-                        onClick={() => window.open(`/api/partners/marketing/download/${selectedMaterial.id}`, '_blank')}
+                        onClick={() => window.open(selectedMaterial.url, '_blank')}
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-medium hover:bg-[#00F5FF]/90 transition-colors"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Preview
+                      </button>
+                      <button
+                        onClick={() => window.open(`/api/partners/marketing/download/${selectedMaterial.id}`, '_blank')}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
                       >
                         <Download className="h-4 w-4" />
                         Download

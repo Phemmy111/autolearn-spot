@@ -110,6 +110,7 @@ export async function GET(request: Request) {
       type: item.resource_type,
       category: item.category,
       description: item.description,
+      url: item.resource_url,
       file_url: item.resource_url,
       download_count: item.download_count,
       created_at: item.created_at
