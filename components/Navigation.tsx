@@ -5,6 +5,7 @@ import { Menu, X, User, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth, useUser } from '@clerk/nextjs'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -59,6 +60,7 @@ export default function Navigation() {
         </Link>
 
         <div className="flex items-center gap-6 lg:gap-8">
+          <ThemeToggle />
           {desktopNavItems.map((item) => (
             item.external ? (
               <a
@@ -135,6 +137,7 @@ export default function Navigation() {
         </div>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           {/* Student Login/Dashboard */}
           {isLoaded && (
             isSignedIn ? (
@@ -203,13 +206,16 @@ export default function Navigation() {
                 <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
                   AutoLearn Spot
                 </span>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
-                  aria-label="Close menu"
-                >
-                  <X className="h-6 w-6" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
               </div>
 
               {/* Navigation Links */}
