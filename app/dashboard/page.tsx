@@ -47,82 +47,48 @@ export default function DashboardPage() {
     }
   }
 
-  useEffect(() => {
-    fetchUserData()
-    fetchBadges()
-    fetchNextLesson()
-    fetchProfilePicture()
-  }, [])
+  async function fetchUserData() {
+    if (user?.id) {
+      console.log('[Dashboard] fetchUserData - user:', user)
+      console.log('[Dashboard] fetchUserData - user.id:', user.id)
+      console.log('[Dashboard] fetchUserData - user.firstName:', user.firstName)
+      console.log('[Dashboard] fetchUserData - user.fullName:', user.fullName)
+      console.log('[Dashboard] fetchUserData - user.username:', user.username)
+      console.log('[Dashboard] fetchUserData - user.emailAddresses:', user.emailAddresses)
 
-  // Refetch profile picture when component mounts (e.g., when returning from settings)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchProfilePicture()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [])
-
-  useEffect(() => {
-    async function fetchUserData() {
-      if (user?.id) {
-        console.log('[Dashboard] fetchUserData - user:', user)
-        console.log('[Dashboard] fetchUserData - user.id:', user.id)
-        console.log('[Dashboard] fetchUserData - user.firstName:', user.firstName)
-        console.log('[Dashboard] fetchUserData - user.fullName:', user.fullName)
-        console.log('[Dashboard] fetchUserData - user.username:', user.username)
-        console.log('[Dashboard] fetchUserData - user.emailAddresses:', user.emailAddresses)
-
-        // Try to get user's name from enrollments table
-        try {
-          const response = await fetch(`/api/user/profile`)
-          console.log('[Dashboard] fetchUserData - response.ok:', response.ok)
-          if (response.ok) {
-            const data = await response.json()
-            console.log('[Dashboard] fetchUserData - API data:', data)
-            // Fallback chain: firstName → fullName → username → email prefix → "Student"
-            if (data.firstName) {
-              console.log('[Dashboard] Using firstName from API:', data.firstName)
-              setFirstName(data.firstName)
-            } else if (data.fullName) {
-              console.log('[Dashboard] Using fullName from API:', data.fullName)
-              setFirstName(data.fullName.split(' ')[0]) // Use first name from full name
-            } else if (user?.firstName) {
-              console.log('[Dashboard] Using firstName from Clerk:', user.firstName)
-              setFirstName(user.firstName)
-            } else if (user?.fullName) {
-              console.log('[Dashboard] Using fullName from Clerk:', user.fullName)
-              setFirstName(user.fullName.split(' ')[0])
-            } else if (user?.username) {
-              console.log('[Dashboard] Using username from Clerk:', user.username)
-              setFirstName(user.username)
-            } else if (user?.emailAddresses?.[0]?.emailAddress) {
-              console.log('[Dashboard] Using email from Clerk:', user.emailAddresses[0].emailAddress)
-              setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
-            } else {
-              console.log('[Dashboard] No name found, using "Student"')
-              setFirstName('Student')
-            }
+      // Try to get user's name from enrollments table
+      try {
+        const response = await fetch(`/api/user/profile`)
+        console.log('[Dashboard] fetchUserData - response.ok:', response.ok)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('[Dashboard] fetchUserData - API data:', data)
+          // Fallback chain: firstName → fullName → username → email prefix → "Student"
+          if (data.firstName) {
+            console.log('[Dashboard] Using firstName from API:', data.firstName)
+            setFirstName(data.firstName)
+          } else if (data.fullName) {
+            console.log('[Dashboard] Using fullName from API:', data.fullName)
+            setFirstName(data.fullName.split(' ')[0]) // Use first name from full name
+          } else if (user?.firstName) {
+            console.log('[Dashboard] Using firstName from Clerk:', user.firstName)
+            setFirstName(user.firstName)
+          } else if (user?.fullName) {
+            console.log('[Dashboard] Using fullName from Clerk:', user.fullName)
+            setFirstName(user.fullName.split(' ')[0])
+          } else if (user?.username) {
+            console.log('[Dashboard] Using username from Clerk:', user.username)
+            setFirstName(user.username)
+          } else if (user?.emailAddresses?.[0]?.emailAddress) {
+            console.log('[Dashboard] Using email from Clerk:', user.emailAddresses[0].emailAddress)
+            setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
           } else {
-            console.log('[Dashboard] API response not ok, falling back to Clerk')
-            // Fallback to Clerk data if API fails
-            if (user?.firstName) {
-              setFirstName(user.firstName)
-            } else if (user?.fullName) {
-              setFirstName(user.fullName.split(' ')[0])
-            } else if (user?.username) {
-              setFirstName(user.username)
-            } else if (user?.emailAddresses?.[0]?.emailAddress) {
-              setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
-            } else {
-              setFirstName('Student')
-            }
+            console.log('[Dashboard] No name found, using "Student"')
+            setFirstName('Student')
           }
-        } catch (error) {
-          console.error('[Dashboard] Failed to fetch user profile:', error)
-          // Fallback to Clerk data
+        } else {
+          console.log('[Dashboard] API response not ok, falling back to Clerk')
+          // Fallback to Clerk data if API fails
           if (user?.firstName) {
             setFirstName(user.firstName)
           } else if (user?.fullName) {
@@ -135,47 +101,62 @@ export default function DashboardPage() {
             setFirstName('Student')
           }
         }
-      }
-    }
-    
-    async function fetchBadges() {
-      try {
-        console.log('[Dashboard] Fetching badges for user:', user?.id)
-        const response = await fetch('/api/badges')
-        if (response.ok) {
-          const data = await response.json()
-          console.log('[Dashboard] Badges received:', data.badges)
-          setUserBadges((data.badges || []) as UserBadgeType[])
+      } catch (error) {
+        console.error('[Dashboard] Failed to fetch user profile:', error)
+        // Fallback to Clerk data
+        if (user?.firstName) {
+          setFirstName(user.firstName)
+        } else if (user?.fullName) {
+          setFirstName(user.fullName.split(' ')[0])
+        } else if (user?.username) {
+          setFirstName(user.username)
+        } else if (user?.emailAddresses?.[0]?.emailAddress) {
+          setFirstName(user.emailAddresses[0].emailAddress.split('@')[0])
         } else {
-          console.error('[Dashboard] Failed to fetch badges:', response.status)
+          setFirstName('Student')
         }
-      } catch (error) {
-        console.error('[Dashboard] Failed to fetch badges:', error)
       }
     }
+  }
 
-    async function fetchNextLesson() {
-      try {
-        const response = await fetch('/api/progress')
-        if (response.ok) {
-          const data = await response.json()
-          // Find the first available video that hasn't been completed
-          const availableVideos = videos.filter(isVideoAvailable)
-          const completedVideoIds = data.completedLessons || []
-          const nextVideo = availableVideos.find(v => !completedVideoIds.includes(v.id))
-          setNextLesson(nextVideo || null)
-        }
-      } catch (error) {
-        console.error('[Dashboard] Failed to fetch next lesson:', error)
+  async function fetchBadges() {
+    try {
+      console.log('[Dashboard] Fetching badges for user:', user?.id)
+      const response = await fetch('/api/badges')
+      if (response.ok) {
+        const data = await response.json()
+        console.log('[Dashboard] Badges received:', data.badges)
+        setUserBadges((data.badges || []) as UserBadgeType[])
+      } else {
+        console.error('[Dashboard] Failed to fetch badges:', response.status)
       }
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch badges:', error)
     }
-    
-    if (isSignedIn) {
-      fetchUserData()
-      fetchBadges()
-      fetchNextLesson()
+  }
+
+  async function fetchNextLesson() {
+    try {
+      const response = await fetch('/api/progress')
+      if (response.ok) {
+        const data = await response.json()
+        // Find the first available video that hasn't been completed
+        const availableVideos = videos.filter(isVideoAvailable)
+        const completedVideoIds = data.completedLessons || []
+        const nextVideo = availableVideos.find(v => !completedVideoIds.includes(v.id))
+        setNextLesson(nextVideo || null)
+      }
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch next lesson:', error)
     }
-  }, [isSignedIn, user?.id, user?.firstName, user?.fullName, user?.username, user?.emailAddresses])
+  }
+
+  useEffect(() => {
+    fetchUserData()
+    fetchBadges()
+    fetchNextLesson()
+    fetchProfilePicture()
+  }, [])
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
