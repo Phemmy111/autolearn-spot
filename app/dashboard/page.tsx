@@ -32,6 +32,7 @@ export default function DashboardPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userBadges, setUserBadges] = useState<UserBadgeType[]>([])
   const [nextLesson, setNextLesson] = useState<VideoCourse | null>(null)
+  const [profilePicture, setProfilePicture] = useState<string | null>(null)
   const liveClassTime = getLiveClassTimeShort()
 
   useEffect(() => {
@@ -104,6 +105,17 @@ export default function DashboardPage() {
             setFirstName('Student')
           }
         }
+      }
+
+      // Fetch profile picture
+      try {
+        const response = await fetch('/api/user/profile-picture')
+        const result = await response.json()
+        if (response.ok) {
+          setProfilePicture(result.profilePicture)
+        }
+      } catch (error) {
+        console.error('[Dashboard] Failed to fetch profile picture:', error)
       }
     }
     
@@ -212,7 +224,23 @@ export default function DashboardPage() {
           
           <NotificationBell />
           
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-4">
+            <Link href="/dashboard/settings" className="relative group">
+              {profilePicture ? (
+                <img 
+                  src={profilePicture} 
+                  alt="Profile" 
+                  className="w-10 h-10 rounded-full object-cover border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#1a1d24] border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors flex items-center justify-center">
+                  <span className="text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors text-sm font-bold">
+                    {firstName.charAt(0)}
+                  </span>
+                </div>
+              )}
+            </Link>
+            
             <SignOutButton redirectUrl="/">
               <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
                 Sign Out
@@ -237,6 +265,28 @@ export default function DashboardPage() {
             onClick={() => setMobileMenuOpen(false)}
           />
           <div className="fixed right-0 top-0 h-full w-64 bg-[#111317] border-l border-[#3b494b] p-6">
+            <div className="flex flex-col items-center gap-4 mb-6">
+              <Link
+                href="/dashboard/settings"
+                onClick={() => setMobileMenuOpen(false)}
+                className="relative group"
+              >
+                {profilePicture ? (
+                  <img 
+                    src={profilePicture} 
+                    alt="Profile" 
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-[#1a1d24] border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors flex items-center justify-center">
+                    <span className="text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors text-xl font-bold">
+                      {firstName.charAt(0)}
+                    </span>
+                  </div>
+                )}
+              </Link>
+              <p className="text-sm font-medium text-white">{firstName}</p>
+            </div>
             <div className="flex flex-col gap-4">
               <Link
                 href="/dashboard"
