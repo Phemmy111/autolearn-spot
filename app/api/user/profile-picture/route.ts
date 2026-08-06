@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     const { error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .update({ profile_picture: dataUrl })
-      .eq('user_id', userId)
+      .eq('clerk_user_id', userId)
 
     console.log('[Profile Picture POST] enrollmentError:', enrollmentError)
 
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
     const { data: enrollment, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .select('profile_picture')
-      .eq('user_id', userId)
+      .eq('clerk_user_id', userId)
       .single()
 
     console.log('[Profile Picture GET] enrollmentError:', enrollmentError)
