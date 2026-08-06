@@ -200,9 +200,9 @@ function WorkflowNode({
 
 function N8nWorkflowPanel() {
   return (
-    <div className="relative z-10 w-full border border-[var(--border)] bg-card rounded-2xl overflow-hidden shadow-md p-6">
+    <div className="relative z-10 w-full border border-border bg-card rounded-2xl overflow-hidden shadow-md p-6">
       <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl" />
-      <div className="flex h-8 items-center justify-between border-b border-[var(--border)] bg-popover px-4">
+      <div className="flex h-8 items-center justify-between border-b border-border bg-popover px-4">
         <span className="font-mono text-[10px] text-muted-foreground">live_workflow.n8n</span>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-muted" />
@@ -211,14 +211,14 @@ function N8nWorkflowPanel() {
         </div>
       </div>
 
-      <div className="flex h-10 items-center justify-between border-b border-[var(--border)] bg-card px-4">
+      <div className="flex h-10 items-center justify-between border-b border-border bg-card px-4">
         <div className="flex items-center gap-3">
           <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-primary">n8n canvas</span>
-          <span className="hidden h-4 w-px bg-[var(--border)] sm:block" />
+          <span className="hidden h-4 w-px bg-border sm:block" />
           <span className="hidden font-mono text-[10px] text-muted-foreground sm:block">real training workflow / active</span>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex h-6 w-6 items-center justify-center border border-[var(--border)] text-primary">
+          <button className="flex h-6 w-6 items-center justify-center border border-border text-primary">
             <Plus className="h-3.5 w-3.5" />
           </button>
           <span className="workflow-running border border-primary/70 bg-primary/10 px-2 py-1 font-mono text-[10px] text-primary">
@@ -292,7 +292,7 @@ function N8nWorkflowPanel() {
           <WorkflowNode key={node.label} node={node} />
         ))}
 
-        <div className="absolute bottom-4 left-4 w-[196px] border border-[var(--border)] bg-card/95 p-3 shadow-md">
+        <div className="absolute bottom-4 left-4 w-[196px] border border-border bg-card/95 p-3 shadow-md">
           <div className="mb-3 flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">Execution Log</span>
             <span className="workflow-status-dot h-2 w-2 bg-primary" />
@@ -413,11 +413,11 @@ function InfoCards() {
     <section className="py-6 lg:py-8 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-4 lg:gap-6">
-          <div className="border border-[var(--border)] bg-card rounded-xl p-4 lg:p-6 text-center">
+          <div className="border border-border bg-card rounded-xl p-4 lg:p-6 text-center">
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-2">COHORT</div>
             <div className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Current Cohort</div>
           </div>
-          <div className="border border-[var(--border)] bg-card rounded-xl p-4 lg:p-6 text-center">
+          <div className="border border-border bg-card rounded-xl p-4 lg:p-6 text-center">
             <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-2">SEATS LEFT</div>
             <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">Remaining Seats</div>
           </div>
@@ -433,7 +433,7 @@ function StatsSection() {
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {stats.map((stat) => (
-            <div key={stat.label} className="border border-[var(--border)] bg-card rounded-xl p-3 sm:p-4 lg:p-6 text-center">
+            <div key={stat.label} className="border border-border bg-card rounded-xl p-3 sm:p-4 lg:p-6 text-center">
               <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-primary">{stat.value}</div>
               <div className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">{stat.label}</div>
             </div>
@@ -449,7 +449,7 @@ function EnrollmentSection() {
     <section className="py-6 sm:py-8 lg:py-12 bg-surface-alt">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
-          <div className="border border-[var(--border)] bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div className="border border-border bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-6">
               Enroll Now
             </h2>
@@ -492,7 +492,7 @@ function EnrollmentSection() {
                 return (
                   <div
                     key={item.title}
-                    className="flex items-start gap-3 sm:gap-4 border border-[var(--border)] bg-card rounded-xl p-4 sm:p-5 hover:border-primary/50 hover:bg-surface-hover transition-all duration-300 shadow-sm hover:shadow-md"
+                    className="flex items-start gap-3 sm:gap-4 border border-border bg-card rounded-xl p-4 sm:p-5 hover:border-primary/50 hover:bg-surface-hover transition-all duration-300 shadow-sm hover:shadow-md"
                   >
                     <div className="flex h-10 w-10 items-center justify-center border border-primary/60 bg-primary/10 rounded-lg flex-shrink-0">
                       <Icon className="h-5 w-5 text-primary" />
@@ -516,7 +516,7 @@ function ScholarshipSection() {
   return (
     <section className="py-4 sm:py-6 lg:py-8 bg-background">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="border border-[var(--border)] bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
+        <div className="border border-border bg-card rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 shadow-md hover:shadow-lg transition-shadow duration-300">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-2">
