@@ -100,7 +100,7 @@ export default function HistoryPage() {
   if (error) {
     return (
       <div className="py-20 flex justify-center">
-        <div className="flex max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-[#1f2229] bg-[#0c0e12] p-8 text-center shadow-xl">
+        <div className="flex max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-border bg-card p-8 text-center shadow-xl">
           <AlertCircle className="h-12 w-12 text-red-500" />
           <h2 className="font-heading text-xl font-bold text-white">Oops</h2>
           <p className="font-mono text-sm text-[#b9cacb]">{error}</p>
@@ -112,7 +112,7 @@ export default function HistoryPage() {
   if (history.length === 0) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <div className="flex flex-col items-center justify-center text-center p-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl shadow-xl">
+        <div className="flex flex-col items-center justify-center text-center p-12 border border-border bg-card rounded-xl shadow-xl">
           <History className="h-16 w-16 text-[#3b494b] mb-4" />
           <h2 className="font-heading text-2xl font-bold text-white mb-2">No History Yet</h2>
           <p className="font-mono text-sm text-[#b9cacb]">You haven't completed any quizzes or assignments yet.</p>
@@ -183,7 +183,7 @@ export default function HistoryPage() {
         <p className="font-mono text-sm text-[#b9cacb]">Review your past quiz and assignment submissions.</p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-[#1f2229] bg-[#0c0e12] shadow-2xl">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm font-mono text-[#b9cacb]">
             <thead className="bg-[#111317] text-xs uppercase text-[#5d5f63]">
@@ -198,7 +198,7 @@ export default function HistoryPage() {
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {history.map((entry, idx) => (
-                <tr key={entry.id} className={`hover:bg-[#1a1d24] transition-colors ${idx % 2 === 0 ? 'bg-[#0c0e12]' : 'bg-[#111317]'}`}>
+                <tr key={entry.id} className={`hover:bg-[#1a1d24] transition-colors ${idx % 2 === 0 ? 'bg-card' : 'bg-[#111317]'}`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       {getEntryIcon(entry)}

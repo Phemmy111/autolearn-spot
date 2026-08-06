@@ -52,50 +52,50 @@ export default function StudentPartnerPage() {
 
   if (!isLoaded || status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#111317]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (status === 'not_partner') {
     return (
-      <div className="min-h-screen bg-[#111317] py-12 px-4">
+      <div className="min-h-screen bg-background py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f0ff]/10 blur-3xl rounded-full" />
+          <div className="bg-card border border-border rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full" />
             
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-purple-500/20 flex items-center justify-center text-[#00f0ff] mx-auto mb-8 relative z-10 border border-[#00f0ff]/30">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-purple-500/20 flex items-center justify-center text-primary mx-auto mb-8 relative z-10 border border-[#00f0ff]/30">
               <Users className="h-10 w-10" />
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-4 relative z-10">Complete Your Enrollment</h1>
-            <p className="text-[#b9cacb] mb-8 max-w-lg mx-auto relative z-10 text-lg">
+            <p className="text-muted-foreground mb-8 max-w-lg mx-auto relative z-10 text-lg">
               The Student Partner program is automatically activated when you complete your course enrollment. Once enrolled, you'll earn ₦1,500 for every successful referral.
             </p>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8 relative z-10">
-              <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
-                <DollarSign className="h-8 w-8 text-[#00f0ff] mb-3" />
+              <div className="bg-background border border-border rounded-xl p-6">
+                <DollarSign className="h-8 w-8 text-primary mb-3" />
                 <h3 className="font-bold mb-1">₦1,500</h3>
-                <p className="text-sm text-[#b9cacb]">Per successful referral</p>
+                <p className="text-sm text-muted-foreground">Per successful referral</p>
               </div>
-              <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
+              <div className="bg-background border border-border rounded-xl p-6">
                 <Clock className="h-8 w-8 text-purple-400 mb-3" />
                 <h3 className="font-bold mb-1">7 Days</h3>
-                <p className="text-sm text-[#b9cacb]">Commission holding period</p>
+                <p className="text-sm text-muted-foreground">Commission holding period</p>
               </div>
-              <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6">
+              <div className="bg-background border border-border rounded-xl p-6">
                 <TrendingUp className="h-8 w-8 text-green-400 mb-3" />
                 <h3 className="font-bold mb-1">Unlimited</h3>
-                <p className="text-sm text-[#b9cacb]">Earning potential</p>
+                <p className="text-sm text-muted-foreground">Earning potential</p>
               </div>
             </div>
             
             <Link 
               href="/enroll"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#00f0ff] text-black font-bold rounded-xl hover:bg-white transition-colors relative z-10"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-black font-bold rounded-xl hover:bg-white transition-colors relative z-10"
             >
               Complete Enrollment
               <ArrowRight className="h-4 w-4" />
@@ -107,17 +107,17 @@ export default function StudentPartnerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#111317] py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Student Partner Dashboard</h1>
-            <p className="text-[#b9cacb]">Track your referrals and earnings</p>
+            <p className="text-muted-foreground">Track your referrals and earnings</p>
           </div>
           <Link 
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-[#1f2229] bg-[#0c0e12] text-[#b9cacb] rounded-lg hover:border-[#00f0ff] hover:text-[#00f0ff] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card text-muted-foreground rounded-lg hover:border-[#00f0ff] hover:text-primary transition-colors"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
             Back to Dashboard
@@ -129,10 +129,10 @@ export default function StudentPartnerPage() {
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <Share2 className="h-6 w-6 text-[#00f0ff]" />
+                <Share2 className="h-6 w-6 text-primary" />
                 <h2 className="text-xl font-bold">Your Referral Link</h2>
               </div>
-              <p className="text-[#b9cacb] text-sm max-w-xl">
+              <p className="text-muted-foreground text-sm max-w-xl">
                 Share this unique link with your network. When they enroll through it, you earn ₦1,500 commission after their payment is verified.
               </p>
             </div>
@@ -142,7 +142,7 @@ export default function StudentPartnerPage() {
               </div>
               <button 
                 onClick={handleCopyLink}
-                className="bg-[#00f0ff] text-black px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2"
+                className="bg-primary text-black px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2"
               >
                 {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copied ? "Copied" : "Copy"}
@@ -152,19 +152,19 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Referral Code Card */}
-        <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+        <div className="bg-card border border-border rounded-2xl p-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <LinkIcon className="h-5 w-5 text-purple-400" />
                 <h2 className="text-lg font-bold">Your Referral Code</h2>
               </div>
-              <p className="text-[#b9cacb] text-sm">
+              <p className="text-muted-foreground text-sm">
                 Share this 8-character code. Users can also enter it manually during enrollment.
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="bg-[#111317] border border-[#1f2229] rounded-lg px-6 py-3 font-mono text-2xl font-bold text-[#00f0ff] tracking-wider">
+              <div className="bg-background border border-border rounded-lg px-6 py-3 font-mono text-2xl font-bold text-primary tracking-wider">
                 {data?.referralCode}
               </div>
               <button 
@@ -180,68 +180,68 @@ export default function StudentPartnerPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+          <div className="bg-card border border-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <MousePointerClick className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1">Total Clicks</p>
+            <p className="text-sm text-muted-foreground mb-1">Total Clicks</p>
             <h3 className="text-3xl font-bold">{data?.stats?.totalClicks || 0}</h3>
           </div>
           
-          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+          <div className="bg-card border border-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
                 <Users className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1">Registrations</p>
+            <p className="text-sm text-muted-foreground mb-1">Registrations</p>
             <h3 className="text-3xl font-bold">{data?.stats?.totalRegistrations || 0}</h3>
           </div>
 
-          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+          <div className="bg-card border border-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
                 <Clock className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1">Pending Earnings</p>
+            <p className="text-sm text-muted-foreground mb-1">Pending Earnings</p>
             <h3 className="text-3xl font-bold text-yellow-400">₦{(data?.stats?.pendingEarnings || 0).toLocaleString()}</h3>
           </div>
 
           <div className="bg-gradient-to-br from-[#00f0ff]/10 to-purple-500/10 border border-[#00f0ff]/30 rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#00f0ff]/5 blur-3xl rounded-full" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-12 h-12 rounded-full bg-[#00f0ff]/10 flex items-center justify-center text-[#00f0ff]">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                 <Wallet className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1 relative z-10">Available Balance</p>
-            <h3 className="text-3xl font-bold text-[#00f0ff] relative z-10">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</h3>
+            <p className="text-sm text-muted-foreground mb-1 relative z-10">Available Balance</p>
+            <h3 className="text-3xl font-bold text-primary relative z-10">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</h3>
           </div>
         </div>
 
         {/* Recent Referrals */}
-        <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+        <div className="bg-card border border-border rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Recent Referrals</h2>
           
           {data?.recentReferrals && data.recentReferrals.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-[#1f2229]">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Email</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Status</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Commission</th>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Email</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Date</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Status</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-muted-foreground">Commission</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.recentReferrals.map((referral: any, index: number) => (
-                    <tr key={index} className="border-b border-[#1f2229] last:border-0">
+                    <tr key={index} className="border-b border-border last:border-0">
                       <td className="py-4 px-4 text-sm">{referral.email}</td>
-                      <td className="py-4 px-4 text-sm text-[#b9cacb]">
+                      <td className="py-4 px-4 text-sm text-muted-foreground">
                         {new Date(referral.date).toLocaleDateString()}
                       </td>
                       <td className="py-4 px-4">
@@ -264,7 +264,7 @@ export default function StudentPartnerPage() {
               </table>
             </div>
           ) : (
-            <div className="text-center py-12 text-[#b9cacb]">
+            <div className="text-center py-12 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No referrals yet. Start sharing your link!</p>
             </div>
@@ -272,26 +272,26 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Commission History */}
-        <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+        <div className="bg-card border border-border rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Commission History</h2>
           
           {data?.commissions && data.commissions.length > 0 ? (
             <div className="space-y-4">
               {data.commissions.map((commission: any, index: number) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-[#111317] border border-[#1f2229] rounded-xl">
+                <div key={index} className="flex items-center justify-between p-4 bg-background border border-border rounded-xl">
                   <div>
                     <p className="font-semibold">{commission.refereeEmail}</p>
-                    <p className="text-sm text-[#b9cacb]">{new Date(commission.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm text-muted-foreground">{new Date(commission.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-[#00f0ff]">₦{commission.amount.toLocaleString()}</p>
-                    <p className="text-xs text-[#b9cacb]">{commission.status}</p>
+                    <p className="font-bold text-primary">₦{commission.amount.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">{commission.status}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-[#b9cacb]">
+            <div className="text-center py-12 text-muted-foreground">
               <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No commissions earned yet. Refer your first student!</p>
             </div>
@@ -299,28 +299,28 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Marketing Kits */}
-        <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+        <div className="bg-card border border-border rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Marketing Kits</h2>
           
           {data?.marketingResources && data.marketingResources.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {data.marketingResources.map((resource: any, index: number) => (
-                <div key={index} className="bg-[#111317] border border-[#1f2229] rounded-xl p-4 hover:border-[#00f0ff]/50 transition-colors">
+                <div key={index} className="bg-background border border-border rounded-xl p-4 hover:border-[#00f0ff]/50 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm mb-1">{resource.name}</h3>
-                      <p className="text-xs text-[#b9cacb] mb-2">{resource.category}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{resource.category}</p>
                     </div>
-                    <FileText className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
+                    <FileText className="h-5 w-5 text-primary flex-shrink-0" />
                   </div>
                   {resource.description && (
-                    <p className="text-xs text-[#b9cacb] mb-3 line-clamp-2">{resource.description}</p>
+                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{resource.description}</p>
                   )}
                   <a
                     href={resource.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#00f0ff] hover:text-white transition-colors"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:text-white transition-colors"
                   >
                     Download
                     <ArrowRight className="h-3 w-3" />
@@ -329,7 +329,7 @@ export default function StudentPartnerPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-[#b9cacb]">
+            <div className="text-center py-12 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No marketing kits available yet. Check back soon!</p>
             </div>

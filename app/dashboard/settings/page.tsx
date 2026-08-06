@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-[#111317] flex items-center justify-center text-[#e2e8e2]">
+      <div className="min-h-screen bg-background flex items-center justify-center text-foreground">
         <Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" />
       </div>
     )
@@ -49,16 +49,16 @@ export default function SettingsPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-[#111317] flex items-center justify-center text-[#e2e8e2]">
+      <div className="min-h-screen bg-background flex items-center justify-center text-foreground">
         <p className="text-[#b9cacb]">Please sign in to access settings</p>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e8e2]">
+    <main className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="border-b border-[#3b494b] bg-[#111317]/95 backdrop-blur">
+      <div className="border-b border-border bg-background/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
@@ -80,7 +80,7 @@ export default function SettingsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-[#1a1d24] border border-[#3b494b] rounded-2xl p-6 mb-6">
+        <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#00f0ff] mb-6">
             Profile
           </h2>
@@ -104,23 +104,23 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-[#1a1d24] border border-[#3b494b] rounded-2xl p-6">
+        <div className="bg-surface border border-border rounded-2xl p-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#00f0ff] mb-6">
             Account Information
           </h2>
           
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-3 border-b border-[#3b494b]">
+            <div className="flex justify-between items-center py-3 border-b border-border">
               <span className="text-[#b9cacb]">Email</span>
-              <span className="text-[#e2e8e2]">{user?.emailAddresses?.[0]?.emailAddress || ''}</span>
+              <span className="text-foreground">{user?.emailAddresses?.[0]?.emailAddress || ''}</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-[#3b494b]">
+            <div className="flex justify-between items-center py-3 border-b border-border">
               <span className="text-[#b9cacb]">Name</span>
-              <span className="text-[#e2e8e2]">{user?.firstName || 'Student'} {user?.lastName || ''}</span>
+              <span className="text-foreground">{user?.firstName || 'Student'} {user?.lastName || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3">
               <span className="text-[#b9cacb]">Username</span>
-              <span className="text-[#e2e8e2]">{user?.username || 'Not set'}</span>
+              <span className="text-foreground">{user?.username || 'Not set'}</span>
             </div>
           </div>
         </div>

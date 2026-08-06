@@ -182,16 +182,16 @@ export default function DashboardPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#111317] text-[#e2e8e2]">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
         <h2 className="mb-6 text-2xl font-bold">Please sign in to access the curriculum</h2>
         <Link
           href="/sign-in"
-          className="font-mono text-sm font-bold uppercase text-[#00f0ff] border border-[#00f0ff] px-6 py-3 hover:bg-[#00f0ff] hover:text-black transition-colors"
+          className="font-mono text-sm font-bold uppercase text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-black transition-colors"
         >
           Login
         </Link>
-        <p className="mt-4 text-sm text-[#b9cacb]">Don't have an account?{' '}
-          <Link href="/sign-up" className="text-[#00f0ff] hover:underline ml-1">Sign Up</Link>
+        <p className="mt-4 text-sm text-muted-foreground">Don't have an account?{' '}
+          <Link href="/sign-up" className="text-primary hover:underline ml-1">Sign Up</Link>
         </p>
       </div>
     );
@@ -199,42 +199,42 @@ export default function DashboardPage() {
 
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e8e2]">
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
+    <main className="min-h-screen bg-background text-foreground">
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6">
         <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/">
-          <span className="text-[#00f0ff]">//</span>
+          <span className="text-primary">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </Link>
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden items-center gap-6 md:flex">
-            <Link href="/dashboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/live-class" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/live-class" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Live Class
             </Link>
-            <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Quiz
             </Link>
-            <Link href="/dashboard/assignments" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard/assignments" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Assignments
             </Link>
-            <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Leaderboard
             </Link>
-            <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard/history" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               History
             </Link>
-            <Link href="/dashboard/analytics" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard/analytics" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Analytics
             </Link>
-            <Link href="/dashboard/refer-and-earn" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard/refer-and-earn" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Refer & Earn
             </Link>
-            <Link href="/dashboard/settings" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard/settings" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Settings
             </Link>
-            <Link href="/admin" className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/admin" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
               Admin
             </Link>
           </div>
@@ -247,11 +247,11 @@ export default function DashboardPage() {
                 <img 
                   src={profilePicture} 
                   alt="Profile" 
-                  className="w-10 h-10 rounded-full object-cover border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-border group-hover:border-primary transition-colors"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-[#1a1d24] border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors flex items-center justify-center">
-                  <span className="text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors text-sm font-bold">
+                <div className="w-10 h-10 rounded-full bg-surface border-2 border-border group-hover:border-primary transition-colors flex items-center justify-center">
+                  <span className="text-muted-foreground group-hover:text-primary transition-colors text-sm font-bold">
                     {firstName.charAt(0)}
                   </span>
                 </div>
@@ -259,7 +259,7 @@ export default function DashboardPage() {
             </Link>
             
             <SignOutButton redirectUrl="/">
-              <button className="font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-1 bg-[#1a1d24] cursor-pointer">
+              <button className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors border border-border px-3 py-1 bg-surface cursor-pointer">
                 Sign Out
               </button>
             </SignOutButton>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-[#b9cacb] hover:text-white"
+            className="md:hidden p-2 text-muted-foreground hover:text-white"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -281,7 +281,7 @@ export default function DashboardPage() {
             className="fixed inset-0 bg-black/50"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="fixed right-0 top-0 h-full w-64 bg-[#111317] border-l border-[#3b494b] p-6 pt-20 overflow-y-auto">
+          <div className="fixed right-0 top-0 h-full w-64 bg-background border-l border-border p-6 pt-20 overflow-y-auto">
             <div className="flex flex-col items-center gap-4 mb-6">
               <Link
                 href="/dashboard/settings"
@@ -292,11 +292,11 @@ export default function DashboardPage() {
                   <img 
                     src={profilePicture} 
                     alt="Profile" 
-                    className="w-16 h-16 rounded-full object-cover border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-border group-hover:border-primary transition-colors"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-[#1a1d24] border-2 border-[#3b494b] group-hover:border-[#00f0ff] transition-colors flex items-center justify-center">
-                    <span className="text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors text-xl font-bold">
+                  <div className="w-16 h-16 rounded-full bg-surface border-2 border-border group-hover:border-primary transition-colors flex items-center justify-center">
+                    <span className="text-muted-foreground group-hover:text-primary transition-colors text-xl font-bold">
                       {firstName.charAt(0)}
                     </span>
                   </div>
@@ -308,78 +308,78 @@ export default function DashboardPage() {
               <Link
                 href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Home
               </Link>
               <Link
                 href="/live-class"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Live Class
               </Link>
               <Link
                 href="/dashboard/quiz"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Quiz
               </Link>
               <Link
                 href="/dashboard/assignments"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Assignments
               </Link>
               <Link
                 href="/dashboard/leaderboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Leaderboard
               </Link>
               <Link
                 href="/dashboard/history"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 History
               </Link>
               <Link
                 href="/dashboard/analytics"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Analytics
               </Link>
               <Link
                 href="/dashboard/refer-and-earn"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Refer & Earn
               </Link>
               <Link
                 href="/dashboard/settings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Settings
               </Link>
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[#b9cacb] transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
               >
                 Admin
               </Link>
-              <div className="border-t border-[#1f2229] pt-4">
+              <div className="border-t border-border pt-4">
                 <SignOutButton redirectUrl="/">
                   <button 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full font-mono text-xs uppercase text-[#b9cacb] hover:text-[#00f0ff] transition-colors border border-[#3b494b] px-3 py-2 bg-[#1a1d24] cursor-pointer"
+                    className="w-full font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors border border-border px-3 py-2 bg-surface cursor-pointer"
                   >
                     Sign Out
                   </button>
@@ -390,15 +390,15 @@ export default function DashboardPage() {
         </div>
       )}
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-        <div className="mb-8 border-l-4 border-[#00f0ff] bg-[#00f0ff]/10 p-4">
-          <p className="font-mono text-sm text-[#e2e8e2] leading-relaxed">
-            <strong className="text-[#00f0ff]">Instructor Announcement:</strong> Welcome to the July 13th Cohort, {firstName}! Our first live session is this Saturday at {liveClassTime}.
+        <div className="mb-8 border-l-4 border-primary bg-primary/10 p-4">
+          <p className="font-mono text-sm text-foreground leading-relaxed">
+            <strong className="text-primary">Instructor Announcement:</strong> Welcome to the July 13th Cohort, {firstName}! Our first live session is this Saturday at {liveClassTime}.
           </p>
         </div>
 
         {/* Badges Section */}
         {userBadges.length > 0 && (
-          <div className="mb-8 p-4 border border-[#1f2229] bg-[#0c0e12] rounded-lg">
+          <div className="mb-8 p-4 border border-border bg-card rounded-lg">
             <h3 className="font-heading text-lg font-semibold text-white mb-3">Your Achievements</h3>
             <BadgeDisplay userBadges={userBadges} maxDisplay={5} size="md" />
           </div>
@@ -406,17 +406,17 @@ export default function DashboardPage() {
 
         {/* Next Lesson / Continue Learning */}
         {nextLesson && (
-          <div className="mb-8 p-4 border border-[#00f0ff]/30 bg-[#00f0ff]/5 rounded-lg">
+          <div className="mb-8 p-4 border border-primary/30 bg-primary/5 rounded-lg">
             <div className="flex items-start gap-4">
-              <PlayCircle className="h-8 w-8 text-[#00f0ff] flex-shrink-0 mt-1" />
+              <PlayCircle className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
               <div className="flex-1">
                 <h3 className="font-heading text-lg font-semibold text-white mb-2">Continue Learning</h3>
-                <p className="font-mono text-sm text-[#b9cacb] mb-3">
+                <p className="font-mono text-sm text-muted-foreground mb-3">
                   Next Lesson: <span className="text-white font-semibold">{nextLesson.title}</span>
                 </p>
                 <Link
                   href={`/dashboard/video/${nextLesson.id}`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#00f0ff] text-black font-mono text-xs font-bold uppercase rounded hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-black font-mono text-xs font-bold uppercase rounded hover:bg-white transition-colors"
                 >
                   <PlayCircle className="h-4 w-4" />
                   Watch Now
@@ -431,8 +431,8 @@ export default function DashboardPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="mb-12">
-              <h1 className="font-heading text-3xl font-bold uppercase text-[#e2e8e2]">Your Curriculum</h1>
-              <p className="mt-3 font-mono text-sm text-[#b9cacb]">
+              <h1 className="font-heading text-3xl font-bold uppercase text-foreground">Your Curriculum</h1>
+              <p className="mt-3 font-mono text-sm text-muted-foreground">
                 Videos are released every Monday, Wednesday, and Friday. Complete each session to stay on track.
               </p>
             </div>
@@ -440,7 +440,7 @@ export default function DashboardPage() {
             <div className="space-y-12">
               {weeks.map((week) => (
                 <section key={week}>
-                  <h2 className="mb-6 border-b border-[#1f2229] pb-2 font-mono text-lg font-semibold uppercase tracking-[0.1em] text-[#00f0ff]">
+                  <h2 className="mb-6 border-b border-border pb-2 font-mono text-lg font-semibold uppercase tracking-[0.1em] text-primary">
                     Week {week}
                   </h2>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -453,15 +453,15 @@ export default function DashboardPage() {
                             key={video.id}
                             className={`group relative flex flex-col overflow-hidden border ${
                               available
-                                ? 'border-[#3b494b] bg-[#1a1d24] hover:border-[#00f0ff]'
-                                : 'border-[#1f2229] bg-[#111317] opacity-60'
+                                ? 'border-border bg-surface hover:border-primary'
+                                : 'border-border bg-background opacity-60'
                             } transition-colors`}
                           >
                             {/* Completed badge */}
                             {available && <CompletedBadge videoId={video.id} />}
                             <div className="aspect-video w-full bg-[#0a0c10] p-4 flex items-center justify-center relative">
                               {available ? (
-                                <PlayCircle className="h-12 w-12 text-[#00f0ff] opacity-80 group-hover:opacity-100 transition-opacity" />
+                                <PlayCircle className="h-12 w-12 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />
                               ) : (
                                 <Lock className="h-10 w-10 text-[#5d5f63]" />
                               )}
@@ -470,7 +470,7 @@ export default function DashboardPage() {
                               </div>
                             </div>
                             <div className="flex flex-1 flex-col p-4">
-                              <h3 className={`font-semibold ${available ? 'text-white' : 'text-[#b9cacb]'}`}>
+                              <h3 className={`font-semibold ${available ? 'text-white' : 'text-muted-foreground'}`}>
                                 {video.title}
                               </h3>
                               <p className="mt-2 text-sm text-[#5d5f63] line-clamp-2 mb-4">
@@ -480,14 +480,14 @@ export default function DashboardPage() {
                                 <div className="mt-auto flex items-center justify-between">
                                   <Link
                                     href={`/dashboard/video/${video.id}`}
-                                    className="inline-flex items-center justify-center border border-[#00f0ff] bg-[#00f0ff]/10 px-4 py-2 font-mono text-xs font-bold uppercase text-[#00f0ff] transition-colors hover:bg-[#00f0ff] hover:text-black"
+                                    className="inline-flex items-center justify-center border border-primary bg-primary/10 px-4 py-2 font-mono text-xs font-bold uppercase text-primary transition-colors hover:bg-primary hover:text-black"
                                   >
                                     Watch Session
                                   </Link>
                                   <MarkCompleteButton videoId={video.id} />
                                 </div>
                               ) : (
-                                <div className="mt-auto flex items-center gap-2 border border-[#1f2229] bg-[#111317] px-4 py-2 font-mono text-[10px] uppercase text-[#5d5f63]">
+                                <div className="mt-auto flex items-center gap-2 border border-border bg-background px-4 py-2 font-mono text-[10px] uppercase text-[#5d5f63]">
                                   <Calendar className="h-3 w-3" /> Unlocks {formatAvailableDate(video.availableAt)}
                                 </div>
                               )}
