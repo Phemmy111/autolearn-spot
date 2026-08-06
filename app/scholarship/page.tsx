@@ -16,7 +16,7 @@ export default function ScholarshipLandingPage() {
   const formattedCommitmentFee = `₦${commitmentFee.toLocaleString()}`;
 
   return (
-    <main className="min-h-screen bg-background text-foreground pb-24">
+    <main className="min-h-screen bg-[var(--background)] text-foreground pb-24">
       <Navigation />
       <div className="pt-24">
         {/* Hero Section */}

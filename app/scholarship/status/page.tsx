@@ -91,7 +91,7 @@ export default function ScholarshipStatusPage() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex flex-col">
+    <main className="min-h-screen bg-[var(--background)] text-foreground flex flex-col">
       <Navigation />
       <div className="pt-24 flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">

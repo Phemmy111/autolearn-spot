@@ -182,7 +182,7 @@ export default function DashboardPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background text-foreground">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--background)] text-[var(--foreground)]">
         <h2 className="mb-6 text-2xl font-bold">Please sign in to access the curriculum</h2>
         <Link
           href="/sign-in"
@@ -199,8 +199,8 @@ export default function DashboardPage() {
 
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-[var(--background)]/95 px-4 backdrop-blur sm:px-6">
         <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/">
           <span className="text-primary">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
@@ -281,7 +281,7 @@ export default function DashboardPage() {
             className="fixed inset-0 bg-black/50"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="fixed right-0 top-0 h-full w-64 bg-background border-l border-border p-6 pt-20 overflow-y-auto">
+          <div className="fixed right-0 top-0 h-full w-64 bg-[var(--background)] border-l border-border p-6 pt-20 overflow-y-auto">
             <div className="flex flex-col items-center gap-4 mb-6">
               <Link
                 href="/dashboard/settings"
@@ -391,7 +391,7 @@ export default function DashboardPage() {
       )}
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="mb-8 border-l-4 border-primary bg-primary/10 p-4">
-          <p className="font-mono text-sm text-foreground leading-relaxed">
+          <p className="font-mono text-sm text-[var(--foreground)] leading-relaxed">
             <strong className="text-primary">Instructor Announcement:</strong> Welcome to the July 13th Cohort, {firstName}! Our first live session is this Saturday at {liveClassTime}.
           </p>
         </div>
@@ -431,7 +431,7 @@ export default function DashboardPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="mb-12">
-              <h1 className="font-heading text-3xl font-bold uppercase text-foreground">Your Curriculum</h1>
+              <h1 className="font-heading text-3xl font-bold uppercase text-[var(--foreground)]">Your Curriculum</h1>
               <p className="mt-3 font-mono text-sm text-muted-foreground">
                 Videos are released every Monday, Wednesday, and Friday. Complete each session to stay on track.
               </p>
@@ -454,7 +454,7 @@ export default function DashboardPage() {
                             className={`group relative flex flex-col overflow-hidden border ${
                               available
                                 ? 'border-border bg-surface hover:border-primary'
-                                : 'border-border bg-background opacity-60'
+                                : 'border-border bg-[var(--background)] opacity-60'
                             } transition-colors`}
                           >
                             {/* Completed badge */}
@@ -487,7 +487,7 @@ export default function DashboardPage() {
                                   <MarkCompleteButton videoId={video.id} />
                                 </div>
                               ) : (
-                                <div className="mt-auto flex items-center gap-2 border border-border bg-background px-4 py-2 font-mono text-[10px] uppercase text-[#5d5f63]">
+                                <div className="mt-auto flex items-center gap-2 border border-border bg-[var(--background)] px-4 py-2 font-mono text-[10px] uppercase text-[#5d5f63]">
                                   <Calendar className="h-3 w-3" /> Unlocks {formatAvailableDate(video.availableAt)}
                                 </div>
                               )}

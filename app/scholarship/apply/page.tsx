@@ -146,7 +146,7 @@ export default function ScholarshipApplyPage() {
 
   if (step === 5 && successData) {
     return (
-      <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+      <main className="min-h-screen bg-[var(--background)] text-foreground flex flex-col items-center justify-center p-4">
         <div className="max-w-md w-full bg-card border border-border p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00f0ff] to-[#00363a]" />
           
@@ -176,7 +176,7 @@ export default function ScholarshipApplyPage() {
 
   if (step === 6 && existingApplication) {
     return (
-      <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+      <main className="min-h-screen bg-[var(--background)] text-foreground flex flex-col items-center justify-center p-4">
         <div className="max-w-md w-full bg-card border border-border p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-orange-400" />
           
@@ -202,7 +202,7 @@ export default function ScholarshipApplyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground pb-24">
+    <main className="min-h-screen bg-[var(--background)] text-foreground pb-24">
       <Navigation />
       <div className="pt-24">
         <div className="max-w-3xl mx-auto px-4 py-12">

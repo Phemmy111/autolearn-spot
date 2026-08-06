@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-foreground">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center text-[var(--foreground)]">
         <Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" />
       </div>
     )
@@ -49,16 +49,16 @@ export default function SettingsPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-foreground">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center text-[var(--foreground)]">
         <p className="text-[#b9cacb]">Please sign in to access settings</p>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* Header */}
-      <div className="border-b border-border bg-background/95 backdrop-blur">
+      <div className="border-b border-border bg-[var(--background)]/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
@@ -112,15 +112,15 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="flex justify-between items-center py-3 border-b border-border">
               <span className="text-[#b9cacb]">Email</span>
-              <span className="text-foreground">{user?.emailAddresses?.[0]?.emailAddress || ''}</span>
+              <span className="text-[var(--foreground)]">{user?.emailAddresses?.[0]?.emailAddress || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3 border-b border-border">
               <span className="text-[#b9cacb]">Name</span>
-              <span className="text-foreground">{user?.firstName || 'Student'} {user?.lastName || ''}</span>
+              <span className="text-[var(--foreground)]">{user?.firstName || 'Student'} {user?.lastName || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3">
               <span className="text-[#b9cacb]">Username</span>
-              <span className="text-foreground">{user?.username || 'Not set'}</span>
+              <span className="text-[var(--foreground)]">{user?.username || 'Not set'}</span>
             </div>
           </div>
         </div>
