@@ -370,14 +370,14 @@ function HeroSection() {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground leading-tight">
               BUILD REAL AI
-              <span className="text-[#00f0ff]"> AUTOMATIONS.</span>
+              <span className="text-primary"> AUTOMATIONS.</span>
               <br />
               GET CERTIFIED.
             </h1>
 
-            <p className="text-sm sm:text-base lg:text-lg text-[#b9cacb] leading-relaxed">
+            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
               Master n8n automation and build powerful AI-powered workflows without coding.
             </p>
 
