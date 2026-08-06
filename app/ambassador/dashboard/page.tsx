@@ -133,12 +133,12 @@ export default function AmbassadorDashboard() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Referral Link Card */}
         <div className="bg-gradient-to-r from-[#00f0ff]/10 to-transparent border border-[#00f0ff]/20 rounded-2xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
+          <div className="w-full md:w-auto">
             <h2 className="text-xl font-bold mb-2">Your Referral Link</h2>
             <p className="text-[#b9cacb] text-sm max-w-xl">Share this unique link with your network. When they enroll through it, you earn ₦1,000 commission.</p>
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-white/80 truncate w-full md:w-64">
+            <div className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-white/80 truncate flex-1 md:w-64">
               {data.shareUrl}
             </div>
             <button 

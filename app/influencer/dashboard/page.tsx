@@ -134,7 +134,7 @@ export default function InfluencerDashboard() {
         {/* Referral Link Card */}
         <div className="bg-gradient-to-r from-purple-500/10 to-transparent border border-purple-500/20 rounded-2xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-transparent" />
-          <div>
+          <div className="w-full md:w-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold mb-4">
               Premium Rate: ₦{(data.user.commission_rate || 2000).toLocaleString()}/referral
             </div>
@@ -142,7 +142,7 @@ export default function InfluencerDashboard() {
             <p className="text-[#b9cacb] text-sm max-w-xl">Share this unique link with your audience on {data.user.platform || 'social media'}. You earn a premium commission for every enrollment.</p>
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-white/80 truncate w-full md:w-64">
+            <div className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-white/80 truncate flex-1 md:w-64">
               {data.shareUrl}
             </div>
             <button 
