@@ -169,7 +169,7 @@ function WorkflowNode({
 
   return (
     <div
-      className={`workflow-node absolute z-10 w-[108px] border bg-[#111317] p-3 shadow-[0_12px_30px_rgba(0,0,0,0.28)] sm:w-[132px] ${
+      className={`workflow-node absolute z-10 w-[108px] border bg-card p-3 shadow-md sm:w-[132px] ${
         node.tone === 'active'
           ? 'border-[#00f0ff] shadow-[0_0_18px_rgba(0,240,255,0.22)]'
           : node.tone === 'brand'
@@ -182,13 +182,13 @@ function WorkflowNode({
         <div
           className={`flex h-8 w-8 items-center justify-center border ${
             node.tone === 'brand'
-              ? 'border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#00f0ff]'
-              : 'border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#00f0ff]'
+              ? 'border-primary/70 bg-primary/10 text-primary'
+              : 'border-primary/70 bg-primary/10 text-primary'
           }`}
         >
           <Icon className="h-4 w-4" />
         </div>
-        <span className="workflow-status-dot h-2 w-2 rounded-full bg-[#00f0ff]" />
+        <span className="workflow-status-dot h-2 w-2 rounded-full bg-primary" />
       </div>
       <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8] sm:text-[11px]">
         {node.label}
@@ -308,9 +308,9 @@ function N8nWorkflowPanel() {
         </div>
       </div>
 
-      <div className="bg-[#050505] p-4 sm:hidden">
+      <div className="bg-background p-4 sm:hidden">
         <div className="relative space-y-4">
-          <div className="absolute bottom-16 left-6 top-8 w-px bg-[#3b494b]" />
+          <div className="absolute bottom-16 left-6 top-8 w-px bg-border" />
           {workflowNodes.map((node, index) => {
             const Icon = node.icon
             return (
@@ -320,10 +320,10 @@ function N8nWorkflowPanel() {
                 style={{ animationDelay: node.delay }}
               >
                 <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center border bg-[#111317] ${
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center border bg-card ${
                     node.tone === 'brand'
-                      ? 'border-[#00f0ff]/70 text-[#00f0ff]'
-                      : 'border-[#00f0ff]/70 text-[#00f0ff]'
+                      ? 'border-primary/70 text-primary'
+                      : 'border-primary/70 text-primary'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -341,7 +341,7 @@ function N8nWorkflowPanel() {
                     <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8]">
                       {node.label}
                     </h3>
-                    <span className="workflow-status-dot h-2 w-2 rounded-full bg-[#00f0ff]" />
+                    <span className="workflow-status-dot h-2 w-2 rounded-full bg-primary" />
                   </div>
                   <p className="mt-1 font-mono text-[10px] text-[#b9cacb]">{node.detail}</p>
                 </div>
@@ -850,7 +850,7 @@ function Footer() {
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-[#050505]">
+    <main className="min-h-screen bg-background">
       <Navigation />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />
