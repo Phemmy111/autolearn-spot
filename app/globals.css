@@ -146,49 +146,72 @@
 
 .light {
   color-scheme: light;
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+  /* Premium SaaS Light Theme Colors */
+  --background: #FAFAFB;
+  --foreground: #111827;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #111827;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #00F0FF;
-  --primary-foreground: #00363A;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F1F5F9;
-  --accent-foreground: #0F172A;
+  --popover-foreground: #111827;
+  --primary: #06B6D4;
+  --primary-foreground: #FFFFFF;
+  --primary-hover: #0891B2;
+  --secondary: #F3F4F6;
+  --secondary-foreground: #111827;
+  --muted: #F9FAFB;
+  --muted-foreground: #6B7280;
+  --accent: #F3F4F6;
+  --accent-foreground: #111827;
   --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #00F0FF;
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: #06B6D4;
   --radius: 0.5rem;
-  --chart-1: #00F0FF;
-  --chart-2: #00C5EB;
-  --chart-3: #009AD7;
-  --chart-4: #006FC3;
-  --chart-5: #0045AF;
+  
+  /* Chart colors */
+  --chart-1: #06B6D4;
+  --chart-2: #0891B2;
+  --chart-3: #0E7490;
+  --chart-4: #155E75;
+  --chart-5: #164E63;
+  
+  /* Sidebar colors */
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #00F0FF;
-  --sidebar-primary-foreground: #00363A;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #00F0FF;
-  /* Professional light theme colors - keep brand cyan */
-  --landing-bg: #F8FAFC;
-  --landing-accent: #00F0FF;
-  --landing-accent-hover: #00C5EB;
-  --landing-text: #0F172A;
-  --landing-text-muted: #64748B;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #06B6D4;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F3F4F6;
+  --sidebar-accent-foreground: #111827;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #06B6D4;
+  
+  /* Landing page specific colors */
+  --landing-bg: #FAFAFB;
+  --landing-accent: #06B6D4;
+  --landing-accent-hover: #0891B2;
+  --landing-text: #111827;
+  --landing-text-secondary: #4B5563;
+  --landing-text-muted: #6B7280;
   --landing-card-bg: #FFFFFF;
-  --landing-card-border: #E2E8F0;
-  --landing-card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --landing-card-hover-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --landing-card-border: #E5E7EB;
+  
+  /* Design tokens for consistency */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Typography tokens */
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --text-inverse: #FFFFFF;
+  
+  /* Border tokens */
+  --border-default: #E5E7EB;
+  --border-light: #F3F4F6;
+  --border-accent: #06B6D4;
 }
 
 @media (prefers-color-scheme: dark) {
