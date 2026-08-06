@@ -356,8 +356,8 @@ function N8nWorkflowPanel() {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center bg-[#050505] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
+    <section className="relative min-h-screen flex items-center bg-background overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
 
       <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-24 md:pt-20 lg:pt-16 pb-12">
@@ -408,16 +408,16 @@ function HeroSection() {
 
 function InfoCards() {
   return (
-    <section className="py-6 lg:py-8 bg-[#0c0e12]">
+    <section className="py-6 lg:py-8 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-4 lg:gap-6">
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 lg:p-6 text-center">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">COHORT</div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8]">Current Cohort</div>
+          <div className="border border-border bg-card/80 backdrop-blur-xl rounded-xl p-4 lg:p-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-2">COHORT</div>
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Current Cohort</div>
           </div>
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 lg:p-6 text-center">
-            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">SEATS LEFT</div>
-            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#00f0ff]">Remaining Seats</div>
+          <div className="border border-border bg-card/80 backdrop-blur-xl rounded-xl p-4 lg:p-6 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-2">SEATS LEFT</div>
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">Remaining Seats</div>
           </div>
         </div>
       </div>
@@ -427,13 +427,13 @@ function InfoCards() {
 
 function StatsSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#050505]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-background">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {stats.map((stat) => (
-            <div key={stat.label} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
-              <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#00f0ff]">{stat.value}</div>
-              <div className="text-xs sm:text-sm text-[#b9cacb] mt-1 sm:mt-2">{stat.label}</div>
+            <div key={stat.label} className="border border-border bg-card/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center">
+              <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-primary">{stat.value}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">{stat.label}</div>
             </div>
           ))}
         </div>

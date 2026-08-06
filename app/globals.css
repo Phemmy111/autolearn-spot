@@ -703,6 +703,24 @@
   animation: workflowNodePulse 3.8s ease-in-out infinite;
 }
 
+/* Theme-aware color overrides for existing hardcoded colors using attribute selectors */
+.light [class*="bg-\\[\\#0c0e12\\]"] { background-color: var(--card) !important; }
+.light [class*="bg-\\[\\#111317\\]"] { background-color: var(--background) !important; }
+.light [class*="bg-\\[\\#1f2229\\]"] { background-color: var(--border) !important; }
+.light [class*="bg-\\[\\#1e2024\\]"] { background-color: var(--accent) !important; }
+.light [class*="bg-\\[\\#070B12\\]"] { background-color: var(--card) !important; }
+
+.light [class*="text-\\[\\#b9cacb\\]"] { color: var(--muted-foreground) !important; }
+.light [class*="text-\\[\\#e2e2e8\\]"] { color: var(--foreground) !important; }
+.light [class*="text-\\[\\#00f0ff\\]"] { color: var(--primary) !important; }
+.light [class*="text-\\[\\#00363a\\]"] { color: var(--primary-foreground) !important; }
+.light [class*="text-\\[\\#12E6F3\\]"] { color: var(--primary) !important; }
+
+.light [class*="border-\\[\\#1f2229\\]"] { border-color: var(--border) !important; }
+.light [class*="border-\\[\\#1e2024\\]"] { border-color: var(--accent) !important; }
+.light [class*="border-\\[\\#00f0ff\\]"] { border-color: var(--primary) !important; }
+.light [class*="border-\\[\\#12E6F3\\]"] { border-color: var(--primary) !important; }
+
 /* Legacy color mappings for backward compatibility with existing components */
 :root {
   /* Map existing hex colors to CSS variables for smooth theme transitions */
