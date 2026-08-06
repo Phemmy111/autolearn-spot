@@ -44,7 +44,7 @@ export default function Navigation() {
   return (
     <>
       {/* Desktop Navigation - Shows on XL screens and above */}
-      <nav className="hidden xl:flex items-center justify-between h-[72px] border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-6 lg:px-8 sticky top-0 z-50">
+      <nav className="hidden xl:flex items-center justify-between h-[72px] border-b border-border bg-background/95 backdrop-blur-xl px-6 lg:px-8 sticky top-0 z-50">
         <Link href="/" className="flex items-center gap-2 group">
           <Image
             src="/logo.png"
@@ -54,7 +54,7 @@ export default function Navigation() {
             className="group-hover:scale-110 transition-transform"
             unoptimized
           />
-          <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+          <span className="font-mono text-sm font-semibold tracking-[0.1em] text-foreground">
             AutoLearn Spot
           </span>
         </Link>
@@ -68,7 +68,7 @@ export default function Navigation() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
               >
                 {item.name}
               </a>
@@ -76,7 +76,7 @@ export default function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
               >
                 {item.name}
               </Link>
@@ -88,14 +88,14 @@ export default function Navigation() {
             isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
               >
                 Student Login
               </Link>
@@ -105,18 +105,18 @@ export default function Navigation() {
 
         <Link
           href="/enroll"
-          className="border border-[#00f0ff] bg-[#00f0ff] px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-white transition-colors"
+          className="border border-primary bg-primary px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           Enroll Now
         </Link>
       </nav>
 
       {/* Tablet/Smaller Desktop Navigation - Shows hamburger */}
-      <nav className="hidden lg:flex xl:hidden items-center justify-between h-[72px] border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-6 sticky top-0 z-50">
+      <nav className="hidden lg:flex xl:hidden items-center justify-between h-[72px] border-b border-border bg-background/95 backdrop-blur-xl px-6 sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsOpen(true)}
-            className="text-[#e2e2e8] hover:text-[#00f0ff] transition-colors"
+            className="text-foreground hover:text-primary transition-colors"
             aria-label="Open menu"
           >
             <Menu className="h-6 w-6" />
@@ -130,7 +130,7 @@ export default function Navigation() {
               className="group-hover:scale-110 transition-transform"
               unoptimized
             />
-            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-foreground">
               AutoLearn Spot
             </span>
           </Link>
@@ -143,14 +143,14 @@ export default function Navigation() {
             isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors whitespace-nowrap"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
               >
                 Student Login
               </Link>
@@ -158,7 +158,7 @@ export default function Navigation() {
           )}
           <Link
             href="/enroll"
-            className="border border-[#00f0ff] bg-[#00f0ff] px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-white transition-colors"
+            className="border border-primary bg-primary px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             Enroll Now
           </Link>
@@ -166,11 +166,11 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="lg:hidden sticky top-0 z-50 h-[64px] border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-4">
+      <nav className="lg:hidden sticky top-0 z-50 h-[64px] border-b border-border bg-background/95 backdrop-blur-xl px-4">
         <div className="flex items-center justify-between h-full">
           <button
             onClick={() => setIsOpen(true)}
-            className="text-[#e2e2e8] hover:text-[#00f0ff] transition-colors"
+            className="text-foreground hover:text-primary transition-colors"
             aria-label="Open menu"
           >
             <Menu className="h-6 w-6" />
@@ -184,7 +184,7 @@ export default function Navigation() {
               className="mr-1"
               unoptimized
             />
-            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-foreground">
               AutoLearn Spot
             </span>
           </Link>
