@@ -31,6 +31,8 @@ export function ProfilePictureUpload({
     const file = e.target.files?.[0]
     if (!file) return
 
+    console.log('[Profile Picture Upload] Starting upload for file:', file.name, file.size)
+
     // Show preview
     const reader = new FileReader()
     reader.onloadend = () => {
@@ -44,24 +46,31 @@ export function ProfilePictureUpload({
       const formData = new FormData()
       formData.append('file', file)
 
+      console.log('[Profile Picture Upload] Sending to API')
+
       const response = await fetch('/api/user/profile-picture', {
         method: 'POST',
         body: formData
       })
 
+      console.log('[Profile Picture Upload] Response status:', response.status)
+
       const result = await response.json()
+      console.log('[Profile Picture Upload] Response data:', result)
 
       if (response.ok && result.success) {
+        console.log('[Profile Picture Upload] Upload successful')
         setUploaded(true)
         setPreview(result.profilePicture)
         onUploadComplete?.(result.profilePicture)
         setTimeout(() => setUploaded(false), 2000)
       } else {
+        console.error('[Profile Picture Upload] Upload failed:', result.error)
         alert(result.error || 'Failed to upload profile picture')
         setPreview(currentPicture || null)
       }
     } catch (error) {
-      console.error('Upload error:', error)
+      console.error('[Profile Picture Upload] Upload error:', error)
       alert('Failed to upload profile picture')
       setPreview(currentPicture || null)
     } finally {
