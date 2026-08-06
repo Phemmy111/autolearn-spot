@@ -90,8 +90,7 @@ export async function POST(request: Request) {
       partner_type: partner_type || 'community',
       status: status || 'active',
       commission_rate: commission_rate || 1500,
-      referral_code: referralCode,
-      password: tempPassword
+      referral_code: referralCode
     };
 
     // Only add phone if provided
@@ -130,16 +129,26 @@ export async function POST(request: Request) {
     const hashedPassword = CommunityAuthService.hashPassword(tempPassword);
     const authTableName = partner_type === 'influencer' ? 'influencers' : 'community_ambassadors';
     
-    try {
-      const authData = {
-        full_name: full_name,
-        email: email,
-        password: hashedPassword,
-        status: 'active'
-      };
+    const authData: any = {
+      full_name: full_name,
+      email: email,
+      password_hash: hashedPassword,
+      status: 'active'
+    };
 
-      console.log('[POST /api/admin/partners] Creating auth record in table:', authTableName);
-      
+    // Add required fields based on partner type
+    if (partner_type === 'influencer') {
+      authData.platform = 'instagram'; // Default platform for influencers
+      authData.commission_rate = commission_rate || 2500; // Default commission for influencers
+    } else {
+      // Community ambassadors need phone, use provided or default
+      authData.phone = phone || whatsapp || '';
+    }
+
+    console.log('[POST /api/admin/partners] Creating auth record in table:', authTableName);
+    console.log('[POST /api/admin/partners] Auth data:', authData);
+    
+    try {
       const { data: authRecord, error: authError } = await supabaseAdmin
         .from(authTableName)
         .insert(authData)
@@ -148,6 +157,7 @@ export async function POST(request: Request) {
 
       if (authError) {
         console.error('[POST /api/admin/partners] Failed to create auth record:', authError);
+        console.error('[POST /api/admin/partners] Auth error details:', JSON.stringify(authError, null, 2));
         // Continue anyway - partner record exists but auth might fail
       } else {
         console.log('[POST /api/admin/partners] Auth record created successfully:', authRecord.id);
