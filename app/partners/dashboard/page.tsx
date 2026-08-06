@@ -743,7 +743,7 @@ export default function PartnerDashboard() {
             {/* Material Detail Modal */}
             {selectedMaterial && showMaterialDetailModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                   <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
                     <h2 className="text-xl font-bold text-[#e2e2e8]">Material Details</h2>
                     <button
@@ -761,6 +761,18 @@ export default function PartnerDashboard() {
                         {selectedMaterial.type?.toUpperCase() || 'FLYER'}
                       </span>
                     </div>
+                    
+                    {/* Image Preview */}
+                    {selectedMaterial.url && (selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
+                      <div className="bg-[#070B12] p-4 rounded-lg">
+                        <p className="text-sm font-medium text-[#e2e2e8] mb-3">Preview</p>
+                        <img 
+                          src={selectedMaterial.url} 
+                          alt={selectedMaterial.name}
+                          className="w-full h-auto rounded-lg max-h-96 object-contain"
+                        />
+                      </div>
+                    )}
                     
                     {selectedMaterial.description && (
                       <div className="bg-[#070B12] p-4 rounded-lg">

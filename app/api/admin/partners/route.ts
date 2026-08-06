@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { isAdmin } from '@/lib/admin';
 import { createClient } from '@supabase/supabase-js';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
+import { CommunityAuthService } from '@/lib/growth-engine/CommunityAuthService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -124,6 +125,44 @@ export async function POST(request: Request) {
     }
 
     console.log('[POST /api/admin/partners] Partner created successfully:', partner);
+
+    // Create authentication record in community_ambassadors or influencers table
+    const hashedPassword = CommunityAuthService.hashPassword(tempPassword);
+    const authTableName = partner_type === 'influencer' ? 'influencers' : 'community_ambassadors';
+    
+    try {
+      const authData = {
+        full_name: full_name,
+        email: email,
+        password: hashedPassword,
+        status: 'active'
+      };
+
+      console.log('[POST /api/admin/partners] Creating auth record in table:', authTableName);
+      
+      const { data: authRecord, error: authError } = await supabaseAdmin
+        .from(authTableName)
+        .insert(authData)
+        .select()
+        .single();
+
+      if (authError) {
+        console.error('[POST /api/admin/partners] Failed to create auth record:', authError);
+        // Continue anyway - partner record exists but auth might fail
+      } else {
+        console.log('[POST /api/admin/partners] Auth record created successfully:', authRecord.id);
+        
+        // Link auth record to partner
+        const linkField = partner_type === 'influencer' ? 'influencer_id' : 'community_ambassador_id';
+        await supabaseAdmin
+          .from('partners')
+          .update({ [linkField]: authRecord.id })
+          .eq('id', partner.id);
+      }
+    } catch (authError) {
+      console.error('[POST /api/admin/partners] Exception creating auth record:', authError);
+      // Continue anyway
+    }
 
     // Skip referral record creation for now to avoid database errors
     // Future: implement referral tracking when database schema is ready
