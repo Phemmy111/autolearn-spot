@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,11 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Generate new password
     const tempPassword = Math.random().toString(36).slice(-8).toUpperCase();
-    
-    // Simple hash (salt:hash format)
-    const salt = Math.random().toString(36).slice(-16);
-    const hash = Buffer.from(tempPassword + salt).toString('base64');
-    const hashedPassword = `${salt}:${hash}`;
+    const hashedPassword = hashPassword(tempPassword);
 
     console.log('[POST /api/repair-partner-auth] Generated password:', tempPassword);
 
