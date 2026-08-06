@@ -111,6 +111,12 @@ export default function InfluencerDashboard() {
             <div className="text-sm text-[#b9cacb] hidden md:block">
               Welcome, <span className="text-white font-medium">{data.user.full_name}</span>
             </div>
+            <Link 
+              href="/influencer/settings"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-[#1f2229] rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-[#b9cacb]"
+            >
+              Settings
+            </Link>
             <button 
               onClick={() => {
                 document.cookie = "growth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

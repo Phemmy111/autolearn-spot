@@ -38,21 +38,49 @@ export async function POST(request: Request) {
     const base64 = buffer.toString('base64')
     const dataUrl = `data:${file.type};base64,${base64}`
 
-    // Update user's profile picture in enrollments table
-    const { error: updateError } = await supabaseAdmin
+    // Try to update in enrollments table (students)
+    let updateError = null
+    const { error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .update({ profile_picture: dataUrl })
       .eq('user_id', userId)
 
-    if (updateError) {
-      console.error('Error updating profile picture:', updateError)
-      return NextResponse.json({ error: 'Failed to update profile picture' }, { status: 500 })
+    if (!enrollmentError) {
+      return NextResponse.json({ 
+        success: true, 
+        profilePicture: dataUrl 
+      })
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      profilePicture: dataUrl 
-    })
+    // Try to update in influencers table (influencers)
+    const { error: influencerError } = await supabaseAdmin
+      .from('influencers')
+      .update({ profile_picture: dataUrl })
+      .eq('email', user?.emailAddresses?.[0]?.emailAddress || '')
+
+    if (!influencerError) {
+      return NextResponse.json({ 
+        success: true, 
+        profilePicture: dataUrl 
+      })
+    }
+
+    // Try to update in community_ambassadors table (community partners)
+    const { error: ambassadorError } = await supabaseAdmin
+      .from('community_ambassadors')
+      .update({ profile_picture: dataUrl })
+      .eq('email', user?.emailAddresses?.[0]?.emailAddress || '')
+
+    if (!ambassadorError) {
+      return NextResponse.json({ 
+        success: true, 
+        profilePicture: dataUrl 
+      })
+    }
+
+    // If all updates failed
+    console.error('Error updating profile picture in all tables:', { enrollmentError, influencerError, ambassadorError })
+    return NextResponse.json({ error: 'Failed to update profile picture' }, { status: 500 })
   } catch (error) {
     console.error('Profile picture upload error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -67,20 +95,51 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user's profile picture from enrollments table
-    const { data: enrollment, error } = await supabaseAdmin
+    const user = await currentUser()
+    const userEmail = user?.emailAddresses?.[0]?.emailAddress || ''
+
+    // Try to get from enrollments table (students)
+    const { data: enrollment, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .select('profile_picture')
       .eq('user_id', userId)
       .single()
 
-    if (error) {
-      console.error('Error fetching profile picture:', error)
-      return NextResponse.json({ error: 'Failed to fetch profile picture' }, { status: 500 })
+    if (!enrollmentError && enrollment) {
+      return NextResponse.json({ 
+        profilePicture: enrollment?.profile_picture || null 
+      })
     }
 
+    // Try to get from influencers table (influencers)
+    const { data: influencer, error: influencerError } = await supabaseAdmin
+      .from('influencers')
+      .select('profile_picture')
+      .eq('email', userEmail)
+      .single()
+
+    if (!influencerError && influencer) {
+      return NextResponse.json({ 
+        profilePicture: influencer?.profile_picture || null 
+      })
+    }
+
+    // Try to get from community_ambassadors table (community partners)
+    const { data: ambassador, error: ambassadorError } = await supabaseAdmin
+      .from('community_ambassadors')
+      .select('profile_picture')
+      .eq('email', userEmail)
+      .single()
+
+    if (!ambassadorError && ambassador) {
+      return NextResponse.json({ 
+        profilePicture: ambassador?.profile_picture || null 
+      })
+    }
+
+    // If all lookups failed, return null
     return NextResponse.json({ 
-      profilePicture: enrollment?.profile_picture || null 
+      profilePicture: null 
     })
   } catch (error) {
     console.error('Profile picture fetch error:', error)
