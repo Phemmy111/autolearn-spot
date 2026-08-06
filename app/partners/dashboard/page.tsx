@@ -218,6 +218,12 @@ export default function PartnerDashboard() {
             </div>
             
             <div className="flex items-center gap-4">
+              <Link 
+                href="/"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[#1f2229] bg-[#070B12]/50 hover:bg-[#070B12] rounded-lg transition-colors text-sm text-[#b9cacb]"
+              >
+                Home
+              </Link>
               <button 
                 onClick={() => { fetchNotifications(); setShowNotifications(!showNotifications); }}
                 className="relative p-2 hover:bg-[#070B12]/50 rounded-lg transition-colors"

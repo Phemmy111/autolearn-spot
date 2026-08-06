@@ -146,45 +146,45 @@
 
 .light {
   color-scheme: light;
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --card: #f5f5f5;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #0066cc;
+  --background: #0a0e17;
+  --foreground: #ffffff;
+  --card: #111827;
+  --card-foreground: #ffffff;
+  --popover: #1f2937;
+  --popover-foreground: #ffffff;
+  --primary: #0052cc;
   --primary-foreground: #ffffff;
-  --secondary: #e5e5e5;
-  --secondary-foreground: #0a0a0a;
-  --muted: #f5f5f5;
-  --muted-foreground: #6b7280;
-  --accent: #e5e5e5;
-  --accent-foreground: #0a0a0a;
+  --secondary: #1e3a8a;
+  --secondary-foreground: #ffffff;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --accent: #1e40af;
+  --accent-foreground: #ffffff;
   --destructive: #dc2626;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #0066cc;
-  --chart-1: #0066cc;
-  --chart-2: #0052a3;
-  --chart-3: #003d7a;
-  --chart-4: #002951;
-  --chart-5: #001428;
-  --sidebar: #f5f5f5;
-  --sidebar-foreground: #0a0a0a;
-  --sidebar-primary: #0066cc;
+  --border: #374151;
+  --input: #374151;
+  --ring: #0052cc;
+  --chart-1: #0052cc;
+  --chart-2: #003d99;
+  --chart-3: #002966;
+  --chart-4: #001a33;
+  --chart-5: #000d1a;
+  --sidebar: #111827;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #0052cc;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e5e5e5;
-  --sidebar-accent-foreground: #0a0a0a;
-  --sidebar-border: #e5e5e5;
-  --sidebar-ring: #0066cc;
-  /* Landing page specific colors */
-  --landing-bg: #ffffff;
-  --landing-accent: #0066cc;
-  --landing-accent-hover: #0052a3;
-  --landing-text: #0a0a0a;
-  --landing-text-muted: #6b7280;
-  --landing-card-bg: #f5f5f5;
-  --landing-card-border: #e5e5e5;
+  --sidebar-accent: #1e40af;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #374151;
+  --sidebar-ring: #0052cc;
+  /* Landing page specific colors - deeper for better contrast */
+  --landing-bg: #0a0e17;
+  --landing-accent: #0052cc;
+  --landing-accent-hover: #003d99;
+  --landing-text: #ffffff;
+  --landing-text-muted: #9ca3af;
+  --landing-card-bg: #111827;
+  --landing-card-border: #374151;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -705,7 +705,7 @@
 
 /* Global theme override system for hardcoded colors */
 .light {
-  /* Background overrides */
+  /* Background overrides - deep dark backgrounds for light theme */
   .bg-\\[\\#050505\\] { background-color: var(--background) !important; }
   .bg-\\[\\#0c0e12\\] { background-color: var(--card) !important; }
   .bg-\\[\\#111317\\] { background-color: var(--background) !important; }
@@ -715,7 +715,7 @@
   .bg-\\[\\#1a1c20\\] { background-color: var(--popover) !important; }
   .bg-\\[\\#333539\\] { background-color: var(--muted) !important; }
   
-  /* Text overrides */
+  /* Text overrides - white text for dark backgrounds */
   .text-\\[\\#b9cacb\\] { color: var(--muted-foreground) !important; }
   .text-\\[\\#e2e2e8\\] { color: var(--foreground) !important; }
   .text-\\[\\#00f0ff\\] { color: var(--primary) !important; }
@@ -723,25 +723,33 @@
   .text-\\[\\#12E6F3\\] { color: var(--primary) !important; }
   .text-\\[\\#dbfcff\\] { color: var(--accent-foreground) !important; }
   
-  /* Border overrides */
+  /* Border overrides - lighter borders for contrast */
   .border-\\[\\#1f2229\\] { border-color: var(--border) !important; }
   .border-\\[\\#1e2024\\] { border-color: var(--accent) !important; }
   .border-\\[\\#00f0ff\\] { border-color: var(--primary) !important; }
   .border-\\[\\#12E6F3\\] { border-color: var(--primary) !important; }
   .border-\\[\\#3b494b\\] { border-color: var(--border) !important; }
   
-  /* Gradient overrides */
+  /* Gradient overrides - maintain dark gradients */
   .from-\\[\\#050505\\] { --tw-gradient-from: var(--background) !important; }
   .via-\\[\\#0c0e12\\] { --tw-gradient-via: var(--card) !important; }
   .to-\\[\\#111317\\] { --tw-gradient-to: var(--background) !important; }
   
-  /* Shadow overrides */
+  /* Shadow overrides - deeper shadows for contrast */
   .shadow-\\[0_0_40px_rgba\\(0\\,240\\,255\\,0\\.1\\)\\] { 
-    box-shadow: 0 0 40px rgba(0, 102, 204, 0.1) !important; 
+    box-shadow: 0 0 40px rgba(0, 82, 204, 0.2) !important; 
   }
   .shadow-\\[0_0_18px_rgba\\(0\\,240\\,255\\,0\\.22\\)\\] { 
-    box-shadow: 0 0 18px rgba(0, 102, 204, 0.22) !important; 
+    box-shadow: 0 0 18px rgba(0, 82, 204, 0.3) !important; 
   }
+  
+  /* Additional color overrides for workflow components */
+  .border-\\[\\#00f0ff\\]\\/70 { border-color: rgba(0, 82, 204, 0.7) !important; }
+  .bg-\\[\\#00f0ff\\]\\/10 { background-color: rgba(0, 82, 204, 0.1) !important; }
+  .text-\\[\\#00f0ff\\]\\/70 { color: rgba(0, 82, 204, 0.7) !important; }
+  .border-\\[\\#12E6F3\\]\\/70 { border-color: rgba(0, 82, 204, 0.7) !important; }
+  .bg-\\[\\#12E6F3\\]\\/10 { background-color: rgba(0, 82, 204, 0.1) !important; }
+  .text-\\[\\#12E6F3\\]\\/70 { color: rgba(0, 82, 204, 0.7) !important; }
 }
 
 /* Legacy color mappings for backward compatibility with existing components */
