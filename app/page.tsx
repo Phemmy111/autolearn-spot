@@ -171,10 +171,10 @@ function WorkflowNode({
     <div
       className={`workflow-node absolute z-10 w-[108px] border bg-card p-3 shadow-md sm:w-[132px] ${
         node.tone === 'active'
-          ? 'border-[#00f0ff] shadow-[0_0_18px_rgba(0,240,255,0.22)]'
+          ? 'border-primary shadow-[0_0_18px_rgba(0,240,255,0.22)]'
           : node.tone === 'brand'
-            ? 'border-[#00f0ff]/70'
-            : 'border-[#1f2229]'
+            ? 'border-primary/70'
+            : 'border-border'
       }`}
       style={{ left: node.x, top: node.y, animationDelay: node.delay }}
     >
@@ -300,7 +300,7 @@ function N8nWorkflowPanel() {
           <div className="space-y-2 font-mono text-[10px] text-muted-foreground">
             {workflowLog.map((item, index) => (
               <p key={item}>
-                <span className={index === workflowLog.length - 1 ? 'text-[#00f0ff]' : 'text-[#00f0ff]'}>&gt;</span>{' '}
+                <span className={index === workflowLog.length - 1 ? 'text-primary' : 'text-primary'}>&gt;</span>{' '}
                 {item}
               </p>
             ))}
@@ -329,12 +329,12 @@ function N8nWorkflowPanel() {
                   <Icon className="h-5 w-5" />
                 </div>
                 <div
-                  className={`min-w-0 flex-1 border bg-[#111317] p-3 ${
+                  className={`min-w-0 flex-1 border bg-card p-3 ${
                     node.tone === 'active'
-                      ? 'border-[#00f0ff]'
+                      ? 'border-primary'
                       : node.tone === 'brand'
-                        ? 'border-[#00f0ff]/70'
-                        : 'border-[#1f2229]'
+                        ? 'border-primary/70'
+                        : 'border-border'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -453,14 +453,14 @@ function EnrollmentSection() {
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-4 sm:mb-6">
               Enroll Now
             </h2>
-            <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#00f0ff] mb-4 sm:mb-6">
+            <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-primary mb-4 sm:mb-6">
               ₦8,000
             </div>
             
             <div className="space-y-2 sm:space-y-3 lg:space-y-4 mb-6 sm:mb-8">
               {enrollmentBenefits.map((benefit) => (
                 <div key={benefit} className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                   <span className="text-sm sm:text-base text-[#e2e2e8]">{benefit}</span>
                 </div>
               ))}
@@ -558,25 +558,25 @@ function CurriculumSection() {
               key={week.step}
               className={`border ${
                 week.active 
-                  ? 'border-[#00f0ff] bg-[#00f0ff]/5' 
-                  : 'border-[#1f2229] bg-[#050505]/80'
-              } backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00f0ff]/50 transition-all duration-300`}
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-border bg-background/80'
+              } backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-all duration-300`}
             >
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${
                   week.active 
-                    ? 'bg-[#00f0ff] text-[#00363a]' 
-                    : 'bg-[#1f2229] text-[#00f0ff]'
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-[#1f2229] text-primary'
                 }`}>
                   <span className="text-lg sm:text-xl font-bold">{week.step}</span>
                 </div>
                 {week.active && (
-                  <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] text-xs font-mono uppercase tracking-wider">
+                  <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-mono uppercase tracking-wider">
                     Current
                   </span>
                 )}
               </div>
-              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff] mb-2">
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-primary mb-2">
                 {week.phase}
               </div>
               <h3 className="text-base sm:text-lg font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
@@ -584,7 +584,7 @@ function CurriculumSection() {
               <ul className="space-y-1 sm:space-y-2">
                 {week.items.map((item) => (
                   <li key={item} className="flex items-center gap-2 text-xs text-[#b9cacb]">
-                    <CheckCircle className="h-3 w-3 text-[#00f0ff] flex-shrink-0" />
+                    <CheckCircle className="h-3 w-3 text-primary flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -599,7 +599,7 @@ function CurriculumSection() {
 
 function FeaturesSection() {
   return (
-    <section id="tools" className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
+    <section id="tools" className="py-6 sm:py-8 lg:py-12 bg-background">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
@@ -613,10 +613,10 @@ function FeaturesSection() {
             return (
               <div
                 key={feature.title}
-                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
+                className="border border-border bg-card/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]"
               >
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mb-3 sm:mb-4">
-                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#00f0ff]" />
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mb-3 sm:mb-4">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
                 <h3 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>
                 <p className="text-sm text-[#b9cacb]">{feature.description}</p>
@@ -631,7 +631,7 @@ function FeaturesSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
@@ -659,7 +659,7 @@ function TestimonialsSection() {
 
 function SocialProofSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-background">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <LiveActivityFeed />
@@ -671,7 +671,7 @@ function SocialProofSection() {
 
 function TrustBadgesSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-card">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 lg:gap-4">
           {trustBadges.map((badge) => {
@@ -679,9 +679,9 @@ function TrustBadgesSection() {
             return (
               <div
                 key={badge.text}
-                className="flex items-center gap-2 border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-full px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2.5"
+                className="flex items-center gap-2 border border-border bg-background/80 backdrop-blur-xl rounded-full px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2.5"
               >
-                <Icon className="h-4 w-4 text-[#00f0ff]" />
+                <Icon className="h-4 w-4 text-primary" />
                 <span className="text-xs sm:text-sm text-[#e2e2e8]">{badge.text}</span>
               </div>
             )
@@ -694,7 +694,7 @@ function TrustBadgesSection() {
 
 function ContactSection() {
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
+    <section className="py-6 sm:py-8 lg:py-12 bg-background">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
@@ -710,10 +710,10 @@ function ContactSection() {
             href={socialLinks.whatsapp.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 text-center"
+            className="border border-border bg-card/80 backdrop-blur-xl rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
           >
-            <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mx-auto mb-4">
-              <MessageCircle className="h-6 w-6 text-[#00f0ff]" />
+            <div className="flex h-12 w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mx-auto mb-4">
+              <MessageCircle className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">WhatsApp</h3>
             <p className="text-sm text-[#b9cacb]">Chat with us directly</p>
@@ -721,10 +721,10 @@ function ContactSection() {
           
           <Link
             href="/contact"
-            className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 text-center"
+            className="border border-border bg-card/80 backdrop-blur-xl rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
           >
-            <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mx-auto mb-4">
-              <Mail className="h-6 w-6 text-[#00f0ff]" />
+            <div className="flex h-12 w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mx-auto mb-4">
+              <Mail className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">Email</h3>
             <p className="text-sm text-[#b9cacb]">Send us a message</p>
@@ -732,10 +732,10 @@ function ContactSection() {
           
           <Link
             href="/partners"
-            className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#00f0ff]/50 transition-all duration-300 text-center"
+            className="border border-border bg-card/80 backdrop-blur-xl rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 text-center"
           >
-            <div className="flex h-12 w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mx-auto mb-4">
-              <Users className="h-6 w-6 text-[#00f0ff]" />
+            <div className="flex h-12 w-12 items-center justify-center border border-primary/60 bg-primary/10 rounded-xl mx-auto mb-4">
+              <Users className="h-6 w-6 text-primary" />
             </div>
             <h3 className="text-lg font-semibold text-[#e2e2e8] mb-2">Partners</h3>
             <p className="text-sm text-[#b9cacb]">Join our partner program</p>
@@ -748,7 +748,7 @@ function ContactSection() {
 
 function Footer() {
   return (
-    <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-6 sm:py-8 lg:py-12">
+    <footer className="border-t border-border bg-card py-6 sm:py-8 lg:py-12">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
@@ -803,7 +803,7 @@ function Footer() {
             <ul className="space-y-2">
               {navItems.map((item) => (
                 <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                  <Link href={item.href} className="text-sm text-[#b9cacb] hover:text-primary transition-colors">
                     {item.name}
                   </Link>
                 </li>
@@ -815,22 +815,22 @@ function Footer() {
             <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                <Link href="/" className="text-sm text-[#b9cacb] hover:text-primary transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/partners" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                <Link href="/partners" className="text-sm text-[#b9cacb] hover:text-primary transition-colors">
                   Partners
                 </Link>
               </li>
               <li>
-                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-primary transition-colors">
                   Scholarship
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+                <Link href="/contact" className="text-sm text-[#b9cacb] hover:text-primary transition-colors">
                   Contact
                 </Link>
               </li>
@@ -838,7 +838,7 @@ function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-[#1f2229] pt-8 text-center">
+        <div className="border-t border-border pt-8 text-center">
           <p className="text-sm text-[#b9cacb]">
             © 2026 AutoLearn Spot. All Rights Reserved.
           </p>
