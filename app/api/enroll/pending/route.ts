@@ -138,7 +138,6 @@ export async function POST(request: NextRequest) {
         payment_amount: 8000, // Direct Enrollment amount
         payment_status: 'pending',
         expires_at: expiresAt,
-        cohort: 'Cohort 2', // Default to Cohort 2
         user_agent: request.headers.get('user-agent') || null,
         ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
       })
