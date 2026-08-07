@@ -100,6 +100,9 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
         setToast({ message: 'Cohort created successfully', type: 'success' });
         setShowCreateModal(false);
         router.refresh();
+      } else if (res.status === 409) {
+        const error = await res.json();
+        setToast({ message: error.message || 'Cohort slug already exists. Please choose another slug.', type: 'error' });
       } else {
         const error = await res.json();
         setToast({ message: error.error || 'Unable to create cohort', type: 'error' });

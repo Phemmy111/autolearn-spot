@@ -15,6 +15,23 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { name, slug, price_ngn, start_date, end_date, status, timezone } = body
 
+    // Check if slug already exists
+    const { data: existingCohort } = await supabaseAdmin
+      .from('cohorts')
+      .select('id')
+      .eq('slug', slug)
+      .single()
+
+    if (existingCohort) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "A cohort with this slug already exists."
+        },
+        { status: 409 }
+      )
+    }
+
     const { data, error } = await supabaseAdmin
       .from('cohorts')
       .insert({
