@@ -10,14 +10,31 @@ export const dynamic = 'force-dynamic'
  */
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin()
 
-    const { id } = params
+    const { id } = await params
 
-    console.log('COHORT ACTIVATION START', { cohortId: id })
+    console.info('COHORT ACTIVATION START', { cohortId: id })
+
+    // Validate cohort ID
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Cohort ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json(
+        { error: 'Invalid cohort ID' },
+        { status: 400 }
+      )
+    }
 
     // First, deactivate all cohorts (set is_current = false)
     console.log('COHORT ACTIVATION: Step 1 - Deactivating all cohorts except target')
