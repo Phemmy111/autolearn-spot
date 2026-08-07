@@ -1,6 +1,6 @@
 export const COHORT_1_ID = 'a1111111-1111-1111-1111-111111111111'
 
-export type CohortStatus = 'draft' | 'active' | 'archived'
+export type CohortStatus = 'draft' | 'upcoming' | 'active' | 'completed' | 'archived'
 export type EnrollmentStatus = 'pending' | 'active' | 'revoked'
 export type SubmissionType = 'screenshot' | 'url' | 'both'
 export type SubmissionStatus = 'submitted' | 'approved' | 'needs_revision'
@@ -27,7 +27,28 @@ export interface CohortSettings {
   referral_commission_ngn?: number
 }
 
+// New cohort type matching the database schema
 export interface Cohort {
+  id: string
+  name: string
+  description: string | null
+  status: CohortStatus
+  registration_fee: number
+  max_students: number | null
+  current_students: number
+  registration_open: boolean
+  registration_start: string | null
+  registration_end: string | null
+  cohort_start: string | null
+  cohort_end: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  created_by: string | null
+}
+
+// Legacy cohort type for backward compatibility (deprecated)
+export interface LegacyCohort {
   id: string
   name: string
   slug: string
