@@ -136,12 +136,3 @@ export async function getUpcomingCohorts(): Promise<Cohort[]> {
 
   return data || []
 }
-
-/**
- * Update current students count for a cohort (admin only)
- * Note: This field doesn't exist in the current schema, keeping for future compatibility
- */
-export async function updateCohortStudentCount(id: string, count: number): Promise<void> {
-  // This function is kept for API compatibility but won't work with current schema
-  console.warn('updateCohortStudentCount called but current_students field not in schema')
-}
