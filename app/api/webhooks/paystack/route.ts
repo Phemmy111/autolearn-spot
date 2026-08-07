@@ -219,12 +219,12 @@ export async function POST(request: NextRequest) {
 
         const enrollmentData: any = {
           cohort_id: currentCohort.id,
-            email: application.email,
-            payment_ref: reference,
-            amount_paid: amount,
-            status: 'active',
-            activated_at: new Date().toISOString()
-          };
+          email: application.email,
+          payment_ref: reference,
+          amount_paid: amount,
+          status: 'active',
+          activated_at: new Date().toISOString()
+        };
 
           // Add name fields from application
           if (application.full_name) {
