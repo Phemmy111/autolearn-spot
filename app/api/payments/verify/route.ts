@@ -24,17 +24,30 @@ export async function POST(req: Request) {
     }
 
     // 1. Check if we already have it in DB
-    const { data: existingPayment } = await supabaseAdmin
+    console.info('ENROLLMENT DIAGNOSTIC: Step 1 - Check existing payment', { reference });
+    const { data: existingPayment, error: existingPaymentError } = await supabaseAdmin
       .from('payments')
       .select('id, status')
       .eq('reference', reference)
       .single();
+
+    if (existingPaymentError) {
+      console.error('ENROLLMENT DIAGNOSTIC', {
+        operation: 'check_existing_payment',
+        table: 'payments',
+        code: existingPaymentError.code,
+        message: existingPaymentError.message,
+        details: existingPaymentError.details,
+        hint: existingPaymentError.hint
+      });
+    }
 
     if (existingPayment?.status === 'success') {
       // It's already in the DB. Let's make sure the enrollment is also there for this clerk user
       // We will handle this logic below to ensure enrollment is created if missing
     } else {
       // 2. Fetch from Paystack
+      console.info('ENROLLMENT DIAGNOSTIC: Step 2 - Fetch from Paystack', { reference });
       const verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
         headers: {
           Authorization: `Bearer ${secret}`
@@ -50,6 +63,7 @@ export async function POST(req: Request) {
       const data = verifyData.data;
 
       // 3. Save to payments table
+      console.info('ENROLLMENT DIAGNOSTIC: Step 2a - Upsert payment');
       const paymentData = {
         transaction_id: data.id,
         reference: reference,
@@ -65,12 +79,35 @@ export async function POST(req: Request) {
         metadata: data.metadata || {},
       };
 
-      await supabaseAdmin.from('payments').upsert(paymentData, { onConflict: 'reference' });
-      await supabaseAdmin.from('payment_events').insert({
+      const { error: paymentUpsertError } = await supabaseAdmin.from('payments').upsert(paymentData, { onConflict: 'reference' });
+      
+      if (paymentUpsertError) {
+        console.error('ENROLLMENT DIAGNOSTIC', {
+          operation: 'upsert_payment',
+          table: 'payments',
+          code: paymentUpsertError.code,
+          message: paymentUpsertError.message,
+          details: paymentUpsertError.details,
+          hint: paymentUpsertError.hint
+        });
+      }
+
+      const { error: paymentEventInsertError } = await supabaseAdmin.from('payment_events').insert({
         payment_reference: reference,
         event_type: 'verification_passed',
         description: `Manual verification successful for amount ${data.amount}`
       });
+
+      if (paymentEventInsertError) {
+        console.error('ENROLLMENT DIAGNOSTIC', {
+          operation: 'insert_payment_event',
+          table: 'payment_events',
+          code: paymentEventInsertError.code,
+          message: paymentEventInsertError.message,
+          details: paymentEventInsertError.details,
+          hint: paymentEventInsertError.hint
+        });
+      }
     }
 
     // Now, get the payment again to build the enrollment
@@ -85,21 +122,56 @@ export async function POST(req: Request) {
     }
 
     // Resolve Cohort
+    console.info('ENROLLMENT DIAGNOSTIC: Step 3 - Resolve cohort', { 
+      metadataCohortId: payment.metadata?.cohort_id,
+      metadataCourseSlug: payment.metadata?.course_slug
+    });
+    
     let resolvedCohortId = payment.metadata?.cohort_id;
     if (!resolvedCohortId && payment.metadata?.course_slug) {
-      const { data: slugCohort } = await supabaseAdmin.from('cohorts').select('id').eq('slug', payment.metadata.course_slug).single();
+      const { data: slugCohort, error: slugError } = await supabaseAdmin.from('cohorts').select('id').eq('slug', payment.metadata.course_slug).single();
+      if (slugError) {
+        console.error('ENROLLMENT DIAGNOSTIC', {
+          operation: 'resolve_cohort_by_slug',
+          table: 'cohorts',
+          code: slugError.code,
+          message: slugError.message,
+          details: slugError.details,
+          hint: slugError.hint
+        });
+      }
       if (slugCohort) resolvedCohortId = slugCohort.id;
     }
     if (!resolvedCohortId) {
-      const { data: activeCohort } = await supabaseAdmin.from('cohorts').select('id').eq('is_current', true).single();
+      const { data: activeCohort, error: activeError } = await supabaseAdmin.from('cohorts').select('id').eq('is_current', true).single();
+      if (activeError) {
+        console.error('ENROLLMENT DIAGNOSTIC', {
+          operation: 'resolve_current_cohort',
+          table: 'cohorts',
+          code: activeError.code,
+          message: activeError.message,
+          details: activeError.details,
+          hint: activeError.hint
+        });
+      }
       if (activeCohort) resolvedCohortId = activeCohort.id;
     }
+
+    console.info('ENROLLMENT DIAGNOSTIC: Resolved cohort ID', { resolvedCohortId });
 
     if (!resolvedCohortId) {
       return NextResponse.json({ error: 'No active cohort found. Please activate a cohort before processing payments.' }, { status: 400 });
     }
 
     // Upsert Enrollment mapping to the logged-in clerkUserId
+    console.info('ENROLLMENT DIAGNOSTIC: Step 4 - Create enrollment', {
+      cohort_id: resolvedCohortId,
+      email: payment.customer_email,
+      clerk_user_id: userId,
+      payment_ref: reference,
+      amount_paid: payment.amount
+    });
+
     const enrollmentData: any = {
       cohort_id: resolvedCohortId,
       email: payment.customer_email,
@@ -125,8 +197,26 @@ export async function POST(req: Request) {
       });
 
     if (enrollError) {
-      console.error('Error creating enrollment during verify:', enrollError);
-      return NextResponse.json({ error: 'Failed to create enrollment' }, { status: 500 });
+      console.error('ENROLLMENT DIAGNOSTIC', {
+        operation: 'upsert_enrollment',
+        table: 'enrollments',
+        code: enrollError.code,
+        message: enrollError.message,
+        details: enrollError.details,
+        hint: enrollError.hint
+      });
+      return NextResponse.json(
+        {
+          error: 'Failed to process enrollment',
+          details: {
+            code: enrollError.code,
+            message: enrollError.message,
+            details: enrollError.details,
+            hint: enrollError.hint
+          }
+        },
+        { status: 500 }
+      );
     }
 
     // ============================================
