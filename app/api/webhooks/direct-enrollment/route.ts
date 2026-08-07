@@ -144,54 +144,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Pending enrollment has expired' }, { status: 400 });
     }
 
-    // Check if user already exists
-    const { data: existingUser } = await supabaseAdmin
-      .from('users')
-      .select('id')
-      .eq('email', pendingEnrollment.email)
-      .single();
-
-    if (existingUser) {
-      console.error(`User already exists: ${pendingEnrollment.email}`);
-      // Update pending enrollment to completed but don't create duplicate user
-      await supabaseAdmin
-        .from('pending_enrollments')
-        .update({
-          payment_status: 'completed',
-          payment_reference: reference,
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', pendingEnrollment.id);
-      return NextResponse.json({ received: true, message: 'User already exists' });
-    }
-
-    // Create the user account
-    const referralCode = generateReferralCode();
-    const { data: newUser, error: userError } = await supabaseAdmin
-      .from('users')
-      .insert({
-        email: pendingEnrollment.email,
-        full_name: pendingEnrollment.full_name,
-        phone_number: pendingEnrollment.phone_number,
-        whatsapp_number: pendingEnrollment.whatsapp_number,
-        state: pendingEnrollment.state,
-        occupation: pendingEnrollment.occupation,
-        gender: pendingEnrollment.gender,
-        referral_code: referralCode,
-        enrollment_type: 'direct',
-        enrollment_date: new Date().toISOString(),
-        payment_amount: amountInNaira,
-        payment_reference: reference,
-        status: 'active',
-      })
-      .select('id')
-      .single();
-
-    if (userError) {
-      console.error('Error creating user:', userError);
-      return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
-    }
-
     // Send admin notification about successful payment
     await AdminEmailService.sendStudentPaymentEmail({
       fullName: pendingEnrollment.full_name,
@@ -203,14 +155,33 @@ export async function POST(request: NextRequest) {
     });
 
     // Create Student Partner (automatic for Direct Enrollment)
+    // First create a referral code for this student
+    const referralCode = generateReferralCode();
+    const { data: newReferralCode, error: referralError } = await supabaseAdmin
+      .from('referral_codes')
+      .insert({
+        owner_id: pendingEnrollment.email, // Use email as owner_id since we use Clerk
+        code: referralCode,
+        status: 'Active',
+        owner_type: 'student'
+      })
+      .select('id')
+      .single();
+
+    if (referralError) {
+      console.error('Error creating referral code:', referralError);
+      // Continue anyway, partner creation can still work without referral code
+    }
+
+    // Now create the partner record
     const { data: studentPartner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .insert({
-        user_id: newUser.id,
-        email: pendingEnrollment.email,
-        full_name: pendingEnrollment.full_name,
+        user_id: pendingEnrollment.email, // Use email as user_id since we use Clerk
+        user_email: pendingEnrollment.email,
+        user_name: pendingEnrollment.full_name,
         partner_type: 'student',
-        referral_code: referralCode,
+        referral_code_id: newReferralCode?.id || null,
         commission_rate: 1500, // Student partner commission
         status: 'active',
         enrolled_at: new Date().toISOString(),
@@ -254,28 +225,28 @@ export async function POST(request: NextRequest) {
         if (partnerReferral) {
           await PartnerReferralService.recordReferralEnrollment(
             pendingEnrollment.referral_code,
-            newUser.id,
+            pendingEnrollment.email,
             amountInNaira
           );
 
           await PartnerCommissionService.createCommission(
             partnerReferral.partner_id,
             partnerReferral.id,
-            newUser.id,
+            pendingEnrollment.email,
             amountInNaira
           );
 
           // Send email notification to partner about successful referral
           const { data: partnerData } = await supabaseAdmin
             .from('partners')
-            .select('full_name, email')
+            .select('user_name, user_email')
             .eq('id', partnerReferral.partner_id)
             .single();
 
           if (partnerData) {
             await AdminEmailService.sendPartnerReferralEmail({
-              partnerName: partnerData.full_name,
-              partnerEmail: partnerData.email,
+              partnerName: partnerData.user_name,
+              partnerEmail: partnerData.user_email,
               refereeEmail: pendingEnrollment.email,
               commissionAmount: 1500,
               referralCode: pendingEnrollment.referral_code

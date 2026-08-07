@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
       .from('pending_enrollments')
       .select('*')
       .eq('email', email)
-      .eq('payment_status', 'pending')
       .maybeSingle();
 
     if (existingError && existingError.code !== 'PGRST116') {
@@ -54,58 +53,81 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingPending) {
-      // If existing pending enrollment is less than 24 hours old, return it
+      // If existing pending enrollment is less than 24 hours old and pending, return it
       const createdAt = new Date(existingPending.created_at);
       const hoursSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60);
 
-      if (hoursSinceCreation < 24) {
+      if (existingPending.payment_status === 'pending' && hoursSinceCreation < 24) {
         return NextResponse.json({
           pendingId: existingPending.id,
           message: 'Existing pending enrollment found'
         });
       } else {
-        // Expire the old one
-        await supabaseAdmin
+        // Update the expired/failed record instead of creating a new one
+        const { data: updatedPending, error: updateError } = await supabaseAdmin
           .from('pending_enrollments')
-          .update({ payment_status: 'expired' })
-          .eq('id', existingPending.id);
+          .update({
+            full_name: fullName,
+            phone_number: phoneNumber,
+            whatsapp_number: whatsappNumber || phoneNumber,
+            state: state,
+            occupation: occupation,
+            gender: gender,
+            referral_source: referralSource,
+            referral_code: referralCode || null,
+            payment_amount: 8000,
+            payment_status: 'pending',
+            expires_at: expiresAt,
+            user_agent: request.headers.get('user-agent') || null,
+            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
+          })
+          .eq('id', existingPending.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error('Error updating existing pending enrollment:', updateError);
+          return NextResponse.json(
+            { error: 'Failed to update existing enrollment', details: updateError.message },
+            { status: 500 }
+          );
+        }
+
+        // Send admin notification about new registration
+        await AdminEmailService.sendStudentRegistrationEmail({
+          fullName,
+          email,
+          phoneNumber,
+          state,
+          occupation,
+          gender,
+          referralSource,
+          referralCode
+        });
+
+        return NextResponse.json({
+          pendingId: updatedPending.id,
+          message: 'Existing enrollment updated successfully'
+        });
       }
-    }
-
-    // Check if user already exists as a student
-    const { data: existingStudent, error: studentError } = await supabaseAdmin
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle();
-
-    if (studentError && studentError.code !== 'PGRST116') {
-      console.error('Error checking existing student:', studentError);
-    }
-
-    if (existingStudent) {
-      return NextResponse.json(
-        { error: 'An account with this email already exists. Please login instead.' },
-        { status: 409 }
-      );
     }
 
     // Validate referral code if provided
     let referredBy = null;
     if (referralCode && referralCode.length === 8) {
-      const { data: partner, error: partnerError } = await supabaseAdmin
-        .from('partners')
-        .select('id, referral_code, status')
-        .eq('referral_code', referralCode)
-        .eq('status', 'active')
+      const { data: referralCodeData, error: referralError } = await supabaseAdmin
+        .from('referral_codes')
+        .select('id, owner_id, owner_type, status')
+        .eq('code', referralCode)
+        .eq('status', 'Active')
         .maybeSingle();
 
-      if (partnerError && partnerError.code !== 'PGRST116') {
-        console.error('Error validating referral code:', partnerError);
+      if (referralError && referralError.code !== 'PGRST116') {
+        console.error('Error validating referral code:', referralError);
       }
 
-      if (partner) {
-        referredBy = partner.id;
+      if (referralCodeData) {
+        referredBy = referralCodeData.id;
       }
     }
 
