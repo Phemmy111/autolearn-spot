@@ -95,7 +95,6 @@ export default async function AdminEnrollmentsPage() {
         </div>
 
         <EnrollmentsTable 
-          key={refreshKey}
           initialEnrollments={safeEnrollments} 
           cohorts={cohorts || []} 
           summary={summary}
