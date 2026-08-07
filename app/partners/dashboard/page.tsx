@@ -220,13 +220,13 @@ export default function PartnerDashboard() {
             <div className="flex items-center gap-4">
               <Link 
                 href="/"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[var(--border)] bg-[var(--background)]/50 hover:bg-[var(--background)] rounded-lg transition-colors text-sm text-[var(--muted-foreground)]"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[var(--border)] bg-[var(--background)]/50 hover:bg-[var(--surface-hover)] rounded-lg transition-colors text-sm text-[var(--muted-foreground)]"
               >
                 Home
               </Link>
               <button 
                 onClick={() => { fetchNotifications(); setShowNotifications(!showNotifications); }}
-                className="relative p-2 hover:bg-[var(--background)]/50 rounded-lg transition-colors"
+                className="relative p-2 hover:bg-[var(--surface-hover)]/50 rounded-lg transition-colors"
               >
                 <Bell className="h-5 w-5 text-[var(--muted-foreground)]" />
                 {data?.unreadCount > 0 && (
@@ -235,7 +235,7 @@ export default function PartnerDashboard() {
               </button>
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[var(--border)] bg-[var(--background)]/50 hover:bg-[var(--background)] rounded-lg transition-colors text-sm text-[var(--muted-foreground)]"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[var(--border)] bg-[var(--background)]/50 hover:bg-[var(--surface-hover)] rounded-lg transition-colors text-sm text-[var(--muted-foreground)]"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
@@ -253,7 +253,7 @@ export default function PartnerDashboard() {
 
       {/* Notification Dropdown */}
       {showNotifications && (
-        <div className="absolute top-20 right-4 sm:right-6 w-96 bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-xl z-50">
+        <div className="absolute top-20 right-4 sm:right-6 w-96 bg-[var(--surface)] border border-[var(--border-default)] rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all z-50">
           <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
             <h3 className="font-bold text-[var(--foreground)]">Notifications</h3>
             <button
@@ -276,7 +276,7 @@ export default function PartnerDashboard() {
               notifications.map((notif: any) => (
                 <div 
                   key={notif.id} 
-                  className={`p-4 border-b border-[var(--border)] cursor-pointer hover:bg-[var(--background)]/50 transition-colors ${!notif.read ? 'bg-[var(--primary)]/5' : ''}`}
+                  className={`p-4 border-b border-[var(--border)] cursor-pointer hover:bg-[var(--surface-hover)]/50 transition-colors ${!notif.read ? 'bg-[var(--primary)]/5' : ''}`}
                   onClick={async () => {
                     if (!notif.read) {
                       await fetch("/api/partners/notifications", {
@@ -314,7 +314,7 @@ export default function PartnerDashboard() {
                   className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                     activeTab === item.id
                       ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                      : 'text-[var(--muted-foreground)] hover:bg-[var(--background)]/50'
+                      : 'text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]/50'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -324,7 +324,7 @@ export default function PartnerDashboard() {
             })}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--background)]/50"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]/50"
             >
               <LogOut className="h-5 w-5" />
               Logout
@@ -337,7 +337,7 @@ export default function PartnerDashboard() {
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="hidden lg:block">
-            <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-4 sticky top-24">
+            <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-4 sticky top-24">
               <nav className="space-y-2">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -348,7 +348,7 @@ export default function PartnerDashboard() {
                       className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                         activeTab === item.id
                           ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                          : 'text-[var(--muted-foreground)] hover:bg-[var(--background)]/50'
+                          : 'text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]/50'
                       }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -372,28 +372,28 @@ export default function PartnerDashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Wallet className="h-4 w-4 text-[var(--primary)]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Available Balance</span>
                 </div>
                 <div className="text-2xl font-bold text-[var(--primary)]">₦{stats?.availableEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-[var(--foreground)]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Pending Earnings</span>
                 </div>
                 <div className="text-2xl font-bold text-[var(--foreground)]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-4 w-4 text-[var(--foreground)]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Total Earned</span>
                 </div>
                 <div className="text-2xl font-bold text-[var(--foreground)]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-[var(--foreground)]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Total Referrals</span>
@@ -403,7 +403,7 @@ export default function PartnerDashboard() {
             </div>
 
             {/* Referral Link Card */}
-            <div className="border border-[var(--primary)]/30 bg-gradient-to-r from-[var(--primary)]/10 to-transparent rounded-2xl p-6">
+            <div className="border border-[var(--border-default)] bg-gradient-to-r from-[var(--primary)]/10 to-transparent rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-bold text-[var(--foreground)] mb-2">Your Referral Link</h3>
@@ -412,13 +412,13 @@ export default function PartnerDashboard() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <div className="bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 font-mono text-sm text-[var(--muted-foreground)] truncate flex-1 sm:w-64">
+                  <div className="bg-[var(--background)]/50 border border-[var(--border-default)] rounded-2xl px-4 py-3 font-mono text-sm text-[var(--muted-foreground)] truncate flex-1 sm:w-64">
                     {data?.referral?.link || "Generating referral link..."}
                   </div>
                   <button
                     onClick={handleCopyLink}
                     disabled={!data?.referral?.link}
-                    className="border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-3 rounded-lg font-bold hover:bg-[var(--surface-hover)] transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied!" : "Copy"}
@@ -426,7 +426,7 @@ export default function PartnerDashboard() {
                   {!data?.referral?.link && (
                     <button
                       onClick={fetchDashboardData}
-                      className="border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] px-3 py-3 rounded-lg font-medium hover:bg-[var(--background)] transition-colors flex-shrink-0"
+                      className="border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] px-3 py-3 rounded-lg font-medium hover:bg-[var(--surface-hover)] transition-colors flex-shrink-0"
                       title="Refresh referral link"
                     >
                       <RefreshCw className="h-4 w-4" />
@@ -441,7 +441,7 @@ export default function PartnerDashboard() {
               <>
                 {/* Charts Section */}
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                  <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                     <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
                       <Activity className="h-5 w-5 text-[var(--primary)]" />
                       Monthly Earnings
@@ -473,7 +473,7 @@ export default function PartnerDashboard() {
                     </div>
                   </div>
 
-                  <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                  <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                     <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
                       <MousePointerClick className="h-5 w-5 text-[var(--primary)]" />
                       Referral Performance
@@ -511,7 +511,7 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                   <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
                     <History className="h-5 w-5 text-[var(--primary)]" />
                     Recent Activity
@@ -519,7 +519,7 @@ export default function PartnerDashboard() {
                   <div className="space-y-4">
                     {data?.recentCommissions && data.recentCommissions.length > 0 ? (
                       data.recentCommissions.slice(0, 5).map((commission: any) => (
-                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                           <div className="flex h-10 w-10 items-center justify-center border border-[var(--primary)]/60 bg-[var(--primary)]/10 rounded-lg">
                             <DollarSign className="h-5 w-5 text-[var(--primary)]" />
                           </div>
@@ -539,7 +539,7 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "referrals" && (
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                 <h3 className="font-semibold text-[var(--foreground)] mb-4">Referral History</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -583,24 +583,24 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "earnings" && (
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                 <h3 className="font-semibold text-[var(--foreground)] mb-4">Earnings Breakdown</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                     <div>
                       <p className="text-sm font-medium text-[var(--foreground)]">Available Balance</p>
                       <p className="text-xs text-[var(--muted-foreground)]">Ready for withdrawal</p>
                     </div>
                     <p className="text-2xl font-bold text-[var(--primary)]">₦{stats?.availableEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                     <div>
                       <p className="text-sm font-medium text-[var(--foreground)]">Pending Earnings</p>
                       <p className="text-xs text-[var(--muted-foreground)]">Being processed</p>
                     </div>
                     <p className="text-2xl font-bold text-[var(--foreground)]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                     <div>
                       <p className="text-sm font-medium text-[var(--foreground)]">Total Earned</p>
                       <p className="text-xs text-[var(--muted-foreground)]">All time earnings</p>
@@ -613,7 +613,7 @@ export default function PartnerDashboard() {
 
             {activeTab === "withdrawals" && (
               <div className="space-y-6">
-                <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                   <h3 className="font-semibold text-[var(--foreground)] mb-4">Request Withdrawal</h3>
                   <form onSubmit={handleWithdraw} className="space-y-4">
                     <div>
@@ -624,6 +624,7 @@ export default function PartnerDashboard() {
                         onChange={(e) => setWithdrawAmount(e.target.value)}
                         min="5000"
                         className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)]"
+                        className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)] placeholder-[var(--text-placeholder)]"
                         placeholder="Minimum ₦5,000"
                       />
                     </div>
@@ -639,7 +640,7 @@ export default function PartnerDashboard() {
                     <button
                       disabled={isWithdrawing || !bankProfile}
                       type="submit"
-                      className="w-full py-3 border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-3 border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl font-bold hover:bg-[var(--surface-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isWithdrawing ? (
                         <>
@@ -656,12 +657,12 @@ export default function PartnerDashboard() {
                   </form>
                 </div>
 
-                <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                   <h3 className="font-semibold text-[var(--foreground)] mb-4">Withdrawal History</h3>
                   <div className="space-y-4">
                     {data?.withdrawals && data.withdrawals.length > 0 ? (
                       data.withdrawals.map((withdrawal: any) => (
-                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                           <div>
                             <p className="text-sm font-medium text-[var(--foreground)]">₦{withdrawal.amount?.toLocaleString()}</p>
                             <p className="text-xs text-[var(--muted-foreground)]">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
@@ -686,14 +687,14 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "marketing" && (
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                 <h3 className="font-semibold text-[var(--foreground)] mb-4">Marketing Kit</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {data?.marketingResources && data.marketingResources.length > 0 ? (
                     data.marketingResources.map((item: any) => {
                       const Icon = FileText; // Default icon, can be customized based on type
                       return (
-                        <div key={item.id} className="border border-[var(--border)] bg-[var(--background)]/50 rounded-xl p-4 hover:border-[var(--primary)]/50 transition-all">
+                        <div key={item.id} className="border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-4">
                           <div className="flex items-center gap-3 mb-3">
                             <div className="flex h-10 w-10 items-center justify-center border border-[var(--primary)]/60 bg-[var(--primary)]/10 rounded-lg">
                               <Icon className="h-5 w-5 text-[var(--primary)]" />
@@ -749,12 +750,12 @@ export default function PartnerDashboard() {
             {/* Material Detail Modal */}
             {selectedMaterial && showMaterialDetailModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="bg-[var(--card)] border border-[var(--border-default)] rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                   <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
                     <h2 className="text-xl font-bold text-[var(--foreground)]">Material Details</h2>
                     <button
                       onClick={() => setShowMaterialDetailModal(false)}
-                      className="p-2 hover:bg-[var(--background)] rounded-lg transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                      className="p-2 hover:bg-[var(--surface-hover)] rounded-lg transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -819,7 +820,7 @@ export default function PartnerDashboard() {
                           href={selectedMaterial.url}
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-[#12E6F3] hover:underline flex items-center gap-2"
+                          className="text-[var(--primary)] hover:underline flex items-center gap-2"
                         >
                           <FileText className="h-4 w-4" />
                           Open file in new tab
@@ -848,24 +849,24 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "settings" && (
-              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
                 <h3 className="font-semibold text-[var(--foreground)] mb-4">Profile Settings</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Partner ID</label>
-                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg font-mono text-sm text-[var(--muted-foreground)]">
+                    <div className="p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all font-mono text-sm text-[var(--muted-foreground)]">
                       {partner?.id || "N/A"}
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Email</label>
-                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg text-sm text-[var(--foreground)]">
+                    <div className="p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all text-sm text-[var(--foreground)]">
                       {partner?.email || "N/A"}
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Partner Type</label>
-                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg text-sm text-[var(--foreground)]">
+                    <div className="p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all text-sm text-[var(--foreground)]">
                       {partner?.type === "student" ? "Student Partner" : 
                        partner?.type === "community" ? "Community Partner" : 
                        partner?.type === "influencer" ? "Influencer" : "Partner"}
@@ -873,7 +874,7 @@ export default function PartnerDashboard() {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Commission Rate</label>
-                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg text-sm text-[var(--primary)]">
+                    <div className="p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all text-sm text-[var(--primary)]">
                       ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} per referral
                     </div>
                   </div>
@@ -893,7 +894,7 @@ export default function PartnerDashboard() {
                           }
                           setShowBankModal(true);
                         }}
-                        className="text-xs text-[var(--primary)] hover:text-white transition-colors"
+                        className="text-xs text-[var(--primary)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         {bankProfile ? 'Edit' : 'Add Bank Details'}
                       </button>
@@ -901,15 +902,15 @@ export default function PartnerDashboard() {
                     
                     {bankProfile ? (
                       <div className="space-y-3">
-                        <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                        <div className="p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                           <p className="text-xs text-[var(--muted-foreground)] mb-1">Bank Name</p>
                           <p className="text-sm text-[var(--foreground)]">{bankProfile.bank_name}</p>
                         </div>
-                        <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                        <div className="p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                           <p className="text-xs text-[var(--muted-foreground)] mb-1">Account Number</p>
                           <p className="text-sm text-[var(--foreground)]">{bankProfile.account_number}</p>
                         </div>
-                        <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                        <div className="p-3 border border-[var(--border-default)] bg-[var(--background)]/50 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                           <p className="text-xs text-[var(--muted-foreground)] mb-1">Account Name</p>
                           <p className="text-sm text-[var(--foreground)]">{bankProfile.account_name}</p>
                         </div>
@@ -919,7 +920,7 @@ export default function PartnerDashboard() {
                         <p className="text-sm text-[var(--muted-foreground)] mb-2">No bank details added yet</p>
                         <button
                           onClick={() => setShowBankModal(true)}
-                          className="text-xs text-[var(--primary)] hover:text-white transition-colors"
+                          className="text-xs text-[var(--primary)] hover:text-[var(--text-primary)] transition-colors"
                         >
                           Add bank details to enable withdrawals
                         </button>
@@ -929,7 +930,7 @@ export default function PartnerDashboard() {
                   
                   <button
                     onClick={handleContactSupport}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-white rounded-lg font-medium hover:bg-[#25D366]/90 transition-colors mt-4"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-[var(--text-primary)] rounded-lg font-medium hover:bg-[#25D366]/90 transition-colors mt-4"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Contact Support via WhatsApp
@@ -944,12 +945,12 @@ export default function PartnerDashboard() {
       {/* Bank Profile Modal */}
       {showBankModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 sm:p-8 w-full max-w-md">
+          <div className="bg-[var(--card)] border border-[var(--border-default)] rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6 sm:p-8 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-[var(--foreground)]">{bankProfile ? 'Edit Bank Profile' : 'Setup Bank Profile'}</h2>
               <button
                 onClick={() => setShowBankModal(false)}
-                className="text-[var(--muted-foreground)] hover:text-white transition-colors"
+                className="text-[var(--muted-foreground)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -985,6 +986,7 @@ export default function PartnerDashboard() {
                   value={bankFormData.bank_name}
                   onChange={(e) => setBankFormData({...bankFormData, bank_name: e.target.value})}
                   className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)] placeholder-[var(--text-placeholder)]"
                   placeholder="Enter bank name"
                 />
               </div>
@@ -996,6 +998,7 @@ export default function PartnerDashboard() {
                   value={bankFormData.account_number}
                   onChange={(e) => setBankFormData({...bankFormData, account_number: e.target.value})}
                   className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)] placeholder-[var(--text-placeholder)]"
                   placeholder="Enter account number"
                 />
               </div>
@@ -1007,6 +1010,7 @@ export default function PartnerDashboard() {
                   value={bankFormData.account_name}
                   onChange={(e) => setBankFormData({...bankFormData, account_name: e.target.value})}
                   className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] transition-colors"
+                  className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)] placeholder-[var(--text-placeholder)]"
                   placeholder="Enter account name"
                 />
               </div>
@@ -1014,14 +1018,14 @@ export default function PartnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowBankModal(false)}
-                  className="flex-1 py-3 border border-[var(--border)] text-[var(--muted-foreground)] rounded-lg font-medium hover:bg-[var(--background)] transition-colors"
+                  className="flex-1 py-3 border border-[var(--border)] text-[var(--muted-foreground)] rounded-lg font-medium hover:bg-[var(--surface-hover)] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingBank}
-                  className="flex-1 py-3 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg font-bold hover:bg-[var(--surface-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSavingBank ? 'Saving...' : 'Save Profile'}
                 </button>

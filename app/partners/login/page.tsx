@@ -67,7 +67,7 @@ export default function PartnerLoginPage() {
           </p>
         </div>
 
-        <div className="border border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+        <div className="border border-[var(--border-default)] bg-[var(--background)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6 sm:p-8">
           {error && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
               {error}
@@ -109,7 +109,7 @@ export default function PartnerLoginPage() {
                 required
                 type="email"
                 name="email"
-                className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)]"
+                className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)] placeholder-[var(--text-placeholder)]"
                 placeholder="your@email.com"
               />
             </div>
@@ -120,7 +120,7 @@ export default function PartnerLoginPage() {
                 required
                 type="password"
                 name="password"
-                className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)]"
+                className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)] placeholder-[var(--text-placeholder)]"
                 placeholder="••••••••"
               />
             </div>
@@ -128,7 +128,7 @@ export default function PartnerLoginPage() {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="w-full py-4 rounded-xl border border-[var(--primary)] bg-[var(--primary)] text-[var(--background)] font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl border border-[var(--primary)] bg-[var(--primary)] text-[var(--background)] font-bold hover:bg-[var(--surface-hover)] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

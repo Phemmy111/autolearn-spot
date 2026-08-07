@@ -290,7 +290,7 @@ export default function AssignmentsPage() {
                       ) : (
                         <button
                           onClick={() => setSelectedAssignment(assignment)}
-                          className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
+                          className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-[var(--surface-hover)]"
                         >
                           Submit Assignment
                         </button>
@@ -550,7 +550,7 @@ export default function AssignmentsPage() {
                 <button
                   type="submit"
                   disabled={submitting || uploading}
-                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-[var(--surface-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {uploading ? 'Uploading...' : submitting ? 'Submitting...' : 'Submit'}
                 </button>

@@ -101,7 +101,7 @@ export default function NotificationSettingsPage() {
                 onClick={() => handleToggle('email_notifications')}
                 className={`w-12 h-6 rounded-full transition-colors relative ${preferences.email_notifications ? 'bg-[#00f0ff]' : 'bg-[#3b494b]'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${preferences.email_notifications ? 'left-7' : 'left-1'}`}></div>
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-[var(--card)] transition-transform ${preferences.email_notifications ? 'left-7' : 'left-1'}`}></div>
               </button>
             </div>
             
@@ -111,7 +111,7 @@ export default function NotificationSettingsPage() {
                 <p className="text-xs text-[#b9cacb] mt-1">Receive updates in the dashboard bell</p>
               </div>
               <button disabled className="w-12 h-6 rounded-full bg-[#00f0ff] opacity-50 relative cursor-not-allowed">
-                <div className="absolute top-1 w-4 h-4 rounded-full bg-white left-7"></div>
+                <div className="absolute top-1 w-4 h-4 rounded-full bg-[var(--card)] left-7"></div>
               </button>
               <span className="sr-only">Always on</span>
             </div>
@@ -191,7 +191,7 @@ export default function NotificationSettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 bg-[#00f0ff] px-6 py-3 font-mono text-sm font-bold uppercase text-black transition hover:bg-white disabled:opacity-50"
+              className="flex items-center gap-2 bg-[#00f0ff] px-6 py-3 font-mono text-sm font-bold uppercase text-black transition hover:bg-[var(--surface-hover)] disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {saving ? 'Saving...' : 'Save Settings'}

@@ -80,7 +80,7 @@ export default function SettingsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-surface border border-border rounded-2xl p-6 mb-6">
+        <div className="bg-[var(--surface)] border border-border rounded-2xl p-6 mb-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[var(--primary)] mb-6">
             Profile
           </h2>
@@ -104,7 +104,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-surface border border-border rounded-2xl p-6">
+        <div className="bg-[var(--surface)] border border-border rounded-2xl p-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[var(--primary)] mb-6">
             Account Information
           </h2>

@@ -16,7 +16,7 @@ export default function ScholarshipLandingPage() {
   const formattedCommitmentFee = `₦${commitmentFee.toLocaleString()}`;
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-foreground pb-24">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] pb-24">
       <Navigation />
       <div className="pt-24">
         {/* Hero Section */}
@@ -37,21 +37,21 @@ export default function ScholarshipLandingPage() {
             </h1>
 
             <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-              The full value of this hands-on n8n and AI automation training is <strong className="text-white">{formattedFullValue}</strong>.
+              The full value of this hands-on n8n and AI automation training is <strong className="text-[var(--text-primary)]">{formattedFullValue}</strong>.
               Selected scholars only pay a <strong className="text-primary">{formattedCommitmentFee} Commitment Fee</strong>.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/scholarship/apply"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-primary bg-primary px-8 py-4 font-mono text-sm font-bold uppercase text-black transition-all hover:bg-transparent hover:text-primary hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-primary bg-primary px-8 py-4 font-mono text-sm font-bold uppercase text-[var(--text-primary)] transition-all hover:bg-transparent hover:text-primary hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
               >
                 Apply For Scholarship
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
                 href="#details"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-border bg-transparent px-8 py-4 font-mono text-sm font-bold uppercase text-foreground transition-all hover:bg-surface"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-[var(--border-default)] bg-transparent px-8 py-4 font-mono text-sm font-bold uppercase text-[var(--text-primary)] transition-all hover:bg-[var(--surface-hover)] rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)]"
               >
                 Learn More
               </Link>
@@ -62,7 +62,7 @@ export default function ScholarshipLandingPage() {
         {/* Details Section */}
         <section id="details" className="px-4 py-16 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-border">
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-card border border-border p-8 relative group overflow-hidden">
+          <div className="bg-[var(--card)] border border-[var(--border-default)] p-8 relative group overflow-hidden rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Trophy className="w-24 h-24 text-primary" />
             </div>
@@ -76,7 +76,7 @@ export default function ScholarshipLandingPage() {
             </div>
           </div>
 
-          <div className="bg-card border border-border p-8 relative group overflow-hidden">
+          <div className="bg-[var(--card)] border border-[var(--border-default)] p-8 relative group overflow-hidden rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <ShieldCheck className="w-24 h-24 text-primary" />
             </div>
@@ -90,7 +90,7 @@ export default function ScholarshipLandingPage() {
             </div>
           </div>
 
-          <div className="bg-card border border-border p-8 relative group overflow-hidden">
+          <div className="bg-[var(--card)] border border-[var(--border-default)] p-8 relative group overflow-hidden rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Zap className="w-24 h-24 text-primary" />
             </div>
@@ -119,29 +119,29 @@ export default function ScholarshipLandingPage() {
 
       {/* FAQ Section */}
       <section className="px-4 py-16 sm:px-6 lg:px-8 max-w-3xl mx-auto">
-        <h2 className="font-heading text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
+        <h2 className="font-heading text-3xl font-bold text-center mb-10 text-[var(--text-primary)]">Frequently Asked Questions</h2>
         
         <div className="space-y-6">
-          <div className="border border-border bg-card p-6">
-            <h4 className="font-bold text-lg mb-2">Is the {formattedCommitmentFee} a tuition fee?</h4>
-            <p className="text-muted-foreground">No. The training itself is scholarship-supported (valued at {formattedFullValue}). The commitment fee covers onboarding logistics, platform administration, and your final certification.</p>
+          <div className="border border-[var(--border-default)] bg-[var(--card)] p-6 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
+            <h4 className="font-bold text-lg mb-2 text-[var(--text-primary)]">Is the {formattedCommitmentFee} a tuition fee?</h4>
+            <p className="text-[var(--text-body)]">No. The training itself is scholarship-supported (valued at {formattedFullValue}). The commitment fee covers onboarding logistics, platform administration, and your final certification.</p>
           </div>
           
-          <div className="border border-border bg-card p-6">
-            <h4 className="font-bold text-lg mb-2">When will I hear back?</h4>
-            <p className="text-muted-foreground">Our team reviews applications on a rolling basis. You can expect an update via email and on our status checking portal within 3 days of submission.</p>
+          <div className="border border-[var(--border-default)] bg-[var(--card)] p-6 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
+            <h4 className="font-bold text-lg mb-2 text-[var(--text-primary)]">When will I hear back?</h4>
+            <p className="text-[var(--text-body)]">Our team reviews applications on a rolling basis. You can expect an update via email and on our status checking portal within 3 days of submission.</p>
           </div>
           
-          <div className="border border-border bg-card p-6">
-            <h4 className="font-bold text-lg mb-2">What happens if I'm accepted?</h4>
-            <p className="text-muted-foreground">You will receive an acceptance email with instructions on how to pay the commitment fee and complete your enrollment to secure your spot.</p>
+          <div className="border border-[var(--border-default)] bg-[var(--card)] p-6 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
+            <h4 className="font-bold text-lg mb-2 text-[var(--text-primary)]">What happens if I'm accepted?</h4>
+            <p className="text-[var(--text-body)]">You will receive an acceptance email with instructions on how to pay the commitment fee and complete your enrollment to secure your spot.</p>
           </div>
         </div>
 
         <div className="mt-12 text-center">
           <Link
             href="/scholarship/apply"
-            className="inline-flex items-center justify-center gap-2 border border-primary bg-primary/10 px-8 py-4 font-mono text-sm font-bold uppercase text-primary transition-all hover:bg-primary hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+            className="inline-flex items-center justify-center gap-2 border border-primary bg-primary/10 px-8 py-4 font-mono text-sm font-bold uppercase text-primary transition-all hover:bg-primary hover:text-[var(--text-primary)] hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
           >
             Start Your Application Now
           </Link>
@@ -153,7 +153,7 @@ export default function ScholarshipLandingPage() {
             href={scholarshipConfig.generalWhatsAppGroup}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3 font-mono text-sm font-bold uppercase transition-all hover:bg-[#128C7E] hover:shadow-[0_0_15px_rgba(37,211,102,0.4)]"
+            className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-[var(--text-primary)] px-6 py-3 font-mono text-sm font-bold uppercase transition-all hover:bg-[#128C7E] hover:shadow-[0_0_15px_rgba(37,211,102,0.4)]"
           >
             Join WhatsApp Group
           </a>

@@ -62,7 +62,7 @@ export default function ScholarshipStatusPage() {
   const renderStatusIcon = (status: StatusType) => {
     switch (status) {
       case 'Submitted':
-        return <FileText className="w-16 h-16 text-[#b9cacb] mx-auto mb-6" />;
+        return <FileText className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-6" />;
       case 'Under Review':
         return <Search className="w-16 h-16 text-primary mx-auto mb-6 animate-pulse" />;
       case 'Shortlisted':
@@ -74,28 +74,28 @@ export default function ScholarshipStatusPage() {
       case 'Not Selected':
         return <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-6" />;
       default:
-        return <FileText className="w-16 h-16 text-[#b9cacb] mx-auto mb-6" />;
+        return <FileText className="w-16 h-16 text-[var(--text-muted)] mx-auto mb-6" />;
     }
   };
 
   const getStatusColor = (status: StatusType) => {
     switch (status) {
-      case 'Submitted': return 'text-[#b9cacb] border-[#3b494b]';
+      case 'Submitted': return 'text-[var(--text-muted)] border-[var(--border)]';
       case 'Under Review': return 'text-primary border-primary';
       case 'Shortlisted': return 'text-yellow-400 border-yellow-400';
       case 'Accepted': return 'text-green-400 border-green-400';
       case 'Waitlisted': return 'text-orange-400 border-orange-400';
       case 'Not Selected': return 'text-red-400 border-red-400';
-      default: return 'text-[#b9cacb] border-[#3b494b]';
+      default: return 'text-[var(--text-muted)] border-[var(--border)]';
     }
   };
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-foreground flex flex-col">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col">
       <Navigation />
       <div className="pt-24 flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-foreground mb-8 hover:text-primary transition-colors" href="/scholarship">
+          <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-[var(--text-primary)] mb-8 hover:text-primary transition-colors" href="/scholarship">
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Scholarship Info</span>
           </Link>
@@ -107,14 +107,14 @@ export default function ScholarshipStatusPage() {
           )}
 
           {step === 'request' && (
-            <div className="bg-card border border-border p-8 relative overflow-hidden">
+            <div className="bg-card border border-[var(--border-default)] p-8 relative overflow-hidden rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/70" />
               <div className="text-center mb-8">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-6 h-6 text-primary" />
                 </div>
                 <h1 className="font-heading text-2xl font-bold mb-2">Check Application Status</h1>
-                <p className="text-sm text-[#b9cacb]">Enter your email to receive a secure verification code.</p>
+                <p className="text-sm text-[var(--text-muted)]">Enter your email to receive a secure verification code.</p>
               </div>
 
               <form onSubmit={handleRequestOTP} className="space-y-4">
@@ -126,13 +126,13 @@ export default function ScholarshipStatusPage() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-surface border border-[#3b494b] p-4 text-foreground focus:border-primary focus:outline-none transition-colors text-center"
+                    className="w-full bg-surface border border-[var(--border)] p-4 text-[var(--text-primary)] focus:border-primary focus:outline-none transition-colors text-center placeholder-[var(--text-placeholder)]"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-2 bg-primary text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-primary hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-primary transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 bg-primary text-[var(--text-primary)] font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-primary hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-primary transition-all disabled:opacity-50"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Code'}
                 </button>
@@ -148,7 +148,7 @@ export default function ScholarshipStatusPage() {
                   <KeyRound className="w-6 h-6 text-primary" />
                 </div>
                 <h1 className="font-heading text-2xl font-bold mb-2">Enter Verification Code</h1>
-                <p className="text-sm text-[#b9cacb]">We sent a 6-digit code to {email}</p>
+                <p className="text-sm text-[var(--text-muted)]">We sent a 6-digit code to {email}</p>
               </div>
 
               <form onSubmit={handleVerifyOTP} className="space-y-4">
@@ -161,20 +161,20 @@ export default function ScholarshipStatusPage() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="w-full bg-surface border border-[#3b494b] p-4 text-foreground text-2xl tracking-[0.5em] focus:border-primary focus:outline-none transition-colors text-center font-mono"
+                    className="w-full bg-surface border border-[var(--border)] p-4 text-[var(--text-primary)] text-2xl tracking-[0.5em] focus:border-primary focus:outline-none transition-colors text-center font-mono placeholder-[var(--text-placeholder)]"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isLoading || otp.length < 5}
-                  className="w-full flex items-center justify-center gap-2 bg-primary text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-primary hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-primary transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 bg-primary text-[var(--text-primary)] font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-primary hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-primary transition-all disabled:opacity-50"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & View Status'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep('request')}
-                  className="w-full text-sm text-[#b9cacb] hover:text-primary mt-4 transition-colors"
+                  className="w-full text-sm text-[var(--text-muted)] hover:text-primary mt-4 transition-colors"
                 >
                   Use a different email
                 </button>
@@ -183,7 +183,7 @@ export default function ScholarshipStatusPage() {
           )}
 
           {step === 'result' && result && (
-            <div className="bg-card border border-border p-8 text-center relative overflow-hidden animate-fade-in-up">
+            <div className="bg-card border border-[var(--border-default)] p-8 text-center relative overflow-hidden animate-fade-in-up rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
               <div className={`absolute top-0 left-0 w-full h-1 ${
                 result.status === 'Accepted' ? 'bg-green-400' :
                 result.status === 'Under Review' ? 'bg-primary' :
@@ -196,20 +196,20 @@ export default function ScholarshipStatusPage() {
               {renderStatusIcon(result.status)}
               
               <h1 className="font-heading text-2xl font-bold mb-2">Hello, {result.full_name}</h1>
-              <p className="text-sm text-[#b9cacb] mb-6">Here is the current status of your application.</p>
+              <p className="text-sm text-[var(--text-muted)] mb-6">Here is the current status of your application.</p>
               
-              <div className="bg-surface border border-border p-6 mb-8">
-                <p className="text-xs text-[#b9cacb] uppercase tracking-widest mb-1">Status</p>
+              <div className="bg-surface border border-[var(--border-default)] p-6 mb-8 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-1">Status</p>
                 <div className={`inline-block border px-4 py-1 rounded-full text-sm font-bold font-mono mb-6 ${getStatusColor(result.status)}`}>
                   {result.status}
                 </div>
                 
-                <p className="text-xs text-[#b9cacb] uppercase tracking-widest mb-1">Reference Number</p>
-                <p className="font-mono text-lg text-foreground">{result.reference_number}</p>
+                <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-1">Reference Number</p>
+                <p className="font-mono text-lg text-[var(--text-primary)]">{result.reference_number}</p>
               </div>
               
               {result.status === 'Submitted' && (
-                <p className="text-sm text-[#b9cacb]">Your application is in our queue and will be reviewed shortly.</p>
+                <p className="text-sm text-[var(--text-muted)]">Your application is in our queue and will be reviewed shortly.</p>
               )}
               {result.status === 'Under Review' && (
                 <p className="text-sm text-primary">Our team is currently reviewing your application. You'll hear from us soon!</p>
@@ -224,12 +224,12 @@ export default function ScholarshipStatusPage() {
                         href={scholarshipConfig.paymentUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full flex items-center justify-center gap-2 bg-primary text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-primary hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-primary transition-all"
+                        className="block w-full flex items-center justify-center gap-2 bg-primary text-[var(--text-primary)] font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-primary hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-primary transition-all"
                       >
                         <CreditCard className="w-5 h-5" />
                         Pay Commitment Fee (₦5,000)
                       </a>
-                      <p className="text-xs text-[#b9cacb] text-center">
+                      <p className="text-xs text-[var(--text-muted)] text-center">
                         Payment verification is automatic. You'll receive a welcome email after successful payment.
                       </p>
                       <button
@@ -244,7 +244,7 @@ export default function ScholarshipStatusPage() {
                           }
                         }}
                         disabled={isLoading}
-                        className="block w-full text-xs text-[#b9cacb] hover:text-primary border border-[#3b494b] py-2 transition-colors disabled:opacity-50"
+                        className="block w-full text-xs text-[var(--text-muted)] hover:text-primary border border-[var(--border)] py-2 transition-colors disabled:opacity-50"
                       >
                         Payment not automatically verified? Click here
                       </button>
@@ -268,7 +268,7 @@ export default function ScholarshipStatusPage() {
                   setOtp('');
                   setResult(null);
                 }}
-                className="w-full text-sm text-[#b9cacb] hover:text-foreground mt-8 border border-[#3b494b] py-3 transition-colors"
+                className="w-full text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] mt-8 border border-[var(--border)] py-3 transition-colors"
               >
                 Check Another Application
               </button>

@@ -186,11 +186,11 @@ export default function DashboardPage() {
         <h2 className="mb-6 text-2xl font-bold">Please sign in to access the curriculum</h2>
         <Link
           href="/sign-in"
-          className="font-mono text-sm font-bold uppercase text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-black transition-colors"
+          className="font-mono text-sm font-bold uppercase text-primary border border-primary px-6 py-3 hover:bg-primary hover:text-[var(--text-primary)] transition-colors"
         >
           Login
         </Link>
-        <p className="mt-4 text-sm text-muted-foreground">Don't have an account?{' '}
+        <p className="mt-4 text-sm text-[var(--text-muted)]">Don't have an account?{' '}
           <Link href="/sign-up" className="text-primary hover:underline ml-1">Sign Up</Link>
         </p>
       </div>
@@ -201,40 +201,40 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-border bg-[var(--background)]/95 px-4 backdrop-blur sm:px-6">
-        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/">
+        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-[var(--text-primary)]" href="/">
           <span className="text-primary">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </Link>
         <div className="flex items-center gap-4 md:gap-6">
           <div className="hidden items-center gap-6 md:flex">
-            <Link href="/dashboard" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/live-class" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/live-class" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Live Class
             </Link>
-            <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard/quiz" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Quiz
             </Link>
-            <Link href="/dashboard/assignments" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard/assignments" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Assignments
             </Link>
-            <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard/leaderboard" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Leaderboard
             </Link>
-            <Link href="/dashboard/history" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard/history" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               History
             </Link>
-            <Link href="/dashboard/analytics" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard/analytics" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Analytics
             </Link>
-            <Link href="/dashboard/refer-and-earn" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard/refer-and-earn" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Refer & Earn
             </Link>
-            <Link href="/dashboard/settings" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/dashboard/settings" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Settings
             </Link>
-            <Link href="/admin" className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/admin" className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors">
               Admin
             </Link>
           </div>
@@ -250,8 +250,8 @@ export default function DashboardPage() {
                   className="w-10 h-10 rounded-full object-cover border-2 border-border group-hover:border-primary transition-colors"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-surface border-2 border-border group-hover:border-primary transition-colors flex items-center justify-center">
-                  <span className="text-muted-foreground group-hover:text-primary transition-colors text-sm font-bold">
+                <div className="w-10 h-10 rounded-full bg-[var(--surface)] border-2 border-border group-hover:border-primary transition-colors flex items-center justify-center">
+                  <span className="text-[var(--text-muted)] group-hover:text-primary transition-colors text-sm font-bold">
                     {firstName.charAt(0)}
                   </span>
                 </div>
@@ -259,7 +259,7 @@ export default function DashboardPage() {
             </Link>
             
             <SignOutButton redirectUrl="/">
-              <button className="font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors border border-border px-3 py-1 bg-surface cursor-pointer">
+              <button className="font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors border border-border px-3 py-1 bg-[var(--surface)] cursor-pointer">
                 Sign Out
               </button>
             </SignOutButton>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-muted-foreground hover:text-white"
+            className="md:hidden p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -295,83 +295,83 @@ export default function DashboardPage() {
                     className="w-16 h-16 rounded-full object-cover border-2 border-border group-hover:border-primary transition-colors"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-surface border-2 border-border group-hover:border-primary transition-colors flex items-center justify-center">
-                    <span className="text-muted-foreground group-hover:text-primary transition-colors text-xl font-bold">
+                  <div className="w-16 h-16 rounded-full bg-[var(--surface)] border-2 border-border group-hover:border-primary transition-colors flex items-center justify-center">
+                    <span className="text-[var(--text-muted)] group-hover:text-primary transition-colors text-xl font-bold">
                       {firstName.charAt(0)}
                     </span>
                   </div>
                 )}
               </Link>
-              <p className="text-sm font-medium text-white">{firstName}</p>
+              <p className="text-sm font-medium text-[var(--text-primary)]">{firstName}</p>
             </div>
             <div className="flex flex-col gap-4">
               <Link
                 href="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Home
               </Link>
               <Link
                 href="/live-class"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Live Class
               </Link>
               <Link
                 href="/dashboard/quiz"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Quiz
               </Link>
               <Link
                 href="/dashboard/assignments"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Assignments
               </Link>
               <Link
                 href="/dashboard/leaderboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Leaderboard
               </Link>
               <Link
                 href="/dashboard/history"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 History
               </Link>
               <Link
                 href="/dashboard/analytics"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Analytics
               </Link>
               <Link
                 href="/dashboard/refer-and-earn"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Refer & Earn
               </Link>
               <Link
                 href="/dashboard/settings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Settings
               </Link>
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground transition hover:bg-[#1a1c20] hover:text-[#dbfcff]"
+                className="px-3 py-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--primary)]"
               >
                 Admin
               </Link>
@@ -379,7 +379,7 @@ export default function DashboardPage() {
                 <SignOutButton redirectUrl="/">
                   <button 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="w-full font-mono text-xs uppercase text-muted-foreground hover:text-primary transition-colors border border-border px-3 py-2 bg-surface cursor-pointer"
+                    className="w-full font-mono text-xs uppercase text-[var(--text-muted)] hover:text-primary transition-colors border border-border px-3 py-2 bg-[var(--surface)] cursor-pointer"
                   >
                     Sign Out
                   </button>
@@ -398,25 +398,25 @@ export default function DashboardPage() {
 
         {/* Badges Section */}
         {userBadges.length > 0 && (
-          <div className="mb-8 p-4 border border-border bg-card rounded-lg">
-            <h3 className="font-heading text-lg font-semibold text-white mb-3">Your Achievements</h3>
+          <div className="mb-8 p-4 border border-[var(--border-default)] bg-[var(--card)] rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
+            <h3 className="font-heading text-lg font-semibold text-[var(--text-primary)] mb-3">Your Achievements</h3>
             <BadgeDisplay userBadges={userBadges} maxDisplay={5} size="md" />
           </div>
         )}
 
         {/* Next Lesson / Continue Learning */}
         {nextLesson && (
-          <div className="mb-8 p-4 border border-primary/30 bg-primary/5 rounded-lg">
+          <div className="mb-8 p-4 border border-[var(--border-default)] bg-primary/5 rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
             <div className="flex items-start gap-4">
               <PlayCircle className="h-8 w-8 text-primary flex-shrink-0 mt-1" />
               <div className="flex-1">
-                <h3 className="font-heading text-lg font-semibold text-white mb-2">Continue Learning</h3>
-                <p className="font-mono text-sm text-muted-foreground mb-3">
-                  Next Lesson: <span className="text-white font-semibold">{nextLesson.title}</span>
+                <h3 className="font-heading text-lg font-semibold text-[var(--text-primary)] mb-2">Continue Learning</h3>
+                <p className="font-mono text-sm text-[var(--text-muted)] mb-3">
+                  Next Lesson: <span className="text-[var(--text-primary)] font-semibold">{nextLesson.title}</span>
                 </p>
                 <Link
                   href={`/dashboard/video/${nextLesson.id}`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-black font-mono text-xs font-bold uppercase rounded hover:bg-white transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-[var(--text-primary)] font-mono text-xs font-bold uppercase rounded hover:bg-[var(--surface-hover)] transition-colors"
                 >
                   <PlayCircle className="h-4 w-4" />
                   Watch Now
@@ -432,7 +432,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-2">
             <div className="mb-12">
               <h1 className="font-heading text-3xl font-bold uppercase text-[var(--foreground)]">Your Curriculum</h1>
-              <p className="mt-3 font-mono text-sm text-muted-foreground">
+              <p className="mt-3 font-mono text-sm text-[var(--text-muted)]">
                 Videos are released every Monday, Wednesday, and Friday. Complete each session to stay on track.
               </p>
             </div>
@@ -451,11 +451,11 @@ export default function DashboardPage() {
                         return (
                           <div
                             key={video.id}
-                            className={`group relative flex flex-col overflow-hidden border ${
+                            className={`group relative flex flex-col overflow-hidden border border-[var(--border-default)] bg-[var(--surface)] rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all ${
                               available
-                                ? 'border-border bg-surface hover:border-primary'
-                                : 'border-border bg-[var(--background)] opacity-60'
-                            } transition-colors`}
+                                ? ''
+                                : 'opacity-60'
+                            }`}
                           >
                             {/* Completed badge */}
                             {available && <CompletedBadge videoId={video.id} />}
@@ -463,31 +463,31 @@ export default function DashboardPage() {
                               {available ? (
                                 <PlayCircle className="h-12 w-12 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />
                               ) : (
-                                <Lock className="h-10 w-10 text-[#5d5f63]" />
+                                <Lock className="h-10 w-10 text-[var(--text-muted)]" />
                               )}
-                              <div className="absolute top-2 right-2 rounded bg-black/50 px-2 py-1 font-mono text-[10px] text-white backdrop-blur">
+                              <div className="absolute top-2 right-2 rounded bg-black/50 px-2 py-1 font-mono text-[10px] text-[var(--text-primary)] backdrop-blur">
                                 {video.duration}
                               </div>
                             </div>
                             <div className="flex flex-1 flex-col p-4">
-                              <h3 className={`font-semibold ${available ? 'text-white' : 'text-muted-foreground'}`}>
+                              <h3 className={`font-semibold ${available ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>
                                 {video.title}
                               </h3>
-                              <p className="mt-2 text-sm text-[#5d5f63] line-clamp-2 mb-4">
+                              <p className="mt-2 text-sm text-[var(--text-muted)] line-clamp-2 mb-4">
                                 {video.description}
                               </p>
                               {available ? (
                                 <div className="mt-auto flex items-center justify-between">
                                   <Link
                                     href={`/dashboard/video/${video.id}`}
-                                    className="inline-flex items-center justify-center border border-primary bg-primary/10 px-4 py-2 font-mono text-xs font-bold uppercase text-primary transition-colors hover:bg-primary hover:text-black"
+                                    className="inline-flex items-center justify-center border border-primary bg-primary/10 px-4 py-2 font-mono text-xs font-bold uppercase text-primary transition-colors hover:bg-primary hover:text-[var(--text-primary)]"
                                   >
                                     Watch Session
                                   </Link>
                                   <MarkCompleteButton videoId={video.id} />
                                 </div>
                               ) : (
-                                <div className="mt-auto flex items-center gap-2 border border-border bg-[var(--background)] px-4 py-2 font-mono text-[10px] uppercase text-[#5d5f63]">
+                                <div className="mt-auto flex items-center gap-2 border border-[var(--border-default)] bg-[var(--background)] px-4 py-2 font-mono text-[10px] uppercase text-[var(--text-muted)] rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all">
                                   <Calendar className="h-3 w-3" /> Unlocks {formatAvailableDate(video.availableAt)}
                                 </div>
                               )}

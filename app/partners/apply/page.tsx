@@ -295,7 +295,7 @@ export default function PartnerApplicationPage() {
       <div className="min-h-screen bg-[var(--background)] flex flex-col">
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full">
-            <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 text-center">
+            <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6 sm:p-8 text-center">
               <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 border border-[var(--primary)]/60 bg-[var(--primary)]/10 rounded-full mx-auto mb-6">
                 <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-[var(--primary)]" />
               </div>
@@ -373,7 +373,7 @@ export default function PartnerApplicationPage() {
                 return (
                   <div
                     key={benefit.title}
-                    className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4 hover:border-[var(--primary)]/50 transition-all duration-300"
+                    className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-4"
                   >
                     <div className="flex h-10 w-10 items-center justify-center border border-[var(--primary)]/60 bg-[var(--primary)]/10 rounded-lg mb-3">
                       <Icon className="h-5 w-5 text-[var(--primary)]" />
@@ -386,7 +386,7 @@ export default function PartnerApplicationPage() {
             </div>
 
             {/* Commission Info */}
-            <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-6">
+            <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6">
               <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-[var(--primary)]" />
                 Commission Structure
@@ -409,7 +409,7 @@ export default function PartnerApplicationPage() {
           </div>
 
           {/* Right Column - Application Form */}
-          <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+          <div className="border border-[var(--border-default)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-lg hover:border-[var(--primary)] transition-all p-6 sm:p-8">
             <h2 className="text-xl font-bold text-[var(--foreground)] mb-6">Partner Application</h2>
             
             {error && (
@@ -634,7 +634,7 @@ export default function PartnerApplicationPage() {
               <button
                 disabled={isSubmitting || !agreed}
                 type="submit"
-                className="w-full py-4 rounded-xl border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] font-bold hover:bg-[var(--surface-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
