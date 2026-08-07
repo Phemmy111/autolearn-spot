@@ -144,6 +144,86 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Pending enrollment has expired' }, { status: 400 });
     }
 
+    // Resolve current cohort
+    console.info('DIRECT ENROLLMENT: Resolving current cohort');
+    const { data: currentCohort, error: cohortError } = await supabaseAdmin
+      .from('cohorts')
+      .select('id, name, status, is_current')
+      .eq('is_current', true)
+      .single();
+
+    if (cohortError) {
+      console.error('DIRECT ENROLLMENT: Cohort resolution error', {
+        code: cohortError.code,
+        message: cohortError.message,
+        details: cohortError.details,
+        hint: cohortError.hint
+      });
+      return NextResponse.json(
+        { error: 'Failed to resolve current cohort' },
+        { status: 500 }
+      );
+    }
+
+    if (!currentCohort) {
+      console.error('DIRECT ENROLLMENT: No current cohort found');
+      return NextResponse.json(
+        { error: 'No active cohort found. Please activate a cohort before processing payments.' },
+        { status: 400 }
+      );
+    }
+
+    console.info('DIRECT ENROLLMENT: Current cohort resolved', {
+      cohort_id: currentCohort.id,
+      cohort_name: currentCohort.name,
+      status: currentCohort.status,
+      is_current: currentCohort.is_current
+    });
+
+    // Create final enrollment
+    console.info('DIRECT ENROLLMENT: Creating enrollment', {
+      cohort_id: currentCohort.id,
+      email: pendingEnrollment.email,
+      payment_ref: reference,
+      amount_paid: amountInNaira
+    });
+
+    const enrollmentData = {
+      cohort_id: currentCohort.id,
+      email: pendingEnrollment.email,
+      payment_ref: reference,
+      amount_paid: amountInNaira,
+      status: 'active',
+      activated_at: new Date().toISOString(),
+      referral_code: pendingEnrollment.referral_code || null,
+      referred_by_code: pendingEnrollment.referral_code || null
+    };
+
+    const { error: enrollmentError } = await supabaseAdmin
+      .from('enrollments')
+      .upsert(enrollmentData, {
+        onConflict: 'cohort_id, email'
+      });
+
+    if (enrollmentError) {
+      console.error('DIRECT ENROLLMENT: Enrollment creation error', {
+        cohort_id: currentCohort.id,
+        email: pendingEnrollment.email,
+        payment_ref: reference,
+        amount: amountInNaira,
+        code: enrollmentError.code,
+        message: enrollmentError.message,
+        details: enrollmentError.details,
+        hint: enrollmentError.hint
+      });
+      return NextResponse.json(
+        { error: 'Failed to create enrollment' },
+        { status: 500 }
+      );
+    }
+
+    console.info('DIRECT ENROLLMENT: Enrollment created successfully');
+
     // Send admin notification about successful payment
     await AdminEmailService.sendStudentPaymentEmail({
       fullName: pendingEnrollment.full_name,
@@ -275,7 +355,7 @@ export async function POST(request: NextRequest) {
     // Create in-app notification
     try {
       await NotificationService.createNotification({
-        partnerId: newUser.id,
+        partnerId: studentPartner?.id || null,
         type: 'enrollment_complete',
         title: 'Welcome to AutoLearn Spot!',
         message: 'Your enrollment is complete. You now have access to your dashboard.',
@@ -325,7 +405,7 @@ export async function POST(request: NextRequest) {
     try {
       await logUserActivity({
         action: 'direct_enrollment_completed',
-        user_id: newUser.id,
+        user_id: pendingEnrollment.email,
         user_email: pendingEnrollment.email,
         description: `Direct enrollment completed for ₦${amountInNaira}`,
         metadata: {
@@ -352,7 +432,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       received: true,
       message: 'Direct enrollment processed successfully',
-      userId: newUser.id,
+      enrollmentEmail: pendingEnrollment.email,
       referralCode: referralCode,
     });
 
