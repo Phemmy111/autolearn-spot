@@ -54,10 +54,10 @@ async function getReferrerName(referrerId: string): Promise<string> {
   try {
     const { data } = await supabaseAdmin
       .from('partners')
-      .select('full_name')
+      .select('user_name')
       .eq('id', referrerId)
       .single();
-    return data?.full_name || 'Unknown';
+    return data?.user_name || 'Unknown';
   } catch {
     return 'Unknown';
   }
@@ -95,15 +95,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if this payment has already been processed (idempotency)
-    const { data: existingPayment } = await supabaseAdmin
-      .from('pending_enrollments')
-      .select('*')
-      .eq('payment_reference', reference)
-      .eq('payment_status', 'completed')
-      .single();
+    const { data: existingEnrollment } = await supabaseAdmin
+      .from('enrollments')
+      .select('id')
+      .eq('payment_ref', reference)
+      .maybeSingle();
 
-    if (existingPayment) {
-      console.log(`Payment ${reference} already processed`);
+    if (existingEnrollment) {
+      console.log(`Payment ${reference} already processed - enrollment exists`);
       return NextResponse.json({ received: true, message: 'Payment already processed' });
     }
 
@@ -114,7 +113,6 @@ export async function POST(request: NextRequest) {
         .from('pending_enrollments')
         .select('*')
         .eq('id', pendingId)
-        .eq('payment_status', 'pending')
         .single();
       pendingEnrollment = pending;
     } else {
@@ -123,7 +121,6 @@ export async function POST(request: NextRequest) {
         .from('pending_enrollments')
         .select('*')
         .eq('email', email.toLowerCase())
-        .eq('payment_status', 'pending')
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
@@ -135,14 +132,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No pending enrollment found' }, { status: 404 });
     }
 
-    // Check if pending enrollment has expired
-    if (new Date(pendingEnrollment.expires_at) < new Date()) {
-      await supabaseAdmin
-        .from('pending_enrollments')
-        .update({ payment_status: 'expired' })
-        .eq('id', pendingEnrollment.id);
-      return NextResponse.json({ error: 'Pending enrollment has expired' }, { status: 400 });
-    }
+    // Note: We do NOT reject expired pending enrollments
+    // A successful Paystack payment should be honored regardless of when the pending enrollment was created
+    // The expires_at is for cleanup of abandoned registrations, not for rejecting successful payments
+    // 
+    // RECOVERY: For expired but successfully paid pending enrollments (e.g., T220202238424485):
+    // - The pending enrollment record still exists with payment_status = 'pending'
+    // - Re-triggering the Paystack webhook (via Paystack Dashboard retry or manual trigger) will:
+    //   1. Find the pending enrollment by pending_id (even if expired)
+    //   2. Create the enrollment using current cohort
+    //   3. Mark pending enrollment as completed with payment_reference
+    // - No manual database intervention required
 
     // Resolve current cohort
     console.info('DIRECT ENROLLMENT: Resolving current cohort');
