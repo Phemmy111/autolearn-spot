@@ -85,31 +85,31 @@ export default function AIHealthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-[bg-[var(--background)]] flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 text-[#00f0ff] animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sm text-[#b9cacb]">Loading AI health data...</p>
+          <RefreshCw className="h-8 w-8 text-[text-[var(--primary)]] animate-spin mx-auto mb-4" />
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Loading AI health data...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-[#b9cacb] hover:text-white">
+            <Link href="/admin" className="text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)]">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-white">AI Health Dashboard</h1>
-              <p className="font-mono text-sm text-[#b9cacb]">Monitor AI provider performance and usage</p>
+              <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)]">AI Health Dashboard</h1>
+              <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Monitor AI provider performance and usage</p>
             </div>
           </div>
           <button
             onClick={fetchHealthData}
-            className="flex items-center gap-2 border border-[#3b494b] text-[#b9cacb] font-mono text-sm px-4 py-2 rounded hover:bg-[#1f2229] transition-colors"
+            className="flex items-center gap-2 border border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] font-mono text-sm px-4 py-2 rounded hover:bg-[border-[var(--border-default)]] transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             Refresh
@@ -125,45 +125,45 @@ export default function AIHealthPage() {
 
         {/* Active Provider Status */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
-              <Bot className="h-6 w-6 text-[#00f0ff]" />
-              <h3 className="font-mono text-xs text-[#b9cacb] uppercase">Active Provider</h3>
+              <Bot className="h-6 w-6 text-[text-[var(--primary)]]" />
+              <h3 className="font-mono text-xs text-[text-[var(--text-muted)]] uppercase">Active Provider</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-white">
+            <p className="font-heading text-xl font-bold text-[var(--text-primary)]">
               {healthData?.activeProvider?.name || 'None configured'}
             </p>
-            <p className="font-mono text-xs text-[#5d5f63] mt-1">
+            <p className="font-mono text-xs text-[text-[var(--text-muted)]] mt-1">
               {healthData?.activeProvider?.provider_type?.toUpperCase() || ''}
             </p>
           </div>
 
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
-              <Zap className="h-6 w-6 text-[#00f0ff]" />
-              <h3 className="font-mono text-xs text-[#b9cacb] uppercase">Active Model</h3>
+              <Zap className="h-6 w-6 text-[text-[var(--primary)]]" />
+              <h3 className="font-mono text-xs text-[text-[var(--text-muted)]] uppercase">Active Model</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-white">
+            <p className="font-heading text-xl font-bold text-[var(--text-primary)]">
               {healthData?.activeModel || 'Not set'}
             </p>
           </div>
 
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <CheckCircle className="h-6 w-6 text-emerald-400" />
-              <h3 className="font-mono text-xs text-[#b9cacb] uppercase">Last Success</h3>
+              <h3 className="font-mono text-xs text-[text-[var(--text-muted)]] uppercase">Last Success</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-white">
+            <p className="font-heading text-xl font-bold text-[var(--text-primary)]">
               {formatTime(healthData?.lastSuccessfulRequest || null)}
             </p>
           </div>
 
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <XCircle className="h-6 w-6 text-red-400" />
-              <h3 className="font-mono text-xs text-[#b9cacb] uppercase">Last Failure</h3>
+              <h3 className="font-mono text-xs text-[text-[var(--text-muted)]] uppercase">Last Failure</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-white">
+            <p className="font-heading text-xl font-bold text-[var(--text-primary)]">
               {formatTime(healthData?.lastFailedRequest || null)}
             </p>
           </div>
@@ -171,53 +171,53 @@ export default function AIHealthPage() {
 
         {/* Performance Metrics */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
-              <Clock className="h-6 w-6 text-[#00f0ff]" />
-              <h3 className="font-mono text-xs text-[#b9cacb] uppercase">Avg Response Time</h3>
+              <Clock className="h-6 w-6 text-[text-[var(--primary)]]" />
+              <h3 className="font-mono text-xs text-[text-[var(--text-muted)]] uppercase">Avg Response Time</h3>
             </div>
-            <p className="font-heading text-3xl font-bold text-white">
+            <p className="font-heading text-3xl font-bold text-[var(--text-primary)]">
               {formatResponseTime(healthData?.averageResponseTime || 0)}
             </p>
           </div>
 
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <TrendingUp className="h-6 w-6 text-emerald-400" />
-              <h3 className="font-mono text-xs text-[#b9cacb] uppercase">Success Rate</h3>
+              <h3 className="font-mono text-xs text-[text-[var(--text-muted)]] uppercase">Success Rate</h3>
             </div>
-            <p className="font-heading text-3xl font-bold text-white">
+            <p className="font-heading text-3xl font-bold text-[var(--text-primary)]">
               {healthData?.successRate || 0}%
             </p>
           </div>
 
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
-              <Activity className="h-6 w-6 text-[#00f0ff]" />
-              <h3 className="font-mono text-xs text-[#b9cacb] uppercase">Requests Today</h3>
+              <Activity className="h-6 w-6 text-[text-[var(--primary)]]" />
+              <h3 className="font-mono text-xs text-[text-[var(--text-muted)]] uppercase">Requests Today</h3>
             </div>
-            <p className="font-heading text-3xl font-bold text-white">
+            <p className="font-heading text-3xl font-bold text-[var(--text-primary)]">
               {healthData?.totalRequestsToday || 0}
             </p>
           </div>
         </div>
 
         {/* Provider Status */}
-        <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
-          <h3 className="font-heading text-lg font-bold text-white mb-4">Provider Status</h3>
+        <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
+          <h3 className="font-heading text-lg font-bold text-[var(--text-primary)] mb-4">Provider Status</h3>
           <div className="space-y-3">
             {healthData?.providerStatus?.map((provider) => (
               <div
                 key={provider.id}
-                className="flex items-center justify-between p-4 bg-[#1f2229] rounded-lg"
+                className="flex items-center justify-between p-4 bg-[border-[var(--border-default)]] rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${
                     provider.isActive ? 'bg-emerald-400' : 'bg-red-400'
                   }`} />
                   <div>
-                    <p className="font-mono text-sm text-white">{provider.name}</p>
-                    <p className="font-mono text-xs text-[#5d5f63]">{provider.type.toUpperCase()}</p>
+                    <p className="font-mono text-sm text-[var(--text-primary)]">{provider.name}</p>
+                    <p className="font-mono text-xs text-[text-[var(--text-muted)]]">{provider.type.toUpperCase()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -240,12 +240,12 @@ export default function AIHealthPage() {
         </div>
 
         {/* Token Usage */}
-        <div className="mt-8 border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
-          <h3 className="font-heading text-lg font-bold text-white mb-4">Token Usage Today</h3>
-          <p className="font-heading text-3xl font-bold text-white">
+        <div className="mt-8 border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
+          <h3 className="font-heading text-lg font-bold text-[var(--text-primary)] mb-4">Token Usage Today</h3>
+          <p className="font-heading text-3xl font-bold text-[var(--text-primary)]">
             {healthData?.totalTokensToday?.toLocaleString() || 0}
           </p>
-          <p className="font-mono text-xs text-[#5d5f63] mt-1">Total tokens used</p>
+          <p className="font-mono text-xs text-[text-[var(--text-muted)]] mt-1">Total tokens used</p>
         </div>
       </div>
     </div>

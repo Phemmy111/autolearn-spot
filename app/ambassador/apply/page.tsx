@@ -62,7 +62,7 @@ export default function AmbassadorApplyPage() {
           </p>
           <Link
             href="/"
-            className="inline-block w-full py-4 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition-colors"
+            className="inline-block w-full py-4 rounded-xl bg-white/10 text-[var(--text-primary)] font-bold hover:bg-white/20 transition-colors"
           >
             Return Home
           </Link>
@@ -72,14 +72,14 @@ export default function AmbassadorApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] py-12 px-6 text-white">
+    <div className="min-h-screen bg-[var(--background)] py-12 px-6 text-[var(--text-primary)]">
       <div className="max-w-3xl mx-auto">
-        <Link href="/ambassador" className="inline-flex items-center gap-2 text-[var(--muted-foreground)] hover:text-white mb-8 transition-colors">
+        <Link href="/ambassador" className="inline-flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--text-primary)] mb-8 transition-colors">
           <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
         </Link>
         
         <div className="bg-white/5 border border-white/10 p-8 md:p-12 rounded-3xl backdrop-blur-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f0ff]/5 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--primary-light)] blur-3xl rounded-full pointer-events-none" />
           
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Apply Now</h1>
           <p className="text-[var(--muted-foreground)] mb-10">Fill out the form below to join our Community Ambassador program.</p>
@@ -94,27 +94,27 @@ export default function AmbassadorApplyPage() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--muted-foreground)]">Full Name *</label>
-                <input required name="full_name" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="John Doe" />
+                <input required name="full_name" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="John Doe" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--muted-foreground)]">Email Address *</label>
-                <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="john@example.com" />
+                <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="john@example.com" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--muted-foreground)]">Phone Number *</label>
-                <input required name="phone" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="+234..." />
+                <input required name="phone" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="+234..." />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--muted-foreground)]">WhatsApp Number *</label>
-                <input required name="whatsapp" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="+234..." />
+                <input required name="whatsapp" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="+234..." />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--muted-foreground)]">State/Location *</label>
-                <input required name="state" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="Lagos, Nigeria" />
+                <input required name="state" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="Lagos, Nigeria" />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--muted-foreground)]">Occupation *</label>
-                <select required name="occupation" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors appearance-none">
+                <select required name="occupation" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors appearance-none">
                   <option value="">Select...</option>
                   <option value="Student">Student</option>
                   <option value="NYSC">NYSC</option>
@@ -128,27 +128,27 @@ export default function AmbassadorApplyPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--muted-foreground)]">Institution (If student/NYSC)</label>
-              <input name="institution" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="University of Lagos" />
+              <input name="institution" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="University of Lagos" />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--muted-foreground)]">How will you promote AutoLearn Spot? *</label>
-              <textarea required name="promotion_method" rows={3} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="I plan to use my WhatsApp status, local tech meetups..." />
+              <textarea required name="promotion_method" rows={3} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="I plan to use my WhatsApp status, local tech meetups..." />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--muted-foreground)]">Social Media Links</label>
-              <input name="social_links" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="Twitter, LinkedIn, IG..." />
+              <input name="social_links" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="Twitter, LinkedIn, IG..." />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--muted-foreground)]">Prior Referral Experience</label>
-              <textarea name="experience" rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="Have you done similar programs before?" />
+              <textarea name="experience" rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="Have you done similar programs before?" />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-[var(--muted-foreground)]">Why do you want to join? *</label>
-              <textarea required name="reason" rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="I am passionate about tech education..." />
+              <textarea required name="reason" rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="I am passionate about tech education..." />
             </div>
 
             <div className="flex items-start gap-3 pt-4">

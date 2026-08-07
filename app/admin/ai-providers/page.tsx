@@ -186,31 +186,31 @@ export default function AIProvidersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-[bg-[var(--background)]] flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 text-[#00f0ff] animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sm text-[#b9cacb]">Loading AI providers...</p>
+          <RefreshCw className="h-8 w-8 text-[text-[var(--primary)]] animate-spin mx-auto mb-4" />
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Loading AI providers...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-[#b9cacb] hover:text-white">
+            <Link href="/admin" className="text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)]">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-white">AI Providers</h1>
-              <p className="font-mono text-sm text-[#b9cacb]">Manage AI providers and API keys</p>
+              <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)]">AI Providers</h1>
+              <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Manage AI providers and API keys</p>
             </div>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+            className="flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Provider
@@ -226,19 +226,19 @@ export default function AIProvidersPage() {
 
         <div className="grid gap-4">
           {providers.map((provider) => (
-            <div key={provider.id} className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+            <div key={provider.id} className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-lg ${
                     provider.is_default 
                       ? 'bg-yellow-400/10 border border-yellow-400/50' 
-                      : 'bg-[#00f0ff]/10 border border-[#00f0ff]/50'
+                      : 'bg-[text-[var(--primary)]]/10 border border-[text-[var(--primary)]]/50'
                   }`}>
                     {getProviderIcon(provider.provider_type)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-heading text-lg font-bold text-white">{provider.name}</h3>
+                      <h3 className="font-heading text-lg font-bold text-[var(--text-primary)]">{provider.name}</h3>
                       {provider.is_default && (
                         <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-400/10 border border-yellow-400/50 text-xs font-mono text-yellow-400">
                           <Star className="h-3 w-3" />
@@ -257,16 +257,16 @@ export default function AIProvidersPage() {
                         </span>
                       )}
                     </div>
-                    <p className="font-mono text-xs text-[#5d5f63] mb-2">
+                    <p className="font-mono text-xs text-[text-[var(--text-muted)]] mb-2">
                       Type: {provider.provider_type.toUpperCase()}
                     </p>
                     {provider.default_model && (
-                      <p className="font-mono text-xs text-[#b9cacb]">
+                      <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                         Default Model: {provider.default_model}
                       </p>
                     )}
                     {provider.models && Array.isArray(provider.models) && provider.models.length > 0 && (
-                      <p className="font-mono text-xs text-[#5d5f63] mt-1">
+                      <p className="font-mono text-xs text-[text-[var(--text-muted)]] mt-1">
                         {provider.models.length} models available
                       </p>
                     )}
@@ -276,7 +276,7 @@ export default function AIProvidersPage() {
                   <button
                     onClick={() => handleTestConnection(provider.id)}
                     disabled={testingProvider === provider.id}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[border-[var(--border-default)]] transition-colors"
                     title="Test Connection"
                   >
                     <RefreshCw className={`h-4 w-4 text-emerald-400 ${testingProvider === provider.id ? 'animate-spin' : ''}`} />
@@ -284,15 +284,15 @@ export default function AIProvidersPage() {
                   <button
                     onClick={() => handleFetchModels(provider.id)}
                     disabled={fetchingModels === provider.id}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[border-[var(--border-default)]] transition-colors"
                     title="Fetch Models"
                   >
-                    <Settings className={`h-4 w-4 text-[#00f0ff] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
+                    <Settings className={`h-4 w-4 text-[text-[var(--primary)]] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
                   </button>
                   {!provider.is_default && (
                     <button
                       onClick={() => handleSetDefault(provider.id)}
-                      className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                      className="p-2 rounded hover:bg-[border-[var(--border-default)]] transition-colors"
                       title="Set as Default"
                     >
                       <Star className="h-4 w-4 text-yellow-400" />
@@ -300,7 +300,7 @@ export default function AIProvidersPage() {
                   )}
                   <button
                     onClick={() => handleDeleteProvider(provider.id)}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[border-[var(--border-default)]] transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
@@ -312,13 +312,13 @@ export default function AIProvidersPage() {
         </div>
 
         {providers.length === 0 && (
-          <div className="text-center py-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl">
-            <Bot className="h-16 w-16 text-[#3b494b] mx-auto mb-4" />
-            <h3 className="font-heading text-xl font-bold text-white mb-2">No AI Providers Configured</h3>
-            <p className="font-mono text-sm text-[#b9cacb] mb-4">Add your first AI provider to enable AI features</p>
+          <div className="text-center py-12 border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] rounded-xl">
+            <Bot className="h-16 w-16 text-[border-[var(--border-default)]] mx-auto mb-4" />
+            <h3 className="font-heading text-xl font-bold text-[var(--text-primary)] mb-2">No AI Providers Configured</h3>
+            <p className="font-mono text-sm text-[text-[var(--text-muted)]] mb-4">Add your first AI provider to enable AI features</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 mx-auto bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+              className="flex items-center gap-2 mx-auto bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Provider
@@ -328,27 +328,27 @@ export default function AIProvidersPage() {
 
         {showAddModal && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl max-w-md w-full mx-4">
-              <h2 className="font-heading text-2xl font-bold text-white mb-4">Add AI Provider</h2>
+            <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl max-w-md w-full mx-4">
+              <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-4">Add AI Provider</h2>
               <form onSubmit={handleAddProvider}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Provider Name</label>
+                    <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Provider Name</label>
                     <input
                       type="text"
                       value={newProvider.name}
                       onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]]"
                       placeholder="My OpenRouter"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Provider Type</label>
+                    <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Provider Type</label>
                     <select
                       value={newProvider.provider_type}
                       onChange={(e) => setNewProvider({ ...newProvider, provider_type: e.target.value as ProviderType })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]]"
                     >
                       <option value="openrouter">OpenRouter</option>
                       <option value="openai">OpenAI</option>
@@ -357,33 +357,33 @@ export default function AIProvidersPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">API Key</label>
+                    <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">API Key</label>
                     <input
                       type="password"
                       value={newProvider.api_key}
                       onChange={(e) => setNewProvider({ ...newProvider, api_key: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]]"
                       placeholder="sk-..."
                       required
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Base URL (Optional)</label>
+                    <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Base URL (Optional)</label>
                     <input
                       type="text"
                       value={newProvider.base_url}
                       onChange={(e) => setNewProvider({ ...newProvider, base_url: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]]"
                       placeholder="https://api.example.com/v1"
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Default Model (Optional)</label>
+                    <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Default Model (Optional)</label>
                     <input
                       type="text"
                       value={newProvider.default_model}
                       onChange={(e) => setNewProvider({ ...newProvider, default_model: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]]"
                       placeholder="anthropic/claude-3.5-sonnet"
                     />
                   </div>
@@ -397,9 +397,9 @@ export default function AIProvidersPage() {
                           setNewProvider({ ...newProvider, default_model: 'default' })
                         }
                       }}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                      className="w-4 h-4 rounded border-[border-[var(--border-default)]] bg-[border-[var(--border-default)]]"
                     />
-                    <label htmlFor="setDefault" className="font-mono text-xs text-[#b9cacb]">
+                    <label htmlFor="setDefault" className="font-mono text-xs text-[text-[var(--text-muted)]]">
                       Set as default provider
                     </label>
                   </div>
@@ -408,13 +408,13 @@ export default function AIProvidersPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 border border-[#3b494b] text-[#b9cacb] font-mono text-sm px-4 py-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="flex-1 border border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] font-mono text-sm px-4 py-2 rounded hover:bg-[border-[var(--border-default)]] transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-[#00f0ff] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
+                    className="flex-1 bg-[text-[var(--primary)]] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
                   >
                     Add Provider
                   </button>

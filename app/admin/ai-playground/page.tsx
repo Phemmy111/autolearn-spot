@@ -129,27 +129,27 @@ export default function AIPlaygroundPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/admin" className="text-[#b9cacb] hover:text-white">
+          <Link href="/admin" className="text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)]">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="font-heading text-4xl font-bold text-white">AI Playground</h1>
-            <p className="font-mono text-sm text-[#b9cacb]">Test AI prompts and responses</p>
+            <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)]">AI Playground</h1>
+            <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Test AI prompts and responses</p>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Input Panel */}
           <div className="space-y-4">
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl">
-              <label className="block font-mono text-xs text-[#b9cacb] mb-2">Provider</label>
+            <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl">
+              <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Provider</label>
               <select
                 value={selectedProvider}
                 onChange={(e) => handleProviderChange(e.target.value)}
-                className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]]"
               >
                 <option value="">Select a provider</option>
                 {providers.map((provider) => (
@@ -160,12 +160,12 @@ export default function AIPlaygroundPage() {
               </select>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl">
+            <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl">
               <div className="flex items-center justify-between mb-2">
-                <label className="block font-mono text-xs text-[#b9cacb]">Model</label>
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]]">Model</label>
                 <button
                   onClick={handleFetchModels}
-                  className="flex items-center gap-1 text-xs font-mono text-[#00f0ff] hover:text-white"
+                  className="flex items-center gap-1 text-xs font-mono text-[text-[var(--primary)]] hover:text-[var(--text-primary)]"
                 >
                   <Settings className="h-3 w-3" />
                   Refresh Models
@@ -174,7 +174,7 @@ export default function AIPlaygroundPage() {
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]]"
                 disabled={!selectedProvider}
               >
                 <option value="">Select a model</option>
@@ -186,12 +186,12 @@ export default function AIPlaygroundPage() {
               </select>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl">
-              <label className="block font-mono text-xs text-[#b9cacb] mb-2">Prompt</label>
+            <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl">
+              <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Prompt</label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff] min-h-[200px] resize-y"
+                className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-3 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]] min-h-[200px] resize-y"
                 placeholder="Enter your prompt here..."
               />
             </div>
@@ -199,7 +199,7 @@ export default function AIPlaygroundPage() {
             <button
               onClick={handleSend}
               disabled={loading || !prompt.trim() || !selectedProvider || !selectedModel}
-              className="w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -216,13 +216,13 @@ export default function AIPlaygroundPage() {
           </div>
 
           {/* Output Panel */}
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl">
             <div className="flex items-center justify-between mb-4">
-              <label className="block font-mono text-xs text-[#b9cacb]">Response</label>
+              <label className="block font-mono text-xs text-[text-[var(--text-muted)]]">Response</label>
               {response && (
                 <button
                   onClick={handleCopy}
-                  className="flex items-center gap-1 text-xs font-mono text-[#00f0ff] hover:text-white"
+                  className="flex items-center gap-1 text-xs font-mono text-[text-[var(--primary)]] hover:text-[var(--text-primary)]"
                 >
                   {copied ? (
                     <>
@@ -238,23 +238,23 @@ export default function AIPlaygroundPage() {
                 </button>
               )}
             </div>
-            <div className="bg-[#1f2229] rounded p-4 min-h-[400px]">
+            <div className="bg-[border-[var(--border-default)]] rounded p-4 min-h-[400px]">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <Bot className="h-8 w-8 text-[#00f0ff] animate-pulse mx-auto mb-4" />
-                    <p className="font-mono text-sm text-[#b9cacb]">Generating response...</p>
+                    <Bot className="h-8 w-8 text-[text-[var(--primary)]] animate-pulse mx-auto mb-4" />
+                    <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Generating response...</p>
                   </div>
                 </div>
               ) : response ? (
-                <pre className="font-mono text-sm text-white whitespace-pre-wrap break-words">
+                <pre className="font-mono text-sm text-[var(--text-primary)] whitespace-pre-wrap break-words">
                   {response}
                 </pre>
               ) : (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <Bot className="h-16 w-16 text-[#3b494b] mx-auto mb-4" />
-                    <p className="font-mono text-sm text-[#5d5f63]">
+                    <Bot className="h-16 w-16 text-[border-[var(--border-default)]] mx-auto mb-4" />
+                    <p className="font-mono text-sm text-[text-[var(--text-muted)]]">
                       Enter a prompt and select a provider to generate a response
                     </p>
                   </div>
@@ -265,15 +265,15 @@ export default function AIPlaygroundPage() {
         </div>
 
         {providers.length === 0 && (
-          <div className="mt-8 text-center py-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl">
-            <Bot className="h-16 w-16 text-[#3b494b] mx-auto mb-4" />
-            <h3 className="font-heading text-xl font-bold text-white mb-2">No AI Providers Configured</h3>
-            <p className="font-mono text-sm text-[#b9cacb] mb-4">
+          <div className="mt-8 text-center py-12 border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] rounded-xl">
+            <Bot className="h-16 w-16 text-[border-[var(--border-default)]] mx-auto mb-4" />
+            <h3 className="font-heading text-xl font-bold text-[var(--text-primary)] mb-2">No AI Providers Configured</h3>
+            <p className="font-mono text-sm text-[text-[var(--text-muted)]] mb-4">
               Add an AI provider to use the playground
             </p>
             <Link
               href="/admin/ai-providers"
-              className="inline-flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+              className="inline-flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
             >
               <Settings className="h-4 w-4" />
               Configure Providers

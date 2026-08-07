@@ -22,33 +22,33 @@ export default async function ManualEnrollmentPage() {
 
   if (cohortsError) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center text-red-400">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center text-red-400">
         Error loading cohorts: {cohortsError.message}
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[var(--background)]">
       <div className="container mx-auto px-4 py-12 max-w-3xl">
         <div className="mb-8">
           <Link
             href="/admin/enrollments"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4 transition-colors"
+            className="flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] font-mono text-sm mb-4 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Enrollments
           </Link>
           <div className="flex items-center gap-3">
-            <UserPlus className="h-8 w-8 text-[#00f0ff]" />
-            <h1 className="font-heading text-4xl font-bold text-white">Manual Enrollment</h1>
+            <UserPlus className="h-8 w-8 text-[var(--primary)]" />
+            <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)]">Manual Enrollment</h1>
           </div>
-          <p className="font-mono text-sm text-[#b9cacb] mt-4">
+          <p className="font-mono text-sm text-[var(--text-muted)] mt-4">
             Manually enroll a student into a cohort, completely bypassing the payment system. This action is restricted to Super Admins only.
           </p>
         </div>
 
-        <div className="border border-[#1f2229] bg-[#0c0e12] p-8 rounded-xl">
+        <div className="border border-[var(--border-default)] bg-[var(--card)] p-8 rounded-xl shadow-sm">
           <ManualEnrollmentForm cohorts={cohorts || []} />
         </div>
       </div>

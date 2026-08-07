@@ -61,18 +61,18 @@ export default function LiveScheduleAdmin() {
   }
 
   return (
-    <section className="min-h-screen bg-[#0a0c10]">
+    <section className="min-h-screen bg-[var(--background)]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-4">Live Class Schedule</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">Configure live class schedule settings</p>
+          <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)] mb-4">Live Class Schedule</h1>
+          <p className="font-mono text-sm text-[var(--text-muted)]">Configure live class schedule settings</p>
         </div>
         
         {schedule ? (

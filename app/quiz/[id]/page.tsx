@@ -131,9 +131,9 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     return (
       <div className="mx-auto max-w-2xl text-center border border-red-500/50 bg-red-500/10 p-8 rounded-xl">
         <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-        <h2 className="font-heading text-2xl font-bold text-white mb-2">Error</h2>
-        <p className="font-mono text-sm text-[#b9cacb] mb-6">{error}</p>
-        <Link href="/quizzes" className="text-[#00f0ff] hover:underline font-mono text-sm">
+        <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-2">Error</h2>
+        <p className="font-mono text-sm text-[var(--text-body)] mb-6">{error}</p>
+        <Link href="/quizzes" className="text-[var(--primary)] hover:underline font-mono text-sm">
           Back to Quizzes
         </Link>
       </div>
@@ -146,12 +146,12 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (!userId) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-[#1f2229] bg-[#0c0e12] p-8 rounded-xl">
-        <h2 className="font-heading text-2xl font-bold text-white mb-4">Sign In Required</h2>
-        <p className="font-mono text-sm text-[#b9cacb] mb-6">You need to sign in to take this quiz.</p>
+      <div className="mx-auto max-w-2xl text-center border border-[var(--border-default)] bg-[var(--card)] p-8 rounded-xl shadow-sm">
+        <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-4">Sign In Required</h2>
+        <p className="font-mono text-sm text-[var(--text-body)] mb-6">You need to sign in to take this quiz.</p>
         <Link
           href="/sign-in"
-          className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors"
+          className="bg-[var(--primary)] text-[var(--text-primary)] font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-[var(--primary-hover)] transition-colors"
         >
           Sign In
         </Link>
@@ -161,35 +161,35 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (submitted && result) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-[#1f2229] bg-[#0c0e12] p-8 rounded-xl">
+      <div className="mx-auto max-w-2xl text-center border border-[var(--border-default)] bg-[var(--card)] p-8 rounded-xl shadow-sm">
         {result.passed ? (
           <CheckCircle className="h-16 w-16 text-emerald-400 mx-auto mb-4" />
         ) : (
           <XCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
         )}
-        <h2 className="font-heading text-2xl font-bold text-white mb-2">
+        <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-2">
           {result.passed ? 'Quiz Passed!' : 'Quiz Not Passed'}
         </h2>
         <div className="flex justify-center gap-8 mb-6 font-mono text-sm">
           <div className="text-center">
-            <p className="text-[#b9cacb]">Score</p>
-            <p className="text-2xl font-bold text-[#00f0ff]">{result.score}</p>
+            <p className="text-[var(--text-muted)]">Score</p>
+            <p className="text-2xl font-bold text-[var(--primary)]">{result.score}</p>
           </div>
           <div className="text-center">
-            <p className="text-[#b9cacb]">Percentage</p>
-            <p className="text-2xl font-bold text-[#00f0ff]">{result.percentage}%</p>
+            <p className="text-[var(--text-muted)]">Percentage</p>
+            <p className="text-2xl font-bold text-[var(--primary)]">{result.percentage}%</p>
           </div>
         </div>
         <div className="flex justify-center gap-4">
           <Link
             href="/quizzes"
-            className="text-[#00f0ff] hover:underline font-mono text-sm"
+            className="text-[var(--primary)] hover:underline font-mono text-sm"
           >
             Back to Quizzes
           </Link>
           <Link
             href="/dashboard"
-            className="text-[#00f0ff] hover:underline font-mono text-sm"
+            className="text-[var(--primary)] hover:underline font-mono text-sm"
           >
             Dashboard
           </Link>
@@ -197,7 +197,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
         {result.question_results && (
           <div className="mt-12 text-left space-y-6">
-            <h3 className="font-heading text-xl font-bold text-white mb-6 border-b border-[#1f2229] pb-4">
+            <h3 className="font-heading text-xl font-bold text-[var(--text-primary)] mb-6 border-b border-[var(--border-default)] pb-4">
               Review Your Answers
             </h3>
             {result.question_results.map((q: any, i: number) => (
@@ -216,20 +216,20 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="font-heading text-[#e2e8e2] mb-3 leading-relaxed">
-                      <span className="text-[#5d5f63] font-mono mr-2 text-sm">{i + 1}.</span>
+                    <p className="font-heading text-[var(--text-primary)] mb-3 leading-relaxed">
+                      <span className="text-[var(--text-muted)] font-mono mr-2 text-sm">{i + 1}.</span>
                       {q.question_text}
                     </p>
                     <div className="space-y-2 font-mono text-sm">
                       <div className="flex items-start gap-2">
-                        <span className="text-[#5d5f63] min-w-[100px]">Your Answer:</span>
+                        <span className="text-[var(--text-muted)] min-w-[100px]">Your Answer:</span>
                         <span className={q.is_correct ? 'text-emerald-400' : 'text-red-400'}>
                           {q.user_answer || '(No answer)'}
                         </span>
                       </div>
                       {!q.is_correct && (
                         <div className="flex items-start gap-2">
-                          <span className="text-[#5d5f63] min-w-[100px]">Correct:</span>
+                          <span className="text-[var(--text-muted)] min-w-[100px]">Correct:</span>
                           <span className="text-emerald-400">{q.correct_answer}</span>
                         </div>
                       )}
@@ -238,9 +238,9 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                 </div>
 
                 {q.explanation && (
-                  <div className="mt-4 pt-4 border-t border-[#1f2229]/50">
-                    <p className="font-mono text-xs uppercase tracking-wider text-[#b9cacb] mb-2">Explanation</p>
-                    <p className="font-mono text-sm text-[#8b949e] leading-relaxed">
+                  <div className="mt-4 pt-4 border-t border-[var(--border-default)]/50">
+                    <p className="font-mono text-xs uppercase tracking-wider text-[var(--text-muted)] mb-2">Explanation</p>
+                    <p className="font-mono text-sm text-[var(--text-body)] leading-relaxed">
                       {q.explanation}
                     </p>
                   </div>
@@ -255,12 +255,12 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (!started) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-[#1f2229] bg-[#0c0e12] p-8 rounded-xl shadow-xl">
-        <h2 className="font-heading text-3xl font-bold text-white mb-4">{quiz.title}</h2>
+      <div className="mx-auto max-w-2xl text-center border border-[var(--border-default)] bg-[var(--card)] p-8 rounded-xl shadow-sm">
+        <h2 className="font-heading text-3xl font-bold text-[var(--text-primary)] mb-4">{quiz.title}</h2>
         {quiz.description && (
-          <p className="text-[#b9cacb] font-mono text-sm mb-6">{quiz.description}</p>
+          <p className="text-[var(--text-body)] font-mono text-sm mb-6">{quiz.description}</p>
         )}
-        <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[#00f0ff]">
+        <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[var(--primary)]">
           {quiz.time_limit && (
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
@@ -278,7 +278,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         <button
           onClick={startQuiz}
           disabled={questions.length === 0}
-          className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[var(--primary)] text-[var(--text-primary)] font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {questions.length === 0 ? 'No Questions Yet' : 'Start Quiz'}
         </button>
@@ -296,26 +296,26 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="mx-auto max-w-3xl">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/quizzes" className="text-[#b9cacb] hover:text-white">
+        <Link href="/quizzes" className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
-          <h2 className="font-heading text-2xl font-bold text-white">{quiz.title}</h2>
-          <p className="font-mono text-xs text-[#5d5f63] mt-1">
+          <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)]">{quiz.title}</h2>
+          <p className="font-mono text-xs text-[var(--text-muted)] mt-1">
             Question {currentQuestion + 1} of {questions.length}
           </p>
         </div>
       </div>
 
-      <div className="w-full bg-[#1f2229] h-1.5 rounded-full mb-8 overflow-hidden">
+      <div className="w-full bg-[var(--border-default)] h-1.5 rounded-full mb-8 overflow-hidden">
         <div
-          className="bg-[#00f0ff] h-full transition-all duration-300"
+          className="bg-[var(--primary)] h-full transition-all duration-300"
           style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
         />
       </div>
 
-      <div className="rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
-        <h3 className="mb-6 font-heading text-lg font-semibold text-[#e2e8e2] leading-relaxed whitespace-pre-line">
+      <div className="rounded-xl border border-[var(--border-default)] bg-[var(--card)] p-6 shadow-sm">
+        <h3 className="mb-6 font-heading text-lg font-bold text-[var(--text-primary)] leading-relaxed whitespace-pre-line">
           {currentQ.question_text}
         </h3>
 
@@ -328,12 +328,12 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                   key={i}
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                     isSelected
-                      ? 'border-[#00f0ff] bg-[#00f0ff]/10 text-[#00f0ff]'
-                      : 'border-[#1f2229] bg-[#111317] text-[#b9cacb] hover:border-[#3b494b]'
+                      ? 'border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]'
+                      : 'border-[var(--border-default)] bg-[var(--background)] text-[var(--text-body)] hover:border-[var(--primary)]'
                   }`}
                 >
-                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#00f0ff]' : 'border-[#5d5f63]'}`}>
-                    {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[#00f0ff]" />}
+                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[var(--primary)]' : 'border-[var(--border-default)]'}`}>
+                    {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />}
                   </div>
                   <span className="font-mono text-sm">{opt}</span>
                   <input
@@ -359,8 +359,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                   key={option}
                   className={`flex-1 cursor-pointer rounded-lg border p-4 text-center transition-colors ${
                     isSelected
-                      ? 'border-[#00f0ff] bg-[#00f0ff]/10 text-[#00f0ff]'
-                      : 'border-[#1f2229] bg-[#111317] text-[#b9cacb] hover:border-[#3b494b]'
+                      ? 'border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]'
+                      : 'border-[var(--border-default)] bg-[var(--background)] text-[var(--text-body)] hover:border-[var(--primary)]'
                   }`}
                 >
                   <input
@@ -383,7 +383,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
             value={answers[currentQ.id] || ''}
             onChange={(e) => handleAnswer(currentQ.id, e.target.value)}
             placeholder="Type your answer here..."
-            className="h-40 w-full resize-y rounded-lg border border-[#1f2229] bg-[#111317] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#00f0ff] placeholder:text-[#5d5f63]"
+            className="h-40 w-full resize-y rounded-lg border border-[var(--border-input)] bg-[var(--background)] p-4 font-mono text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--primary)] placeholder:text-[var(--text-placeholder)]"
           />
         )}
       </div>
@@ -392,7 +392,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         <button
           onClick={() => setCurrentQuestion((prev) => Math.max(0, prev - 1))}
           disabled={currentQuestion === 0}
-          className="flex items-center gap-2 text-[#b9cacb] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
+          className="flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Previous
         </button>
@@ -401,14 +401,14 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
+            className="bg-[var(--primary)] text-[var(--text-primary)] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
           >
             Submit Quiz
           </button>
         ) : (
           <button
             onClick={() => setCurrentQuestion((prev) => Math.min(questions.length - 1, prev + 1))}
-            className="flex items-center gap-2 text-[#00f0ff] hover:text-white font-mono text-sm uppercase tracking-wider transition-colors"
+            className="flex items-center gap-2 text-[var(--primary)] hover:text-[var(--primary-hover)] font-mono text-sm uppercase tracking-wider transition-colors"
           >
             Next
           </button>
@@ -417,21 +417,21 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border border-[#1f2229] bg-[#0c0e12] p-8 text-center shadow-2xl">
-            <h2 className="mb-4 font-heading text-2xl font-bold text-white">Unanswered Questions</h2>
-            <p className="mb-8 font-mono text-sm text-[#b9cacb]">
+          <div className="w-full max-w-md rounded-xl border border-[var(--border-default)] bg-[var(--card)] p-8 text-center shadow-lg">
+            <h2 className="mb-4 font-heading text-2xl font-bold text-[var(--text-primary)]">Unanswered Questions</h2>
+            <p className="mb-8 font-mono text-sm text-[var(--text-body)]">
               You have {questions.filter(q => !answers[q.id]).length} questions left unanswered. Are you sure you want to submit?
             </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                className="font-mono text-sm text-[var(--text-body)] hover:text-[var(--text-primary)] px-6 py-3"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmSubmit}
-                className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors"
+                className="bg-[var(--primary)] text-white font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-[var(--primary-hover)] transition-colors"
               >
                 Yes, Submit
               </button>

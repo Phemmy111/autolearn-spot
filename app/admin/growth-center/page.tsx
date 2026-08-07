@@ -131,7 +131,7 @@ export default function AdminGrowthCenter() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Growth Center</h1>
-          <p className="text-[#b9cacb] text-sm">Manage partners, applications, and growth analytics.</p>
+          <p className="text-[text-[var(--text-muted)]] text-sm">Manage partners, applications, and growth analytics.</p>
         </div>
         <button 
           onClick={fetchData}
@@ -142,20 +142,20 @@ export default function AdminGrowthCenter() {
         </button>
       </div>
 
-      <div className="flex border-b border-[#1f2229] overflow-x-auto">
+      <div className="flex border-b border-[border-[var(--border-default)]] overflow-x-auto">
         {(['overview', 'applications', 'partners', 'withdrawals', 'fraud'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-6 py-3 font-medium text-sm capitalize transition-colors border-b-2 whitespace-nowrap ${
               activeTab === tab 
-                ? 'border-[#00f0ff] text-[#00f0ff]' 
-                : 'border-transparent text-[#b9cacb] hover:text-white hover:border-white/20'
+                ? 'border-[text-[var(--primary)]] text-[text-[var(--primary)]]' 
+                : 'border-transparent text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] hover:border-white/20'
             }`}
           >
             {tab}
             {tab === 'applications' && stats?.applications?.pending > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-red-500 text-[var(--text-primary)] text-xs rounded-full">
                 {stats.applications.pending}
               </span>
             )}
@@ -165,7 +165,7 @@ export default function AdminGrowthCenter() {
               </span>
             )}
             {tab === 'fraud' && stats?.fraud?.openAlerts > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-red-500 text-[var(--text-primary)] text-xs rounded-full">
                 {stats.fraud.openAlerts}
               </span>
             )}
@@ -173,51 +173,51 @@ export default function AdminGrowthCenter() {
         ))}
       </div>
 
-      {loading && <div className="py-12 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" /></div>}
+      {loading && <div className="py-12 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-[text-[var(--primary)]]" /></div>}
 
       {!loading && activeTab === 'overview' && stats && (
         <div className="space-y-6">
           {/* Partner Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
-              <h3 className="text-sm text-[#b9cacb] mb-1">Student Partners</h3>
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
+              <h3 className="text-sm text-[text-[var(--text-muted)]] mb-1">Student Partners</h3>
               <p className="text-3xl font-bold">{stats.partners.student}</p>
             </div>
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
-              <h3 className="text-sm text-[#b9cacb] mb-1">Community Partners</h3>
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
+              <h3 className="text-sm text-[text-[var(--text-muted)]] mb-1">Community Partners</h3>
               <p className="text-3xl font-bold">{stats.partners.community}</p>
             </div>
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
-              <h3 className="text-sm text-[#b9cacb] mb-1">Influencer Partners</h3>
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
+              <h3 className="text-sm text-[text-[var(--text-muted)]] mb-1">Influencer Partners</h3>
               <p className="text-3xl font-bold">{stats.partners.influencer}</p>
             </div>
-            <div className="bg-[#111317] border border-[#00f0ff]/20 p-6 rounded-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#00f0ff]/10 blur-3xl rounded-full" />
-              <h3 className="text-sm text-[#00f0ff] mb-1 relative z-10">Total Partners</h3>
+            <div className="bg-[bg-[var(--card)]] border border-[text-[var(--primary)]]/20 p-6 rounded-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[text-[var(--primary)]]/10 blur-3xl rounded-full" />
+              <h3 className="text-sm text-[text-[var(--primary)]] mb-1 relative z-10">Total Partners</h3>
               <p className="text-3xl font-bold relative z-10">{stats.partners.total}</p>
             </div>
           </div>
 
           {/* Financial Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <DollarSign className="h-5 w-5 text-green-400" />
-                <h3 className="text-sm text-[#b9cacb]">Total Commissions</h3>
+                <h3 className="text-sm text-[text-[var(--text-muted)]]">Total Commissions</h3>
               </div>
               <p className="text-2xl font-bold">₦{stats.financial.totalCommissions.toLocaleString()}</p>
             </div>
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <TrendingUp className="h-5 w-5 text-blue-400" />
-                <h3 className="text-sm text-[#b9cacb]">Total Paid Out</h3>
+                <h3 className="text-sm text-[text-[var(--text-muted)]]">Total Paid Out</h3>
               </div>
               <p className="text-2xl font-bold">₦{stats.financial.totalPaidOut.toLocaleString()}</p>
             </div>
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <Wallet className="h-5 w-5 text-yellow-400" />
-                <h3 className="text-sm text-[#b9cacb]">Available for Payout</h3>
+                <h3 className="text-sm text-[text-[var(--text-muted)]]">Available for Payout</h3>
               </div>
               <p className="text-2xl font-bold">₦{stats.financial.availableForPayout.toLocaleString()}</p>
             </div>
@@ -225,32 +225,32 @@ export default function AdminGrowthCenter() {
 
           {/* Referral Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <Users className="h-5 w-5 text-purple-400" />
-                <h3 className="text-sm text-[#b9cacb]">Total Referral Clicks</h3>
+                <h3 className="text-sm text-[text-[var(--text-muted)]]">Total Referral Clicks</h3>
               </div>
               <p className="text-2xl font-bold">{stats.referrals.totalClicks.toLocaleString()}</p>
             </div>
-            <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <CheckCircle2 className="h-5 w-5 text-green-400" />
-                <h3 className="text-sm text-[#b9cacb]">Total Registrations</h3>
+                <h3 className="text-sm text-[text-[var(--text-muted)]]">Total Registrations</h3>
               </div>
               <p className="text-2xl font-bold">{stats.referrals.totalRegistrations.toLocaleString()}</p>
             </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-[#111317] border border-[#1f2229] p-6 rounded-2xl">
+          <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-6 rounded-2xl">
             <h3 className="text-lg font-bold mb-4">Recent Activity (7 Days)</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-[#b9cacb]">New Partner Signups</p>
+                <p className="text-sm text-[text-[var(--text-muted)]]">New Partner Signups</p>
                 <p className="text-2xl font-bold">{stats.recent.signups}</p>
               </div>
               <div>
-                <p className="text-sm text-[#b9cacb]">Course Purchases</p>
+                <p className="text-sm text-[text-[var(--text-muted)]]">Course Purchases</p>
                 <p className="text-2xl font-bold">{stats.recent.purchases}</p>
               </div>
             </div>
@@ -259,29 +259,29 @@ export default function AdminGrowthCenter() {
       )}
 
       {!loading && activeTab === 'applications' && (
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl overflow-hidden">
+        <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#1f2229]/50 border-b border-[#1f2229]">
+            <thead className="bg-[border-[var(--border-default)]]/50 border-b border-[border-[var(--border-default)]]">
               <tr>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Applicant</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Contact</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">State</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Status</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb] text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Applicant</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Contact</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">State</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Status</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]] text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2229]">
+            <tbody className="divide-y divide-[border-[var(--border-default)]]">
               {applications.map(app => (
                 <tr key={app.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-white">{app.full_name}</p>
-                    <p className="text-[#b9cacb] text-xs">{app.occupation}</p>
+                    <p className="font-medium text-[var(--text-primary)]">{app.full_name}</p>
+                    <p className="text-[text-[var(--text-muted)]] text-xs">{app.occupation}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-white">{app.email}</p>
-                    <p className="text-[#b9cacb] text-xs">{app.phone}</p>
+                    <p className="text-[var(--text-primary)]">{app.email}</p>
+                    <p className="text-[text-[var(--text-muted)]] text-xs">{app.phone}</p>
                   </td>
-                  <td className="px-6 py-4 text-[#b9cacb]">{app.state}</td>
+                  <td className="px-6 py-4 text-[text-[var(--text-muted)]]">{app.state}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       app.status === 'approved' ? 'bg-green-500/10 text-green-400' :
@@ -322,29 +322,29 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {applications.length === 0 && (
-            <div className="p-8 text-center text-[#b9cacb]">No applications found</div>
+            <div className="p-8 text-center text-[text-[var(--text-muted)]]">No applications found</div>
           )}
         </div>
       )}
 
       {!loading && activeTab === 'partners' && (
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl overflow-hidden">
+        <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#1f2229]/50 border-b border-[#1f2229]">
+            <thead className="bg-[border-[var(--border-default)]]/50 border-b border-[border-[var(--border-default)]]">
               <tr>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Partner</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Type</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Commission</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Earnings</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Status</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Partner</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Type</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Commission</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Earnings</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2229]">
+            <tbody className="divide-y divide-[border-[var(--border-default)]]">
               {partners.map(partner => (
                 <tr key={partner.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-white">{partner.full_name}</p>
-                    <p className="text-[#b9cacb] text-xs">{partner.email}</p>
+                    <p className="font-medium text-[var(--text-primary)]">{partner.full_name}</p>
+                    <p className="text-[text-[var(--text-muted)]] text-xs">{partner.email}</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -357,8 +357,8 @@ export default function AdminGrowthCenter() {
                   </td>
                   <td className="px-6 py-4 font-medium">₦{partner.commission_rate.toLocaleString()}</td>
                   <td className="px-6 py-4">
-                    <p className="text-white">₦{partner.available_earnings.toLocaleString()} available</p>
-                    <p className="text-[#b9cacb] text-xs">₦{partner.lifetime_earnings.toLocaleString()} lifetime</p>
+                    <p className="text-[var(--text-primary)]">₦{partner.available_earnings.toLocaleString()} available</p>
+                    <p className="text-[text-[var(--text-muted)]] text-xs">₦{partner.lifetime_earnings.toLocaleString()} lifetime</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -374,34 +374,34 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {partners.length === 0 && (
-            <div className="p-8 text-center text-[#b9cacb]">No partners found</div>
+            <div className="p-8 text-center text-[text-[var(--text-muted)]]">No partners found</div>
           )}
         </div>
       )}
 
       {!loading && activeTab === 'withdrawals' && (
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl overflow-hidden">
+        <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#1f2229]/50 border-b border-[#1f2229]">
+            <thead className="bg-[border-[var(--border-default)]]/50 border-b border-[border-[var(--border-default)]]">
               <tr>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Partner</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Amount</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Bank Details</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Status</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb] text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Partner</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Amount</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Bank Details</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Status</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]] text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2229]">
+            <tbody className="divide-y divide-[border-[var(--border-default)]]">
               {withdrawals.map(withdrawal => (
                 <tr key={withdrawal.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-white">{withdrawal.user_id}</p>
-                    <p className="text-[#b9cacb] text-xs">{withdrawal.user_type}</p>
+                    <p className="font-medium text-[var(--text-primary)]">{withdrawal.user_id}</p>
+                    <p className="text-[text-[var(--text-muted)]] text-xs">{withdrawal.user_type}</p>
                   </td>
                   <td className="px-6 py-4 font-bold">₦{withdrawal.amount.toLocaleString()}</td>
                   <td className="px-6 py-4">
-                    <p className="text-white">{withdrawal.bank_name}</p>
-                    <p className="text-[#b9cacb] text-xs">{withdrawal.account_number}</p>
+                    <p className="text-[var(--text-primary)]">{withdrawal.bank_name}</p>
+                    <p className="text-[text-[var(--text-muted)]] text-xs">{withdrawal.account_number}</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -436,24 +436,24 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {withdrawals.length === 0 && (
-            <div className="p-8 text-center text-[#b9cacb]">No withdrawals found</div>
+            <div className="p-8 text-center text-[text-[var(--text-muted)]]">No withdrawals found</div>
           )}
         </div>
       )}
 
       {!loading && activeTab === 'fraud' && (
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl overflow-hidden">
+        <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#1f2229]/50 border-b border-[#1f2229]">
+            <thead className="bg-[border-[var(--border-default)]]/50 border-b border-[border-[var(--border-default)]]">
               <tr>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Type</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Severity</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Description</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb]">Status</th>
-                <th className="px-6 py-4 font-medium text-[#b9cacb] text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Type</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Severity</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Description</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]]">Status</th>
+                <th className="px-6 py-4 font-medium text-[text-[var(--text-muted)]] text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2229]">
+            <tbody className="divide-y divide-[border-[var(--border-default)]]">
               {fraudAlerts.map(alert => (
                 <tr key={alert.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
@@ -470,7 +470,7 @@ export default function AdminGrowthCenter() {
                       {alert.severity}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-[#b9cacb] max-w-md truncate">{alert.description}</td>
+                  <td className="px-6 py-4 text-[text-[var(--text-muted)]] max-w-md truncate">{alert.description}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       alert.status === 'open' ? 'bg-red-500/10 text-red-400' :
@@ -498,7 +498,7 @@ export default function AdminGrowthCenter() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-[#b9cacb] text-xs">Closed</span>
+                      <span className="text-[text-[var(--text-muted)]] text-xs">Closed</span>
                     )}
                   </td>
                 </tr>
@@ -506,7 +506,7 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {fraudAlerts.length === 0 && (
-            <div className="p-8 text-center text-[#b9cacb]">No fraud alerts found</div>
+            <div className="p-8 text-center text-[text-[var(--text-muted)]]">No fraud alerts found</div>
           )}
         </div>
       )}

@@ -92,32 +92,32 @@ export default function AICostControlsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-[bg-[var(--background)]] flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 text-[#00f0ff] animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sm text-[#b9cacb]">Loading cost controls...</p>
+          <RefreshCw className="h-8 w-8 text-[text-[var(--primary)]] animate-spin mx-auto mb-4" />
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Loading cost controls...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-[#b9cacb] hover:text-white">
+            <Link href="/admin" className="text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)]">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-white">AI Cost Controls</h1>
-              <p className="font-mono text-sm text-[#b9cacb]">Configure AI usage limits and parameters</p>
+              <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)]">AI Cost Controls</h1>
+              <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Configure AI usage limits and parameters</p>
             </div>
           </div>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -149,13 +149,13 @@ export default function AICostControlsPage() {
 
         <div className="grid gap-6">
           {/* Enable/Disable */}
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Zap className="h-6 w-6 text-[#00f0ff]" />
+                <Zap className="h-6 w-6 text-[text-[var(--primary)]]" />
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-white">Enable Cost Controls</h3>
-                  <p className="font-mono text-xs text-[#b9cacb]">Turn cost controls on or off</p>
+                  <h3 className="font-heading text-lg font-bold text-[var(--text-primary)]">Enable Cost Controls</h3>
+                  <p className="font-mono text-xs text-[text-[var(--text-muted)]]">Turn cost controls on or off</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -165,33 +165,33 @@ export default function AICostControlsPage() {
                   onChange={(e) => setControls({ ...controls, enabled: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[#3b494b] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00f0ff]" />
+                <div className="w-11 h-6 bg-[border-[var(--border-default)]] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[text-[var(--primary)]]" />
               </label>
             </div>
           </div>
 
           {/* Token Limits */}
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
-              <DollarSign className="h-6 w-6 text-[#00f0ff]" />
+              <DollarSign className="h-6 w-6 text-[text-[var(--primary)]]" />
               <div>
-                <h3 className="font-heading text-lg font-bold text-white">Token Limits</h3>
-                <p className="font-mono text-xs text-[#b9cacb]">Control token usage per request</p>
+                <h3 className="font-heading text-lg font-bold text-[var(--text-primary)]">Token Limits</h3>
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">Control token usage per request</p>
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2">Max Tokens per Request</label>
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Max Tokens per Request</label>
                 <input
                   type="number"
                   value={controls.max_tokens}
                   onChange={(e) => setControls({ ...controls, max_tokens: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff] disabled:opacity-50"
+                  className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]] disabled:opacity-50"
                 />
               </div>
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2">Temperature (0-2)</label>
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Temperature (0-2)</label>
                 <input
                   type="number"
                   step="0.1"
@@ -200,73 +200,73 @@ export default function AICostControlsPage() {
                   value={controls.temperature}
                   onChange={(e) => setControls({ ...controls, temperature: parseFloat(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff] disabled:opacity-50"
+                  className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]] disabled:opacity-50"
                 />
               </div>
             </div>
           </div>
 
           {/* Request Limits */}
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
-              <Clock className="h-6 w-6 text-[#00f0ff]" />
+              <Clock className="h-6 w-6 text-[text-[var(--primary)]]" />
               <div>
-                <h3 className="font-heading text-lg font-bold text-white">Request Limits</h3>
-                <p className="font-mono text-xs text-[#b9cacb]">Limit the number of AI requests</p>
+                <h3 className="font-heading text-lg font-bold text-[var(--text-primary)]">Request Limits</h3>
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">Limit the number of AI requests</p>
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2">Daily Request Limit</label>
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Daily Request Limit</label>
                 <input
                   type="number"
                   value={controls.daily_request_limit}
                   onChange={(e) => setControls({ ...controls, daily_request_limit: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff] disabled:opacity-50"
+                  className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]] disabled:opacity-50"
                 />
               </div>
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2">Monthly Request Limit</label>
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Monthly Request Limit</label>
                 <input
                   type="number"
                   value={controls.monthly_request_limit}
                   onChange={(e) => setControls({ ...controls, monthly_request_limit: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff] disabled:opacity-50"
+                  className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]] disabled:opacity-50"
                 />
               </div>
             </div>
           </div>
 
           {/* Retry and Timeout */}
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
-              <Settings className="h-6 w-6 text-[#00f0ff]" />
+              <Settings className="h-6 w-6 text-[text-[var(--primary)]]" />
               <div>
-                <h3 className="font-heading text-lg font-bold text-white">Retry & Timeout Settings</h3>
-                <p className="font-mono text-xs text-[#b9cacb]">Configure retry behavior and timeouts</p>
+                <h3 className="font-heading text-lg font-bold text-[var(--text-primary)]">Retry & Timeout Settings</h3>
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">Configure retry behavior and timeouts</p>
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2">Max Retries</label>
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Max Retries</label>
                 <input
                   type="number"
                   value={controls.max_retries}
                   onChange={(e) => setControls({ ...controls, max_retries: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff] disabled:opacity-50"
+                  className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]] disabled:opacity-50"
                 />
               </div>
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2">Request Timeout (ms)</label>
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2">Request Timeout (ms)</label>
                 <input
                   type="number"
                   value={controls.request_timeout_ms}
                   onChange={(e) => setControls({ ...controls, request_timeout_ms: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff] disabled:opacity-50"
+                  className="w-full bg-[border-[var(--border-default)]] border border-[border-[var(--border-default)]] rounded px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:outline-none focus:border-[text-[var(--primary)]] disabled:opacity-50"
                 />
               </div>
             </div>

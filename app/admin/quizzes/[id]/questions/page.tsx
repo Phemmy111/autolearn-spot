@@ -108,25 +108,25 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00f0ff]" />
+      <div className="min-h-screen bg-[bg-[var(--background)]] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[text-[var(--primary)]]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin/quizzes"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Quizzes
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-2">{quiz?.title || 'Quiz'}</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">Manage quiz questions</p>
+          <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)] mb-2">{quiz?.title || 'Quiz'}</h1>
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Manage quiz questions</p>
         </div>
 
         {error && (
@@ -138,7 +138,7 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
         <div className="mb-6">
           <Link
             href={`/admin/quizzes/${id}/questions/new`}
-            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
+            className="flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
           >
             <Plus className="h-4 w-4" />
             Add Question
@@ -146,51 +146,51 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
         </div>
 
         {questions.length === 0 ? (
-          <div className="text-center py-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl">
-            <p className="font-mono text-sm text-[#b9cacb]">No questions yet. Add your first question!</p>
+          <div className="text-center py-12 border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] rounded-xl">
+            <p className="font-mono text-sm text-[text-[var(--text-muted)]]">No questions yet. Add your first question!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {questions.map((question, index) => (
               <div
                 key={question.id}
-                className="border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl hover:border-[#00f0ff]/50 transition-all"
+                className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl hover:border-[text-[var(--primary)]]/50 transition-all"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex flex-col gap-1 pt-1">
                     <button
                       onClick={() => handleReorder(question.id, Math.max(0, index - 1))}
                       disabled={index === 0}
-                      className="text-[#5d5f63] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       ▲
                     </button>
                     <button
                       onClick={() => handleReorder(question.id, Math.min(questions.length - 1, index + 1))}
                       disabled={index === questions.length - 1}
-                      className="text-[#5d5f63] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       ▼
                     </button>
                   </div>
                   
-                  <GripVertical className="h-5 w-5 text-[#5d5f63] mt-1" />
+                  <GripVertical className="h-5 w-5 text-[text-[var(--text-muted)]] mt-1" />
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-[text-[var(--primary)]]/10 text-[text-[var(--primary)]] font-mono text-xs rounded">
                         Q{index + 1}
                       </span>
-                      <span className="px-2 py-1 bg-[#1f2229] text-[#b9cacb] font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] font-mono text-xs rounded">
                         {question.question_type}
                       </span>
-                      <span className="px-2 py-1 bg-[#1f2229] text-[#b9cacb] font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] font-mono text-xs rounded">
                         {question.points} pts
                       </span>
                     </div>
-                    <p className="font-mono text-sm text-white line-clamp-2">{question.question_text}</p>
+                    <p className="font-mono text-sm text-[var(--text-primary)] line-clamp-2">{question.question_text}</p>
                     {question.explanation && (
-                      <p className="font-mono text-xs text-[#5d5f63] mt-2 line-clamp-1">
+                      <p className="font-mono text-xs text-[text-[var(--text-muted)]] mt-2 line-clamp-1">
                         Explanation: {question.explanation}
                       </p>
                     )}
@@ -199,7 +199,7 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/admin/quizzes/${id}/questions/${question.id}`}
-                      className="text-[#00f0ff] hover:text-white"
+                      className="text-[text-[var(--primary)]] hover:text-[var(--text-primary)]"
                     >
                       <Edit className="h-4 w-4" />
                     </Link>

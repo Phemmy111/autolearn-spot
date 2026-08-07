@@ -129,25 +129,25 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00f0ff]" />
+      <div className="min-h-screen bg-[bg-[var(--background)]] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[text-[var(--primary)]]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin/quizzes"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Quizzes
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-4">Edit Quiz</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">Update quiz information</p>
+          <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)] mb-4">Edit Quiz</h1>
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Update quiz information</p>
         </div>
 
         <div className="max-w-2xl">
@@ -159,7 +159,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+              <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                 Quiz Title
               </label>
               <input
@@ -168,12 +168,12 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                 value={formData.title}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
               />
             </div>
 
             <div>
-              <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+              <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                 Description
               </label>
               <textarea
@@ -181,13 +181,13 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
-                className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors resize-y"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Week Number
                 </label>
                 <input
@@ -198,12 +198,12 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                   min="1"
                   max="12"
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Phase
                 </label>
                 <select
@@ -211,7 +211,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                   value={formData.phase}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 >
                   <option value="WEEK_1">WEEK_1</option>
                   <option value="WEEK_2">WEEK_2</option>
@@ -223,7 +223,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Time Limit (minutes)
                 </label>
                 <input
@@ -233,12 +233,12 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                   onChange={handleChange}
                   min="1"
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Passing Score (%)
                 </label>
                 <input
@@ -249,7 +249,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                   min="0"
                   max="100"
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 />
               </div>
             </div>
@@ -261,9 +261,9 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
                 id="is_active"
                 checked={formData.is_active}
                 onChange={handleChange}
-                className="w-4 h-4 accent-[#00f0ff]"
+                className="w-4 h-4 accent-[text-[var(--primary)]]"
               />
-              <label htmlFor="is_active" className="font-mono text-sm text-[#b9cacb]">
+              <label htmlFor="is_active" className="font-mono text-sm text-[text-[var(--text-muted)]]">
                 Quiz is active and available to students
               </label>
             </div>
@@ -272,7 +272,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {saving ? 'Saving...' : 'Save Changes'}
@@ -287,7 +287,7 @@ export default function EditQuizPage({ params }: { params: Promise<{ id: string 
               </button>
               <Link
                 href="/admin/quizzes"
-                className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                className="font-mono text-sm text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] px-6 py-3"
               >
                 Cancel
               </Link>

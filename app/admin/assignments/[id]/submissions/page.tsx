@@ -110,9 +110,9 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'submitted':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#1a1d24] text-[#b9cacb] border border-[#3b494b]">Submitted</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[bg-[var(--card)]] text-[text-[var(--text-muted)]] border border-[border-[var(--border-default)]]">Submitted</span>;
       case 'approved':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#0f4c3c] text-[#00f0ff] border border-[#00f0ff]">Approved</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#0f4c3c] text-[text-[var(--primary)]] border border-[text-[var(--primary)]]">Approved</span>;
       case 'needs_revision':
         return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#4c1a1a] text-[#ff6b6b] border border-[#ff6b6b]">Needs Revision</span>;
       default:
@@ -122,67 +122,67 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#111317] text-[#e2e8e2] flex items-center justify-center">
-        <div className="font-mono text-sm text-[#b9cacb]">Loading submissions...</div>
+      <div className="min-h-screen bg-[bg-[var(--card)]] text-[text-[var(--text-primary)]] flex items-center justify-center">
+        <div className="font-mono text-sm text-[text-[var(--text-muted)]]">Loading submissions...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#111317] text-[#e2e8e2] flex items-center justify-center">
+      <div className="min-h-screen bg-[bg-[var(--card)]] text-[text-[var(--text-primary)]] flex items-center justify-center">
         <div className="font-mono text-sm text-[#ff6b6b]">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e8e2]">
+    <main className="min-h-screen bg-[bg-[var(--card)]] text-[text-[var(--text-primary)]]">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
-        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/admin/assignments">
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[border-[var(--border-default)]] bg-[bg-[var(--card)]]/95 px-4 backdrop-blur sm:px-6">
+        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-[var(--text-primary)]" href="/admin/assignments">
           <ArrowLeft className="h-4 w-4" />
-          <span className="text-[#00f0ff]">//</span>
-          <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">Assignments</span>
+          <span className="text-[text-[var(--primary)]]">//</span>
+          <span className="underline decoration-[text-[var(--text-muted)]] decoration-2 underline-offset-2">Assignments</span>
         </Link>
-        <div className="font-mono text-xs uppercase text-[#b9cacb]">
+        <div className="font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
           Submissions
         </div>
       </nav>
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <h1 className="mb-8 font-heading text-3xl font-bold uppercase text-white">Submissions</h1>
+        <h1 className="mb-8 font-heading text-3xl font-bold uppercase text-[var(--text-primary)]">Submissions</h1>
 
         {submissions.length === 0 ? (
-          <div className="border border-[#3b494b] bg-[#1a1d24] p-8 text-center">
-            <p className="font-mono text-sm text-[#b9cacb]">No submissions yet.</p>
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-8 text-center">
+            <p className="font-mono text-sm text-[text-[var(--text-muted)]]">No submissions yet.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {submissions.map((submission) => (
               <div
                 key={submission.id}
-                className="border border-[#3b494b] bg-[#1a1d24] p-6"
+                className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
                     <div className="mb-2 flex items-center gap-3">
-                      <span className="font-mono text-xs uppercase text-[#00f0ff]">
+                      <span className="font-mono text-xs uppercase text-[text-[var(--primary)]]">
                         Week {submission.assignment.week_number}
                       </span>
                       {getStatusBadge(submission.status)}
                     </div>
-                    <h2 className="mb-2 font-heading text-xl font-bold text-white">
+                    <h2 className="mb-2 font-heading text-xl font-bold text-[var(--text-primary)]">
                       {submission.assignment.title}
                     </h2>
-                    <div className="mb-4 font-mono text-sm text-[#b9cacb] space-y-1">
+                    <div className="mb-4 font-mono text-sm text-[text-[var(--text-muted)]] space-y-1">
                       {submission.student_name && <div><span>Name: {submission.student_name}</span></div>}
                       {submission.student_email && <div><span>Email: {submission.student_email}</span></div>}
                       <div className="text-xs text-[#6b7b7c]">ID: {submission.user_id}</div>
                     </div>
                     {submission.screenshot_url && (
                       <div className="mb-4">
-                        <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Screenshot:</p>
+                        <p className="font-mono text-xs uppercase text-[text-[var(--text-muted)]] mb-2">Screenshot:</p>
                         <a
                           href={submission.screenshot_url}
                           target="_blank"
@@ -192,32 +192,32 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                           <img
                             src={submission.screenshot_url}
                             alt="Submission screenshot"
-                            className="max-h-32 rounded border border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
+                            className="max-h-32 rounded border border-[border-[var(--border-default)]] group-hover:border-[text-[var(--primary)]] transition-colors"
                           />
-                          <span className="block mt-1 font-mono text-xs text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors">Click to open full image ↗</span>
+                          <span className="block mt-1 font-mono text-xs text-[text-[var(--text-muted)]] group-hover:text-[text-[var(--primary)]] transition-colors">Click to open full image ↗</span>
                         </a>
                       </div>
                     )}
                     {submission.notes && (
-                      <div className="mb-4 border-t border-[#3b494b] pt-4">
-                        <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Student Notes:</p>
-                        <p className="font-mono text-sm text-[#e2e8e2]">{submission.notes}</p>
+                      <div className="mb-4 border-t border-[border-[var(--border-default)]] pt-4">
+                        <p className="font-mono text-xs uppercase text-[text-[var(--text-muted)]] mb-2">Student Notes:</p>
+                        <p className="font-mono text-sm text-[text-[var(--text-primary)]]">{submission.notes}</p>
                       </div>
                     )}
-                    <div className="flex flex-wrap gap-4 text-xs font-mono text-[#b9cacb]">
+                    <div className="flex flex-wrap gap-4 text-xs font-mono text-[text-[var(--text-muted)]]">
                       <div>
                         <span>Submitted: {formatDate(submission.created_at)}</span>
                       </div>
                       {submission.ai_score !== null && (
                         <div>
-                          <span>Score: <span className="text-[#00f0ff]">{submission.ai_score}</span>/{submission.assignment.max_score}</span>
+                          <span>Score: <span className="text-[text-[var(--primary)]]">{submission.ai_score}</span>/{submission.assignment.max_score}</span>
                         </div>
                       )}
                     </div>
                     {submission.ai_feedback && (
-                      <div className="mt-4 border-t border-[#3b494b] pt-4">
-                        <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Feedback:</p>
-                        <p className="font-mono text-sm text-[#e2e8e2]">{submission.ai_feedback}</p>
+                      <div className="mt-4 border-t border-[border-[var(--border-default)]] pt-4">
+                        <p className="font-mono text-xs uppercase text-[text-[var(--text-muted)]] mb-2">Feedback:</p>
+                        <p className="font-mono text-sm text-[text-[var(--text-primary)]]">{submission.ai_feedback}</p>
                       </div>
                     )}
                   </div>
@@ -228,7 +228,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                       href={submission.live_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                      className="flex items-center justify-center gap-2 border border-[var(--border-default)] bg-[var(--card)] px-4 py-2 font-mono text-xs uppercase text-[var(--text-muted)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Open Link
@@ -236,7 +236,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                     )}
                     <button
                       onClick={() => openReviewModal(submission)}
-                      className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
+                      className="flex items-center justify-center gap-2 border border-[var(--primary)] bg-[var(--primary)] px-4 py-2 font-mono text-xs uppercase font-bold text-white transition hover:bg-[var(--primary-hover)]"
                     >
                       Review
                     </button>
@@ -251,17 +251,17 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
       {/* Review Modal */}
       {reviewingSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-xl border border-[#1f2229] bg-[#0c0e12] p-8 shadow-2xl">
-            <h2 className="mb-4 font-heading text-2xl font-bold text-white">
+          <div className="w-full max-w-lg rounded-xl border border-[var(--border-default)] bg-[var(--card)] p-8 shadow-lg">
+            <h2 className="mb-4 font-heading text-2xl font-bold text-[var(--text-primary)]">
               Review Submission
             </h2>
-            <p className="mb-6 font-mono text-sm text-[#b9cacb]">
+            <p className="mb-6 font-mono text-sm text-[var(--text-muted)]">
               {reviewingSubmission.assignment.title}
             </p>
 
             <form onSubmit={handleReview} className="space-y-4">
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Score *
                 </label>
                 <input
@@ -271,21 +271,21 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                   min="0"
                   max={reviewingSubmission.assignment.max_score}
                   required
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none"
                 />
-                <p className="mt-1 font-mono text-xs text-[#b9cacb]">
+                <p className="mt-1 font-mono text-xs text-[text-[var(--text-muted)]]">
                   Max: {reviewingSubmission.assignment.max_score}
                 </p>
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Status *
                 </label>
                 <select
                   value={reviewData.status}
                   onChange={(e) => setReviewData({ ...reviewData, status: e.target.value as 'approved' | 'needs_revision' })}
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none"
                 >
                   <option value="approved">Approved</option>
                   <option value="needs_revision">Needs Revision</option>
@@ -293,7 +293,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Feedback
                 </label>
                 <textarea
@@ -301,7 +301,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                   onChange={(e) => setReviewData({ ...reviewData, feedback: e.target.value })}
                   rows={4}
                   placeholder="Provide feedback to the student..."
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none resize-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none resize-none"
                 />
               </div>
 
@@ -312,14 +312,14 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                     setReviewingSubmission(null);
                     setReviewData({ score: 0, feedback: '', status: 'approved' });
                   }}
-                  className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                  className="font-mono text-sm text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] px-6 py-3"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : 'Submit Review'}
                 </button>

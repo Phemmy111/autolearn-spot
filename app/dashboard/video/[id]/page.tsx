@@ -46,11 +46,11 @@ export default async function VideoPage({ params }: VideoPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e2e8]">
-      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
+      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[var(--border-default)] bg-[var(--background)]/95 px-4 backdrop-blur sm:px-6">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-[#b9cacb] transition hover:text-[#00f0ff]"
+          className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-[var(--text-muted)] transition hover:text-[var(--primary)]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
@@ -59,19 +59,19 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <div className="mb-8">
-          <span className="mb-2 inline-block font-mono text-[10px] uppercase tracking-wider text-[#00f0ff]">
+          <span className="mb-2 inline-block font-mono text-[10px] uppercase tracking-wider text-[var(--primary)]">
             Week {video.week} • {video.duration}
           </span>
-          <h1 className="font-heading text-2xl font-bold uppercase text-white sm:text-3xl">
+          <h1 className="font-heading text-2xl font-bold uppercase text-[var(--text-primary)] sm:text-3xl">
             {video.title}
           </h1>
-          <p className="mt-3 max-w-3xl font-mono text-sm leading-relaxed text-[#b9cacb]">
+          <p className="mt-3 max-w-3xl font-mono text-sm leading-relaxed text-[var(--text-muted)]">
             {video.description}
           </p>
         </div>
 
         {/* Video Player Container */}
-        <div className="relative aspect-video w-full overflow-hidden border border-[#3b494b] bg-black shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+        <div className="relative aspect-video w-full overflow-hidden border border-[var(--border-default)] bg-black shadow-[0_0_30px_rgba(0,0,0,0.5)]">
           <VideoPlayer
             lessonId={video.id}
             youtubeVideoId={video.youtubeVideoId}
@@ -83,8 +83,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
         {/* Resources Section */}
         {video.resources && video.resources.length > 0 && (
-          <div className="mt-12 border border-[#1f2229] bg-[#0c0e12] p-6 sm:p-8">
-            <h2 className="mb-6 font-mono text-lg font-semibold uppercase tracking-wider text-[#00f0ff]">
+          <div className="mt-12 border border-[var(--border-default)] bg-[var(--card)] p-6 sm:p-8 shadow-sm">
+            <h2 className="mb-6 font-mono text-lg font-semibold uppercase tracking-wider text-[var(--primary)]">
               Session Resources
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -94,12 +94,12 @@ export default async function VideoPage({ params }: VideoPageProps) {
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 border border-[#3b494b] bg-[#111317] p-4 transition-colors hover:border-[#00f0ff] hover:bg-[#1a1d24]"
+                  className="flex items-center gap-4 border border-[var(--border-default)] bg-[var(--background)] p-4 transition-colors hover:border-[var(--primary)] hover:bg-[var(--surface-hover)]"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#00f0ff]/10 text-[#00f0ff]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-[var(--primary-light)] text-[var(--primary)]">
                     <Download className="h-5 w-5" />
                   </div>
-                  <span className="font-mono text-sm font-semibold text-[#e2e2e8]">
+                  <span className="font-mono text-sm font-semibold text-[var(--text-primary)]">
                     {resource.label}
                   </span>
                 </a>

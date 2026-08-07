@@ -165,30 +165,30 @@ export default function AdminAssignmentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#111317] text-[#e2e8e2] flex items-center justify-center">
-        <div className="font-mono text-sm text-[#b9cacb]">Loading assignments...</div>
+      <div className="min-h-screen bg-[bg-[var(--card)]] text-[text-[var(--text-primary)]] flex items-center justify-center">
+        <div className="font-mono text-sm text-[text-[var(--text-muted)]]">Loading assignments...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#111317] text-[#e2e8e2] flex items-center justify-center">
+      <div className="min-h-screen bg-[bg-[var(--card)]] text-[text-[var(--text-primary)]] flex items-center justify-center">
         <div className="font-mono text-sm text-[#ff6b6b]">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e8e2]">
+    <main className="min-h-screen bg-[bg-[var(--card)]] text-[text-[var(--text-primary)]]">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
-        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/admin">
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[border-[var(--border-default)]] bg-[bg-[var(--card)]]/95 px-4 backdrop-blur sm:px-6">
+        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-[var(--text-primary)]" href="/admin">
           <ArrowLeft className="h-4 w-4" />
-          <span className="text-[#00f0ff]">//</span>
-          <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">Admin</span>
+          <span className="text-[text-[var(--primary)]]">//</span>
+          <span className="underline decoration-[text-[var(--text-muted)]] decoration-2 underline-offset-2">Admin</span>
         </Link>
-        <div className="font-mono text-xs uppercase text-[#b9cacb]">
+        <div className="font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
           Assignments
         </div>
       </nav>
@@ -196,10 +196,10 @@ export default function AdminAssignmentsPage() {
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6"
 >
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="font-heading text-3xl font-bold uppercase text-white">Manage Assignments</h1>
+          <h1 className="font-heading text-3xl font-bold uppercase text-[var(--text-primary)]">Manage Assignments</h1>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
+            className="flex items-center gap-2 border border-[text-[var(--primary)]] bg-[text-[var(--primary)]] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
           >
             <Plus className="h-4 w-4" />
             Create Assignment
@@ -207,35 +207,35 @@ export default function AdminAssignmentsPage() {
         </div>
 
         {assignments.length === 0 ? (
-          <div className="border border-[#3b494b] bg-[#1a1d24] p-8 text-center">
-            <p className="font-mono text-sm text-[#b9cacb]">No assignments created yet.</p>
+          <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-8 text-center">
+            <p className="font-mono text-sm text-[text-[var(--text-muted)]]">No assignments created yet.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {assignments.map((assignment) => (
               <div
                 key={assignment.id}
-                className="border border-[#3b494b] bg-[#1a1d24] p-6"
+                className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
                     <div className="mb-2 flex items-center gap-3">
-                      <span className="font-mono text-xs uppercase text-[#00f0ff]">
+                      <span className="font-mono text-xs uppercase text-[text-[var(--primary)]]">
                         Week {assignment.week_number}
                       </span>
-                      <span className="font-mono text-xs text-[#b9cacb]">
+                      <span className="font-mono text-xs text-[text-[var(--text-muted)]]">
                         {assignment.cohort.name}
                       </span>
                     </div>
-                    <h2 className="mb-2 font-heading text-xl font-bold text-white">
+                    <h2 className="mb-2 font-heading text-xl font-bold text-[var(--text-primary)]">
                       {assignment.title}
                     </h2>
                     {assignment.description && (
-                      <p className="mb-4 font-mono text-sm text-[#b9cacb]">
+                      <p className="mb-4 font-mono text-sm text-[text-[var(--text-muted)]]">
                         {assignment.description}
                       </p>
                     )}
-                    <div className="flex flex-wrap gap-4 text-xs font-mono text-[#b9cacb]">
+                    <div className="flex flex-wrap gap-4 text-xs font-mono text-[text-[var(--text-muted)]]">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
                         <span>Due: {formatDate(assignment.due_date)}</span>
@@ -253,14 +253,14 @@ export default function AdminAssignmentsPage() {
                   <div className="flex gap-2">
                     <Link
                       href={`/admin/assignments/${assignment.id}/submissions`}
-                      className="flex items-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                      className="flex items-center gap-2 border border-[var(--border-default)] bg-[var(--card)] px-4 py-2 font-mono text-xs uppercase text-[var(--text-muted)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
                     >
                       <Users className="h-4 w-4" />
                       Review
                     </Link>
                     <button
                       onClick={() => openEditModal(assignment)}
-                      className="flex items-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                      className="flex items-center gap-2 border border-[var(--border-default)] bg-[var(--card)] px-4 py-2 font-mono text-xs uppercase text-[var(--text-muted)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
                     >
                       <Edit className="h-4 w-4" />
                       Edit
@@ -268,7 +268,7 @@ export default function AdminAssignmentsPage() {
                     <button
                       onClick={() => handleDelete(assignment.id)}
                       disabled={deletingId === assignment.id}
-                      className="flex items-center gap-2 border border-[#ff6b6b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#ff6b6b] transition hover:bg-[#ff6b6b] hover:text-black disabled:opacity-50"
+                      className="flex items-center gap-2 border border-[#ff6b6b] bg-[var(--card)] px-4 py-2 font-mono text-xs uppercase text-[#ff6b6b] transition hover:bg-[#ff6b6b] hover:text-white disabled:opacity-50"
                     >
                       <Trash2 className="h-4 w-4" />
                       {deletingId === assignment.id ? 'Deleting...' : 'Delete'}
@@ -302,9 +302,9 @@ export default function AdminAssignmentsPage() {
             }
           }}
         >
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-[var(--border-default)] bg-[var(--card)] p-6 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-xl font-bold text-white">
+              <h2 className="font-heading text-xl font-bold text-[var(--text-primary)]">
                 {editingAssignment ? 'Edit Assignment' : 'Create Assignment'}
               </h2>
               <button
@@ -322,7 +322,7 @@ export default function AdminAssignmentsPage() {
                     is_required: true,
                   });
                 }}
-                className="text-[#b9cacb] hover:text-white transition-colors"
+                className="text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] transition-colors"
               >
                 ✕
               </button>
@@ -330,7 +330,7 @@ export default function AdminAssignmentsPage() {
 
             <form onSubmit={editingAssignment ? handleUpdate : handleCreate} className="space-y-4">
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Week Number *
                 </label>
                 <input
@@ -339,12 +339,12 @@ export default function AdminAssignmentsPage() {
                   onChange={(e) => setFormData({ ...formData, week_number: parseInt(e.target.value) })}
                   min="1"
                   required
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Title *
                 </label>
                 <input
@@ -352,48 +352,48 @@ export default function AdminAssignmentsPage() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={2}
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none resize-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Instructions
                 </label>
                 <textarea
                   value={formData.instructions}
                   onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                   rows={4}
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none resize-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Due Date
                 </label>
                 <input
                   type="datetime-local"
                   value={formData.due_date}
                   onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-[text-[var(--text-muted)]]">
                   Max Score
                 </label>
                 <input
@@ -401,7 +401,7 @@ export default function AdminAssignmentsPage() {
                   value={formData.max_score}
                   onChange={(e) => setFormData({ ...formData, max_score: parseInt(e.target.value) })}
                   min="0"
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] px-4 py-3 font-mono text-sm text-[text-[var(--text-primary)]] focus:border-[text-[var(--primary)]] focus:outline-none"
                 />
               </div>
 
@@ -411,9 +411,9 @@ export default function AdminAssignmentsPage() {
                   id="is_required"
                   checked={formData.is_required}
                   onChange={(e) => setFormData({ ...formData, is_required: e.target.checked })}
-                  className="h-4 w-4 accent-[#00f0ff]"
+                  className="h-4 w-4 accent-[text-[var(--primary)]]"
                 />
-                <label htmlFor="is_required" className="font-mono text-xs text-[#b9cacb]">
+                <label htmlFor="is_required" className="font-mono text-xs text-[text-[var(--text-muted)]]">
                   Required for certificate
                 </label>
               </div>
@@ -435,14 +435,14 @@ export default function AdminAssignmentsPage() {
                       is_required: true,
                     });
                   }}
-                  className="font-mono text-sm text-[#b9cacb] hover:text-white px-4 py-2"
+                  className="font-mono text-sm text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] px-4 py-2"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : editingAssignment ? 'Update' : 'Create'}
                 </button>

@@ -32,23 +32,23 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Submitted': return 'text-[#b9cacb] bg-[#b9cacb]/10 border-[#3b494b]';
-      case 'Under Review': return 'text-[#00f0ff] bg-[#00f0ff]/10 border-[#00f0ff]/30';
+      case 'Submitted': return 'text-[text-[var(--text-muted)]] bg-[text-[var(--text-muted)]]/10 border-[border-[var(--border-default)]]';
+      case 'Under Review': return 'text-[text-[var(--primary)]] bg-[text-[var(--primary)]]/10 border-[text-[var(--primary)]]/30';
       case 'Shortlisted': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
       case 'Accepted': return 'text-green-400 bg-green-400/10 border-green-400/30';
       case 'Waitlisted': return 'text-orange-400 bg-orange-400/10 border-orange-400/30';
       case 'Not Selected': return 'text-red-400 bg-red-400/10 border-red-400/30';
-      default: return 'text-[#b9cacb]';
+      default: return 'text-[text-[var(--text-muted)]]';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'Waiting': return 'text-[#b9cacb] bg-[#b9cacb]/10 border-[#3b494b]';
+      case 'Waiting': return 'text-[text-[var(--text-muted)]] bg-[text-[var(--text-muted)]]/10 border-[border-[var(--border-default)]]';
       case 'Pending Verification': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
       case 'Verified': return 'text-green-400 bg-green-400/10 border-green-400/30';
       case 'Rejected': return 'text-red-400 bg-red-400/10 border-red-400/30';
-      default: return 'text-[#b9cacb]';
+      default: return 'text-[text-[var(--text-muted)]]';
     }
   };
 
@@ -105,24 +105,24 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
 
   return (
     <>
-      <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between items-center bg-[#0c0e12] border border-[#1f2229] p-4">
+      <div className="mb-6 flex flex-col md:flex-row gap-4 justify-between items-center bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-4">
         <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b9cacb]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[text-[var(--text-muted)]]" />
           <input
             type="text"
             placeholder="Search by name, email, or reference..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#1a1c20] border border-[#3b494b] pl-10 pr-4 py-2 text-white focus:border-[#00f0ff] focus:outline-none transition-colors font-mono text-sm"
+            className="w-full bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] pl-10 pr-4 py-2 text-[var(--text-primary)] focus:border-[text-[var(--primary)]] focus:outline-none transition-colors font-mono text-sm"
           />
         </div>
         
         <div className="w-full md:w-auto flex items-center gap-2">
-          <label className="text-sm font-mono text-[#b9cacb] whitespace-nowrap">Filter by Status:</label>
+          <label className="text-sm font-mono text-[text-[var(--text-muted)]] whitespace-nowrap">Filter by Status:</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full md:w-auto bg-[#1a1c20] border border-[#3b494b] px-4 py-2 text-white focus:border-[#00f0ff] focus:outline-none transition-colors font-mono text-sm appearance-none"
+            className="w-full md:w-auto bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] px-4 py-2 text-[var(--text-primary)] focus:border-[text-[var(--primary)]] focus:outline-none transition-colors font-mono text-sm appearance-none"
           >
             <option value="All">All Statuses</option>
             <option value="Submitted">Submitted</option>
@@ -135,37 +135,37 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
         </div>
       </div>
 
-      <div className="bg-[#0c0e12] border border-[#1f2229] overflow-x-auto">
+      <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#1f2229] bg-[#1a1c20]">
-              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Reference</th>
-              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Applicant</th>
-              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Experience</th>
-              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Status</th>
-              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Payment</th>
-              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb]">Applied Date</th>
-              <th className="p-4 font-mono text-xs font-bold uppercase text-[#b9cacb] text-right">Actions</th>
+            <tr className="border-b border-[border-[var(--border-default)]] bg-[bg-[var(--card)]]">
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[text-[var(--text-muted)]]">Reference</th>
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[text-[var(--text-muted)]]">Applicant</th>
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[text-[var(--text-muted)]]">Experience</th>
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[text-[var(--text-muted)]]">Status</th>
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[text-[var(--text-muted)]]">Payment</th>
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[text-[var(--text-muted)]]">Applied Date</th>
+              <th className="p-4 font-mono text-xs font-bold uppercase text-[text-[var(--text-muted)]] text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredData.length === 0 ? (
               <tr>
-                <td colSpan={7} className="p-8 text-center text-[#b9cacb] font-mono text-sm">
+                <td colSpan={7} className="p-8 text-center text-[text-[var(--text-muted)]] font-mono text-sm">
                   No applications found matching your criteria.
                 </td>
               </tr>
             ) : (
               filteredData.map((app) => (
-                <tr key={app.id} className="border-b border-[#1f2229] hover:bg-[#1a1c20] transition-colors">
-                  <td className="p-4 font-mono text-sm text-[#00f0ff] font-bold">{app.reference_number}</td>
+                <tr key={app.id} className="border-b border-[border-[var(--border-default)]] hover:bg-[bg-[var(--card)]] transition-colors">
+                  <td className="p-4 font-mono text-sm text-[text-[var(--primary)]] font-bold">{app.reference_number}</td>
                   <td className="p-4">
-                    <div className="font-bold text-white">{app.full_name}</div>
-                    <div className="text-xs text-[#b9cacb]">{app.email}</div>
+                    <div className="font-bold text-[var(--text-primary)]">{app.full_name}</div>
+                    <div className="text-xs text-[text-[var(--text-muted)]]">{app.email}</div>
                   </td>
                   <td className="p-4">
-                    <div className="text-xs text-[#b9cacb]">AI: <span className="text-white">{app.ai_experience}</span></div>
-                    <div className="text-xs text-[#b9cacb]">Auto: <span className="text-white">{app.automation_experience}</span></div>
+                    <div className="text-xs text-[text-[var(--text-muted)]]">AI: <span className="text-[var(--text-primary)]">{app.ai_experience}</span></div>
+                    <div className="text-xs text-[text-[var(--text-muted)]]">Auto: <span className="text-[var(--text-primary)]">{app.automation_experience}</span></div>
                   </td>
                   <td className="p-4">
                     <span className={`inline-block px-2 py-1 text-xs font-bold border rounded-full ${getStatusColor(app.status)}`}>
@@ -177,13 +177,13 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                       {app.payment_status || 'Waiting'}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-[#b9cacb]">
+                  <td className="p-4 text-sm text-[text-[var(--text-muted)]]">
                     {new Date(app.created_at).toLocaleDateString()}
                   </td>
                   <td className="p-4 text-right">
                     <button
                       onClick={() => openModal(app)}
-                      className="inline-flex items-center justify-center p-2 border border-[#3b494b] text-[#b9cacb] hover:text-[#00f0ff] hover:border-[#00f0ff] transition-colors"
+                      className="inline-flex items-center justify-center p-2 border border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] hover:text-[text-[var(--primary)]] hover:border-[text-[var(--primary)]] transition-colors"
                       title="View & Edit"
                     >
                       <Eye className="w-4 h-4" />
@@ -199,14 +199,14 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
       {/* Application Details Modal */}
       {selectedApp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0c0e12] border border-[#1f2229] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="sticky top-0 bg-[#1a1c20] border-b border-[#1f2229] p-4 flex justify-between items-center z-10">
+          <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-[bg-[var(--card)]] border-b border-[border-[var(--border-default)]] p-4 flex justify-between items-center z-10">
               <h2 className="font-heading text-xl font-bold flex items-center gap-2">
-                Application <span className="text-[#00f0ff]">{selectedApp.reference_number}</span>
+                Application <span className="text-[text-[var(--primary)]]">{selectedApp.reference_number}</span>
               </h2>
               <button 
                 onClick={() => setSelectedApp(null)}
-                className="p-2 text-[#b9cacb] hover:text-white transition-colors"
+                className="p-2 text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -215,37 +215,37 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
             <div className="p-6 grid md:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Personal Info</h3>
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4">Personal Info</h3>
                   <div className="space-y-2 text-sm">
-                    <p><span className="text-[#b9cacb]">Name:</span> {selectedApp.full_name}</p>
-                    <p><span className="text-[#b9cacb]">Email:</span> {selectedApp.email}</p>
-                    <p><span className="text-[#b9cacb]">Phone:</span> {selectedApp.phone}</p>
-                    <p><span className="text-[#b9cacb]">WhatsApp:</span> {selectedApp.whatsapp}</p>
-                    <p><span className="text-[#b9cacb]">Location:</span> {selectedApp.state}, {selectedApp.country}</p>
-                    <p><span className="text-[#b9cacb]">Occupation:</span> {selectedApp.occupation}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Name:</span> {selectedApp.full_name}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Email:</span> {selectedApp.email}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Phone:</span> {selectedApp.phone}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">WhatsApp:</span> {selectedApp.whatsapp}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Location:</span> {selectedApp.state}, {selectedApp.country}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Occupation:</span> {selectedApp.occupation}</p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Tech Background</h3>
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4">Tech Background</h3>
                   <div className="space-y-2 text-sm">
-                    <p><span className="text-[#b9cacb]">AI Exp:</span> {selectedApp.ai_experience}</p>
-                    <p><span className="text-[#b9cacb]">Automation Exp:</span> {selectedApp.automation_experience}</p>
-                    <p><span className="text-[#b9cacb]">Has Laptop:</span> {selectedApp.has_laptop ? 'Yes' : 'No'}</p>
-                    <p><span className="text-[#b9cacb]">Has Internet:</span> {selectedApp.has_internet ? 'Yes' : 'No'}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">AI Exp:</span> {selectedApp.ai_experience}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Automation Exp:</span> {selectedApp.automation_experience}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Has Laptop:</span> {selectedApp.has_laptop ? 'Yes' : 'No'}</p>
+                    <p><span className="text-[text-[var(--text-muted)]]">Has Internet:</span> {selectedApp.has_internet ? 'Yes' : 'No'}</p>
                   </div>
                 </div>
 
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Admin Actions</h3>
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4">Admin Actions</h3>
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-mono text-[#b9cacb] mb-1">Update Status</label>
+                      <label className="block text-xs font-mono text-[text-[var(--text-muted)]] mb-1">Update Status</label>
                       <select
                         value={newStatus}
                         onChange={(e) => setNewStatus(e.target.value as ScholarshipStatus)}
-                        className="w-full bg-[#1a1c20] border border-[#3b494b] px-3 py-2 text-white focus:border-[#00f0ff] focus:outline-none transition-colors text-sm appearance-none"
+                        className="w-full bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] px-3 py-2 text-[var(--text-primary)] focus:border-[text-[var(--primary)]] focus:outline-none transition-colors text-sm appearance-none"
                       >
                         <option value="Submitted">Submitted</option>
                         <option value="Under Review">Under Review</option>
@@ -257,18 +257,18 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                     </div>
 
                     {selectedApp.status === 'Accepted' && (
-                      <div className="space-y-4 border-t border-[#1f2229] pt-4">
-                        <div className="flex items-center gap-2 text-[#00f0ff]">
+                      <div className="space-y-4 border-t border-[border-[var(--border-default)]] pt-4">
+                        <div className="flex items-center gap-2 text-[text-[var(--primary)]]">
                           <CreditCard className="w-4 h-4" />
                           <h4 className="font-mono text-xs uppercase">Payment Management</h4>
                         </div>
                         
                         <div>
-                          <label className="block text-xs font-mono text-[#b9cacb] mb-1">Payment Status</label>
+                          <label className="block text-xs font-mono text-[text-[var(--text-muted)]] mb-1">Payment Status</label>
                           <select
                             value={paymentStatus}
                             onChange={(e) => setPaymentStatus(e.target.value)}
-                            className="w-full bg-[#1a1c20] border border-[#3b494b] px-3 py-2 text-white focus:border-[#00f0ff] focus:outline-none transition-colors text-sm appearance-none"
+                            className="w-full bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] px-3 py-2 text-[var(--text-primary)] focus:border-[text-[var(--primary)]] focus:outline-none transition-colors text-sm appearance-none"
                           >
                             <option value="Waiting">Waiting</option>
                             <option value="Pending Verification">Pending Verification</option>
@@ -278,33 +278,33 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                         </div>
 
                         <div>
-                          <label className="block text-xs font-mono text-[#b9cacb] mb-1">Payment Notes</label>
+                          <label className="block text-xs font-mono text-[text-[var(--text-muted)]] mb-1">Payment Notes</label>
                           <textarea
                             value={paymentNotes}
                             onChange={(e) => setPaymentNotes(e.target.value)}
                             rows={2}
                             placeholder="Add payment verification notes..."
-                            className="w-full bg-[#1a1c20] border border-[#3b494b] p-3 text-white focus:border-[#00f0ff] focus:outline-none transition-colors text-sm resize-none"
+                            className="w-full bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-3 text-[var(--text-primary)] focus:border-[text-[var(--primary)]] focus:outline-none transition-colors text-sm resize-none"
                           />
                         </div>
                       </div>
                     )}
 
                     <div>
-                      <label className="block text-xs font-mono text-[#b9cacb] mb-1">Admin Notes (Internal only)</label>
+                      <label className="block text-xs font-mono text-[text-[var(--text-muted)]] mb-1">Admin Notes (Internal only)</label>
                       <textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         rows={4}
                         placeholder="Add internal notes about this applicant..."
-                        className="w-full bg-[#1a1c20] border border-[#3b494b] p-3 text-white focus:border-[#00f0ff] focus:outline-none transition-colors text-sm resize-none"
+                        className="w-full bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] p-3 text-[var(--text-primary)] focus:border-[text-[var(--primary)]] focus:outline-none transition-colors text-sm resize-none"
                       />
                     </div>
 
                     <button
                       onClick={handleUpdate}
                       disabled={isUpdating}
-                      className="w-full flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-sm font-bold uppercase text-black transition-all hover:bg-transparent hover:text-[#00f0ff] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 border border-[text-[var(--primary)]] bg-[text-[var(--primary)]] px-4 py-2 font-mono text-sm font-bold uppercase text-black transition-all hover:bg-transparent hover:text-[text-[var(--primary)]] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] disabled:opacity-50"
                     >
                       {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
                     </button>
@@ -315,41 +315,41 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
               <div className="space-y-6">
                 {/* Timeline Section */}
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4 flex items-center gap-2">
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     Application Timeline
                   </h3>
                   
                   {loadingTimeline ? (
-                    <div className="text-sm text-[#b9cacb]">Loading timeline...</div>
+                    <div className="text-sm text-[text-[var(--text-muted)]]">Loading timeline...</div>
                   ) : timeline.length === 0 ? (
-                    <div className="text-sm text-[#b9cacb]">No timeline events recorded</div>
+                    <div className="text-sm text-[text-[var(--text-muted)]]">No timeline events recorded</div>
                   ) : (
                     <div className="space-y-3">
                       {timeline.map((event, index) => (
-                        <div key={event.id} className="relative pl-6 border-l-2 border-[#1f2229]">
-                          <div className="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 bg-[#00f0ff] rounded-full"></div>
-                          <div className="bg-[#1a1c20] p-3 border border-[#1f2229]">
+                        <div key={event.id} className="relative pl-6 border-l-2 border-[border-[var(--border-default)]]">
+                          <div className="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 bg-[text-[var(--primary)]] rounded-full"></div>
+                          <div className="bg-[bg-[var(--card)]] p-3 border border-[border-[var(--border-default)]]">
                             <div className="flex justify-between items-start mb-1">
-                              <span className="text-xs font-bold text-[#00f0ff]">
+                              <span className="text-xs font-bold text-[text-[var(--primary)]]">
                                 {event.to_status}
                               </span>
-                              <span className="text-xs text-[#b9cacb]">
+                              <span className="text-xs text-[text-[var(--text-muted)]]">
                                 {new Date(event.created_at).toLocaleString()}
                               </span>
                             </div>
                             {event.from_status && (
-                              <div className="text-xs text-[#b9cacb] mb-1">
+                              <div className="text-xs text-[text-[var(--text-muted)]] mb-1">
                                 From: {event.from_status}
                               </div>
                             )}
                             {event.reason && (
-                              <div className="text-xs text-white mb-1">
+                              <div className="text-xs text-[var(--text-primary)] mb-1">
                                 Reason: {event.reason}
                               </div>
                             )}
                             {event.admin_email && (
-                              <div className="text-xs text-[#b9cacb] flex items-center gap-1">
+                              <div className="text-xs text-[text-[var(--text-muted)]] flex items-center gap-1">
                                 <User className="w-3 h-3" />
                                 {event.admin_email}
                               </div>
@@ -367,23 +367,23 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                 </div>
 
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Motivation</h3>
-                  <p className="text-sm bg-[#1a1c20] p-4 border border-[#1f2229] whitespace-pre-wrap">{selectedApp.motivation}</p>
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4">Motivation</h3>
+                  <p className="text-sm bg-[bg-[var(--card)]] p-4 border border-[border-[var(--border-default)]] whitespace-pre-wrap">{selectedApp.motivation}</p>
                 </div>
                 
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Goals</h3>
-                  <p className="text-sm bg-[#1a1c20] p-4 border border-[#1f2229] whitespace-pre-wrap">{selectedApp.goals}</p>
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4">Goals</h3>
+                  <p className="text-sm bg-[bg-[var(--card)]] p-4 border border-[border-[var(--border-default)]] whitespace-pre-wrap">{selectedApp.goals}</p>
                 </div>
                 
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Impact</h3>
-                  <p className="text-sm bg-[#1a1c20] p-4 border border-[#1f2229] whitespace-pre-wrap">{selectedApp.impact}</p>
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4">Impact</h3>
+                  <p className="text-sm bg-[bg-[var(--card)]] p-4 border border-[border-[var(--border-default)]] whitespace-pre-wrap">{selectedApp.impact}</p>
                 </div>
                 
                 <div>
-                  <h3 className="font-mono text-sm uppercase text-[#b9cacb] border-b border-[#1f2229] pb-2 mb-4">Why Select You</h3>
-                  <p className="text-sm bg-[#1a1c20] p-4 border border-[#1f2229] whitespace-pre-wrap">{selectedApp.why_you}</p>
+                  <h3 className="font-mono text-sm uppercase text-[text-[var(--text-muted)]] border-b border-[border-[var(--border-default)]] pb-2 mb-4">Why Select You</h3>
+                  <p className="text-sm bg-[bg-[var(--card)]] p-4 border border-[border-[var(--border-default)]] whitespace-pre-wrap">{selectedApp.why_you}</p>
                 </div>
               </div>
             </div>

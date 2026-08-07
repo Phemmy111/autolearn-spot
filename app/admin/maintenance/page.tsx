@@ -112,12 +112,12 @@ export default function MaintenancePage() {
   }
 
   const StatusCard = ({ title, value, icon: Icon }: { title: string; value: number | string; icon: any }) => (
-    <div className="border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl">
+    <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl">
       <div className="flex items-center gap-3">
-        <Icon className="h-5 w-5 text-[#00f0ff]" />
+        <Icon className="h-5 w-5 text-[text-[var(--primary)]]" />
         <div>
-          <p className="font-mono text-xs text-[#b9cacb]">{title}</p>
-          <p className="font-heading text-lg font-bold text-white">{value}</p>
+          <p className="font-mono text-xs text-[text-[var(--text-muted)]]">{title}</p>
+          <p className="font-heading text-lg font-bold text-[var(--text-primary)]">{value}</p>
         </div>
       </div>
     </div>
@@ -138,17 +138,17 @@ export default function MaintenancePage() {
     endpoint: string
     result?: MaintenanceResult
   }) => (
-    <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+    <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl">
       <div className="flex items-start gap-4 mb-4">
-        <Icon className="h-6 w-6 text-[#00f0ff] mt-1" />
+        <Icon className="h-6 w-6 text-[text-[var(--primary)]] mt-1" />
         <div className="flex-1">
-          <h3 className="font-heading text-xl font-bold text-white mb-2">{title}</h3>
-          <p className="font-mono text-xs text-[#b9cacb] mb-4">{description}</p>
+          <h3 className="font-heading text-xl font-bold text-[var(--text-primary)] mb-2">{title}</h3>
+          <p className="font-mono text-xs text-[text-[var(--text-muted)]] mb-4">{description}</p>
           
           <button
             onClick={() => setConfirmDialog(operation)}
             disabled={executing !== null}
-            className="bg-[#00f0ff] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-[#00f0ff]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="bg-[text-[var(--primary)]] text-[bg-[var(--background)]] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-[text-[var(--primary)]]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {executing === operation ? (
               <>
@@ -182,37 +182,37 @@ export default function MaintenancePage() {
                 {result.message}
               </p>
               {result.executionTimeMs && (
-                <p className="font-mono text-xs text-[#b9cacb] mt-1">
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]] mt-1">
                   Execution time: {result.executionTimeMs}ms
                 </p>
               )}
               {result.studentsProcessed !== undefined && (
-                <p className="font-mono text-xs text-[#b9cacb]">
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                   Processed: {result.studentsProcessed} | Succeeded: {result.studentsSucceeded || 0} {result.studentsFailed ? `| Failed: ${result.studentsFailed}` : ''}
                 </p>
               )}
               {result.certificatesIssued !== undefined && (
-                <p className="font-mono text-xs text-[#b9cacb]">
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                   Certificates issued: {result.certificatesIssued}
                 </p>
               )}
               {result.badgesAwarded !== undefined && (
-                <p className="font-mono text-xs text-[#b9cacb]">
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                   Badges awarded: {result.badgesAwarded}
                 </p>
               )}
               {result.analyticsRecalculated !== undefined && (
-                <p className="font-mono text-xs text-[#b9cacb]">
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                   Analytics recalculated: {result.analyticsRecalculated}
                 </p>
               )}
               {result.leaderboardEntriesUpdated !== undefined && (
-                <p className="font-mono text-xs text-[#b9cacb]">
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                   Leaderboard updated: {result.leaderboardEntriesUpdated}
                 </p>
               )}
               {result.cacheCleared !== undefined && (
-                <p className="font-mono text-xs text-[#b9cacb]">
+                <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                   Cache entries cleared: {result.cacheCleared}
                 </p>
               )}
@@ -225,32 +225,32 @@ export default function MaintenancePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#00f0ff] animate-spin" />
+      <div className="min-h-screen bg-[bg-[var(--background)]] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[text-[var(--primary)]] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-4">System Maintenance</h1>
-          <p className="font-mono text-sm text-[#b9cacb] max-w-2xl">
+          <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)] mb-4">System Maintenance</h1>
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]] max-w-2xl">
             Centralized maintenance operations for system health and data integrity
           </p>
         </div>
 
         {/* System Status Panel */}
         <div className="mb-8">
-          <h2 className="font-heading text-2xl font-bold text-white mb-4">System Maintenance Status</h2>
+          <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-4">System Maintenance Status</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <StatusCard title="Active Cohorts" value={status?.activeCohorts || 0} icon={Trophy} />
             <StatusCard title="Total Students" value={status?.totalStudents || 0} icon={BarChart3} />
@@ -263,20 +263,20 @@ export default function MaintenancePage() {
               icon={RefreshCw} 
             />
           </div>
-          <div className="mt-4 border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl">
-            <p className="font-mono text-xs text-[#b9cacb]">
-              Last Analytics Update: <span className="text-white">{formatDate(status?.lastAnalyticsUpdate || null)}</span>
+          <div className="mt-4 border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl">
+            <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
+              Last Analytics Update: <span className="text-[var(--text-primary)]">{formatDate(status?.lastAnalyticsUpdate || null)}</span>
             </p>
           </div>
         </div>
 
         {/* Cohort Selector */}
-        <div className="mb-8 border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl">
-          <label className="font-mono text-sm text-[#b9cacb] block mb-2">Target Cohort</label>
+        <div className="mb-8 border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl">
+          <label className="font-mono text-sm text-[text-[var(--text-muted)]] block mb-2">Target Cohort</label>
           <select
             value={selectedCohort}
             onChange={(e) => setSelectedCohort(e.target.value)}
-            className="w-full bg-[#0a0c10] border border-[#1f2229] rounded-lg px-4 py-2 text-white font-mono text-sm focus:border-[#00f0ff] focus:outline-none"
+            className="w-full bg-[bg-[var(--background)]] border border-[border-[var(--border-default)]] rounded-lg px-4 py-2 text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] focus:outline-none"
           >
             <option value="all">All Active Cohorts</option>
             {cohorts.map(cohort => (
@@ -347,18 +347,18 @@ export default function MaintenancePage() {
         {/* Confirmation Dialog */}
         {confirmDialog && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-[#0c0e12] border border-[#1f2229] rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-xl p-6 max-w-md w-full mx-4">
               <div className="flex items-center gap-3 mb-4">
                 <AlertCircle className="h-6 w-6 text-yellow-500" />
-                <h3 className="font-heading text-xl font-bold text-white">Confirm Maintenance Operation</h3>
+                <h3 className="font-heading text-xl font-bold text-[var(--text-primary)]">Confirm Maintenance Operation</h3>
               </div>
-              <p className="font-mono text-sm text-[#b9cacb] mb-6">
+              <p className="font-mono text-sm text-[text-[var(--text-muted)]] mb-6">
                 Are you sure you want to execute {confirmDialog}? This operation may take some time depending on the number of students.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDialog(null)}
-                  className="flex-1 border border-[#1f2229] bg-[#0c0e12] text-white px-4 py-2 rounded-lg font-mono text-sm hover:bg-[#1f2229] transition-colors"
+                  className="flex-1 border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] text-[var(--text-primary)] px-4 py-2 rounded-lg font-mono text-sm hover:bg-[border-[var(--border-default)]] transition-colors"
                 >
                   Cancel
                 </button>
@@ -382,7 +382,7 @@ export default function MaintenancePage() {
                     
                     executeMaintenance(confirmDialog, endpoint, cohortBody)
                   }}
-                  className="flex-1 bg-[#00f0ff] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-[#00f0ff]/80 transition-colors"
+                  className="flex-1 bg-[text-[var(--primary)]] text-[bg-[var(--background)]] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-[text-[var(--primary)]]/80 transition-colors"
                 >
                   Confirm
                 </button>

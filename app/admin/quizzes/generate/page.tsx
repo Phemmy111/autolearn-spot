@@ -220,29 +220,29 @@ export default function GenerateQuizPage() {
 
   if (step === 'generating') {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-[bg-[var(--background)]] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 text-[#00f0ff] animate-spin mx-auto mb-4" />
-          <h2 className="font-heading text-2xl font-bold text-white mb-2">Generating Quiz...</h2>
-          <p className="font-mono text-sm text-[#b9cacb]">AI is analyzing your lesson script</p>
+          <Loader2 className="h-12 w-12 text-[text-[var(--primary)]] animate-spin mx-auto mb-4" />
+          <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-2">Generating Quiz...</h2>
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">AI is analyzing your lesson script</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin/quizzes"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Quizzes
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-2">AI Quiz Generator</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">
+          <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)] mb-2">AI Quiz Generator</h1>
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">
             Generate quizzes automatically from your lesson scripts
           </p>
         </div>
@@ -258,7 +258,7 @@ export default function GenerateQuizPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                     Week Number
                   </label>
                   <input
@@ -267,18 +267,18 @@ export default function GenerateQuizPage() {
                     onChange={(e) => setWeekNumber(parseInt(e.target.value))}
                     min="1"
                     max="12"
-                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                     Phase
                   </label>
                   <select
                     value={phase}
                     onChange={(e) => setPhase(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                   >
                     <option value="WEEK_1">WEEK_1</option>
                     <option value="WEEK_2">WEEK_2</option>
@@ -288,7 +288,7 @@ export default function GenerateQuizPage() {
                 </div>
                 
                 <div>
-                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                     Questions Count
                   </label>
                   <input
@@ -297,14 +297,14 @@ export default function GenerateQuizPage() {
                     onChange={(e) => setQuestionCount(parseInt(e.target.value) || 10)}
                     min="1"
                     max="50"
-                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                     AI Provider
                   </label>
                   <select
@@ -314,7 +314,7 @@ export default function GenerateQuizPage() {
                       const provider = providers.find(p => p.id === e.target.value)
                       setSelectedModel(provider?.default_model || '')
                     }}
-                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                   >
                     {providers.length === 0 ? (
                       <option value="">No active providers</option>
@@ -329,13 +329,13 @@ export default function GenerateQuizPage() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                  <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                     Model
                   </label>
                   <select
                     value={selectedModel}
                     onChange={(e) => setSelectedModel(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                   >
                     {selectedProviderId ? (
                       (() => {
@@ -356,13 +356,13 @@ export default function GenerateQuizPage() {
               </div>
 
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   AI Prompt
                 </label>
                 <select
                   value={selectedPromptId}
                   onChange={(e) => setSelectedPromptId(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 >
                   {prompts.length === 0 ? (
                     <option value="">No quiz prompts configured</option>
@@ -381,7 +381,7 @@ export default function GenerateQuizPage() {
                   <Bot className="h-5 w-5 text-yellow-400" />
                   <div>
                     <p className="font-mono text-sm text-yellow-400">No AI providers configured</p>
-                    <Link href="/admin/ai-providers" className="font-mono text-xs text-[#b9cacb] hover:text-white">
+                    <Link href="/admin/ai-providers" className="font-mono text-xs text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)]">
                       Configure AI providers →
                     </Link>
                   </div>
@@ -393,7 +393,7 @@ export default function GenerateQuizPage() {
                   <Bot className="h-5 w-5 text-yellow-400" />
                   <div>
                     <p className="font-mono text-sm text-yellow-400">No quiz generation prompts configured</p>
-                    <Link href="/admin/ai-prompts" className="font-mono text-xs text-[#b9cacb] hover:text-white">
+                    <Link href="/admin/ai-prompts" className="font-mono text-xs text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)]">
                       Configure AI prompts →
                     </Link>
                   </div>
@@ -401,13 +401,13 @@ export default function GenerateQuizPage() {
               )}
 
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Lesson Script
                 </label>
-                <div className="border border-[#1f2229] bg-[#0c0e12] rounded-lg overflow-hidden">
-                  <div className="flex items-center justify-between px-4 py-2 border-b border-[#1f2229] bg-[#111317]">
-                    <span className="font-mono text-xs text-[#b9cacb]">Paste your script or upload a file</span>
-                    <label className="flex items-center gap-2 text-[#00f0ff] hover:text-white font-mono text-xs cursor-pointer">
+                <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] rounded-lg overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-[border-[var(--border-default)]] bg-[bg-[var(--card)]]">
+                    <span className="font-mono text-xs text-[text-[var(--text-muted)]]">Paste your script or upload a file</span>
+                    <label className="flex items-center gap-2 text-[text-[var(--primary)]] hover:text-[var(--text-primary)] font-mono text-xs cursor-pointer">
                       <Upload className="h-4 w-4" />
                       Upload File
                       <input type="file" accept=".txt,.md" onChange={handleFileUpload} className="hidden" />
@@ -417,7 +417,7 @@ export default function GenerateQuizPage() {
                     value={script}
                     onChange={(e) => setScript(e.target.value)}
                     rows={12}
-                    className="w-full px-4 py-3 bg-[#0c0e12] text-white font-mono text-sm focus:outline-none resize-y"
+                    className="w-full px-4 py-3 bg-[bg-[var(--card)]] text-[var(--text-primary)] font-mono text-sm focus:outline-none resize-y"
                     placeholder="Paste your weekly lesson script here. The AI will analyze it and generate relevant quiz questions..."
                   />
                 </div>
@@ -426,7 +426,7 @@ export default function GenerateQuizPage() {
               <button
                 onClick={handleGenerate}
                 disabled={loading || !script.trim()}
-                className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
               >
                 <Sparkles className="h-4 w-4" />
                 {loading ? 'Generating...' : 'Generate Quiz'}
@@ -437,16 +437,16 @@ export default function GenerateQuizPage() {
 
         {step === 'review' && generatedQuiz && (
           <div className="max-w-4xl">
-            <div className="mb-6 border border-[#00f0ff]/50 bg-[#00f0ff]/10 p-4 rounded-lg">
-              <p className="font-mono text-sm text-[#00f0ff]">
+            <div className="mb-6 border border-[text-[var(--primary)]]/50 bg-[text-[var(--primary)]]/10 p-4 rounded-lg">
+              <p className="font-mono text-sm text-[text-[var(--primary)]]">
                 Quiz generated successfully! Review the questions below before creating.
               </p>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl mb-6">
-              <h2 className="font-heading text-2xl font-bold text-white mb-2">{generatedQuiz.title}</h2>
-              <p className="font-mono text-sm text-[#b9cacb] mb-4">{generatedQuiz.description}</p>
-              <div className="flex gap-4 font-mono text-xs text-[#5d5f63]">
+            <div className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-6 rounded-xl mb-6">
+              <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-2">{generatedQuiz.title}</h2>
+              <p className="font-mono text-sm text-[text-[var(--text-muted)]] mb-4">{generatedQuiz.description}</p>
+              <div className="flex gap-4 font-mono text-xs text-[text-[var(--text-muted)]]">
                 <span>Week {generatedQuiz.week_number}</span>
                 <span>{generatedQuiz.phase}</span>
                 <span>{generatedQuiz.questions.length} questions</span>
@@ -457,19 +457,19 @@ export default function GenerateQuizPage() {
               {generatedQuiz.questions.map((question, index) => (
                 <div
                   key={index}
-                  className="border border-[#1f2229] bg-[#0c0e12] p-4 rounded-xl"
+                  className="border border-[border-[var(--border-default)]] bg-[bg-[var(--card)]] p-4 rounded-xl"
                 >
                   <div className="flex items-start gap-4 mb-3">
-                    <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] font-mono text-xs rounded">
+                    <span className="px-2 py-1 bg-[text-[var(--primary)]]/10 text-[text-[var(--primary)]] font-mono text-xs rounded">
                       Q{index + 1}
                     </span>
                     <div className="flex-1">
-                      <p className="font-mono text-sm text-white mb-2">{question.question_text}</p>
+                      <p className="font-mono text-sm text-[var(--text-primary)] mb-2">{question.question_text}</p>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-1 bg-[#1f2229] text-[#b9cacb] font-mono text-xs rounded">
+                        <span className="px-2 py-1 bg-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] font-mono text-xs rounded">
                           {question.question_type}
                         </span>
-                        <span className="px-2 py-1 bg-[#1f2229] text-[#b9cacb] font-mono text-xs rounded">
+                        <span className="px-2 py-1 bg-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] font-mono text-xs rounded">
                           {question.points} pts
                         </span>
                       </div>
@@ -481,7 +481,7 @@ export default function GenerateQuizPage() {
                               className={`font-mono text-xs ${
                                 option === question.correct_answer
                                   ? 'text-emerald-400'
-                                  : 'text-[#b9cacb]'
+                                  : 'text-[text-[var(--text-muted)]]'
                               }`}
                             >
                               {String.fromCharCode(65 + optIndex)}. {option}
@@ -496,7 +496,7 @@ export default function GenerateQuizPage() {
                         </p>
                       )}
                       {question.explanation && (
-                        <p className="font-mono text-xs text-[#5d5f63]">
+                        <p className="font-mono text-xs text-[text-[var(--text-muted)]]">
                           Explanation: {question.explanation}
                         </p>
                       )}
@@ -516,20 +516,20 @@ export default function GenerateQuizPage() {
               <button
                 onClick={handleCreateQuiz}
                 disabled={loading}
-                className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
               >
                 <FileText className="h-4 w-4" />
                 {loading ? 'Creating...' : 'Create Quiz'}
               </button>
               <button
                 onClick={() => setStep('input')}
-                className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                className="font-mono text-sm text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] px-6 py-3"
               >
                 Regenerate
               </button>
               <Link
                 href="/admin/quizzes"
-                className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                className="font-mono text-sm text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] px-6 py-3"
               >
                 Cancel
               </Link>

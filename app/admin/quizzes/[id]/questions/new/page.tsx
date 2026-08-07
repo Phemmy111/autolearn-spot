@@ -78,18 +78,18 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href={`/admin/quizzes/${id}/questions`}
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Questions
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-2">Add Question</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">{quiz?.title || 'Quiz'}</p>
+          <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)] mb-2">Add Question</h1>
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">{quiz?.title || 'Quiz'}</p>
         </div>
 
         <div className="max-w-3xl">
@@ -101,7 +101,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+              <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                 Question Text
               </label>
               <textarea
@@ -110,14 +110,14 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                 onChange={handleChange}
                 rows={3}
                 required
-                className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors resize-y"
                 placeholder="Enter your question here..."
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Question Type
                 </label>
                 <select
@@ -125,7 +125,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.question_type}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 >
                   <option value="multiple_choice">Multiple Choice</option>
                   <option value="true_false">True/False</option>
@@ -134,7 +134,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Points
                 </label>
                 <input
@@ -144,7 +144,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   onChange={handleChange}
                   min="1"
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 />
               </div>
             </div>
@@ -152,13 +152,13 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
             {formData.question_type === 'multiple_choice' && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block font-mono text-xs text-[#b9cacb] uppercase tracking-wider">
+                  <label className="block font-mono text-xs text-[text-[var(--text-muted)]] uppercase tracking-wider">
                     Answer Options
                   </label>
                   <button
                     type="button"
                     onClick={addOption}
-                    className="flex items-center gap-1 text-[#00f0ff] hover:text-white font-mono text-xs"
+                    className="flex items-center gap-1 text-[text-[var(--primary)]] hover:text-[var(--text-primary)] font-mono text-xs"
                   >
                     <Plus className="h-3 w-3" />
                     Add Option
@@ -172,7 +172,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                         value={option}
                         onChange={(e) => handleOptionChange(index, e.target.value)}
                         required
-                        className="flex-1 px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                        className="flex-1 px-4 py-2 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                         placeholder={`Option ${String.fromCharCode(65 + index)}`}
                       />
                       {formData.options.length > 2 && (
@@ -192,7 +192,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
 
             {formData.question_type === 'true_false' && (
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Correct Answer
                 </label>
                 <select
@@ -200,7 +200,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 >
                   <option value="">Select correct answer</option>
                   <option value="True">True</option>
@@ -211,7 +211,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
 
             {formData.question_type === 'short_answer' && (
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Correct Answer
                 </label>
                 <input
@@ -220,7 +220,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                   placeholder="Enter the correct answer"
                 />
               </div>
@@ -228,7 +228,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
 
             {formData.question_type === 'multiple_choice' && (
               <div>
-                <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                   Correct Answer
                 </label>
                 <select
@@ -236,7 +236,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors"
                 >
                   <option value="">Select correct answer</option>
                   {formData.options.map((option, index) => (
@@ -249,7 +249,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
             )}
 
             <div>
-              <label className="block font-mono text-xs text-[#b9cacb] mb-2 uppercase tracking-wider">
+              <label className="block font-mono text-xs text-[text-[var(--text-muted)]] mb-2 uppercase tracking-wider">
                 Explanation (optional)
               </label>
               <textarea
@@ -257,7 +257,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                 value={formData.explanation}
                 onChange={handleChange}
                 rows={2}
-                className="w-full px-4 py-3 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-white font-mono text-sm focus:border-[#00f0ff] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-[bg-[var(--card)]] border border-[border-[var(--border-default)]] rounded-lg text-[var(--text-primary)] font-mono text-sm focus:border-[text-[var(--primary)]] outline-none transition-colors resize-y"
                 placeholder="Explain why this is the correct answer..."
               />
             </div>
@@ -266,14 +266,14 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-[text-[var(--primary)]] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {loading ? 'Creating...' : 'Add Question'}
               </button>
               <Link
                 href={`/admin/quizzes/${id}/questions`}
-                className="font-mono text-sm text-[#b9cacb] hover:text-white px-6 py-3"
+                className="font-mono text-sm text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] px-6 py-3"
               >
                 Cancel
               </Link>

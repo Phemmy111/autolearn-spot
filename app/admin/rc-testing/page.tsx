@@ -181,41 +181,41 @@ ${report.results.map(result => {
   const journeyTests = rcTestCases.filter(t => t.category === 'journey')
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[bg-[var(--background)]]">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="mb-8">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-[text-[var(--text-muted)]] hover:text-[var(--text-primary)] font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-4">RC Testing Dashboard</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">Execute regression tests and generate RC report</p>
+          <h1 className="font-heading text-4xl font-bold text-[var(--text-primary)] mb-4">RC Testing Dashboard</h1>
+          <p className="font-mono text-sm text-[text-[var(--text-muted)]]">Execute regression tests and generate RC report</p>
         </div>
 
         {!sessionStarted ? (
-          <Card className="bg-[#0c0e12] border-[#1f2229]">
+          <Card className="bg-[bg-[var(--card)]] border-[border-[var(--border-default)]]">
             <CardHeader>
-              <CardTitle className="text-white">Start RC Testing Session</CardTitle>
-              <CardDescription className="text-[#b9cacb]">Enter your name to begin testing</CardDescription>
+              <CardTitle className="text-[var(--text-primary)]">Start RC Testing Session</CardTitle>
+              <CardDescription className="text-[text-[var(--text-muted)]]">Enter your name to begin testing</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="executedBy" className="text-white">Tester Name</Label>
+                <Label htmlFor="executedBy" className="text-[var(--text-primary)]">Tester Name</Label>
                 <Input
                   id="executedBy"
                   placeholder="Enter your name"
                   value={executedBy}
                   onChange={(e) => setExecutedBy(e.target.value)}
-                  className="bg-[#111317] border-[#1f2229] text-white"
+                  className="bg-[bg-[var(--card)]] border-[border-[var(--border-default)]] text-[var(--text-primary)]"
                 />
               </div>
               <Button
                 onClick={startSession}
                 disabled={!executedBy.trim()}
-                className="w-full bg-[#00f0ff] text-black hover:bg-white"
+                className="w-full bg-[text-[var(--primary)]] text-black hover:bg-white"
               >
                 <Play className="mr-2 h-4 w-4" />
                 Start RC Testing Session
@@ -224,16 +224,16 @@ ${report.results.map(result => {
           </Card>
         ) : (
           <Tabs defaultValue="test-cases" className="space-y-4">
-            <TabsList className="bg-[#111317] border-[#1f2229]">
-              <TabsTrigger value="test-cases" className="data-[state=active]:bg-[#00f0ff] data-[state=active]:text-black">Test Cases</TabsTrigger>
-              <TabsTrigger value="report" className="data-[state=active]:bg-[#00f0ff] data-[state=active]:text-black">Report</TabsTrigger>
+            <TabsList className="bg-[bg-[var(--card)]] border-[border-[var(--border-default)]]">
+              <TabsTrigger value="test-cases" className="data-[state=active]:bg-[text-[var(--primary)]] data-[state=active]:text-black">Test Cases</TabsTrigger>
+              <TabsTrigger value="report" className="data-[state=active]:bg-[text-[var(--primary)]] data-[state=active]:text-black">Report</TabsTrigger>
             </TabsList>
 
             <TabsContent value="test-cases" className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white font-medium">Testing Session</p>
-                  <p className="text-sm text-[#b9cacb]">Tester: {executedBy}</p>
+                  <p className="text-[var(--text-primary)] font-medium">Testing Session</p>
+                  <p className="text-sm text-[text-[var(--text-muted)]]">Tester: {executedBy}</p>
                 </div>
                 <Button
                   onClick={() => {
@@ -242,7 +242,7 @@ ${report.results.map(result => {
                     setReport(null)
                   }}
                   variant="outline"
-                  className="border-[#1f2229] text-[#b9cacb] hover:bg-[#111317]"
+                  className="border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] hover:bg-[bg-[var(--card)]]"
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Reset Session
@@ -254,18 +254,18 @@ ${report.results.map(result => {
                   const result = testResults.get(test.id)
                   const statusColor = result?.status === 'pass' ? 'text-green-400' :
                                      result?.status === 'fail' ? 'text-red-400' :
-                                     result?.status === 'skipped' ? 'text-yellow-400' : 'text-[#b9cacb]'
+                                     result?.status === 'skipped' ? 'text-yellow-400' : 'text-[text-[var(--text-muted)]]'
                   return (
                     <Card
                       key={test.id}
-                      className={`bg-[#0c0e12] border-[#1f2229] cursor-pointer hover:border-[#00f0ff]/50 transition-all ${selectedTest === test.id ? 'border-[#00f0ff]' : ''}`}
+                      className={`bg-[bg-[var(--card)]] border-[border-[var(--border-default)]] cursor-pointer hover:border-[text-[var(--primary)]]/50 transition-all ${selectedTest === test.id ? 'border-[text-[var(--primary)]]' : ''}`}
                       onClick={() => setSelectedTest(test.id)}
                     >
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <CardTitle className="text-white text-base mb-1">{test.name}</CardTitle>
-                            <CardDescription className="text-[#b9cacb] text-xs">{test.category}</CardDescription>
+                            <CardTitle className="text-[var(--text-primary)] text-base mb-1">{test.name}</CardTitle>
+                            <CardDescription className="text-[text-[var(--text-muted)]] text-xs">{test.category}</CardDescription>
                           </div>
                           {result?.status === 'pass' && <CheckCircle2 className="h-5 w-5 text-green-400" />}
                           {result?.status === 'fail' && <XCircle className="h-5 w-5 text-red-400" />}
@@ -277,7 +277,7 @@ ${report.results.map(result => {
                           <span className={`text-sm font-medium ${statusColor}`}>
                             {result?.status ? result.status.toUpperCase() : 'PENDING'}
                           </span>
-                          <Badge variant="outline" className="border-[#1f2229] text-[#b9cacb]">
+                          <Badge variant="outline" className="border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]">
                             {test.severity}
                           </Badge>
                         </div>
@@ -288,21 +288,21 @@ ${report.results.map(result => {
               </div>
 
               {selectedTest && (
-                <Card className="bg-[#0c0e12] border-[#1f2229]">
+                <Card className="bg-[bg-[var(--card)]] border-[border-[var(--border-default)]]">
                   <CardHeader>
-                    <CardTitle className="text-white">Test Execution</CardTitle>
-                    <CardDescription className="text-[#b9cacb]">
+                    <CardTitle className="text-[var(--text-primary)]">Test Execution</CardTitle>
+                    <CardDescription className="text-[text-[var(--text-muted)]]">
                       {rcTestCases.find(t => t.id === selectedTest)?.name}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-white">Status</Label>
+                      <Label className="text-[var(--text-primary)]">Status</Label>
                       <div className="flex gap-2">
                         <Button
                           onClick={() => updateTestResult(selectedTest, { status: 'pass' })}
                           variant={testResults.get(selectedTest)?.status === 'pass' ? 'default' : 'outline'}
-                          className={testResults.get(selectedTest)?.status === 'pass' ? 'bg-green-500 text-white' : 'border-[#1f2229] text-[#b9cacb]'}
+                          className={testResults.get(selectedTest)?.status === 'pass' ? 'bg-green-500 text-[var(--text-primary)]' : 'border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]'}
                         >
                           <CheckCircle2 className="mr-2 h-4 w-4" />
                           Pass
@@ -310,7 +310,7 @@ ${report.results.map(result => {
                         <Button
                           onClick={() => updateTestResult(selectedTest, { status: 'fail' })}
                           variant={testResults.get(selectedTest)?.status === 'fail' ? 'default' : 'outline'}
-                          className={testResults.get(selectedTest)?.status === 'fail' ? 'bg-red-500 text-white' : 'border-[#1f2229] text-[#b9cacb]'}
+                          className={testResults.get(selectedTest)?.status === 'fail' ? 'bg-red-500 text-[var(--text-primary)]' : 'border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]'}
                         >
                           <XCircle className="mr-2 h-4 w-4" />
                           Fail
@@ -318,7 +318,7 @@ ${report.results.map(result => {
                         <Button
                           onClick={() => updateTestResult(selectedTest, { status: 'skipped' })}
                           variant={testResults.get(selectedTest)?.status === 'skipped' ? 'default' : 'outline'}
-                          className={testResults.get(selectedTest)?.status === 'skipped' ? 'bg-yellow-500 text-white' : 'border-[#1f2229] text-[#b9cacb]'}
+                          className={testResults.get(selectedTest)?.status === 'skipped' ? 'bg-yellow-500 text-[var(--text-primary)]' : 'border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]'}
                         >
                           <Clock className="mr-2 h-4 w-4" />
                           Skip
@@ -327,33 +327,33 @@ ${report.results.map(result => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white">Actual Result</Label>
+                      <Label className="text-[var(--text-primary)]">Actual Result</Label>
                       <Textarea
                         placeholder="Describe what actually happened"
                         value={testResults.get(selectedTest)?.actualResult || ''}
                         onChange={(e) => updateTestResult(selectedTest, { actualResult: e.target.value })}
-                        className="bg-[#111317] border-[#1f2229] text-white min-h-[100px]"
+                        className="bg-[bg-[var(--card)]] border-[border-[var(--border-default)]] text-[var(--text-primary)] min-h-[100px]"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white">Notes</Label>
+                      <Label className="text-[var(--text-primary)]">Notes</Label>
                       <Textarea
                         placeholder="Additional notes or observations"
                         value={testResults.get(selectedTest)?.notes || ''}
                         onChange={(e) => updateTestResult(selectedTest, { notes: e.target.value })}
-                        className="bg-[#111317] border-[#1f2229] text-white min-h-[80px]"
+                        className="bg-[bg-[var(--card)]] border-[border-[var(--border-default)]] text-[var(--text-primary)] min-h-[80px]"
                       />
                     </div>
 
                     {testResults.get(selectedTest)?.status === 'fail' && (
                       <div className="space-y-2">
-                        <Label className="text-white">Severity</Label>
+                        <Label className="text-[var(--text-primary)]">Severity</Label>
                         <div className="flex gap-2">
                           <Button
                             onClick={() => updateTestResult(selectedTest, { severity: 'critical' })}
                             variant={testResults.get(selectedTest)?.severity === 'critical' ? 'default' : 'outline'}
-                            className={testResults.get(selectedTest)?.severity === 'critical' ? 'bg-red-600 text-white' : 'border-[#1f2229] text-[#b9cacb]'}
+                            className={testResults.get(selectedTest)?.severity === 'critical' ? 'bg-red-600 text-[var(--text-primary)]' : 'border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]'}
                             size="sm"
                           >
                             Critical
@@ -361,7 +361,7 @@ ${report.results.map(result => {
                           <Button
                             onClick={() => updateTestResult(selectedTest, { severity: 'high' })}
                             variant={testResults.get(selectedTest)?.severity === 'high' ? 'default' : 'outline'}
-                            className={testResults.get(selectedTest)?.severity === 'high' ? 'bg-orange-500 text-white' : 'border-[#1f2229] text-[#b9cacb]'}
+                            className={testResults.get(selectedTest)?.severity === 'high' ? 'bg-orange-500 text-[var(--text-primary)]' : 'border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]'}
                             size="sm"
                           >
                             High
@@ -369,7 +369,7 @@ ${report.results.map(result => {
                           <Button
                             onClick={() => updateTestResult(selectedTest, { severity: 'medium' })}
                             variant={testResults.get(selectedTest)?.severity === 'medium' ? 'default' : 'outline'}
-                            className={testResults.get(selectedTest)?.severity === 'medium' ? 'bg-yellow-500 text-white' : 'border-[#1f2229] text-[#b9cacb]'}
+                            className={testResults.get(selectedTest)?.severity === 'medium' ? 'bg-yellow-500 text-[var(--text-primary)]' : 'border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]'}
                             size="sm"
                           >
                             Medium
@@ -377,7 +377,7 @@ ${report.results.map(result => {
                           <Button
                             onClick={() => updateTestResult(selectedTest, { severity: 'low' })}
                             variant={testResults.get(selectedTest)?.severity === 'low' ? 'default' : 'outline'}
-                            className={testResults.get(selectedTest)?.severity === 'low' ? 'bg-gray-500 text-white' : 'border-[#1f2229] text-[#b9cacb]'}
+                            className={testResults.get(selectedTest)?.severity === 'low' ? 'bg-gray-500 text-[var(--text-primary)]' : 'border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]]'}
                             size="sm"
                           >
                             Low
@@ -389,7 +389,7 @@ ${report.results.map(result => {
                     <Button
                       onClick={() => setSelectedTest(null)}
                       variant="outline"
-                      className="w-full border-[#1f2229] text-[#b9cacb] hover:bg-[#111317]"
+                      className="w-full border-[border-[var(--border-default)]] text-[text-[var(--text-muted)]] hover:bg-[bg-[var(--card)]]"
                     >
                       Close Test Details
                     </Button>
@@ -399,16 +399,16 @@ ${report.results.map(result => {
             </TabsContent>
 
             <TabsContent value="report" className="space-y-4">
-              <Card className="bg-[#0c0e12] border-[#1f2229]">
+              <Card className="bg-[bg-[var(--card)]] border-[border-[var(--border-default)]]">
                 <CardHeader>
-                  <CardTitle className="text-white">RC Report</CardTitle>
-                  <CardDescription className="text-[#b9cacb]">Summary of test execution results</CardDescription>
+                  <CardTitle className="text-[var(--text-primary)]">RC Report</CardTitle>
+                  <CardDescription className="text-[text-[var(--text-muted)]]">Summary of test execution results</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {!report ? (
                     <Button
                       onClick={generateReport}
-                      className="w-full bg-[#00f0ff] text-black hover:bg-white"
+                      className="w-full bg-[text-[var(--primary)]] text-black hover:bg-white"
                     >
                       <FileText className="mr-2 h-4 w-4" />
                       Generate Report
@@ -417,55 +417,55 @@ ${report.results.map(result => {
                     <div className="space-y-4">
                       <div className="grid gap-4 md:grid-cols-4">
                         <div className="space-y-1">
-                          <p className="text-sm text-[#b9cacb]">Total Tests</p>
-                          <p className="text-2xl font-bold text-white">{report.totalTests}</p>
+                          <p className="text-sm text-[text-[var(--text-muted)]]">Total Tests</p>
+                          <p className="text-2xl font-bold text-[var(--text-primary)]">{report.totalTests}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-[#b9cacb]">Passed</p>
+                          <p className="text-sm text-[text-[var(--text-muted)]]">Passed</p>
                           <p className="text-2xl font-bold text-green-400">{report.passed}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-[#b9cacb]">Failed</p>
+                          <p className="text-sm text-[text-[var(--text-muted)]]">Failed</p>
                           <p className="text-2xl font-bold text-red-400">{report.failed}</p>
                         </div>
                         <div className="space-y-1">
-                          <p className="text-sm text-[#b9cacb]">Skipped</p>
+                          <p className="text-sm text-[text-[var(--text-muted)]]">Skipped</p>
                           <p className="text-2xl font-bold text-yellow-400">{report.skipped}</p>
                         </div>
                       </div>
 
-                      <div className="border-t border-[#1f2229] pt-4">
-                        <h3 className="text-white font-medium mb-2">Failure Breakdown</h3>
+                      <div className="border-t border-[border-[var(--border-default)]] pt-4">
+                        <h3 className="text-[var(--text-primary)] font-medium mb-2">Failure Breakdown</h3>
                         <div className="grid gap-2 md:grid-cols-4">
                           <div className="space-y-1">
-                            <p className="text-sm text-[#b9cacb]">Critical</p>
+                            <p className="text-sm text-[text-[var(--text-muted)]]">Critical</p>
                             <p className="text-xl font-bold text-red-600">{report.criticalFailures}</p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-sm text-[#b9cacb]">High</p>
+                            <p className="text-sm text-[text-[var(--text-muted)]]">High</p>
                             <p className="text-xl font-bold text-orange-500">{report.highFailures}</p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-sm text-[#b9cacb]">Medium</p>
+                            <p className="text-sm text-[text-[var(--text-muted)]]">Medium</p>
                             <p className="text-xl font-bold text-yellow-500">{report.mediumFailures}</p>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-sm text-[#b9cacb]">Low</p>
+                            <p className="text-sm text-[text-[var(--text-muted)]]">Low</p>
                             <p className="text-xl font-bold text-gray-400">{report.lowFailures}</p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="border-t border-[#1f2229] pt-4">
-                        <h3 className="text-white font-medium mb-2">Recommendation</h3>
-                        <Badge className={report.recommendation === 'GO' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}>
+                      <div className="border-t border-[border-[var(--border-default)]] pt-4">
+                        <h3 className="text-[var(--text-primary)] font-medium mb-2">Recommendation</h3>
+                        <Badge className={report.recommendation === 'GO' ? 'bg-green-500 text-[var(--text-primary)]' : 'bg-red-500 text-[var(--text-primary)]'}>
                           {report.recommendation}
                         </Badge>
                       </div>
 
                       {report.blockingIssues.length > 0 && (
-                        <div className="border-t border-[#1f2229] pt-4">
-                          <h3 className="text-white font-medium mb-2">Blocking Issues</h3>
+                        <div className="border-t border-[border-[var(--border-default)]] pt-4">
+                          <h3 className="text-[var(--text-primary)] font-medium mb-2">Blocking Issues</h3>
                           <ul className="space-y-1">
                             {report.blockingIssues.map((issue, idx) => (
                               <li key={idx} className="text-sm text-red-400">{issue}</li>
@@ -476,7 +476,7 @@ ${report.results.map(result => {
 
                       <Button
                         onClick={exportReport}
-                        className="w-full bg-[#00f0ff] text-black hover:bg-white"
+                        className="w-full bg-[text-[var(--primary)]] text-black hover:bg-white"
                       >
                         <Download className="mr-2 h-4 w-4" />
                         Export Report
