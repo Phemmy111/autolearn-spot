@@ -39,6 +39,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Calculate expiry time (24 hours from now)
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
     // Check if there's already a pending enrollment for this email
     console.log('Checking for existing pending enrollment for email:', email);
     const { data: existingPending, error: existingError } = await supabaseAdmin
@@ -130,9 +133,6 @@ export async function POST(request: NextRequest) {
         referredBy = referralCodeData.id;
       }
     }
-
-    // Calculate expiry time (24 hours from now)
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     // Create pending enrollment
     console.log('Creating pending enrollment with data:', {
