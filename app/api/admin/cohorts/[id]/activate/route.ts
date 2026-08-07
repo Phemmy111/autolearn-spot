@@ -17,13 +17,13 @@ export async function POST(
 
     const { id } = params
 
-    // First, deactivate all cohorts
+    // First, deactivate all cohorts (set is_current = false)
     await supabaseAdmin
       .from('cohorts')
       .update({ is_current: false })
       .neq('id', id)
 
-    // Then activate the specified cohort
+    // Then activate the specified cohort (set is_current = true, status = active)
     const { data, error } = await supabaseAdmin
       .from('cohorts')
       .update({ 

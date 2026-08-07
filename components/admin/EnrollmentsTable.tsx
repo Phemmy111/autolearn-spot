@@ -54,6 +54,10 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
     }
   };
 
+  const getCohortStudentCount = (cohortId: string) => {
+    return initialEnrollments.filter((en: any) => en.cohort_id === cohortId && en.status === 'active').length;
+  };
+
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     setIsUpdatingStatus(id);
     try {
@@ -321,8 +325,8 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
           className="bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
         >
           <option value="all">All Cohorts</option>
-          {cohorts.map((c: { id: string; name: string }) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+          {cohorts.map((c: { id: string; name: string; status: string }) => (
+            <option key={c.id} value={c.id}>{c.name} ({c.status})</option>
           ))}
         </select>
       </div>
@@ -472,70 +476,76 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
           <div className="bg-[#1a1d24] border border-[#3b494b] p-6 rounded max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
             <h3 className="font-heading text-xl font-bold text-white mb-4">Manage Cohorts</h3>
             <div className="space-y-4 mb-4">
-              {cohorts.map((cohort: any) => (
-                <div key={cohort.id} className="bg-[#0a0c10] border border-[#3b494b] p-4 rounded">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="text-white font-bold text-lg">{cohort.name}</div>
-                      <div className="text-[#b9cacb] font-mono text-xs">Status: <span className="text-[#00f0ff] uppercase">{cohort.status}</span></div>
+              {cohorts.map((cohort: any) => {
+                const studentCount = getCohortStudentCount(cohort.id);
+                return (
+                  <div key={cohort.id} className="bg-[#0a0c10] border border-[#3b494b] p-4 rounded">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="text-white font-bold text-lg">{cohort.name}</div>
+                        <div className="text-[#b9cacb] font-mono text-xs">
+                          Status: <span className="text-[#00f0ff] uppercase">{cohort.status}</span>
+                          {cohort.is_current && <span className="ml-2 text-[#00f0ff]">• CURRENT</span>}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingCohort(cohort);
+                            setShowEditModal(true);
+                            setShowManageModal(false);
+                          }}
+                          className="inline-flex items-center gap-1 border border-[#3b494b] px-2 py-1 text-xs text-[#b9cacb] hover:text-white hover:border-white transition-colors"
+                        >
+                          <Edit className="h-3 w-3" />
+                          Edit
+                        </button>
+                        {cohort.status !== 'archived' && !cohort.is_current && (
+                          <button
+                            onClick={() => handleActivateCohort(cohort.id)}
+                            className="inline-flex items-center gap-1 border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-400 hover:text-white hover:bg-emerald-500/30 transition-colors"
+                          >
+                            Activate
+                          </button>
+                        )}
+                        {cohort.status !== 'archived' && (
+                          <button
+                            onClick={() => handleArchiveCohort(cohort.id)}
+                            className="inline-flex items-center gap-1 border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-400 hover:text-white hover:bg-yellow-500/30 transition-colors"
+                          >
+                            <Archive className="h-3 w-3" />
+                            Archive
+                          </button>
+                        )}
+                        {studentCount === 0 ? (
+                          <button
+                            onClick={() => handleDeleteCohort(cohort.id)}
+                            className="inline-flex items-center gap-1 border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-400 hover:text-white hover:bg-red-500/30 transition-colors"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            Delete
+                          </button>
+                        ) : (
+                          <button
+                            disabled
+                            title="This cohort contains students and cannot be deleted"
+                            className="inline-flex items-center gap-1 border border-[#3b494b] px-2 py-1 text-xs text-[#5d5f63] cursor-not-allowed"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setEditingCohort(cohort);
-                          setShowEditModal(true);
-                          setShowManageModal(false);
-                        }}
-                        className="inline-flex items-center gap-1 border border-[#3b494b] px-2 py-1 text-xs text-[#b9cacb] hover:text-white hover:border-white transition-colors"
-                      >
-                        <Edit className="h-3 w-3" />
-                        Edit
-                      </button>
-                      {cohort.status !== 'archived' && !cohort.is_current && (
-                        <button
-                          onClick={() => handleActivateCohort(cohort.id)}
-                          className="inline-flex items-center gap-1 border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-400 hover:text-white hover:bg-emerald-500/30 transition-colors"
-                        >
-                          Activate
-                        </button>
-                      )}
-                      {cohort.status !== 'archived' && (
-                        <button
-                          onClick={() => handleArchiveCohort(cohort.id)}
-                          className="inline-flex items-center gap-1 border border-yellow-500/30 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-400 hover:text-white hover:bg-yellow-500/30 transition-colors"
-                        >
-                          <Archive className="h-3 w-3" />
-                          Archive
-                        </button>
-                      )}
-                      {cohort.student_count === 0 ? (
-                        <button
-                          onClick={() => handleDeleteCohort(cohort.id)}
-                          className="inline-flex items-center gap-1 border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-400 hover:text-white hover:bg-red-500/30 transition-colors"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Delete
-                        </button>
-                      ) : (
-                        <button
-                          disabled
-                          title="This cohort contains students and cannot be deleted"
-                          className="inline-flex items-center gap-1 border border-[#3b494b] px-2 py-1 text-xs text-[#5d5f63] cursor-not-allowed"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Delete
-                        </button>
-                      )}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono text-[#b9cacb]">
+                      <div>Students: <span className="text-white">{studentCount}</span></div>
+                      <div>Fee: <span className="text-white">₦{cohort.price_ngn?.toLocaleString() || '0'}</span></div>
+                      <div>Start: <span className="text-white">{cohort.start_date ? new Date(cohort.start_date).toLocaleDateString() : 'TBD'}</span></div>
+                      <div>End: <span className="text-white">{cohort.end_date ? new Date(cohort.end_date).toLocaleDateString() : 'TBD'}</span></div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-mono text-[#b9cacb]">
-                    <div>Students: <span className="text-white">{cohort.student_count || 0}</span></div>
-                    <div>Fee: <span className="text-white">₦{cohort.price_ngn?.toLocaleString() || '0'}</span></div>
-                    <div>Start: <span className="text-white">{cohort.start_date ? new Date(cohort.start_date).toLocaleDateString() : 'TBD'}</span></div>
-                    <div>End: <span className="text-white">{cohort.end_date ? new Date(cohort.end_date).toLocaleDateString() : 'TBD'}</span></div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="flex gap-2 pt-4 border-t border-[#3b494b]">
               <button

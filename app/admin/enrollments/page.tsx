@@ -26,7 +26,7 @@ export default async function AdminEnrollmentsPage() {
   // Fetch all cohorts for the filter
   const { data: cohorts } = await supabaseAdmin
     .from('cohorts')
-    .select('id, name, is_current, student_count, price_ngn, start_date, end_date, status')
+    .select('id, name, is_current, price_ngn, start_date, end_date, status')
     .order('created_at', { ascending: false });
 
   // Fetch student count for current cohort
