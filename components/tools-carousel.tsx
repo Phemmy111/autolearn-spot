@@ -53,7 +53,7 @@ export function ToolsCarousel() {
   return (
     <div className="page-animate">
       <div className="tools-coverflow-stage relative mx-auto h-[440px] max-w-6xl overflow-hidden sm:h-[520px]">
-        <div className="pointer-events-none absolute inset-x-0 bottom-8 mx-auto h-px max-w-3xl bg-[#1f2229]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-8 mx-auto h-px max-w-3xl bg-[var(--border-default)]" />
         {tools.map((tool, index) => {
           const Icon = tool.icon
           const offset = getOffset(index)
@@ -64,10 +64,10 @@ export function ToolsCarousel() {
           return (
             <article
               aria-hidden={!isVisible}
-              className={`absolute left-1/2 top-1/2 flex h-[360px] w-[250px] flex-col items-center justify-between border bg-[#0c0e12]/95 p-7 text-center shadow-[0_28px_80px_rgba(0,0,0,0.35)] transition-all duration-500 ease-out sm:h-[440px] sm:w-[320px] ${
+              className={`absolute left-1/2 top-1/2 flex h-[360px] w-[250px] flex-col items-center justify-between border bg-[var(--card)]/95 p-7 text-center shadow-[0_28px_80px_rgba(0,0,0,0.35)] transition-all duration-500 ease-out sm:h-[440px] sm:w-[320px] ${
                 isActive
-                  ? 'border-[#00f0ff] shadow-[0_0_36px_rgba(0,240,255,0.18),0_32px_80px_rgba(0,0,0,0.45)]'
-                  : 'border-[#1f2229]'
+                  ? 'border-[var(--primary)] shadow-[0_0_36px_rgba(0,240,255,0.18),0_32px_80px_rgba(0,0,0,0.45)]'
+                  : 'border-[var(--border-default)]'
               }`}
               key={tool.title}
               onClick={() => setActiveIndex(index)}
@@ -80,17 +80,17 @@ export function ToolsCarousel() {
             >
               <div className="flex w-full items-center justify-between font-mono text-[10px] uppercase tracking-[0.12em] text-[#5d5f63]">
                 <span>tool_{String(index + 1).padStart(2, '0')}</span>
-                <span className={`h-2 w-2 ${isActive ? 'bg-[#00f0ff]' : 'bg-[#3b494b]'}`} />
+                <span className={`h-2 w-2 ${isActive ? 'bg-[var(--primary)]' : 'bg-[var(--border-input)]'}`} />
               </div>
               <div>
-                <div className="mx-auto flex h-24 w-24 items-center justify-center border border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#00f0ff] sm:h-28 sm:w-28">
+                <div className="mx-auto flex h-24 w-24 items-center justify-center border border-[var(--primary)]/70 bg-[var(--primary)]/10 text-[var(--primary)] sm:h-28 sm:w-28">
                   <Icon className="h-11 w-11 sm:h-12 sm:w-12" />
                 </div>
                 <h3 className="mt-10 font-heading text-2xl font-semibold text-[#e2e2e8] sm:text-3xl">{tool.title}</h3>
                 <p className="mt-3 font-mono text-sm text-[#b9cacb] sm:text-base">{tool.body}</p>
               </div>
               <button
-                className="w-full border border-[#1f2229] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[#00f0ff] transition hover:border-[#00f0ff]/80 hover:bg-[#00f0ff]/10"
+                className="w-full border border-[var(--border-default)] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--primary)] transition hover:border-[var(--primary)]/80 hover:bg-[var(--primary)]/10"
                 onClick={(event) => {
                   event.stopPropagation()
                   setActiveIndex(index)
@@ -109,7 +109,7 @@ export function ToolsCarousel() {
           <button
             aria-label={`Go to ${tool.title}`}
             className={`h-1.5 w-8 transition ${
-              index === activeIndex ? 'bg-[#00f0ff]' : 'bg-[#1f2229] hover:bg-[#3b494b]'
+              index === activeIndex ? 'bg-[var(--primary)]' : 'bg-[var(--border-default)] hover:bg-[var(--border-input)]'
             }`}
             key={tool.title}
             onClick={() => setActiveIndex(index)}

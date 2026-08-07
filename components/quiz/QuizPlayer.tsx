@@ -79,17 +79,17 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
   // If quiz hasn't started, show intro
   if (!progress.startedAt && !isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-[#1f2229] bg-[#0c0e12] p-8 rounded-xl shadow-xl">
-        <h2 className="font-heading text-3xl font-bold text-white mb-4">{quiz.title}</h2>
-        <p className="text-[#b9cacb] font-mono text-sm mb-6">{quiz.description}</p>
-        <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[#00f0ff]">
+      <div className="mx-auto max-w-2xl text-center border border-[var(--border-default)] bg-[var(--card)] p-8 rounded-xl shadow-sm">
+        <h2 className="font-heading text-3xl font-bold text-[var(--text-primary)] mb-4">{quiz.title}</h2>
+        <p className="text-[var(--text-body)] font-mono text-sm mb-6">{quiz.description}</p>
+        <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[var(--primary)]">
           <div><strong>Duration:</strong> {quiz.duration} mins</div>
           <div><strong>Pass Mark:</strong> {quiz.passMark}%</div>
           <div><strong>Questions:</strong> {quiz.questions.length}</div>
         </div>
         <button
           onClick={startQuiz}
-          className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors"
+          className="bg-[var(--primary)] text-white font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-[var(--primary-hover)] transition-colors"
         >
           Start Quiz
         </button>
@@ -103,11 +103,11 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
 
   if (isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-[#1f2229] bg-[#0c0e12] p-8 rounded-xl shadow-xl">
+      <div className="mx-auto max-w-2xl text-center border border-[var(--border-default)] bg-[var(--card)] p-8 rounded-xl shadow-sm">
         <CheckCircle className="h-16 w-16 text-emerald-400 mx-auto mb-4" />
-        <h2 className="font-heading text-2xl font-bold text-white mb-2">Quiz Submitted Successfully</h2>
-        <p className="text-[#b9cacb] font-mono text-sm mb-6">Waiting for grading... Your results will be available shortly.</p>
-        <a href="/dashboard" className="text-[#00f0ff] hover:underline font-mono text-sm">
+        <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)] mb-2">Quiz Submitted Successfully</h2>
+        <p className="text-[var(--text-muted)] font-mono text-sm mb-6">Waiting for grading... Your results will be available shortly.</p>
+        <a href="/dashboard" className="text-[var(--primary)] hover:underline font-mono text-sm">
           Return to Dashboard
         </a>
       </div>
@@ -120,15 +120,15 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
     <div className="mx-auto max-w-3xl">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h2 className="font-heading text-2xl font-bold text-white">{quiz.title}</h2>
-          <p className="font-mono text-xs text-[#5d5f63] mt-1">Question {currentIndex + 1} of {quiz.questions.length}</p>
+          <h2 className="font-heading text-2xl font-bold text-[var(--text-primary)]">{quiz.title}</h2>
+          <p className="font-mono text-xs text-[var(--text-muted)] mt-1">Question {currentIndex + 1} of {quiz.questions.length}</p>
         </div>
         <QuizTimer formattedTime={formattedTime} timeLeft={timeLeft} />
       </div>
 
-      <div className="w-full bg-[#1f2229] h-1.5 rounded-full mb-8 overflow-hidden">
+      <div className="w-full bg-[var(--border-default)] h-1.5 rounded-full mb-8 overflow-hidden">
         <div 
-          className="bg-[#00f0ff] h-full transition-all duration-300"
+          className="bg-[var(--primary)] h-full transition-all duration-300"
           style={{ width: `${((currentIndex + 1) / quiz.questions.length) * 100}%` }}
         />
       </div>
@@ -150,7 +150,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
         <button
           onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
           disabled={currentIndex === 0}
-          className="flex items-center gap-2 text-[#b9cacb] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
+          className="flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Previous
         </button>
@@ -159,14 +159,14 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
           <button
             onClick={doSubmit}
             disabled={isSubmitting}
-            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-[var(--primary)] text-white font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
           >
             Submit Quiz <Send className="h-4 w-4" />
           </button>
         ) : (
           <button
             onClick={() => setCurrentIndex((prev) => Math.min(quiz.questions.length - 1, prev + 1))}
-            className="flex items-center gap-2 text-[#00f0ff] hover:text-white font-mono text-sm uppercase tracking-wider transition-colors"
+            className="flex items-center gap-2 text-[var(--primary)] hover:text-white font-mono text-sm uppercase tracking-wider transition-colors"
           >
             Next <ArrowRight className="h-4 w-4" />
           </button>

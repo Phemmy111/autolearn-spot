@@ -105,7 +105,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
     if (priority === 'urgent') return <AlertCircle className="h-5 w-5 text-[#ff6b6b]" />
     
     switch (category) {
-      case 'announcement': return <Megaphone className="h-5 w-5 text-[#00f0ff]" />
+      case 'announcement': return <Megaphone className="h-5 w-5 text-[var(--primary)]" />
       case 'assignment_review':
       case 'certificate': return <CheckCircle2 className="h-5 w-5 text-[#a855f7]" />
       default: return <Info className="h-5 w-5 text-[#b9cacb]" />
@@ -134,14 +134,14 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
   const hasUnread = deliveries.some(d => d.status === 'unread')
 
   return (
-    <div className="absolute right-0 top-12 mt-2 w-80 sm:w-96 rounded-xl border border-[#3b494b] bg-[#111317] shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]">
-      <div className="flex items-center justify-between border-b border-[#3b494b] bg-[#1a1d24] p-4">
+    <div className="absolute right-0 top-12 mt-2 w-80 sm:w-96 rounded-xl border border-[var(--border-input)] bg-[var(--surface-hover)] shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="flex items-center justify-between border-b border-[var(--border-input)] bg-[var(--surface-hover)] p-4">
         <h3 className="font-heading text-lg font-bold text-white">Notifications</h3>
         <div className="flex items-center gap-2">
           {hasUnread && (
             <button 
               onClick={markAllAsRead}
-              className="text-xs font-mono text-[#00f0ff] hover:text-white transition-colors flex items-center gap-1"
+              className="text-xs font-mono text-[var(--primary)] hover:text-white transition-colors flex items-center gap-1"
             >
               <Check className="h-3 w-3" /> Mark all read
             </button>
@@ -159,11 +159,11 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
           <div className="p-8 text-center text-sm font-mono text-[#ff6b6b]">{error}</div>
         ) : deliveries.length === 0 ? (
           <div className="p-8 text-center">
-            <Bell className="h-12 w-12 text-[#3b494b] mx-auto mb-3 opacity-50" />
+            <Bell className="h-12 w-12 text-[var(--border-input)] mx-auto mb-3 opacity-50" />
             <p className="text-sm font-mono text-[#b9cacb]">No notifications yet</p>
           </div>
         ) : (
-          <div className="divide-y divide-[#1f2229]">
+          <div className="divide-y divide-[var(--border-default)]">
             {deliveries.map(delivery => {
               const { notification } = delivery
               const isUnread = delivery.status === 'unread'
@@ -171,7 +171,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
               return (
                 <div 
                   key={delivery.id} 
-                  className={`p-4 transition-colors hover:bg-[#1a1d24] ${isUnread ? 'bg-[#111317]' : 'bg-[#0a0c10]'}`}
+                  className={`p-4 transition-colors hover:bg-[var(--surface-hover)] ${isUnread ? 'bg-[var(--surface-hover)]' : 'bg-[#0a0c10]'}`}
                   onClick={() => {
                     if (isUnread) markAsRead(notification.id)
                   }}
@@ -197,7 +197,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                         <div className="mt-2">
                           <Link 
                             href={notification.action_url}
-                            className="inline-block px-3 py-1 bg-[#0c0e12] border border-[#3b494b] text-[#00f0ff] hover:bg-[#00f0ff] hover:text-black font-mono text-xs rounded transition-colors"
+                            className="inline-block px-3 py-1 bg-[var(--card)] border border-[var(--border-input)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-black font-mono text-xs rounded transition-colors"
                             onClick={(e) => {
                               if (isUnread) markAsRead(notification.id)
                             }}
@@ -208,7 +208,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                       )}
                     </div>
                     {isUnread && (
-                      <div className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-[#00f0ff]"></div>
+                      <div className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-[var(--primary)]"></div>
                     )}
                   </div>
                 </div>
@@ -218,7 +218,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
         )}
       </div>
 
-      <div className="border-t border-[#3b494b] bg-[#1a1d24] p-3">
+      <div className="border-t border-[var(--border-input)] bg-[var(--surface-hover)] p-3">
         <Link 
           href="/dashboard/settings/notifications" 
           onClick={onClose}

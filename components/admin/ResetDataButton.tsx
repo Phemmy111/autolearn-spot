@@ -49,7 +49,7 @@ export function ResetDataButton() {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl border border-red-500/50 bg-[#0c0e12] shadow-2xl relative overflow-hidden">
+          <div className="w-full max-w-md rounded-xl border border-red-500/50 bg-[var(--card)] shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
             
             <button 
@@ -86,7 +86,7 @@ export function ResetDataButton() {
                 <button
                   onClick={() => handleReset('delete_history')}
                   disabled={isDeleting}
-                  className="flex items-center justify-between p-3 rounded-lg border border-[#1f2229] hover:border-orange-500 hover:bg-orange-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                  className="flex items-center justify-between p-3 rounded-lg border border-[var(--border-default)] hover:border-orange-500 hover:bg-orange-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                   <div className="text-left">
                     <div className="font-bold text-white text-sm">Clear Leaderboard & History</div>
@@ -98,7 +98,7 @@ export function ResetDataButton() {
                 <button
                   onClick={() => handleReset('delete_quizzes')}
                   disabled={isDeleting}
-                  className="flex items-center justify-between p-3 rounded-lg border border-[#1f2229] hover:border-orange-500 hover:bg-orange-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                  className="flex items-center justify-between p-3 rounded-lg border border-[var(--border-default)] hover:border-orange-500 hover:bg-orange-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                   <div className="text-left">
                     <div className="font-bold text-white text-sm">Delete All Quizzes</div>

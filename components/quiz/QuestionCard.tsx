@@ -17,9 +17,9 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
   }
 
   return (
-    <div className="rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
+    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--card)] p-6 shadow-sm">
       {/* Render question text, preserving \n line breaks */}
-      <h3 className="mb-6 font-heading text-lg font-semibold text-[#e2e8e2] leading-relaxed whitespace-pre-line">
+      <h3 className="mb-6 font-heading text-lg font-semibold text-[var(--text-primary)] leading-relaxed whitespace-pre-line">
         {question.question}
       </h3>
 
@@ -33,12 +33,12 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
                 key={i}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                   isSelected
-                    ? 'border-[#00f0ff] bg-[#00f0ff]/10 text-[#00f0ff]'
-                    : 'border-[#1f2229] bg-[#111317] text-[#b9cacb] hover:border-[#3b494b]'
+                    ? 'border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]'
+                    : 'border-[var(--border-default)] bg-[var(--background)] text-[var(--text-body)] hover:border-[var(--border-input)] hover:bg-[var(--surface-hover)]'
                 }`}
               >
-                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#00f0ff]' : 'border-[#5d5f63]'}`}>
-                  {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[#00f0ff]" />}
+                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[var(--primary)]' : 'border-[var(--border-input)]'}`}>
+                  {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[var(--primary)]" />}
                 </div>
                 <span className="font-mono text-sm">{opt}</span>
                 <input
@@ -61,7 +61,7 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
             value={answer || ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Type your answer here... (Auto-saves as you type)"
-            className="h-40 w-full resize-y rounded-lg border border-[#1f2229] bg-[#111317] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#00f0ff] placeholder:text-[#5d5f63]"
+            className="h-40 w-full resize-y rounded-lg border border-[var(--border-input)] bg-[var(--background)] p-4 font-mono text-sm text-[var(--text-body)] outline-none transition-colors focus:border-[var(--primary)] placeholder:text-[var(--text-placeholder)]"
           />
         </div>
       )}

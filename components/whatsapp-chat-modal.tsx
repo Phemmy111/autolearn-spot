@@ -72,7 +72,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
     <>
       {variant === 'floating' ? (
         <button
-          className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-[#00f0ff] px-4 py-3 text-xs font-mono font-semibold uppercase tracking-[0.1em] text-[#050505] shadow-[0_4px_12px_rgba(0,240,255,0.2)] transition-transform hover:scale-105 hover:shadow-[0_6px_16px_rgba(0,240,255,0.3)]"
+          className="fixed bottom-6 right-6 z-30 flex items-center gap-2 rounded-full bg-[var(--primary)] px-4 py-3 text-xs font-mono font-semibold uppercase tracking-[0.1em] text-[#050505] shadow-[0_4px_12px_rgba(0,240,255,0.2)] transition-transform hover:scale-105 hover:shadow-[0_6px_16px_rgba(0,240,255,0.3)]"
           onClick={() => setIsOpen(true)}
           type="button"
         >
@@ -81,7 +81,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
         </button>
       ) : (
         <button
-          className="mt-4 border border-[#00f0ff]/70 bg-[#00f0ff]/10 px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition hover:bg-[#00f0ff]/15"
+          className="mt-4 border border-[var(--primary)]/70 bg-[var(--primary)]/10 px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[var(--primary)] transition hover:bg-[var(--primary)]/15"
           onClick={() => setIsOpen(true)}
           type="button"
         >
@@ -103,26 +103,26 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
             type="button"
           />
 
-          <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[560px] -translate-y-[2vh] overflow-y-auto border border-[#3b494b] bg-[#050505] p-4 text-[#e2e2e8] shadow-[0_30px_100px_rgba(0,0,0,0.55)] sm:max-h-[calc(100vh-4rem)] sm:p-6">
+          <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[560px] -translate-y-[2vh] overflow-y-auto border border-[var(--border-input)] bg-[#050505] p-4 text-[#e2e2e8] shadow-[0_30px_100px_rgba(0,0,0,0.55)] sm:max-h-[calc(100vh-4rem)] sm:p-6">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,240,255,0.13),transparent_42%)]" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[#00f0ff]" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[var(--primary)]" />
 
             <button
               aria-label="Close"
-              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-[#1f2229] bg-[#0c0e12] text-[#b9cacb] transition hover:border-[#00f0ff]/70 hover:text-[#00f0ff] sm:right-6 sm:top-6"
+              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-[var(--border-default)] bg-[var(--card)] text-[#b9cacb] transition hover:border-[var(--primary)]/70 hover:text-[var(--primary)] sm:right-6 sm:top-6"
               onClick={() => setIsOpen(false)}
               type="button"
             >
               <X className="h-4 w-4" />
             </button>
 
-            <div className="relative border border-[#1f2229] bg-[#0c0e12]/92 p-5 sm:p-7">
+            <div className="relative border border-[var(--border-default)] bg-[var(--card)] p-5 sm:p-7">
               <div className="flex items-start gap-4 pr-10">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#00f0ff] shadow-[0_0_28px_rgba(0,240,255,0.14)] sm:h-16 sm:w-16">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center border border-[var(--primary)]/70 bg-[var(--primary)]/10 text-[var(--primary)] shadow-[0_0_28px_rgba(0,240,255,0.14)] sm:h-16 sm:w-16">
                   <MessageCircle className="h-7 w-7 sm:h-8 sm:w-8" />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#00f0ff]">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--primary)]">
                     WHATSAPP_LINK
                   </p>
                   <h2
@@ -142,19 +142,19 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
                         <a
                           className={`group flex min-h-16 items-center gap-4 border px-4 py-3 transition ${
                             item.featured
-                              ? 'border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#dbfcff] hover:bg-[#00f0ff]/15'
-                              : 'border-[#1f2229] bg-[#0c0e12] text-[#e2e2e8] hover:border-[#00f0ff]/55 hover:bg-[#10151b]'
+                              ? 'border-[var(--primary)]/70 bg-[var(--primary)]/10 text-[#dbfcff] hover:bg-[var(--primary)]/15'
+                              : 'border-[var(--border-default)] bg-[var(--card)] text-[#e2e2e8] hover:border-[var(--primary)]/55 hover:bg-[#10151b]'
                           }`}
                           href={whatsappHref(item.message)}
                           key={item.label}
                           rel="noreferrer"
                           target="_blank"
                         >
-                          <Icon className="h-5 w-5 shrink-0 text-[#00f0ff]" />
+                          <Icon className="h-5 w-5 shrink-0 text-[var(--primary)]" />
                           <span className="min-w-0 flex-1 text-left font-mono text-xs font-semibold uppercase tracking-[0.08em]">
                             {item.label}
                           </span>
-                          <ArrowRight className="h-4 w-4 shrink-0 text-[#5d5f63] transition group-hover:translate-x-1 group-hover:text-[#00f0ff]" />
+                          <ArrowRight className="h-4 w-4 shrink-0 text-[#5d5f63] transition group-hover:translate-x-1 group-hover:text-[var(--primary)]" />
                         </a>
                       );
                     })}
@@ -165,7 +165,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
 
             <div className="relative mt-4 space-y-3 sm:mt-5">
                 <textarea
-                  className="w-full rounded bg-[#0c0e12] p-2 text-[#e2e2e8] placeholder-[#5d5f63] focus:outline-none"
+                  className="w-full rounded bg-[var(--card)] p-2 text-[#e2e2e8] placeholder-[#5d5f63] focus:outline-none"
                   placeholder="Type your enquiry here..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -173,26 +173,26 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
                 <a
                   className={`inline-flex items-center gap-2 rounded px-4 py-2 font-mono text-xs font-semibold uppercase tracking-[0.08em] ${
                     message
-                      ? 'border-[#00f0ff]/70 bg-[#00f0ff]/10 text-[#dbfcff] hover:bg-[#00f0ff]/15'
-                      : 'border-[#1f2229] bg-[#0c0e12] text-[#5d5f63] cursor-not-allowed'
+                      ? 'border-[var(--primary)]/70 bg-[var(--primary)]/10 text-[#dbfcff] hover:bg-[var(--primary)]/15'
+                      : 'border-[var(--border-default)] bg-[var(--card)] text-[#5d5f63] cursor-not-allowed'
                   }`}
                   href={whatsappHref(message || 'Hi Femi, I have a question about AutoLearn Spot.')}
                   rel="noreferrer"
                   target="_blank"
                 >
-                  <MessageCircle className="h-5 w-5 shrink-0 text-[#00f0ff]" />
+                  <MessageCircle className="h-5 w-5 shrink-0 text-[var(--primary)]" />
                   Send Enquiry
                 </a>
               </div>
 
             <div className="relative my-5 flex items-center gap-3">
-              <div className="h-px flex-1 bg-[#1f2229]" />
+              <div className="h-px flex-1 bg-[var(--border-default)]" />
               <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#5d5f63]">or</span>
-              <div className="h-px flex-1 bg-[#1f2229]" />
+              <div className="h-px flex-1 bg-[var(--border-default)]" />
             </div>
 
             <a
-              className="relative flex min-h-14 items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-5 py-4 text-center font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#050505] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff]"
+              className="relative flex min-h-14 items-center justify-center gap-2 border border-[var(--primary)] bg-[var(--primary)] px-5 py-4 text-center font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#050505] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff]"
               href={communityHref}
               rel="noreferrer"
               target="_blank"

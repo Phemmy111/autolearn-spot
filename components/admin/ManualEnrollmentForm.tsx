@@ -106,7 +106,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="student@example.com"
             value={formData.email}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded"
           />
         </div>
 
@@ -120,7 +120,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             required
             value={formData.cohortId}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded"
           >
             <option value="">Select a cohort</option>
             {cohorts.map((c) => (
@@ -143,7 +143,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="John"
             value={formData.firstName}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded"
           />
         </div>
 
@@ -159,7 +159,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="Doe"
             value={formData.lastName}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded"
           />
         </div>
 
@@ -174,7 +174,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="John Doe"
             value={formData.fullName}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded"
           />
         </div>
 
@@ -189,7 +189,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="user_2..."
             value={formData.clerkUserId}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded"
           />
         </div>
 
@@ -202,7 +202,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded"
           >
             <option value="active">Active (Access Granted)</option>
             <option value="inactive">Inactive (Access Denied)</option>
@@ -221,7 +221,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
           placeholder="e.g. Scholarship Student, Staff Account"
           value={formData.reason}
           onChange={handleChange}
-          className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded resize-none"
+          className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)] rounded resize-none"
         />
       </div>
 
@@ -229,7 +229,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 bg-[var(--primary)] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
         >
           {isSubmitting ? (
             <>

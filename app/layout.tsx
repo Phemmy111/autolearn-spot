@@ -54,12 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider>
         <html lang="en" suppressHydrationWarning>
           <body className="font-sans antialiased">
             {children}

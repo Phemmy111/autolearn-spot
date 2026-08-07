@@ -152,7 +152,7 @@ export default function AmbassadorApplyPage() {
             </div>
 
             <div className="flex items-start gap-3 pt-4">
-              <input required type="checkbox" id="terms" className="mt-1 w-5 h-5 rounded border-white/20 bg-black/50 checked:bg-[#00f0ff] cursor-pointer" />
+              <input required type="checkbox" id="terms" className="mt-1 w-5 h-5 rounded border-white/20 bg-black/50 checked:bg-[var(--primary)] cursor-pointer" />
               <label htmlFor="terms" className="text-sm text-[var(--muted-foreground)] leading-relaxed cursor-pointer">
                 I agree to the terms and conditions of the AutoLearn Spot Ambassador Program. I understand that commissions are only paid for verified enrollments.
               </label>
@@ -161,7 +161,7 @@ export default function AmbassadorApplyPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 rounded-xl bg-[#00f0ff] text-black font-bold text-lg hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl bg-[var(--primary)] text-black font-bold text-lg hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Submitting...</> : "Submit Application"}
             </button>

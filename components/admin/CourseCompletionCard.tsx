@@ -72,11 +72,11 @@ export function CourseCompletionCard() {
   };
 
   return (
-    <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all">
+    <div className="border border-[var(--border-default)] bg-[var(--card)] p-6 rounded-xl hover:border-[var(--primary)]/50 transition-all">
       <h2 className="font-heading text-xl font-bold text-white mb-4">Course Completion Settings</h2>
       <div className="flex flex-col gap-4">
         <select
-          className="bg-[#111317] text-[#b9cacb] p-2 rounded"
+          className="bg-[var(--surface-hover)] text-[#b9cacb] p-2 rounded"
           value={selectedSlug}
           onChange={(e) => setSelectedSlug(e.target.value)}
         >
@@ -91,7 +91,7 @@ export function CourseCompletionCard() {
           <>
             <label className="font-mono text-sm text-[#b9cacb]">Final Lesson ID</label>
             <input
-              className="bg-[#111317] text-[#e2e8e2] p-2 rounded"
+              className="bg-[var(--surface-hover)] text-[#e2e8e2] p-2 rounded"
               type="text"
               value={finalLessonId}
               onChange={(e) => setFinalLessonId(e.target.value)}
@@ -105,7 +105,7 @@ export function CourseCompletionCard() {
               Certificate Enabled
             </label>
             <button
-              className="mt-2 flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
+              className="mt-2 flex items-center gap-2 bg-[var(--primary)] text-black font-bold uppercase px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
               onClick={handleSave}
               disabled={saving}
             >

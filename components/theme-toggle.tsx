@@ -1,26 +1,12 @@
 'use client'
 
-import * as React from 'react'
-import { Moon, Sun, Monitor } from 'lucide-react'
-import { useTheme } from 'next-themes'
+import { useTheme } from './theme-provider'
+import { Sun, Moon, Monitor } from 'lucide-react'
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
-  const [mounted, setMounted] = React.useState(false)
+  const { theme, setTheme, actualTheme } = useTheme()
 
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) {
-    return (
-      <button className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-gray-800 transition-colors">
-        <Sun className="h-5 w-5" />
-      </button>
-    )
-  }
-
-  const cycleTheme = () => {
+  const toggleTheme = () => {
     if (theme === 'light') {
       setTheme('dark')
     } else if (theme === 'dark') {
@@ -31,23 +17,30 @@ export function ThemeToggle() {
   }
 
   const getIcon = () => {
-    if (theme === 'light') {
-      return <Sun className="h-5 w-5" />
-    } else if (theme === 'dark') {
-      return <Moon className="h-5 w-5" />
-    } else {
-      return <Monitor className="h-5 w-5" />
-    }
+    if (theme === 'light') return <Sun className="h-5 w-5" />
+    if (theme === 'dark') return <Moon className="h-5 w-5" />
+    return <Monitor className="h-5 w-5" />
+  }
+
+  const getLabel = () => {
+    if (theme === 'light') return 'Light'
+    if (theme === 'dark') return 'Dark'
+    return 'System'
   }
 
   return (
     <button
-      onClick={cycleTheme}
-      className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-gray-800 transition-colors"
-      aria-label="Toggle theme"
-      title={`Current theme: ${theme || 'system'}`}
+      onClick={toggleTheme}
+      className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[var(--border-default)] bg-[var(--card)] hover:bg-[var(--surface-hover)] transition-all duration-250 ease-in-out"
+      title={`Current: ${getLabel()} mode. Click to cycle through themes.`}
+      aria-label={`Toggle theme. Current: ${getLabel()}`}
     >
-      {getIcon()}
+      <span className="text-[var(--primary)] transition-colors duration-250">
+        {getIcon()}
+      </span>
+      <span className="hidden sm:inline font-mono text-xs text-[var(--text-muted)]">
+        {getLabel()}
+      </span>
     </button>
   )
 }

@@ -109,7 +109,7 @@ export function ThreeAiBackground() {
     root.position.set(0, 0, 0)
     scene.add(root)
 
-    const cyan = new THREE.Color('#00f0ff')
+    const cyan = new THREE.Color('var(--primary)')
     const soft = new THREE.Color('#dbfcff')
     const darkLine = new THREE.Color('#3b494b')
 

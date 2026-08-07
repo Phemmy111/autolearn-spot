@@ -46,7 +46,7 @@ const demoActivities: Activity[] = [
 const getActivityIcon = (type: Activity['type']) => {
   switch (type) {
     case 'enrollment':
-      return <UserPlus className="h-4 w-4 text-[#00f0ff]" />;
+      return <UserPlus className="h-4 w-4 text-[var(--primary)]" />;
     case 'scholarship':
       return <Award className="h-4 w-4 text-purple-400" />;
     case 'commission':
@@ -56,7 +56,7 @@ const getActivityIcon = (type: Activity['type']) => {
     case 'withdrawal':
       return <CheckCircle className="h-4 w-4 text-blue-400" />;
     default:
-      return <Sparkles className="h-4 w-4 text-[#00f0ff]" />;
+      return <Sparkles className="h-4 w-4 text-[var(--primary)]" />;
   }
 };
 
@@ -75,15 +75,15 @@ export function LiveActivityFeed() {
   const currentActivity = activities[currentIndex];
 
   return (
-    <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
+    <div className="border border-[var(--border-default)] bg-[var(--card)] backdrop-blur-xl rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
-        <div className="h-2 w-2 rounded-full bg-[#00f0ff] animate-pulse" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#00f0ff]">
+        <div className="h-2 w-2 rounded-full bg-[var(--primary)] animate-pulse" />
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[var(--primary)]">
           Live Activity
         </span>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center border border-[#1f2229] bg-[#111317] rounded-lg">
+        <div className="flex h-10 w-10 items-center justify-center border border-[var(--border-default)] bg-[var(--surface-hover)] rounded-lg">
           {getActivityIcon(currentActivity.type)}
         </div>
         <div className="flex-1 min-w-0">

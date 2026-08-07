@@ -59,7 +59,7 @@ export function BadgeDisplay({
       ))}
       
       {hiddenCount > 0 && (
-        <Badge className={`${getSizeClasses()} bg-[#1f2229] border-[#3b494b] text-[#b9cacb]`}>
+        <Badge className={`${getSizeClasses()} bg-[var(--card)] border-[var(--border-input)] text-[#b9cacb]`}>
           +{hiddenCount} more
         </Badge>
       )}

@@ -107,13 +107,13 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={toggleDropdown}
-        className="relative p-2 text-[#b9cacb] hover:text-white transition-colors rounded-full hover:bg-[#1a1d24]"
+        className="relative p-2 text-[#b9cacb] hover:text-white transition-colors rounded-full hover:bg-[var(--surface-hover)]"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" />
         
         {!isLoadingCount && unreadCount > 0 && (
-          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#00f0ff] text-[10px] font-bold text-black border-2 border-[#111317]">
+          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--primary)] text-[10px] font-bold text-black border-2 border-[var(--surface-hover)]">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

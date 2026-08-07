@@ -57,7 +57,7 @@ export function ThreeAutomationField() {
     const group = new THREE.Group()
     scene.add(group)
 
-    const cyan = new THREE.Color('#00f0ff')
+    const cyan = new THREE.Color('var(--primary)')
     const muted = new THREE.Color('#3b494b')
     const glow = new THREE.Color('#dbfcff')
 

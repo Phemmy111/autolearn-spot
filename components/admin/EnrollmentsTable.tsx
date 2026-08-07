@@ -65,21 +65,21 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-[var(--surface-hover)] border border-[var(--border-input)] p-4 rounded text-center">
           <div className="text-[#b9cacb] font-mono text-xs uppercase">Total Paid</div>
-          <div className="text-2xl font-bold text-[#00f0ff] mt-1">{summary.paid}</div>
+          <div className="text-2xl font-bold text-[var(--primary)] mt-1">{summary.paid}</div>
         </div>
-        <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-[var(--surface-hover)] border border-[var(--border-input)] p-4 rounded text-center">
           <div className="text-[#b9cacb] font-mono text-xs uppercase">Pending</div>
           <div className="text-2xl font-bold text-yellow-400 mt-1">{summary.pending}</div>
         </div>
-        <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-[var(--surface-hover)] border border-[var(--border-input)] p-4 rounded text-center">
           <div className="text-[#b9cacb] font-mono text-xs uppercase">Refunded</div>
           <div className="text-2xl font-bold text-red-400 mt-1">{summary.refunded}</div>
         </div>
-        <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-[var(--surface-hover)] border border-[var(--border-input)] p-4 rounded text-center">
           <div className="text-[#b9cacb] font-mono text-xs uppercase">Revenue</div>
-          <div className="text-2xl font-bold text-[#00f0ff] mt-1">₦{summary.revenue.toLocaleString()}</div>
+          <div className="text-2xl font-bold text-[var(--primary)] mt-1">₦{summary.revenue.toLocaleString()}</div>
         </div>
       </div>
 
@@ -92,13 +92,13 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
             placeholder="Search email or reference..." 
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] pl-10 pr-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+            className="w-full bg-[var(--surface-hover)] border border-[var(--border-input)] pl-10 pr-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)]"
           />
         </div>
         <select 
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+          className="bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)]"
         >
           <option value="all">All Statuses</option>
           <option value="active">Active (Paid)</option>
@@ -108,7 +108,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
         <select 
           value={cohortFilter}
           onChange={e => setCohortFilter(e.target.value)}
-          className="bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+          className="bg-[var(--surface-hover)] border border-[var(--border-input)] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[var(--primary)]"
         >
           <option value="all">All Cohorts</option>
           {cohorts.map((c: { id: string; name: string }) => (
@@ -118,9 +118,9 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto border border-[#3b494b] bg-[#1a1d24] rounded">
+      <div className="overflow-x-auto border border-[var(--border-input)] bg-[var(--surface-hover)] rounded">
         <table className="w-full text-left font-mono text-sm">
-          <thead className="bg-[#1f2229] border-b border-[#3b494b] text-[#b9cacb]">
+          <thead className="bg-[var(--border-default)] border-b border-[var(--border-input)] text-[#b9cacb]">
             <tr>
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Cohort</th>
@@ -132,16 +132,16 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
           </thead>
           <tbody>
             {filtered.map((en: { id: string; email: string; status: string; cohort_id: string; created_at: string }) => (
-              <tr key={en.id} className="border-b border-[#3b494b]/50 hover:bg-[#1f2229]/50">
+              <tr key={en.id} className="border-b border-[var(--border-input)]/50 hover:bg-[var(--border-default)]/50">
                 <td className="px-4 py-3 text-white">{en.email}</td>
                 <td className="px-4 py-3 text-[#b9cacb]">{en.cohort?.name || en.cohort_id}</td>
                 <td className="px-4 py-3 text-[#5d5f63]">{en.payment_ref || 'N/A'}</td>
-                <td className="px-4 py-3 text-[#00f0ff]">
+                <td className="px-4 py-3 text-[var(--primary)]">
                   {en.amount_paid ? `₦${en.amount_paid.toLocaleString()}` : '-'}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] uppercase font-bold ${
-                    en.status === 'active' ? 'bg-[#00f0ff]/10 text-[#00f0ff]' :
+                    en.status === 'active' ? 'bg-[var(--primary)]/10 text-[var(--primary)]' :
                     en.status === 'pending' ? 'bg-yellow-400/10 text-yellow-400' :
                     en.status === 'inactive' ? 'bg-gray-400/10 text-gray-400' :
                     'bg-red-400/10 text-red-400'
@@ -159,7 +159,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
                       <button 
                         onClick={() => handleResync(en.payment_ref)}
                         disabled={isResyncing === en.payment_ref}
-                        className="inline-flex items-center gap-1 border border-[#3b494b] px-2 py-1 text-xs text-[#b9cacb] hover:text-white hover:border-white transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1 border border-[var(--border-input)] px-2 py-1 text-xs text-[#b9cacb] hover:text-white hover:border-white transition-colors disabled:opacity-50"
                         title="Re-fetch from Paystack"
                       >
                         {isResyncing === en.payment_ref ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}

@@ -43,14 +43,14 @@ export default async function AdminQuizzesPage() {
           <div className="flex gap-3">
             <Link
               href="/admin/quizzes/generate"
-              className="flex items-center gap-2 bg-[var(--primary-light)] text-[var(--primary)] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#00f0ff]/20 transition-colors text-sm border border-[#00f0ff]/50"
+              className="flex items-center gap-2 bg-[var(--primary-light)] text-[var(--primary)] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[var(--primary)]/20 transition-colors text-sm border border-[var(--primary)]/50"
             >
               <Sparkles className="h-4 w-4" />
               AI Generate
             </Link>
             <Link
               href="/admin/quizzes/new"
-              className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
+              className="flex items-center gap-2 bg-[var(--primary)] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
             >
               <Plus className="h-4 w-4" />
               New Quiz

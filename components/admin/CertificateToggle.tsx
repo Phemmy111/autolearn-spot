@@ -48,7 +48,7 @@ export function CertificateToggle() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 border border-[#1f2229] bg-[#0c0e12] px-4 py-2 rounded">
+      <div className="flex items-center gap-2 border border-[var(--border-default)] bg-[var(--card)] px-4 py-2 rounded">
         <Loader2 className="h-4 w-4 animate-spin text-[#b9cacb]" />
         <span className="font-mono text-xs text-[#b9cacb]">Loading...</span>
       </div>

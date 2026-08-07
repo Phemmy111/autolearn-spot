@@ -9,6 +9,7 @@ import { AutolearnBot } from '@/components/autolearn-bot';
 import { DashboardWidgets } from '@/components/dashboard-widgets';
 import { Leaderboard } from '@/components/leaderboard';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { BadgeDisplay } from '@/components/badges/badge-display';
 import { UserBadge as UserBadgeType } from '@/lib/badge-definitions';
 import { getLiveClassTimeShort } from '@/config/live-class';
@@ -240,6 +241,7 @@ export default function DashboardPage() {
           </div>
           
           <NotificationBell />
+          <ThemeToggle />
           
           <div className="hidden md:flex items-center gap-4">
             <Link href="/dashboard/settings" className="relative group">
@@ -303,6 +305,7 @@ export default function DashboardPage() {
                 )}
               </Link>
               <p className="text-sm font-medium text-[var(--text-primary)]">{firstName}</p>
+              <ThemeToggle />
             </div>
             <div className="flex flex-col gap-4">
               <Link

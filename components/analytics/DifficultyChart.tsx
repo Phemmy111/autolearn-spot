@@ -54,7 +54,7 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
         data: successRates,
         backgroundColor: backgroundColors,
         borderWidth: 1,
-        borderColor: '#1f2229'
+        borderColor: 'var(--border-default)'
       }
     ]
   }
@@ -84,7 +84,7 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
         backgroundColor: '#0c0e12',
         titleColor: '#b9cacb',
         bodyColor: '#ffffff',
-        borderColor: '#00f0ff',
+        borderColor: 'var(--primary)',
         borderWidth: 1,
       }
     },
@@ -93,7 +93,7 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
         beginAtZero: true,
         max: 100,
         grid: {
-          color: '#1f2229'
+          color: 'var(--border-default)'
         },
         ticks: {
           color: '#5d5f63'
@@ -136,14 +136,14 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
   }
 
   return (
-    <div className="border border-[#1f2229] bg-[#0c0e12] rounded-xl overflow-hidden mb-8">
-      <div className="p-6 border-b border-[#1f2229] bg-[#111317] flex justify-between items-center">
+    <div className="border border-[var(--border-default)] bg-[var(--card)] rounded-xl overflow-hidden mb-8">
+      <div className="p-6 border-b border-[var(--border-default)] bg-[var(--surface-hover)] flex justify-between items-center">
         <h2 className="font-heading text-xl font-bold text-white">
           Success Rate per Question
         </h2>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#00f0ff]/10 text-[#00f0ff] border border-[#00f0ff] font-mono text-xs font-bold uppercase hover:bg-[#00f0ff] hover:text-black transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)] font-mono text-xs font-bold uppercase hover:bg-[var(--primary)] hover:text-black transition-colors"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -151,7 +151,7 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
       </div>
       
       {/* Legend */}
-      <div className="px-6 py-4 flex gap-6 bg-[#0c0e12] border-b border-[#1f2229]">
+      <div className="px-6 py-4 flex gap-6 bg-[var(--card)] border-b border-[var(--border-default)]">
         <div className="flex items-center gap-2 font-mono text-xs text-[#b9cacb]">
           <div className="w-3 h-3 bg-emerald-400 rounded-sm"></div> Easiest (≥80%)
         </div>

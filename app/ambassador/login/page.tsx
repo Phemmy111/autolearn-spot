@@ -51,7 +51,7 @@ export default function AmbassadorLoginPage() {
           </Link>
           
           <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f0ff]/10 blur-3xl rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--primary)]/10 blur-3xl rounded-full pointer-events-none" />
             
             <h1 className="text-2xl font-bold mb-2">Ambassador Login</h1>
             <p className="text-[#b9cacb] mb-8 text-sm">Welcome back. Enter your credentials to access your dashboard.</p>
@@ -67,7 +67,7 @@ export default function AmbassadorLoginPage() {
                 <label className="text-sm font-medium text-[#b9cacb]">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#b9cacb]" />
-                  <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="you@example.com" />
+                  <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="you@example.com" />
                 </div>
               </div>
               
@@ -77,14 +77,14 @@ export default function AmbassadorLoginPage() {
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#b9cacb]" />
-                  <input required type="password" name="password" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="••••••••" />
+                  <input required type="password" name="password" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors" placeholder="••••••••" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-4 py-3 rounded-xl bg-[#00f0ff] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 py-3 rounded-xl bg-[var(--primary)] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSubmitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Authenticating...</> : "Sign In"}
               </button>
