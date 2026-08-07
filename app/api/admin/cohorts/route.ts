@@ -31,9 +31,19 @@ export async function POST(request: Request) {
       .select()
       .single()
 
+    console.error("SUPABASE INSERT ERROR", error)
+
     if (error) {
       console.error('Error creating cohort:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json(
+        {
+          success: false,
+          error
+        },
+        {
+          status: 500
+        }
+      )
     }
 
     return NextResponse.json({ success: true, cohort: data })
