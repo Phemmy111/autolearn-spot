@@ -16,7 +16,7 @@ export default function SignInPage() {
               colorPrimary: '#00f0ff',
               colorBackground: '#1a1d24',
               colorInputBackground: '#111317',
-              colorInputText: '#e2e8e2',
+              colorInputText: '#e2e8f2',
               borderRadius: '0px',
               fontFamily: 'monospace',
             },
@@ -28,11 +28,11 @@ export default function SignInPage() {
               formFieldInput: 'bg-[#111317] border border-[#3b494b] text-white font-mono rounded-none focus:border-[#00f0ff]',
               formFieldLabel: 'text-[#b9cacb] font-mono text-xs uppercase',
               footerActionLink: 'text-[#00f0ff] font-mono hover:text-[#00d4e0]',
-              identityPreviewText: 'text-[#e2e8e2]',
+              identityPreviewText: 'text-[#e2e8f2]',
               dividerLine: 'bg-[#3b494b]',
               dividerText: 'text-[#5d5f63] font-mono text-xs',
               socialButtonsBlockButton: 'border border-[#3b494b] bg-[#111317] text-white font-mono hover:bg-[#1a1d24] rounded-none',
-              socialButtonsBlockButtonText: 'text-[#e2e8e2] font-mono text-xs',
+              socialButtonsBlockButtonText: 'text-[#e2e8f2] font-mono text-xs',
             },
           }}
         />

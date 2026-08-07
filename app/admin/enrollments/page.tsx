@@ -6,6 +6,7 @@ import { ArrowLeft, Users } from 'lucide-react';
 import { EnrollmentsTable } from '@/components/admin/EnrollmentsTable';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function AdminEnrollmentsPage() {
   try {
@@ -25,7 +26,7 @@ export default async function AdminEnrollmentsPage() {
   // Fetch all cohorts for the filter
   const { data: cohorts } = await supabaseAdmin
     .from('cohorts')
-    .select('id, name, is_current')
+    .select('id, name, is_current, student_count, price_ngn, start_date, end_date, status')
     .order('created_at', { ascending: false });
 
   // Fetch student count for current cohort
@@ -94,6 +95,7 @@ export default async function AdminEnrollmentsPage() {
         </div>
 
         <EnrollmentsTable 
+          key={refreshKey}
           initialEnrollments={safeEnrollments} 
           cohorts={cohorts || []} 
           summary={summary}

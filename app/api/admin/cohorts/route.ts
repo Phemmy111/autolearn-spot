@@ -67,3 +67,65 @@ export async function GET() {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
+
+/**
+ * PATCH /api/admin/cohorts
+ * Update a cohort
+ */
+export async function PATCH(request: Request) {
+  try {
+    await requireAdmin()
+
+    const body = await request.json()
+    const { id, ...updates } = body
+
+    const { data, error } = await supabaseAdmin
+      .from('cohorts')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating cohort:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, cohort: data })
+  } catch (error: any) {
+    console.error('[PATCH /api/admin/cohorts] Error:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+  }
+}
+
+/**
+ * DELETE /api/admin/cohorts
+ * Delete a cohort
+ */
+export async function DELETE(request: Request) {
+  try {
+    await requireAdmin()
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'Cohort ID is required' }, { status: 400 })
+    }
+
+    const { error } = await supabaseAdmin
+      .from('cohorts')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error deleting cohort:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error('[DELETE /api/admin/cohorts] Error:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+  }
+}
