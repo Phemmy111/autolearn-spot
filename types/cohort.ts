@@ -27,28 +27,8 @@ export interface CohortSettings {
   referral_commission_ngn?: number
 }
 
-// New cohort type matching the database schema
+// Cohort type matching the existing database schema
 export interface Cohort {
-  id: string
-  name: string
-  description: string | null
-  status: CohortStatus
-  registration_fee: number
-  max_students: number | null
-  current_students: number
-  registration_open: boolean
-  registration_start: string | null
-  registration_end: string | null
-  cohort_start: string | null
-  cohort_end: string | null
-  is_active: boolean
-  created_at: string
-  updated_at: string
-  created_by: string | null
-}
-
-// Legacy cohort type for backward compatibility (deprecated)
-export interface LegacyCohort {
   id: string
   name: string
   slug: string

@@ -3,19 +3,7 @@
 ## Cohort Management System
 
 ### Overview
-The cohort management system supports unlimited cohorts with proper lifecycle management.
-
-### Deployment Instructions
-
-The SQL migration files must be run manually on your Supabase database:
-
-1. **Run the table creation migration:**
-   - Open Supabase Dashboard → SQL Editor
-   - Copy and execute: `migrations/cohort-management/001_create_cohorts_table.sql`
-
-2. **Run the RLS policies migration:**
-   - In the same SQL Editor
-   - Copy and execute: `migrations/cohort-management/002_create_cohorts_rls.sql`
+The cohort management system supports unlimited cohorts with proper lifecycle management using the existing database schema.
 
 ### Cohorts Table
 
@@ -23,26 +11,21 @@ The SQL migration files must be run manually on your Supabase database:
 |--------|------|-------------|
 | id | UUID | Primary key |
 | name | VARCHAR(255) | Cohort name |
-| description | TEXT | Cohort description |
+| slug | VARCHAR(255) | URL-friendly cohort identifier |
+| price_ngn | DECIMAL(10,2) | Registration fee in Naira |
 | status | VARCHAR(50) | Status: draft, upcoming, active, completed, archived |
-| registration_fee | DECIMAL(10,2) | Registration fee amount |
-| max_students | INTEGER | Maximum student capacity |
-| current_students | INTEGER | Current enrolled students |
-| registration_open | BOOLEAN | Whether registration is open |
-| registration_start | TIMESTAMP WITH TIME ZONE | Registration start date |
-| registration_end | TIMESTAMP WITH TIME ZONE | Registration end date |
-| cohort_start | TIMESTAMP WITH TIME ZONE | Cohort start date |
-| cohort_end | TIMESTAMP WITH TIME ZONE | Cohort end date |
-| is_active | BOOLEAN | Whether this is the currently active cohort |
+| start_date | TIMESTAMP WITH TIME ZONE | Cohort start date |
+| end_date | TIMESTAMP WITH TIME ZONE | Cohort end date |
+| is_current | BOOLEAN | Whether this is the currently active cohort (unique index) |
+| timezone | VARCHAR(50) | Timezone for cohort scheduling |
+| settings | JSONB | Cohort configuration (schedule, certificate rules, etc.) |
 | created_at | TIMESTAMP WITH TIME ZONE | Creation timestamp |
 | updated_at | TIMESTAMP WITH TIME ZONE | Last update timestamp |
-| created_by | VARCHAR(255) | Clerk user ID of creator |
 
 ### Indexes
-- `idx_cohorts_status` - For filtering by status
-- `idx_cohorts_is_active` - For finding active cohort
-- `idx_cohorts_registration_dates` - For registration period queries
-- `idx_cohorts_cohort_dates` - For cohort period queries
+- Unique index on `is_current` ensuring only one cohort can be current
+- Index on `status` for filtering by status
+- Index on `slug` for URL lookups
 
 ### Row Level Security Policies
 
@@ -53,13 +36,13 @@ The SQL migration files must be run manually on your Supabase database:
 - **Admins can delete cohorts** - Delete cohorts
 
 #### Student Policies
-- **Students can view active cohorts** - Read-only access to active cohorts
+- **Students can view active cohorts** - Read-only access to active cohorts (status = 'active' OR is_current = true)
 
 ### Helper Functions
 
 Located in `lib/cohort.ts`:
 
-- `getActiveCohort()` - Get the currently active cohort
+- `getActiveCohort()` - Get the currently active cohort (status = 'active' AND is_current = true)
 - `getCohortById(id)` - Get a specific cohort by ID
 - `getAllCohorts()` - Get all cohorts (admin only)
 - `createCohort(cohort)` - Create a new cohort (admin only)
@@ -67,7 +50,6 @@ Located in `lib/cohort.ts`:
 - `archiveCohort(id)` - Archive a cohort (admin only)
 - `activateCohort(id)` - Activate a cohort (admin only)
 - `getUpcomingCohorts()` - Get upcoming cohorts
-- `updateCohortStudentCount(id, count)` - Update student count (admin only)
 
 ### TypeScript Types
 
@@ -75,21 +57,20 @@ Located in `types/cohort.ts`:
 
 - `Cohort` - Main cohort interface matching database schema
 - `CohortStatus` - Union type for cohort status
-- `LegacyCohort` - Deprecated legacy type for backward compatibility
-
-### Migration Files
-
-- `migrations/cohort-management/001_create_cohorts_table.sql` - Creates cohorts table and indexes
-- `migrations/cohort-management/002_create_cohorts_rls.sql` - Creates RLS policies
+- `CohortSettings` - Configuration for cohort schedule and certificate rules
 
 ### Cohort Lifecycle
 
 1. **draft** - Initial state, not visible to students
 2. **upcoming** - Published but not yet started
-3. **active** - Currently running cohort
+3. **active** - Currently running cohort (is_current = true)
 4. **completed** - Cohort has ended
 5. **archived** - Hidden from view
 
-### Data Seeding
+### Active Cohort Determination
 
-The migration automatically inserts "Cohort 1" as the initial active cohort to maintain compatibility with existing data.
+The active cohort is determined by both:
+- `status = 'active'` 
+- `is_current = true`
+
+This dual condition ensures proper cohort lifecycle management.

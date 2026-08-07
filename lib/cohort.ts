@@ -8,7 +8,7 @@ export async function getActiveCohort(): Promise<Cohort | null> {
   const { data, error } = await supabase
     .from('cohorts')
     .select('*')
-    .eq('is_active', true)
+    .eq('is_current', true)
     .eq('status', 'active')
     .single()
 
@@ -98,8 +98,7 @@ export async function updateCohort(id: string, updates: Partial<Omit<Cohort, 'id
 export async function archiveCohort(id: string): Promise<Cohort | null> {
   return updateCohort(id, {
     status: 'archived',
-    is_active: false,
-    registration_open: false
+    is_current: false
   })
 }
 
@@ -110,13 +109,13 @@ export async function activateCohort(id: string): Promise<Cohort | null> {
   // First, deactivate all other cohorts
   await supabaseAdmin
     .from('cohorts')
-    .update({ is_active: false })
+    .update({ is_current: false })
     .neq('id', id)
 
   // Then activate the specified cohort
   return updateCohort(id, {
     status: 'active',
-    is_active: true
+    is_current: true
   })
 }
 
@@ -128,7 +127,7 @@ export async function getUpcomingCohorts(): Promise<Cohort[]> {
     .from('cohorts')
     .select('*')
     .eq('status', 'upcoming')
-    .order('cohort_start', { ascending: true })
+    .order('start_date', { ascending: true })
 
   if (error) {
     console.error('Error fetching upcoming cohorts:', error)
@@ -140,14 +139,9 @@ export async function getUpcomingCohorts(): Promise<Cohort[]> {
 
 /**
  * Update current students count for a cohort (admin only)
+ * Note: This field doesn't exist in the current schema, keeping for future compatibility
  */
 export async function updateCohortStudentCount(id: string, count: number): Promise<void> {
-  const { error } = await supabaseAdmin
-    .from('cohorts')
-    .update({ current_students: count })
-    .eq('id', id)
-
-  if (error) {
-    console.error('Error updating cohort student count:', error)
-  }
+  // This function is kept for API compatibility but won't work with current schema
+  console.warn('updateCohortStudentCount called but current_students field not in schema')
 }
