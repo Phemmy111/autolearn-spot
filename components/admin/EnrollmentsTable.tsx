@@ -1,14 +1,22 @@
 "use client";
 
 import { useState } from 'react';
-import { Search, RefreshCw, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Search, RefreshCw, Loader2, CheckCircle2, XCircle, Plus, ChevronDown } from 'lucide-react';
 
-export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { initialEnrollments: any[], cohorts: any[], summary: any }) {
+export function EnrollmentsTable({ initialEnrollments, cohorts, summary, currentCohort, studentCount }: { 
+  initialEnrollments: any[], 
+  cohorts: any[], 
+  summary: any,
+  currentCohort: any,
+  studentCount: number
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [cohortFilter, setCohortFilter] = useState('all');
   const [isResyncing, setIsResyncing] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showActivateModal, setShowActivateModal] = useState(false);
 
   const filtered = initialEnrollments.filter((en: { status: string; [key: string]: any }) => {
     const matchesSearch = en.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -63,6 +71,59 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
 
   return (
     <div className="space-y-6">
+      {/* Current Enrollment Cohort Section */}
+      <div className="bg-[#1a1d24] border border-[#3b494b] p-6 rounded">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-heading text-lg font-bold text-white">Current Enrollment Cohort</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 bg-[#00f0ff] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-[#00f0ff]/80 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Create Cohort
+            </button>
+            <button
+              onClick={() => setShowActivateModal(true)}
+              className="inline-flex items-center gap-2 border border-[#3b494b] px-4 py-2 font-mono text-sm text-[#b9cacb] hover:text-white hover:border-white transition-colors"
+            >
+              Activate Another Cohort
+            </button>
+          </div>
+        </div>
+        
+        {currentCohort ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div>
+              <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">Current Cohort</div>
+              <div className="text-white font-bold">{currentCohort.name}</div>
+            </div>
+            <div>
+              <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">Status</div>
+              <div className="text-[#00f0ff] font-bold uppercase">{currentCohort.status}</div>
+            </div>
+            <div>
+              <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">Registration Fee</div>
+              <div className="text-white font-bold">₦{currentCohort.price_ngn?.toLocaleString() || '0'}</div>
+            </div>
+            <div>
+              <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">Students</div>
+              <div className="text-white font-bold">{studentCount}</div>
+            </div>
+            <div>
+              <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">Start Date</div>
+              <div className="text-white font-bold">{currentCohort.start_date ? new Date(currentCohort.start_date).toLocaleDateString() : 'TBD'}</div>
+            </div>
+            <div>
+              <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">End Date</div>
+              <div className="text-white font-bold">{currentCohort.end_date ? new Date(currentCohort.end_date).toLocaleDateString() : 'TBD'}</div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-[#5d5f63] font-mono text-sm">No active cohort found. Please create or activate a cohort.</div>
+        )}
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
@@ -200,6 +261,135 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary }: { ini
           </tbody>
         </table>
       </div>
+
+      {/* Create Cohort Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-[#1a1d24] border border-[#3b494b] p-6 rounded max-w-md w-full mx-4">
+            <h3 className="font-heading text-xl font-bold text-white mb-4">Create New Cohort</h3>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              const cohortData = {
+                name: formData.get('name') as string,
+                slug: formData.get('slug') as string,
+                price_ngn: parseFloat(formData.get('price_ngn') as string),
+                start_date: formData.get('start_date') as string || null,
+                end_date: formData.get('end_date') as string || null,
+                status: formData.get('status') as string,
+                timezone: formData.get('timezone') as string,
+                is_current: false
+              };
+              
+              try {
+                const res = await fetch('/api/admin/cohorts', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(cohortData)
+                });
+                if (res.ok) {
+                  window.location.reload();
+                } else {
+                  alert('Failed to create cohort');
+                }
+              } catch (err) {
+                console.error(err);
+                alert('Network error');
+              }
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[#b9cacb] font-mono text-xs uppercase mb-1">Cohort Name</label>
+                  <input name="name" required className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
+                </div>
+                <div>
+                  <label className="block text-[#b9cacb] font-mono text-xs uppercase mb-1">Slug</label>
+                  <input name="slug" required className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
+                </div>
+                <div>
+                  <label className="block text-[#b9cacb] font-mono text-xs uppercase mb-1">Registration Fee (₦)</label>
+                  <input name="price_ngn" type="number" required className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
+                </div>
+                <div>
+                  <label className="block text-[#b9cacb] font-mono text-xs uppercase mb-1">Start Date</label>
+                  <input name="start_date" type="date" className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
+                </div>
+                <div>
+                  <label className="block text-[#b9cacb] font-mono text-xs uppercase mb-1">End Date</label>
+                  <input name="end_date" type="date" className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
+                </div>
+                <div>
+                  <label className="block text-[#b9cacb] font-mono text-xs uppercase mb-1">Status</label>
+                  <select name="status" required className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]">
+                    <option value="draft">Draft</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[#b9cacb] font-mono text-xs uppercase mb-1">Timezone</label>
+                  <input name="timezone" defaultValue="Africa/Lagos" className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 border border-[#3b494b] px-4 py-2 font-mono text-sm text-[#b9cacb] hover:text-white hover:border-white transition-colors">
+                    Cancel
+                  </button>
+                  <button type="submit" className="flex-1 bg-[#00f0ff] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-[#00f0ff]/80 transition-colors">
+                    Create Cohort
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Activate Cohort Modal */}
+      {showActivateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-[#1a1d24] border border-[#3b494b] p-6 rounded max-w-md w-full mx-4">
+            <h3 className="font-heading text-xl font-bold text-white mb-4">Activate Cohort</h3>
+            <p className="text-[#b9cacb] font-mono text-sm mb-4">Select a cohort to make it the current active cohort:</p>
+            <div className="space-y-2 mb-4">
+              {cohorts.filter((c: any) => !c.is_current).map((cohort: any) => (
+                <button
+                  key={cohort.id}
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`/api/admin/cohorts/${cohort.id}/activate`, {
+                        method: 'POST'
+                      });
+                      if (res.ok) {
+                        window.location.reload();
+                      } else {
+                        alert('Failed to activate cohort');
+                      }
+                    } catch (err) {
+                      console.error(err);
+                      alert('Network error');
+                    }
+                  }}
+                  className="w-full text-left bg-[#0a0c10] border border-[#3b494b] px-4 py-3 font-mono text-sm text-white hover:border-[#00f0ff] transition-colors"
+                >
+                  <div className="font-bold">{cohort.name}</div>
+                  <div className="text-[#b9cacb] text-xs">{cohort.status}</div>
+                </button>
+              ))}
+              {cohorts.filter((c: any) => !c.is_current).length === 0 && (
+                <div className="text-[#5d5f63] font-mono text-sm">No other cohorts available to activate.</div>
+              )}
+            </div>
+            <button
+              onClick={() => setShowActivateModal(false)}
+              className="w-full border border-[#3b494b] px-4 py-2 font-mono text-sm text-[#b9cacb] hover:text-white hover:border-white transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

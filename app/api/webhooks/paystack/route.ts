@@ -212,9 +212,13 @@ export async function POST(request: NextRequest) {
           .eq('is_current', true)
           .single();
 
-        if (currentCohort) {
-          const enrollmentData: any = {
-            cohort_id: currentCohort.id,
+        if (!currentCohort) {
+          console.error('[paystack webhook] No active cohort found for enrollment');
+          return NextResponse.json({ error: 'No active cohort found' }, { status: 400 });
+        }
+
+        const enrollmentData: any = {
+          cohort_id: currentCohort.id,
             email: application.email,
             payment_ref: reference,
             amount_paid: amount,

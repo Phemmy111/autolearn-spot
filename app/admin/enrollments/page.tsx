@@ -14,11 +14,26 @@ export default async function AdminEnrollmentsPage() {
     redirect('/');
   }
 
+  // Fetch current active cohort
+  const { data: currentCohort } = await supabaseAdmin
+    .from('cohorts')
+    .select('*')
+    .eq('is_current', true)
+    .eq('status', 'active')
+    .single();
+
   // Fetch all cohorts for the filter
   const { data: cohorts } = await supabaseAdmin
     .from('cohorts')
     .select('id, name, is_current')
     .order('created_at', { ascending: false });
+
+  // Fetch student count for current cohort
+  const { count: studentCount } = await supabaseAdmin
+    .from('enrollments')
+    .select('id', { count: 'exact', head: true })
+    .eq('cohort_id', currentCohort?.id)
+    .eq('status', 'active');
 
   // Fetch all enrollments with cohort data
   const { data: enrollments } = await supabaseAdmin
@@ -82,6 +97,8 @@ export default async function AdminEnrollmentsPage() {
           initialEnrollments={safeEnrollments} 
           cohorts={cohorts || []} 
           summary={summary}
+          currentCohort={currentCohort}
+          studentCount={studentCount || 0}
         />
       </div>
     </div>

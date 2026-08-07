@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     }
 
     if (!resolvedCohortId) {
-      return NextResponse.json({ error: 'Could not resolve cohort for enrollment' }, { status: 400 });
+      return NextResponse.json({ error: 'No active cohort found. Please activate a cohort before processing payments.' }, { status: 400 });
     }
 
     // Upsert Enrollment mapping to the logged-in clerkUserId
