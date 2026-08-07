@@ -53,11 +53,11 @@ export default function AmbassadorApplyPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#0c0e12] flex items-center justify-center p-6 text-white">
-        <div className="max-w-md w-full bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl text-center">
-          <CheckCircle2 className="h-16 w-16 text-[#00f0ff] mx-auto mb-6" />
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6 text-[var(--foreground)]">
+        <div className="max-w-md w-full bg-[var(--card)]/80 border border-[var(--border)] p-8 rounded-3xl backdrop-blur-xl text-center">
+          <CheckCircle2 className="h-16 w-16 text-[var(--primary)] mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Application Received!</h2>
-          <p className="text-[#b9cacb] mb-8 leading-relaxed">
+          <p className="text-[var(--muted-foreground)] mb-8 leading-relaxed">
             Thank you for applying to the AutoLearn Spot Ambassador Program. Our team will review your application and get back to you via email shortly.
           </p>
           <Link
@@ -74,7 +74,7 @@ export default function AmbassadorApplyPage() {
   return (
     <div className="min-h-screen bg-[#0c0e12] py-12 px-6 text-white">
       <div className="max-w-3xl mx-auto">
-        <Link href="/ambassador" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-white mb-8 transition-colors">
+        <Link href="/ambassador" className="inline-flex items-center gap-2 text-[var(--muted-foreground)] hover:text-white mb-8 transition-colors">
           <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
         </Link>
         
@@ -82,7 +82,7 @@ export default function AmbassadorApplyPage() {
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f0ff]/5 blur-3xl rounded-full pointer-events-none" />
           
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Apply Now</h1>
-          <p className="text-[#b9cacb] mb-10">Fill out the form below to join our Community Ambassador program.</p>
+          <p className="text-[var(--muted-foreground)] mb-10">Fill out the form below to join our Community Ambassador program.</p>
           
           {error && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-8">
@@ -93,27 +93,27 @@ export default function AmbassadorApplyPage() {
           <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#b9cacb]">Full Name *</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)]">Full Name *</label>
                 <input required name="full_name" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="John Doe" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#b9cacb]">Email Address *</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)]">Email Address *</label>
                 <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="john@example.com" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#b9cacb]">Phone Number *</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)]">Phone Number *</label>
                 <input required name="phone" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="+234..." />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#b9cacb]">WhatsApp Number *</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)]">WhatsApp Number *</label>
                 <input required name="whatsapp" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="+234..." />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#b9cacb]">State/Location *</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)]">State/Location *</label>
                 <input required name="state" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="Lagos, Nigeria" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#b9cacb]">Occupation *</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)]">Occupation *</label>
                 <select required name="occupation" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors appearance-none">
                   <option value="">Select...</option>
                   <option value="Student">Student</option>
@@ -127,33 +127,33 @@ export default function AmbassadorApplyPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">Institution (If student/NYSC)</label>
+              <label className="text-sm font-medium text-[var(--muted-foreground)]">Institution (If student/NYSC)</label>
               <input name="institution" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="University of Lagos" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">How will you promote AutoLearn Spot? *</label>
+              <label className="text-sm font-medium text-[var(--muted-foreground)]">How will you promote AutoLearn Spot? *</label>
               <textarea required name="promotion_method" rows={3} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="I plan to use my WhatsApp status, local tech meetups..." />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">Social Media Links</label>
+              <label className="text-sm font-medium text-[var(--muted-foreground)]">Social Media Links</label>
               <input name="social_links" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="Twitter, LinkedIn, IG..." />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">Prior Referral Experience</label>
+              <label className="text-sm font-medium text-[var(--muted-foreground)]">Prior Referral Experience</label>
               <textarea name="experience" rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="Have you done similar programs before?" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">Why do you want to join? *</label>
+              <label className="text-sm font-medium text-[var(--muted-foreground)]">Why do you want to join? *</label>
               <textarea required name="reason" rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="I am passionate about tech education..." />
             </div>
 
             <div className="flex items-start gap-3 pt-4">
               <input required type="checkbox" id="terms" className="mt-1 w-5 h-5 rounded border-white/20 bg-black/50 checked:bg-[#00f0ff] cursor-pointer" />
-              <label htmlFor="terms" className="text-sm text-[#b9cacb] leading-relaxed cursor-pointer">
+              <label htmlFor="terms" className="text-sm text-[var(--muted-foreground)] leading-relaxed cursor-pointer">
                 I agree to the terms and conditions of the AutoLearn Spot Ambassador Program. I understand that commissions are only paid for verified enrollments.
               </label>
             </div>

@@ -148,7 +148,7 @@ export default function ScholarshipApplyPage() {
     return (
       <main className="min-h-screen bg-[var(--background)] text-foreground flex flex-col items-center justify-center p-4">
         <div className="max-w-md w-full bg-card border border-border p-8 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00f0ff] to-[#00363a]" />
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/70" />
           
           <CheckCircle className="w-16 h-16 text-primary mx-auto mb-6" />
           
@@ -223,7 +223,7 @@ export default function ScholarshipApplyPage() {
         {/* Progress Bar */}
         <div className="flex gap-2 mb-12">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className={`h-1 flex-1 ${i <= step ? 'bg-primary' : 'bg-[#1f2229]'}`} />
+            <div key={i} className={`h-1 flex-1 ${i <= step ? 'bg-primary' : 'bg-[var(--border)]'}`} />
           ))}
         </div>
 
@@ -300,12 +300,12 @@ export default function ScholarshipApplyPage() {
 
                 <div className="space-y-4 pt-4 border-t border-border">
                   <label className="flex items-center gap-3 p-4 border border-border bg-card hover:border-primary/50 cursor-pointer transition-colors">
-                    <input type="checkbox" name="has_laptop" checked={formData.has_laptop} onChange={handleChange} className="w-5 h-5 accent-[#00f0ff]" />
+                    <input type="checkbox" name="has_laptop" checked={formData.has_laptop} onChange={handleChange} className="w-5 h-5 accent-[var(--primary)]" />
                     <span className="text-sm text-foreground">I have access to a working laptop/computer for the next 4 weeks. *</span>
                   </label>
                   
                   <label className="flex items-center gap-3 p-4 border border-border bg-card hover:border-primary/50 cursor-pointer transition-colors">
-                    <input type="checkbox" name="has_internet" checked={formData.has_internet} onChange={handleChange} className="w-5 h-5 accent-[#00f0ff]" />
+                    <input type="checkbox" name="has_internet" checked={formData.has_internet} onChange={handleChange} className="w-5 h-5 accent-[var(--primary)]" />
                     <span className="text-sm text-foreground">I have reliable internet access to join live sessions and complete assignments. *</span>
                   </label>
                 </div>
@@ -359,7 +359,7 @@ export default function ScholarshipApplyPage() {
                 </div>
 
                 <label className="flex items-start gap-3 p-4 border border-primary/30 bg-card mt-6 cursor-pointer">
-                  <input type="checkbox" name="commitment_confirmed" checked={formData.commitment_confirmed} onChange={handleChange} className="w-5 h-5 accent-[#00f0ff] mt-0.5" />
+                  <input type="checkbox" name="commitment_confirmed" checked={formData.commitment_confirmed} onChange={handleChange} className="w-5 h-5 accent-[var(--primary)] mt-0.5" />
                   <span className="text-sm text-foreground">I confirm that all information provided is accurate, and I agree to the Scholarship Terms stated above. *</span>
                 </label>
               </div>

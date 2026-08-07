@@ -129,13 +129,13 @@ function EnrollForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
-      <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl">
+      <header className="border-b border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff] group-hover:border-[#00f0ff] transition-colors">
+              <div className="flex items-center justify-center w-8 h-8 border border-[var(--primary)]/60 bg-[#00f0ff]/10 text-[var(--primary)] group-hover:border-[var(--primary)] transition-colors">
                 <Star className="h-4 w-4" />
               </div>
               <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
@@ -144,7 +144,7 @@ function EnrollForm() {
             </Link>
             <Link 
               href="/" 
-              className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[var(--primary)] transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -159,9 +159,9 @@ function EnrollForm() {
           {/* Left Column - Form */}
           <div>
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1 mb-4">
-                <Star className="h-4 w-4 text-[#00f0ff]" />
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+              <div className="inline-flex items-center gap-2 border border-[var(--primary)]/60 bg-[#00f0ff]/10 px-3 py-1 mb-4">
+                <Star className="h-4 w-4 text-[var(--primary)]" />
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--primary)]">
                   Direct Enrollment
                 </span>
               </div>
@@ -195,7 +195,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.fullName 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                       required
                     />
@@ -219,7 +219,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.email 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                       required
                     />
@@ -243,7 +243,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.phoneNumber 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                       required
                     />
@@ -264,7 +264,7 @@ function EnrollForm() {
                       value={formData.whatsappNumber}
                       onChange={handleChange}
                       placeholder="e.g., 08012345678"
-                      className="mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] border-[#1f2229] focus:border-[#00f0ff]"
+                      className="mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] border-[var(--border)] focus:border-[var(--primary)]"
                     />
                   </label>
                 </div>
@@ -281,7 +281,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.state 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                       required
                     >
@@ -342,7 +342,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.occupation 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                       required
                     >
@@ -376,7 +376,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.gender 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                       required
                     >
@@ -403,7 +403,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.referralSource 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                       required
                     >
@@ -439,7 +439,7 @@ function EnrollForm() {
                       className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.referralCode 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-[var(--border)] focus:border-[var(--primary)]'
                       }`}
                     />
                     {errors.referralCode && (
@@ -474,32 +474,32 @@ function EnrollForm() {
 
           {/* Right Column - Information */}
           <div className="space-y-8">
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Program Details</h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">4-Week Program</p>
                     <p className="text-xs text-[#b9cacb]">Hands-on n8n automation training</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">Live Sessions</p>
                     <p className="text-xs text-[#b9cacb]">Every Saturday, 2 hours</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">10+ Real Projects</p>
                     <p className="text-xs text-[#b9cacb]">Build production-ready workflows</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[var(--primary)] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">Certificate</p>
                     <p className="text-xs text-[#b9cacb]">Verified credential upon completion</p>
@@ -508,7 +508,7 @@ function EnrollForm() {
               </div>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">What You'll Learn</h2>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
@@ -530,10 +530,10 @@ function EnrollForm() {
               </div>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Investment</h2>
               <div className="text-center">
-                <div className="text-4xl font-bold text-[#00f0ff] mb-2">₦8,000</div>
+                <div className="text-4xl font-bold text-[var(--primary)] mb-2">₦8,000</div>
                 <p className="text-sm text-[#b9cacb] mb-4">One-time payment</p>
                 <div className="flex items-center justify-center gap-2 text-xs text-[#b9cacb]">
                   <Star className="h-4 w-4" />
@@ -558,9 +558,9 @@ export const dynamic = 'force-dynamic';
 export default function EnrollPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
           <span className="text-[#b9cacb]">Loading...</span>
         </div>
       </div>

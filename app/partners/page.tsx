@@ -127,7 +127,7 @@ const LEADERBOARD = [
 function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center bg-[var(--background)] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--surface)] via-[var(--card)] to-[var(--surface-alt)]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
 
       <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-24 md:pt-20 lg:pt-16 pb-12">

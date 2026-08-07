@@ -11,9 +11,9 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B12] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <Link href="/" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-[#12E6F3] mb-8 transition-colors">
+        <Link href="/" className="inline-flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--primary)] mb-8 transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Back to Home
         </Link>

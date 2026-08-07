@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navbar";
 
 export default function AmbassadorLandingPage() {
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Navbar />
       
       <main className="pt-32 pb-20">

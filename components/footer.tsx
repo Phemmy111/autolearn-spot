@@ -102,14 +102,14 @@ export function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-zinc-800 pt-8">
+        <div className="border-t border-[var(--border)] pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-zinc-500 text-sm">© 2024 autoLearn. All rights reserved.</p>
+            <p className="text-[var(--muted-foreground)] text-sm">© 2024 autoLearn. All rights reserved.</p>
             <div className="flex gap-6">
-              <a href="#" className="text-zinc-500 hover:text-foreground text-sm transition-colors">
+              <a href="#" className="text-[var(--muted-foreground)] hover:text-foreground text-sm transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-zinc-500 hover:text-foreground text-sm transition-colors">
+              <a href="#" className="text-[var(--muted-foreground)] hover:text-foreground text-sm transition-colors">
                 Terms of Service
               </a>
             </div>

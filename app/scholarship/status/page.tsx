@@ -108,7 +108,7 @@ export default function ScholarshipStatusPage() {
 
           {step === 'request' && (
             <div className="bg-card border border-border p-8 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00f0ff] to-[#00363a]" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/70" />
               <div className="text-center mb-8">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-6 h-6 text-primary" />
@@ -142,7 +142,7 @@ export default function ScholarshipStatusPage() {
 
           {step === 'verify' && (
             <div className="bg-card border border-border p-8 relative overflow-hidden animate-fade-in-up">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00f0ff] to-[#00363a]" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/70" />
               <div className="text-center mb-8">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <KeyRound className="w-6 h-6 text-primary" />

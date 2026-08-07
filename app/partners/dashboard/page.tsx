@@ -169,8 +169,8 @@ export default function PartnerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070B12] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#00F5FF]" />
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--primary)]" />
       </div>
     );
   }
@@ -190,9 +190,9 @@ export default function PartnerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#070B12]">
+    <div className="min-h-screen bg-[var(--background)]">
       {/* Header */}
-      <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -203,14 +203,14 @@ export default function PartnerDashboard() {
                   width={32}
                   height={32}
                 />
-                <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8] hidden sm:block">
+                <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[var(--foreground)] hidden sm:block">
                   AutoLearn Spot
                 </span>
               </Link>
-              <div className="hidden md:block h-6 w-px bg-[#1f2229]" />
+              <div className="hidden md:block h-6 w-px bg-[var(--background)]" />
               <div>
-                <h1 className="text-lg font-bold text-[#e2e2e8]">Partner Dashboard</h1>
-                <p className="text-xs text-[#b9cacb]">
+                <h1 className="text-lg font-bold text-[var(--foreground)]">Partner Dashboard</h1>
+                <p className="text-xs text-[var(--muted-foreground)]">
                   {partner?.type === "student" ? "Student Partner" : 
                    partner?.type === "community" ? "Community Partner" : "Influencer"}
                 </p>
@@ -220,28 +220,28 @@ export default function PartnerDashboard() {
             <div className="flex items-center gap-4">
               <Link 
                 href="/"
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[#1f2229] bg-[#070B12]/50 hover:bg-[#070B12] rounded-lg transition-colors text-sm text-[#b9cacb]"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[var(--border)] bg-[var(--background)]/50 hover:bg-[var(--background)] rounded-lg transition-colors text-sm text-[var(--muted-foreground)]"
               >
                 Home
               </Link>
               <button 
                 onClick={() => { fetchNotifications(); setShowNotifications(!showNotifications); }}
-                className="relative p-2 hover:bg-[#070B12]/50 rounded-lg transition-colors"
+                className="relative p-2 hover:bg-[var(--background)]/50 rounded-lg transition-colors"
               >
-                <Bell className="h-5 w-5 text-[#b9cacb]" />
+                <Bell className="h-5 w-5 text-[var(--muted-foreground)]" />
                 {data?.unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-[#00F5FF] rounded-full" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--primary)] rounded-full" />
                 )}
               </button>
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[#1f2229] bg-[#070B12]/50 hover:bg-[#070B12] rounded-lg transition-colors text-sm text-[#b9cacb]"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-[var(--border)] bg-[var(--background)]/50 hover:bg-[var(--background)] rounded-lg transition-colors text-sm text-[var(--muted-foreground)]"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
               </button>
               <button
-                className="md:hidden text-[#b9cacb]"
+                className="md:hidden text-[var(--muted-foreground)]"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -253,9 +253,9 @@ export default function PartnerDashboard() {
 
       {/* Notification Dropdown */}
       {showNotifications && (
-        <div className="absolute top-20 right-4 sm:right-6 w-96 bg-[#111317] border border-[#1f2229] rounded-2xl shadow-xl z-50">
-          <div className="p-4 border-b border-[#1f2229] flex items-center justify-between">
-            <h3 className="font-bold text-[#e2e2e8]">Notifications</h3>
+        <div className="absolute top-20 right-4 sm:right-6 w-96 bg-[var(--surface)] border border-[var(--border)] rounded-2xl shadow-xl z-50">
+          <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
+            <h3 className="font-bold text-[var(--foreground)]">Notifications</h3>
             <button
               onClick={async () => {
                 await fetch("/api/partners/notifications", {
@@ -266,7 +266,7 @@ export default function PartnerDashboard() {
                 fetchNotifications();
                 fetchDashboardData();
               }}
-              className="text-sm text-[#00F5FF] hover:underline"
+              className="text-sm text-[var(--primary)] hover:underline"
             >
               Mark all as read
             </button>
@@ -276,7 +276,7 @@ export default function PartnerDashboard() {
               notifications.map((notif: any) => (
                 <div 
                   key={notif.id} 
-                  className={`p-4 border-b border-[#1f2229] cursor-pointer hover:bg-[#070B12]/50 transition-colors ${!notif.read ? 'bg-[#00F5FF]/5' : ''}`}
+                  className={`p-4 border-b border-[var(--border)] cursor-pointer hover:bg-[var(--background)]/50 transition-colors ${!notif.read ? 'bg-[var(--primary)]/5' : ''}`}
                   onClick={async () => {
                     if (!notif.read) {
                       await fetch("/api/partners/notifications", {
@@ -289,13 +289,13 @@ export default function PartnerDashboard() {
                     }
                   }}
                 >
-                  <p className="font-medium text-sm text-[#e2e2e8]">{notif.title}</p>
-                  <p className="text-[#b9cacb] text-xs mt-1">{notif.message}</p>
-                  <p className="text-[#b9cacb] text-xs mt-2">{new Date(notif.created_at).toLocaleString()}</p>
+                  <p className="font-medium text-sm text-[var(--foreground)]">{notif.title}</p>
+                  <p className="text-[var(--muted-foreground)] text-xs mt-1">{notif.message}</p>
+                  <p className="text-[var(--muted-foreground)] text-xs mt-2">{new Date(notif.created_at).toLocaleString()}</p>
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-[#b9cacb]">No notifications</div>
+              <div className="p-8 text-center text-[var(--muted-foreground)]">No notifications</div>
             )}
           </div>
         </div>
@@ -303,7 +303,7 @@ export default function PartnerDashboard() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[#1f2229] bg-[#0c0e12]">
+        <div className="md:hidden border-t border-[var(--border)] bg-[var(--card)]">
           <div className="px-4 py-4 space-y-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -313,8 +313,8 @@ export default function PartnerDashboard() {
                   onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
                   className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                     activeTab === item.id
-                      ? 'bg-[#00F5FF]/10 text-[#00F5FF]'
-                      : 'text-[#b9cacb] hover:bg-[#070B12]/50'
+                      ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                      : 'text-[var(--muted-foreground)] hover:bg-[var(--background)]/50'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -324,7 +324,7 @@ export default function PartnerDashboard() {
             })}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-[#b9cacb] hover:bg-[#070B12]/50"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--background)]/50"
             >
               <LogOut className="h-5 w-5" />
               Logout
@@ -337,7 +337,7 @@ export default function PartnerDashboard() {
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="hidden lg:block">
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sticky top-24">
+            <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-4 sticky top-24">
               <nav className="space-y-2">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -347,8 +347,8 @@ export default function PartnerDashboard() {
                       onClick={() => setActiveTab(item.id)}
                       className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                         activeTab === item.id
-                          ? 'bg-[#00F5FF]/10 text-[#00F5FF]'
-                          : 'text-[#b9cacb] hover:bg-[#070B12]/50'
+                          ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                          : 'text-[var(--muted-foreground)] hover:bg-[var(--background)]/50'
                       }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -364,61 +364,61 @@ export default function PartnerDashboard() {
           <div className="lg:col-span-3 space-y-8">
             {/* Welcome Section */}
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] mb-2">
                 Welcome back, {partner?.name || "Partner"}!
               </h2>
-              <p className="text-[#b9cacb]">Here's your performance overview</p>
+              <p className="text-[var(--muted-foreground)]">Here's your performance overview</p>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Wallet className="h-4 w-4 text-[#00F5FF]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Available Balance</span>
+                  <Wallet className="h-4 w-4 text-[var(--primary)]" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Available Balance</span>
                 </div>
-                <div className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</div>
+                <div className="text-2xl font-bold text-[var(--primary)]">₦{stats?.availableEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-[#e2e2e8]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Pending Earnings</span>
+                  <Clock className="h-4 w-4 text-[var(--foreground)]" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Pending Earnings</span>
                 </div>
-                <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</div>
+                <div className="text-2xl font-bold text-[var(--foreground)]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-[#e2e2e8]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Total Earned</span>
+                  <TrendingUp className="h-4 w-4 text-[var(--foreground)]" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Total Earned</span>
                 </div>
-                <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</div>
+                <div className="text-2xl font-bold text-[var(--foreground)]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Users className="h-4 w-4 text-[#e2e2e8]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Total Referrals</span>
+                  <Users className="h-4 w-4 text-[var(--foreground)]" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Total Referrals</span>
                 </div>
-                <div className="text-2xl font-bold text-[#e2e2e8]">{stats?.totalRegistrations || 0}</div>
+                <div className="text-2xl font-bold text-[var(--foreground)]">{stats?.totalRegistrations || 0}</div>
               </div>
             </div>
 
             {/* Referral Link Card */}
-            <div className="border border-[#00F5FF]/30 bg-gradient-to-r from-[#00F5FF]/10 to-transparent rounded-2xl p-6">
+            <div className="border border-[var(--primary)]/30 bg-gradient-to-r from-[var(--primary)]/10 to-transparent rounded-2xl p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">Your Referral Link</h3>
-                  <p className="text-sm text-[#b9cacb]">
+                  <h3 className="text-lg font-bold text-[var(--foreground)] mb-2">Your Referral Link</h3>
+                  <p className="text-sm text-[var(--muted-foreground)]">
                     Share this unique link with your network. When they enroll in the ₦8,000 course, you earn ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} commission.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <div className="bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 font-mono text-sm text-[#b9cacb] truncate flex-1 sm:w-64">
+                  <div className="bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 font-mono text-sm text-[var(--muted-foreground)] truncate flex-1 sm:w-64">
                     {data?.referral?.link || "Generating referral link..."}
                   </div>
                   <button
                     onClick={handleCopyLink}
                     disabled={!data?.referral?.link}
-                    className="border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied!" : "Copy"}
@@ -426,7 +426,7 @@ export default function PartnerDashboard() {
                   {!data?.referral?.link && (
                     <button
                       onClick={fetchDashboardData}
-                      className="border border-[#1f2229] bg-[#070B12] text-[#b9cacb] px-3 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors flex-shrink-0"
+                      className="border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] px-3 py-3 rounded-lg font-medium hover:bg-[var(--background)] transition-colors flex-shrink-0"
                       title="Refresh referral link"
                     >
                       <RefreshCw className="h-4 w-4" />
@@ -441,9 +441,9 @@ export default function PartnerDashboard() {
               <>
                 {/* Charts Section */}
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                    <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-[#00F5FF]" />
+                  <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                    <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-[var(--primary)]" />
                       Monthly Earnings
                     </h3>
                     <div className="h-48 flex items-end gap-2">
@@ -452,7 +452,7 @@ export default function PartnerDashboard() {
                         return (
                           <div
                             key={i}
-                            className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
+                            className="flex-1 bg-[var(--primary)]/20 rounded-t transition-all hover:bg-[var(--primary)]/40"
                             style={{ height: `${height}%` }}
                             title={`Commission ${i + 1}: ₦${commission.amount}`}
                           />
@@ -460,49 +460,49 @@ export default function PartnerDashboard() {
                       }) || [15, 25, 20, 35, 30, 45, 40, 55, 50, 65, 60, 75].map((height, i) => (
                         <div
                           key={i}
-                          className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
+                          className="flex-1 bg-[var(--primary)]/20 rounded-t transition-all hover:bg-[var(--primary)]/40"
                           style={{ height: `${height}%` }}
                           title={`Month ${i + 1}: ₦${height * 100}`}
                         />
                       ))}
                     </div>
-                    <div className="flex justify-between mt-2 text-xs text-[#b9cacb]">
+                    <div className="flex justify-between mt-2 text-xs text-[var(--muted-foreground)]">
                       <span>Jan</span>
                       <span>Jun</span>
                       <span>Dec</span>
                     </div>
                   </div>
 
-                  <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                    <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
-                      <MousePointerClick className="h-5 w-5 text-[#00F5FF]" />
+                  <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                    <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                      <MousePointerClick className="h-5 w-5 text-[var(--primary)]" />
                       Referral Performance
                     </h3>
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-[#b9cacb]">Clicks</span>
-                          <span className="text-[#e2e2e8]">{data?.referral?.totalClicks || 0}</span>
+                          <span className="text-[var(--muted-foreground)]">Clicks</span>
+                          <span className="text-[var(--foreground)]">{data?.referral?.totalClicks || 0}</span>
                         </div>
-                        <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
-                          <div className="h-full bg-[#00F5FF] rounded-full" style={{ width: `${Math.min((data?.referral?.totalClicks || 0) / 100 * 100, 100)}%` }} />
+                        <div className="h-2 bg-[var(--background)] rounded-full overflow-hidden">
+                          <div className="h-full bg-[var(--primary)] rounded-full" style={{ width: `${Math.min((data?.referral?.totalClicks || 0) / 100 * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-[#b9cacb]">Conversions</span>
-                          <span className="text-[#e2e2e8]">{data?.referral?.totalRegistrations || 0}</span>
+                          <span className="text-[var(--muted-foreground)]">Conversions</span>
+                          <span className="text-[var(--foreground)]">{data?.referral?.totalRegistrations || 0}</span>
                         </div>
-                        <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
+                        <div className="h-2 bg-[var(--background)] rounded-full overflow-hidden">
                           <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min((data?.referral?.totalRegistrations || 0) / (data?.referral?.totalClicks || 1) * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-[#b9cacb]">Success Rate</span>
-                          <span className="text-[#e2e2e8]">{data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%</span>
+                          <span className="text-[var(--muted-foreground)]">Success Rate</span>
+                          <span className="text-[var(--foreground)]">{data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%</span>
                         </div>
-                        <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
+                        <div className="h-2 bg-[var(--background)] rounded-full overflow-hidden">
                           <div className="h-full bg-green-500 rounded-full" style={{ width: `${data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%` }} />
                         </div>
                       </div>
@@ -511,27 +511,27 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                  <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
-                    <History className="h-5 w-5 text-[#00F5FF]" />
+                <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                  <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center gap-2">
+                    <History className="h-5 w-5 text-[var(--primary)]" />
                     Recent Activity
                   </h3>
                   <div className="space-y-4">
                     {data?.recentCommissions && data.recentCommissions.length > 0 ? (
                       data.recentCommissions.slice(0, 5).map((commission: any) => (
-                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
-                          <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
-                            <DollarSign className="h-5 w-5 text-[#00F5FF]" />
+                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                          <div className="flex h-10 w-10 items-center justify-center border border-[var(--primary)]/60 bg-[var(--primary)]/10 rounded-lg">
+                            <DollarSign className="h-5 w-5 text-[var(--primary)]" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-[#e2e2e8]">Commission earned</p>
-                            <p className="text-xs text-[#b9cacb]">₦{commission.amount?.toLocaleString()}</p>
+                            <p className="text-sm font-medium text-[var(--foreground)]">Commission earned</p>
+                            <p className="text-xs text-[var(--muted-foreground)]">₦{commission.amount?.toLocaleString()}</p>
                           </div>
-                          <p className="text-xs text-[#b9cacb]">{new Date(commission.created_at).toLocaleDateString()}</p>
+                          <p className="text-xs text-[var(--muted-foreground)]">{new Date(commission.created_at).toLocaleDateString()}</p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-[#b9cacb] text-center py-4">No recent activity</p>
+                      <p className="text-sm text-[var(--muted-foreground)] text-center py-4">No recent activity</p>
                     )}
                   </div>
                 </div>
@@ -539,23 +539,23 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "referrals" && (
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                <h3 className="font-semibold text-[#e2e2e8] mb-4">Referral History</h3>
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                <h3 className="font-semibold text-[var(--foreground)] mb-4">Referral History</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-[#1f2229]">
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Name</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Status</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Date</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Commission</th>
+                      <tr className="border-b border-[var(--border)]">
+                        <th className="text-left py-3 px-4 text-sm font-medium text-[var(--muted-foreground)]">Name</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-[var(--muted-foreground)]">Status</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-[var(--muted-foreground)]">Date</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-[var(--muted-foreground)]">Commission</th>
                       </tr>
                     </thead>
                     <tbody>
                       {data?.recentCommissions && data.recentCommissions.length > 0 ? (
                         data.recentCommissions.map((commission: any) => (
-                          <tr key={commission.id} className="border-b border-[#1f2229]">
-                            <td className="py-3 px-4 text-sm text-[#e2e2e8]">{commission.referred_name || 'Unknown'}</td>
+                          <tr key={commission.id} className="border-b border-[var(--border)]">
+                            <td className="py-3 px-4 text-sm text-[var(--foreground)]">{commission.referred_name || 'Unknown'}</td>
                             <td className="py-3 px-4">
                               <span className={`px-2 py-1 text-xs rounded-full ${
                                 commission.status === 'paid' 
@@ -567,13 +567,13 @@ export default function PartnerDashboard() {
                                 {commission.status || 'Pending'}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-sm text-[#b9cacb]">{new Date(commission.created_at).toLocaleDateString()}</td>
-                            <td className="py-3 px-4 text-sm text-[#00F5FF]">₦{commission.amount?.toLocaleString()}</td>
+                            <td className="py-3 px-4 text-sm text-[var(--muted-foreground)]">{new Date(commission.created_at).toLocaleDateString()}</td>
+                            <td className="py-3 px-4 text-sm text-[var(--primary)]">₦{commission.amount?.toLocaleString()}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={4} className="py-4 text-center text-sm text-[#b9cacb]">No referral history yet</td>
+                          <td colSpan={4} className="py-4 text-center text-sm text-[var(--muted-foreground)]">No referral history yet</td>
                         </tr>
                       )}
                     </tbody>
@@ -583,29 +583,29 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "earnings" && (
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                <h3 className="font-semibold text-[#e2e2e8] mb-4">Earnings Breakdown</h3>
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                <h3 className="font-semibold text-[var(--foreground)] mb-4">Earnings Breakdown</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
                     <div>
-                      <p className="text-sm font-medium text-[#e2e2e8]">Available Balance</p>
-                      <p className="text-xs text-[#b9cacb]">Ready for withdrawal</p>
+                      <p className="text-sm font-medium text-[var(--foreground)]">Available Balance</p>
+                      <p className="text-xs text-[var(--muted-foreground)]">Ready for withdrawal</p>
                     </div>
-                    <p className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</p>
+                    <p className="text-2xl font-bold text-[var(--primary)]">₦{stats?.availableEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
                     <div>
-                      <p className="text-sm font-medium text-[#e2e2e8]">Pending Earnings</p>
-                      <p className="text-xs text-[#b9cacb]">Being processed</p>
+                      <p className="text-sm font-medium text-[var(--foreground)]">Pending Earnings</p>
+                      <p className="text-xs text-[var(--muted-foreground)]">Being processed</p>
                     </div>
-                    <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</p>
+                    <p className="text-2xl font-bold text-[var(--foreground)]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
                     <div>
-                      <p className="text-sm font-medium text-[#e2e2e8]">Total Earned</p>
-                      <p className="text-xs text-[#b9cacb]">All time earnings</p>
+                      <p className="text-sm font-medium text-[var(--foreground)]">Total Earned</p>
+                      <p className="text-xs text-[var(--muted-foreground)]">All time earnings</p>
                     </div>
-                    <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</p>
+                    <p className="text-2xl font-bold text-[var(--foreground)]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</p>
                   </div>
                 </div>
               </div>
@@ -613,17 +613,17 @@ export default function PartnerDashboard() {
 
             {activeTab === "withdrawals" && (
               <div className="space-y-6">
-                <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                  <h3 className="font-semibold text-[#e2e2e8] mb-4">Request Withdrawal</h3>
+                <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                  <h3 className="font-semibold text-[var(--foreground)] mb-4">Request Withdrawal</h3>
                   <form onSubmit={handleWithdraw} className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-[#b9cacb] block mb-2">Amount (₦)</label>
+                      <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Amount (₦)</label>
                       <input
                         type="number"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
                         min="5000"
-                        className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                        className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--primary)] transition-colors text-[var(--foreground)]"
                         placeholder="Minimum ₦5,000"
                       />
                     </div>
@@ -631,7 +631,7 @@ export default function PartnerDashboard() {
                       <button
                         type="button"
                         onClick={() => setShowBankModal(true)}
-                        className="w-full py-3 border border-[#00F5FF] bg-[#00F5FF]/10 text-[#00F5FF] rounded-xl font-semibold hover:bg-[#00F5FF]/20 transition-colors"
+                        className="w-full py-3 border border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)] rounded-xl font-semibold hover:bg-[var(--primary)]/20 transition-colors"
                       >
                         Setup Bank Profile
                       </button>
@@ -639,7 +639,7 @@ export default function PartnerDashboard() {
                     <button
                       disabled={isWithdrawing || !bankProfile}
                       type="submit"
-                      className="w-full py-3 border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] rounded-xl font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-3 border border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isWithdrawing ? (
                         <>
@@ -656,15 +656,15 @@ export default function PartnerDashboard() {
                   </form>
                 </div>
 
-                <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                  <h3 className="font-semibold text-[#e2e2e8] mb-4">Withdrawal History</h3>
+                <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                  <h3 className="font-semibold text-[var(--foreground)] mb-4">Withdrawal History</h3>
                   <div className="space-y-4">
                     {data?.withdrawals && data.withdrawals.length > 0 ? (
                       data.withdrawals.map((withdrawal: any) => (
-                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
+                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
                           <div>
-                            <p className="text-sm font-medium text-[#e2e2e8]">₦{withdrawal.amount?.toLocaleString()}</p>
-                            <p className="text-xs text-[#b9cacb]">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
+                            <p className="text-sm font-medium text-[var(--foreground)]">₦{withdrawal.amount?.toLocaleString()}</p>
+                            <p className="text-xs text-[var(--muted-foreground)]">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
                           </div>
                           <span className={`px-3 py-1 text-xs rounded-full ${
                             withdrawal.status === "completed" 
@@ -678,7 +678,7 @@ export default function PartnerDashboard() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-[#b9cacb] text-center py-4">No withdrawal history yet</p>
+                      <p className="text-sm text-[var(--muted-foreground)] text-center py-4">No withdrawal history yet</p>
                     )}
                   </div>
                 </div>
@@ -686,29 +686,29 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "marketing" && (
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                <h3 className="font-semibold text-[#e2e2e8] mb-4">Marketing Kit</h3>
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                <h3 className="font-semibold text-[var(--foreground)] mb-4">Marketing Kit</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {data?.marketingResources && data.marketingResources.length > 0 ? (
                     data.marketingResources.map((item: any) => {
                       const Icon = FileText; // Default icon, can be customized based on type
                       return (
-                        <div key={item.id} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all">
+                        <div key={item.id} className="border border-[var(--border)] bg-[var(--background)]/50 rounded-xl p-4 hover:border-[var(--primary)]/50 transition-all">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
-                              <Icon className="h-5 w-5 text-[#00F5FF]" />
+                            <div className="flex h-10 w-10 items-center justify-center border border-[var(--primary)]/60 bg-[var(--primary)]/10 rounded-lg">
+                              <Icon className="h-5 w-5 text-[var(--primary)]" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-[#e2e2e8] truncate cursor-pointer hover:text-[#00F5FF]" onClick={() => openMaterialDetail(item)} title={item.name}>{item.name}</p>
-                              <div className="flex items-center gap-2 text-xs text-[#b9cacb]">
-                                <span className="px-2 py-0.5 bg-[#00F5FF]/10 text-[#00F5FF] rounded-full">{item.type?.toUpperCase() || 'FLYER'}</span>
+                              <p className="text-sm font-medium text-[var(--foreground)] truncate cursor-pointer hover:text-[var(--primary)]" onClick={() => openMaterialDetail(item)} title={item.name}>{item.name}</p>
+                              <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+                                <span className="px-2 py-0.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full">{item.type?.toUpperCase() || 'FLYER'}</span>
                                 <span>{item.download_count || 0} downloads</span>
                               </div>
                             </div>
                           </div>
                           {item.description && (
-                            <div className="mb-3 p-2 bg-[#0c0e12] rounded-lg">
-                              <p className="text-xs text-[#b9cacb] whitespace-pre-wrap break-words" style={{
+                            <div className="mb-3 p-2 bg-[var(--card)] rounded-lg">
+                              <p className="text-xs text-[var(--muted-foreground)] whitespace-pre-wrap break-words" style={{
                                 maxHeight: '60px',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -723,14 +723,14 @@ export default function PartnerDashboard() {
                           <div className="flex gap-2">
                             <button 
                               onClick={() => openMaterialDetail(item)}
-                              className="flex-1 py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors flex items-center justify-center gap-2"
+                              className="flex-1 py-2 border border-[var(--primary)]/60 bg-[var(--primary)]/10 text-[var(--primary)] rounded-lg text-sm font-medium hover:bg-[var(--primary)]/20 transition-colors flex items-center justify-center gap-2"
                             >
                               <Eye className="h-4 w-4" />
                               View Details
                             </button>
                             <button 
                               onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
-                              className="flex-1 py-2 border border-[#1f2229] bg-[#070B12] text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-[#0c0e12] transition-colors flex items-center justify-center gap-2"
+                              className="flex-1 py-2 border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] rounded-lg text-sm font-medium hover:bg-[var(--card)] transition-colors flex items-center justify-center gap-2"
                             >
                               <Download className="h-4 w-4" />
                               Download
@@ -740,7 +740,7 @@ export default function PartnerDashboard() {
                       );
                     })
                   ) : (
-                    <p className="text-sm text-[#b9cacb] text-center py-4 col-span-2">No marketing resources available</p>
+                    <p className="text-sm text-[var(--muted-foreground)] text-center py-4 col-span-2">No marketing resources available</p>
                   )}
                 </div>
               </div>
@@ -749,12 +749,12 @@ export default function PartnerDashboard() {
             {/* Material Detail Modal */}
             {selectedMaterial && showMaterialDetailModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                  <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-[#e2e2e8]">Material Details</h2>
+                <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <div className="p-6 border-b border-[var(--border)] flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-[var(--foreground)]">Material Details</h2>
                     <button
                       onClick={() => setShowMaterialDetailModal(false)}
-                      className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#e2e2e8]"
+                      className="p-2 hover:bg-[var(--background)] rounded-lg transition-colors text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -762,59 +762,59 @@ export default function PartnerDashboard() {
                   
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.name}</h3>
-                      <span className="px-3 py-1 bg-[#00F5FF]/10 text-[#00F5FF] rounded-full text-xs font-medium">
+                      <h3 className="text-lg font-semibold text-[var(--foreground)]">{selectedMaterial.name}</h3>
+                      <span className="px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] rounded-full text-xs font-medium">
                         {selectedMaterial.type?.toUpperCase() || 'FLYER'}
                       </span>
                     </div>
                     
                     {selectedMaterial.description && (
-                      <div className="bg-[#070B12] p-4 rounded-lg">
+                      <div className="bg-[var(--background)] p-4 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
-                          <p className="text-sm font-medium text-[#e2e2e8]">Description</p>
+                          <p className="text-sm font-medium text-[var(--foreground)]">Description</p>
                           <button
                             onClick={() => copyTextToClipboard(selectedMaterial.description)}
-                            className="p-1 hover:bg-[#00F5FF]/10 rounded transition-colors text-[#b9cacb] hover:text-[#00F5FF]"
+                            className="p-1 hover:bg-[var(--primary)]/10 rounded transition-colors text-[var(--muted-foreground)] hover:text-[var(--primary)]"
                             title="Copy text"
                           >
                             <Copy className="h-4 w-4" />
                           </button>
                         </div>
-                        <p className="text-sm text-[#b9cacb] whitespace-pre-wrap break-words bg-[#0c0e12] p-3 rounded-lg max-h-64 overflow-y-auto">
+                        <p className="text-sm text-[var(--muted-foreground)] whitespace-pre-wrap break-words bg-[var(--card)] p-3 rounded-lg max-h-64 overflow-y-auto">
                           {selectedMaterial.description}
                         </p>
                       </div>
                     )}
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="bg-[#070B12] p-3 rounded-lg">
-                        <p className="text-[#b9cacb]">Downloads</p>
-                        <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.download_count || 0}</p>
+                      <div className="bg-[var(--background)] p-3 rounded-lg">
+                        <p className="text-[var(--muted-foreground)]">Downloads</p>
+                        <p className="text-lg font-semibold text-[var(--foreground)]">{selectedMaterial.download_count || 0}</p>
                       </div>
-                      <div className="bg-[#070B12] p-3 rounded-lg">
-                        <p className="text-[#b9cacb]">Category</p>
-                        <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.category || 'general'}</p>
+                      <div className="bg-[var(--background)] p-3 rounded-lg">
+                        <p className="text-[var(--muted-foreground)]">Category</p>
+                        <p className="text-lg font-semibold text-[var(--foreground)]">{selectedMaterial.category || 'general'}</p>
                       </div>
                     </div>
                     
                     {/* Integrated Preview */}
                     {selectedMaterial.url && (selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-[#070B12] p-4 rounded-lg">
-                        <p className="text-sm font-medium text-[#e2e2e8] mb-3">Preview</p>
+                      <div className="bg-[var(--background)] p-4 rounded-lg">
+                        <p className="text-sm font-medium text-[var(--foreground)] mb-3">Preview</p>
                         <img 
                           src={selectedMaterial.url} 
                           alt={selectedMaterial.name}
                           className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => window.open(selectedMaterial.url, '_blank')}
                         />
-                        <p className="text-xs text-[#b9cacb] mt-2 text-center">Click image to open in new tab</p>
+                        <p className="text-xs text-[var(--muted-foreground)] mt-2 text-center">Click image to open in new tab</p>
                       </div>
                     )}
                     
                     {/* File Preview for non-image types */}
                     {selectedMaterial.url && !(selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-[#070B12] p-4 rounded-lg">
-                        <p className="text-sm font-medium text-[#e2e2e8] mb-3">File Preview</p>
+                      <div className="bg-[var(--background)] p-4 rounded-lg">
+                        <p className="text-sm font-medium text-[var(--foreground)] mb-3">File Preview</p>
                         <a 
                           href={selectedMaterial.url}
                           target="_blank" 
@@ -827,17 +827,17 @@ export default function PartnerDashboard() {
                       </div>
                     )}
                     
-                    <div className="flex gap-3 pt-4 border-t border-[#1f2229]">
+                    <div className="flex gap-3 pt-4 border-t border-[var(--border)]">
                       <button
                         onClick={() => window.open(`/api/partners/marketing/download/${selectedMaterial.id}`, '_blank')}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-medium hover:bg-[#00F5FF]/90 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg font-medium hover:bg-[var(--primary)]/90 transition-colors"
                       >
                         <Download className="h-4 w-4" />
                         Download
                       </button>
                       <button
                         onClick={() => setShowMaterialDetailModal(false)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] rounded-lg font-medium hover:bg-[var(--card)] transition-colors"
                       >
                         Close
                       </button>
@@ -848,40 +848,40 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "settings" && (
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
-                <h3 className="font-semibold text-[#e2e2e8] mb-4">Profile Settings</h3>
+              <div className="border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl rounded-2xl p-6">
+                <h3 className="font-semibold text-[var(--foreground)] mb-4">Profile Settings</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Partner ID</label>
-                    <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg font-mono text-sm text-[#b9cacb]">
+                    <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Partner ID</label>
+                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg font-mono text-sm text-[var(--muted-foreground)]">
                       {partner?.id || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Email</label>
-                    <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg text-sm text-[#e2e2e8]">
+                    <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Email</label>
+                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg text-sm text-[var(--foreground)]">
                       {partner?.email || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Partner Type</label>
-                    <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg text-sm text-[#e2e2e8]">
+                    <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Partner Type</label>
+                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg text-sm text-[var(--foreground)]">
                       {partner?.type === "student" ? "Student Partner" : 
                        partner?.type === "community" ? "Community Partner" : 
                        partner?.type === "influencer" ? "Influencer" : "Partner"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Commission Rate</label>
-                    <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg text-sm text-[#00F5FF]">
+                    <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Commission Rate</label>
+                    <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg text-sm text-[var(--primary)]">
                       ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} per referral
                     </div>
                   </div>
                   
                   {/* Bank Details Section */}
-                  <div className="border-t border-[#1f2229] pt-4 mt-4">
+                  <div className="border-t border-[var(--border)] pt-4 mt-4">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-sm font-medium text-[#e2e2e8]">Bank Details</h4>
+                      <h4 className="text-sm font-medium text-[var(--foreground)]">Bank Details</h4>
                       <button
                         onClick={() => {
                           if (bankProfile) {
@@ -893,7 +893,7 @@ export default function PartnerDashboard() {
                           }
                           setShowBankModal(true);
                         }}
-                        className="text-xs text-[#00F5FF] hover:text-white transition-colors"
+                        className="text-xs text-[var(--primary)] hover:text-white transition-colors"
                       >
                         {bankProfile ? 'Edit' : 'Add Bank Details'}
                       </button>
@@ -901,25 +901,25 @@ export default function PartnerDashboard() {
                     
                     {bankProfile ? (
                       <div className="space-y-3">
-                        <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
-                          <p className="text-xs text-[#b9cacb] mb-1">Bank Name</p>
-                          <p className="text-sm text-[#e2e2e8]">{bankProfile.bank_name}</p>
+                        <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                          <p className="text-xs text-[var(--muted-foreground)] mb-1">Bank Name</p>
+                          <p className="text-sm text-[var(--foreground)]">{bankProfile.bank_name}</p>
                         </div>
-                        <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
-                          <p className="text-xs text-[#b9cacb] mb-1">Account Number</p>
-                          <p className="text-sm text-[#e2e2e8]">{bankProfile.account_number}</p>
+                        <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                          <p className="text-xs text-[var(--muted-foreground)] mb-1">Account Number</p>
+                          <p className="text-sm text-[var(--foreground)]">{bankProfile.account_number}</p>
                         </div>
-                        <div className="p-3 border border-[#1f2229] bg-[#070B12]/50 rounded-lg">
-                          <p className="text-xs text-[#b9cacb] mb-1">Account Name</p>
-                          <p className="text-sm text-[#e2e2e8]">{bankProfile.account_name}</p>
+                        <div className="p-3 border border-[var(--border)] bg-[var(--background)]/50 rounded-lg">
+                          <p className="text-xs text-[var(--muted-foreground)] mb-1">Account Name</p>
+                          <p className="text-sm text-[var(--foreground)]">{bankProfile.account_name}</p>
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 border border-dashed border-[#1f2229] bg-[#070B12]/30 rounded-lg text-center">
-                        <p className="text-sm text-[#b9cacb] mb-2">No bank details added yet</p>
+                      <div className="p-4 border border-dashed border-[var(--border)] bg-[var(--background)]/30 rounded-lg text-center">
+                        <p className="text-sm text-[var(--muted-foreground)] mb-2">No bank details added yet</p>
                         <button
                           onClick={() => setShowBankModal(true)}
-                          className="text-xs text-[#00F5FF] hover:text-white transition-colors"
+                          className="text-xs text-[var(--primary)] hover:text-white transition-colors"
                         >
                           Add bank details to enable withdrawals
                         </button>
@@ -944,12 +944,12 @@ export default function PartnerDashboard() {
       {/* Bank Profile Modal */}
       {showBankModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6 sm:p-8 w-full max-w-md">
+          <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 sm:p-8 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-[#e2e2e8]">{bankProfile ? 'Edit Bank Profile' : 'Setup Bank Profile'}</h2>
+              <h2 className="text-xl font-bold text-[var(--foreground)]">{bankProfile ? 'Edit Bank Profile' : 'Setup Bank Profile'}</h2>
               <button
                 onClick={() => setShowBankModal(false)}
-                className="text-[#b9cacb] hover:text-white transition-colors"
+                className="text-[var(--muted-foreground)] hover:text-white transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -978,35 +978,35 @@ export default function PartnerDashboard() {
               }
             }} className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Bank Name</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Bank Name</label>
                 <input
                   type="text"
                   required
                   value={bankFormData.bank_name}
                   onChange={(e) => setBankFormData({...bankFormData, bank_name: e.target.value})}
-                  className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                   placeholder="Enter bank name"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Account Number</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Account Number</label>
                 <input
                   type="text"
                   required
                   value={bankFormData.account_number}
                   onChange={(e) => setBankFormData({...bankFormData, account_number: e.target.value})}
-                  className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                   placeholder="Enter account number"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Account Name</label>
+                <label className="text-sm font-medium text-[var(--muted-foreground)] block mb-2">Account Name</label>
                 <input
                   type="text"
                   required
                   value={bankFormData.account_name}
                   onChange={(e) => setBankFormData({...bankFormData, account_name: e.target.value})}
-                  className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-[var(--background)]/50 border border-[var(--border)] rounded-lg px-4 py-3 text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] transition-colors"
                   placeholder="Enter account name"
                 />
               </div>
@@ -1014,14 +1014,14 @@ export default function PartnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowBankModal(false)}
-                  className="flex-1 py-3 border border-[#1f2229] text-[#b9cacb] rounded-lg font-medium hover:bg-[#070B12] transition-colors"
+                  className="flex-1 py-3 border border-[var(--border)] text-[var(--muted-foreground)] rounded-lg font-medium hover:bg-[var(--background)] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingBank}
-                  className="flex-1 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSavingBank ? 'Saving...' : 'Save Profile'}
                 </button>

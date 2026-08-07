@@ -41,7 +41,7 @@ export default function InfluencerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">

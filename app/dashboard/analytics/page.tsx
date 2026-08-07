@@ -175,7 +175,7 @@ export default function StudentAnalyticsPage() {
         <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Videos</CardTitle>
-            <BookOpen className="h-4 w-4 text-[#00f0ff]" />
+            <BookOpen className="h-4 w-4 text-[var(--primary)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{analytics.videoProgress.completed}/{analytics.videoProgress.total}</div>
@@ -188,7 +188,7 @@ export default function StudentAnalyticsPage() {
         <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Assignments</CardTitle>
-            <FileText className="h-4 w-4 text-[#00f0ff]" />
+            <FileText className="h-4 w-4 text-[var(--primary)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{analytics.assignmentProgress.submitted}/{analytics.assignmentProgress.total}</div>
@@ -201,7 +201,7 @@ export default function StudentAnalyticsPage() {
         <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Quizzes</CardTitle>
-            <Trophy className="h-4 w-4 text-[#00f0ff]" />
+            <Trophy className="h-4 w-4 text-[var(--primary)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{analytics.quizProgress.completed}/{analytics.quizProgress.total}</div>
@@ -214,7 +214,7 @@ export default function StudentAnalyticsPage() {
         <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Total Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-[#00f0ff]" />
+            <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{analytics.totalScore}</div>
@@ -238,7 +238,7 @@ export default function StudentAnalyticsPage() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-[#00f0ff]" />
+                <BookOpen className="h-5 w-5 text-[var(--primary)]" />
                 Video Learning Progress
               </CardTitle>
               <CardDescription className="text-[#b9cacb]">Your video watch completion and engagement</CardDescription>
@@ -247,7 +247,7 @@ export default function StudentAnalyticsPage() {
               <div className="p-6 bg-surface rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm text-[#b9cacb]">Overall Completion</span>
-                  <span className="text-3xl font-bold text-[#00f0ff]">{analytics.videoProgress.percentage}%</span>
+                  <span className="text-3xl font-bold text-[var(--primary)]">{analytics.videoProgress.percentage}%</span>
                 </div>
                 <Progress value={analytics.videoProgress.percentage} className="h-4" />
                 <p className="text-xs text-[#5d5f63] mt-2">{analytics.videoProgress.completed} of {analytics.videoProgress.total} lessons completed</p>
@@ -255,7 +255,7 @@ export default function StudentAnalyticsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="h-4 w-4 text-[#00f0ff]" />
+                    <Clock className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Lessons Completed</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.videoProgress.completed}</p>
@@ -263,7 +263,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Activity className="h-4 w-4 text-[#00f0ff]" />
+                    <Activity className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Average Watch %</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.videoProgress.averageWatchPct}%</p>
@@ -278,7 +278,7 @@ export default function StudentAnalyticsPage() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <FileText className="h-5 w-5 text-[#00f0ff]" />
+                <FileText className="h-5 w-5 text-[var(--primary)]" />
                 Assignment Performance
               </CardTitle>
               <CardDescription className="text-[#b9cacb]">Your assignment submissions and scores</CardDescription>
@@ -287,7 +287,7 @@ export default function StudentAnalyticsPage() {
               <div className="p-6 bg-surface rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm text-[#b9cacb]">Submission Rate</span>
-                  <span className="text-3xl font-bold text-[#00f0ff]">{analytics.assignmentProgress.percentage}%</span>
+                  <span className="text-3xl font-bold text-[var(--primary)]">{analytics.assignmentProgress.percentage}%</span>
                 </div>
                 <Progress value={analytics.assignmentProgress.percentage} className="h-4" />
                 <p className="text-xs text-[#5d5f63] mt-2">{analytics.assignmentProgress.submitted} of {analytics.assignmentProgress.total} assignments submitted</p>
@@ -295,7 +295,7 @@ export default function StudentAnalyticsPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="h-4 w-4 text-[#00f0ff]" />
+                    <Trophy className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Average Score</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.assignmentProgress.averageScore}%</p>
@@ -303,7 +303,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock className="h-4 w-4 text-[#00f0ff]" />
+                    <Clock className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">On-Time Rate</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.assignmentProgress.onTimeRate}%</p>
@@ -311,7 +311,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Activity className="h-4 w-4 text-[#00f0ff]" />
+                    <Activity className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Pending Review</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.assignmentProgress.pendingReview}</p>
@@ -342,7 +342,7 @@ export default function StudentAnalyticsPage() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-[#00f0ff]" />
+                <Trophy className="h-5 w-5 text-[var(--primary)]" />
                 Quiz Performance
               </CardTitle>
               <CardDescription className="text-[#b9cacb]">Your quiz attempts and scores</CardDescription>
@@ -351,7 +351,7 @@ export default function StudentAnalyticsPage() {
               <div className="p-6 bg-surface rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-sm text-[#b9cacb]">Quiz Completion</span>
-                  <span className="text-3xl font-bold text-[#00f0ff]">{analytics.quizProgress.percentage}%</span>
+                  <span className="text-3xl font-bold text-[var(--primary)]">{analytics.quizProgress.percentage}%</span>
                 </div>
                 <Progress value={analytics.quizProgress.percentage} className="h-4" />
                 <p className="text-xs text-[#5d5f63] mt-2">{analytics.quizProgress.completed} of {analytics.quizProgress.total} quizzes completed</p>
@@ -359,7 +359,7 @@ export default function StudentAnalyticsPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-[#00f0ff]" />
+                    <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Average Score</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.quizProgress.averageScore}%</p>
@@ -367,7 +367,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="h-4 w-4 text-[#00f0ff]" />
+                    <CheckCircle className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Pass Rate</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.quizProgress.passRate}%</p>
@@ -375,7 +375,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="h-4 w-4 text-[#00f0ff]" />
+                    <Trophy className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Quizzes Passed</p>
                   </div>
                   <p className="text-3xl font-bold text-white">{analytics.quizProgress.passed}</p>
@@ -390,7 +390,7 @@ export default function StudentAnalyticsPage() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
-                <Activity className="h-5 w-5 text-[#00f0ff]" />
+                <Activity className="h-5 w-5 text-[var(--primary)]" />
                 Recent Activity
               </CardTitle>
               <CardDescription className="text-[#b9cacb]">Your recent learning activities and engagement</CardDescription>
@@ -399,7 +399,7 @@ export default function StudentAnalyticsPage() {
               {analytics.lastActivityAt ? (
                 <div className="p-4 bg-surface rounded-lg border border-border">
                   <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-[#00f0ff]" />
+                    <Clock className="h-5 w-5 text-[var(--primary)]" />
                     <div>
                       <p className="text-sm font-medium text-white">Last Activity</p>
                       <p className="text-xs text-[#b9cacb]">{new Date(analytics.lastActivityAt).toLocaleString()}</p>
@@ -421,7 +421,7 @@ export default function StudentAnalyticsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <BookOpen className="h-4 w-4 text-[#00f0ff]" />
+                    <BookOpen className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Video Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -431,7 +431,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <FileText className="h-4 w-4 text-[#00f0ff]" />
+                    <FileText className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Assignment Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -441,7 +441,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="h-4 w-4 text-[#00f0ff]" />
+                    <Trophy className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Quiz Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -451,7 +451,7 @@ export default function StudentAnalyticsPage() {
                 </div>
                 <div className="p-4 bg-background rounded-lg border border-border">
                   <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-[#00f0ff]" />
+                    <TrendingUp className="h-4 w-4 text-[var(--primary)]" />
                     <p className="text-sm text-[#b9cacb]">Overall Progress</p>
                   </div>
                   <div className="flex items-center gap-2">

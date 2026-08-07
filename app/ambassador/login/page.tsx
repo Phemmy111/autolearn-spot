@@ -41,12 +41,12 @@ export default function AmbassadorLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">
         <div className="w-full max-w-md">
-          <Link href="/ambassador" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-white mb-8 transition-colors">
+          <Link href="/ambassador" className="inline-flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] mb-8 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
           </Link>
           

@@ -150,14 +150,14 @@ export default function HistoryPage() {
     if (entry.type === 'quiz') {
       return (
         <div className="flex flex-col">
-          <span className="font-bold text-[#00f0ff]">{entry.score} pts</span>
+          <span className="font-bold text-[var(--primary)]">{entry.score} pts</span>
           <span className="text-xs text-[#5d5f63]">{entry.percentage}%</span>
         </div>
       )
     } else {
       return entry.ai_score !== null ? (
         <div className="flex flex-col">
-          <span className="font-bold text-[#00f0ff]">{entry.ai_score} pts</span>
+          <span className="font-bold text-[var(--primary)]">{entry.ai_score} pts</span>
           <span className="text-xs text-[#5d5f63]">/ {entry.max_score}</span>
         </div>
       ) : (
@@ -178,15 +178,15 @@ export default function HistoryPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       <div className="mb-10 text-center">
-        <History className="mx-auto h-16 w-16 text-[#00f0ff] drop-shadow-[0_0_15px_rgba(0,240,255,0.5)] mb-4" />
+        <History className="mx-auto h-16 w-16 text-[var(--primary)] drop-shadow-[0_0_15px_rgba(24,119,242,0.5)] mb-4" />
         <h1 className="font-heading text-4xl font-bold uppercase text-white mb-2">History</h1>
         <p className="font-mono text-sm text-[#b9cacb]">Review your past quiz and assignment submissions.</p>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm font-mono text-[#b9cacb]">
-            <thead className="bg-[#111317] text-xs uppercase text-[#5d5f63]">
+          <table className="w-full text-left text-sm font-mono text-[var(--muted-foreground)]">
+            <thead className="bg-[var(--surface)] text-xs uppercase text-[var(--muted-foreground)]">
               <tr>
                 <th scope="col" className="px-6 py-4">Type</th>
                 <th scope="col" className="px-6 py-4">Title</th>
@@ -196,7 +196,7 @@ export default function HistoryPage() {
                 <th scope="col" className="px-6 py-4">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2229]">
+            <tbody className="divide-y divide-[var(--border)]">
               {history.map((entry, idx) => (
                 <tr key={entry.id} className={`hover:bg-[#1a1d24] transition-colors ${idx % 2 === 0 ? 'bg-card' : 'bg-[#111317]'}`}>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -226,7 +226,7 @@ export default function HistoryPage() {
                         href={(entry as AssignmentHistoryEntry).live_url!}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[#00f0ff] hover:text-white transition-colors"
+                        className="flex items-center gap-1 text-[var(--primary)] hover:text-white transition-colors"
                       >
                         <ExternalLink className="h-4 w-4" />
                         <span className="text-xs">View</span>

@@ -66,7 +66,7 @@ export default function StudentPartnerPage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full" />
             
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-purple-500/20 flex items-center justify-center text-primary mx-auto mb-8 relative z-10 border border-[#00f0ff]/30">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--primary)]/20 to-purple-500/20 flex items-center justify-center text-primary mx-auto mb-8 relative z-10 border border-[var(--primary)]/30">
               <Users className="h-10 w-10" />
             </div>
             
@@ -117,7 +117,7 @@ export default function StudentPartnerPage() {
           </div>
           <Link 
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card text-muted-foreground rounded-lg hover:border-[#00f0ff] hover:text-primary transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card text-muted-foreground rounded-lg hover:border-[var(--primary)] hover:text-primary transition-colors"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
             Back to Dashboard
@@ -125,7 +125,7 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Referral Link Card */}
-        <div className="bg-gradient-to-r from-[#00f0ff]/10 via-purple-500/10 to-transparent border border-[#00f0ff]/20 rounded-2xl p-6 md:p-8">
+        <div className="bg-gradient-to-r from-[var(--primary)]/10 via-purple-500/10 to-transparent border border-[var(--primary)]/20 rounded-2xl p-6 md:p-8">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
@@ -210,7 +210,7 @@ export default function StudentPartnerPage() {
             <h3 className="text-3xl font-bold text-yellow-400">₦{(data?.stats?.pendingEarnings || 0).toLocaleString()}</h3>
           </div>
 
-          <div className="bg-gradient-to-br from-[#00f0ff]/10 to-purple-500/10 border border-[#00f0ff]/30 rounded-2xl p-6 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[var(--primary)]/10 to-purple-500/10 border border-[var(--primary)]/30 rounded-2xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -305,7 +305,7 @@ export default function StudentPartnerPage() {
           {data?.marketingResources && data.marketingResources.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {data.marketingResources.map((resource: any, index: number) => (
-                <div key={index} className="bg-background border border-border rounded-xl p-4 hover:border-[#00f0ff]/50 transition-colors">
+                <div key={index} className="bg-background border border-border rounded-xl p-4 hover:border-[var(--primary)]/50 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm mb-1">{resource.name}</h3>

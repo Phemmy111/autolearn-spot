@@ -459,7 +459,7 @@ export default function DashboardPage() {
                           >
                             {/* Completed badge */}
                             {available && <CompletedBadge videoId={video.id} />}
-                            <div className="aspect-video w-full bg-[#0a0c10] p-4 flex items-center justify-center relative">
+                            <div className="aspect-video w-full bg-[var(--surface)] p-4 flex items-center justify-center relative">
                               {available ? (
                                 <PlayCircle className="h-12 w-12 text-primary opacity-80 group-hover:opacity-100 transition-opacity" />
                               ) : (

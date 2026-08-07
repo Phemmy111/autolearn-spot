@@ -83,26 +83,27 @@
     color-scheme: light;
     
     /* Light Mode Theme - Premium SaaS */
-    --background: 250 100% 99%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 181 92% 45%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 185 84% 42%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 98%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --background: 250 100% 99%; /* #FAFBFD */
+    --foreground: 222 47% 4%; /* #0A0A0A - Primary headings */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 222 47% 4%; /* #0A0A0A */
+    --popover: 0 0% 100%; /* #FFFFFF */
+    --popover-foreground: 222 47% 4%; /* #0A0A0A */
+    --primary: 221 83% 53%; /* #1877F2 - Facebook Blue */
+    --primary-foreground: 0 0% 100%; /* White */
+    --primary-hover: 221 87% 53%; /* #166FE5 - Hover */
+    --primary-pressed: 221 93% 53%; /* #145DBF - Pressed */
+    --secondary: 210 40% 96%; /* #F3F4F6 */
+    --secondary-foreground: 222 47% 4%; /* #0A0A0A */
+    --muted: 220 14% 96%; /* #F9FAFB */
+    --muted-foreground: 215 13% 47%; /* #6B7280 - Improved muted text */
+    --accent: 210 40% 96%; /* #F3F4F6 */
+    --accent-foreground: 222 47% 4%; /* #0A0A0A */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 78%;
-    --ring: 181 92% 45%;
+    --border: 220 13% 91%; /* #E5E7EB - Soft borders */
+    --input: 220 13% 91%; /* #E5E7EB */
+    --ring: 221 83% 53%; /* #1877F2 - Facebook Blue */
     --radius: 0.5rem;
     
     /* Semantic Colors - Light Mode */
@@ -116,45 +117,45 @@
     --info-foreground: 0 0% 100%;
     
     /* Typography Tokens - Light Mode */
-    --text-primary: 222 47% 11%;
-    --text-secondary: 215 25% 27%;
-    --text-muted: 215 16% 47%;
+    --text-primary: 222 47% 4%; /* #0A0A0A - Strong headings */
+    --text-secondary: 220 10% 25%; /* #374151 - Body text */
+    --text-muted: 215 13% 47%; /* #6B7280 - Muted text */
     --text-disabled: 210 10% 60%;
     --text-inverse: 0 0% 100%;
     
     /* Surface Tokens - Light Mode */
-    --surface: 250 100% 99%;
-    --surface-hover: 210 40% 96%;
-    --surface-alt: 220 30% 97%;
+    --surface: 250 100% 99%; /* #FAFBFD */
+    --surface-hover: 217 33% 97%; /* #F7F9FC - Hover background */
+    --surface-alt: 220 30% 97%; /* #F3F4F6 */
     
     /* Border Tokens - Light Mode */
-    --border-default: 214 32% 91%;
-    --border-light: 210 40% 96%;
-    --border-accent: 181 92% 45%;
+    --border-default: 220 13% 91%; /* #E5E7EB */
+    --border-light: 220 14% 96%; /* #F9FAFB */
+    --border-accent: 221 83% 53%; /* #1877F2 - Facebook Blue */
     
     /* Shadow Tokens - Light Mode */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 12px rgb(15 23 42 / 0.05);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-    --shadow-primary: 0 12px 30px rgba(6, 182, 212, 0.25);
+    --shadow-primary: 0 4px 14px 0 rgb(24 119 242 / 0.25); /* Facebook blue shadow */
     
     /* Chart colors - Light Mode */
-    --chart-1: 181 92% 45%;
-    --chart-2: 185 84% 42%;
+    --chart-1: 221 83% 53%; /* #1877F2 - Facebook Blue */
+    --chart-2: 221 87% 53%; /* #166FE5 */
     --chart-3: 199 89% 48%;
     --chart-4: 201 83% 44%;
     --chart-5: 206 72% 37%;
     
     /* Sidebar colors - Light Mode */
-    --sidebar: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 181 92% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 181 92% 45%;
+    --sidebar: 0 0% 100%; /* #FFFFFF */
+    --sidebar-foreground: 222 47% 4%; /* #0A0A0A */
+    --sidebar-primary: 221 83% 53%; /* #1877F2 - Facebook Blue */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 210 40% 96%; /* #F3F4F6 */
+    --sidebar-accent-foreground: 222 47% 4%; /* #0A0A0A */
+    --sidebar-border: 220 13% 91%; /* #E5E7EB */
+    --sidebar-ring: 221 83% 53%; /* #1877F2 - Facebook Blue */
   }
 }
 
@@ -249,8 +250,22 @@
   animation: workflowNodePulse 3.8s ease-in-out infinite;
 }
 
-/* Light mode specific animations - removed glow */
-.light .workflow-node,
+/* Light mode specific animations - refined for light backgrounds */
+.light .workflow-node {
+  animation: workflowNodePulse 3.8s ease-in-out infinite;
+}
+
 .light .workflow-status-dot {
-  animation: none;
+  animation: workflowNodePulse 3.8s ease-in-out infinite;
+}
+
+/* Light mode workflow enhancement */
+.light .workflow-node svg path,
+.light .workflow-node svg circle {
+  stroke: hsl(var(--primary));
+  fill: hsl(var(--primary));
+}
+
+.light .workflow-status-dot {
+  background: hsl(var(--primary));
 }
