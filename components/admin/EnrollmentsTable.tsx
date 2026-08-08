@@ -366,7 +366,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
           <tbody>
             {filtered.map((en: any) => (
               <tr key={en.id} className="border-b border-[#3b494b]/50 hover:bg-[#1f2229]/50">
-                <td className="px-4 py-3 text-white">{en.full_name || en.first_name ? `${en.first_name} ${en.last_name || ''}`.trim() : 'N/A'}</td>
+                <td className="px-4 py-3 text-white">{en.full_name || (en.first_name ? `${en.first_name} ${en.last_name || ''}`.trim() : 'N/A')}</td>
                 <td className="px-4 py-3 text-[#b9cacb]">{en.email}</td>
                 <td className="px-4 py-3 text-[#5d5f63]">{en.phone_number || en.whatsapp_number || 'N/A'}</td>
                 <td className="px-4 py-3 text-[#b9cacb]">{en.cohort?.name || en.cohort_id || 'Current Cohort'}</td>
