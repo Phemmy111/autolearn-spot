@@ -47,9 +47,41 @@ export default async function AdminEnrollmentsPage() {
 
   const safeEnrollments = enrollments || [];
 
+  // Fetch pending enrollments
+  const { data: pendingEnrollments } = await supabaseAdmin
+    .from('pending_enrollments')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  const safePendingEnrollments = pendingEnrollments || [];
+
+  // Merge enrollments and pending enrollments, deduplicating by email
+  // If email exists in both enrollments and pending_enrollments, show as Enrolled (not Payment Pending)
+  const enrolledEmails = new Set(safeEnrollments.map(e => e.email));
+  const uniquePendingEnrollments = safePendingEnrollments.filter(p => !enrolledEmails.has(p.email));
+
+  // Attach current cohort info to pending enrollments for display
+  const pendingWithCohort = uniquePendingEnrollments.map(pending => ({
+    ...pending,
+    cohort: currentCohort,
+    cohort_id: currentCohort?.id,
+    is_pending: true,
+    display_status: pending.payment_status === 'pending' ? 'Payment Pending' : 
+                  pending.payment_status === 'expired' ? 'Expired' :
+                  pending.payment_status === 'failed' ? 'Payment Failed' : pending.payment_status
+  }));
+
+  // Combine all records for display
+  const allRecords = [
+    ...safeEnrollments.map(e => ({ ...e, is_pending: false, display_status: e.status === 'active' ? 'Enrolled' : e.status })),
+    ...pendingWithCohort
+  ];
+
   // Calculate Summary Statistics
   let paidCount = 0;
   let pendingCount = 0;
+  let expiredCount = 0;
+  let failedCount = 0;
   let refundedCount = 0;
   let revenue = 0;
 
@@ -64,9 +96,22 @@ export default async function AdminEnrollmentsPage() {
     }
   });
 
+  // Count pending enrollments from pending_enrollments table
+  uniquePendingEnrollments.forEach(pending => {
+    if (pending.payment_status === 'pending') {
+      pendingCount++;
+    } else if (pending.payment_status === 'expired') {
+      expiredCount++;
+    } else if (pending.payment_status === 'failed') {
+      failedCount++;
+    }
+  });
+
   const summary = {
     paid: paidCount,
     pending: pendingCount,
+    expired: expiredCount,
+    failed: failedCount,
     refunded: refundedCount,
     revenue: revenue / 100 // assuming amount is stored in kobo/cents. If raw NGN, remove / 100
   };
@@ -95,7 +140,7 @@ export default async function AdminEnrollmentsPage() {
         </div>
 
         <EnrollmentsTable 
-          initialEnrollments={safeEnrollments} 
+          initialEnrollments={allRecords} 
           cohorts={cohorts || []} 
           summary={summary}
           currentCohort={currentCohort}

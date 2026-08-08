@@ -7,7 +7,14 @@ import { Search, RefreshCw, Loader2, CheckCircle2, XCircle, Plus, Edit, Archive,
 export function EnrollmentsTable({ initialEnrollments, cohorts, summary, currentCohort, studentCount }: { 
   initialEnrollments: any[], 
   cohorts: any[], 
-  summary: any,
+  summary: {
+    paid: number;
+    pending: number;
+    expired: number;
+    failed: number;
+    refunded: number;
+    revenue: number;
+  },
   currentCohort: any,
   studentCount: number
 }) {
@@ -23,10 +30,10 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
   const [editingCohort, setEditingCohort] = useState<any>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const filtered = initialEnrollments.filter((en: { status: string; [key: string]: any }) => {
+  const filtered = initialEnrollments.filter((en: { display_status: string; [key: string]: any }) => {
     const matchesSearch = en.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           en.payment_ref?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || en.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || en.display_status === statusFilter;
     const matchesCohort = cohortFilter === 'all' || en.cohort_id === cohortFilter;
     return matchesSearch && matchesStatus && matchesCohort;
   });
@@ -268,6 +275,10 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
               <div className="text-white font-bold">{summary.paid}</div>
             </div>
             <div>
+              <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">Payment Pending</div>
+              <div className="text-white font-bold text-yellow-400">{summary.pending}</div>
+            </div>
+            <div>
               <div className="text-[#b9cacb] font-mono text-xs uppercase mb-1">Revenue</div>
               <div className="text-white font-bold">₦{summary.revenue.toLocaleString()}</div>
             </div>
@@ -278,18 +289,22 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
           <div className="text-[#b9cacb] font-mono text-xs uppercase">Total Paid</div>
           <div className="text-2xl font-bold text-[#00f0ff] mt-1">{summary.paid}</div>
         </div>
         <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
-          <div className="text-[#b9cacb] font-mono text-xs uppercase">Pending</div>
+          <div className="text-[#b9cacb] font-mono text-xs uppercase">Payment Pending</div>
           <div className="text-2xl font-bold text-yellow-400 mt-1">{summary.pending}</div>
         </div>
         <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
-          <div className="text-[#b9cacb] font-mono text-xs uppercase">Refunded</div>
-          <div className="text-2xl font-bold text-red-400 mt-1">{summary.refunded}</div>
+          <div className="text-[#b9cacb] font-mono text-xs uppercase">Expired</div>
+          <div className="text-2xl font-bold text-gray-400 mt-1">{summary.expired}</div>
+        </div>
+        <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
+          <div className="text-[#b9cacb] font-mono text-xs uppercase">Payment Failed</div>
+          <div className="text-2xl font-bold text-red-400 mt-1">{summary.failed}</div>
         </div>
         <div className="bg-[#1a1d24] border border-[#3b494b] p-4 rounded text-center">
           <div className="text-[#b9cacb] font-mono text-xs uppercase">Revenue</div>
@@ -315,8 +330,10 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
           className="bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
         >
           <option value="all">All Statuses</option>
-          <option value="active">Active (Paid)</option>
-          <option value="pending">Pending</option>
+          <option value="Enrolled">Enrolled</option>
+          <option value="Payment Pending">Payment Pending</option>
+          <option value="Expired">Expired</option>
+          <option value="Payment Failed">Payment Failed</option>
           <option value="refunded">Refunded</option>
         </select>
         <select 
@@ -336,7 +353,9 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
         <table className="w-full text-left font-mono text-sm">
           <thead className="bg-[#1f2229] border-b border-[#3b494b] text-[#b9cacb]">
             <tr>
+              <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
+              <th className="px-4 py-3">Phone</th>
               <th className="px-4 py-3">Cohort</th>
               <th className="px-4 py-3">Reference</th>
               <th className="px-4 py-3">Amount</th>
@@ -345,31 +364,34 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
             </tr>
           </thead>
           <tbody>
-            {filtered.map((en: { id: string; email: string; status: string; cohort_id: string; created_at: string }) => (
+            {filtered.map((en: any) => (
               <tr key={en.id} className="border-b border-[#3b494b]/50 hover:bg-[#1f2229]/50">
-                <td className="px-4 py-3 text-white">{en.email}</td>
-                <td className="px-4 py-3 text-[#b9cacb]">{en.cohort?.name || en.cohort_id}</td>
+                <td className="px-4 py-3 text-white">{en.full_name || en.first_name ? `${en.first_name} ${en.last_name || ''}`.trim() : 'N/A'}</td>
+                <td className="px-4 py-3 text-[#b9cacb]">{en.email}</td>
+                <td className="px-4 py-3 text-[#5d5f63]">{en.phone_number || en.whatsapp_number || 'N/A'}</td>
+                <td className="px-4 py-3 text-[#b9cacb]">{en.cohort?.name || en.cohort_id || 'Current Cohort'}</td>
                 <td className="px-4 py-3 text-[#5d5f63]">{en.payment_ref || 'N/A'}</td>
                 <td className="px-4 py-3 text-[#00f0ff]">
-                  {en.amount_paid ? `₦${en.amount_paid.toLocaleString()}` : '-'}
+                  {en.amount_paid ? `₦${en.amount_paid.toLocaleString()}` : (en.payment_amount ? `₦${en.payment_amount.toLocaleString()}` : '-')}
                 </td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] uppercase font-bold ${
-                    en.status === 'active' ? 'bg-[#00f0ff]/10 text-[#00f0ff]' :
-                    en.status === 'pending' ? 'bg-yellow-400/10 text-yellow-400' :
-                    en.status === 'inactive' ? 'bg-gray-400/10 text-gray-400' :
+                    en.display_status === 'Enrolled' ? 'bg-[#00f0ff]/10 text-[#00f0ff]' :
+                    en.display_status === 'Payment Pending' ? 'bg-yellow-400/10 text-yellow-400' :
+                    en.display_status === 'Expired' ? 'bg-gray-400/10 text-gray-400' :
+                    en.display_status === 'Payment Failed' ? 'bg-red-400/10 text-red-400' :
                     'bg-red-400/10 text-red-400'
                   }`}>
-                    {en.status === 'active' && <CheckCircle2 className="h-3 w-3" />}
-                    {en.status === 'pending' && <Loader2 className="h-3 w-3" />}
-                    {en.status === 'inactive' && <XCircle className="h-3 w-3" />}
-                    {en.status === 'refunded' && <XCircle className="h-3 w-3" />}
-                    {en.status}
+                    {en.display_status === 'Enrolled' && <CheckCircle2 className="h-3 w-3" />}
+                    {en.display_status === 'Payment Pending' && <Loader2 className="h-3 w-3" />}
+                    {en.display_status === 'Expired' && <XCircle className="h-3 w-3" />}
+                    {en.display_status === 'Payment Failed' && <XCircle className="h-3 w-3" />}
+                    {en.display_status}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    {en.payment_ref && (
+                    {en.payment_ref && !en.is_pending && (
                       <button 
                         onClick={() => handleResync(en.payment_ref)}
                         disabled={isResyncing === en.payment_ref}
@@ -381,7 +403,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                       </button>
                     )}
                     
-                    {en.status === 'active' ? (
+                    {!en.is_pending && en.display_status === 'Enrolled' && (
                       <button 
                         onClick={() => handleUpdateStatus(en.id, 'inactive')}
                         disabled={isUpdatingStatus === en.id}
