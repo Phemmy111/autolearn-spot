@@ -5,7 +5,6 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, CheckCircle, Star, User, Mail, Phone, Briefcase, Users } from "lucide-react";
 import { DIRECT_ENROLLMENT_CONFIG } from "@/config/direct-enrollment";
-import { getPaymentUrl } from "@/config/payment";
 
 function EnrollForm() {
   const searchParams = useSearchParams();
@@ -102,23 +101,30 @@ function EnrollForm() {
 
       const data = await response.json();
 
-      // Get the correct Direct Enrollment payment URL
-      const paystackUrl = getPaymentUrl('direct-enrollment');
-      console.log('Payment URL:', paystackUrl);
+      // Initialize Paystack transaction server-side with proper metadata
+      const paymentResponse = await fetch('/api/payments/initialize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pendingId: data.pendingId,
+          amount: 8000,
+          email: formData.email,
+          fullName: formData.fullName,
+          callbackUrl: `${window.location.origin}/enroll/success`,
+        }),
+      });
 
-      if (!paystackUrl || paystackUrl === '') {
-        throw new Error('Payment URL is not configured');
+      if (!paymentResponse.ok) {
+        const paymentError = await paymentResponse.json();
+        throw new Error(paymentError.error || "Failed to initialize payment");
       }
 
-      const url = new URL(paystackUrl);
-      url.searchParams.set("name", formData.fullName);
-      url.searchParams.set("email", formData.email);
-      url.searchParams.set("phone", formData.phoneNumber);
-      url.searchParams.set("referral", formData.referralCode);
-      url.searchParams.set("pending_id", data.pendingId);
+      const paymentData = await paymentResponse.json();
 
-      console.log('Redirecting to:', url.toString());
-      window.location.href = url.toString();
+      console.log('Redirecting to Paystack:', paymentData.authorization_url);
+      window.location.href = paymentData.authorization_url;
     } catch (error) {
       console.error("Enrollment error:", error);
       setErrors({ 

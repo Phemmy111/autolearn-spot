@@ -503,22 +503,23 @@ export async function POST(request: NextRequest) {
       const reference = data.reference;
       const amount = data.amount;
       const amountInNaira = amount / 100;
+      const paymentType = data.metadata?.payment_type;
       const pendingId = data.metadata?.pending_id;
 
-      console.log('Payment successful:', { reference, customerEmail, amount });
+      console.log('Payment successful:', { reference, customerEmail, amount, paymentType });
 
       // ROUTING: Determine payment flow based on metadata
-      // Direct Enrollment transactions include pending_id in metadata
-      // Scholarship transactions do not
-      if (pendingId) {
+      // Direct Enrollment transactions include payment_type in metadata
+      // Scholarship transactions do not have this metadata field
+      if (paymentType === 'direct_enrollment') {
         console.log('DIRECT ENROLLMENT: Processing via Direct Enrollment flow', { reference, pendingId });
         await logPaymentEvent({
           action: 'payment_flow_routed',
           category: 'webhook_received',
           payment_reference: reference,
-          description: 'Routed to Direct Enrollment flow (pending_id present in metadata)',
+          description: 'Routed to Direct Enrollment flow (payment_type = direct_enrollment in metadata)',
           status: 'success',
-          metadata: { flow: 'direct-enrollment', pending_id: pendingId }
+          metadata: { flow: 'direct-enrollment', payment_type: paymentType, pending_id: pendingId }
         });
 
         // Process Direct Enrollment flow
@@ -530,9 +531,9 @@ export async function POST(request: NextRequest) {
         action: 'payment_flow_routed',
         category: 'webhook_received',
         payment_reference: reference,
-        description: 'Routed to Scholarship flow (no pending_id in metadata)',
+        description: 'Routed to Scholarship flow (no payment_type in metadata or not direct_enrollment)',
         status: 'success',
-        metadata: { flow: 'scholarship' }
+        metadata: { flow: 'scholarship', payment_type: paymentType }
       });
 
       // Process Scholarship flow (existing logic below)
