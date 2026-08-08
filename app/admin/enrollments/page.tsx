@@ -48,10 +48,27 @@ export default async function AdminEnrollmentsPage() {
   const safeEnrollments = enrollments || [];
 
   // Fetch pending enrollments
-  const { data: pendingEnrollments } = await supabaseAdmin
+  const {
+    data: pendingEnrollments,
+    error: pendingEnrollmentsError
+  } = await supabaseAdmin
     .from('pending_enrollments')
     .select('*')
     .order('created_at', { ascending: false });
+
+  console.log('[ADMIN ENROLLMENTS DEBUG]', {
+    pendingError: pendingEnrollmentsError?.message,
+    pendingErrorCode: pendingEnrollmentsError?.code,
+    pendingErrorDetails: pendingEnrollmentsError?.details,
+    pendingErrorHint: pendingEnrollmentsError?.hint,
+    pendingCount: pendingEnrollments?.length ?? 0,
+    targetPendingFound: pendingEnrollments?.some(
+      p => p.id === '84665f11-d936-45fe-bd80-b065b95ffec9'
+    ),
+    targetPendingEmailFound: pendingEnrollments?.some(
+      p => p.email === 'femiadeleke2020@gmail.com'
+    )
+  });
 
   const safePendingEnrollments = pendingEnrollments || [];
 
@@ -59,6 +76,15 @@ export default async function AdminEnrollmentsPage() {
   // If email exists in both enrollments and pending_enrollments, show as Enrolled (not Payment Pending)
   const enrolledEmails = new Set(safeEnrollments.map(e => e.email));
   const uniquePendingEnrollments = safePendingEnrollments.filter(p => !enrolledEmails.has(p.email));
+
+  console.log('[ADMIN ENROLLMENTS DEBUG MERGE]', {
+    enrolledEmailsCount: enrolledEmails.size,
+    uniquePendingCount: uniquePendingEnrollments.length,
+    targetPendingAfterDedup:
+      uniquePendingEnrollments.some(
+        p => p.id === '84665f11-d936-45fe-bd80-b065b95ffec9'
+      )
+  });
 
   // Attach current cohort info to pending enrollments for display
   const pendingWithCohort = uniquePendingEnrollments.map(pending => ({
@@ -70,6 +96,15 @@ export default async function AdminEnrollmentsPage() {
                   pending.payment_status === 'expired' ? 'Expired' :
                   pending.payment_status === 'failed' ? 'Payment Failed' : pending.payment_status
   }));
+
+  console.log('[ADMIN ENROLLMENTS DEBUG COHORT]', {
+    currentCohortId: currentCohort?.id,
+    currentCohortName: currentCohort?.name,
+    targetPendingAfterCohort:
+      pendingWithCohort.some(
+        p => p.id === '84665f11-d936-45fe-bd80-b065b95ffec9'
+      )
+  });
 
   // Combine all records for display
   const allRecords = [
