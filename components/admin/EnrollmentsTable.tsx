@@ -404,7 +404,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                     )}
                     
                     {!en.is_pending && en.display_status === 'Enrolled' && (
-                      <button 
+                      <button
                         onClick={() => handleUpdateStatus(en.id, 'inactive')}
                         disabled={isUpdatingStatus === en.id}
                         className="inline-flex items-center gap-1 border border-red-500/30 bg-red-500/10 px-2 py-1 text-xs text-red-400 hover:text-white hover:bg-red-500/30 transition-colors disabled:opacity-50"
@@ -412,8 +412,9 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                         {isUpdatingStatus === en.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
                         Deactivate
                       </button>
-                    ) : (
-                      <button 
+                    )}
+                    {!en.is_pending && en.display_status === 'Inactive' && (
+                      <button
                         onClick={() => handleUpdateStatus(en.id, 'active')}
                         disabled={isUpdatingStatus === en.id}
                         className="inline-flex items-center gap-1 border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-400 hover:text-white hover:bg-emerald-500/30 transition-colors disabled:opacity-50"
