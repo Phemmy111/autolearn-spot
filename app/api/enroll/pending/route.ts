@@ -130,7 +130,23 @@ export async function POST(request: NextRequest) {
       }
 
       if (referralCodeData) {
-        referredBy = referralCodeData.id;
+        const { data: partnerData, error: partnerError } = await supabaseAdmin
+          .from('partners')
+          .select('id')
+          .eq('referral_code_id', referralCodeData.id)
+          .maybeSingle();
+
+        if (partnerError) {
+          console.error('Error looking up referral partner:', partnerError);
+        }
+
+        if (partnerData) {
+          referredBy = partnerData.id;
+        } else {
+          console.warn(
+            'Referral code has no matching partner; skipping referral attribution'
+          );
+        }
       }
     }
 
