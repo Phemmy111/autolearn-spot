@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { migrateLocalStorageProgress, getCurrentCohortId } from '@/lib/progress-service'
+import { migrateLocalStorageProgress, getUserCohortId } from '@/lib/progress-service'
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth()
+    const { userId, email } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing or invalid parameter: completedLessonIds' }, { status: 400 })
     }
 
-    const cohortId = await getCurrentCohortId()
+    const cohortId = await getUserCohortId(userId, email || '')
     const result = await migrateLocalStorageProgress(userId, cohortId, completedLessonIds)
 
     return NextResponse.json(result)

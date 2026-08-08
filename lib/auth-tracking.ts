@@ -1,7 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { headers } from 'next/headers'
 import { trackUserLogin } from '@/lib/analytics/integration'
-import { getCurrentCohortId } from '@/lib/progress-service'
+import { getUserCohortId } from '@/lib/progress-service'
 
 /**
  * Track user login activity
@@ -24,8 +24,8 @@ export async function trackAuthentication() {
     // Get user agent
     const userAgent = headersList.get('user-agent') || null
 
-    // Get user's cohort ID
-    const cohortId = await getCurrentCohortId()
+    // Get user's enrolled cohort ID
+    const cohortId = await getUserCohortId(userId, user.emailAddresses[0]?.emailAddress || '')
 
     // Track login
     await trackUserLogin(userId, cohortId, ip || undefined, userAgent || undefined)

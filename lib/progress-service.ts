@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 import { invalidateAfterLessonProgress } from '@/lib/analytics/integration'
 import { sendProgressMilestoneNotification } from '@/lib/notification-scheduler'
+import { getUserEnrollments } from '@/lib/enrollment-service'
 
 // Fixed Cohort 1 UUID — matches supabase-phase0-schema.sql seed
 const DEFAULT_COHORT_ID = 'a1111111-1111-1111-1111-111111111111'
@@ -26,6 +27,7 @@ export interface ProgressSummary {
 
 /**
  * Get the current cohort ID. Falls back to the hardcoded Cohort 1 UUID.
+ * Use this for system-wide operations, new registrations, or when student has no enrollment.
  */
 export async function getCurrentCohortId(): Promise<string> {
   const { data } = await supabaseAdmin
@@ -38,7 +40,30 @@ export async function getCurrentCohortId(): Promise<string> {
 }
 
 /**
+ * Get the authenticated student's enrolled cohort ID.
+ * This resolves the student's actual enrollment cohort for student-specific data retrieval.
+ * Falls back to current cohort if student has no enrollment.
+ */
+export async function getUserCohortId(userId: string, email: string): Promise<string> {
+  try {
+    const enrollments = await getUserEnrollments(userId, email);
+    
+    if (enrollments.length > 0) {
+      // Prefer active enrollment, otherwise use most recent
+      const activeEnrollment = enrollments.find(e => e.status === 'active') || enrollments[0];
+      return activeEnrollment.cohort_id;
+    }
+  } catch (error) {
+    console.error('[getUserCohortId] Error fetching enrollments:', error);
+  }
+  
+  // Fallback to current cohort for genuinely new/unenrolled students
+  return await getCurrentCohortId();
+}
+
+/**
  * Fetch all lesson progress rows for a user in a cohort.
+ * Uses the student's enrolled cohort if available, otherwise current cohort.
  */
 export async function getUserProgress(
   userId: string,
@@ -214,10 +239,12 @@ export async function migrateLocalStorageProgress(
 
 /**
  * Get a summary of completion for a user in a cohort.
+ * Uses the student's enrolled cohort if available, otherwise current cohort.
  */
 export async function getCompletionSummary(
   userId: string,
-  cohortId?: string
+  cohortId?: string,
+  email?: string
 ): Promise<ProgressSummary> {
   const cid = cohortId || (await getCurrentCohortId())
 

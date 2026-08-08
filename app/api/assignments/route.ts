@@ -1,33 +1,24 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { auth } from '@clerk/nextjs/server'
+import { getUserCohortId } from '@/lib/progress-service'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
-// GET - Student only: Get assignments for current cohort
+// GET - Student only: Get assignments for student's enrolled cohort
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const { userId, email } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get current cohort (is_current = true)
-    const { data: cohort, error: cohortError } = await supabase
-      .from('cohorts')
-      .select('id')
-      .eq('is_current', true)
-      .single()
+    // Get student's enrolled cohort
+    const cohortId = await getUserCohortId(userId, email || '')
+    console.log('Student cohort:', cohortId)
 
-    if (cohortError || !cohort) {
-      console.error('No active cohort found:', cohortError)
-      return NextResponse.json({ error: 'No active cohort found' }, { status: 404 })
-    }
-
-    console.log('Active cohort:', cohort.id)
-
-    // Get assignments for current cohort with user's submissions
+    // Get assignments for student's cohort with user's submissions
     const { data: assignments, error } = await supabase
       .from('assignments')
       .select(`
@@ -45,7 +36,7 @@ export async function GET() {
           updated_at
         )
       `)
-      .eq('cohort_id', cohort.id)
+      .eq('cohort_id', cohortId)
       .order('week_number', { ascending: true })
       .order('order_index', { ascending: true })
 

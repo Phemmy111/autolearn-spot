@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentCohortId } from '@/lib/progress-service'
+import { getUserCohortId } from '@/lib/progress-service'
 import {
   calculateVideoProgress,
   calculateAssignmentProgress,
@@ -19,9 +19,10 @@ import type {
  */
 export async function getStudentProgressAnalytics(
   userId: string,
-  cohortId?: string
+  cohortId?: string,
+  email?: string
 ): Promise<StudentProgressAnalytics> {
-  const cid = cohortId || (await getCurrentCohortId())
+  const cid = cohortId || (await getUserCohortId(userId, email || ''))
 
   // Calculate all progress metrics in parallel
   const [videoProgress, assignmentProgress, quizProgress, certificate] =
@@ -71,9 +72,10 @@ export async function getStudentProgressAnalytics(
  */
 export async function getStudentAssignmentPerformance(
   userId: string,
-  cohortId?: string
+  cohortId?: string,
+  email?: string
 ): Promise<AssignmentPerformance[]> {
-  const cid = cohortId || (await getCurrentCohortId())
+  const cid = cohortId || (await getUserCohortId(userId, email || ''))
 
   const { data: submissions, error } = await supabaseAdmin
     .from('submissions')
@@ -126,9 +128,10 @@ export async function getStudentAssignmentPerformance(
  */
 export async function getStudentQuizPerformance(
   userId: string,
-  cohortId?: string
+  cohortId?: string,
+  email?: string
 ): Promise<QuizPerformance[]> {
-  const cid = cohortId || (await getCurrentCohortId())
+  const cid = cohortId || (await getUserCohortId(userId, email || ''))
 
   const { data: responses, error } = await supabaseAdmin
     .from('quiz_responses')

@@ -6,7 +6,7 @@ import { createNotification } from '@/lib/notifications'
 import { invalidateAfterAssignmentSubmission } from '@/lib/analytics/integration'
 import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
 import { triggerBadgeCheck } from '@/lib/badge-system'
-import { getCurrentCohortId } from '@/lib/progress-service'
+import { getUserCohortId } from '@/lib/progress-service'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -128,7 +128,7 @@ export async function POST(
 
     // Invalidate analytics cache after assignment submission
     try {
-      const cohortId = assignment.cohort_id || await getCurrentCohortId()
+      const cohortId = assignment.cohort_id || await getUserCohortId(userId, user.emailAddresses[0]?.emailAddress || '')
       console.log('[assignment submission] Invalidating analytics cache:', { userId, cohortId })
       await invalidateAfterAssignmentSubmission(userId, cohortId)
     } catch (cacheError) {
@@ -148,7 +148,7 @@ export async function POST(
 
     // Trigger badge check after assignment submission
     try {
-      const cohortId = assignment.cohort_id || await getCurrentCohortId()
+      const cohortId = assignment.cohort_id || await getUserCohortId(userId, user.emailAddresses[0]?.emailAddress || '')
       await triggerBadgeCheck(userId, cohortId)
     } catch (badgeError) {
       console.error('Failed to trigger badge check:', badgeError)

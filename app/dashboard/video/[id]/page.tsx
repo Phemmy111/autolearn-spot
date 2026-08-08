@@ -5,7 +5,7 @@ import { videos, isVideoAvailable } from '@/data/videos'
 import { auth } from '@clerk/nextjs/server'
 import { AutolearnBot } from '@/components/autolearn-bot'
 import VideoPlayer from '@/components/video-player'
-import { getUserProgress, getCurrentCohortId } from '@/lib/progress-service'
+import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 
 interface VideoPageProps {
   params: Promise<{
@@ -34,7 +34,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
   // Fetch saved progress so the player can resume from the last position
   let resumeFromSeconds = 0
   try {
-    const cohortId = await getCurrentCohortId()
+    const { email } = await auth()
+    const cohortId = await getUserCohortId(userId, email || '')
     const progressRows = await getUserProgress(userId, cohortId)
     const row = progressRows.find((p) => p.lesson_id === video.id)
     // Only resume if not yet completed and position is meaningful (> 5s)

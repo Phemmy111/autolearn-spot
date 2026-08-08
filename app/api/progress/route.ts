@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getUserProgress, upsertLessonProgress, getCompletionSummary, getCurrentCohortId } from '@/lib/progress-service'
+import { getUserProgress, upsertLessonProgress, getCompletionSummary, getUserCohortId } from '@/lib/progress-service'
 import { triggerLeaderboardUpdate } from '@/lib/leaderboard-scoring'
 import { triggerBadgeCheck } from '@/lib/badge-system'
 
 export async function GET() {
   try {
-    const { userId } = await auth()
+    const { userId, email } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const cohortId = await getCurrentCohortId()
+    const cohortId = await getUserCohortId(userId, email || '')
     const progress = await getUserProgress(userId, cohortId)
     const summary = await getCompletionSummary(userId, cohortId)
 
@@ -24,7 +24,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth()
+    const { userId, email } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required parameter: lessonId' }, { status: 400 })
     }
 
-    const cohortId = await getCurrentCohortId()
+    const cohortId = await getUserCohortId(userId, email || '')
     
     const updatedProgress = await upsertLessonProgress(userId, cohortId, lessonId, {
       watchPct,
