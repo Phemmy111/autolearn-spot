@@ -7,13 +7,22 @@ import { triggerBadgeCheck } from '@/lib/badge-system'
 export async function GET() {
   try {
     const { userId, email } = await auth()
+    console.log('[GET /api/progress] Auth values:', { userId, email });
+    
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const cohortId = await getUserCohortId(userId, email || '')
+    console.log('[GET /api/progress] Resolved cohort ID:', cohortId);
+    
     const progress = await getUserProgress(userId, cohortId)
     const summary = await getCompletionSummary(userId, cohortId)
+
+    console.log('[GET /api/progress] Progress/summary results:', { 
+      progressCount: progress.length, 
+      summary 
+    });
 
     return NextResponse.json({ progress, summary })
   } catch (error) {

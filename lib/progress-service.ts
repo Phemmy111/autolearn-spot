@@ -45,20 +45,33 @@ export async function getCurrentCohortId(): Promise<string> {
  * Falls back to current cohort if student has no enrollment.
  */
 export async function getUserCohortId(userId: string, email: string): Promise<string> {
+  console.log('[getUserCohortId] Input values:', { userId, email });
+  
   try {
     const enrollments = await getUserEnrollments(userId, email);
+    
+    console.log('[getUserCohortId] Enrollments found:', enrollments.length);
     
     if (enrollments.length > 0) {
       // Prefer active enrollment, otherwise use most recent
       const activeEnrollment = enrollments.find(e => e.status === 'active') || enrollments[0];
-      return activeEnrollment.cohort_id;
+      const cohortId = activeEnrollment.cohort_id;
+      console.log('[getUserCohortId] Using enrollment cohort:', { 
+        enrollmentId: activeEnrollment.id, 
+        cohortId,
+        status: activeEnrollment.status 
+      });
+      return cohortId;
     }
   } catch (error) {
     console.error('[getUserCohortId] Error fetching enrollments:', error);
   }
   
   // Fallback to current cohort for genuinely new/unenrolled students
-  return await getCurrentCohortId();
+  console.log('[getUserCohortId] No enrollment found, falling back to current cohort');
+  const currentCohortId = await getCurrentCohortId();
+  console.log('[getUserCohortId] Current cohort ID:', currentCohortId);
+  return currentCohortId;
 }
 
 /**

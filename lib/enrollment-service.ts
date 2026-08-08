@@ -70,7 +70,10 @@ export const getUserEnrollments = cache(
     clerkUserId: string,
     email: string
   ): Promise<Enrollment[]> => {
+    console.log('[getUserEnrollments] Input values:', { clerkUserId, email });
+    
     if (!clerkUserId || !email) {
+      console.log('[getUserEnrollments] Missing required parameters, returning empty');
       return [];
     }
 
@@ -89,6 +92,12 @@ export const getUserEnrollments = cache(
         )
       `)
       .eq('clerk_user_id', clerkUserId);
+
+    console.log('[getUserEnrollments] Query result:', { 
+      recordCount: data?.length || 0, 
+      error: error?.message,
+      enrollments: data?.map(e => ({ id: e.id, email: e.email, clerk_user_id: e.clerk_user_id, cohort_id: e.cohort_id }))
+    });
 
     if (error) {
       console.error('Error fetching user enrollments:', error);

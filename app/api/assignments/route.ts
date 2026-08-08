@@ -10,13 +10,15 @@ export const fetchCache = 'force-no-store'
 export async function GET() {
   try {
     const { userId, email } = await auth()
+    console.log('[GET /api/assignments] Auth values:', { userId, email });
+    
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get student's enrolled cohort
     const cohortId = await getUserCohortId(userId, email || '')
-    console.log('Student cohort:', cohortId)
+    console.log('[GET /api/assignments] Resolved cohort ID:', cohortId)
 
     // Get assignments for student's cohort with user's submissions
     const { data: assignments, error } = await supabase
@@ -40,6 +42,11 @@ export async function GET() {
       .order('week_number', { ascending: true })
       .order('order_index', { ascending: true })
 
+    console.log('[GET /api/assignments] Query result:', { 
+      assignmentCount: assignments?.length || 0, 
+      error: error?.message 
+    });
+
     if (error) {
       console.error('Error fetching assignments:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -59,6 +66,7 @@ export async function GET() {
 
     return NextResponse.json({ assignments: assignmentsWithUserSubmissions })
   } catch (error: any) {
+    console.error('[GET /api/assignments] Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
