@@ -11,6 +11,14 @@ import {
 } from '@/lib/audit-logging';
 import { createNotification } from '@/lib/notifications';
 import { CommissionService } from '@/lib/growth-engine/CommissionService';
+import { ReferralService } from '@/lib/growth-engine/ReferralService';
+import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
+import { NotificationService as PartnerNotificationService } from '@/lib/growth-engine/NotificationService';
+import { FounderEmailService } from '@/lib/growth-engine/FounderEmailService';
+import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
+import { logUserActivity } from '@/lib/audit-logging';
+import { PartnerReferralService } from '@/lib/partner-system/PartnerReferralService';
+import { PartnerCommissionService } from '@/lib/partner-system/PartnerCommissionService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -21,6 +29,428 @@ const webhookSecret = scholarshipConfig.paystackMode === 'test'
   : process.env.PAYSTACK_WEBHOOK_SECRET!;
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+/**
+ * Generate a unique referral code for a new student
+ */
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No I, O, 0, 1 to avoid confusion
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+/**
+ * Get referrer name by ID
+ */
+async function getReferrerName(referrerId: string): Promise<string> {
+  try {
+    const { data } = await supabaseAdmin
+      .from('partners')
+      .select('user_name')
+      .eq('id', referrerId)
+      .single();
+    return data?.user_name || 'Unknown';
+  } catch {
+    return 'Unknown';
+  }
+}
+
+/**
+ * Process Direct Enrollment payment flow
+ * This handles ₦8,000 Direct Enrollment transactions
+ */
+async function processDirectEnrollment(data: any, reference: string, amountInNaira: number, pendingId: string) {
+  const email = data.customer.email;
+
+  // Verify this is a Direct Enrollment payment (₦8,000)
+  if (amountInNaira !== 8000) {
+    console.error(`Invalid payment amount for Direct Enrollment: ₦${amountInNaira}`);
+    await logPaymentEvent({
+      action: 'payment_validation_failed',
+      category: 'payment_verified',
+      user_email: email,
+      payment_reference: reference,
+      amount: amountInNaira,
+      description: 'Invalid amount for Direct Enrollment flow',
+      status: 'failure',
+      error_message: `Expected ₦8,000, got ₦${amountInNaira}`
+    });
+    return NextResponse.json({ error: 'Invalid payment amount' }, { status: 400 });
+  }
+
+  // Check if this payment has already been processed (idempotency)
+  const { data: existingEnrollment } = await supabaseAdmin
+    .from('enrollments')
+    .select('id')
+    .eq('payment_ref', reference)
+    .maybeSingle();
+
+  if (existingEnrollment) {
+    console.log(`Payment ${reference} already processed - enrollment exists`);
+    return NextResponse.json({ received: true, message: 'Payment already processed' });
+  }
+
+  // Find the pending enrollment
+  let pendingEnrollment;
+  const { data: pending } = await supabaseAdmin
+    .from('pending_enrollments')
+    .select('*')
+    .eq('id', pendingId)
+    .single();
+  pendingEnrollment = pending;
+
+  if (!pendingEnrollment) {
+    console.error(`No pending enrollment found for pending_id: ${pendingId}`);
+    await logPaymentEvent({
+      action: 'payment_verification_failed',
+      category: 'payment_verified',
+      user_email: email,
+      payment_reference: reference,
+      amount: amountInNaira,
+      description: 'Pending enrollment not found',
+      status: 'failure',
+      error_message: `No pending enrollment with id: ${pendingId}`
+    });
+    return NextResponse.json({ error: 'No pending enrollment found' }, { status: 404 });
+  }
+
+  // Note: We do NOT reject expired pending enrollments
+  // A successful Paystack payment should be honored regardless of when the pending enrollment was created
+  // The expires_at is for cleanup of abandoned registrations, not for rejecting successful payments
+  // 
+  // RECOVERY: For expired but successfully paid pending enrollments:
+  // - The pending enrollment record still exists with payment_status = 'pending'
+  // - Re-triggering the Paystack webhook will:
+  //   1. Find the pending enrollment by pending_id (even if expired)
+  //   2. Create the enrollment using current cohort
+  //   3. Mark pending enrollment as completed with payment_reference
+  // - No manual database intervention required
+
+  // Resolve current cohort
+  console.info('DIRECT ENROLLMENT: Resolving current cohort');
+  const { data: currentCohort, error: cohortError } = await supabaseAdmin
+    .from('cohorts')
+    .select('id, name, status, is_current')
+    .eq('is_current', true)
+    .single();
+
+  if (cohortError) {
+    console.error('DIRECT ENROLLMENT: Cohort resolution error', {
+      code: cohortError.code,
+      message: cohortError.message,
+      details: cohortError.details,
+      hint: cohortError.hint
+    });
+    await logPaymentEvent({
+      action: 'cohort_resolution_failed',
+      category: 'payment_verified',
+      user_email: email,
+      payment_reference: reference,
+      amount: amountInNaira,
+      description: 'Failed to resolve current cohort',
+      status: 'failure',
+      error_message: cohortError.message
+    });
+    return NextResponse.json(
+      { error: 'Failed to resolve current cohort' },
+      { status: 500 }
+    );
+  }
+
+  if (!currentCohort) {
+    console.error('DIRECT ENROLLMENT: No current cohort found');
+    await logPaymentEvent({
+      action: 'cohort_resolution_failed',
+      category: 'payment_verified',
+      user_email: email,
+      payment_reference: reference,
+      amount: amountInNaira,
+      description: 'No active cohort found',
+      status: 'failure',
+      error_message: 'No cohort with is_current = true'
+    });
+    return NextResponse.json(
+      { error: 'No active cohort found. Please activate a cohort before processing payments.' },
+      { status: 400 }
+    );
+  }
+
+  console.info('DIRECT ENROLLMENT: Current cohort resolved', {
+    cohort_id: currentCohort.id,
+    cohort_name: currentCohort.name,
+    status: currentCohort.status,
+    is_current: currentCohort.is_current
+  });
+
+  // Create final enrollment
+  console.info('DIRECT ENROLLMENT: Creating enrollment', {
+    cohort_id: currentCohort.id,
+    email: pendingEnrollment.email,
+    payment_ref: reference,
+    amount_paid: amountInNaira
+  });
+
+  const enrollmentData = {
+    cohort_id: currentCohort.id,
+    email: pendingEnrollment.email,
+    payment_ref: reference,
+    amount_paid: amountInNaira,
+    status: 'active',
+    activated_at: new Date().toISOString(),
+    referral_code: pendingEnrollment.referral_code || null,
+    referred_by_code: pendingEnrollment.referral_code || null
+  };
+
+  const { error: enrollmentError } = await supabaseAdmin
+    .from('enrollments')
+    .upsert(enrollmentData, {
+      onConflict: 'cohort_id, email'
+    });
+
+  if (enrollmentError) {
+    console.error('DIRECT ENROLLMENT: Enrollment creation error', {
+      cohort_id: currentCohort.id,
+      email: pendingEnrollment.email,
+      payment_ref: reference,
+      amount: amountInNaira,
+      code: enrollmentError.code,
+      message: enrollmentError.message,
+      details: enrollmentError.details,
+      hint: enrollmentError.hint
+    });
+    await logPaymentEvent({
+      action: 'enrollment_creation_failed',
+      category: 'payment_verified',
+      user_email: email,
+      payment_reference: reference,
+      amount: amountInNaira,
+      description: 'Failed to create enrollment',
+      status: 'failure',
+      error_message: enrollmentError.message
+    });
+    return NextResponse.json(
+      { error: 'Failed to create enrollment' },
+      { status: 500 }
+    );
+  }
+
+  console.info('DIRECT ENROLLMENT: Enrollment created successfully');
+
+  // Send admin notification about successful payment
+  await AdminEmailService.sendStudentPaymentEmail({
+    fullName: pendingEnrollment.full_name,
+    email: pendingEnrollment.email,
+    phoneNumber: pendingEnrollment.phone_number,
+    paymentAmount: amountInNaira,
+    paymentReference: reference,
+    cohort: currentCohort.name
+  });
+
+  // Create Student Partner (automatic for Direct Enrollment)
+  // First create a referral code for this student
+  const referralCode = generateReferralCode();
+  const { data: newReferralCode, error: referralError } = await supabaseAdmin
+    .from('referral_codes')
+    .insert({
+      owner_id: pendingEnrollment.email, // Use email as owner_id since we use Clerk
+      code: referralCode,
+      status: 'Active',
+      owner_type: 'student'
+    })
+    .select('id')
+    .single();
+
+  if (referralError) {
+    console.error('Error creating referral code:', referralError);
+    // Continue anyway, partner creation can still work without referral code
+  }
+
+  // Now create the partner record
+  const { data: studentPartner, error: partnerError } = await supabaseAdmin
+    .from('partners')
+    .insert({
+      user_id: pendingEnrollment.email, // Use email as user_id since we use Clerk
+      user_email: pendingEnrollment.email,
+      user_name: pendingEnrollment.full_name,
+      partner_type: 'student',
+      referral_code_id: newReferralCode?.id || null,
+      commission_rate: 1500, // Student partner commission
+      status: 'active',
+      enrolled_at: new Date().toISOString(),
+    })
+    .select('id')
+    .single();
+
+  if (partnerError) {
+    console.error('Error creating student partner:', partnerError);
+    // Continue anyway, enrollment was successful
+  }
+
+  // Handle referral commission if applicable
+  if (pendingEnrollment.referred_by && pendingEnrollment.referral_code) {
+    try {
+      // Existing commission system
+      await CommissionService.createCommission({
+        referrerId: pendingEnrollment.referred_by,
+        refereeEmail: pendingEnrollment.email,
+        referralCode: pendingEnrollment.referral_code,
+        paymentReference: reference,
+        courseAmount: amountInNaira,
+        paymentType: 'direct-enrollment',
+      });
+
+      // Track the referral conversion
+      await ReferralService.trackConversion({
+        referralCode: pendingEnrollment.referral_code,
+        refereeEmail: pendingEnrollment.email,
+        paymentAmount: amountInNaira,
+        paymentReference: reference,
+      });
+
+      // New partner commission system integration
+      const { data: partnerReferral } = await supabaseAdmin
+        .from('partner_referrals')
+        .select('id, partner_id')
+        .eq('referral_code', pendingEnrollment.referral_code)
+        .single();
+
+      if (partnerReferral) {
+        await PartnerReferralService.recordReferralEnrollment(
+          pendingEnrollment.referral_code,
+          pendingEnrollment.email,
+          amountInNaira
+        );
+
+        await PartnerCommissionService.createCommission(
+          partnerReferral.partner_id,
+          partnerReferral.id,
+          pendingEnrollment.email,
+          amountInNaira
+        );
+
+        // Send email notification to partner about successful referral
+        const { data: partnerData } = await supabaseAdmin
+          .from('partners')
+          .select('user_name, user_email')
+          .eq('id', partnerReferral.partner_id)
+          .single();
+
+        if (partnerData) {
+          await AdminEmailService.sendPartnerReferralEmail({
+            partnerName: partnerData.user_name,
+            partnerEmail: partnerData.user_email,
+            refereeEmail: pendingEnrollment.email,
+            commissionAmount: 1500,
+            referralCode: pendingEnrollment.referral_code
+          });
+        }
+      }
+    } catch (commissionError) {
+      console.error('Error creating commission:', commissionError);
+      // Continue anyway, enrollment was successful
+    }
+  }
+
+  // Send welcome email
+  try {
+    await PartnerEmailService.sendWelcomeEmail({
+      email: pendingEnrollment.email,
+      fullName: pendingEnrollment.full_name,
+      referralCode: referralCode,
+      enrollmentType: 'Direct Enrollment',
+    });
+  } catch (emailError) {
+    console.error('Error sending welcome email:', emailError);
+    // Continue anyway
+  }
+
+  // Create in-app notification
+  try {
+    await PartnerNotificationService.createNotification({
+      partnerId: studentPartner?.id || null,
+      type: 'enrollment_complete',
+      title: 'Welcome to AutoLearn Spot!',
+      message: 'Your enrollment is complete. You now have access to your dashboard.',
+      metadata: {
+        enrollmentType: 'direct',
+        paymentAmount: amountInNaira,
+        referralCode: referralCode,
+      },
+    });
+  } catch (notificationError) {
+    console.error('Error creating notification:', notificationError);
+    // Continue anyway
+  }
+
+  // Notify founder of new registration
+  try {
+    await FounderEmailService.sendNewRegistration({
+      name: pendingEnrollment.full_name,
+      email: pendingEnrollment.email,
+      phone: pendingEnrollment.phone_number,
+      registrationType: 'direct_enrollment',
+      referralCode: pendingEnrollment.referral_code || undefined,
+      referrer: pendingEnrollment.referred_by ? await getReferrerName(pendingEnrollment.referred_by) : undefined,
+    });
+  } catch (founderEmailError) {
+    console.error('Error sending founder notification:', founderEmailError);
+    // Continue anyway
+  }
+
+  // Notify founder of payment received
+  try {
+    await FounderEmailService.sendPaymentReceived({
+      studentName: pendingEnrollment.full_name,
+      email: pendingEnrollment.email,
+      amount: amountInNaira,
+      paymentType: 'direct_enrollment',
+      reference: reference,
+      referrer: pendingEnrollment.referred_by ? await getReferrerName(pendingEnrollment.referred_by) : undefined,
+      commissionGenerated: pendingEnrollment.referred_by ? 1500 : undefined,
+    });
+  } catch (founderPaymentError) {
+    console.error('Error sending payment notification:', founderPaymentError);
+    // Continue anyway
+  }
+
+  // Log the enrollment activity
+  try {
+    await logUserActivity({
+      action: 'direct_enrollment_completed',
+      user_id: pendingEnrollment.email,
+      user_email: pendingEnrollment.email,
+      description: `Direct enrollment completed for ₦${amountInNaira}`,
+      metadata: {
+        paymentReference: reference,
+        referralCode: pendingEnrollment.referral_code,
+        referredBy: pendingEnrollment.referred_by,
+      },
+    });
+  } catch (logError) {
+    console.error('Error logging activity:', logError);
+    // Continue anyway
+  }
+
+  // Update pending enrollment to completed
+  await supabaseAdmin
+    .from('pending_enrollments')
+    .update({
+      payment_status: 'completed',
+      payment_reference: reference,
+      completed_at: new Date().toISOString(),
+    })
+    .eq('id', pendingEnrollment.id);
+
+  return NextResponse.json({
+    received: true,
+    message: 'Direct enrollment processed successfully',
+    enrollmentEmail: pendingEnrollment.email,
+    referralCode: referralCode,
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,8 +502,40 @@ export async function POST(request: NextRequest) {
       const customerEmail = data.customer.email;
       const reference = data.reference;
       const amount = data.amount;
+      const amountInNaira = amount / 100;
+      const pendingId = data.metadata?.pending_id;
 
       console.log('Payment successful:', { reference, customerEmail, amount });
+
+      // ROUTING: Determine payment flow based on metadata
+      // Direct Enrollment transactions include pending_id in metadata
+      // Scholarship transactions do not
+      if (pendingId) {
+        console.log('DIRECT ENROLLMENT: Processing via Direct Enrollment flow', { reference, pendingId });
+        await logPaymentEvent({
+          action: 'payment_flow_routed',
+          category: 'webhook_received',
+          payment_reference: reference,
+          description: 'Routed to Direct Enrollment flow (pending_id present in metadata)',
+          status: 'success',
+          metadata: { flow: 'direct-enrollment', pending_id: pendingId }
+        });
+
+        // Process Direct Enrollment flow
+        return await processDirectEnrollment(data, reference, amountInNaira, pendingId);
+      }
+
+      console.log('SCHOLARSHIP: Processing via Scholarship flow', { reference });
+      await logPaymentEvent({
+        action: 'payment_flow_routed',
+        category: 'webhook_received',
+        payment_reference: reference,
+        description: 'Routed to Scholarship flow (no pending_id in metadata)',
+        status: 'success',
+        metadata: { flow: 'scholarship' }
+      });
+
+      // Process Scholarship flow (existing logic below)
 
       // Find scholarship application by email
       const { data: application, error: fetchError } = await supabaseAdmin
