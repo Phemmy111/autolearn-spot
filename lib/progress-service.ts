@@ -44,11 +44,11 @@ export async function getCurrentCohortId(): Promise<string> {
  * This resolves the student's actual enrollment cohort for student-specific data retrieval.
  * Falls back to current cohort if student has no enrollment.
  */
-export async function getUserCohortId(userId: string, email: string): Promise<string> {
+export async function getUserCohortId(userId: string, email: string | null | undefined): Promise<string> {
   console.log('[getUserCohortId] Input values:', { userId, email });
   
   try {
-    const enrollments = await getUserEnrollments(userId, email);
+    const enrollments = await getUserEnrollments(userId, email || '');
     
     console.log('[getUserCohortId] Enrollments found:', enrollments.length);
     

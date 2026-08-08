@@ -35,7 +35,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
   let resumeFromSeconds = 0
   try {
     const { email } = await auth()
-    const cohortId = await getUserCohortId(userId, email || '')
+    const cohortId = await getUserCohortId(userId, email)
     const progressRows = await getUserProgress(userId, cohortId)
     const row = progressRows.find((p) => p.lesson_id === video.id)
     // Only resume if not yet completed and position is meaningful (> 5s)

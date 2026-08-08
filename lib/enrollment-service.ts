@@ -72,13 +72,15 @@ export const getUserEnrollments = cache(
   ): Promise<Enrollment[]> => {
     console.log('[getUserEnrollments] Input values:', { clerkUserId, email });
     
-    if (!clerkUserId || !email) {
-      console.log('[getUserEnrollments] Missing required parameters, returning empty');
+    if (!clerkUserId) {
+      console.log('[getUserEnrollments] Missing clerkUserId, returning empty');
       return [];
     }
 
-    // Auto-link email enrollment to Clerk account
-    await linkEmailToClerkUser(email, clerkUserId);
+    // Auto-link email enrollment to Clerk account (only if email is provided)
+    if (email) {
+      await linkEmailToClerkUser(email, clerkUserId);
+    }
 
     const { data, error } = await supabaseAdmin
       .from('enrollments')
@@ -102,6 +104,43 @@ export const getUserEnrollments = cache(
     if (error) {
       console.error('Error fetching user enrollments:', error);
       return [];
+    }
+
+    // If no enrollment found by clerk_user_id, try email fallback
+    if (!data || data.length === 0) {
+      if (email) {
+        console.log('[getUserEnrollments] No enrollment by clerk_user_id, trying email fallback');
+        const { data: emailData, error: emailError } = await supabaseAdmin
+          .from('enrollments')
+          .select(`
+            *,
+            cohort:cohorts (
+              id,
+              name,
+              slug,
+              is_current
+            )
+          `)
+          .eq('email', email);
+
+        console.log('[getUserEnrollments] Email fallback result:', { 
+          recordCount: emailData?.length || 0, 
+          error: emailError?.message,
+          enrollments: emailData?.map(e => ({ id: e.id, email: e.email, clerk_user_id: e.clerk_user_id, cohort_id: e.cohort_id }))
+        });
+
+        if (emailError) {
+          console.error('Error fetching enrollments by email:', emailError);
+          return [];
+        }
+
+        // If found by email, link the clerk_user_id for future lookups
+        if (emailData && emailData.length > 0) {
+          console.log('[getUserEnrollments] Found enrollment by email, linking clerk_user_id');
+          await linkEmailToClerkUser(email, clerkUserId);
+          return (emailData ?? []) as Enrollment[];
+        }
+      }
     }
 
     return (data ?? []) as Enrollment[];

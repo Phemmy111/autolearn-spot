@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing or invalid parameter: completedLessonIds' }, { status: 400 })
     }
 
-    const cohortId = await getUserCohortId(userId, email || '')
+    const cohortId = await getUserCohortId(userId, email)
     const result = await migrateLocalStorageProgress(userId, cohortId, completedLessonIds)
 
     return NextResponse.json(result)

@@ -270,7 +270,8 @@ export async function POST(
 
     // Trigger badge check after quiz submission
     try {
-      const cohortId = typedQuiz.cohort_id || await getUserCohortId(userId, user.emailAddresses[0]?.emailAddress || '')
+      const email = user.emailAddresses[0]?.emailAddress || null
+      const cohortId = typedQuiz.cohort_id || await getUserCohortId(userId, email)
       await triggerBadgeCheck(userId, cohortId)
     } catch (badgeError) {
       console.error('Failed to trigger badge check:', badgeError)

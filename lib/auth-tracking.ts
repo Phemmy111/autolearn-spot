@@ -25,7 +25,8 @@ export async function trackAuthentication() {
     const userAgent = headersList.get('user-agent') || null
 
     // Get user's enrolled cohort ID
-    const cohortId = await getUserCohortId(userId, user.emailAddresses[0]?.emailAddress || '')
+    const email = user.emailAddresses[0]?.emailAddress || null
+    const cohortId = await getUserCohortId(userId, email)
 
     // Track login
     await trackUserLogin(userId, cohortId, ip || undefined, userAgent || undefined)

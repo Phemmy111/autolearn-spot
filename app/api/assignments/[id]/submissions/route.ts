@@ -128,7 +128,8 @@ export async function POST(
 
     // Invalidate analytics cache after assignment submission
     try {
-      const cohortId = assignment.cohort_id || await getUserCohortId(userId, user.emailAddresses[0]?.emailAddress || '')
+      const email = user.emailAddresses[0]?.emailAddress || null
+      const cohortId = assignment.cohort_id || await getUserCohortId(userId, email)
       console.log('[assignment submission] Invalidating analytics cache:', { userId, cohortId })
       await invalidateAfterAssignmentSubmission(userId, cohortId)
     } catch (cacheError) {
@@ -148,7 +149,8 @@ export async function POST(
 
     // Trigger badge check after assignment submission
     try {
-      const cohortId = assignment.cohort_id || await getUserCohortId(userId, user.emailAddresses[0]?.emailAddress || '')
+      const email = user.emailAddresses[0]?.emailAddress || null
+      const cohortId = assignment.cohort_id || await getUserCohortId(userId, email)
       await triggerBadgeCheck(userId, cohortId)
     } catch (badgeError) {
       console.error('Failed to trigger badge check:', badgeError)

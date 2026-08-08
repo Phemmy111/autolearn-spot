@@ -17,7 +17,7 @@ export async function GET() {
     }
 
     // Get student's enrolled cohort
-    const cohortId = await getUserCohortId(userId, email || '')
+    const cohortId = await getUserCohortId(userId, email)
     console.log('[GET /api/assignments] Resolved cohort ID:', cohortId)
 
     // Get assignments for student's cohort with user's submissions
