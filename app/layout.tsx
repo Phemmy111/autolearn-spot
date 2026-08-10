@@ -1,7 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
-import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -51,19 +50,12 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <html lang="en" suppressHydrationWarning>
-          <body className="font-sans antialiased">
-            {children}
-            {process.env.NODE_ENV === 'production' && <Analytics />}
-          </body>
-        </html>
-      </ThemeProvider>
+      <html lang="en" className="dark">
+        <body className="font-sans antialiased">
+          {children}
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </body>
+      </html>
     </ClerkProvider>
   )
 }
