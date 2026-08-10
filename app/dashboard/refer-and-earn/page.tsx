@@ -386,7 +386,7 @@ export default function StudentPartnerPage() {
                     <p className="text-xs text-[#b9cacb] mb-3 line-clamp-2">{resource.description}</p>
                   )}
                   <a
-                    href={resource.file_url}
+                    href={resource.resource_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-xs font-semibold text-[#00f0ff] hover:text-white transition-colors"

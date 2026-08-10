@@ -1682,7 +1682,7 @@ export default function AdminPartnersPage() {
                       {selectedPartner.recentReferrals.map((referral: any) => (
                         <div key={referral.id} className="flex items-center justify-between p-3 bg-[#0c0e12] rounded-lg">
                           <div>
-                            <p className="text-sm text-[#e2e2e8]">Referral: {referral.referee_id || 'Unknown'}</p>
+                            <p className="text-sm text-[#e2e2e8]">Referral: {referral.referee_email || referral.referee_id || 'Unknown'}</p>
                             <p className="text-xs text-[#b9cacb]">{new Date(referral.created_at).toLocaleDateString()}</p>
                           </div>
                           <div className="text-right">

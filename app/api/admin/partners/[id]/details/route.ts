@@ -33,9 +33,19 @@ export async function GET(
       console.error('Error fetching bank details:', bankError);
     }
     
+    // Fetch partner info
+    const { data: partner, error: partnerError } = await supabaseAdmin
+      .from('partners')
+      .select('*')
+      .eq('id', partnerId)
+      .single();
+    
+    console.log('[GET /api/admin/partners/[id]/details] Partner result:', partner, partnerError);
+    
     return NextResponse.json({
       success: true,
-      bankDetails: bankDetails || null
+      bankDetails: bankDetails,
+      partner: partner
     });
   } catch (error) {
     console.error('[GET /api/admin/partners/[id]/details] Error:', error);
