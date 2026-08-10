@@ -16,7 +16,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
-    // Get user from Clerk ID
+    // Get user from Clerk ID to get their email
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('*')
@@ -27,11 +27,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get student partner record
+    // Get student partner record using email as clerk_user_id (this is how webhook creates it)
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .select('*')
-      .eq('clerk_user_id', user.id)
+      .eq('clerk_user_id', user.email) // Use email as clerk_user_id
       .eq('partner_type', 'student')
       .eq('status', 'active')
       .single();
@@ -44,10 +44,11 @@ export async function GET(request: Request) {
     }
 
     // Get or create referral code
-    let referralStats = await ReferralService.getReferralStats(partner.id);
+    // Use clerk_user_id (email) as the owner_id since that's how PartnerService creates it
+    let referralStats = await ReferralService.getReferralStats(partner.clerk_user_id);
     
     if (!referralStats) {
-      const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, 'student');
+      const referralCode = await ReferralService.getOrCreateReferralCode(partner.clerk_user_id, 'student');
       
       if (referralCode) {
         referralStats = {

@@ -12,6 +12,7 @@ import {
 import { createNotification } from '@/lib/notifications';
 import { CommissionService } from '@/lib/growth-engine/CommissionService';
 import { ReferralService } from '@/lib/growth-engine/ReferralService';
+import { PartnerService } from '@/lib/growth-engine/PartnerService';
 import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
 import { NotificationService as PartnerNotificationService } from '@/lib/growth-engine/NotificationService';
 import { FounderEmailService } from '@/lib/growth-engine/FounderEmailService';
@@ -250,43 +251,27 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   });
 
   // Create Student Partner (automatic for Direct Enrollment)
-  // First create a referral code for this student
-  const referralCode = generateReferralCode();
-  const { data: newReferralCode, error: referralError } = await supabaseAdmin
-    .from('referral_codes')
-    .insert({
-      owner_id: pendingEnrollment.email, // Use email as owner_id since we use Clerk
-      code: referralCode,
-      status: 'Active',
-      owner_type: 'student'
-    })
-    .select('id')
-    .single();
+  // Use the PartnerService to ensure correct column names and referral code creation
+  const partnerResult = await PartnerService.createStudentPartner(
+    pendingEnrollment.email, // Use email as clerk_user_id since we use Clerk
+    pendingEnrollment.email,
+    pendingEnrollment.full_name
+  );
 
-  if (referralError) {
-    console.error('Error creating referral code:', referralError);
-    // Continue anyway, partner creation can still work without referral code
-  }
-
-  // Now create the partner record
-  const { data: studentPartner, error: partnerError } = await supabaseAdmin
-    .from('partners')
-    .insert({
-      clerk_user_id: pendingEnrollment.email, // Use email as clerk_user_id since we use Clerk
-      full_name: pendingEnrollment.full_name,
-      email: pendingEnrollment.email,
-      partner_type: 'student',
-      referral_code_id: newReferralCode?.id || null,
-      commission_rate: 1500, // Student partner commission
-      status: 'active',
-    })
-    .select('id')
-    .single();
-
-  if (partnerError) {
-    console.error('Error creating student partner:', partnerError);
+  if (partnerResult.success) {
+    console.log('DIRECT ENROLLMENT: Student partner created successfully', {
+      partnerId: partnerResult.partner?.id,
+      email: pendingEnrollment.email
+    });
+  } else {
+    console.error('DIRECT ENROLLMENT: Failed to create student partner', {
+      error: partnerResult.error,
+      email: pendingEnrollment.email
+    });
     // Continue anyway, enrollment was successful
   }
+
+  const studentPartner = partnerResult.partner;
 
   // Handle referral commission if applicable
   if (pendingEnrollment.referred_by && pendingEnrollment.referral_code) {
