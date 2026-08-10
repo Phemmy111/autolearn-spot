@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { ReferralService } from '@/lib/growth-engine/ReferralService';
 import { CommissionService } from '@/lib/growth-engine/CommissionService';
+import { PartnerService } from '@/lib/growth-engine/PartnerService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -50,8 +51,12 @@ export async function GET(request: Request) {
       }
     }
 
-    // Get earnings
-    const earnings = await CommissionService.getEarnings(partner.id);
+    // Update partner stats using the correct method
+    await PartnerService.updatePartnerStats(partner.id);
+
+    // Get earnings using the correct referrer_id
+    // For student partners, commissions use clerk_user_id as referrer_id
+    const earnings = await CommissionService.getEarnings(partner.clerk_user_id);
 
     // Get referral link
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
@@ -59,16 +64,16 @@ export async function GET(request: Request) {
       ? `${appUrl}/enroll?ref=${referralStats.code}`
       : null;
 
-    // Get recent commissions
+    // Get recent commissions using correct referrer_id
     const recentCommissions = await CommissionService.listCommissions({
-      referrerId: partner.id
+      referrerId: partner.clerk_user_id
     }).then(comms => comms.slice(0, 10));
 
     // Get recent referrals (from enrollments table)
     const { data: recentReferrals } = await supabaseAdmin
       .from('enrollments')
-      .select('email, created_at, payment_status, referred_by')
-      .eq('referred_by', partner.id)
+      .select('email, created_at, status, referred_by_code')
+      .eq('referred_by_code', referralStats?.code)
       .order('created_at', { ascending: false })
       .limit(10);
 
@@ -76,9 +81,9 @@ export async function GET(request: Request) {
     const formattedReferrals = recentReferrals?.map(ref => ({
       email: ref.email,
       date: ref.created_at,
-      status: ref.payment_status === 'completed' ? 'completed' : 
-             ref.payment_status === 'pending' ? 'pending' : 'failed',
-      commission: ref.payment_status === 'completed' ? 1500 : 0
+      status: ref.status === 'active' ? 'completed' : 
+             ref.status === 'pending' ? 'pending' : 'failed',
+      commission: ref.status === 'active' ? partner.commission_rate : 0
     })) || [];
 
     // Format commissions for display
@@ -88,18 +93,6 @@ export async function GET(request: Request) {
       amount: commission.amount,
       status: commission.status
     })) || [];
-
-    // Update partner stats
-    await supabaseAdmin
-      .from('partners')
-      .update({
-        total_clicks: referralStats?.totalClicks || 0,
-        total_registrations: referralStats?.totalRegistrations || 0,
-        available_earnings: earnings?.available || 0,
-        pending_earnings: earnings?.pending || 0,
-        lifetime_earnings: earnings?.lifetime || 0
-      })
-      .eq('id', partner.id);
 
     // Get marketing resources for student partners
     const { data: marketingResources } = await supabaseAdmin
@@ -112,6 +105,13 @@ export async function GET(request: Request) {
       .from('partner_bank_profiles')
       .select('*')
       .eq('partner_id', partner.id)
+      .single();
+
+    // Fetch updated partner stats after updatePartnerStats
+    const { data: updatedPartner } = await supabaseAdmin
+      .from('partners')
+      .select('total_clicks, total_registrations, available_earnings, pending_earnings, lifetime_earnings')
+      .eq('id', partner.id)
       .single();
 
     return NextResponse.json({
@@ -127,10 +127,10 @@ export async function GET(request: Request) {
         referralCode: referralStats?.code,
         referralLink,
         stats: {
-          totalClicks: referralStats?.totalClicks || 0,
-          totalRegistrations: referralStats?.totalRegistrations || 0,
-          pendingEarnings: earnings?.pending || 0,
-          availableBalance: earnings?.available || 0
+          totalClicks: updatedPartner?.total_clicks || 0,
+          totalRegistrations: updatedPartner?.total_registrations || 0,
+          pendingEarnings: updatedPartner?.pending_earnings || 0,
+          availableBalance: updatedPartner?.available_earnings || 0
         },
         recentReferrals: formattedReferrals,
         commissions: formattedCommissions,
