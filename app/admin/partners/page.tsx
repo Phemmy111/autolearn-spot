@@ -364,8 +364,8 @@ export default function AdminPartnersPage() {
     // Fetch partner bank details and recent referrals
     try {
       const [bankRes, referralsRes] = await Promise.all([
-        fetch(`/api/admin/partners/${partnerId}/details?v=${Date.now()}`),
-        fetch(`/api/admin/partners/${partnerId}/referrals?v=${Date.now()}`)
+        fetch(`/api/admin/partner-details?partnerId=${partnerId}`),
+        fetch(`/api/admin/partner-referrals?partnerId=${partnerId}`)
       ]);
       
       console.log('[Admin Partners] Bank details response status:', bankRes.status);
