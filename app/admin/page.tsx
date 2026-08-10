@@ -194,7 +194,7 @@ export default async function AdminPage() {
             href="/admin/ai-cost-controls"
             className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
           >
-            <Settings className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <SettingsIcon className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
             <h2 className="font-heading text-xl font-bold text-white mb-2">AI Cost Controls</h2>
             <p className="font-mono text-xs text-[#b9cacb]">Configure AI usage limits and costs (Super Admin only)</p>
           </Link>
@@ -260,7 +260,7 @@ export default async function AdminPage() {
             href="/admin/ai-cost-controls"
             className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
           >
-            <Settings className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <SettingsIcon className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
             <h2 className="font-heading text-xl font-bold text-white mb-2">AI Cost Controls</h2>
             <p className="font-mono text-xs text-[#b9cacb]">Configure AI usage limits and parameters (Super Admin only)</p>
           </Link>
