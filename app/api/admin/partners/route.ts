@@ -30,6 +30,16 @@ export async function GET(request: Request) {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
+    
+    // Log for debugging
+    console.log('[GET /api/admin/partners] Fetched partners:', data?.length);
+    if (data) {
+      const studentCount = data.filter(p => p.partner_type === 'student').length;
+      const communityCount = data.filter(p => p.partner_type === 'community').length;
+      const influencerCount = data.filter(p => p.partner_type === 'influencer').length;
+      console.log(`[GET /api/admin/partners] Student: ${studentCount}, Community: ${communityCount}, Influencer: ${influencerCount}`);
+    }
+    
     return NextResponse.json({ success: true, partners: data });
   } catch (error) {
     console.error('[GET /api/admin/partners] Error:', error);

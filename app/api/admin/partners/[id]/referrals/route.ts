@@ -18,13 +18,32 @@ export async function GET(
     
     const partnerId = params.id;
     
+    // Get partner type to determine referrer_id
+    const { data: partner } = await supabaseAdmin
+      .from('partners')
+      .select('partner_type, clerk_user_id')
+      .eq('id', partnerId)
+      .single();
+    
+    if (!partner) {
+      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+    }
+    
+    // For student partners, use clerk_user_id as referrer_id
+    // For community/influencer partners, use partner.id
+    const referrerId = partner.partner_type === 'student' ? partner.clerk_user_id : partnerId;
+    
+    console.log('[GET /api/admin/partners/[id]/referrals] Partner:', partnerId, 'Type:', partner.partner_type, 'Referrer ID:', referrerId);
+    
     // Fetch recent referrals for this partner
     const { data: referrals, error } = await supabaseAdmin
       .from('commissions')
       .select('*')
-      .eq('referrer_id', partnerId)
+      .eq('referrer_id', referrerId)
       .order('created_at', { ascending: false })
       .limit(10);
+    
+    console.log('[GET /api/admin/partners/[id]/referrals] Referrals found:', referrals?.length);
     
     if (error) {
       console.error('Error fetching referrals:', error);

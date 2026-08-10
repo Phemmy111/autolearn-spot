@@ -429,14 +429,26 @@ export class PartnerService {
         .eq('id', partnerId)
         .single();
 
-      if (!partner?.referral_code_id) return;
+      if (!partner) return;
 
-      // Get referral code
-      const { data: referralCode } = await supabaseAdmin
-        .from('referral_codes')
-        .select('code')
-        .eq('id', partner.referral_code_id)
-        .single();
+      // Get referral code - either from referral_code_id or by finding one linked to this partner
+      let referralCode;
+      if (partner.referral_code_id) {
+        const { data: rc } = await supabaseAdmin
+          .from('referral_codes')
+          .select('code, id')
+          .eq('id', partner.referral_code_id)
+          .single();
+        referralCode = rc;
+      } else {
+        // Find referral code by owner_id
+        const { data: rc } = await supabaseAdmin
+          .from('referral_codes')
+          .select('code, id')
+          .eq('owner_id', partnerId)
+          .single();
+        referralCode = rc;
+      }
 
       if (!referralCode) return;
 
@@ -446,13 +458,18 @@ export class PartnerService {
         .select('*', { count: 'exact', head: true })
         .eq('referral_code', referralCode.code);
 
-      // Count registrations (this would need to be tracked separately)
-      // For now, we'll use the referral_codes total_registrations
-      const { data: updatedReferralCode } = await supabaseAdmin
+      // Count registrations from enrollments table using referral code
+      const { count: totalRegistrations } = await supabaseAdmin
+        .from('enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('referred_by_code', referralCode.code)
+        .eq('status', 'active');
+
+      // Update referral_codes total_registrations
+      await supabaseAdmin
         .from('referral_codes')
-        .select('total_registrations')
-        .eq('id', partner.referral_code_id)
-        .single();
+        .update({ total_registrations: totalRegistrations || 0 })
+        .eq('id', referralCode.id);
 
       // Get commission stats using appropriate referrer_id
       // For student partners: use clerk_user_id (Clerk user ID)
@@ -490,7 +507,7 @@ export class PartnerService {
         .from('partners')
         .update({
           total_clicks: totalClicks || 0,
-          total_registrations: updatedReferralCode?.total_registrations || 0,
+          total_registrations: totalRegistrations || 0,
           pending_earnings: pendingEarnings,
           available_earnings: availableEarnings,
           lifetime_earnings: lifetimeEarnings,

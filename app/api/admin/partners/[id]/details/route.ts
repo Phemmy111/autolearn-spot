@@ -18,12 +18,16 @@ export async function GET(
     
     const partnerId = params.id;
     
+    console.log('[GET /api/admin/partners/[id]/details] Fetching for partner:', partnerId);
+    
     // Fetch bank details
     const { data: bankDetails, error: bankError } = await supabaseAdmin
       .from('partner_bank_profiles')
       .select('*')
       .eq('partner_id', partnerId)
       .single();
+    
+    console.log('[GET /api/admin/partners/[id]/details] Bank details result:', bankDetails, bankError);
     
     if (bankError && bankError.code !== 'PGRST116') {
       console.error('Error fetching bank details:', bankError);
