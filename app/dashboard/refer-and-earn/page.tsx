@@ -17,6 +17,8 @@ export default function StudentPartnerPage() {
     account_name: ''
   });
   const [isSavingBank, setIsSavingBank] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -78,6 +80,42 @@ export default function StudentPartnerPage() {
       alert('An error occurred while saving bank details');
     } finally {
       setIsSavingBank(false);
+    }
+  };
+
+  const handleWithdraw = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = Number(withdrawAmount);
+    
+    if (!amount || amount < 5000) {
+      alert('Minimum withdrawal amount is ₦5,000');
+      return;
+    }
+    
+    if (amount > (data?.stats?.availableBalance || 0)) {
+      alert('Insufficient balance');
+      return;
+    }
+
+    setIsWithdrawing(true);
+    try {
+      const res = await fetch('/api/partners/student-withdrawals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }),
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        alert('Withdrawal request submitted successfully!');
+        setWithdrawAmount('');
+        fetchPartnerStatus();
+      } else {
+        alert(result.error || 'Failed to submit withdrawal');
+      }
+    } catch (err) {
+      alert('An error occurred while submitting withdrawal');
+    } finally {
+      setIsWithdrawing(false);
     }
   };
 
@@ -414,6 +452,55 @@ export default function StudentPartnerPage() {
               <p>No bank details added yet. Add your bank details to withdraw your earnings.</p>
             </div>
           )}
+        </div>
+
+        {/* Withdrawal Section */}
+        <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <Wallet className="h-6 w-6 text-[#00f0ff]" />
+            <h2 className="text-xl font-bold">Withdraw Earnings</h2>
+          </div>
+          
+          <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-6 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm text-[#b9cacb] mb-1">Available Balance</p>
+                <p className="text-3xl font-bold text-[#00f0ff]">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-[#b9cacb] mb-1">Minimum Withdrawal</p>
+                <p className="text-lg font-semibold">₦5,000</p>
+              </div>
+            </div>
+            
+            <form onSubmit={handleWithdraw} className="flex items-center gap-4">
+              <div className="flex-1">
+                <input
+                  type="number"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  min="5000"
+                  max={data?.stats?.availableBalance || 0}
+                  className="w-full bg-[#070B12] border border-[#1f2229] rounded-lg px-4 py-3 text-white focus:border-[#00f0ff] focus:outline-none"
+                  disabled={isWithdrawing}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isWithdrawing || !data?.bankProfile}
+                className="bg-[#00f0ff] text-black px-6 py-3 rounded-lg font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {isWithdrawing ? 'Processing...' : 'Withdraw'}
+              </button>
+            </form>
+            
+            {!data?.bankProfile && (
+              <p className="text-sm text-yellow-400 mt-3">
+                ⚠️ Please add your bank details first to withdraw earnings
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

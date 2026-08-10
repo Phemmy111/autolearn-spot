@@ -37,6 +37,7 @@ import {
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'applications', label: 'Applications', icon: FileText },
+  { id: 'student', label: 'Student Partners', icon: Users },
   { id: 'community', label: 'Community Partners', icon: Users },
   { id: 'influencer', label: 'Influencer Partners', icon: Award },
   { id: 'withdrawals', label: 'Withdrawals', icon: DollarSign },
@@ -705,6 +706,67 @@ export default function AdminPartnersPage() {
                               </button>
                             )}
                           </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Student Partners Tab */}
+        {activeTab === 'student' && (
+          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
+            <div className="p-4 border-b border-[#1f2229] flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Student Partners</h2>
+              <div className="text-sm text-[#b9cacb]">
+                Auto-created when students complete enrollment
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[#0c0e12]">
+                  <tr>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Name</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Referrals</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Earnings</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {partners.filter(p => p.partner_type === 'student').length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-[#b9cacb]">No student partners</td>
+                    </tr>
+                  ) : (
+                    partners.filter(p => p.partner_type === 'student').map((p) => (
+                      <tr key={p.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
+                        <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{p.email}</td>
+                        <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
+                        <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            p.status === 'active' 
+                              ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
+                            className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-[#b9cacb] hover:text-[#12E6F3]"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
                         </td>
                       </tr>
                     ))

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
 import { Commission } from './CommissionService';
 import { PartnerEmailService } from './PartnerEmailService';
+import { AdminEmailService } from './AdminEmailService';
 import { NotificationService } from './NotificationService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -157,7 +158,7 @@ export class WithdrawalService {
         });
 
         // Send admin notification
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@autolearnspot.com';
+        const adminEmail = process.env.ADMIN_EMAIL || 'femiadeleke2020@gmail.com';
         await PartnerEmailService.sendAdminWithdrawalNotification(
           adminEmail,
           partner.full_name,
