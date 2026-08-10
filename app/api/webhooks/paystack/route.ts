@@ -293,16 +293,21 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
                          'unknown';
 
         // Create commission using the owner_id from referral_codes (this is partner.id UUID)
-        // Get the partner's clerk_user_id for the commission referrer_id
+        // Get the partner's details for the commission
         const { data: partner } = await supabaseAdmin
           .from('partners')
           .select('clerk_user_id, partner_type')
           .eq('id', validation.owner_id)
           .single();
 
-        if (partner && partner.clerk_user_id) {
+        if (partner) {
+          // Use clerk_user_id for student partners, partner.id for community/influencer
+          const referrerId = partner.partner_type === 'student' && partner.clerk_user_id 
+            ? partner.clerk_user_id 
+            : validation.owner_id;
+
           const commissionResult = await CommissionService.recordCommission({
-            referrerId: partner.clerk_user_id, // Use clerk_user_id as referrer_id
+            referrerId: referrerId,
             referrerType: partner.partner_type as 'student' | 'community' | 'influencer',
             refereeEmail: pendingEnrollment.email,
             referralCode: pendingEnrollment.referred_by_code,
@@ -313,7 +318,7 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
 
           if (commissionResult.success) {
             console.log('DIRECT ENROLLMENT: Commission created successfully for referral', {
-              referrerId: partner.clerk_user_id,
+              referrerId: referrerId,
               referrerType: partner.partner_type
             });
           } else {
@@ -328,7 +333,7 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
             paymentReference: reference,
           });
         } else {
-          console.error('DIRECT ENROLLMENT: Partner not found or has no clerk_user_id for referral', {
+          console.error('DIRECT ENROLLMENT: Partner not found for referral', {
             owner_id: validation.owner_id
           });
         }

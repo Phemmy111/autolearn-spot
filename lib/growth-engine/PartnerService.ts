@@ -425,7 +425,7 @@ export class PartnerService {
       // Get partner data including clerk_user_id for commission lookup
       const { data: partner } = await supabaseAdmin
         .from('partners')
-        .select('referral_code_id, clerk_user_id')
+        .select('referral_code_id, clerk_user_id, partner_type')
         .eq('id', partnerId)
         .single();
 
@@ -454,9 +454,16 @@ export class PartnerService {
         .eq('id', partner.referral_code_id)
         .single();
 
-      // Get commission stats using clerk_user_id as referrer_id
-      // For partners without clerk_user_id (community/influencer), use partner.id as fallback
-      const referrerId = partner.clerk_user_id || partnerId;
+      // Get commission stats using appropriate referrer_id
+      // For student partners: use clerk_user_id (Clerk user ID)
+      // For community/influencer partners: use partner.id (since they don't have clerk_user_id)
+      let referrerId: string;
+      if (partner.partner_type === 'student' && partner.clerk_user_id) {
+        referrerId = partner.clerk_user_id;
+      } else {
+        referrerId = partnerId;
+      }
+
       const { data: commissions } = await supabaseAdmin
         .from('commissions')
         .select('amount, status')
