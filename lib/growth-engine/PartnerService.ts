@@ -4,6 +4,7 @@ import { ReferralService } from './ReferralService';
 import { CommunityAuthService } from './CommunityAuthService';
 import { PartnerEmailService } from './PartnerEmailService';
 import { NotificationService } from './NotificationService';
+import { getCommissionRate } from '@/lib/commission';
 import type { EventCategory } from '@/lib/audit-logging';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -58,7 +59,10 @@ export class PartnerService {
         return { success: false, error: 'Failed to create referral code' };
       }
 
-      // Create student partner with ₦1,500 commission
+      // Get current commission rate for student partners
+      const commissionRate = await getCommissionRate('student');
+
+      // Create student partner with current commission rate
       const { data: partner, error } = await supabaseAdmin
         .from('partners')
         .insert({
@@ -66,7 +70,7 @@ export class PartnerService {
           clerk_user_id: clerkUserId,
           full_name: fullName,
           email: email,
-          commission_rate: 1500, // ₦1,500 for student partners
+          commission_rate: commissionRate,
           status: 'active',
           referral_code_id: referralCode.id
         })
@@ -145,6 +149,9 @@ export class PartnerService {
         return { success: false, error: 'Failed to create referral code' };
       }
 
+      // Get current commission rate for community partners
+      const commissionRate = await getCommissionRate('community');
+
       // Create partner record
       const { data: partner, error: partnerError } = await supabaseAdmin
         .from('partners')
@@ -154,7 +161,7 @@ export class PartnerService {
           full_name: application.full_name,
           email: application.email,
           phone: application.phone,
-          commission_rate: 1500, // ₦1,500 for community partners
+          commission_rate: commissionRate,
           status: 'active',
           referral_code_id: referralCode.id
         })
@@ -198,14 +205,14 @@ export class PartnerService {
       // Send approval email with credentials
       const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/partners/login`;
       const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/partners/dashboard`;
-      
+
       await PartnerEmailService.sendApplicationApprovedEmail(
         application.email,
         application.full_name,
         randomPassword,
         loginUrl,
         dashboardUrl,
-        1500 // Community partner commission rate
+        commissionRate // Use current commission rate
       );
 
       // Create welcome notification
@@ -242,6 +249,9 @@ export class PartnerService {
       const randomPassword = Math.random().toString(36).slice(-8);
       const passwordHash = CommunityAuthService.hashPassword(randomPassword);
 
+      // Get commission rate: use custom if provided, otherwise use configured default
+      const commissionRate = params.customCommissionRate || await getCommissionRate('influencer');
+
       // Create influencer
       const { data: influencer, error: infError } = await supabaseAdmin
         .from('influencers')
@@ -253,7 +263,7 @@ export class PartnerService {
           platform: params.platform,
           followers: params.followers,
           category: params.category,
-          commission_rate: params.customCommissionRate || 2500, // ₦2,500 default for influencers
+          commission_rate: commissionRate,
           status: 'active',
           created_by: params.adminId
         })
@@ -280,7 +290,7 @@ export class PartnerService {
           full_name: params.fullName,
           email: params.email,
           phone: params.phone,
-          commission_rate: params.customCommissionRate || 2500,
+          commission_rate: commissionRate,
           custom_commission_rate: params.customCommissionRate,
           status: 'active',
           referral_code_id: referralCode.id
@@ -315,14 +325,14 @@ export class PartnerService {
       // Send invitation email with credentials
       const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/partners/login`;
       const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com'}/partners/dashboard`;
-      
+
       await PartnerEmailService.sendInfluencerInvitationEmail(
         params.email,
         params.fullName,
         randomPassword,
         loginUrl,
         dashboardUrl,
-        params.customCommissionRate || 2500
+        commissionRate
       );
 
       // Create welcome notification
@@ -331,7 +341,7 @@ export class PartnerService {
         type: 'influencer_invitation',
         title: 'Welcome to AutoLearn Spot Influencer Program!',
         message: 'Your influencer account has been created. You can now start referring students and earning commissions.',
-        metadata: { commissionRate: params.customCommissionRate || 2500 }
+        metadata: { commissionRate }
       });
 
       return { success: true, partner: partner as Partner, temporaryPassword: randomPassword };

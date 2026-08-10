@@ -222,8 +222,9 @@ export async function POST(req: Request) {
     // ============================================
     // GROWTH ENGINE: Auto-create Student Partner
     // ============================================
-    // Every student who purchases the ₦8,000 course becomes a Student Partner
-    if (payment.amount === 8000) {
+    // Every student who purchases the Direct Enrollment course becomes a Student Partner
+    // We rely on webhook validation to ensure this is a Direct Enrollment payment (not scholarship)
+    if (payment.amount !== 5000) { // Exclude scholarship payments (₦5,000)
       const partnerResult = await PartnerService.createStudentPartner(
         userId,
         payment.customer_email,
@@ -247,8 +248,8 @@ export async function POST(req: Request) {
       const validation = await ReferralService.validateAndAttribute(referralCookie.value, userId);
 
       if (validation.valid && validation.owner_id && validation.owner_type) {
-        // Only create commission for ₦8,000 course purchases (not scholarship ₦5,000)
-        if (payment.amount === 8000) {
+        // Only create commission for Direct Enrollment purchases (not scholarship ₦5,000)
+        if (payment.amount !== 5000) {
           // Get IP address from request headers for fraud detection
           const ipAddress = request.headers.get('x-forwarded-for') || 
                            request.headers.get('x-real-ip') || 

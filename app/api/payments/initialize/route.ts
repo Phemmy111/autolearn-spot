@@ -10,11 +10,11 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { pendingId, amount, email, fullName, callbackUrl } = body;
+    const { pendingId, email, fullName, callbackUrl } = body;
 
-    if (!pendingId || !amount || !email || !fullName) {
+    if (!pendingId || !email || !fullName) {
       return NextResponse.json(
-        { error: 'Missing required fields: pendingId, amount, email, fullName' },
+        { error: 'Missing required fields: pendingId, email, fullName' },
         { status: 400 }
       );
     }
@@ -42,6 +42,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Use the stored payment amount from pending enrollment (security: don't trust client)
+    const paymentAmount = pendingEnrollment.payment_amount || 8000; // Fallback to 8000 if not set
+    console.log('Using payment amount from pending enrollment:', paymentAmount);
+
     // Initialize Paystack transaction
     const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
@@ -51,7 +55,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         email: email,
-        amount: amount * 100, // Convert to kobo
+        amount: paymentAmount * 100, // Convert to kobo
         currency: 'NGN',
         metadata: {
           pending_id: pendingId,

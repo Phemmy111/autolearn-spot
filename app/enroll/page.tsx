@@ -5,12 +5,14 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, CheckCircle, Star, User, Mail, Phone, Briefcase, Users } from "lucide-react";
 import { DIRECT_ENROLLMENT_CONFIG } from "@/config/direct-enrollment";
+import { useDirectEnrollmentFee } from "@/hooks/useDirectEnrollmentFee";
 
 function EnrollForm() {
   const searchParams = useSearchParams();
   const refCode = searchParams.get("ref") || "";
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { fee, isLoading: feeLoading } = useDirectEnrollmentFee();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -109,7 +111,6 @@ function EnrollForm() {
         },
         body: JSON.stringify({
           pendingId: data.pendingId,
-          amount: 8000,
           email: formData.email,
           fullName: formData.fullName,
           callbackUrl: `${window.location.origin}/enroll/success`,
@@ -539,7 +540,11 @@ function EnrollForm() {
             <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Investment</h2>
               <div className="text-center">
-                <div className="text-4xl font-bold text-[#00f0ff] mb-2">₦8,000</div>
+                {feeLoading ? (
+                  <div className="text-4xl font-bold text-[#b9cacb] mb-2">Loading...</div>
+                ) : (
+                  <div className="text-4xl font-bold text-[#00f0ff] mb-2">₦{fee.toLocaleString()}</div>
+                )}
                 <p className="text-sm text-[#b9cacb] mb-4">One-time payment</p>
                 <div className="flex items-center justify-center gap-2 text-xs text-[#b9cacb]">
                   <Star className="h-4 w-4" />

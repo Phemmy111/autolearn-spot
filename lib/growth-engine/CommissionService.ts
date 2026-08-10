@@ -3,6 +3,7 @@ import { logReferralEvent } from '@/lib/audit-logging';
 import { FraudService } from './FraudService';
 import { PartnerEmailService } from './PartnerEmailService';
 import { NotificationService } from './NotificationService';
+import { getCommissionRate } from '@/lib/commission';
 import type { EventCategory } from '@/lib/audit-logging';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -39,9 +40,9 @@ export class CommissionService {
     ipAddress?: string; // For fraud detection
   }): Promise<{ success: boolean; error?: string; commission?: Commission }> {
     try {
-      // Only create commissions for ₦8,000 course payments, not scholarship (₦5,000)
-      if (params.courseAmount !== 8000) {
-        return { success: false, error: 'Commissions only eligible for ₦8,000 course purchases' };
+      // Only create commissions for Direct Enrollment payments, not scholarship (₦5,000)
+      if (params.courseAmount === 5000) {
+        return { success: false, error: 'Commissions not eligible for scholarship payments' };
       }
 
       // Run fraud checks
@@ -57,8 +58,9 @@ export class CommissionService {
         return { success: false, error: `Fraud detected: ${fraudCheck.alerts.join(', ')}` };
       }
 
-      // Amount rule: Influencer gets ₦2,500, others get ₦1,500
-      const amount = params.referrerType === 'influencer' ? 2500 : 1500;
+      // Get commission rate from database configuration
+      const amount = await getCommissionRate(params.referrerType);
+      console.log(`[CommissionService] Commission rate for ${params.referrerType}: ₦${amount}`);
       
       // Standard 7-day holding period
       const holdingPeriodEndsAt = new Date();

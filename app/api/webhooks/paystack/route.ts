@@ -60,40 +60,12 @@ async function getReferrerName(referrerId: string): Promise<string> {
 
 /**
  * Process Direct Enrollment payment flow
- * This handles ₦8,000 Direct Enrollment transactions
+ * This handles Direct Enrollment transactions with configurable pricing
  */
 async function processDirectEnrollment(data: any, reference: string, amountInNaira: number, pendingId: string) {
   const email = data.customer.email;
 
-  // Verify this is a Direct Enrollment payment (₦8,000)
-  if (amountInNaira !== 8000) {
-    console.error(`Invalid payment amount for Direct Enrollment: ₦${amountInNaira}`);
-    await logPaymentEvent({
-      action: 'payment_validation_failed',
-      category: 'payment_verified',
-      user_email: email,
-      payment_reference: reference,
-      amount: amountInNaira,
-      description: 'Invalid amount for Direct Enrollment flow',
-      status: 'failure',
-      error_message: `Expected ₦8,000, got ₦${amountInNaira}`
-    });
-    return NextResponse.json({ error: 'Invalid payment amount' }, { status: 400 });
-  }
-
-  // Check if this payment has already been processed (idempotency)
-  const { data: existingEnrollment } = await supabaseAdmin
-    .from('enrollments')
-    .select('id')
-    .eq('payment_ref', reference)
-    .maybeSingle();
-
-  if (existingEnrollment) {
-    console.log(`Payment ${reference} already processed - enrollment exists`);
-    return NextResponse.json({ received: true, message: 'Payment already processed' });
-  }
-
-  // Find the pending enrollment
+  // Find the pending enrollment first to get the expected amount
   let pendingEnrollment;
   const { data: pending } = await supabaseAdmin
     .from('pending_enrollments')
@@ -115,6 +87,36 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
       error_message: `No pending enrollment with id: ${pendingId}`
     });
     return NextResponse.json({ error: 'No pending enrollment found' }, { status: 404 });
+  }
+
+  // Verify payment amount matches the pending enrollment's stored amount
+  // This ensures backward compatibility - old pending enrollments keep their original price
+  const expectedAmount = pendingEnrollment.payment_amount || 8000; // Fallback to 8000 if not set
+  if (amountInNaira !== expectedAmount) {
+    console.error(`Payment amount mismatch for Direct Enrollment: expected ₦${expectedAmount}, got ₦${amountInNaira}`);
+    await logPaymentEvent({
+      action: 'payment_validation_failed',
+      category: 'payment_verified',
+      user_email: email,
+      payment_reference: reference,
+      amount: amountInNaira,
+      description: 'Payment amount does not match pending enrollment amount',
+      status: 'failure',
+      error_message: `Expected ₦${expectedAmount}, got ₦${amountInNaira}`
+    });
+    return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 });
+  }
+
+  // Check if this payment has already been processed (idempotency)
+  const { data: existingEnrollment } = await supabaseAdmin
+    .from('enrollments')
+    .select('id')
+    .eq('payment_ref', reference)
+    .maybeSingle();
+
+  if (existingEnrollment) {
+    console.log(`Payment ${reference} already processed - enrollment exists`);
+    return NextResponse.json({ received: true, message: 'Payment already processed' });
   }
 
   // Note: We do NOT reject expired pending enrollments

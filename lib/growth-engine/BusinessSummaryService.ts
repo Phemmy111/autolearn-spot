@@ -103,7 +103,7 @@ class BusinessSummaryService {
 
       // Calculate totals
       const totalRevenue = payments.reduce((sum: number, p: any) => sum + p.payment_amount, 0);
-      const directEnrollments = payments.filter((p: any) => p.payment_amount === 8000).length;
+      const directEnrollments = payments.filter((p: any) => p.payment_amount !== 5000).length; // Non-scholarship payments
       const scholarshipPayments = payments.filter((p: any) => p.payment_amount === 5000).length;
       const totalCommissions = commissions.reduce((sum: number, c: any) => sum + c.amount, 0);
       const pendingWithdrawals = withdrawals.filter((w: any) => w.status === 'pending').length;

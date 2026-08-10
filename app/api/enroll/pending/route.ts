@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
+import { getDirectEnrollmentFee } from '@/lib/pricing';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -42,6 +43,10 @@ export async function POST(request: NextRequest) {
     // Calculate expiry time (24 hours from now)
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
+    // Get current Direct Enrollment fee from database
+    const currentFee = await getDirectEnrollmentFee();
+    console.log('Current Direct Enrollment fee:', currentFee);
+
     // Check if there's already a pending enrollment for this email
     console.log('Checking for existing pending enrollment for email:', email);
     const { data: existingPending, error: existingError } = await supabaseAdmin
@@ -78,7 +83,7 @@ export async function POST(request: NextRequest) {
             gender: gender,
             referral_source: referralSource,
             referral_code: referralCode || null,
-            payment_amount: 8000,
+            payment_amount: currentFee,
             payment_status: 'pending',
             expires_at: expiresAt,
             user_agent: request.headers.get('user-agent') || null,
@@ -155,7 +160,7 @@ export async function POST(request: NextRequest) {
       full_name: fullName,
       email: email.toLowerCase(),
       phone_number: phoneNumber,
-      payment_amount: 8000,
+      payment_amount: currentFee,
       payment_status: 'pending',
       expires_at: expiresAt
     });
@@ -173,7 +178,7 @@ export async function POST(request: NextRequest) {
         referral_source: referralSource,
         referral_code: referralCode || null,
         referred_by: referredBy,
-        payment_amount: 8000, // Direct Enrollment amount
+        payment_amount: currentFee, // Direct Enrollment amount from database
         payment_status: 'pending',
         expires_at: expiresAt,
         user_agent: request.headers.get('user-agent') || null,
