@@ -42,50 +42,59 @@ export class PartnerService {
    */
   static async createStudentPartner(clerkUserId: string, email: string, fullName: string): Promise<{ success: boolean; partner?: Partner; error?: string }> {
     try {
-      // Check if partner already exists
+      // Check if partner already exists by email (clerk_user_id)
       const { data: existingPartner } = await supabaseAdmin
         .from('partners')
         .select('*')
-        .eq('clerk_user_id', clerkUserId)
+        .eq('clerk_user_id', email)
         .single();
 
       if (existingPartner) {
         return { success: true, partner: existingPartner as Partner };
       }
 
-      // Create referral code
-      const referralCode = await ReferralService.getOrCreateReferralCode(clerkUserId, 'student');
-      if (!referralCode) {
-        return { success: false, error: 'Failed to create referral code' };
-      }
-
-      // Get current commission rate for student partners
+      // Create partner record first to get the UUID
       const commissionRate = await getCommissionRate('student');
 
-      // Create student partner with current commission rate
-      const { data: partner, error } = await supabaseAdmin
+      const { data: partner, error: partnerError } = await supabaseAdmin
         .from('partners')
         .insert({
           partner_type: 'student',
-          clerk_user_id: clerkUserId,
+          clerk_user_id: email, // Store email as clerk_user_id for lookup
           full_name: fullName,
           email: email,
           commission_rate: commissionRate,
           status: 'active',
-          referral_code_id: referralCode.id
         })
         .select()
         .single();
 
-      if (error) {
-        console.error('[PartnerService] Error creating student partner:', error);
+      if (partnerError) {
+        console.error('[PartnerService] Error creating student partner:', partnerError);
         return { success: false, error: 'Failed to create student partner' };
+      }
+
+      // Create referral code using partner.id (UUID) as owner_id
+      const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, 'student');
+      if (!referralCode) {
+        return { success: false, error: 'Failed to create referral code' };
+      }
+
+      // Link referral code to partner
+      const { error: updateError } = await supabaseAdmin
+        .from('partners')
+        .update({ referral_code_id: referralCode.id })
+        .eq('id', partner.id);
+
+      if (updateError) {
+        console.error('[PartnerService] Error linking referral code:', updateError);
+        // Continue anyway, partner was created
       }
 
       await logReferralEvent({
         action: 'student_partner_created',
         category: 'enrollment',
-        user_id: clerkUserId,
+        user_id: email,
         description: `Student partner created for ${email} after course purchase`,
         metadata: { partnerId: partner.id, referralCode: referralCode.code }
       });
@@ -413,10 +422,10 @@ export class PartnerService {
    */
   static async updatePartnerStats(partnerId: string): Promise<void> {
     try {
-      // Get referral code
+      // Get partner data including clerk_user_id for commission lookup
       const { data: partner } = await supabaseAdmin
         .from('partners')
-        .select('referral_code_id')
+        .select('referral_code_id, clerk_user_id')
         .eq('id', partnerId)
         .single();
 
@@ -445,11 +454,12 @@ export class PartnerService {
         .eq('id', partner.referral_code_id)
         .single();
 
-      // Get commission stats
+      // Get commission stats using clerk_user_id (email) as referrer_id
+      // The commissions table uses text referrer_id which matches the email
       const { data: commissions } = await supabaseAdmin
         .from('commissions')
         .select('amount, status')
-        .eq('referrer_id', partnerId);
+        .eq('referrer_id', partner.clerk_user_id);
 
       let pendingEarnings = 0;
       let availableEarnings = 0;

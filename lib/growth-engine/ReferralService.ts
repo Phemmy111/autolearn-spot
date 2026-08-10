@@ -44,7 +44,7 @@ export class ReferralService {
       const { data: createdCode, error: insertError } = await supabaseAdmin
         .from('referral_codes')
         .insert({
-          owner_id: ownerId,
+          owner_id: ownerId, // This should be the partner.id (UUID)
           code: newCode,
           status: 'Active',
           owner_type: ownerType

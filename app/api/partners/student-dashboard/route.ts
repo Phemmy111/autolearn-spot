@@ -16,11 +16,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
-    // Get user from Clerk ID to get their email
+    // Get user from Clerk ID (this is the auth.user.id from Clerk)
     const { data: user, error: userError } = await supabaseAdmin
-      .from('users')
+      .from('user')
       .select('*')
-      .eq('clerk_user_id', userId)
+      .eq('id', userId)
       .single();
 
     if (userError || !user) {
@@ -44,11 +44,11 @@ export async function GET(request: Request) {
     }
 
     // Get or create referral code
-    // Use clerk_user_id (email) as the owner_id since that's how PartnerService creates it
-    let referralStats = await ReferralService.getReferralStats(partner.clerk_user_id);
+    // Use partner.id (UUID) as the owner_id since that's the correct linking
+    let referralStats = await ReferralService.getReferralStats(partner.id);
     
     if (!referralStats) {
-      const referralCode = await ReferralService.getOrCreateReferralCode(partner.clerk_user_id, 'student');
+      const referralCode = await ReferralService.getOrCreateReferralCode(partner.id, 'student');
       
       if (referralCode) {
         referralStats = {
