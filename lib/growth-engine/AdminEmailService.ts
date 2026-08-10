@@ -432,6 +432,94 @@ export class AdminEmailService {
   }
 
   /**
+   * Send notification to admin when a partner successfully refers a student
+   */
+  static async sendAdminPartnerReferralNotification(referralData: {
+    partnerName: string;
+    partnerEmail: string;
+    partnerType: string;
+    refereeEmail: string;
+    commissionAmount: number;
+    referralCode: string;
+  }): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        to: ADMIN_EMAIL,
+        subject: '🎯 Partner Referral Success - AutoLearn Spot',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0c0e12; color: #e2e2e8;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #00f0ff; margin: 0;">AutoLearn Spot</h1>
+              <p style="color: #b9cacb; margin: 5px 0;">Partner Referral Success</p>
+            </div>
+            
+            <div style="background-color: #111317; border: 1px solid #1f2229; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+              <h2 style="color: #00f0ff; margin-top: 0;">Partner Details</h2>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Partner Name:</p>
+                  <p style="color: #e2e2e8; margin: 0; font-weight: bold;">${referralData.partnerName}</p>
+                </div>
+                <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Partner Email:</p>
+                  <p style="color: #e2e2e8; margin: 0; font-weight: bold;">${referralData.partnerEmail}</p>
+                </div>
+                <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Partner Type:</p>
+                  <p style="color: #e2e2e8; margin: 0; font-weight: bold; capitalize;">${referralData.partnerType}</p>
+                </div>
+                <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Referral Code:</p>
+                  <p style="color: #e2e2e8; margin: 0; font-weight: bold; font-family: monospace;">${referralData.referralCode}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style="background-color: #111317; border: 1px solid #1f2229; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+              <h2 style="color: #00f0ff; margin-top: 0;">Referral Details</h2>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Referee Email:</p>
+                  <p style="color: #e2e2e8; margin: 0; font-weight: bold;">${referralData.refereeEmail}</p>
+                </div>
+                <div>
+                  <p style="color: #b9cacb; margin: 5px 0; font-size: 14px;">Commission Amount:</p>
+                  <p style="color: #00f0ff; margin: 0; font-weight: bold; font-size: 18px;">₦${referralData.commissionAmount.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style="background-color: #111317; border: 1px solid #00f0ff; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+              <p style="color: #00f0ff; margin: 0; font-size: 16px; font-weight: bold; text-align: center;">
+                ✅ SUCCESSFUL REFERRAL
+              </p>
+              <p style="color: #b9cacb; margin: 10px 0 0 0; font-size: 14px; text-align: center;">
+                Partner has successfully referred a new student who completed enrollment.
+              </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="color: #b9cacb; font-size: 12px;">
+                This is an automated notification from AutoLearn Spot.
+              </p>
+            </div>
+          </div>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log('[AdminEmailService] Admin partner referral notification sent successfully');
+      return true;
+    } catch (error) {
+      console.error('[AdminEmailService] Error sending admin partner referral notification:', error);
+      return false;
+    }
+  }
+
+  /**
    * Send notification to partner when they get a successful referral
    */
   static async sendPartnerReferralEmail(referralData: {

@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { logReferralEvent } from '@/lib/audit-logging';
 import { FraudService } from './FraudService';
 import { PartnerEmailService } from './PartnerEmailService';
+import { AdminEmailService } from './AdminEmailService';
 import { NotificationService } from './NotificationService';
 import { getCommissionRate } from '@/lib/commission';
 import type { EventCategory } from '@/lib/audit-logging';
@@ -103,12 +104,26 @@ export class CommissionService {
       });
 
       // Send commission earned email
-      // Get partner email
-      const { data: partner } = await supabaseAdmin
-        .from('partners')
-        .select('email, full_name')
-        .eq('id', params.referrerId)
-        .single();
+      // Get partner email - need to find partner by appropriate ID
+      let partner;
+      if (params.referrerType === 'student') {
+        // For students, referrerId is clerk_user_id
+        const { data: studentPartner } = await supabaseAdmin
+          .from('partners')
+          .select('id, email, full_name')
+          .eq('clerk_user_id', params.referrerId)
+          .eq('partner_type', 'student')
+          .single();
+        partner = studentPartner;
+      } else {
+        // For community/influencer, referrerId is partner.id (as text)
+        const { data: otherPartner } = await supabaseAdmin
+          .from('partners')
+          .select('id, email, full_name')
+          .eq('id', params.referrerId)
+          .single();
+        partner = otherPartner;
+      }
 
       if (partner) {
         await PartnerEmailService.sendCommissionEarnedEmail(
@@ -120,11 +135,21 @@ export class CommissionService {
 
         // Create notification
         await NotificationService.createNotification({
-          partnerId: params.referrerId,
+          partnerId: partner.id,
           type: 'commission_earned',
           title: `Commission Earned: ₦${amount}`,
           message: `You earned ₦${amount} from a new referral. This will be available for withdrawal after 7 days.`,
           metadata: { amount, refereeEmail: params.refereeEmail, commissionId: data.id }
+        });
+
+        // Send admin notification about successful partner referral
+        await AdminEmailService.sendAdminPartnerReferralNotification({
+          partnerName: partner.full_name,
+          partnerEmail: partner.email,
+          partnerType: params.referrerType,
+          refereeEmail: params.refereeEmail,
+          commissionAmount: amount,
+          referralCode: params.referralCode
         });
       }
 
