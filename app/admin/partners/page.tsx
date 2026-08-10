@@ -346,6 +346,8 @@ export default function AdminPartnersPage() {
     setSelectedPartner(partner);
     setShowPartnerDetailModal(true);
     
+    console.log('[Admin Partners] Clicked partner:', partner);
+    
     // Fetch partner bank details and recent referrals
     try {
       const [bankRes, referralsRes] = await Promise.all([
@@ -353,17 +355,26 @@ export default function AdminPartnersPage() {
         fetch(`/api/admin/partners/${partner.id}/referrals`)
       ]);
       
+      console.log('[Admin Partners] Bank details response status:', bankRes.status);
+      console.log('[Admin Partners] Referrals response status:', referralsRes.status);
+      
       if (bankRes.ok) {
         const bankData = await bankRes.json();
+        console.log('[Admin Partners] Bank details data:', bankData);
         setSelectedPartner(prev => ({ ...prev, bankDetails: bankData.bankDetails }));
+      } else {
+        console.error('[Admin Partners] Bank details error:', await bankRes.text());
       }
       
       if (referralsRes.ok) {
         const referralsData = await referralsRes.json();
+        console.log('[Admin Partners] Referrals data:', referralsData);
         setSelectedPartner(prev => ({ ...prev, recentReferrals: referralsData.referrals }));
+      } else {
+        console.error('[Admin Partners] Referrals error:', await referralsRes.text());
       }
     } catch (error) {
-      console.error('Error fetching partner details:', error);
+      console.error('[Admin Partners] Error fetching partner details:', error);
     }
   };
 

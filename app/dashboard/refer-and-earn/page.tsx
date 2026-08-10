@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Loader2, Copy, CheckCircle2, Wallet, Users, MousePointerClick, DollarSign, Clock, TrendingUp, ArrowRight, Link as LinkIcon, Share2, FileText, X, CreditCard } from "lucide-react";
+import { Loader2, Copy, CheckCircle2, Wallet, Users, MousePointerClick, DollarSign, Clock, TrendingUp, ArrowRight, Link as LinkIcon, Share2, FileText, X, CreditCard, Download, Eye } from "lucide-react";
 import Link from "next/link";
 
 export default function StudentPartnerPage() {
@@ -19,6 +19,8 @@ export default function StudentPartnerPage() {
   const [isSavingBank, setIsSavingBank] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+  const [showMaterialModal, setShowMaterialModal] = useState(false);
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -385,15 +387,27 @@ export default function StudentPartnerPage() {
                   {resource.description && (
                     <p className="text-xs text-[#b9cacb] mb-3 line-clamp-2">{resource.description}</p>
                   )}
-                  <a
-                    href={resource.resource_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#00f0ff] hover:text-white transition-colors"
-                  >
-                    Download
-                    <ArrowRight className="h-3 w-3" />
-                  </a>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedMaterial(resource);
+                        setShowMaterialModal(true);
+                      }}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#00f0ff] hover:text-white transition-colors"
+                    >
+                      <Eye className="h-3 w-3" />
+                      Preview
+                    </button>
+                    <a
+                      href={resource.resource_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#00f0ff] hover:text-white transition-colors"
+                    >
+                      <Download className="h-3 w-3" />
+                      Download
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
@@ -572,6 +586,72 @@ export default function StudentPartnerPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Marketing Material Preview Modal */}
+      {showMaterialModal && selectedMaterial && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold">{selectedMaterial.resource_name}</h3>
+              <button
+                onClick={() => setShowMaterialModal(false)}
+                className="text-[#b9cacb] hover:text-white transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            {/* Image Preview */}
+            {selectedMaterial.resource_url && (
+              <div className="mb-6">
+                <img
+                  src={selectedMaterial.resource_url}
+                  alt={selectedMaterial.resource_name}
+                  className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => window.open(selectedMaterial.resource_url, '_blank')}
+                />
+                <p className="text-xs text-[#b9cacb] mt-2 text-center">Click image to open in new tab</p>
+              </div>
+            )}
+            
+            {/* Description/Caption */}
+            {selectedMaterial.description && (
+              <div className="bg-[#070B12] p-4 rounded-lg mb-6">
+                <p className="text-sm font-medium text-[#e2e2e8] mb-2">Caption</p>
+                <p className="text-sm text-[#b9cacb]">{selectedMaterial.description}</p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedMaterial.description);
+                    alert('Caption copied to clipboard!');
+                  }}
+                  className="mt-3 text-xs text-[#00f0ff] hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <Copy className="h-3 w-3" />
+                  Copy Caption
+                </button>
+              </div>
+            )}
+            
+            <div className="flex gap-3 pt-4 border-t border-[#1f2229]">
+              <a
+                href={selectedMaterial.resource_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00f0ff] text-black rounded-lg font-medium hover:bg-white transition-colors"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </a>
+              <button
+                onClick={() => setShowMaterialModal(false)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
