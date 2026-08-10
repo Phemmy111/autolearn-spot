@@ -18,7 +18,7 @@ export async function GET(
     
     const partnerId = params.id;
     
-    console.log('[GET /api/admin/partners/[id]/referrals] Fetching for partner ID:', partnerId);
+    console.log('[GET /api/admin/partners/[id]/referrals] V2 - Fetching for partner ID:', partnerId);
     
     // Get partner type to determine referrer_id
     const { data: partner, error: partnerError } = await supabaseAdmin

@@ -18,7 +18,7 @@ export async function GET(
     
     const partnerId = params.id;
     
-    console.log('[GET /api/admin/partners/[id]/details] Fetching for partner ID:', partnerId);
+    console.log('[GET /api/admin/partners/[id]/details] V2 - Fetching for partner ID:', partnerId);
     
     // Fetch bank details
     const { data: bankDetails, error: bankError } = await supabaseAdmin
