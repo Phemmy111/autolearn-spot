@@ -18,15 +18,20 @@ export async function GET(
     
     const partnerId = params.id;
     
+    console.log('[GET /api/admin/partners/[id]/referrals] Fetching for partner ID:', partnerId);
+    
     // Get partner type to determine referrer_id
-    const { data: partner } = await supabaseAdmin
+    const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .select('partner_type, clerk_user_id')
       .eq('id', partnerId)
       .single();
     
+    console.log('[GET /api/admin/partners/[id]/referrals] Partner query result:', partner, partnerError);
+    
     if (!partner) {
-      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+      console.error('[GET /api/admin/partners/[id]/referrals] Partner not found. Error:', partnerError);
+      return NextResponse.json({ error: 'Partner not found', details: partnerError }, { status: 404 });
     }
     
     // For student partners, use clerk_user_id as referrer_id
@@ -43,11 +48,11 @@ export async function GET(
       .order('created_at', { ascending: false })
       .limit(10);
     
-    console.log('[GET /api/admin/partners/[id]/referrals] Referrals found:', referrals?.length);
+    console.log('[GET /api/admin/partners/[id]/referrals] Referrals found:', referrals?.length, 'Error:', error);
     
     if (error) {
       console.error('Error fetching referrals:', error);
-      return NextResponse.json({ error: 'Failed to fetch referrals' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to fetch referrals', details: error }, { status: 500 });
     }
     
     return NextResponse.json({
