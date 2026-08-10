@@ -17,8 +17,6 @@ import { NotificationService as PartnerNotificationService } from '@/lib/growth-
 import { FounderEmailService } from '@/lib/growth-engine/FounderEmailService';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 import { logUserActivity } from '@/lib/audit-logging';
-import { PartnerReferralService } from '@/lib/partner-system/PartnerReferralService';
-import { PartnerCommissionService } from '@/lib/partner-system/PartnerCommissionService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -274,14 +272,13 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   const { data: studentPartner, error: partnerError } = await supabaseAdmin
     .from('partners')
     .insert({
-      user_id: pendingEnrollment.email, // Use email as user_id since we use Clerk
-      user_email: pendingEnrollment.email,
-      user_name: pendingEnrollment.full_name,
+      clerk_user_id: pendingEnrollment.email, // Use email as clerk_user_id since we use Clerk
+      full_name: pendingEnrollment.full_name,
+      email: pendingEnrollment.email,
       partner_type: 'student',
       referral_code_id: newReferralCode?.id || null,
       commission_rate: 1500, // Student partner commission
       status: 'active',
-      enrolled_at: new Date().toISOString(),
     })
     .select('id')
     .single();
@@ -294,17 +291,29 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   // Handle referral commission if applicable
   if (pendingEnrollment.referred_by && pendingEnrollment.referral_code) {
     try {
-      // Existing commission system
-      await CommissionService.createCommission({
+      // Get IP address for fraud detection
+      const ipAddress = request.headers.get('x-forwarded-for') || 
+                       request.headers.get('x-real-ip') || 
+                       'unknown';
+
+      // Create commission using the main growth engine system
+      const commissionResult = await CommissionService.recordCommission({
         referrerId: pendingEnrollment.referred_by,
+        referrerType: 'student', // Default to student, will be determined by the service
         refereeEmail: pendingEnrollment.email,
         referralCode: pendingEnrollment.referral_code,
         paymentReference: reference,
         courseAmount: amountInNaira,
-        paymentType: 'direct-enrollment',
+        ipAddress: ipAddress
       });
 
-      // Track the referral conversion
+      if (commissionResult.success) {
+        console.log('DIRECT ENROLLMENT: Commission created successfully for referral');
+      } else {
+        console.error('DIRECT ENROLLMENT: Commission creation failed:', commissionResult.error);
+      }
+
+      // Track the referral conversion in referral_codes table
       await ReferralService.trackConversion({
         referralCode: pendingEnrollment.referral_code,
         refereeEmail: pendingEnrollment.email,
@@ -312,32 +321,12 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
         paymentReference: reference,
       });
 
-      // New partner commission system integration
-      const { data: partnerReferral } = await supabaseAdmin
-        .from('partner_referrals')
-        .select('id, partner_id')
-        .eq('referral_code', pendingEnrollment.referral_code)
-        .single();
-
-      if (partnerReferral) {
-        await PartnerReferralService.recordReferralEnrollment(
-          pendingEnrollment.referral_code,
-          pendingEnrollment.email,
-          amountInNaira
-        );
-
-        await PartnerCommissionService.createCommission(
-          partnerReferral.partner_id,
-          partnerReferral.id,
-          pendingEnrollment.email,
-          amountInNaira
-        );
-
-        // Send email notification to partner about successful referral
-        const { data: partnerData } = await supabaseAdmin
-          .from('partners')
-          .select('user_name, user_email')
-          .eq('id', partnerReferral.partner_id)
+      console.log('DIRECT ENROLLMENT: Referral commission processed successfully');
+    } catch (error) {
+      console.error('DIRECT ENROLLMENT: Error processing referral commission:', error);
+      // Don't fail the entire enrollment if commission fails
+    }
+  }
           .single();
 
         if (partnerData) {

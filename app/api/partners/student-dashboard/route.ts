@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('clerk_user_id', user.id)
       .eq('partner_type', 'student')
       .eq('status', 'active')
       .single();
