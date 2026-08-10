@@ -251,9 +251,11 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   });
 
   // Create Student Partner (automatic for Direct Enrollment)
-  // Pass email as both clerkUserId and email since PartnerService now uses email as clerk_user_id
+  // Use the clerk_user_id from pending_enrollment if available, otherwise use email
+  const clerkUserId = pendingEnrollment.clerk_user_id || pendingEnrollment.email;
+  
   const partnerResult = await PartnerService.createStudentPartner(
-    pendingEnrollment.email, // clerkUserId (will be used as email in clerk_user_id)
+    clerkUserId, // Use actual Clerk user ID
     pendingEnrollment.email,
     pendingEnrollment.full_name
   );
@@ -263,11 +265,13 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   if (partnerResult.success) {
     console.log('DIRECT ENROLLMENT: Student partner created successfully', {
       partnerId: studentPartner?.id,
+      clerkUserId: clerkUserId,
       email: pendingEnrollment.email
     });
   } else {
     console.error('DIRECT ENROLLMENT: Failed to create student partner', {
       error: partnerResult.error,
+      clerkUserId: clerkUserId,
       email: pendingEnrollment.email
     });
     // Continue anyway, enrollment was successful
@@ -289,16 +293,16 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
                          'unknown';
 
         // Create commission using the owner_id from referral_codes (this is partner.id UUID)
-        // But we need to get the partner's clerk_user_id (email) for the commission
+        // Get the partner's clerk_user_id for the commission referrer_id
         const { data: partner } = await supabaseAdmin
           .from('partners')
           .select('clerk_user_id, partner_type')
           .eq('id', validation.owner_id)
           .single();
 
-        if (partner) {
+        if (partner && partner.clerk_user_id) {
           const commissionResult = await CommissionService.recordCommission({
-            referrerId: partner.clerk_user_id, // Use email as referrer_id (commissions table uses text)
+            referrerId: partner.clerk_user_id, // Use clerk_user_id as referrer_id
             referrerType: partner.partner_type as 'student' | 'community' | 'influencer',
             refereeEmail: pendingEnrollment.email,
             referralCode: pendingEnrollment.referred_by_code,
@@ -322,6 +326,10 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
             refereeEmail: pendingEnrollment.email,
             paymentAmount: amountInNaira,
             paymentReference: reference,
+          });
+        } else {
+          console.error('DIRECT ENROLLMENT: Partner not found or has no clerk_user_id for referral', {
+            owner_id: validation.owner_id
           });
         }
       }

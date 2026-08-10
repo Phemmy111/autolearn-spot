@@ -42,11 +42,11 @@ export class PartnerService {
    */
   static async createStudentPartner(clerkUserId: string, email: string, fullName: string): Promise<{ success: boolean; partner?: Partner; error?: string }> {
     try {
-      // Check if partner already exists by email (clerk_user_id)
+      // Check if partner already exists by clerk_user_id (Clerk user ID)
       const { data: existingPartner } = await supabaseAdmin
         .from('partners')
         .select('*')
-        .eq('clerk_user_id', email)
+        .eq('clerk_user_id', clerkUserId)
         .single();
 
       if (existingPartner) {
@@ -60,7 +60,7 @@ export class PartnerService {
         .from('partners')
         .insert({
           partner_type: 'student',
-          clerk_user_id: email, // Store email as clerk_user_id for lookup
+          clerk_user_id: clerkUserId, // Store actual Clerk user ID
           full_name: fullName,
           email: email,
           commission_rate: commissionRate,
@@ -94,7 +94,7 @@ export class PartnerService {
       await logReferralEvent({
         action: 'student_partner_created',
         category: 'enrollment',
-        user_id: email,
+        user_id: clerkUserId,
         description: `Student partner created for ${email} after course purchase`,
         metadata: { partnerId: partner.id, referralCode: referralCode.code }
       });
@@ -454,12 +454,13 @@ export class PartnerService {
         .eq('id', partner.referral_code_id)
         .single();
 
-      // Get commission stats using clerk_user_id (email) as referrer_id
-      // The commissions table uses text referrer_id which matches the email
+      // Get commission stats using clerk_user_id as referrer_id
+      // For partners without clerk_user_id (community/influencer), use partner.id as fallback
+      const referrerId = partner.clerk_user_id || partnerId;
       const { data: commissions } = await supabaseAdmin
         .from('commissions')
         .select('amount, status')
-        .eq('referrer_id', partner.clerk_user_id);
+        .eq('referrer_id', referrerId);
 
       let pendingEarnings = 0;
       let availableEarnings = 0;

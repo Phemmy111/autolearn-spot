@@ -16,22 +16,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }
 
-    // Get user from Clerk ID (this is the auth.user.id from Clerk)
-    const { data: user, error: userError } = await supabaseAdmin
-      .from('user')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (userError || !user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Get student partner record using email as clerk_user_id (this is how webhook creates it)
+    // Get student partner record using the Clerk user ID directly
+    // The webhook sets clerk_user_id to the actual Clerk user ID
     const { data: partner, error: partnerError } = await supabaseAdmin
       .from('partners')
       .select('*')
-      .eq('clerk_user_id', user.email) // Use email as clerk_user_id
+      .eq('clerk_user_id', userId) // Use the Clerk user ID directly
       .eq('partner_type', 'student')
       .eq('status', 'active')
       .single();
