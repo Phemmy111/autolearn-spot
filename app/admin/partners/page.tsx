@@ -343,16 +343,29 @@ export default function AdminPartnersPage() {
   };
 
   const handlePartnerClick = async (partner: any) => {
+    console.log('[Admin Partners] Clicked partner object:', partner);
+    console.log('[Admin Partners] Partner keys:', Object.keys(partner));
+    console.log('[Admin Partners] Partner.id:', partner.id);
+    console.log('[Admin Partners] Partner.partner_id:', partner.partner_id);
+    
+    // Use the correct ID field - try both id and partner_id
+    const partnerId = partner.id || partner.partner_id;
+    console.log('[Admin Partners] Using partner ID:', partnerId);
+    
+    if (!partnerId) {
+      console.error('[Admin Partners] No valid partner ID found!');
+      alert('Error: Partner ID not found. Please refresh and try again.');
+      return;
+    }
+    
     setSelectedPartner(partner);
     setShowPartnerDetailModal(true);
-    
-    console.log('[Admin Partners] Clicked partner:', partner);
     
     // Fetch partner bank details and recent referrals
     try {
       const [bankRes, referralsRes] = await Promise.all([
-        fetch(`/api/admin/partners/${partner.id}/details`),
-        fetch(`/api/admin/partners/${partner.id}/referrals`)
+        fetch(`/api/admin/partners/${partnerId}/details`),
+        fetch(`/api/admin/partners/${partnerId}/referrals`)
       ]);
       
       console.log('[Admin Partners] Bank details response status:', bankRes.status);
