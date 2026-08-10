@@ -105,8 +105,14 @@ export async function GET(request: Request) {
     const { data: marketingResources } = await supabaseAdmin
       .from('partner_marketing_downloads')
       .select('*')
-      .eq('status', 'active')
       .order('created_at', { ascending: false });
+
+    // Get bank profile for student partner
+    const { data: bankProfile } = await supabaseAdmin
+      .from('partner_bank_profiles')
+      .select('*')
+      .eq('partner_id', partner.id)
+      .single();
 
     return NextResponse.json({
       success: true,
@@ -128,7 +134,8 @@ export async function GET(request: Request) {
         },
         recentReferrals: formattedReferrals,
         commissions: formattedCommissions,
-        marketingResources: marketingResources || []
+        marketingResources: marketingResources || [],
+        bankProfile
       }
     });
 

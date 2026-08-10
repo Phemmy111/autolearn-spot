@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Loader2, Copy, CheckCircle2, Wallet, Users, MousePointerClick, DollarSign, Clock, TrendingUp, ArrowRight, Link as LinkIcon, Share2, FileText } from "lucide-react";
+import { Loader2, Copy, CheckCircle2, Wallet, Users, MousePointerClick, DollarSign, Clock, TrendingUp, ArrowRight, Link as LinkIcon, Share2, FileText, X, CreditCard } from "lucide-react";
 import Link from "next/link";
 
 export default function StudentPartnerPage() {
@@ -10,6 +10,13 @@ export default function StudentPartnerPage() {
   const [status, setStatus] = useState<'loading' | 'not_partner' | 'active'>('loading');
   const [data, setData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
+  const [showBankModal, setShowBankModal] = useState(false);
+  const [bankFormData, setBankFormData] = useState({
+    bank_name: '',
+    account_number: '',
+    account_name: ''
+  });
+  const [isSavingBank, setIsSavingBank] = useState(false);
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -47,6 +54,30 @@ export default function StudentPartnerPage() {
       navigator.clipboard.writeText(data.referralCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleSaveBankDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingBank(true);
+    try {
+      const res = await fetch('/api/partners/bank-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bankFormData),
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        alert('Bank details saved successfully!');
+        setShowBankModal(false);
+        fetchPartnerStatus();
+      } else {
+        alert(result.error || 'Failed to save bank details');
+      }
+    } catch (err) {
+      alert('An error occurred while saving bank details');
+    } finally {
+      setIsSavingBank(false);
     }
   };
 
@@ -335,7 +366,128 @@ export default function StudentPartnerPage() {
             </div>
           )}
         </div>
+
+        {/* Bank Details Section */}
+        <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <CreditCard className="h-6 w-6 text-[#00f0ff]" />
+              <h2 className="text-xl font-bold">Bank Details</h2>
+            </div>
+            <button
+              onClick={() => {
+                if (data?.bankProfile) {
+                  setBankFormData({
+                    bank_name: data.bankProfile.bank_name,
+                    account_number: data.bankProfile.account_number,
+                    account_name: data.bankProfile.account_name
+                  });
+                }
+                setShowBankModal(true);
+              }}
+              className="bg-[#00f0ff] text-black px-4 py-2 rounded-lg font-bold hover:bg-white transition-colors"
+            >
+              {data?.bankProfile ? 'Update Bank Details' : 'Add Bank Details'}
+            </button>
+          </div>
+          
+          {data?.bankProfile ? (
+            <div className="bg-[#111317] border border-[#1f2229] rounded-xl p-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-[#b9cacb] mb-1">Bank Name</p>
+                  <p className="font-semibold">{data.bankProfile.bank_name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-[#b9cacb] mb-1">Account Number</p>
+                  <p className="font-semibold">{data.bankProfile.account_number}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-[#b9cacb] mb-1">Account Name</p>
+                  <p className="font-semibold">{data.bankProfile.account_name}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-[#b9cacb]">
+              <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No bank details added yet. Add your bank details to withdraw your earnings.</p>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Bank Details Modal */}
+      {showBankModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold">Bank Details</h3>
+              <button
+                onClick={() => setShowBankModal(false)}
+                className="text-[#b9cacb] hover:text-white transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSaveBankDetails} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Bank Name</label>
+                <input
+                  type="text"
+                  required
+                  value={bankFormData.bank_name}
+                  onChange={(e) => setBankFormData({ ...bankFormData, bank_name: e.target.value })}
+                  className="w-full bg-[#111317] border border-[#1f2229] rounded-lg px-4 py-3 text-white focus:border-[#00f0ff] focus:outline-none"
+                  placeholder="e.g., Access Bank"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Account Number</label>
+                <input
+                  type="text"
+                  required
+                  value={bankFormData.account_number}
+                  onChange={(e) => setBankFormData({ ...bankFormData, account_number: e.target.value })}
+                  className="w-full bg-[#111317] border border-[#1f2229] rounded-lg px-4 py-3 text-white focus:border-[#00f0ff] focus:outline-none"
+                  placeholder="e.g., 1234567890"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Account Name</label>
+                <input
+                  type="text"
+                  required
+                  value={bankFormData.account_name}
+                  onChange={(e) => setBankFormData({ ...bankFormData, account_name: e.target.value })}
+                  className="w-full bg-[#111317] border border-[#1f2229] rounded-lg px-4 py-3 text-white focus:border-[#00f0ff] focus:outline-none"
+                  placeholder="e.g., John Doe"
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowBankModal(false)}
+                  className="flex-1 border border-[#1f2229] bg-[#111317] text-[#b9cacb] px-4 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingBank}
+                  className="flex-1 bg-[#00f0ff] text-black px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSavingBank ? 'Saving...' : 'Save Details'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
