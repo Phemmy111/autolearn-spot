@@ -327,23 +327,6 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
       // Don't fail the entire enrollment if commission fails
     }
   }
-          .single();
-
-        if (partnerData) {
-          await AdminEmailService.sendPartnerReferralEmail({
-            partnerName: partnerData.user_name,
-            partnerEmail: partnerData.user_email,
-            refereeEmail: pendingEnrollment.email,
-            commissionAmount: 1500,
-            referralCode: pendingEnrollment.referral_code
-          });
-        }
-      }
-    } catch (commissionError) {
-      console.error('Error creating commission:', commissionError);
-      // Continue anyway, enrollment was successful
-    }
-  }
 
   // Send welcome email
   try {
