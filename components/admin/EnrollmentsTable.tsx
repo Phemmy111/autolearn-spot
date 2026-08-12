@@ -47,11 +47,12 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reference })
       });
+      const data = await res.json();
       if (res.ok) {
         setToast({ message: 'Payment resynced successfully', type: 'success' });
         router.refresh();
       } else {
-        setToast({ message: 'Resync failed. Check console.', type: 'error' });
+        setToast({ message: data.error || 'Resync failed. Check console.', type: 'error' });
       }
     } catch (err) {
       console.error(err);
@@ -403,7 +404,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                       </button>
                     )}
                     
-                    {!en.is_pending && en.display_status === 'Enrolled' && (
+                    {!en.is_pending && en.status === 'active' && (
                       <button
                         onClick={() => handleUpdateStatus(en.id, 'inactive')}
                         disabled={isUpdatingStatus === en.id}
@@ -413,7 +414,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                         Deactivate
                       </button>
                     )}
-                    {!en.is_pending && en.display_status === 'Inactive' && (
+                    {!en.is_pending && en.status === 'inactive' && (
                       <button
                         onClick={() => handleUpdateStatus(en.id, 'active')}
                         disabled={isUpdatingStatus === en.id}
@@ -429,7 +430,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-[#5d5f63]">
+                <td colSpan={8} className="px-4 py-8 text-center text-[#5d5f63]">
                   No enrollments found matching filters.
                 </td>
               </tr>

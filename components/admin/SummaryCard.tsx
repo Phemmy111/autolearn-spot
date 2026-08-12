@@ -28,7 +28,7 @@ export async function SummaryCard() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all duration-300 group">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-[#00f0ff]/10 rounded-lg group-hover:scale-110 transition-transform">
+          <div className="p-3 bg-[#00f0ff]/10 rounded-lg md:group-hover:scale-110 transition-transform">
             <BookOpen className="h-6 w-6 text-[#00f0ff]" />
           </div>
           <div>
@@ -40,7 +40,7 @@ export async function SummaryCard() {
 
       <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all duration-300 group">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-emerald-400/10 rounded-lg group-hover:scale-110 transition-transform">
+          <div className="p-3 bg-emerald-400/10 rounded-lg md:group-hover:scale-110 transition-transform">
             <Users className="h-6 w-6 text-emerald-400" />
           </div>
           <div>
@@ -52,7 +52,7 @@ export async function SummaryCard() {
 
       <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all duration-300 group">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-amber-400/10 rounded-lg group-hover:scale-110 transition-transform">
+          <div className="p-3 bg-amber-400/10 rounded-lg md:group-hover:scale-110 transition-transform">
             <Trophy className="h-6 w-6 text-amber-400" />
           </div>
           <div>

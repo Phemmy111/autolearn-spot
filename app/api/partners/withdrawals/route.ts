@@ -55,8 +55,8 @@ export async function POST(request: Request) {
       bankProfile.account_name
     );
 
-    if (!result) {
-      return NextResponse.json({ error: 'Failed to submit withdrawal' }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json({ error: result.error || 'Failed to submit withdrawal' }, { status: 400 });
     }
 
     // Update partner stats

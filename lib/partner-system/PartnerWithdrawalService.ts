@@ -16,14 +16,14 @@ export class PartnerWithdrawalService {
     bankName: string,
     accountNumber: string,
     accountName: string
-  ): Promise<boolean> {
+  ): Promise<{ success: boolean; error?: string; withdrawal?: any }> {
     try {
       // Check minimum withdrawal amount from database settings
       const partnershipSettings = await getPartnershipSettings();
       const MIN_WITHDRAWAL = partnershipSettings.minWithdrawal;
       if (amount < MIN_WITHDRAWAL) {
         console.error(`Amount below minimum: ${amount} < ${MIN_WITHDRAWAL}`);
-        return false;
+        return { success: false, error: `Minimum withdrawal amount is ₦${MIN_WITHDRAWAL.toLocaleString()}` };
       }
 
       // Check partner's available balance
@@ -35,16 +35,16 @@ export class PartnerWithdrawalService {
 
       if (partnerError || !partner) {
         console.error('Partner not found:', partnerError);
-        return false;
+        return { success: false, error: 'Partner not found' };
       }
 
       if (partner.available_balance < amount) {
         console.error(`Insufficient balance: ${partner.available_balance} < ${amount}`);
-        return false;
+        return { success: false, error: 'Insufficient balance' };
       }
 
       // Create withdrawal request
-      const { error: withdrawalError } = await supabase
+      const { data: withdrawalData, error: withdrawalError } = await supabase
         .from('partner_withdrawals')
         .insert({
           partner_id: partnerId,
@@ -53,11 +53,13 @@ export class PartnerWithdrawalService {
           bank_name: bankName,
           account_number: accountNumber,
           account_name: accountName
-        });
+        })
+        .select()
+        .single();
 
       if (withdrawalError) {
         console.error('Error creating withdrawal:', withdrawalError);
-        return false;
+        return { success: false, error: 'Failed to create withdrawal request' };
       }
 
       // Deduct from available balance (temporarily)
@@ -88,10 +90,10 @@ export class PartnerWithdrawalService {
         action_url: '/partners/dashboard?tab=withdrawals'
       });
 
-      return true;
+      return { success: true, withdrawal: withdrawalData };
     } catch (error) {
       console.error('Error creating withdrawal:', error);
-      return false;
+      return { success: false, error: 'An unexpected error occurred' };
     }
   }
 

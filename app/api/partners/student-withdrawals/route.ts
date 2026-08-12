@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getAuth } from '@clerk/nextjs/server';
 import { CommissionService } from '@/lib/growth-engine/CommissionService';
 import { PartnerEmailService } from '@/lib/growth-engine/PartnerEmailService';
+import { getPartnershipSettings } from '@/lib/partnership-settings';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -32,6 +33,13 @@ export async function POST(request: Request) {
 
     if (!partner) {
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+    }
+
+    // Check minimum withdrawal amount from database settings
+    const partnershipSettings = await getPartnershipSettings();
+    const minWithdrawal = partnershipSettings.minWithdrawal;
+    if (amount < minWithdrawal) {
+      return NextResponse.json({ error: `Minimum withdrawal amount is ₦${minWithdrawal.toLocaleString()}` }, { status: 400 });
     }
 
     // Check available balance
