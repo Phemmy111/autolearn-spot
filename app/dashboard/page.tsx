@@ -33,6 +33,8 @@ export default function DashboardPage() {
   const [userBadges, setUserBadges] = useState<UserBadgeType[]>([])
   const [nextLesson, setNextLesson] = useState<VideoCourse | null>(null)
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
+  const [cohortName, setCohortName] = useState<string | null>(null)
+  const [cohortStartDate, setCohortStartDate] = useState<string | null>(null)
   const liveClassTime = getLiveClassTimeShort()
 
   async function fetchProfilePicture() {
@@ -157,11 +159,27 @@ export default function DashboardPage() {
     }
   }
 
+  async function fetchActiveCohort() {
+    try {
+      const response = await fetch('/api/public/cohort')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.cohort) {
+          setCohortName(data.cohort.name)
+          setCohortStartDate(data.cohort.start_date)
+        }
+      }
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch active cohort:', error)
+    }
+  }
+
   useEffect(() => {
     fetchUserData()
     fetchBadges()
     fetchNextLesson()
     fetchProfilePicture()
+    fetchActiveCohort()
   }, [])
 
   // Refetch profile picture when returning from settings
@@ -177,6 +195,11 @@ export default function DashboardPage() {
 
   const formatAvailableDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  const formatCohortDate = (dateStr: string | null) => {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  };
 
   const weeks = Array.from(new Set(videos.map((v) => v.week))).sort((a, b) => a - b);
 
@@ -392,7 +415,7 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="mb-8 border-l-4 border-[#00f0ff] bg-[#00f0ff]/10 p-4">
           <p className="font-mono text-sm text-[#e2e8e2] leading-relaxed">
-            <strong className="text-[#00f0ff]">Instructor Announcement:</strong> Welcome to the July 13th Cohort, {firstName}! Our first live session is this Saturday at {liveClassTime}.
+            <strong className="text-[#00f0ff]">Instructor Announcement:</strong> Welcome to the {cohortName || 'Current'} Cohort, {firstName}! Our first live session is this Saturday at {liveClassTime}.
           </p>
         </div>
 

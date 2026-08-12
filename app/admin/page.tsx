@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireAdmin, isSuperAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings as SettingsIcon, MessageSquare, ArrowLeft, Trophy, FileText, ClipboardList, FileCheck, LineChart, Calendar, Bug, Wrench, DollarSign } from 'lucide-react'
+import { Plus, BookOpen, Users, BarChart3, Activity, Shield, Bot, Sparkles, HeartPulse, Settings as SettingsIcon, MessageSquare, ArrowLeft, Trophy, FileText, ClipboardList, FileCheck, LineChart, Calendar, Bug, Wrench, DollarSign, PlayCircle } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
 import { CourseCompletionCard } from '@/components/admin/CourseCompletionCard'
@@ -224,6 +224,15 @@ export default async function AdminPage() {
             <Wrench className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
             <h2 className="font-heading text-xl font-bold text-white mb-2">Maintenance</h2>
             <p className="font-mono text-xs text-[#b9cacb]">System maintenance operations and data recalculation</p>
+          </Link>
+
+          <Link
+            href="/admin/lessons"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <PlayCircle className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Lesson Scheduler</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Manage video release schedules for each cohort</p>
           </Link>
         </div>
 

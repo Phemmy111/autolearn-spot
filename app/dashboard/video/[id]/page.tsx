@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Download } from 'lucide-react'
-import { videos, isVideoAvailable } from '@/data/videos'
+import { videos, isVideoAvailable, isVideoAvailableForCohort } from '@/data/videos'
 import { auth } from '@clerk/nextjs/server'
 import { AutolearnBot } from '@/components/autolearn-bot'
 import VideoPlayer from '@/components/video-player'
@@ -27,7 +27,12 @@ export default async function VideoPage({ params }: VideoPageProps) {
     notFound()
   }
 
-  if (!isVideoAvailable(video)) {
+  // Server-side availability check with cohort support
+  const { email } = await auth()
+  const cohortId = await getUserCohortId(userId, email)
+  const isAvailable = await isVideoAvailableForCohort(video.id, cohortId)
+
+  if (!isAvailable) {
     redirect('/dashboard')
   }
 

@@ -1,4 +1,5 @@
 import { VideoAsset } from '@/lib/video-provider'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export interface VideoCourse {
   id: string
@@ -11,6 +12,22 @@ export interface VideoCourse {
   duration: string
   week: number
   resources?: { label: string; url: string }[]
+}
+
+export interface DatabaseLesson {
+  id: string
+  cohort_id: string
+  title: string
+  description: string | null
+  vdo_cipher_video_id: string | null
+  vimeo_video_id: string | null
+  available_at: string
+  duration_label: string | null
+  week_number: number
+  session_number: number
+  release_day: string
+  resources: any
+  order_index: number
 }
 
 export const videos: VideoCourse[] = [
@@ -144,8 +161,88 @@ export const videos: VideoCourse[] = [
 ]
 
 /** Check if a video is available based on its scheduled date */
-export function isVideoAvailable(video: VideoCourse) {
+export function isVideoAvailable(video: VideoCourse): boolean {
   return new Date() >= new Date(video.availableAt)
+}
+
+/**
+ * Check if a video is available based on database schedule for a specific cohort
+ * Falls back to data/videos.ts if no database record exists
+ */
+export async function isVideoAvailableForCohort(
+  videoId: string, 
+  cohortId: string
+): Promise<boolean> {
+  try {
+    // Query database for cohort-specific lesson availability
+    const { data, error } = await supabaseAdmin
+      .from('lessons')
+      .select('available_at')
+      .eq('id', videoId)
+      .eq('cohort_id', cohortId)
+      .single()
+
+    if (error || !data) {
+      console.log(`[isVideoAvailableForCohort] No database record for ${videoId} in cohort ${cohortId}, falling back to data/videos.ts`)
+      // Fallback to data/videos.ts if no database record
+      const video = videos.find(v => v.id === videoId)
+      if (!video) return false
+      return isVideoAvailable(video)
+    }
+
+    // Use database available_at timestamp
+    return new Date() >= new Date(data.available_at)
+  } catch (error) {
+    console.error('[isVideoAvailableForCohort] Error:', error)
+    // Fallback to data/videos.ts on error
+    const video = videos.find(v => v.id === videoId)
+    if (!video) return false
+    return isVideoAvailable(video)
+  }
+}
+
+/**
+ * Get cohort-specific lesson data with availability info
+ * Merges database data with data/videos.ts fallback
+ */
+export async function getLessonForCohort(
+  videoId: string, 
+  cohortId: string
+): Promise<VideoCourse | null> {
+  try {
+    // Query database for cohort-specific lesson
+    const { data, error } = await supabaseAdmin
+      .from('lessons')
+      .select('*')
+      .eq('id', videoId)
+      .eq('cohort_id', cohortId)
+      .single()
+
+    if (error || !data) {
+      console.log(`[getLessonForCohort] No database record for ${videoId} in cohort ${cohortId}, falling back to data/videos.ts`)
+      // Fallback to data/videos.ts
+      return videos.find(v => v.id === videoId) || null
+    }
+
+    // Convert database lesson to VideoCourse format
+    const dbLesson = data as DatabaseLesson
+    return {
+      id: dbLesson.id,
+      title: dbLesson.title,
+      description: dbLesson.description || '',
+      vdoCipherVideoId: dbLesson.vdo_cipher_video_id || undefined,
+      vimeoVideoId: dbLesson.vimeo_video_id || undefined,
+      youtubeVideoId: undefined, // Would need to add this field to database
+      availableAt: dbLesson.available_at,
+      duration: dbLesson.duration_label || 'Unknown',
+      week: dbLesson.week_number,
+      resources: dbLesson.resources || []
+    }
+  } catch (error) {
+    console.error('[getLessonForCohort] Error:', error)
+    // Fallback to data/videos.ts on error
+    return videos.find(v => v.id === videoId) || null
+  }
 }
 
 /**
