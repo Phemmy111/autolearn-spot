@@ -3,11 +3,12 @@ import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail } from '@/lib/scholarship-emails';
 import { scholarshipConfig } from '@/config/scholarship';
-import { 
-  logPaymentEvent, 
-  logScholarshipTimeline, 
+import { getScholarshipSettings } from '@/lib/scholarship-settings';
+import {
+  logPaymentEvent,
+  logScholarshipTimeline,
   logSystemError,
-  logEmailEvent 
+  logEmailEvent
 } from '@/lib/audit-logging';
 import { createNotification } from '@/lib/notifications';
 import { CommissionService } from '@/lib/growth-engine/CommissionService';
@@ -556,7 +557,7 @@ export async function POST(request: NextRequest) {
       // Check if payment is already verified
       if (application.payment_status === 'Verified') {
         console.log('Payment already verified for:', customerEmail);
-        
+
         await logPaymentEvent({
           action: 'payment_already_verified',
           category: 'payment_verified',
@@ -568,7 +569,7 @@ export async function POST(request: NextRequest) {
           description: 'Payment already verified, resending welcome email',
           status: 'success',
         });
-        
+
         // Still send welcome email even if already verified
         try {
           await sendWelcomeEmail({
@@ -577,7 +578,7 @@ export async function POST(request: NextRequest) {
             referenceNumber: application.reference_number,
           });
           console.log('Welcome email sent to:', customerEmail);
-          
+
           await logEmailEvent({
             action: 'welcome_email',
             recipient_email: application.email,
@@ -588,7 +589,7 @@ export async function POST(request: NextRequest) {
           });
         } catch (emailError: any) {
           console.error('Failed to send welcome email:', emailError);
-          
+
           await logEmailEvent({
             action: 'welcome_email',
             recipient_email: application.email,
@@ -600,6 +601,26 @@ export async function POST(request: NextRequest) {
           });
         }
         return NextResponse.json({ message: 'Payment already verified, welcome email sent' }, { status: 200 });
+      }
+
+      // Validate payment amount against configured scholarship commitment fee
+      const scholarshipSettings = await getScholarshipSettings();
+      const expectedAmount = scholarshipSettings.commitmentFee;
+      if (amountInNaira !== expectedAmount) {
+        console.error(`SCHOLARSHIP: Payment amount mismatch. Expected ₦${expectedAmount}, got ₦${amountInNaira}`);
+        await logPaymentEvent({
+          action: 'payment_validation_failed',
+          category: 'payment_verified',
+          user_email: customerEmail,
+          application_id: application.id,
+          reference_number: application.reference_number,
+          payment_reference: reference,
+          amount: amountInNaira,
+          description: `Payment amount mismatch. Expected ₦${expectedAmount}, got ₦${amountInNaira}`,
+          status: 'failure',
+          error_message: `Amount mismatch: expected ₦${expectedAmount}, got ₦${amountInNaira}`,
+        });
+        return NextResponse.json({ error: 'Payment amount does not match scholarship commitment fee' }, { status: 400 });
       }
 
       // Update payment status to Verified
