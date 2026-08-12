@@ -199,7 +199,7 @@ export class PartnerCommissionService {
         await supabase
           .from('partners')
           .update({
-            available_balance: (await supabase.from('partners').select('available_balance').eq('id', commission.partner_id).single()).data?.available_balance || 0 - commission.amount,
+            available_earnings: (await supabase.from('partners').select('available_earnings').eq('id', commission.partner_id).single()).data?.available_earnings || 0 - commission.amount,
             total_earnings: (await supabase.from('partners').select('total_earnings').eq('id', commission.partner_id).single()).data?.total_earnings || 0 - commission.amount
           })
           .eq('id', commission.partner_id);
@@ -251,7 +251,7 @@ export class PartnerCommissionService {
     try {
       const { data: partner, error: partnerError } = await supabase
         .from('partners')
-        .select('available_balance, pending_earnings, total_earnings')
+        .select('available_earnings, pending_earnings, total_earnings')
         .eq('id', partnerId)
         .single();
 
@@ -274,7 +274,7 @@ export class PartnerCommissionService {
       const monthlyEarnings = monthlyCommissions?.reduce((sum, c) => sum + (c.amount || 0), 0) || 0;
 
       return {
-        availableEarnings: partner.available_balance || 0,
+        availableEarnings: partner.available_earnings || 0,
         pendingEarnings: partner.pending_earnings || 0,
         totalEarned: partner.total_earnings || 0,
         monthlyEarnings

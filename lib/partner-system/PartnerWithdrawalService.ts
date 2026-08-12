@@ -26,10 +26,10 @@ export class PartnerWithdrawalService {
         return { success: false, error: `Minimum withdrawal amount is ₦${MIN_WITHDRAWAL.toLocaleString()}` };
       }
 
-      // Check partner's available balance
+      // Check partner's available earnings
       const { data: partner, error: partnerError } = await supabase
         .from('partners')
-        .select('available_balance')
+        .select('available_earnings')
         .eq('id', partnerId)
         .single();
 
@@ -38,8 +38,8 @@ export class PartnerWithdrawalService {
         return { success: false, error: 'Partner not found' };
       }
 
-      if (partner.available_balance < amount) {
-        console.error(`Insufficient balance: ${partner.available_balance} < ${amount}`);
+      if (partner.available_earnings < amount) {
+        console.error(`Insufficient earnings: ${partner.available_earnings} < ${amount}`);
         return { success: false, error: 'Insufficient balance' };
       }
 
@@ -62,11 +62,11 @@ export class PartnerWithdrawalService {
         return { success: false, error: 'Failed to create withdrawal request' };
       }
 
-      // Deduct from available balance (temporarily)
+      // Deduct from available earnings (temporarily)
       await supabase
         .from('partners')
         .update({
-          available_balance: partner.available_balance - amount
+          available_earnings: partner.available_earnings - amount
         })
         .eq('id', partnerId);
 
@@ -273,11 +273,11 @@ export class PartnerWithdrawalService {
         return false;
       }
 
-      // Refund the amount to partner's available balance
+      // Refund the amount to partner's available earnings
       await supabase
         .from('partners')
         .update({
-          available_balance: (await supabase.from('partners').select('available_balance').eq('id', withdrawal.partner_id).single()).data?.available_balance || 0 + withdrawal.amount
+          available_earnings: (await supabase.from('partners').select('available_earnings').eq('id', withdrawal.partner_id).single()).data?.available_earnings || 0 + withdrawal.amount
         })
         .eq('id', withdrawal.partner_id);
 
