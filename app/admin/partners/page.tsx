@@ -52,6 +52,7 @@ export default function AdminPartnersPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [partners, setPartners] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
+  const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -152,9 +153,10 @@ export default function AdminPartnersPage() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [pRes, aRes] = await Promise.all([
+      const [pRes, aRes, wRes] = await Promise.all([
         fetch('/api/admin/partners'),
-        fetch('/api/admin/partners/applications')
+        fetch('/api/admin/partners/applications'),
+        fetch('/api/admin/partner-withdrawals?status=pending')
       ]);
 
       if (pRes.ok) {
@@ -164,6 +166,10 @@ export default function AdminPartnersPage() {
       if (aRes.ok) {
         const aData = await aRes.json();
         setApplications(aData.applications || []);
+      }
+      if (wRes.ok) {
+        const wData = await wRes.json();
+        setWithdrawals(wData.withdrawals || []);
       }
     } catch (e) {
       console.error(e);
@@ -429,6 +435,38 @@ export default function AdminPartnersPage() {
     } catch (e) {
       console.error(e);
       alert('Failed to resend email');
+    }
+  };
+
+  const handleProcessWithdrawal = async (withdrawalId: string, action: 'approve' | 'reject') => {
+    try {
+      let paymentReference = '';
+      let reason = '';
+
+      if (action === 'approve') {
+        paymentReference = prompt('Enter payment reference:');
+        if (!paymentReference) return;
+      } else {
+        reason = prompt('Enter rejection reason:');
+        if (!reason) return;
+      }
+
+      const res = await fetch('/api/admin/partner-withdrawals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ withdrawalId, action, paymentReference, reason })
+      });
+
+      if (res.ok) {
+        fetchAll();
+        alert(`Withdrawal ${action}d successfully`);
+      } else {
+        const error = await res.json();
+        alert(`Failed to ${action} withdrawal: ${error.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert(`Failed to ${action} withdrawal`);
     }
   };
 
@@ -951,10 +989,69 @@ export default function AdminPartnersPage() {
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Withdrawal Requests</h2>
             </div>
             
-            <div className="p-8 text-center text-[#b9cacb]">
-              <DollarSign className="h-12 w-12 mx-auto mb-4 text-[#12E6F3]" />
-              <p>Withdrawal requests will appear here</p>
-              <p className="text-sm mt-2">Process partner withdrawal requests with full bank details</p>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-[#0c0e12]">
+                  <tr>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Partner</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Email</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Amount</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Bank Name</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Account Number</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Status</th>
+                    <th className="text-left p-4 text-xs font-medium text-[#b9cacb] uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {withdrawals.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="p-8 text-center text-[#b9cacb]">No pending withdrawal requests</td>
+                    </tr>
+                  ) : (
+                    withdrawals.map((withdrawal) => (
+                      <tr key={withdrawal.id} className="border-t border-[#1f2229] hover:bg-[#0c0e12]/50 transition-colors">
+                        <td className="p-4 text-sm text-[#e2e8]">{withdrawal.partners?.full_name || 'Unknown'}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{withdrawal.partners?.email || 'Unknown'}</td>
+                        <td className="p-4 text-sm text-[#12E6F3]">₦{(withdrawal.amount || 0).toLocaleString()}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{withdrawal.bank_name || 'N/A'}</td>
+                        <td className="p-4 text-sm text-[#b9cacb]">{withdrawal.account_number || 'N/A'}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                            withdrawal.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                            withdrawal.status === 'approved' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                            withdrawal.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                            'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                          }`}>
+                            {withdrawal.status}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            {withdrawal.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => handleProcessWithdrawal(withdrawal.id, 'approve')}
+                                  className="p-2 hover:bg-green-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-green-400"
+                                  title="Approve"
+                                >
+                                  <CheckCircle className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleProcessWithdrawal(withdrawal.id, 'reject')}
+                                  className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-red-400"
+                                  title="Reject"
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
