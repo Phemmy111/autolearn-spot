@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { submitScholarshipApplication } from '../actions';
-import { scholarshipConfig } from '@/config/scholarship';
 import Navigation from '@/components/Navigation';
 
 type FormState = {
@@ -16,22 +15,22 @@ type FormState = {
   country: string;
   state: string;
   occupation: string;
-  
+
   // Step 2
   ai_experience: string;
   automation_experience: string;
   has_laptop: boolean;
   has_internet: boolean;
-  
+
   // Step 3
   motivation: string;
   goals: string;
   impact: string;
   why_you: string;
-  
+
   // Step 4
   commitment_confirmed: boolean;
-  
+
   // Growth Engine
   referred_by_code?: string;
 };
@@ -52,9 +51,25 @@ export default function ScholarshipApplyPage() {
   const [successData, setSuccessData] = useState<{ referenceNumber: string } | null>(null);
   const [existingApplication, setExistingApplication] = useState<{ referenceNumber: string; status: string } | null>(null);
 
-  const { fullValue, commitmentFee } = scholarshipConfig;
-  const formattedFullValue = `₦${fullValue.toLocaleString()}`;
-  const formattedCommitmentFee = `₦${commitmentFee.toLocaleString()}`;
+  const [settings, setSettings] = useState({ fullValue: 8000, commitmentFee: 5000 });
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+
+  const formattedFullValue = `₦${settings.fullValue.toLocaleString()}`;
+  const formattedCommitmentFee = `₦${settings.commitmentFee.toLocaleString()}`;
+
+  // Fetch scholarship settings on mount
+  useEffect(() => {
+    fetch('/api/settings/scholarship')
+      .then(res => res.json())
+      .then(data => {
+        setSettings(data);
+        setIsLoadingSettings(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch scholarship settings:', err);
+        setIsLoadingSettings(false);
+      });
+  }, []);
 
   // Growth Engine: Extract referral code from URL
   const [refCode, setRefCode] = useState<string | null>(null);

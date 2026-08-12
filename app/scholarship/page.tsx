@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Sparkles, Trophy, CheckCircle, GraduationCap, ChevronRight, Clock, ShieldCheck, Zap } from 'lucide-react';
-import { scholarshipConfig } from '@/config/scholarship';
+import { getScholarshipSettings } from '@/lib/scholarship-settings';
 import { Metadata } from 'next';
 import Navigation from '@/components/Navigation';
 
@@ -9,11 +9,11 @@ export const metadata: Metadata = {
   description: 'Apply for the AutoLearn Spot AI Automation Scholarship Programme. Learn n8n and AI automation for a fraction of the cost.',
 };
 
-export default function ScholarshipLandingPage() {
-  const { fullValue, commitmentFee } = scholarshipConfig;
+export default async function ScholarshipLandingPage() {
+  const settings = await getScholarshipSettings();
 
-  const formattedFullValue = `₦${fullValue.toLocaleString()}`;
-  const formattedCommitmentFee = `₦${commitmentFee.toLocaleString()}`;
+  const formattedFullValue = `₦${settings.fullValue.toLocaleString()}`;
+  const formattedCommitmentFee = `₦${settings.commitmentFee.toLocaleString()}`;
 
   return (
     <main className="min-h-screen bg-[#111317] text-[#e2e2e8] pb-24">
@@ -150,7 +150,7 @@ export default function ScholarshipLandingPage() {
         <div className="mt-8 text-center">
           <p className="text-[#b9cacb] mb-3">Join our WhatsApp community for updates:</p>
           <a
-            href={scholarshipConfig.generalWhatsAppGroup}
+            href={settings.generalWhatsApp}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-6 py-3 font-mono text-sm font-bold uppercase transition-all hover:bg-[#128C7E] hover:shadow-[0_0_15px_rgba(37,211,102,0.4)]"

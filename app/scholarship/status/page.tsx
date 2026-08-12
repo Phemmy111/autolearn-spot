@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, Mail, KeyRound, Search, CheckCircle, Clock, XCircle, FileText, AlertCircle, Calendar, CreditCard } from 'lucide-react';
 import { requestStatusOTP, verifyOTPAndGetStatus, markPaymentPending } from '../actions';
-import { scholarshipConfig } from '@/config/scholarship';
 import Navigation from '@/components/Navigation';
 
 type StatusType = 'Submitted' | 'Under Review' | 'Shortlisted' | 'Accepted' | 'Waitlisted' | 'Not Selected';
@@ -15,8 +14,26 @@ export default function ScholarshipStatusPage() {
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [result, setResult] = useState<{ reference_number: string; status: StatusType; full_name: string; payment_status?: string } | null>(null);
+  const [settings, setSettings] = useState({ commitmentFee: 5000, paymentUrl: '' });
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
+
+  // Fetch scholarship settings on mount
+  useEffect(() => {
+    fetch('/api/settings/scholarship')
+      .then(res => res.json())
+      .then(data => {
+        setSettings(data);
+        setIsLoadingSettings(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch scholarship settings:', err);
+        setIsLoadingSettings(false);
+      });
+  }, []);
+
+  const formattedCommitmentFee = `₦${settings.commitmentFee.toLocaleString()}`;
 
   const handleRequestOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,13 +238,13 @@ export default function ScholarshipStatusPage() {
                   {result.payment_status === 'Waiting' && (
                     <div className="space-y-3">
                       <a
-                        href={scholarshipConfig.paymentUrl}
+                        href={settings.paymentUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full flex items-center justify-center gap-2 bg-[#00f0ff] text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#00f0ff] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#00f0ff] transition-all"
                       >
                         <CreditCard className="w-5 h-5" />
-                        Pay Commitment Fee (₦5,000)
+                        Pay Commitment Fee ({formattedCommitmentFee})
                       </a>
                       <p className="text-xs text-[#b9cacb] text-center">
                         Payment verification is automatic. You'll receive a welcome email after successful payment.
