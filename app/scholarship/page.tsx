@@ -4,6 +4,8 @@ import { getScholarshipSettings } from '@/lib/scholarship-settings';
 import { Metadata } from 'next';
 import Navigation from '@/components/Navigation';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Scholarship Programme | AutoLearn Spot',
   description: 'Apply for the AutoLearn Spot AI Automation Scholarship Programme. Learn n8n and AI automation for a fraction of the cost.',
