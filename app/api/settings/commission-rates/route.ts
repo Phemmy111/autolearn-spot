@@ -39,7 +39,19 @@ export async function GET(request: Request) {
 
     if (settings) {
       for (const setting of settings) {
-        const rate = setting.value ? parseInt(setting.value, 10) : DEFAULT_RATES[setting.key as keyof typeof DEFAULT_RATES];
+        // Handle JSONB values - unwrap if stored as JSON string
+        let value = setting.value;
+        if (typeof value === 'string') {
+          try {
+            const parsed = JSON.parse(value);
+            if (typeof parsed === 'string') {
+              value = parsed;
+            }
+          } catch {
+            // Not JSON, keep as is
+          }
+        }
+        const rate = value ? parseInt(value, 10) : DEFAULT_RATES[setting.key as keyof typeof DEFAULT_RATES];
         if (!isNaN(rate)) {
           if (setting.key === SETTING_KEYS.student) rates.student = rate;
           if (setting.key === SETTING_KEYS.community) rates.community = rate;
@@ -103,7 +115,7 @@ export async function PUT(request: Request) {
         .upsert(
           {
             key: rate.settingKey,
-            value: rate.value.toString(),
+            value: JSON.stringify(rate.value.toString()),
           },
           { onConflict: 'key' }
         )

@@ -21,7 +21,18 @@ export async function GET(request: Request) {
     }
 
     // Parse the value as integer, fallback to default if invalid
-    const fee = setting?.value ? parseInt(setting.value, 10) : DEFAULT_FEE;
+    let value = setting?.value;
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (typeof parsed === 'string') {
+          value = parsed;
+        }
+      } catch {
+        // Not JSON, keep as is
+      }
+    }
+    const fee = value ? parseInt(value, 10) : DEFAULT_FEE;
     return NextResponse.json({ fee: isNaN(fee) ? DEFAULT_FEE : fee });
   } catch (e) {
     console.error('Error fetching direct enrollment fee:', e);
@@ -56,7 +67,7 @@ export async function PUT(request: Request) {
     const { error } = await supabaseAdmin
       .from('site_settings')
       .upsert(
-        { key: SETTING_KEY, value: fee.toString() },
+        { key: SETTING_KEY, value: JSON.stringify(fee.toString()) },
         { onConflict: 'key' }
       );
 

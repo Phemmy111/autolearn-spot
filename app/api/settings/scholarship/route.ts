@@ -41,25 +41,37 @@ export async function GET(request: Request) {
 
     if (settings) {
       for (const setting of settings) {
+        // Handle JSONB values - unwrap if stored as JSON string
+        let value = setting.value;
+        if (typeof value === 'string') {
+          try {
+            const parsed = JSON.parse(value);
+            if (typeof parsed === 'string') {
+              value = parsed;
+            }
+          } catch {
+            // Not JSON, keep as is
+          }
+        }
         if (setting.key === SETTING_KEYS.commitmentFee) {
-          const fee = setting.value ? parseInt(setting.value, 10) : DEFAULT_VALUES.commitmentFee;
+          const fee = value ? parseInt(value, 10) : DEFAULT_VALUES.commitmentFee;
           values.commitmentFee = isNaN(fee) ? DEFAULT_VALUES.commitmentFee : fee;
         }
         if (setting.key === SETTING_KEYS.fullValue) {
-          const value = setting.value ? parseInt(setting.value, 10) : DEFAULT_VALUES.fullValue;
-          values.fullValue = isNaN(value) ? DEFAULT_VALUES.fullValue : value;
+          const val = value ? parseInt(value, 10) : DEFAULT_VALUES.fullValue;
+          values.fullValue = isNaN(val) ? DEFAULT_VALUES.fullValue : val;
         }
         if (setting.key === SETTING_KEYS.paymentUrl) {
-          values.paymentUrl = setting.value || DEFAULT_VALUES.paymentUrl;
+          values.paymentUrl = value || DEFAULT_VALUES.paymentUrl;
         }
         if (setting.key === SETTING_KEYS.isOpen) {
-          values.isOpen = setting.value === 'true';
+          values.isOpen = value === 'true';
         }
         if (setting.key === SETTING_KEYS.generalWhatsApp) {
-          values.generalWhatsApp = setting.value || DEFAULT_VALUES.generalWhatsApp;
+          values.generalWhatsApp = value || DEFAULT_VALUES.generalWhatsApp;
         }
         if (setting.key === SETTING_KEYS.paidWhatsApp) {
-          values.paidWhatsApp = setting.value || DEFAULT_VALUES.paidWhatsApp;
+          values.paidWhatsApp = value || DEFAULT_VALUES.paidWhatsApp;
         }
       }
     }
@@ -151,7 +163,7 @@ export async function PUT(request: Request) {
         supabaseAdmin
           .from('site_settings')
           .upsert(
-            { key: SETTING_KEYS.commitmentFee, value: commitmentFee.toString() },
+            { key: SETTING_KEYS.commitmentFee, value: JSON.stringify(commitmentFee.toString()) },
             { onConflict: 'key' }
           )
       );
@@ -162,7 +174,7 @@ export async function PUT(request: Request) {
         supabaseAdmin
           .from('site_settings')
           .upsert(
-            { key: SETTING_KEYS.fullValue, value: fullValue.toString() },
+            { key: SETTING_KEYS.fullValue, value: JSON.stringify(fullValue.toString()) },
             { onConflict: 'key' }
           )
       );
@@ -173,7 +185,7 @@ export async function PUT(request: Request) {
         supabaseAdmin
           .from('site_settings')
           .upsert(
-            { key: SETTING_KEYS.paymentUrl, value: paymentUrl },
+            { key: SETTING_KEYS.paymentUrl, value: JSON.stringify(paymentUrl) },
             { onConflict: 'key' }
           )
       );
@@ -184,7 +196,7 @@ export async function PUT(request: Request) {
         supabaseAdmin
           .from('site_settings')
           .upsert(
-            { key: SETTING_KEYS.isOpen, value: isOpen.toString() },
+            { key: SETTING_KEYS.isOpen, value: JSON.stringify(isOpen.toString()) },
             { onConflict: 'key' }
           )
       );
@@ -195,7 +207,7 @@ export async function PUT(request: Request) {
         supabaseAdmin
           .from('site_settings')
           .upsert(
-            { key: SETTING_KEYS.generalWhatsApp, value: generalWhatsApp },
+            { key: SETTING_KEYS.generalWhatsApp, value: JSON.stringify(generalWhatsApp) },
             { onConflict: 'key' }
           )
       );
@@ -206,7 +218,7 @@ export async function PUT(request: Request) {
         supabaseAdmin
           .from('site_settings')
           .upsert(
-            { key: SETTING_KEYS.paidWhatsApp, value: paidWhatsApp },
+            { key: SETTING_KEYS.paidWhatsApp, value: JSON.stringify(paidWhatsApp) },
             { onConflict: 'key' }
           )
       );

@@ -28,7 +28,10 @@ import {
   Menu,
   X,
   TrendingUp,
-  HeartPulse
+  HeartPulse,
+  Video,
+  Image,
+  Globe
 } from 'lucide-react';
 
 interface NavSection {
@@ -115,10 +118,26 @@ const navigation: NavSection[] = [
   {
     title: 'Settings',
     items: [
+      { label: 'General & Brand', href: '/admin/settings/general', icon: SettingsIcon },
+      { label: 'Landing Page', href: '/admin/settings/landing', icon: LayoutDashboard },
+      { label: 'Footer', href: '/admin/settings/footer', icon: FileText },
       { label: 'Pricing', href: '/admin/settings/pricing', icon: DollarSign },
       { label: 'Commission', href: '/admin/settings/commission', icon: DollarSign },
       { label: 'Scholarship', href: '/admin/settings/scholarship', icon: Sparkles },
       { label: 'Partnership', href: '/admin/settings/partnership', icon: Users },
+      { label: 'Live Classes', href: '/admin/settings/live-classes', icon: Calendar },
+      { label: 'Enrollment', href: '/admin/settings/enrollment', icon: Users },
+      { label: 'Certificates', href: '/admin/settings/certificates', icon: Trophy },
+      { label: 'SEO', href: '/admin/settings/seo', icon: Globe },
+    ],
+  },
+  {
+    title: 'Content',
+    items: [
+      { label: 'Workflow Showcase', href: '/admin/content/workflow-showcase', icon: Video },
+      { label: 'Testimonials', href: '/admin/content/testimonials', icon: MessageSquare },
+      { label: 'Announcements', href: '/admin/content/announcements', icon: FileText },
+      { label: 'Media Library', href: '/admin/content/media', icon: Image },
     ],
   },
 ];

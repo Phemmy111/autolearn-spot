@@ -33,7 +33,19 @@ export async function getPartnershipSettings(): Promise<PartnershipSettings> {
     if (settings) {
       for (const setting of settings) {
         if (setting.key === SETTING_KEYS.minWithdrawal) {
-          const amount = setting.value ? parseInt(setting.value, 10) : DEFAULT_VALUES.minWithdrawal;
+          // Handle JSONB values - unwrap if stored as JSON string
+          let value = setting.value;
+          if (typeof value === 'string') {
+            try {
+              const parsed = JSON.parse(value);
+              if (typeof parsed === 'string') {
+                value = parsed;
+              }
+            } catch {
+              // Not JSON, keep as is
+            }
+          }
+          const amount = value ? parseInt(value, 10) : DEFAULT_VALUES.minWithdrawal;
           values.minWithdrawal = isNaN(amount) ? DEFAULT_VALUES.minWithdrawal : amount;
         }
       }
