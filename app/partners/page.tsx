@@ -364,7 +364,7 @@ function FAQSection() {
     },
     {
       question: "What's the minimum withdrawal amount?",
-      answer: "The minimum withdrawal amount is ₦5,000 to ensure efficient processing."
+      answer: "The minimum withdrawal amount is set to ensure efficient processing. Check your dashboard for the current minimum threshold."
     }
   ];
   

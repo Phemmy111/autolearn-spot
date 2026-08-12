@@ -108,6 +108,15 @@ export default async function AdminPage() {
           </Link>
 
           <Link
+            href="/admin/settings/partnership"
+            className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
+          >
+            <Users className="h-8 w-8 text-[#00f0ff] mb-4 group-hover:scale-110 transition-transform" />
+            <h2 className="font-heading text-xl font-bold text-white mb-2">Partnership Settings</h2>
+            <p className="font-mono text-xs text-[#b9cacb]">Manage partnership programme settings</p>
+          </Link>
+
+          <Link
             href="/admin/leaderboard"
             className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all group"
           >

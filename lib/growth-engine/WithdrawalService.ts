@@ -4,6 +4,7 @@ import { Commission } from './CommissionService';
 import { PartnerEmailService } from './PartnerEmailService';
 import { AdminEmailService } from './AdminEmailService';
 import { NotificationService } from './NotificationService';
+import { getPartnershipSettings } from '@/lib/partnership-settings';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -40,7 +41,9 @@ export class WithdrawalService {
     accountName: string;
   }): Promise<{ success: boolean; error?: string; withdrawal?: Withdrawal }> {
     try {
-      const minWithdrawalAmount = 2000;
+      // Get minimum withdrawal amount from database settings
+      const partnershipSettings = await getPartnershipSettings();
+      const minWithdrawalAmount = partnershipSettings.minWithdrawal;
       if (params.amount < minWithdrawalAmount) {
         return { success: false, error: `Minimum withdrawal amount is ₦${minWithdrawalAmount}` };
       }

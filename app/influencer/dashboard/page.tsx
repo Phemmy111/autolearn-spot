@@ -48,8 +48,8 @@ export default function InfluencerDashboard() {
 
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!withdrawAmount || Number(withdrawAmount) < 2000) return;
-    
+    if (!withdrawAmount) return;
+
     setIsWithdrawing(true);
     try {
       const res = await fetch("/api/withdrawals", {
@@ -273,18 +273,18 @@ export default function InfluencerDashboard() {
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b9cacb] font-bold">₦</span>
                   <input
                     type="number"
-                    min="2000"
+                    min="1"
                     max={data.earnings.availableEarnings}
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     className="w-full bg-[#0c0e12] border border-[#1f2229] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-purple-500 transition-colors font-bold text-lg"
-                    placeholder="2000"
+                    placeholder="Amount"
                   />
                 </div>
               </div>
               <button
                 type="submit"
-                disabled={isWithdrawing || !withdrawAmount || Number(withdrawAmount) < 2000 || Number(withdrawAmount) > data.earnings.availableEarnings}
+                disabled={isWithdrawing || !withdrawAmount || Number(withdrawAmount) > data.earnings.availableEarnings}
                 className="w-full py-3.5 rounded-xl bg-purple-500 text-white font-bold hover:bg-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isWithdrawing ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRightLeft className="h-5 w-5" />}

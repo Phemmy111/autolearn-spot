@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   LayoutDashboard, 
   Users, 
@@ -1509,12 +1510,13 @@ export default function AdminPartnersPage() {
                     <div>
                       <p className="font-medium text-[#e2e2e8]">Minimum Withdrawal Amount (₦)</p>
                       <p className="text-sm text-[#b9cacb]">Minimum amount partners can withdraw</p>
+                      <p className="text-xs text-[#12E6F3] mt-1">Now managed in <Link href="/admin/settings/partnership" className="underline">Partnership Settings</Link></p>
                     </div>
                     <input
                       type="number"
                       value={settings.minWithdrawal}
-                      onChange={(e) => setSettings({...settings, minWithdrawal: parseInt(e.target.value)})}
-                      className="w-24 px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      disabled
+                      className="w-24 px-4 py-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg text-[#5d5f63] focus:outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>

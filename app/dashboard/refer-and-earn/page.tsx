@@ -88,12 +88,12 @@ export default function StudentPartnerPage() {
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = Number(withdrawAmount);
-    
-    if (!amount || amount < 5000) {
-      alert('Minimum withdrawal amount is ₦5,000');
+
+    if (!amount) {
+      alert('Please enter a withdrawal amount');
       return;
     }
-    
+
     if (amount > (data?.stats?.availableBalance || 0)) {
       alert('Insufficient balance');
       return;

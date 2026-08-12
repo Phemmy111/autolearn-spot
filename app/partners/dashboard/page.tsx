@@ -125,8 +125,8 @@ export default function PartnerDashboard() {
 
   const handleWithdraw = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!withdrawAmount || Number(withdrawAmount) < 5000) {
-      alert("Minimum withdrawal amount is ₦5,000");
+    if (!withdrawAmount) {
+      alert("Please enter a withdrawal amount");
       return;
     }
 

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getPartnershipSettings } from '@/lib/partnership-settings';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -17,8 +18,9 @@ export class PartnerWithdrawalService {
     accountName: string
   ): Promise<boolean> {
     try {
-      // Check minimum withdrawal amount
-      const MIN_WITHDRAWAL = 5000;
+      // Check minimum withdrawal amount from database settings
+      const partnershipSettings = await getPartnershipSettings();
+      const MIN_WITHDRAWAL = partnershipSettings.minWithdrawal;
       if (amount < MIN_WITHDRAWAL) {
         console.error(`Amount below minimum: ${amount} < ${MIN_WITHDRAWAL}`);
         return false;
