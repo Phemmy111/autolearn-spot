@@ -48,6 +48,7 @@ export default function PartnerDashboard() {
   const [copied, setCopied] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [minWithdrawal, setMinWithdrawal] = useState(5000);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -64,6 +65,22 @@ export default function PartnerDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
+  }, []);
+
+  // Fetch partnership settings to get minimum withdrawal amount
+  useEffect(() => {
+    const fetchPartnershipSettings = async () => {
+      try {
+        const res = await fetch('/api/settings/partnership');
+        const data = await res.json();
+        if (res.ok && data.minWithdrawal) {
+          setMinWithdrawal(data.minWithdrawal);
+        }
+      } catch (err) {
+        console.error('Failed to fetch partnership settings:', err);
+      }
+    };
+    fetchPartnershipSettings();
   }, []);
 
   // Initialize bank form data when bank profile exists
@@ -616,9 +633,9 @@ export default function PartnerDashboard() {
                         type="number"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
-                        min="5000"
+                        min={minWithdrawal}
                         className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
-                        placeholder="Minimum ₦5,000"
+                        placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
                       />
                     </div>
                     {!bankProfile && (

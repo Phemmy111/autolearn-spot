@@ -21,12 +21,29 @@ export default function StudentPartnerPage() {
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
   const [showMaterialModal, setShowMaterialModal] = useState(false);
+  const [minWithdrawal, setMinWithdrawal] = useState(5000);
 
   useEffect(() => {
     if (isLoaded && user) {
       fetchPartnerStatus();
     }
   }, [isLoaded, user]);
+
+  // Fetch partnership settings to get minimum withdrawal amount
+  useEffect(() => {
+    const fetchPartnershipSettings = async () => {
+      try {
+        const res = await fetch('/api/settings/partnership');
+        const data = await res.json();
+        if (res.ok && data.minWithdrawal) {
+          setMinWithdrawal(data.minWithdrawal);
+        }
+      } catch (err) {
+        console.error('Failed to fetch partnership settings:', err);
+      }
+    };
+    fetchPartnershipSettings();
+  }, []);
 
   const fetchPartnerStatus = async () => {
     try {
@@ -493,8 +510,8 @@ export default function StudentPartnerPage() {
                   type="number"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="Enter amount"
-                  min="5000"
+                  placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
+                  min={minWithdrawal}
                   max={data?.stats?.availableBalance || 0}
                   className="w-full bg-[#070B12] border border-[#1f2229] rounded-lg px-4 py-3 text-white focus:border-[#00f0ff] focus:outline-none"
                   disabled={isWithdrawing}
