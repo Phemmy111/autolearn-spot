@@ -21,6 +21,9 @@ export default function AdminTestimonialsPage() {
     mediaFile: null as File | null,
     thumbnailUrl: '',
     thumbnailFile: null as File | null,
+    profileImageUrl: '',
+    profileImageFile: null as File | null,
+    socialProfileUrl: '',
     caption: '',
     featured: false,
     enabled: true,
@@ -64,6 +67,7 @@ export default function AdminTestimonialsPage() {
       formDataAPI.append('enabled', String(formData.enabled));
       formDataAPI.append('displayOrder', String(formData.displayOrder));
       formDataAPI.append('mediaType', formData.mediaType);
+      formDataAPI.append('socialProfileUrl', formData.socialProfileUrl);
       
       if (formData.mediaFile) {
         formDataAPI.append('mediaFile', formData.mediaFile);
@@ -75,6 +79,12 @@ export default function AdminTestimonialsPage() {
         formDataAPI.append('thumbnailFile', formData.thumbnailFile);
       } else if (formData.thumbnailUrl) {
         formDataAPI.append('thumbnailUrl', formData.thumbnailUrl);
+      }
+
+      if (formData.profileImageFile) {
+        formDataAPI.append('profileImageFile', formData.profileImageFile);
+      } else if (formData.profileImageUrl) {
+        formDataAPI.append('profileImageUrl', formData.profileImageUrl);
       }
 
       if (editingItem) {
@@ -105,6 +115,9 @@ export default function AdminTestimonialsPage() {
           mediaFile: null,
           thumbnailUrl: '',
           thumbnailFile: null,
+          profileImageUrl: '',
+          profileImageFile: null,
+          socialProfileUrl: '',
           caption: '',
           featured: false,
           enabled: true,
@@ -133,6 +146,9 @@ export default function AdminTestimonialsPage() {
       mediaFile: null,
       thumbnailUrl: item.thumbnail_url || '',
       thumbnailFile: null,
+      profileImageUrl: item.profile_image_url || '',
+      profileImageFile: null,
+      socialProfileUrl: item.social_profile_url || '',
       caption: item.caption,
       featured: item.featured,
       enabled: item.enabled,
@@ -194,6 +210,9 @@ export default function AdminTestimonialsPage() {
                   mediaFile: null,
                   thumbnailUrl: '',
                   thumbnailFile: null,
+                  profileImageUrl: '',
+                  profileImageFile: null,
+                  socialProfileUrl: '',
                   caption: '',
                   featured: false,
                   enabled: true,
@@ -231,11 +250,28 @@ export default function AdminTestimonialsPage() {
           {items.map((item) => (
             <div key={item.id} className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-[#00f0ff]" />
-                  <span className={`text-xs px-2 py-1 rounded-full ${item.featured ? 'bg-yellow-500/10 text-yellow-400' : 'bg-gray-500/10 text-gray-400'}`}>
-                    {item.featured ? 'Featured' : 'Standard'}
-                  </span>
+                <div className="flex items-center gap-3">
+                  {item.profile_image_url ? (
+                    <img
+                      src={item.profile_image_url}
+                      alt={item.student_name || 'Student'}
+                      className="w-10 h-10 rounded-full object-cover border border-[#1f2229]"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[#1f2229] flex items-center justify-center">
+                      <MessageSquare className="h-5 w-5 text-[#b9cacb]" />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-2 py-1 rounded-full ${item.featured ? 'bg-yellow-500/10 text-yellow-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                      {item.featured ? 'Featured' : 'Standard'}
+                    </span>
+                    {item.social_profile_url && (
+                      <span className="text-xs px-2 py-1 bg-green-500/10 text-green-400 rounded-full">
+                        Verified
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <span className={`text-xs px-2 py-1 rounded-full ${item.enabled ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                   {item.enabled ? 'Active' : 'Inactive'}
@@ -483,6 +519,69 @@ export default function AdminTestimonialsPage() {
                   </div>
                 </div>
               )}
+              <div>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Profile Picture (Optional)</label>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                    <Upload className="h-4 w-4 text-[#b9cacb]" />
+                    <span className="text-sm text-[#b9cacb]">
+                      {formData.profileImageFile ? formData.profileImageFile.name : 'Upload Profile Picture (PNG/JPG/WebP)'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setFormData({ ...formData, profileImageFile: file, profileImageUrl: '' });
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {formData.profileImageFile && (
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <span className="text-xs text-[#b9cacb] truncate">{formData.profileImageFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, profileImageFile: null, profileImageUrl: '' })}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  {formData.profileImageUrl && !formData.profileImageFile && (
+                    <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <img src={formData.profileImageUrl} alt="Profile" className="w-16 h-16 object-cover rounded-full mb-2" />
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, profileImageUrl: '' })}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Use different picture
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Social Profile URL (Optional)</label>
+                <input
+                  type="url"
+                  value={formData.socialProfileUrl}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Validate URL format
+                    if (value === '' || value.startsWith('http://') || value.startsWith('https://')) {
+                      setFormData({ ...formData, socialProfileUrl: value });
+                    }
+                  }}
+                  placeholder="https://linkedin.com/in/username"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                />
+                <p className="text-xs text-[#5d5f63] mt-1">Must start with http:// or https://</p>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-[#b9cacb] mb-2">Caption (Optional)</label>
                 <textarea

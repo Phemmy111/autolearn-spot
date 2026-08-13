@@ -13,6 +13,8 @@ interface Testimonial {
   media_url: string;
   media_type: string;
   thumbnail_url: string;
+  profile_image_url: string;
+  social_profile_url: string;
   caption: string;
   featured: boolean;
   enabled: boolean;
@@ -99,9 +101,36 @@ export function DynamicTestimonialsSection() {
                   />
                 )}
               </div>
-              {testimonial.student_name && (
-                <h3 className="text-lg font-semibold text-[#e2e2e8] mb-1">{testimonial.student_name}</h3>
-              )}
+              <div className="flex items-center gap-3 mb-2">
+                {testimonial.profile_image_url ? (
+                  <a
+                    href={testimonial.social_profile_url || '#'}
+                    target={testimonial.social_profile_url ? '_blank' : undefined}
+                    rel={testimonial.social_profile_url ? 'noopener noreferrer' : undefined}
+                    className={`relative group ${testimonial.social_profile_url ? 'cursor-pointer' : ''}`}
+                  >
+                    <img
+                      src={testimonial.profile_image_url}
+                      alt={testimonial.student_name || 'Student'}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#1f2229] group-hover:border-[#00f0ff] transition-colors"
+                    />
+                    {testimonial.social_profile_url && (
+                      <div className="absolute inset-0 rounded-full bg-[#00f0ff]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-xs text-white font-bold">✓</span>
+                      </div>
+                    )}
+                  </a>
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-[#1f2229] border-2 border-[#1f2229] flex items-center justify-center">
+                    <span className="text-[#b9cacb] text-sm font-semibold">
+                      {(testimonial.student_name || 'S')[0].toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                {testimonial.student_name && (
+                  <h3 className="text-lg font-semibold text-[#e2e2e8]">{testimonial.student_name}</h3>
+                )}
+              </div>
               {(testimonial.cohort || testimonial.course) && (
                 <p className="text-xs text-[#b9cacb] mb-2">
                   {testimonial.cohort && `${testimonial.cohort} `}
