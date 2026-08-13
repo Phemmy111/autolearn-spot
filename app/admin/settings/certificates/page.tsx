@@ -466,22 +466,23 @@ export default function AdminCertificatesSettingsPage() {
           </div>
           </form>
 
-        {/* Live Preview */}
-        <div className="lg:sticky lg:top-8 h-fit">
-          <CertificatePreview
-            title={settings.title}
-            subtitle={settings.subtitle}
-            bodyText={settings.bodyText}
-            founderName={settings.founderName}
-            signatureText={settings.signatureText}
-            accentColor={settings.accentColor}
-            backgroundUrl={settings.backgroundUrl}
-            logoUrl={settings.logoUrl}
-            signatureUrl={settings.signatureUrl}
-            qrEnabled={settings.qrEnabled === 'true'}
-            qrDestination={settings.qrDestination}
-            footer={settings.footer}
-          />
+          {/* Live Preview */}
+          <div className="lg:sticky lg:top-8 h-fit">
+            <CertificatePreview
+              title={settings.title}
+              subtitle={settings.subtitle}
+              bodyText={settings.bodyText}
+              founderName={settings.founderName}
+              signatureText={settings.signatureText}
+              accentColor={settings.accentColor}
+              backgroundUrl={settings.backgroundUrl}
+              logoUrl={settings.logoUrl}
+              signatureUrl={settings.signatureUrl}
+              qrEnabled={settings.qrEnabled === 'true'}
+              qrDestination={settings.qrDestination}
+              footer={settings.footer}
+            />
+          </div>
         </div>
       </div>
     </div>
