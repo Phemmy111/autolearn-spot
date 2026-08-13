@@ -2,7 +2,20 @@ import { Mail } from "lucide-react"
 import { getPublicSettings } from "@/lib/public-settings"
 
 async function FooterContent() {
-  const settings = await getPublicSettings()
+  const settings = await getPublicSettings([
+    'footerCopyrightText',
+    'siteName',
+    'footerPrivacyLink',
+    'footerTermsLink',
+    'footerDescription',
+    'siteTagline',
+    'footerContactLink',
+    'facebookUrl',
+    'instagramUrl',
+    'twitterUrl',
+    'linkedinUrl',
+    'supportEmail'
+  ])
 
   return (
     <footer className="relative z-20 border-t border-zinc-800 bg-black">

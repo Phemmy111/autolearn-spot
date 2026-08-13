@@ -63,25 +63,27 @@ export function CertificatePreview({
       </div>
       
       <div className="relative w-full aspect-[3/2] bg-[#0a0c10] rounded-lg overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center p-4">
-          <div className="relative w-full h-full max-w-2xl">
-            <CertificateTemplate
-              name="John Doe"
-              date="August 2026"
-              logoSrc={logoUrl}
-              qrData={qrData}
-              backgroundSrc={backgroundUrl}
-              title={title}
-              subtitle={subtitle}
-              bodyText={bodyText}
-              founderName={founderName}
-              signatureUrl={signatureUrl}
-              signatureText={signatureText}
-              qrEnabled={qrEnabled}
-              qrDestination={qrDestination}
-              footer={footer}
-              accentColor={accentColor}
-            />
+        <div className="absolute inset-0 flex items-center justify-center p-2">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <div className="w-full h-full flex items-center justify-center" style={{ transform: 'scale(0.4)', transformOrigin: 'center' }}>
+              <CertificateTemplate
+                name="John Doe"
+                date="August 2026"
+                logoSrc={logoUrl}
+                qrData={qrData}
+                backgroundSrc={backgroundUrl}
+                title={title}
+                subtitle={subtitle}
+                bodyText={bodyText}
+                founderName={founderName}
+                signatureUrl={signatureUrl}
+                signatureText={signatureText}
+                qrEnabled={qrEnabled}
+                qrDestination={qrDestination}
+                footer={footer}
+                accentColor={accentColor}
+              />
+            </div>
           </div>
         </div>
         
@@ -94,7 +96,7 @@ export function CertificatePreview({
       <div className="mt-4 p-3 bg-[#070B12] border border-[#1f2229] rounded-lg">
         <p className="text-xs text-[#b9cacb]">
           <span className="text-[#00f0ff]">Student:</span> John Doe • 
-          <span className="text-[#00f0ff]"> Course:</span> Master n8n & AI Automation • 
+          <span className="text-[#00f0ff]">Course:</span> Master n8n & AI Automation • 
           <span className="text-[#00f0ff]"> Certificate ID:</span> ALS-2026-DEMO-001
         </p>
       </div>
