@@ -101,6 +101,7 @@ INSERT INTO site_settings (key, value) VALUES
   ('certificate_title', '"Certificate of Completion"'::jsonb),
   ('certificate_subtitle', '"This certifies that"'::jsonb),
   ('certificate_body_text', '"has successfully completed the"'::jsonb),
+  ('certificate_course', '"n8n Automation"'::jsonb),
   ('certificate_founder_name', '"AutoLearn Spot"'::jsonb),
   ('certificate_signature_url', '""'::jsonb),
   ('certificate_signature_text', '"Founder"'::jsonb),

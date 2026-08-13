@@ -70,6 +70,7 @@ interface PublicSettings {
   certificateTitle?: string;
   certificateSubtitle?: string;
   certificateBodyText?: string;
+  certificateCourse?: string;
   certificateFounderName?: string;
   certificateSignatureUrl?: string;
   certificateSignatureText?: string;
@@ -229,6 +230,7 @@ const KEY_MAPPING: Record<string, keyof PublicSettings> = {
   certificate_title: 'certificateTitle',
   certificate_subtitle: 'certificateSubtitle',
   certificate_body_text: 'certificateBodyText',
+  certificate_course: 'certificateCourse',
   certificate_founder_name: 'certificateFounderName',
   certificate_signature_url: 'certificateSignatureUrl',
   certificate_signature_text: 'certificateSignatureText',

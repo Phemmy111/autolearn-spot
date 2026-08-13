@@ -92,6 +92,8 @@ export function CertificatePreview({
               <CertificateTemplate
                 name="John Doe"
                 date="August 2026"
+                course="Master n8n & AI Automation"
+                certificateId="ALS-2026-DEMO-001"
                 logoSrc={logoUrl}
                 qrData={qrData}
                 backgroundSrc={cleanBackgroundUrl}

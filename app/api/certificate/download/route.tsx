@@ -9,6 +9,7 @@ import fs from 'fs'
 import path from 'path'
 import QRCode from 'qrcode'
 import { getPublicSettings } from '@/lib/public-settings'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -47,6 +48,17 @@ export async function GET(request: Request) {
 
     const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
 
+    // Fetch the certificate record to get the actual certificate code
+    const { data: certificateRecord } = await supabaseAdmin
+      .from('certificates')
+      .select('certificate_code')
+      .eq('user_id', userId)
+      .order('issued_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    const certificateId = certificateRecord?.certificate_code || ''
+
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -60,6 +72,7 @@ export async function GET(request: Request) {
       'certificate_title',
       'certificate_subtitle',
       'certificate_body_text',
+      'certificate_course',
       'certificate_founder_name',
       'certificate_signature_url',
       'certificate_signature_text',
@@ -76,6 +89,7 @@ export async function GET(request: Request) {
     const title = certSettings.certificate_title || 'Certificate of Completion'
     const subtitle = certSettings.certificate_subtitle || 'This certifies that'
     const bodyText = certSettings.certificate_body_text || 'has successfully completed the'
+    const course = certSettings.certificate_course || 'n8n Automation'
     const founderName = certSettings.certificate_founder_name || 'AutoLearn Spot'
     const signatureUrl = certSettings.certificate_signature_url || ''
     const signatureText = certSettings.certificate_signature_text || 'Founder'
@@ -116,6 +130,8 @@ export async function GET(request: Request) {
       (<CertificateTemplate 
         name={userName} 
         date={dateStr} 
+        course={course}
+        certificateId={certificateId}
         logoSrc={absoluteLogoSrc} 
         qrData={qrData} 
         backgroundSrc={absoluteBackgroundSrc}

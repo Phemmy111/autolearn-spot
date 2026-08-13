@@ -12,6 +12,7 @@ export default function AdminCertificatesSettingsPage() {
     title: 'Certificate of Completion',
     subtitle: 'This certifies that',
     bodyText: 'has successfully completed the',
+    course: 'n8n Automation',
     founderName: 'AutoLearn Spot',
     signatureUrl: '',
     signatureText: 'Founder',
@@ -204,6 +205,15 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.bodyText}
                   onChange={(e) => setSettings({ ...settings, bodyText: e.target.value })}
+                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Course / Program</label>
+                <input
+                  type="text"
+                  value={settings.course}
+                  onChange={(e) => setSettings({ ...settings, course: e.target.value })}
                   className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
                 />
               </div>

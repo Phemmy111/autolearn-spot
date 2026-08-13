@@ -10,6 +10,8 @@ interface QRCodeData {
 export function CertificateTemplate({
   name,
   date,
+  course,
+  certificateId,
   qrData,
   backgroundSrc,
   title,
@@ -25,6 +27,8 @@ export function CertificateTemplate({
 }: {
   name: string
   date: string
+  course?: string
+  certificateId?: string
   logoSrc?: string
   qrData?: QRCodeData
   backgroundSrc?: string
@@ -294,6 +298,35 @@ export function CertificateTemplate({
           </div>
         )}
 
+        {/* Course */}
+        {course && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '490px',
+              left: '0',
+              width: '1200px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 20,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: '"Roboto", sans-serif',
+                fontSize: '22px',
+                fontWeight: 600,
+                color: accentColor || '#00f0ff',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+              }}
+            >
+              {course}
+            </span>
+          </div>
+        )}
+
         {/* Founder Name and Signature */}
         {(founderName || signatureUrl || signatureText) && (
           <div
@@ -359,12 +392,13 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '655px', // Dropped down 10px to sit right on the line
-            left: '260px', // Pushed slightly right to be perfectly centered over the line
+            top: '640px',
+            left: '260px',
             width: '200px',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            zIndex: 20,
           }}
         >
           <span
@@ -378,13 +412,41 @@ export function CertificateTemplate({
           </span>
         </div>
 
+        {/* Certificate ID */}
+        {certificateId && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '670px',
+              right: '110px',
+              width: '200px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 20,
+            }}
+          >
+            <span
+              style={{
+                fontSize: '14px',
+                color: '#ffffff',
+                fontWeight: 400,
+                opacity: 0.7,
+                fontFamily: '"Roboto", sans-serif',
+              }}
+            >
+              {certificateId}
+            </span>
+          </div>
+        )}
+
         {/* QR Code */}
         {(qrEnabled !== false) && (
           <div
             style={{
               position: 'absolute',
-              bottom: '180px', 
-              right: '110px', // Positioned beautifully in the empty space above the signature
+              bottom: '220px', 
+              right: '110px',
               display: 'flex',
               width: '100px',
               height: '100px',
