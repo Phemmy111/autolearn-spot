@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 import { getDirectEnrollmentFee } from '@/lib/pricing';
+import { getPublicSettings } from '@/lib/public-settings';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -11,6 +12,17 @@ if (!supabaseServiceKey) {
 }
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+async function isEnrollmentOpen(): Promise<boolean> {
+  try {
+    const settings = await getPublicSettings(['enrollment_open']);
+    return settings.enrollmentOpen !== 'false';
+  } catch (error) {
+    console.error('Failed to check enrollment status:', error);
+    // Default to open if settings check fails to avoid blocking legitimate enrollments
+    return true;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,6 +49,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      );
+    }
+
+    // Check if enrollment is open
+    const enrollmentOpen = await isEnrollmentOpen();
+    if (!enrollmentOpen) {
+      console.log('Enrollment is closed, rejecting request');
+      return NextResponse.json(
+        { error: 'Enrollment is currently closed' },
+        { status: 403 }
       );
     }
 

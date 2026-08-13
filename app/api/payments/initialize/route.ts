@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getPublicSettings } from '@/lib/public-settings';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY!;
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+async function isEnrollmentOpen(): Promise<boolean> {
+  try {
+    const settings = await getPublicSettings(['enrollment_open']);
+    return settings.enrollmentOpen !== 'false';
+  } catch (error) {
+    console.error('Failed to check enrollment status:', error);
+    // Default to open if settings check fails to avoid blocking legitimate payments
+    return true;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,6 +51,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Pending enrollment not found' },
         { status: 404 }
+      );
+    }
+
+    // Check if enrollment is open
+    const enrollmentOpen = await isEnrollmentOpen();
+    if (!enrollmentOpen) {
+      console.log('Enrollment is closed, rejecting payment initialization');
+      return NextResponse.json(
+        { error: 'Enrollment is currently closed' },
+        { status: 403 }
       );
     }
 
