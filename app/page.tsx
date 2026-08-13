@@ -38,6 +38,7 @@ import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 import { HeroSection } from './HeroSection'
 import { EnrollmentSection } from './EnrollmentSection'
 import { CohortAnnouncementStrip } from '@/components/CohortAnnouncementStrip'
+import { AnnouncementBanner } from '@/components/announcement-banner'
 import { AnimatedInfoCards } from './components/AnimatedInfoCards'
 import { AnimatedStatsSection } from './components/AnimatedStatsSection'
 import { AnimatedScholarshipSection } from './components/AnimatedScholarshipSection'
@@ -459,6 +460,7 @@ export default async function Page() {
   return (
     <main className="min-h-screen bg-[#050505]">
       <Navigation />
+      <AnnouncementBanner />
       <CohortAnnouncementStrip />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />
