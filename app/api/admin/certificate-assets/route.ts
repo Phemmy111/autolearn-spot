@@ -20,6 +20,36 @@ export async function POST(request: Request) {
     const logoUrl = formData.get('logoUrl') as string | null;
     const signatureUrl = formData.get('signatureUrl') as string | null;
 
+    // Validate file types
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    
+    if (backgroundFile && backgroundFile.size > 0) {
+      if (!validTypes.includes(backgroundFile.type)) {
+        return NextResponse.json({ error: 'Background must be PNG or JPG' }, { status: 400 });
+      }
+      if (backgroundFile.size > 5 * 1024 * 1024) { // 5MB limit
+        return NextResponse.json({ error: 'Background file too large (max 5MB)' }, { status: 400 });
+      }
+    }
+    
+    if (logoFile && logoFile.size > 0) {
+      if (!validTypes.includes(logoFile.type)) {
+        return NextResponse.json({ error: 'Logo must be PNG or JPG' }, { status: 400 });
+      }
+      if (logoFile.size > 2 * 1024 * 1024) { // 2MB limit
+        return NextResponse.json({ error: 'Logo file too large (max 2MB)' }, { status: 400 });
+      }
+    }
+    
+    if (signatureFile && signatureFile.size > 0) {
+      if (!validTypes.includes(signatureFile.type)) {
+        return NextResponse.json({ error: 'Signature must be PNG or JPG' }, { status: 400 });
+      }
+      if (signatureFile.size > 2 * 1024 * 1024) { // 2MB limit
+        return NextResponse.json({ error: 'Signature file too large (max 2MB)' }, { status: 400 });
+      }
+    }
+
     const result: any = {};
 
     // Upload background

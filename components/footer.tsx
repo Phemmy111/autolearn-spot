@@ -127,7 +127,7 @@ async function FooterContent() {
         {/* Bottom Section */}
         <div className="border-t border-zinc-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-zinc-500 text-sm">© {new Date().getFullYear()} {settings.footerCopyrightText}. All rights reserved.</p>
+            <p className="text-zinc-500 text-sm">{settings.footerCopyrightText || `© ${new Date().getFullYear()} ${settings.siteName}. All rights reserved.`}</p>
             <div className="flex gap-6">
               <a href={settings.footerPrivacyLink || '/privacy'} className="text-zinc-500 hover:text-white text-sm transition-colors">
                 Privacy Policy
