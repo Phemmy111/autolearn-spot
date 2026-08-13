@@ -24,9 +24,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
-import FAQSection from '@/components/FAQSection'
 import FAQSection from '@/components/FAQSection'
 import { StudentTestimonialCard } from '@/components/student-testimonial-card'
 import { LiveActivityFeed } from '@/components/live-activity-feed'
@@ -325,24 +323,9 @@ function FeaturesSection() {
   return <AnimatedFeaturesSection />;
 }
 
-function TestimonialsSection() {
-  const [sectionEnabled, setSectionEnabled] = useState(true);
-  const [settings, setSettings] = useState({
-    section_testimonials_enabled: 'true',
-  });
-
-  useEffect(() => {
-    async function fetchSettings() {
-      try {
-        const loadedSettings = await getPublicSettings(['section_testimonials_enabled']);
-        setSettings(loadedSettings);
-        setSectionEnabled(loadedSettings.section_testimonials_enabled !== 'false' && loadedSettings.section_testimonials_enabled !== false);
-      } catch (error) {
-        console.error('Failed to fetch settings:', error);
-      }
-    }
-    fetchSettings();
-  }, []);
+async function TestimonialsSection() {
+  const settings = await getPublicSettings(['section_testimonials_enabled']);
+  const sectionEnabled = settings.section_testimonials_enabled !== 'false' && settings.section_testimonials_enabled !== false;
 
   if (!sectionEnabled) {
     return null;
