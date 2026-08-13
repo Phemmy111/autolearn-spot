@@ -71,9 +71,9 @@ export function HeroSection() {
       <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-24 md:pt-20 lg:pt-16 pb-12">
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="space-y-6 lg:space-y-8 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1.5 sm:px-4 sm:py-2 animate-fade-in animate-stagger-1">
-              <Star className="h-4 w-4 text-[#00f0ff]" />
-              <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+            <div className="inline-flex items-center gap-2 border border-[var(--brand-primary)]/60 bg-[var(--brand-primary)]/10 px-3 py-1.5 sm:px-4 sm:py-2 animate-fade-in animate-stagger-1">
+              <Star className="h-4 w-4 text-[var(--brand-primary)]" />
+              <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--brand-primary)]">
                 {settings.heroBadge}
               </span>
             </div>
@@ -89,13 +89,13 @@ export function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 animate-slide-up animate-stagger-4">
               <Link
                 href={settings.heroPrimaryCtaLink}
-                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] w-full sm:w-auto btn-enhanced"
+                className="flex items-center justify-center gap-2 border border-[var(--brand-primary)] bg-[var(--brand-primary)] px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_var(--brand-primary-hover)] w-full sm:w-auto btn-enhanced"
               >
                 {feeLoading ? 'Loading...' : `${settings.heroPrimaryCtaText} — ₦${fee.toLocaleString()}`}
               </Link>
               <Link
                 href={settings.heroSecondaryCtaLink}
-                className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00f0ff] transition duration-150 hover:bg-[#00f0ff]/10 w-full sm:w-auto btn-enhanced"
+                className="flex items-center justify-center gap-2 border border-[var(--brand-primary)] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--brand-primary)] transition duration-150 hover:bg-[var(--brand-primary)]/10 w-full sm:w-auto btn-enhanced"
               >
                 <Play className="h-4 w-4" />
                 {settings.heroSecondaryCtaText}
@@ -123,16 +123,16 @@ export function HeroSection() {
                     <img
                       src={workflowShowcase[0].video_url}
                       alt="Workflow showcase"
-                      className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_rgba(0,240,255,0.1)]"
+                      className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_var(--brand-primary-soft)]"
                     />
                   )}
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-[var(--brand-primary)]/20 rounded-full blur-2xl" />
                   <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
                 </div>
               ) : (
                 <>
                   <N8nWorkflowPanel />
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-[var(--brand-primary)]/20 rounded-full blur-2xl" />
                   <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
                 </>
               )}

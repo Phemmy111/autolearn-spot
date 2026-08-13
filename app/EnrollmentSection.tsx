@@ -58,8 +58,8 @@ export function EnrollmentSection() {
     <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         {settings.enrollmentAnnouncement && (
-          <div className="mb-6 p-4 bg-[#00f0ff]/10 border border-[#00f0ff]/30 rounded-xl text-center">
-            <p className="text-sm text-[#00f0ff] font-medium">{settings.enrollmentAnnouncement}</p>
+          <div className="mb-6 p-4 bg-[var(--brand-primary)]/10 border border-[var(--brand-primary)]/30 rounded-xl text-center">
+            <p className="text-sm text-[var(--brand-primary)] font-medium">{settings.enrollmentAnnouncement}</p>
           </div>
         )}
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
@@ -70,21 +70,21 @@ export function EnrollmentSection() {
             <p className="text-sm text-[#b9cacb] mb-4 sm:mb-6">
               {settings.enrollmentPageDescription}
             </p>
-            <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#00f0ff] mb-4 sm:mb-6">
+            <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--brand-primary)] mb-4 sm:mb-6">
               {feeLoading ? 'Loading...' : `₦${fee.toLocaleString()}`}
             </div>
 
             {cohort && !cohortLoading && (
               <div className="mb-6 sm:mb-8 border border-[#1f2229] bg-[#0c0e12]/60 rounded-xl p-4 sm:p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <Calendar className="h-4 w-4 text-[#00f0ff]" />
+                  <Calendar className="h-4 w-4 text-[var(--brand-primary)]" />
                   <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#e2e2e8]">
                     {cohort.name}
                   </span>
                 </div>
                 {cohort.start_date && (
                   <p className="text-sm sm:text-base text-[#b9cacb]">
-                    Starts <span className="text-[#00f0ff] font-semibold">{formatDate(cohort.start_date)}</span>
+                    Starts <span className="text-[var(--brand-primary)] font-semibold">{formatDate(cohort.start_date)}</span>
                   </p>
                 )}
               </div>
@@ -93,7 +93,7 @@ export function EnrollmentSection() {
             <div className="space-y-2 sm:space-y-3 lg:space-y-4 mb-6 sm:mb-8">
               {enrollmentBenefits.map((benefit, index) => (
                 <div key={benefit} className="flex items-center gap-3" style={{ transitionDelay: `${index * 0.1}s` }}>
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-[var(--brand-primary)] flex-shrink-0" />
                   <span className="text-sm sm:text-base text-[#e2e2e8]">{benefit}</span>
                 </div>
               ))}
@@ -101,7 +101,7 @@ export function EnrollmentSection() {
             
             <Link
               href="/enroll"
-              className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] btn-enhanced"
+              className="flex items-center justify-center gap-2 w-full border border-[var(--brand-primary)] bg-[var(--brand-primary)] px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_var(--brand-primary-hover)] btn-enhanced"
             >
               {feeLoading ? 'Loading...' : `${settings.enrollmentButtonText} — ₦${fee.toLocaleString()}`}
             </Link>
