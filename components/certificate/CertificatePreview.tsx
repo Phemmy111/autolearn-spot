@@ -57,8 +57,8 @@ export function CertificatePreview({
     }
   }, [qrEnabled, qrDestination]);
 
-  // Use empty background to trigger clean gradient instead of hardcoded template
-  const cleanBackgroundUrl = backgroundUrl || ''
+  // Use the new professional certificate background
+  const cleanBackgroundUrl = backgroundUrl || '/certificate-template.png'
 
   useEffect(() => {
     const updateScale = () => {

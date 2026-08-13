@@ -83,8 +83,8 @@ export async function GET(request: Request) {
     ])
 
     // Use database settings with fallbacks to hardcoded values
-    // Use empty string for background to trigger clean gradient fallback instead of hardcoded template
-    const backgroundSrc = certSettings.certificate_background_url || ''
+    // Use the new professional certificate background
+    const backgroundSrc = certSettings.certificate_background_url || `${baseUrl}/certificate-template.png`
     const logoSrc = certSettings.certificate_logo_url || `${baseUrl}/logo.png`
     const title = certSettings.certificate_title || 'Certificate of Completion'
     const subtitle = certSettings.certificate_subtitle || 'This certifies that'

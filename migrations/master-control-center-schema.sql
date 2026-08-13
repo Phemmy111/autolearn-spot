@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS testimonials (
 -- ============================================
 
 INSERT INTO site_settings (key, value) VALUES
-  ('certificate_background_url', '"/certificate-template.jpg"'::jsonb),
+  ('certificate_background_url', '"/certificate-template.png"'::jsonb),
   ('certificate_logo_url', '""'::jsonb),
   ('certificate_title', '"Certificate of Completion"'::jsonb),
   ('certificate_subtitle', '"This certifies that"'::jsonb),
