@@ -42,7 +42,9 @@ export async function POST(request: Request) {
     const description = formData.get('description') as string | null;
     const mediaFile = formData.get('mediaFile') as File | null;
     const videoUrl = formData.get('videoUrl') as string | null;
+    const thumbnailFile = formData.get('thumbnailFile') as File | null;
     const thumbnailUrl = formData.get('thumbnailUrl') as string | null;
+    const posterFile = formData.get('posterFile') as File | null;
     const posterUrl = formData.get('posterUrl') as string | null;
     const featured = formData.get('featured') === 'true';
     const enabled = formData.get('enabled') !== 'false';
@@ -50,8 +52,10 @@ export async function POST(request: Request) {
     const mediaType = formData.get('mediaType') as string || 'video';
 
     let finalVideoUrl = videoUrl;
+    let finalThumbnailUrl = thumbnailUrl;
+    let finalPosterUrl = posterUrl;
 
-    // Handle file upload if provided
+    // Handle media file upload if provided
     if (mediaFile && mediaFile.size > 0) {
       try {
         const fileExt = mediaFile.name.split('.').pop();
@@ -82,14 +86,76 @@ export async function POST(request: Request) {
       }
     }
 
+    // Handle thumbnail file upload if provided
+    if (thumbnailFile && thumbnailFile.size > 0) {
+      try {
+        const fileExt = thumbnailFile.name.split('.').pop();
+        const fileName = `workflow-showcase/thumbnails/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
+          .storage
+          .from('admin-media')
+          .upload(fileName, thumbnailFile, {
+            contentType: thumbnailFile.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('[POST /api/admin/content/workflow-showcase] Thumbnail upload error:', uploadError);
+          return NextResponse.json({ error: 'Failed to upload thumbnail' }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('admin-media')
+          .getPublicUrl(fileName);
+
+        finalThumbnailUrl = publicUrl;
+      } catch (uploadError) {
+        console.error('[POST /api/admin/content/workflow-showcase] Thumbnail upload exception:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload thumbnail' }, { status: 500 });
+      }
+    }
+
+    // Handle poster file upload if provided
+    if (posterFile && posterFile.size > 0) {
+      try {
+        const fileExt = posterFile.name.split('.').pop();
+        const fileName = `workflow-showcase/posters/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
+          .storage
+          .from('admin-media')
+          .upload(fileName, posterFile, {
+            contentType: posterFile.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('[POST /api/admin/content/workflow-showcase] Poster upload error:', uploadError);
+          return NextResponse.json({ error: 'Failed to upload poster' }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('admin-media')
+          .getPublicUrl(fileName);
+
+        finalPosterUrl = publicUrl;
+      } catch (uploadError) {
+        console.error('[POST /api/admin/content/workflow-showcase] Poster upload exception:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload poster' }, { status: 500 });
+      }
+    }
+
     const { data, error } = await supabaseAdmin
       .from('workflow_showcase')
       .insert({
         title,
         description,
         video_url: finalVideoUrl,
-        thumbnail_url: thumbnailUrl,
-        poster_url: posterUrl,
+        thumbnail_url: finalThumbnailUrl,
+        poster_url: finalPosterUrl,
         featured: featured || false,
         enabled: enabled !== undefined ? enabled : true,
         display_order: displayOrder || 0,
@@ -121,7 +187,9 @@ export async function PUT(request: Request) {
     const description = formData.get('description') as string | null;
     const mediaFile = formData.get('mediaFile') as File | null;
     const videoUrl = formData.get('videoUrl') as string | null;
+    const thumbnailFile = formData.get('thumbnailFile') as File | null;
     const thumbnailUrl = formData.get('thumbnailUrl') as string | null;
+    const posterFile = formData.get('posterFile') as File | null;
     const posterUrl = formData.get('posterUrl') as string | null;
     const featured = formData.get('featured') === 'true';
     const enabled = formData.get('enabled') !== 'false';
@@ -129,8 +197,10 @@ export async function PUT(request: Request) {
     const mediaType = formData.get('mediaType') as string || 'video';
 
     let finalVideoUrl = videoUrl;
+    let finalThumbnailUrl = thumbnailUrl;
+    let finalPosterUrl = posterUrl;
 
-    // Handle file upload if provided
+    // Handle media file upload if provided
     if (mediaFile && mediaFile.size > 0) {
       try {
         const fileExt = mediaFile.name.split('.').pop();
@@ -161,14 +231,76 @@ export async function PUT(request: Request) {
       }
     }
 
+    // Handle thumbnail file upload if provided
+    if (thumbnailFile && thumbnailFile.size > 0) {
+      try {
+        const fileExt = thumbnailFile.name.split('.').pop();
+        const fileName = `workflow-showcase/thumbnails/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
+          .storage
+          .from('admin-media')
+          .upload(fileName, thumbnailFile, {
+            contentType: thumbnailFile.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('[PUT /api/admin/content/workflow-showcase] Thumbnail upload error:', uploadError);
+          return NextResponse.json({ error: 'Failed to upload thumbnail' }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('admin-media')
+          .getPublicUrl(fileName);
+
+        finalThumbnailUrl = publicUrl;
+      } catch (uploadError) {
+        console.error('[PUT /api/admin/content/workflow-showcase] Thumbnail upload exception:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload thumbnail' }, { status: 500 });
+      }
+    }
+
+    // Handle poster file upload if provided
+    if (posterFile && posterFile.size > 0) {
+      try {
+        const fileExt = posterFile.name.split('.').pop();
+        const fileName = `workflow-showcase/posters/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
+          .storage
+          .from('admin-media')
+          .upload(fileName, posterFile, {
+            contentType: posterFile.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('[PUT /api/admin/content/workflow-showcase] Poster upload error:', uploadError);
+          return NextResponse.json({ error: 'Failed to upload poster' }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('admin-media')
+          .getPublicUrl(fileName);
+
+        finalPosterUrl = publicUrl;
+      } catch (uploadError) {
+        console.error('[PUT /api/admin/content/workflow-showcase] Poster upload exception:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload poster' }, { status: 500 });
+      }
+    }
+
     const { data, error } = await supabaseAdmin
       .from('workflow_showcase')
       .update({
         title,
         description,
         video_url: finalVideoUrl,
-        thumbnail_url: thumbnailUrl,
-        poster_url: posterUrl,
+        thumbnail_url: finalThumbnailUrl,
+        poster_url: finalPosterUrl,
         featured,
         enabled,
         display_order: displayOrder,

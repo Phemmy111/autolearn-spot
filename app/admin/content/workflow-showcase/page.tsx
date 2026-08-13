@@ -24,6 +24,8 @@ export default function AdminWorkflowShowcasePage() {
     mediaType: 'video',
   });
   const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [posterFile, setPosterFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -67,6 +69,18 @@ export default function AdminWorkflowShowcasePage() {
         formDataAPI.append('videoUrl', formData.videoUrl);
       }
 
+      if (thumbnailFile) {
+        formDataAPI.append('thumbnailFile', thumbnailFile);
+      } else if (formData.thumbnailUrl) {
+        formDataAPI.append('thumbnailUrl', formData.thumbnailUrl);
+      }
+
+      if (posterFile) {
+        formDataAPI.append('posterFile', posterFile);
+      } else if (formData.posterUrl) {
+        formDataAPI.append('posterUrl', formData.posterUrl);
+      }
+
       if (editingItem) {
         formDataAPI.append('id', editingItem.id);
       }
@@ -98,6 +112,8 @@ export default function AdminWorkflowShowcasePage() {
           mediaType: 'video',
         });
         setMediaFile(null);
+        setThumbnailFile(null);
+        setPosterFile(null);
         fetchItems();
       } else {
         const data = await res.json();
@@ -124,6 +140,8 @@ export default function AdminWorkflowShowcasePage() {
       mediaType: item.media_type || 'video',
     });
     setMediaFile(null);
+    setThumbnailFile(null);
+    setPosterFile(null);
     setShowModal(true);
   };
 
@@ -180,7 +198,11 @@ export default function AdminWorkflowShowcasePage() {
                   featured: false,
                   enabled: true,
                   displayOrder: 0,
+                  mediaType: 'video',
                 });
+                setMediaFile(null);
+                setThumbnailFile(null);
+                setPosterFile(null);
                 setShowModal(true);
               }}
               className="flex items-center gap-2 px-4 py-2 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors"
@@ -214,7 +236,9 @@ export default function AdminWorkflowShowcasePage() {
             <div key={item.id} className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Video className="h-5 w-5 text-[#00f0ff]" />
+                  <span className={`text-xs px-2 py-1 rounded-full ${item.media_type === 'video' ? 'bg-purple-500/10 text-purple-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                    {item.media_type === 'video' ? 'Video' : 'Image'}
+                  </span>
                   <span className={`text-xs px-2 py-1 rounded-full ${item.featured ? 'bg-yellow-500/10 text-yellow-400' : 'bg-gray-500/10 text-gray-400'}`}>
                     {item.featured ? 'Featured' : 'Standard'}
                   </span>
@@ -222,6 +246,23 @@ export default function AdminWorkflowShowcasePage() {
                 <span className={`text-xs px-2 py-1 rounded-full ${item.enabled ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                   {item.enabled ? 'Active' : 'Inactive'}
                 </span>
+              </div>
+              <div className="mb-4">
+                {item.media_type === 'video' ? (
+                  <video
+                    src={item.video_url}
+                    poster={item.poster_url}
+                    className="w-full h-32 object-cover rounded-lg"
+                    muted
+                    controls
+                  />
+                ) : (
+                  <img
+                    src={item.video_url}
+                    alt={item.title}
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                )}
               </div>
               <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
               <p className="text-sm text-[#b9cacb] mb-4 line-clamp-2">{item.description}</p>
@@ -351,26 +392,104 @@ export default function AdminWorkflowShowcasePage() {
                   )}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Thumbnail URL</label>
-                <input
-                  type="url"
-                  value={formData.thumbnailUrl}
-                  onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                  placeholder="https://..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Poster URL</label>
-                <input
-                  type="url"
-                  value={formData.posterUrl}
-                  onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                  placeholder="https://..."
-                />
-              </div>
+              {formData.mediaType === 'video' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Thumbnail (Optional)</label>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                        <Upload className="h-4 w-4 text-[#b9cacb]" />
+                        <span className="text-sm text-[#b9cacb]">
+                          {thumbnailFile ? thumbnailFile.name : 'Upload Thumbnail (PNG/JPG)'}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setThumbnailFile(file);
+                              setFormData({ ...formData, thumbnailUrl: '' });
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                      {thumbnailFile && (
+                        <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                          <span className="text-xs text-[#b9cacb] truncate">{thumbnailFile.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setThumbnailFile(null);
+                              setFormData({ ...formData, thumbnailUrl: '' });
+                            }}
+                            className="text-xs text-red-400 hover:text-red-300"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                      {!thumbnailFile && (
+                        <input
+                          type="url"
+                          value={formData.thumbnailUrl}
+                          onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
+                          className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                          placeholder="https://..."
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Poster (Optional)</label>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                        <Upload className="h-4 w-4 text-[#b9cacb]" />
+                        <span className="text-sm text-[#b9cacb]">
+                          {posterFile ? posterFile.name : 'Upload Poster (PNG/JPG)'}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setPosterFile(file);
+                              setFormData({ ...formData, posterUrl: '' });
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                      {posterFile && (
+                        <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                          <span className="text-xs text-[#b9cacb] truncate">{posterFile.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPosterFile(null);
+                              setFormData({ ...formData, posterUrl: '' });
+                            }}
+                            className="text-xs text-red-400 hover:text-red-300"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                      {!posterFile && (
+                        <input
+                          type="url"
+                          value={formData.posterUrl}
+                          onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
+                          className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                          placeholder="https://..."
+                        />
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-[#b9cacb] mb-2">Display Order</label>

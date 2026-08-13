@@ -113,10 +113,10 @@ export function HeroSection() {
                   {workflowShowcase[0].media_type === 'video' ? (
                     <video
                       src={workflowShowcase[0].video_url}
+                      poster={workflowShowcase[0].poster_url}
                       controls
-                      autoPlay
                       muted
-                      loop
+                      playsInline
                       className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_rgba(0,240,255,0.1)]"
                     />
                   ) : (

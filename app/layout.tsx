@@ -2,7 +2,6 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { getPublicSettings } from '@/lib/public-settings'
-import { AnnouncementBanner } from '@/components/announcement-banner'
 import { BrandTheming } from '@/components/BrandTheming'
 import './globals.css'
 
@@ -64,7 +63,6 @@ export default function RootLayout({
       <html lang="en" className="dark">
         <body className="font-sans antialiased">
           <BrandTheming />
-          <AnnouncementBanner />
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </body>
