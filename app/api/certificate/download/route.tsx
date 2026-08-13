@@ -8,6 +8,7 @@ import { CertificateTemplate } from '@/components/certificate/CertificateTemplat
 import fs from 'fs'
 import path from 'path'
 import QRCode from 'qrcode'
+import { getPublicSettings } from '@/lib/public-settings'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -44,11 +45,43 @@ export async function GET(request: Request) {
       .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
       .join(' ')
 
+    const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
+
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     })
+
+    // Fetch certificate settings from database
+    const certSettings = await getPublicSettings([
+      'certificate_background_url',
+      'certificate_logo_url',
+      'certificate_title',
+      'certificate_subtitle',
+      'certificate_body_text',
+      'certificate_founder_name',
+      'certificate_signature_url',
+      'certificate_signature_text',
+      'certificate_qr_enabled',
+      'certificate_qr_destination',
+      'certificate_footer',
+      'certificate_accent_color',
+    ])
+
+    // Use database settings with fallbacks to hardcoded values
+    const backgroundSrc = certSettings.certificate_background_url || `${baseUrl}/certificate-template.jpg`
+    const logoSrc = certSettings.certificate_logo_url || `${baseUrl}/logo.png`
+    const title = certSettings.certificate_title || 'Certificate of Completion'
+    const subtitle = certSettings.certificate_subtitle || 'This certifies that'
+    const bodyText = certSettings.certificate_body_text || 'has successfully completed the'
+    const founderName = certSettings.certificate_founder_name || 'AutoLearn Spot'
+    const signatureUrl = certSettings.certificate_signature_url || ''
+    const signatureText = certSettings.certificate_signature_text || 'Founder'
+    const footer = certSettings.certificate_footer || 'AutoLearn Spot - AI Automation Training'
+    const accentColor = certSettings.certificate_accent_color || '#00f0ff'
+    const qrEnabled = certSettings.certificate_qr_enabled !== 'false'
+    const qrDestination = certSettings.certificate_qr_destination || `${baseUrl}/certificate/verify`
 
     // Fetch font for the cursive name
     const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/great-vibes@latest/latin-400-normal.ttf')
@@ -58,20 +91,37 @@ export async function GET(request: Request) {
     const robotoRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-400-normal.ttf')
     const robotoData = await robotoRes.arrayBuffer()
 
-    const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
-
-    // Generate raw QR Code matrix to render as native SVG rects in Satori
-    const verifyUrl = `${baseUrl}/certificate/verify?name=${encodeURIComponent(userName)}&date=${encodeURIComponent(dateStr)}`
-    const qrData = QRCode.create(verifyUrl)
-    // qrData.modules is a boolean matrix packed into a 1D array (data) with a size property
+    // Generate QR code only if enabled
+    let qrData = null
+    if (qrEnabled) {
+      const verifyUrl = `${qrDestination}?name=${encodeURIComponent(userName)}&date=${encodeURIComponent(dateStr)}`
+      const qrCodeData = QRCode.create(verifyUrl)
+      qrData = { modules: { size: qrCodeData.modules.size, data: Array.from(qrCodeData.modules.data).map(byte => byte === 1) } }
+    }
 
     // Use absolute URL for the background and logo so next/og can fetch them
-    const logoSrc = `${baseUrl}/logo.png`
-    const backgroundSrc = `${baseUrl}/certificate-template.jpg`
+    const absoluteLogoSrc = logoSrc.startsWith('http') ? logoSrc : `${baseUrl}${logoSrc}`
+    const absoluteBackgroundSrc = backgroundSrc.startsWith('http') ? backgroundSrc : `${baseUrl}${backgroundSrc}`
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
-      (<CertificateTemplate name={userName} date={dateStr} logoSrc={logoSrc} qrData={{ modules: { size: qrData.modules.size, data: Array.from(qrData.modules.data).map(byte => byte === 1) } }} backgroundSrc={backgroundSrc} />),
+      (<CertificateTemplate 
+        name={userName} 
+        date={dateStr} 
+        logoSrc={absoluteLogoSrc} 
+        qrData={qrData} 
+        backgroundSrc={absoluteBackgroundSrc}
+        title={title}
+        subtitle={subtitle}
+        bodyText={bodyText}
+        founderName={founderName}
+        signatureUrl={signatureUrl}
+        signatureText={signatureText}
+        qrEnabled={qrEnabled}
+        qrDestination={qrDestination}
+        footer={footer}
+        accentColor={accentColor}
+      />),
       { 
         width: 1200, 
         height: 800,
