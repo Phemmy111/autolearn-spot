@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Loader2, CheckCircle, AlertCircle, Save, Award, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle, AlertCircle, Save, Award, Image as ImageIcon, Upload } from 'lucide-react';
 import Link from 'next/link';
+import { CertificatePreview } from '@/components/certificate/CertificatePreview';
 
 export default function AdminCertificatesSettingsPage() {
   const [settings, setSettings] = useState({
@@ -155,20 +156,22 @@ export default function AdminCertificatesSettingsPage() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSave} className="space-y-8">
-          {/* Status Messages */}
-          {error && (
-            <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-              <p className="text-sm text-red-400">{error}</p>
-            </div>
-          )}
-          {success && (
-            <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-              <CheckCircle className="h-5 w-5 text-green-400" />
-              <p className="text-sm text-green-400">Settings saved successfully</p>
-            </div>
-          )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Settings Form */}
+          <form onSubmit={handleSave} className="space-y-8">
+            {/* Status Messages */}
+            {error && (
+              <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-red-400" />
+                <p className="text-sm text-red-400">{error}</p>
+              </div>
+            )}
+            {success && (
+              <div className="flex items-center gap-3 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <CheckCircle className="h-5 w-5 text-green-400" />
+                <p className="text-sm text-green-400">Settings saved successfully</p>
+              </div>
+            )}
 
           {/* Certificate Content */}
           <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
@@ -461,7 +464,25 @@ export default function AdminCertificatesSettingsPage() {
               )}
             </button>
           </div>
-        </form>
+          </form>
+
+        {/* Live Preview */}
+        <div className="lg:sticky lg:top-8 h-fit">
+          <CertificatePreview
+            title={settings.title}
+            subtitle={settings.subtitle}
+            bodyText={settings.bodyText}
+            founderName={settings.founderName}
+            signatureText={settings.signatureText}
+            accentColor={settings.accentColor}
+            backgroundUrl={settings.backgroundUrl}
+            logoUrl={settings.logoUrl}
+            signatureUrl={settings.signatureUrl}
+            qrEnabled={settings.qrEnabled === 'true'}
+            qrDestination={settings.qrDestination}
+            footer={settings.footer}
+          />
+        </div>
       </div>
     </div>
   );

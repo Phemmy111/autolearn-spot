@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { getPublicSettings } from '@/lib/public-settings'
 import { AnnouncementBanner } from '@/components/announcement-banner'
+import { BrandTheming } from '@/components/BrandTheming'
 import './globals.css'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -62,6 +63,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="dark">
         <body className="font-sans antialiased">
+          <BrandTheming />
           <AnnouncementBanner />
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
