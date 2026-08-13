@@ -2,10 +2,26 @@
 
 import Link from 'next/link';
 import { MessageCircle, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getPublicSettings } from '@/lib/public-settings';
 
 export default function ContactPage() {
+  const [settings, setSettings] = useState({ supportEmail: 'support@autolearnspot.com', supportWhatsApp: '+234' });
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const loadedSettings = await getPublicSettings(['support_email', 'support_whatsapp']);
+        setSettings(loadedSettings);
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      }
+    }
+    loadSettings();
+  }, []);
+
   const handleWhatsAppContact = () => {
-    const phoneNumber = "08120934828";
+    const phoneNumber = settings.supportWhatsApp.replace(/[^0-9]/g, '');
     const message = encodeURIComponent("Hello AutoLearn Spot Support. I need assistance.");
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
@@ -32,8 +48,8 @@ export default function ContactPage() {
 
           <div className="mt-6 text-center text-sm text-[#b9cacb]">
             <p>Or email us at:</p>
-            <a href="mailto:support@autolearnspot.com" className="text-[#12E6F3] hover:underline">
-              support@autolearnspot.com
+            <a href={`mailto:${settings.supportEmail}`} className="text-[#12E6F3] hover:underline">
+              {settings.supportEmail}
             </a>
           </div>
         </div>

@@ -5,11 +5,25 @@ import { Menu, X, User, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth, useUser } from '@clerk/nextjs'
+import { getPublicSettings } from '@/lib/public-settings'
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
+  const [settings, setSettings] = useState({ siteName: 'AutoLearn Spot', supportWhatsApp: '+234' })
   const { isSignedIn, isLoaded } = useAuth()
   const { user } = useUser()
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const loadedSettings = await getPublicSettings(['site_name', 'support_whatsapp'])
+        setSettings(loadedSettings)
+      } catch (error) {
+        console.error('Failed to load settings:', error)
+      }
+    }
+    loadSettings()
+  }, [])
 
   // ESC key handler
   useEffect(() => {
@@ -28,7 +42,7 @@ export default function Navigation() {
     { name: 'Why AutoLearn', href: '#why' },
     { name: 'Scholarship', href: '/scholarship' },
     { name: 'Partner Program', href: '/partners' },
-    { name: 'Contact', href: 'https://wa.me/2348120934828', external: true },
+    { name: 'Contact', href: settings.supportWhatsApp ? `https://wa.me/${settings.supportWhatsApp.replace(/[^0-9]/g, '')}` : '#', external: true },
   ]
 
   const mobileNavItems = [
@@ -37,7 +51,7 @@ export default function Navigation() {
     { name: 'Why AutoLearn', href: '#why' },
     { name: 'Scholarship', href: '/scholarship' },
     { name: 'Partner Program', href: '/partners' },
-    { name: 'Contact', href: 'https://wa.me/2348120934828', external: true },
+    { name: 'Contact', href: settings.supportWhatsApp ? `https://wa.me/${settings.supportWhatsApp.replace(/[^0-9]/g, '')}` : '#', external: true },
   ]
 
   return (
@@ -47,14 +61,14 @@ export default function Navigation() {
         <Link href="/" className="flex items-center gap-2 group">
           <Image
             src="/logo.png"
-            alt="AutoLearn Spot"
+            alt={settings.siteName}
             width={32}
             height={32}
             className="group-hover:scale-110 transition-transform"
             unoptimized
           />
           <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-            AutoLearn Spot
+            {settings.siteName}
           </span>
         </Link>
 
@@ -122,14 +136,14 @@ export default function Navigation() {
           <Link href="/" className="flex items-center gap-2 group">
             <Image
               src="/logo.png"
-              alt="AutoLearn Spot"
+              alt={settings.siteName}
               width={32}
               height={32}
               className="group-hover:scale-110 transition-transform"
               unoptimized
             />
             <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-              AutoLearn Spot
+              {settings.siteName}
             </span>
           </Link>
         </div>

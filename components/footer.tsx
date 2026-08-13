@@ -1,17 +1,18 @@
-"use client"
-
 import { Mail } from "lucide-react"
+import { getPublicSettings } from "@/lib/public-settings"
 
-export function Footer() {
+async function FooterContent() {
+  const settings = await getPublicSettings()
+
   return (
     <footer className="relative z-20 border-t border-zinc-800 bg-black">
       <div className="container mx-auto px-6 lg:px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <h3 className="text-2xl font-light mb-4 text-white">autoLearn</h3>
+            <h3 className="text-2xl font-light mb-4 text-white">{settings.siteName}</h3>
             <p className="text-zinc-400 text-sm leading-relaxed">
-              Master AI agents and build autonomous systems that work for you.
+              {settings.siteTagline}
             </p>
           </div>
 
@@ -57,7 +58,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-zinc-400 hover:text-white text-sm transition-colors">
+                <a href={settings.footerContactLink || '/contact'} className="text-zinc-400 hover:text-white text-sm transition-colors">
                   Contact
                 </a>
               </li>
@@ -73,26 +74,48 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">Connect</h4>
             <div className="flex gap-4">
+              {settings.facebookUrl && (
+                <a
+                  href={settings.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
+                >
+                  <span className="w-5 h-5 flex items-center justify-center font-bold">FB</span>
+                </a>
+              )}
+              {settings.instagramUrl && (
+                <a
+                  href={settings.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
+                >
+                  <span className="w-5 h-5 flex items-center justify-center font-bold">IG</span>
+                </a>
+              )}
+              {settings.twitterUrl && (
+                <a
+                  href={settings.twitterUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
+                >
+                  <span className="w-5 h-5 flex items-center justify-center font-bold">X</span>
+                </a>
+              )}
+              {settings.linkedinUrl && (
+                <a
+                  href={settings.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
+                >
+                  <span className="w-5 h-5 flex items-center justify-center font-bold">IN</span>
+                </a>
+              )}
               <a
-                href="#"
-                className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
-              >
-                <span className="w-5 h-5 flex items-center justify-center font-bold">GH</span>
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
-              >
-                <span className="w-5 h-5 flex items-center justify-center font-bold">X</span>
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
-              >
-                <span className="w-5 h-5 flex items-center justify-center font-bold">IN</span>
-              </a>
-              <a
-                href="#"
+                href={`mailto:${settings.supportEmail}`}
                 className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
               >
                 <Mail className="w-5 h-5" />
@@ -104,12 +127,12 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-zinc-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-zinc-500 text-sm">© 2024 autoLearn. All rights reserved.</p>
+            <p className="text-zinc-500 text-sm">© {new Date().getFullYear()} {settings.footerCopyrightText}. All rights reserved.</p>
             <div className="flex gap-6">
-              <a href="#" className="text-zinc-500 hover:text-white text-sm transition-colors">
+              <a href={settings.footerPrivacyLink || '/privacy'} className="text-zinc-500 hover:text-white text-sm transition-colors">
                 Privacy Policy
               </a>
-              <a href="#" className="text-zinc-500 hover:text-white text-sm transition-colors">
+              <a href={settings.footerTermsLink || '/terms'} className="text-zinc-500 hover:text-white text-sm transition-colors">
                 Terms of Service
               </a>
             </div>
@@ -118,4 +141,8 @@ export function Footer() {
       </div>
     </footer>
   )
+}
+
+export function Footer() {
+  return <FooterContent />
 }

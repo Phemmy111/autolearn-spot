@@ -41,7 +41,7 @@ import { AnimatedStatsSection } from './components/AnimatedStatsSection'
 import { AnimatedScholarshipSection } from './components/AnimatedScholarshipSection'
 import { AnimatedCurriculumSection } from './components/AnimatedCurriculumSection'
 import { AnimatedFeaturesSection } from './components/AnimatedFeaturesSection'
-import { AnimatedTestimonialsSection } from './components/AnimatedTestimonialsSection'
+import { DynamicTestimonialsSection } from '@/components/dynamic-testimonials'
 import { AnimatedSocialProofSection } from './components/AnimatedSocialProofSection'
 import { AnimatedTrustBadgesSection } from './components/AnimatedTrustBadgesSection'
 import './page.css'
@@ -321,7 +321,7 @@ function FeaturesSection() {
 }
 
 function TestimonialsSection() {
-  return <AnimatedTestimonialsSection />;
+  return <DynamicTestimonialsSection />;
 }
 
 function SocialProofSection() {
