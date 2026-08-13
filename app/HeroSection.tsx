@@ -1,11 +1,11 @@
 "use client";
 
 import Link from 'next/link'
-import { Star, Play } from 'lucide-react'
+import { Star, Play, VolumeX, Volume2 } from 'lucide-react'
 import { useDirectEnrollmentFee } from '@/hooks/useDirectEnrollmentFee'
 import { N8nWorkflowPanel } from '@/components/N8nWorkflowPanel'
 import { CohortCard } from '@/components/CohortCard'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getPublicSettings } from '@/lib/public-settings'
 
 export function HeroSection() {
@@ -24,6 +24,8 @@ export function HeroSection() {
   });
 
   const [workflowShowcase, setWorkflowShowcase] = useState<any[]>([]);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     async function loadSettings() {
@@ -62,6 +64,13 @@ export function HeroSection() {
     }
     fetchWorkflowShowcase();
   }, []);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
 
   return (
     <section className="relative min-h-screen flex items-center bg-[#050505] overflow-hidden">
@@ -111,14 +120,30 @@ export function HeroSection() {
               {workflowShowcase.length > 0 && workflowShowcase[0].video_url ? (
                 <div className="relative">
                   {workflowShowcase[0].media_type === 'video' ? (
-                    <video
-                      src={workflowShowcase[0].video_url}
-                      poster={workflowShowcase[0].poster_url}
-                      controls
-                      muted
-                      playsInline
-                      className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_rgba(0,240,255,0.1)]"
-                    />
+                    <div className="relative">
+                      <video
+                        ref={videoRef}
+                        src={workflowShowcase[0].video_url}
+                        poster={workflowShowcase[0].poster_url}
+                        autoPlay
+                        muted
+                        playsInline
+                        loop
+                        className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_rgba(0,240,255,0.1)]"
+                      />
+                      <button
+                        onClick={toggleMute}
+                        aria-label={isMuted ? "Unmute workflow showcase" : "Mute workflow showcase"}
+                        className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 bg-black/50 backdrop-blur-sm rounded-lg hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-[#00f0ff]/50"
+                        title={isMuted ? "Unmute" : "Mute"}
+                      >
+                        {isMuted ? (
+                          <VolumeX className="h-5 w-5 text-white" />
+                        ) : (
+                          <Volume2 className="h-5 w-5 text-white" />
+                        )}
+                      </button>
+                    </div>
                   ) : (
                     <img
                       src={workflowShowcase[0].video_url}
