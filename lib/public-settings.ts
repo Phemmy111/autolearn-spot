@@ -310,7 +310,7 @@ export async function getPublicSettings(keys?: string[]): Promise<PublicSettings
         if (frontendKey) {
           result[frontendKey] = value as any;
           if (setting.key === 'footer_copyright_text') {
-            console.log('[getPublicSettings] footer_copyright_text:', setting.key, '->', frontendKey, '=', value);
+            console.log('[getPublicSettings] footer_copyright_text from DB:', setting.key, '=', value, '->', frontendKey);
           }
         }
       }
