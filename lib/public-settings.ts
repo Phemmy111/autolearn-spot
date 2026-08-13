@@ -309,10 +309,14 @@ export async function getPublicSettings(keys?: string[]): Promise<PublicSettings
         const frontendKey = KEY_MAPPING[setting.key];
         if (frontendKey) {
           result[frontendKey] = value as any;
+          if (setting.key === 'footer_copyright_text') {
+            console.log('[getPublicSettings] footer_copyright_text:', setting.key, '->', frontendKey, '=', value);
+          }
         }
       }
     }
 
+    console.log('[getPublicSettings] Final footerCopyrightText:', result.footerCopyrightText);
     return result;
   } catch (error) {
     console.error('[getPublicSettings] Exception:', error);

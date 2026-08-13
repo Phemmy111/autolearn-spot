@@ -1,7 +1,7 @@
 "use client";
 
 import { CertificateTemplate } from './CertificateTemplate';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface CertificatePreviewProps {
   title: string;
@@ -33,6 +33,8 @@ export function CertificatePreview({
   footer,
 }: CertificatePreviewProps) {
   const [qrData, setQrData] = useState<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
     if (qrEnabled && qrDestination) {
@@ -55,6 +57,24 @@ export function CertificatePreview({
     }
   }, [qrEnabled, qrDestination]);
 
+  useEffect(() => {
+    const updateScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+        // Certificate is 1200x800, calculate scale to fit
+        const scaleX = containerWidth / 1200;
+        const scaleY = containerHeight / 800;
+        const newScale = Math.min(scaleX, scaleY, 1);
+        setScale(newScale);
+      }
+    };
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
   return (
     <div className="bg-[#0c0e12] border border-[#1f2229] rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
@@ -62,10 +82,10 @@ export function CertificatePreview({
         <h3 className="text-sm font-semibold text-[#b9cacb]">Live Preview</h3>
       </div>
       
-      <div className="relative w-full aspect-[3/2] bg-[#0a0c10] rounded-lg overflow-hidden">
+      <div ref={containerRef} className="relative w-full aspect-[3/2] bg-[#0a0c10] rounded-lg overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center p-2">
-          <div className="relative w-full h-full flex items-center justify-center">
-            <div className="w-full h-full flex items-center justify-center" style={{ transform: 'scale(0.4)', transformOrigin: 'center' }}>
+          <div className="w-full h-full flex items-center justify-center">
+            <div style={{ transform: `scale(${scale})`, transformOrigin: 'center' }}>
               <CertificateTemplate
                 name="John Doe"
                 date="August 2026"
