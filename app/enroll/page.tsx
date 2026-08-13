@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link"
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, CheckCircle, Star, User, Mail, Phone, Briefcase, Users } from "lucide-react";
+import { ArrowLeft, CheckCircle, Star, User, Mail, Phone, Briefcase, Users, AlertCircle, Calendar } from "lucide-react";
 import { DIRECT_ENROLLMENT_CONFIG } from "@/config/direct-enrollment";
 import { useDirectEnrollmentFee } from "@/hooks/useDirectEnrollmentFee";
+import { getPublicSettings } from "@/lib/public-settings";
 
 function EnrollForm() {
   const searchParams = useSearchParams();
@@ -13,6 +14,44 @@ function EnrollForm() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { fee, isLoading: feeLoading } = useDirectEnrollmentFee();
+  const [enrollmentSettings, setEnrollmentSettings] = useState({
+    enrollmentOpen: 'true',
+    enrollmentButtonText: 'Continue to Payment',
+    enrollmentAnnouncement: '',
+    enrollmentDeadline: '',
+    currentCohortName: 'Cohort 2',
+    currentCohortNumber: '2',
+    cohortStartDate: '',
+    cohortEndDate: '',
+    enrollmentPageHeadline: 'Start Your Automation Journey',
+    enrollmentPageDescription: 'Complete your enrollment to gain immediate access to our 4-week hands-on n8n automation training program.',
+  });
+  const [settingsLoading, setSettingsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadEnrollmentSettings() {
+      try {
+        const settings = await getPublicSettings([
+          'enrollment_open',
+          'enrollment_button_text',
+          'enrollment_announcement',
+          'enrollment_deadline',
+          'current_cohort_name',
+          'current_cohort_number',
+          'cohort_start_date',
+          'cohort_end_date',
+          'enrollment_page_headline',
+          'enrollment_page_description',
+        ]);
+        setEnrollmentSettings(settings);
+      } catch (error) {
+        console.error('Failed to load enrollment settings:', error);
+      } finally {
+        setSettingsLoading(false);
+      }
+    }
+    loadEnrollmentSettings();
+  }, []);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -135,6 +174,65 @@ function EnrollForm() {
     }
   };
 
+  if (settingsLoading) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
+          <span className="text-[#b9cacb]">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (enrollmentSettings.enrollmentOpen === 'false') {
+    return (
+      <div className="min-h-screen bg-[#050505]">
+        <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <Link href="/" className="flex items-center gap-2 group">
+                <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff] group-hover:border-[#00f0ff] transition-colors">
+                  <Star className="h-4 w-4" />
+                </div>
+                <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+                  AutoLearn Spot
+                </span>
+              </Link>
+              <Link 
+                href="/" 
+                className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Home
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-500/20 border border-red-500/50 mb-6">
+              <AlertCircle className="h-8 w-8 text-red-400" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-normal text-[#e2e2e8] mb-4">
+              Enrollment Closed
+            </h1>
+            <p className="text-base leading-7 text-[#b9cacb] mb-8">
+              Registration for the current cohort is currently closed. Please check back later for updates on upcoming cohorts.
+            </p>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-white transition-colors"
+            >
+              Return to Home
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#050505]">
       {/* Header */}
@@ -162,6 +260,13 @@ function EnrollForm() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        {/* Announcement Banner */}
+        {enrollmentSettings.enrollmentAnnouncement && (
+          <div className="mb-8 bg-[#00f0ff]/10 border border-[#00f0ff]/30 rounded-xl p-4">
+            <p className="text-sm text-[#00f0ff] font-medium">{enrollmentSettings.enrollmentAnnouncement}</p>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Left Column - Form */}
           <div>
@@ -173,10 +278,10 @@ function EnrollForm() {
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-semibold tracking-normal text-[#e2e2e8] mb-4">
-                Start Your Automation Journey
+                {enrollmentSettings.enrollmentPageHeadline}
               </h1>
               <p className="text-base leading-7 text-[#b9cacb]">
-                Complete your enrollment to gain immediate access to our 4-week hands-on n8n automation training program.
+                {enrollmentSettings.enrollmentPageDescription}
               </p>
             </div>
 
@@ -473,7 +578,7 @@ function EnrollForm() {
                     Processing...
                   </span>
                 ) : (
-                  "Continue to Payment"
+                  enrollmentSettings.enrollmentButtonText
                 )}
               </button>
             </form>
@@ -481,6 +586,48 @@ function EnrollForm() {
 
           {/* Right Column - Information */}
           <div className="space-y-8">
+            {/* Cohort Information */}
+            {(enrollmentSettings.currentCohortName || enrollmentSettings.currentCohortNumber || enrollmentSettings.cohortStartDate || enrollmentSettings.cohortEndDate || enrollmentSettings.enrollmentDeadline) && (
+              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <Calendar className="h-5 w-5 text-[#00f0ff]" />
+                  <h2 className="text-xl font-semibold text-[#e2e2e8]">Cohort Information</h2>
+                </div>
+                <div className="space-y-3">
+                  {enrollmentSettings.currentCohortName && (
+                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <span><strong className="text-[#e2e2e8]">Cohort:</strong> {enrollmentSettings.currentCohortName}</span>
+                    </div>
+                  )}
+                  {enrollmentSettings.currentCohortNumber && (
+                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <span><strong className="text-[#e2e2e8]">Number:</strong> {enrollmentSettings.currentCohortNumber}</span>
+                    </div>
+                  )}
+                  {enrollmentSettings.cohortStartDate && (
+                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <span><strong className="text-[#e2e2e8]">Start Date:</strong> {new Date(enrollmentSettings.cohortStartDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  {enrollmentSettings.cohortEndDate && (
+                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <span><strong className="text-[#e2e2e8]">End Date:</strong> {new Date(enrollmentSettings.cohortEndDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  {enrollmentSettings.enrollmentDeadline && (
+                    <div className="flex items-center gap-2 text-sm text-[#e2e2e8]">
+                      <div className="h-1.5 w-1.5 bg-red-500 rounded-full" />
+                      <span><strong className="text-red-400">Application Deadline:</strong> {new Date(enrollmentSettings.enrollmentDeadline).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Program Details</h2>
               <div className="space-y-4">
