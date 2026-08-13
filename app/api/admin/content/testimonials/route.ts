@@ -37,8 +37,52 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
-    const { studentName, cohort, course, screenshotUrl, caption, featured, enabled, displayOrder } = body;
+    const formData = await request.formData();
+    const studentName = formData.get('studentName') as string;
+    const cohort = formData.get('cohort') as string | null;
+    const course = formData.get('course') as string | null;
+    const screenshotFile = formData.get('screenshotFile') as File | null;
+    const caption = formData.get('caption') as string | null;
+    const featured = formData.get('featured') === 'true';
+    const enabled = formData.get('enabled') !== 'false';
+    const displayOrder = parseInt(formData.get('displayOrder') as string) || 0;
+
+    let screenshotUrl = formData.get('screenshotUrl') as string | null;
+
+    // Handle file upload if provided
+    if (screenshotFile && screenshotFile.size > 0) {
+      try {
+        const fileExt = screenshotFile.name.split('.').pop();
+        const fileName = `testimonials/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
+          .storage
+          .from('admin-media')
+          .upload(fileName, screenshotFile, {
+            contentType: screenshotFile.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('[POST /api/admin/content/testimonials] Upload error:', uploadError);
+          return NextResponse.json({ error: 'Failed to upload screenshot' }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('admin-media')
+          .getPublicUrl(fileName);
+
+        screenshotUrl = publicUrl;
+      } catch (uploadError) {
+        console.error('[POST /api/admin/content/testimonials] Upload exception:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload screenshot' }, { status: 500 });
+      }
+    }
+
+    if (!screenshotUrl) {
+      return NextResponse.json({ error: 'Screenshot URL or file is required' }, { status: 400 });
+    }
 
     const { data, error } = await supabaseAdmin
       .from('testimonials')
@@ -72,8 +116,49 @@ export async function PUT(request: Request) {
   }
 
   try {
-    const body = await request.json();
-    const { id, studentName, cohort, course, screenshotUrl, caption, featured, enabled, displayOrder } = body;
+    const formData = await request.formData();
+    const id = formData.get('id') as string;
+    const studentName = formData.get('studentName') as string | null;
+    const cohort = formData.get('cohort') as string | null;
+    const course = formData.get('course') as string | null;
+    const screenshotFile = formData.get('screenshotFile') as File | null;
+    const caption = formData.get('caption') as string | null;
+    const featured = formData.get('featured') === 'true';
+    const enabled = formData.get('enabled') !== 'false';
+    const displayOrder = parseInt(formData.get('displayOrder') as string) || 0;
+
+    let screenshotUrl = formData.get('screenshotUrl') as string | null;
+
+    // Handle file upload if provided
+    if (screenshotFile && screenshotFile.size > 0) {
+      try {
+        const fileExt = screenshotFile.name.split('.').pop();
+        const fileName = `testimonials/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
+          .storage
+          .from('admin-media')
+          .upload(fileName, screenshotFile, {
+            contentType: screenshotFile.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('[PUT /api/admin/content/testimonials] Upload error:', uploadError);
+          return NextResponse.json({ error: 'Failed to upload screenshot' }, { status: 500 });
+        }
+
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('admin-media')
+          .getPublicUrl(fileName);
+
+        screenshotUrl = publicUrl;
+      } catch (uploadError) {
+        console.error('[PUT /api/admin/content/testimonials] Upload exception:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload screenshot' }, { status: 500 });
+      }
+    }
 
     const { data, error } = await supabaseAdmin
       .from('testimonials')

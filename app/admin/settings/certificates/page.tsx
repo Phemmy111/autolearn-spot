@@ -255,7 +255,7 @@ export default function AdminCertificatesSettingsPage() {
                   className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
                   placeholder="ALS-{year}-{cohort}-{sequence}"
                 />
-                <p className="text-xs text-[#b9cacb] mt-1">Variables: {year}, {cohort}, {sequence}</p>
+                <p className="text-xs text-[#b9cacb] mt-1">Variables: {'{year}'}, {'{cohort}'}, {'{sequence}'}</p>
               </div>
               <div className="flex items-center gap-3">
                 <input

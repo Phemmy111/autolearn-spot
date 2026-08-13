@@ -17,11 +17,13 @@ export default function AdminTestimonialsPage() {
     cohort: '',
     course: '',
     screenshotUrl: '',
+    screenshotFile: null as File | null,
     caption: '',
     featured: false,
     enabled: true,
     displayOrder: 0,
   });
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -47,21 +49,36 @@ export default function AdminTestimonialsPage() {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+    setIsUploading(true);
 
     try {
+      const formDataAPI = new FormData();
+      formDataAPI.append('studentName', formData.studentName);
+      formDataAPI.append('cohort', formData.cohort);
+      formDataAPI.append('course', formData.course);
+      formDataAPI.append('caption', formData.caption);
+      formDataAPI.append('featured', String(formData.featured));
+      formDataAPI.append('enabled', String(formData.enabled));
+      formDataAPI.append('displayOrder', String(formData.displayOrder));
+      
+      if (formData.screenshotFile) {
+        formDataAPI.append('screenshotFile', formData.screenshotFile);
+      } else if (formData.screenshotUrl) {
+        formDataAPI.append('screenshotUrl', formData.screenshotUrl);
+      }
+
+      if (editingItem) {
+        formDataAPI.append('id', editingItem.id);
+      }
+
       const url = editingItem
         ? '/api/admin/content/testimonials'
         : '/api/admin/content/testimonials';
       const method = editingItem ? 'PUT' : 'POST';
 
-      const body = editingItem
-        ? { ...formData, id: editingItem.id }
-        : formData;
-
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: formDataAPI,
       });
 
       if (res.ok) {
@@ -74,6 +91,7 @@ export default function AdminTestimonialsPage() {
           cohort: '',
           course: '',
           screenshotUrl: '',
+          screenshotFile: null,
           caption: '',
           featured: false,
           enabled: true,
@@ -86,6 +104,8 @@ export default function AdminTestimonialsPage() {
       }
     } catch (e) {
       setError('Failed to save item');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -96,6 +116,7 @@ export default function AdminTestimonialsPage() {
       cohort: item.cohort,
       course: item.course,
       screenshotUrl: item.screenshot_url,
+      screenshotFile: null,
       caption: item.caption,
       featured: item.featured,
       enabled: item.enabled,
@@ -153,6 +174,7 @@ export default function AdminTestimonialsPage() {
                   cohort: '',
                   course: '',
                   screenshotUrl: '',
+                  screenshotFile: null,
                   caption: '',
                   featured: false,
                   enabled: true,
@@ -298,15 +320,50 @@ export default function AdminTestimonialsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Screenshot URL *</label>
-                <input
-                  type="url"
-                  value={formData.screenshotUrl}
-                  onChange={(e) => setFormData({ ...formData, screenshotUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                  placeholder="https://..."
-                  required
-                />
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Screenshot *</label>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                    <Upload className="h-4 w-4 text-[#b9cacb]" />
+                    <span className="text-sm text-[#b9cacb]">
+                      {formData.screenshotFile ? formData.screenshotFile.name : 'Upload Image (PNG/JPG)'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setFormData({ ...formData, screenshotFile: file, screenshotUrl: '' });
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {formData.screenshotFile && (
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <span className="text-xs text-[#b9cacb] truncate">{formData.screenshotFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, screenshotFile: null, screenshotUrl: '' })}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  {formData.screenshotUrl && !formData.screenshotFile && (
+                    <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <img src={formData.screenshotUrl} alt="Preview" className="w-full h-24 object-cover rounded mb-2" />
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, screenshotUrl: '' })}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Use different image
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#b9cacb] mb-2">Caption (Optional)</label>
@@ -349,9 +406,19 @@ export default function AdminTestimonialsPage() {
               <div className="flex gap-3 pt-4 border-t border-[#1f2229]">
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors"
+                  disabled={isUploading}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingItem ? 'Update' : 'Add'} Testimonial
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      {editingItem ? 'Update' : 'Add'} Testimonial
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"
