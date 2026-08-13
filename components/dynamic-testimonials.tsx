@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { StudentTestimonialCard } from '@/components/student-testimonial-card';
+import { Play } from 'lucide-react';
 
 interface Testimonial {
   id: string;
@@ -9,6 +10,9 @@ interface Testimonial {
   cohort: string;
   course: string;
   screenshot_url: string;
+  media_url: string;
+  media_type: string;
+  thumbnail_url: string;
   caption: string;
   featured: boolean;
   enabled: boolean;
@@ -75,15 +79,26 @@ export function DynamicTestimonialsSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {testimonials.map((testimonial) => (
             <div key={testimonial.id} className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
-              {testimonial.screenshot_url && (
-                <div className="mb-4">
+              <div className="mb-4 relative">
+                {testimonial.media_type === 'video' ? (
+                  <div className="relative">
+                    <video
+                      src={testimonial.screenshot_url || testimonial.media_url}
+                      poster={testimonial.thumbnail_url}
+                      className="w-full h-48 object-cover rounded-lg"
+                      muted
+                      playsInline
+                      controls
+                    />
+                  </div>
+                ) : (
                   <img
-                    src={testimonial.screenshot_url}
+                    src={testimonial.screenshot_url || testimonial.media_url}
                     alt={`Testimonial from ${testimonial.student_name || 'Student'}`}
                     className="w-full h-48 object-cover rounded-lg"
                   />
-                </div>
-              )}
+                )}
+              </div>
               {testimonial.student_name && (
                 <h3 className="text-lg font-semibold text-[#e2e2e8] mb-1">{testimonial.student_name}</h3>
               )}

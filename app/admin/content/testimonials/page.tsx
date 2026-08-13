@@ -16,8 +16,11 @@ export default function AdminTestimonialsPage() {
     studentName: '',
     cohort: '',
     course: '',
-    screenshotUrl: '',
-    screenshotFile: null as File | null,
+    mediaType: 'image',
+    mediaUrl: '',
+    mediaFile: null as File | null,
+    thumbnailUrl: '',
+    thumbnailFile: null as File | null,
     caption: '',
     featured: false,
     enabled: true,
@@ -60,11 +63,18 @@ export default function AdminTestimonialsPage() {
       formDataAPI.append('featured', String(formData.featured));
       formDataAPI.append('enabled', String(formData.enabled));
       formDataAPI.append('displayOrder', String(formData.displayOrder));
+      formDataAPI.append('mediaType', formData.mediaType);
       
-      if (formData.screenshotFile) {
-        formDataAPI.append('screenshotFile', formData.screenshotFile);
-      } else if (formData.screenshotUrl) {
-        formDataAPI.append('screenshotUrl', formData.screenshotUrl);
+      if (formData.mediaFile) {
+        formDataAPI.append('mediaFile', formData.mediaFile);
+      } else if (formData.mediaUrl) {
+        formDataAPI.append('mediaUrl', formData.mediaUrl);
+      }
+
+      if (formData.thumbnailFile) {
+        formDataAPI.append('thumbnailFile', formData.thumbnailFile);
+      } else if (formData.thumbnailUrl) {
+        formDataAPI.append('thumbnailUrl', formData.thumbnailUrl);
       }
 
       if (editingItem) {
@@ -90,8 +100,11 @@ export default function AdminTestimonialsPage() {
           studentName: '',
           cohort: '',
           course: '',
-          screenshotUrl: '',
-          screenshotFile: null,
+          mediaType: 'image',
+          mediaUrl: '',
+          mediaFile: null,
+          thumbnailUrl: '',
+          thumbnailFile: null,
           caption: '',
           featured: false,
           enabled: true,
@@ -115,8 +128,11 @@ export default function AdminTestimonialsPage() {
       studentName: item.student_name,
       cohort: item.cohort,
       course: item.course,
-      screenshotUrl: item.screenshot_url,
-      screenshotFile: null,
+      mediaType: item.media_type || 'image',
+      mediaUrl: item.screenshot_url || item.media_url || '',
+      mediaFile: null,
+      thumbnailUrl: item.thumbnail_url || '',
+      thumbnailFile: null,
       caption: item.caption,
       featured: item.featured,
       enabled: item.enabled,
@@ -173,8 +189,11 @@ export default function AdminTestimonialsPage() {
                   studentName: '',
                   cohort: '',
                   course: '',
-                  screenshotUrl: '',
-                  screenshotFile: null,
+                  mediaType: 'image',
+                  mediaUrl: '',
+                  mediaFile: null,
+                  thumbnailUrl: '',
+                  thumbnailFile: null,
                   caption: '',
                   featured: false,
                   enabled: true,
@@ -234,17 +253,31 @@ export default function AdminTestimonialsPage() {
               {item.caption && (
                 <p className="text-sm text-[#b9cacb] mb-4 line-clamp-2">{item.caption}</p>
               )}
-              {item.screenshot_url && (
+              {(item.screenshot_url || item.media_url) && (
                 <div className="mb-4">
-                  <img
-                    src={item.screenshot_url}
-                    alt="Testimonial screenshot"
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
+                  {item.media_type === 'video' ? (
+                    <video
+                      src={item.screenshot_url || item.media_url}
+                      poster={item.thumbnail_url}
+                      className="w-full h-32 object-cover rounded-lg"
+                      muted
+                    />
+                  ) : (
+                    <img
+                      src={item.screenshot_url || item.media_url}
+                      alt="Testimonial media"
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                  )}
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[#5d5f63]">Order: {item.display_order}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-[#5d5f63]">Order: {item.display_order}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${item.media_type === 'video' ? 'bg-purple-500/10 text-purple-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                    {item.media_type === 'video' ? 'Video' : 'Image'}
+                  </span>
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(item)}
@@ -320,51 +353,136 @@ export default function AdminTestimonialsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Screenshot *</label>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Media Type</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="mediaType"
+                      value="image"
+                      checked={formData.mediaType === 'image'}
+                      onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
+                      className="w-4 h-4 border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                    />
+                    <span className="text-sm text-[#b9cacb]">Image</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="mediaType"
+                      value="video"
+                      checked={formData.mediaType === 'video'}
+                      onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
+                      className="w-4 h-4 border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                    />
+                    <span className="text-sm text-[#b9cacb]">Video</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">
+                  {formData.mediaType === 'image' ? 'Image/Screenshot *' : 'Video *'}
+                </label>
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
                     <Upload className="h-4 w-4 text-[#b9cacb]" />
                     <span className="text-sm text-[#b9cacb]">
-                      {formData.screenshotFile ? formData.screenshotFile.name : 'Upload Image (PNG/JPG)'}
+                      {formData.mediaFile 
+                        ? formData.mediaFile.name 
+                        : formData.mediaType === 'image' 
+                          ? 'Upload Image (PNG/JPG/WebP)' 
+                          : 'Upload Video (MP4/WebM)'}
                     </span>
                     <input
                       type="file"
-                      accept="image/png,image/jpeg,image/jpg"
+                      accept={formData.mediaType === 'image' ? 'image/png,image/jpeg,image/jpg,image/webp' : 'video/mp4,video/webm'}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          setFormData({ ...formData, screenshotFile: file, screenshotUrl: '' });
+                          setFormData({ ...formData, mediaFile: file, mediaUrl: '' });
                         }
                       }}
                       className="hidden"
                     />
                   </label>
-                  {formData.screenshotFile && (
+                  {formData.mediaFile && (
                     <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
-                      <span className="text-xs text-[#b9cacb] truncate">{formData.screenshotFile.name}</span>
+                      <span className="text-xs text-[#b9cacb] truncate">{formData.mediaFile.name}</span>
                       <button
                         type="button"
-                        onClick={() => setFormData({ ...formData, screenshotFile: null, screenshotUrl: '' })}
+                        onClick={() => setFormData({ ...formData, mediaFile: null, mediaUrl: '' })}
                         className="text-xs text-red-400 hover:text-red-300"
                       >
                         Remove
                       </button>
                     </div>
                   )}
-                  {formData.screenshotUrl && !formData.screenshotFile && (
+                  {formData.mediaUrl && !formData.mediaFile && (
                     <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
-                      <img src={formData.screenshotUrl} alt="Preview" className="w-full h-24 object-cover rounded mb-2" />
+                      {formData.mediaType === 'image' ? (
+                        <img src={formData.mediaUrl} alt="Preview" className="w-full h-24 object-cover rounded mb-2" />
+                      ) : (
+                        <video src={formData.mediaUrl} className="w-full h-24 object-cover rounded mb-2" />
+                      )}
                       <button
                         type="button"
-                        onClick={() => setFormData({ ...formData, screenshotUrl: '' })}
+                        onClick={() => setFormData({ ...formData, mediaUrl: '' })}
                         className="text-xs text-red-400 hover:text-red-300"
                       >
-                        Use different image
+                        Use different media
                       </button>
                     </div>
                   )}
                 </div>
               </div>
+              {formData.mediaType === 'video' && (
+                <div>
+                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Thumbnail/Poster (Optional)</label>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                      <Upload className="h-4 w-4 text-[#b9cacb]" />
+                      <span className="text-sm text-[#b9cacb]">
+                        {formData.thumbnailFile ? formData.thumbnailFile.name : 'Upload Thumbnail (PNG/JPG)'}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setFormData({ ...formData, thumbnailFile: file, thumbnailUrl: '' });
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                    {formData.thumbnailFile && (
+                      <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                        <span className="text-xs text-[#b9cacb] truncate">{formData.thumbnailFile.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, thumbnailFile: null, thumbnailUrl: '' })}
+                          className="text-xs text-red-400 hover:text-red-300"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                    {formData.thumbnailUrl && !formData.thumbnailFile && (
+                      <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                        <img src={formData.thumbnailUrl} alt="Thumbnail" className="w-full h-24 object-cover rounded mb-2" />
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, thumbnailUrl: '' })}
+                          className="text-xs text-red-400 hover:text-red-300"
+                        >
+                          Use different thumbnail
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-[#b9cacb] mb-2">Caption (Optional)</label>
                 <textarea
