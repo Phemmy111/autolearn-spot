@@ -160,12 +160,12 @@ export function CertificateTemplate({
           zIndex: 10,
         }}
       >
-        {/* Logo - Top Center */}
+        {/* Logo - Top Center Emblem Area */}
         {logoSrc && (
           <div
             style={{
               position: 'absolute',
-              top: '55px',
+              top: '35px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -179,20 +179,20 @@ export function CertificateTemplate({
               src={logoSrc}
               alt="Logo"
               style={{
-                width: '80px',
-                height: '80px',
+                width: '55px',
+                height: '55px',
                 objectFit: 'contain',
               }}
             />
           </div>
         )}
 
-        {/* Title - Inside title box area */}
+        {/* Title - Inside Title Box */}
         {title && (
           <div
             style={{
               position: 'absolute',
-              top: '115px',
+              top: '95px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -204,13 +204,13 @@ export function CertificateTemplate({
             <span
               style={{
                 fontFamily: '"Roboto", sans-serif',
-                fontSize: '36px',
+                fontSize: '28px',
                 fontWeight: 700,
                 color: '#ffffff',
                 textTransform: 'uppercase',
-                letterSpacing: '3px',
+                letterSpacing: '2px',
                 textShadow: '0px 2px 8px rgba(0,0,0,0.8)',
-                maxWidth: '900px',
+                maxWidth: '600px',
                 textAlign: 'center',
                 lineHeight: 1.2,
               }}
@@ -220,12 +220,12 @@ export function CertificateTemplate({
           </div>
         )}
 
-        {/* Subtitle - Inside subtitle box area */}
+        {/* Subtitle - Below Title Box */}
         {subtitle && (
           <div
             style={{
               position: 'absolute',
-              top: '165px',
+              top: '135px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -237,10 +237,10 @@ export function CertificateTemplate({
             <span
               style={{
                 fontFamily: '"Roboto", sans-serif',
-                fontSize: '18px',
+                fontSize: '14px',
                 fontWeight: 400,
                 color: '#ffffff',
-                letterSpacing: '2px',
+                letterSpacing: '1px',
                 opacity: 0.95,
                 textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
               }}
@@ -250,11 +250,11 @@ export function CertificateTemplate({
           </div>
         )}
 
-        {/* Student Name - Large central area */}
+        {/* Student Name - Large Central Area */}
         <div
           style={{
             position: 'absolute',
-            top: '235px',
+            top: '195px',
             left: '0',
             width: '1200px',
             display: 'flex',
@@ -266,11 +266,11 @@ export function CertificateTemplate({
           <span
             style={{
               fontFamily: '"GreatVibes", cursive',
-              fontSize: '90px',
+              fontSize: '80px',
               color: '#ffffff',
               lineHeight: 1,
               textShadow: '0px 4px 12px rgba(0,0,0,0.8)',
-              maxWidth: '1000px',
+              maxWidth: '800px',
               textAlign: 'center',
             }}
           >
@@ -278,12 +278,42 @@ export function CertificateTemplate({
           </span>
         </div>
 
-        {/* Body Text - Below student name */}
+        {/* Body Text - Below Student Name */}
         {bodyText && (
           <div
             style={{
               position: 'absolute',
-              top: '325px',
+              top: '280px',
+              left: '0',
+              width: '1200px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 20,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: '"Roboto", sans-serif',
+                fontSize: '16px',
+                fontWeight: 400,
+                color: '#ffffff',
+                letterSpacing: '0.5px',
+                opacity: 0.9,
+                textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
+              }}
+            >
+              {bodyText}
+            </span>
+          </div>
+        )}
+
+        {/* Course - Below Body Text, Above Seal */}
+        {course && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '305px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -296,39 +326,9 @@ export function CertificateTemplate({
               style={{
                 fontFamily: '"Roboto", sans-serif',
                 fontSize: '20px',
-                fontWeight: 400,
-                color: '#ffffff',
-                letterSpacing: '1px',
-                opacity: 0.9,
-                textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
-              }}
-            >
-              {bodyText}
-            </span>
-          </div>
-        )}
-
-        {/* Course - Below body text, above seal */}
-        {course && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '355px',
-              left: '0',
-              width: '1200px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: '"Roboto", sans-serif',
-                fontSize: '24px',
                 fontWeight: 600,
                 color: accentColor || '#00f0ff',
-                letterSpacing: '2px',
+                letterSpacing: '1.5px',
                 textTransform: 'uppercase',
                 textShadow: '0px 2px 8px rgba(0,0,0,0.8)',
               }}
@@ -338,12 +338,12 @@ export function CertificateTemplate({
           </div>
         )}
 
-        {/* Date - Lower-left line area */}
+        {/* Date - Lower-Left Line Area */}
         <div
           style={{
             position: 'absolute',
-            top: '635px',
-            left: '180px',
+            top: '660px',
+            left: '220px',
             width: '250px',
             display: 'flex',
             justifyContent: 'flex-start',
@@ -353,7 +353,7 @@ export function CertificateTemplate({
         >
           <span
             style={{
-              fontSize: '16px',
+              fontSize: '14px',
               color: '#ffffff',
               fontWeight: 500,
               textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
@@ -363,12 +363,12 @@ export function CertificateTemplate({
           </span>
         </div>
 
-        {/* Signature - Lower-right line area */}
+        {/* Signature - Lower-Right Line Area */}
         <div
           style={{
             position: 'absolute',
-            top: '580px',
-            right: '180px',
+            top: '600px',
+            right: '220px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -381,10 +381,10 @@ export function CertificateTemplate({
               src={signatureUrl}
               alt="Signature"
               style={{
-                width: '120px',
-                height: '50px',
+                width: '100px',
+                height: '40px',
                 objectFit: 'contain',
-                marginBottom: '5px',
+                marginBottom: '4px',
               }}
             />
           )}
@@ -397,10 +397,10 @@ export function CertificateTemplate({
               <div
                 style={{
                   fontFamily: '"Roboto", sans-serif',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   fontWeight: 600,
                   color: '#ffffff',
-                  marginBottom: '2px',
+                  marginBottom: '1px',
                   textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
                 }}
               >
@@ -411,7 +411,7 @@ export function CertificateTemplate({
               <div
                 style={{
                   fontFamily: '"Roboto", sans-serif',
-                  fontSize: '12px',
+                  fontSize: '10px',
                   fontWeight: 400,
                   color: '#ffffff',
                   opacity: 0.85,
@@ -424,13 +424,13 @@ export function CertificateTemplate({
           </div>
         </div>
 
-        {/* Certificate ID - Subtle, positioned away from major content */}
+        {/* Certificate ID - Subtle Position */}
         {certificateId && (
           <div
             style={{
               position: 'absolute',
-              top: '665px',
-              right: '180px',
+              top: '690px',
+              right: '220px',
               display: 'flex',
               justifyContent: 'flex-end',
               alignItems: 'center',
@@ -439,7 +439,7 @@ export function CertificateTemplate({
           >
             <span
               style={{
-                fontSize: '12px',
+                fontSize: '10px',
                 color: '#ffffff',
                 fontWeight: 400,
                 opacity: 0.6,
@@ -452,29 +452,29 @@ export function CertificateTemplate({
           </div>
         )}
 
-        {/* QR Code - Subtle side position */}
+        {/* QR Code - Subtle Side Position */}
         {(qrEnabled !== false) && (
           <div
             style={{
               position: 'absolute',
-              top: '620px',
-              left: '80px',
+              top: '645px',
+              left: '120px',
               display: 'flex',
-              width: '70px',
-              height: '70px',
+              width: '60px',
+              height: '60px',
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#ffffff',
-              padding: '4px',
-              borderRadius: '4px',
+              padding: '3px',
+              borderRadius: '3px',
               border: `1px solid ${accentColor || '#00ffaa'}`,
               opacity: 0.9,
             }}
           >
             {qrData && (
               <svg
-                width="62"
-                height="62"
+                width="54"
+                height="54"
                 viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
                 fill="#000000"
               >
@@ -490,12 +490,12 @@ export function CertificateTemplate({
           </div>
         )}
 
-        {/* Footer - Bottom center */}
+        {/* Footer - Bottom Center */}
         {footer && (
           <div
             style={{
               position: 'absolute',
-              bottom: '25px',
+              bottom: '35px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -506,11 +506,11 @@ export function CertificateTemplate({
           >
             <span
               style={{
-                fontSize: '12px',
+                fontSize: '10px',
                 color: '#ffffff',
                 fontWeight: 400,
                 opacity: 0.75,
-                letterSpacing: '1px',
+                letterSpacing: '0.5px',
                 textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
               }}
             >
