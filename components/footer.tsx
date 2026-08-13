@@ -17,11 +17,6 @@ async function FooterContent() {
     'supportEmail'
   ])
 
-  console.log('[Footer] Settings received:', {
-    footerCopyrightText: settings.footerCopyrightText,
-    siteName: settings.siteName
-  })
-
   return (
     <footer className="relative z-20 border-t border-zinc-800 bg-black">
       <div className="container mx-auto px-6 lg:px-12 py-16">

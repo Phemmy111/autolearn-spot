@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
+import { unstable_noStore as noStore } from 'next/cache';
 
 interface PublicSettings {
   // Brand
@@ -275,6 +276,8 @@ const KEY_MAPPING: Record<string, keyof PublicSettings> = {
 };
 
 export async function getPublicSettings(keys?: string[]): Promise<PublicSettings> {
+  noStore();
+  
   try {
     let query = supabaseAdmin.from('site_settings').select('key, value');
 
@@ -309,14 +312,10 @@ export async function getPublicSettings(keys?: string[]): Promise<PublicSettings
         const frontendKey = KEY_MAPPING[setting.key];
         if (frontendKey) {
           result[frontendKey] = value as any;
-          if (setting.key === 'footer_copyright_text') {
-            console.log('[getPublicSettings] footer_copyright_text from DB:', setting.key, '=', value, '->', frontendKey);
-          }
         }
       }
     }
 
-    console.log('[getPublicSettings] Final footerCopyrightText:', result.footerCopyrightText);
     return result;
   } catch (error) {
     console.error('[getPublicSettings] Exception:', error);
