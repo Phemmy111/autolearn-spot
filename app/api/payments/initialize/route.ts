@@ -14,8 +14,8 @@ async function isEnrollmentOpen(): Promise<boolean> {
     return settings.enrollmentOpen !== 'false';
   } catch (error) {
     console.error('Failed to check enrollment status:', error);
-    // Default to open if settings check fails to avoid blocking legitimate payments
-    return true;
+    // Fail closed: if settings check fails, block enrollment for security
+    return false;
   }
 }
 
