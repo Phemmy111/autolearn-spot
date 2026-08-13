@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react"
+import { Mail, Youtube } from "lucide-react"
 import { getPublicSettings } from "@/lib/public-settings"
 
 async function FooterContent() {
@@ -14,6 +14,7 @@ async function FooterContent() {
     'instagramUrl',
     'twitterUrl',
     'linkedinUrl',
+    'youtubeUrl',
     'supportEmail'
   ])
 
@@ -125,6 +126,16 @@ async function FooterContent() {
                   className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
                 >
                   <span className="w-5 h-5 flex items-center justify-center font-bold">IN</span>
+                </a>
+              )}
+              {settings.youtubeUrl && (
+                <a
+                  href={settings.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-400 transition-all"
+                >
+                  <Youtube className="w-5 h-5" />
                 </a>
               )}
               <a

@@ -275,6 +275,11 @@ const KEY_MAPPING: Record<string, keyof PublicSettings> = {
   scholarship_announcement: 'scholarshipAnnouncement',
 };
 
+// Reverse mapping: frontend camelCase -> database snake_case
+const REVERSE_KEY_MAPPING: Record<string, string> = Object.fromEntries(
+  Object.entries(KEY_MAPPING).map(([k, v]) => [v, k])
+);
+
 export async function getPublicSettings(keys?: string[]): Promise<PublicSettings> {
   noStore();
   
@@ -282,7 +287,9 @@ export async function getPublicSettings(keys?: string[]): Promise<PublicSettings
     let query = supabaseAdmin.from('site_settings').select('key, value');
 
     if (keys && keys.length > 0) {
-      query = query.in('key', keys);
+      // Convert frontend camelCase keys to database snake_case keys
+      const dbKeys = keys.map(key => REVERSE_KEY_MAPPING[key] || key);
+      query = query.in('key', dbKeys);
     }
 
     const { data: settings, error } = await query;
