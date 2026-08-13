@@ -21,7 +21,10 @@ export default function AdminWorkflowShowcasePage() {
     featured: false,
     enabled: true,
     displayOrder: 0,
+    mediaType: 'video',
   });
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -47,21 +50,35 @@ export default function AdminWorkflowShowcasePage() {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+    setIsUploading(true);
 
     try {
+      const formDataAPI = new FormData();
+      formDataAPI.append('title', formData.title);
+      formDataAPI.append('description', formData.description);
+      formDataAPI.append('featured', String(formData.featured));
+      formDataAPI.append('enabled', String(formData.enabled));
+      formDataAPI.append('displayOrder', String(formData.displayOrder));
+      formDataAPI.append('mediaType', formData.mediaType);
+      
+      if (mediaFile) {
+        formDataAPI.append('mediaFile', mediaFile);
+      } else if (formData.videoUrl) {
+        formDataAPI.append('videoUrl', formData.videoUrl);
+      }
+
+      if (editingItem) {
+        formDataAPI.append('id', editingItem.id);
+      }
+
       const url = editingItem
         ? '/api/admin/content/workflow-showcase'
         : '/api/admin/content/workflow-showcase';
       const method = editingItem ? 'PUT' : 'POST';
 
-      const body = editingItem
-        ? { ...formData, id: editingItem.id }
-        : formData;
-
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: formDataAPI,
       });
 
       if (res.ok) {
@@ -78,7 +95,9 @@ export default function AdminWorkflowShowcasePage() {
           featured: false,
           enabled: true,
           displayOrder: 0,
+          mediaType: 'video',
         });
+        setMediaFile(null);
         fetchItems();
       } else {
         const data = await res.json();
@@ -86,6 +105,8 @@ export default function AdminWorkflowShowcasePage() {
       }
     } catch (e) {
       setError('Failed to save item');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -100,7 +121,9 @@ export default function AdminWorkflowShowcasePage() {
       featured: item.featured,
       enabled: item.enabled,
       displayOrder: item.display_order,
+      mediaType: item.media_type || 'video',
     });
+    setMediaFile(null);
     setShowModal(true);
   };
 
@@ -269,14 +292,64 @@ export default function AdminWorkflowShowcasePage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Video URL</label>
-                <input
-                  type="url"
-                  value={formData.videoUrl}
-                  onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Media Type</label>
+                <select
+                  value={formData.mediaType}
+                  onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
                   className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                  placeholder="https://..."
-                />
+                >
+                  <option value="video">Video</option>
+                  <option value="image">Image</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">
+                  {formData.mediaType === 'video' ? 'Video File or URL' : 'Image File or URL'}
+                </label>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                    <Upload className="h-4 w-4 text-[#b9cacb]" />
+                    <span className="text-sm text-[#b9cacb]">
+                      {mediaFile ? mediaFile.name : `Upload ${formData.mediaType === 'video' ? 'Video (MP4)' : 'Image (PNG/JPG)'}`}
+                    </span>
+                    <input
+                      type="file"
+                      accept={formData.mediaType === 'video' ? 'video/mp4,video/webm' : 'image/png,image/jpeg,image/jpg'}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setMediaFile(file);
+                          setFormData({ ...formData, videoUrl: '' });
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {mediaFile && (
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <span className="text-xs text-[#b9cacb] truncate">{mediaFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMediaFile(null);
+                          setFormData({ ...formData, videoUrl: '' });
+                        }}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  {!mediaFile && (
+                    <input
+                      type="url"
+                      value={formData.videoUrl}
+                      onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                      className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                      placeholder="https://..."
+                    />
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-[#b9cacb] mb-2">Thumbnail URL</label>

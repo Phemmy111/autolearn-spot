@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import LiveJitsi from "@/components/LiveJitsi";
 import Link from "next/link";
-import path from "path";
-import fs from "fs";
+import { getPublicSettings } from "@/lib/public-settings";
 
 interface Schedule {
   day: string;
@@ -17,52 +16,71 @@ interface Schedule {
 
 export default function LiveClassPage() {
   const { isSignedIn, user } = useUser();
-  const [schedule, setSchedule] = useState<Schedule | null>(null);
+  const [settings, setSettings] = useState({
+    title: 'Live n8n Workshop',
+    date: '',
+    time: '20:00',
+    timezone: 'WAT',
+    url: '',
+    description: 'Join our live workshop to learn n8n automation',
+    joinButtonText: 'Join Class',
+    countdownEnabled: 'true',
+    recordingUrl: '',
+    replayEnabled: 'false',
+    status: 'scheduled',
+  });
   const [showJitsi, setShowJitsi] = useState(false);
   const [roomName, setRoomName] = useState("");
   const [countdown, setCountdown] = useState<string>("");
 
-  // Load schedule JSON (client‑side fetch of static file)
   useEffect(() => {
-    fetch("/data/live-schedule.json")
-      .then((res) => res.json())
-      .then((data) => setSchedule(data))
-      .catch(() => console.error("Failed to load schedule"));
+    async function loadSettings() {
+      try {
+        const loadedSettings = await getPublicSettings([
+          'live_class_title',
+          'live_class_date',
+          'live_class_time',
+          'live_class_timezone',
+          'live_class_url',
+          'live_class_description',
+          'live_class_join_button_text',
+          'live_class_countdown_enabled',
+          'live_class_recording_url',
+          'live_class_replay_enabled',
+          'live_class_status',
+        ]);
+        setSettings(loadedSettings);
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      }
+    }
+    loadSettings();
   }, []);
 
-  // Compute next occurrence and countdown
+  // Compute countdown from settings
   useEffect(() => {
-    if (!schedule) return;
+    if (!settings.date || !settings.time) return;
+    
     const interval = setInterval(() => {
       const now = new Date();
-      const target = getNextOccurrence(schedule);
+      const [date, time] = [settings.date, settings.time];
+      const target = new Date(`${date}T${time}`);
       const diff = target.getTime() - now.getTime();
+      
       if (diff <= 0) {
         setCountdown("Live now!");
         clearInterval(interval);
         return;
       }
+      
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
       const s = Math.floor((diff % 60000) / 1000);
       setCountdown(`${h}h ${m}m ${s}s`);
     }, 1000);
+    
     return () => clearInterval(interval);
-  }, [schedule]);
-
-  function getNextOccurrence({ day, startTime }: Schedule): Date {
-    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const targetDayIndex = daysOfWeek.indexOf(day);
-    const now = new Date();
-    const todayIndex = now.getDay();
-    let daysAhead = (targetDayIndex + 7 - todayIndex) % 7;
-    const [hh, mm] = startTime.split(":").map(Number);
-    const target = new Date(now);
-    target.setHours(hh, mm, 0, 0);
-    if (daysAhead === 0 && target <= now) daysAhead = 7; // next week if today already passed
-    target.setDate(now.getDate() + daysAhead);
-    return target;
-  }
+  }, [settings.date, settings.time]);
 
   if (!isSignedIn) {
     return (
@@ -73,37 +91,42 @@ export default function LiveClassPage() {
   }
 
   const handleJoin = () => {
-    if (!schedule) return;
-    const date = new Date();
-    const suffix = date.toISOString().split("T")[0];
-    const name = `${schedule.roomPrefix}-${suffix}`;
-    
-    const displayName = user?.publicMetadata?.role === "admin" || user?.primaryEmailAddress?.emailAddress === "femiadeleke2019@gmail.com"
-      ? `${user?.fullName || "Guest"} (Anchor)`
-      : (user?.fullName || "Guest");
-      
-    // Construct the Jitsi URL with the display name in the hash
-    const jitsiUrl = `https://meet.jit.si/${encodeURIComponent(name)}#userInfo.displayName="${encodeURIComponent(displayName)}"`;
-    
-    window.open(jitsiUrl, "_blank");
+    if (!settings.url) return;
+    window.open(settings.url, "_blank");
   };
 
   return (
     <section className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold text-center mb-6">Live Class</h1>
-      {schedule ? (
+      <h1 className="text-3xl font-bold text-center mb-6">{settings.title}</h1>
+      <p className="text-center mb-8 text-lg">{settings.description}</p>
+      {settings.date && settings.time ? (
         <div className="text-center mb-8">
-          <p className="text-lg">Every {schedule.day} at {schedule.startTime} (UTC)</p>
-          <p className="text-xl font-mono mt-2">Starts in: {countdown}</p>
+          <p className="text-lg">{settings.date} at {settings.time} ({settings.timezone})</p>
+          {settings.countdownEnabled === 'true' && (
+            <p className="text-xl font-mono mt-2">Starts in: {countdown}</p>
+          )}
           <button
             className="mt-6 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow hover:scale-105 transform transition"
             onClick={handleJoin}
           >
-            Join Live Session
+            {settings.joinButtonText}
           </button>
         </div>
       ) : (
         <p className="text-center">Loading schedule...</p>
+      )}
+      {settings.status === 'replay' && settings.recordingUrl && settings.replayEnabled === 'true' && (
+        <div className="text-center mt-8">
+          <p className="text-lg mb-4">Recording Available</p>
+          <a
+            href={settings.recordingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg shadow hover:scale-105 transform transition"
+          >
+            Watch Recording
+          </a>
+        </div>
       )}
     </section>
   );

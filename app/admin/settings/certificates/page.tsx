@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function AdminCertificatesSettingsPage() {
   const [settings, setSettings] = useState({
-    backgroundUrl: '/certificate-template.jpg',
+    backgroundUrl: '',
     logoUrl: '',
     title: 'Certificate of Completion',
     subtitle: 'This certifies that',
@@ -24,6 +24,12 @@ export default function AdminCertificatesSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  
+  // File upload states
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -50,27 +56,73 @@ export default function AdminCertificatesSettingsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setIsUploading(true);
     setError(null);
     setSuccess(false);
 
     try {
+      // Upload files first
+      const formData = new FormData();
+      
+      if (backgroundFile) {
+        formData.append('backgroundFile', backgroundFile);
+      }
+      if (logoFile) {
+        formData.append('logoFile', logoFile);
+      }
+      if (signatureFile) {
+        formData.append('signatureFile', signatureFile);
+      }
+      
+      // Add existing URLs as fallbacks
+      formData.append('backgroundUrl', settings.backgroundUrl);
+      formData.append('logoUrl', settings.logoUrl);
+      formData.append('signatureUrl', settings.signatureUrl);
+      
+      // Upload to certificate API
+      const uploadRes = await fetch('/api/admin/certificate-assets', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!uploadRes.ok) {
+        const data = await uploadRes.json();
+        throw new Error(data.error || 'Failed to upload assets');
+      }
+      
+      const uploadData = await uploadRes.json();
+      
+      // Update settings with uploaded URLs
+      const updatedSettings = {
+        ...settings,
+        backgroundUrl: uploadData.backgroundUrl || settings.backgroundUrl,
+        logoUrl: uploadData.logoUrl || settings.logoUrl,
+        signatureUrl: uploadData.signatureUrl || settings.signatureUrl,
+      };
+      
+      // Save all settings
       const res = await fetch('/api/admin/master-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings }),
+        body: JSON.stringify({ settings: updatedSettings }),
       });
 
       if (res.ok) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
+        // Clear file uploads after successful save
+        setBackgroundFile(null);
+        setLogoFile(null);
+        setSignatureFile(null);
       } else {
         const data = await res.json();
         setError(data.error || 'Failed to save settings');
       }
     } catch (e) {
-      setError('Failed to save settings');
+      setError(e instanceof Error ? e.message : 'Failed to save settings');
     } finally {
       setIsSaving(false);
+      setIsUploading(false);
     }
   };
 
@@ -189,35 +241,142 @@ export default function AdminCertificatesSettingsPage() {
               <h2 className="text-lg font-semibold text-white">Media Assets</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Background */}
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Background URL</label>
-                <input
-                  type="url"
-                  value={settings.backgroundUrl}
-                  onChange={(e) => setSettings({ ...settings, backgroundUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                  placeholder="https://..."
-                />
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Certificate Background</label>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                    <Upload className="h-4 w-4 text-[#b9cacb]" />
+                    <span className="text-sm text-[#b9cacb]">
+                      {backgroundFile ? backgroundFile.name : 'Upload Background (PNG/JPG)'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setBackgroundFile(file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {backgroundFile && (
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <span className="text-xs text-[#b9cacb] truncate">{backgroundFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setBackgroundFile(null)}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  {settings.backgroundUrl && !backgroundFile && (
+                    <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <img src={settings.backgroundUrl} alt="Background preview" className="w-full h-24 object-cover rounded mb-2" />
+                      <button
+                        type="button"
+                        onClick={() => setSettings({ ...settings, backgroundUrl: '' })}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Use different image
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
+              
+              {/* Logo */}
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Logo URL</label>
-                <input
-                  type="url"
-                  value={settings.logoUrl}
-                  onChange={(e) => setSettings({ ...settings, logoUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                  placeholder="https://..."
-                />
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Certificate Logo</label>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                    <Upload className="h-4 w-4 text-[#b9cacb]" />
+                    <span className="text-sm text-[#b9cacb]">
+                      {logoFile ? logoFile.name : 'Upload Logo (PNG/JPG)'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setLogoFile(file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {logoFile && (
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <span className="text-xs text-[#b9cacb] truncate">{logoFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setLogoFile(null)}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  {settings.logoUrl && !logoFile && (
+                    <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <img src={settings.logoUrl} alt="Logo preview" className="w-full h-24 object-contain rounded mb-2" />
+                      <button
+                        type="button"
+                        onClick={() => setSettings({ ...settings, logoUrl: '' })}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Use different image
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
+              
+              {/* Signature */}
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Signature URL</label>
-                <input
-                  type="url"
-                  value={settings.signatureUrl}
-                  onChange={(e) => setSettings({ ...settings, signatureUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                  placeholder="https://..."
-                />
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Signature Image</label>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                    <Upload className="h-4 w-4 text-[#b9cacb]" />
+                    <span className="text-sm text-[#b9cacb]">
+                      {signatureFile ? signatureFile.name : 'Upload Signature (PNG/JPG)'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setSignatureFile(file);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  {signatureFile && (
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <span className="text-xs text-[#b9cacb] truncate">{signatureFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSignatureFile(null)}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  {settings.signatureUrl && !signatureFile && (
+                    <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <img src={settings.signatureUrl} alt="Signature preview" className="w-full h-24 object-contain rounded mb-2" />
+                      <button
+                        type="button"
+                        onClick={() => setSettings({ ...settings, signatureUrl: '' })}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Use different image
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

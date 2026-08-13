@@ -18,7 +18,12 @@ export function HeroSection() {
     heroPrimaryCtaLink: '/enroll',
     heroSecondaryCtaText: 'Watch Preview',
     heroSecondaryCtaLink: '#',
+    heroVideoUrl: '',
+    heroImageUrl: '',
+    heroMediaType: 'video',
   });
+
+  const [workflowShowcase, setWorkflowShowcase] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadSettings() {
@@ -30,7 +35,10 @@ export function HeroSection() {
           'hero_primary_cta_text',
           'hero_primary_cta_link',
           'hero_secondary_cta_text',
-          'hero_secondary_cta_link'
+          'hero_secondary_cta_link',
+          'hero_video_url',
+          'hero_image_url',
+          'hero_media_type'
         ]);
         setSettings(loadedSettings);
       } catch (error) {
@@ -38,6 +46,21 @@ export function HeroSection() {
       }
     }
     loadSettings();
+  }, []);
+
+  useEffect(() => {
+    async function fetchWorkflowShowcase() {
+      try {
+        const res = await fetch('/api/content/workflow-showcase?enabled=true');
+        if (res.ok) {
+          const data = await res.json();
+          setWorkflowShowcase(data.items || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch workflow showcase:', error);
+      }
+    }
+    fetchWorkflowShowcase();
   }, []);
 
   return (
@@ -85,9 +108,34 @@ export function HeroSection() {
               <CohortCard />
             </div>
             <div className="animate-scale-in animate-stagger-6">
-              <N8nWorkflowPanel />
-              <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
-              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
+              {workflowShowcase.length > 0 && workflowShowcase[0].video_url ? (
+                <div className="relative">
+                  {workflowShowcase[0].media_type === 'video' ? (
+                    <video
+                      src={workflowShowcase[0].video_url}
+                      controls
+                      autoPlay
+                      muted
+                      loop
+                      className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_rgba(0,240,255,0.1)]"
+                    />
+                  ) : (
+                    <img
+                      src={workflowShowcase[0].video_url}
+                      alt="Workflow showcase"
+                      className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_rgba(0,240,255,0.1)]"
+                    />
+                  )}
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
+                  <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
+                </div>
+              ) : (
+                <>
+                  <N8nWorkflowPanel />
+                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-[#00f0ff]/20 rounded-full blur-2xl" />
+                  <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl" />
+                </>
+              )}
             </div>
           </div>
         </div>
