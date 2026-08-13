@@ -89,10 +89,12 @@ export default function AdminCertificatesSettingsPage() {
       
       if (!uploadRes.ok) {
         const data = await uploadRes.json();
+        console.error('Upload failed:', data);
         throw new Error(data.error || 'Failed to upload assets');
       }
       
       const uploadData = await uploadRes.json();
+      console.log('Upload successful:', uploadData);
       
       // Update settings with uploaded URLs
       const updatedSettings = {
@@ -112,6 +114,8 @@ export default function AdminCertificatesSettingsPage() {
       if (res.ok) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
+        // Refresh settings from database to get the new uploaded URLs
+        await fetchSettings();
         // Clear file uploads after successful save
         setBackgroundFile(null);
         setLogoFile(null);
