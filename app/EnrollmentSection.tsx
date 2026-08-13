@@ -5,6 +5,8 @@ import { CheckCircle, Star, Rocket, Users, GraduationCap, MessageCircle, Calenda
 import { useDirectEnrollmentFee } from '@/hooks/useDirectEnrollmentFee'
 import { useActiveCohort } from '@/hooks/useActiveCohort'
 import { useScrollAnimation } from '@/hooks/useScrollAnimation'
+import { useState, useEffect } from 'react'
+import { getPublicSettings } from '@/lib/public-settings'
 
 const enrollmentBenefits = [
   'Live classes every Saturday',
@@ -18,6 +20,29 @@ export function EnrollmentSection() {
   const { fee, isLoading: feeLoading } = useDirectEnrollmentFee();
   const { cohort, isLoading: cohortLoading } = useActiveCohort();
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
+  const [settings, setSettings] = useState({
+    enrollmentButtonText: 'Enroll Now',
+    enrollmentAnnouncement: '',
+    enrollmentPageHeadline: 'Enroll Now',
+    enrollmentPageDescription: 'Join our next cohort and master AI automation',
+  });
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const loadedSettings = await getPublicSettings([
+          'enrollment_button_text',
+          'enrollment_announcement',
+          'enrollment_page_headline',
+          'enrollment_page_description'
+        ]);
+        setSettings(loadedSettings);
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      }
+    }
+    loadSettings();
+  }, []);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return null;
@@ -32,11 +57,19 @@ export function EnrollmentSection() {
   return (
     <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
+        {settings.enrollmentAnnouncement && (
+          <div className="mb-6 p-4 bg-[#00f0ff]/10 border border-[#00f0ff]/30 rounded-xl text-center">
+            <p className="text-sm text-[#00f0ff] font-medium">{settings.enrollmentAnnouncement}</p>
+          </div>
+        )}
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
           <div className={`border border-[#1f2229] bg-[#050505]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-4 sm:mb-6">
-              Enroll Now
+              {settings.enrollmentPageHeadline}
             </h2>
+            <p className="text-sm text-[#b9cacb] mb-4 sm:mb-6">
+              {settings.enrollmentPageDescription}
+            </p>
             <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#00f0ff] mb-4 sm:mb-6">
               {feeLoading ? 'Loading...' : `₦${fee.toLocaleString()}`}
             </div>
@@ -70,7 +103,7 @@ export function EnrollmentSection() {
               href="/enroll"
               className="flex items-center justify-center gap-2 w-full border border-[#00f0ff] bg-[#00f0ff] px-5 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00363a] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,240,255,0.45)] btn-enhanced"
             >
-              {feeLoading ? 'Loading...' : `Enroll Now — ₦${fee.toLocaleString()}`}
+              {feeLoading ? 'Loading...' : `${settings.enrollmentButtonText} — ₦${fee.toLocaleString()}`}
             </Link>
             
             <p className="text-center text-xs sm:text-sm text-[#b9cacb] mt-3 sm:mt-4">

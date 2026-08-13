@@ -44,6 +44,8 @@ import { AnimatedFeaturesSection } from './components/AnimatedFeaturesSection'
 import { DynamicTestimonialsSection } from '@/components/dynamic-testimonials'
 import { AnimatedSocialProofSection } from './components/AnimatedSocialProofSection'
 import { AnimatedTrustBadgesSection } from './components/AnimatedTrustBadgesSection'
+import { Footer } from '@/components/footer'
+import { getPublicSettings } from '@/lib/public-settings'
 import './page.css'
 
 const navItems = [
@@ -386,128 +388,41 @@ function ContactSection() {
   )
 }
 
-function Footer() {
-  return (
-    <footer className="border-t border-[#1f2229] bg-[#0c0e12] py-6 sm:py-8 lg:py-12">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <Image
-                src="/logo.png"
-                alt="AutoLearn Spot"
-                width={32}
-                height={32}
-              />
-              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-                AutoLearn Spot
-              </span>
-            </div>
-            <p className="text-sm text-[#b9cacb] mb-4">
-              Master AI automation with hands-on training and get certified.
-            </p>
-            <div className="flex gap-3 flex-wrap">
-              <SocialIcon
-                label="Facebook"
-                href={socialLinks.facebook.url}
-              />
-              <SocialIcon
-                label="Instagram"
-                href={socialLinks.instagram.url}
-              />
-              <SocialIcon
-                label="LinkedIn"
-                href={socialLinks.linkedin.url}
-              />
-              <SocialIcon
-                label="YouTube"
-                href={socialLinks.youtube.url}
-              />
-              <SocialIcon
-                label="TikTok"
-                href={socialLinks.tiktok.url}
-              />
-              <SocialIcon
-                label="X (Twitter)"
-                href={socialLinks.x.url}
-              />
-              <SocialIcon
-                label="WhatsApp"
-                href={socialLinks.whatsapp.url}
-              />
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Navigation</h3>
-            <ul className="space-y-2">
-              {navItems.map((item) => (
-                <li key={item.name}>
-                  <Link href={item.href} className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/partners" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                  Partners
-                </Link>
-              </li>
-              <li>
-                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                  Scholarship
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="border-t border-[#1f2229] pt-8 text-center">
-          <p className="text-sm text-[#b9cacb]">
-            © 2026 AutoLearn Spot. All Rights Reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
-  )
-}
+export default async function Page() {
+  const settings = await getPublicSettings([
+    'section_hero_enabled',
+    'section_workflow_showcase_enabled',
+    'section_features_enabled',
+    'section_testimonials_enabled',
+    'section_scholarship_enabled',
+    'section_faq_enabled',
+    'section_footer_enabled'
+  ])
 
-export default function Page() {
+  const sectionEnabled = (key: string) => {
+    const value = settings[key as keyof typeof settings]
+    return value !== 'false' && value !== false
+  }
+
   return (
     <main className="min-h-screen bg-[#050505]">
       <Navigation />
       <CohortAnnouncementStrip />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />
-      <HeroSection />
+      {sectionEnabled('section_hero_enabled') && <HeroSection />}
       <InfoCards />
       <StatsSection />
       <EnrollmentSection />
-      <ScholarshipSection />
+      {sectionEnabled('section_scholarship_enabled') && <ScholarshipSection />}
       <CurriculumSection />
-      <FeaturesSection />
-      <TestimonialsSection />
+      {sectionEnabled('section_features_enabled') && <FeaturesSection />}
+      {sectionEnabled('section_testimonials_enabled') && <TestimonialsSection />}
       <SocialProofSection />
       <TrustBadgesSection />
-      <FAQSection />
+      {sectionEnabled('section_faq_enabled') && <FAQSection />}
       <ContactSection />
-      <Footer />
+      {sectionEnabled('section_footer_enabled') && <Footer />}
     </main>
   )
 }
