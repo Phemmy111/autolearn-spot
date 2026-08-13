@@ -12,6 +12,7 @@ export function CertificateTemplate({
   date,
   course,
   certificateId,
+  logoSrc,
   qrData,
   backgroundSrc,
   title,
