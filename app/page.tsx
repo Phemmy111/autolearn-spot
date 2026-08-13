@@ -24,7 +24,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
+import FAQSection from '@/components/FAQSection'
 import FAQSection from '@/components/FAQSection'
 import { StudentTestimonialCard } from '@/components/student-testimonial-card'
 import { LiveActivityFeed } from '@/components/live-activity-feed'
@@ -323,7 +325,57 @@ function FeaturesSection() {
 }
 
 function TestimonialsSection() {
-  return <DynamicTestimonialsSection />;
+  const [sectionEnabled, setSectionEnabled] = useState(true);
+  const [settings, setSettings] = useState({
+    section_testimonials_enabled: 'true',
+  });
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const loadedSettings = await getPublicSettings(['section_testimonials_enabled']);
+        setSettings(loadedSettings);
+        setSectionEnabled(loadedSettings.section_testimonials_enabled !== 'false' && loadedSettings.section_testimonials_enabled !== false);
+      } catch (error) {
+        console.error('Failed to fetch settings:', error);
+      }
+    }
+    fetchSettings();
+  }, []);
+
+  if (!sectionEnabled) {
+    return null;
+  }
+
+  return (
+    <section className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
+        <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
+            What Our Students Say
+          </h2>
+          <p className="text-sm sm:text-base text-[#b9cacb] mb-6">
+            Real experiences from AutoLearn Spot learners
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
+          {studentTestimonials.map((testimonial) => (
+            <StudentTestimonialCard key={testimonial.name} {...testimonial} />
+          ))}
+        </div>
+
+        <div className="text-center">
+          <Link
+            href="/testimonials"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors"
+          >
+            View All Testimonials
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 function SocialProofSection() {
