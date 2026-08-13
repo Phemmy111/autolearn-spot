@@ -134,13 +134,13 @@ export function HeroSection() {
                       <button
                         onClick={toggleMute}
                         aria-label={isMuted ? "Unmute workflow showcase" : "Mute workflow showcase"}
-                        className="absolute bottom-3 right-3 flex items-center justify-center w-10 h-10 bg-black/50 backdrop-blur-sm rounded-lg hover:bg-black/70 transition-colors focus:outline-none focus:ring-2 focus:ring-[#00f0ff]/50"
+                        className="absolute bottom-3 right-3 flex items-center justify-center w-8 h-8 bg-black/20 backdrop-blur-sm rounded-lg hover:bg-black/30 transition-colors focus:outline-none focus:ring-2 focus:ring-[#00f0ff]/50"
                         title={isMuted ? "Unmute" : "Mute"}
                       >
                         {isMuted ? (
-                          <VolumeX className="h-5 w-5 text-white" />
+                          <VolumeX className="h-4 w-4 text-white" />
                         ) : (
-                          <Volume2 className="h-5 w-5 text-white" />
+                          <Volume2 className="h-4 w-4 text-white" />
                         )}
                       </button>
                     </div>
