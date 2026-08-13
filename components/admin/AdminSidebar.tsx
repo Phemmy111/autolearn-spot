@@ -31,7 +31,8 @@ import {
   HeartPulse,
   Video,
   Image,
-  Globe
+  Globe,
+  HelpCircle
 } from 'lucide-react';
 
 interface NavSection {
@@ -136,6 +137,7 @@ const navigation: NavSection[] = [
     items: [
       { label: 'Workflow Showcase', href: '/admin/content/workflow-showcase', icon: Video },
       { label: 'Testimonials', href: '/admin/content/testimonials', icon: MessageSquare },
+      { label: 'FAQs', href: '/admin/content/faqs', icon: HelpCircle },
       { label: 'Announcements', href: '/admin/content/announcements', icon: FileText },
       { label: 'Media Library', href: '/admin/content/media', icon: Image },
     ],
