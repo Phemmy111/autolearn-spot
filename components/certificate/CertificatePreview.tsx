@@ -57,6 +57,9 @@ export function CertificatePreview({
     }
   }, [qrEnabled, qrDestination]);
 
+  // Use empty background to trigger clean gradient instead of hardcoded template
+  const cleanBackgroundUrl = backgroundUrl || ''
+
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
@@ -91,7 +94,7 @@ export function CertificatePreview({
                 date="August 2026"
                 logoSrc={logoUrl}
                 qrData={qrData}
-                backgroundSrc={backgroundUrl}
+                backgroundSrc={cleanBackgroundUrl}
                 title={title}
                 subtitle={subtitle}
                 bodyText={bodyText}

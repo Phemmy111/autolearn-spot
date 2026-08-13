@@ -70,7 +70,8 @@ export async function GET(request: Request) {
     ])
 
     // Use database settings with fallbacks to hardcoded values
-    const backgroundSrc = certSettings.certificate_background_url || `${baseUrl}/certificate-template.jpg`
+    // Use empty string for background to trigger clean gradient fallback instead of hardcoded template
+    const backgroundSrc = certSettings.certificate_background_url || ''
     const logoSrc = certSettings.certificate_logo_url || `${baseUrl}/logo.png`
     const title = certSettings.certificate_title || 'Certificate of Completion'
     const subtitle = certSettings.certificate_subtitle || 'This certifies that'
@@ -100,8 +101,15 @@ export async function GET(request: Request) {
     }
 
     // Use absolute URL for the background and logo so next/og can fetch them
-    const absoluteLogoSrc = logoSrc.startsWith('http') ? logoSrc : `${baseUrl}${logoSrc}`
-    const absoluteBackgroundSrc = backgroundSrc.startsWith('http') ? backgroundSrc : `${baseUrl}${backgroundSrc}`
+    let absoluteLogoSrc = ''
+    if (logoSrc) {
+      absoluteLogoSrc = logoSrc.startsWith('http') ? logoSrc : `${baseUrl}${logoSrc}`
+    }
+    
+    let absoluteBackgroundSrc = ''
+    if (backgroundSrc) {
+      absoluteBackgroundSrc = backgroundSrc.startsWith('http') ? backgroundSrc : `${baseUrl}${backgroundSrc}`
+    }
 
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(

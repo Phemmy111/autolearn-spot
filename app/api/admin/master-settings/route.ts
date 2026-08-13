@@ -80,6 +80,8 @@ const KEY_MAPPING: Record<string, string> = {
   // Certificate
   backgroundUrl: 'certificate_background_url',
   logoUrl: 'certificate_logo_url',
+  title: 'certificate_title',
+  subtitle: 'certificate_subtitle',
   bodyText: 'certificate_body_text',
   founderName: 'certificate_founder_name',
   signatureUrl: 'certificate_signature_url',
