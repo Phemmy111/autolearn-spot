@@ -165,7 +165,7 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              top: '55px',
+              top: '45px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -179,8 +179,8 @@ export function CertificateTemplate({
               src={logoSrc}
               alt="Logo"
               style={{
-                width: '80px',
-                height: '80px',
+                width: '70px',
+                height: '70px',
                 objectFit: 'contain',
               }}
             />
@@ -192,7 +192,7 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              top: '115px',
+              top: '110px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -204,13 +204,13 @@ export function CertificateTemplate({
             <span
               style={{
                 fontFamily: '"Roboto", sans-serif',
-                fontSize: '36px',
+                fontSize: '32px',
                 fontWeight: 700,
                 color: '#ffffff',
                 textTransform: 'uppercase',
-                letterSpacing: '3px',
+                letterSpacing: '2px',
                 textShadow: '0px 2px 8px rgba(0,0,0,0.8)',
-                maxWidth: '900px',
+                maxWidth: '700px',
                 textAlign: 'center',
                 lineHeight: 1.2,
               }}
@@ -225,7 +225,7 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              top: '165px',
+              top: '155px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -237,10 +237,10 @@ export function CertificateTemplate({
             <span
               style={{
                 fontFamily: '"Roboto", sans-serif',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 400,
                 color: '#ffffff',
-                letterSpacing: '2px',
+                letterSpacing: '1.5px',
                 opacity: 0.95,
                 textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
               }}
@@ -254,7 +254,7 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '235px',
+            top: '220px',
             left: '0',
             width: '1200px',
             display: 'flex',
@@ -266,11 +266,11 @@ export function CertificateTemplate({
           <span
             style={{
               fontFamily: '"GreatVibes", cursive',
-              fontSize: '90px',
+              fontSize: '85px',
               color: '#ffffff',
               lineHeight: 1,
               textShadow: '0px 4px 12px rgba(0,0,0,0.8)',
-              maxWidth: '1000px',
+              maxWidth: '900px',
               textAlign: 'center',
             }}
           >
@@ -283,7 +283,7 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              top: '325px',
+              top: '310px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -295,7 +295,7 @@ export function CertificateTemplate({
             <span
               style={{
                 fontFamily: '"Roboto", sans-serif',
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: 400,
                 color: '#ffffff',
                 letterSpacing: '1px',
@@ -313,7 +313,7 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              top: '355px',
+              top: '340px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -325,7 +325,7 @@ export function CertificateTemplate({
             <span
               style={{
                 fontFamily: '"Roboto", sans-serif',
-                fontSize: '24px',
+                fontSize: '22px',
                 fontWeight: 600,
                 color: accentColor || '#00f0ff',
                 letterSpacing: '2px',
@@ -342,8 +342,8 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '635px',
-            left: '180px',
+            top: '645px',
+            left: '200px',
             width: '250px',
             display: 'flex',
             justifyContent: 'flex-start',
@@ -353,7 +353,7 @@ export function CertificateTemplate({
         >
           <span
             style={{
-              fontSize: '16px',
+              fontSize: '15px',
               color: '#ffffff',
               fontWeight: 500,
               textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
@@ -367,8 +367,8 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: '580px',
-            right: '180px',
+            top: '590px',
+            right: '200px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -381,8 +381,8 @@ export function CertificateTemplate({
               src={signatureUrl}
               alt="Signature"
               style={{
-                width: '120px',
-                height: '50px',
+                width: '110px',
+                height: '45px',
                 objectFit: 'contain',
                 marginBottom: '5px',
               }}
@@ -397,7 +397,7 @@ export function CertificateTemplate({
               <div
                 style={{
                   fontFamily: '"Roboto", sans-serif',
-                  fontSize: '14px',
+                  fontSize: '13px',
                   fontWeight: 600,
                   color: '#ffffff',
                   marginBottom: '2px',
@@ -411,7 +411,7 @@ export function CertificateTemplate({
               <div
                 style={{
                   fontFamily: '"Roboto", sans-serif',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: 400,
                   color: '#ffffff',
                   opacity: 0.85,
@@ -429,8 +429,8 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              top: '665px',
-              right: '180px',
+              top: '675px',
+              right: '200px',
               display: 'flex',
               justifyContent: 'flex-end',
               alignItems: 'center',
@@ -439,7 +439,7 @@ export function CertificateTemplate({
           >
             <span
               style={{
-                fontSize: '12px',
+                fontSize: '11px',
                 color: '#ffffff',
                 fontWeight: 400,
                 opacity: 0.6,
@@ -457,11 +457,11 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              top: '620px',
-              left: '80px',
+              top: '630px',
+              left: '100px',
               display: 'flex',
-              width: '70px',
-              height: '70px',
+              width: '65px',
+              height: '65px',
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#ffffff',
@@ -473,8 +473,8 @@ export function CertificateTemplate({
           >
             {qrData && (
               <svg
-                width="62"
-                height="62"
+                width="57"
+                height="57"
                 viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
                 fill="#000000"
               >
@@ -495,7 +495,7 @@ export function CertificateTemplate({
           <div
             style={{
               position: 'absolute',
-              bottom: '25px',
+              bottom: '30px',
               left: '0',
               width: '1200px',
               display: 'flex',
@@ -506,7 +506,7 @@ export function CertificateTemplate({
           >
             <span
               style={{
-                fontSize: '12px',
+                fontSize: '11px',
                 color: '#ffffff',
                 fontWeight: 400,
                 opacity: 0.75,
