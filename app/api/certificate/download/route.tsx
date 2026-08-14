@@ -66,37 +66,37 @@ export async function GET(request: Request) {
 
     // Fetch certificate settings from database
     const certSettings = await getPublicSettings([
-      'certificate_background_url',
-      'certificate_logo_url',
-      'certificate_title',
-      'certificate_subtitle',
-      'certificate_body_text',
-      'certificate_course',
-      'certificate_founder_name',
-      'certificate_signature_url',
-      'certificate_signature_text',
-      'certificate_qr_enabled',
-      'certificate_qr_destination',
-      'certificate_footer',
-      'certificate_accent_color',
-      'certificate_layout',
+      'certificateBackgroundUrl',
+      'certificateLogoUrl',
+      'certificateTitle',
+      'certificateSubtitle',
+      'certificateBodyText',
+      'certificateCourse',
+      'certificateFounderName',
+      'certificateSignatureUrl',
+      'certificateSignatureText',
+      'certificateQrEnabled',
+      'certificateQrDestination',
+      'certificateFooter',
+      'certificateAccentColor',
+      'certificateLayout',
     ])
 
     // Use database settings with fallbacks to hardcoded values
     // Use the new professional certificate background
-    const backgroundSrc = certSettings.certificate_background_url || `${baseUrl}/certificate-template.png`
-    const logoSrc = certSettings.certificate_logo_url || `${baseUrl}/logo.png`
-    const title = certSettings.certificate_title || 'Certificate of Completion'
-    const subtitle = certSettings.certificate_subtitle || 'This certifies that'
-    const bodyText = certSettings.certificate_body_text || 'has successfully completed the'
-    const course = certSettings.certificate_course || 'n8n Automation'
-    const founderName = certSettings.certificate_founder_name || 'AutoLearn Spot'
-    const signatureUrl = certSettings.certificate_signature_url || ''
-    const signatureText = certSettings.certificate_signature_text || 'Founder'
-    const footer = certSettings.certificate_footer || 'AutoLearn Spot - AI Automation Training'
-    const accentColor = certSettings.certificate_accent_color || '#00f0ff'
-    const qrEnabled = certSettings.certificate_qr_enabled !== 'false'
-    const qrDestination = certSettings.certificate_qr_destination || `${baseUrl}/certificate/verify`
+    const backgroundSrc = certSettings.certificateBackgroundUrl || `${baseUrl}/certificate-template.png`
+    const logoSrc = certSettings.certificateLogoUrl || `${baseUrl}/logo.png`
+    const title = certSettings.certificateTitle || 'Certificate of Completion'
+    const subtitle = certSettings.certificateSubtitle || 'This certifies that'
+    const bodyText = certSettings.certificateBodyText || 'has successfully completed the'
+    const course = certSettings.certificateCourse || 'n8n Automation'
+    const founderName = certSettings.certificateFounderName || 'AutoLearn Spot'
+    const signatureUrl = certSettings.certificateSignatureUrl || ''
+    const signatureText = certSettings.certificateSignatureText || 'Founder'
+    const footer = certSettings.certificateFooter || 'AutoLearn Spot - AI Automation Training'
+    const accentColor = certSettings.certificateAccentColor || '#00f0ff'
+    const qrEnabled = certSettings.certificateQrEnabled !== 'false'
+    const qrDestination = certSettings.certificateQrDestination || `${baseUrl}/certificate/verify`
 
     // Fetch font for the cursive name
     const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/great-vibes@latest/latin-400-normal.ttf')
@@ -116,9 +116,9 @@ export async function GET(request: Request) {
 
     // Load and validate layout
     let certificateLayout: CertificateLayout = DEFAULT_CERTIFICATE_LAYOUT
-    if (certSettings.certificate_layout) {
+    if (certSettings.certificateLayout) {
       try {
-        const parsedLayout = JSON.parse(certSettings.certificate_layout)
+        const parsedLayout = JSON.parse(certSettings.certificateLayout)
         console.log('Loaded layout from settings:', JSON.stringify(parsedLayout, null, 2))
         const validation = validateLayout(parsedLayout)
         console.log('Layout validation:', validation)
@@ -130,19 +130,10 @@ export async function GET(request: Request) {
         }
       } catch (e) {
         console.error('Failed to parse certificate layout:', e)
-        console.log('Raw layout value:', certSettings.certificate_layout)
+        console.log('Raw layout value:', certSettings.certificateLayout)
       }
     } else {
-      console.log('No certificate_layout found in settings, using default')
-      // Try to initialize the setting in the database
-      try {
-        await supabaseAdmin
-          .from('site_settings')
-          .insert({ key: 'certificate_layout', value: null })
-        console.log('Initialized certificate_layout setting in database')
-      } catch (initError) {
-        console.log('Could not initialize certificate_layout (may already exist):', initError)
-      }
+      console.log('No certificateLayout found in settings, using default')
     }
 
     // Use absolute URL for the background and logo so next/og can fetch them
