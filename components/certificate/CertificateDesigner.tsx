@@ -1019,6 +1019,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             letterSpacing: element.style?.letterSpacing || 0,
                             whiteSpace: 'pre-wrap',
                             overflow: 'visible',
+                            ...(element.style?.textShadow && { textShadow: element.style.textShadow }),
                             ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
                               WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
                               paintOrder: 'stroke',
@@ -1040,7 +1041,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             whiteSpace: 'normal',
                             overflow: 'visible',
                             cursor: element.binding ? 'default' : 'text',
-                            textShadow: element.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)',
+                            ...(element.style?.textShadow && { textShadow: element.style.textShadow }),
                             ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
                               WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
                               paintOrder: 'stroke',
@@ -1378,11 +1379,13 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             onChange={(e) => {
                               const width = Number(e.target.value)
                               const color = selectedElementData.style?.borderColor || '#ffffff'
-                              handleStyleChange('border', `${width}px solid ${color}`)
+                              handleStyleChange('borderWidth', width)
+                              handleStyleChange('border', width > 0 ? `${width}px solid ${color}` : 'none')
                             }}
                             className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                             disabled={readOnly}
                             min="0"
+                            step="1"
                           />
                         </div>
                         <div>
@@ -1394,8 +1397,8 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               onChange={(e) => {
                                 const color = e.target.value
                                 const width = selectedElementData.style?.borderWidth || 0
-                                handleStyleChange('border', `${width}px solid ${color}`)
                                 handleStyleChange('borderColor', color)
+                                handleStyleChange('border', width > 0 ? `${width}px solid ${color}` : 'none')
                               }}
                               className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
                               disabled={readOnly}
@@ -1406,8 +1409,8 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               onChange={(e) => {
                                 const color = e.target.value
                                 const width = selectedElementData.style?.borderWidth || 0
-                                handleStyleChange('border', `${width}px solid ${color}`)
                                 handleStyleChange('borderColor', color)
+                                handleStyleChange('border', width > 0 ? `${width}px solid ${color}` : 'none')
                               }}
                               className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                               disabled={readOnly}
@@ -1622,6 +1625,48 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                             disabled={readOnly}
                           />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Line Height</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={selectedElementData.style?.lineHeight || 1}
+                            onChange={(e) => handleStyleChange('lineHeight', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Width</label>
+                          <input
+                            type="number"
+                            value={selectedElementData.style?.outlineWidth || 0}
+                            onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                            min="0"
+                            step="0.5"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Color</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={selectedElementData.style?.outlineColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
+                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              disabled={readOnly}
+                            />
+                            <input
+                              type="text"
+                              value={selectedElementData.style?.outlineColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
                         </div>
                       </div>
                     )}

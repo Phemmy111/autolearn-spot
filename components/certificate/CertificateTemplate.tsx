@@ -201,7 +201,7 @@ export function CertificateTemplate({
                   textAlign: element.style?.textAlign || 'left',
                   lineHeight: element.style?.lineHeight || 1,
                   letterSpacing: element.style?.letterSpacing || 0,
-                  textShadow: element.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)',
+                  ...(element.style?.textShadow && { textShadow: element.style.textShadow }),
                   whiteSpace: element.style?.whiteSpace || 'normal',
                   overflow: 'visible',
                   maxWidth: element.style?.maxWidth || '100%',
