@@ -201,10 +201,10 @@ export function CertificateTemplate({
                   textOverflow: 'ellipsis',
                   maxWidth: element.style?.maxWidth || '100%',
                   textTransform: element.style?.textTransform || 'none',
-                  WebkitTextStroke: element.style?.outlineWidth 
-                    ? `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}` 
-                    : 'none',
-                  paintOrder: element.style?.outlineWidth ? 'stroke' : 'normal',
+                  ...(element.style?.outlineWidth && element.style?.outlineWidth > 0 ? {
+                    WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
+                    paintOrder: 'stroke',
+                  } : {}),
                 }}
               >
                 {displayText}
