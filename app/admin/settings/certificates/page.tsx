@@ -26,6 +26,7 @@ export default function AdminCertificatesSettingsPage() {
   });
   const [layout, setLayout] = useState<CertificateLayout>(DEFAULT_CERTIFICATE_LAYOUT);
   const [showDesigner, setShowDesigner] = useState(false);
+  const [fullScreenDesigner, setFullScreenDesigner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -218,7 +219,10 @@ export default function AdminCertificatesSettingsPage() {
           </button>
           <button
             type="button"
-            onClick={() => setShowDesigner(true)}
+            onClick={() => {
+              setShowDesigner(true);
+              setFullScreenDesigner(true);
+            }}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               showDesigner 
                 ? 'text-[#00f0ff] border-b-2 border-[#00f0ff]' 
@@ -230,7 +234,37 @@ export default function AdminCertificatesSettingsPage() {
           </button>
         </div>
 
-        {!showDesigner ? (
+        {fullScreenDesigner ? (
+          <div className="fixed inset-0 z-50 bg-[#0a0c10]">
+            <div className="flex items-center justify-between px-4 py-2 bg-[#0c0e12] border-b border-[#1f2229]">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setFullScreenDesigner(false)}
+                  className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <span className="text-sm text-white">Visual Designer</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {success && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded">
+                    <CheckCircle className="h-4 w-4 text-green-400" />
+                    <span className="text-xs text-green-400">Saved</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <CertificateDesigner
+              layout={layout}
+              onLayoutChange={setLayout}
+              settings={settings}
+              onSave={handleSave}
+              isSaving={isSaving}
+            />
+          </div>
+        ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Settings Form */}
@@ -572,69 +606,7 @@ export default function AdminCertificatesSettingsPage() {
           </div>
         </div>
         </>
-        ) : (
-          <>
-            {/* Visual Designer with Resizable Split */}
-            <div className="flex gap-4 h-full">
-              {/* Designer Panel */}
-              <div style={{ width: `${splitPosition}%` }} className="min-w-[300px]">
-                <CertificateDesigner
-                  layout={layout}
-                  onLayoutChange={setLayout}
-                  settings={settings}
-                  onSave={handleSave}
-                  isSaving={isSaving}
-                />
-              </div>
-              
-              {/* Resizable Divider */}
-              <div 
-                className="w-1 bg-[#1f2229] hover:bg-[#00f0ff] cursor-col-resize transition-colors"
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  const startX = e.clientX
-                  const container = e.currentTarget.parentElement
-                  if (!container) return
-                  
-                  const handleMouseMove = (moveEvent: MouseEvent) => {
-                    const containerRect = container.getBoundingClientRect()
-                    const newSplitPosition = ((moveEvent.clientX - containerRect.left) / containerRect.width) * 100
-                    const clampedPosition = Math.max(30, Math.min(70, newSplitPosition))
-                    setSplitPosition(clampedPosition)
-                  }
-                  
-                  const handleMouseUp = () => {
-                    document.removeEventListener('mousemove', handleMouseMove)
-                    document.removeEventListener('mouseup', handleMouseUp)
-                  }
-                  
-                  document.addEventListener('mousemove', handleMouseMove)
-                  document.addEventListener('mouseup', handleMouseUp)
-                }}
-              />
-              
-              {/* Live Preview Panel */}
-              <div style={{ width: `${100 - splitPosition}%` }} className="min-w-[300px]">
-                <CertificatePreview
-                  title={settings.title}
-                  subtitle={settings.subtitle}
-                  bodyText={settings.bodyText}
-                  founderName={settings.founderName}
-                  signatureText={settings.signatureText}
-                  accentColor={settings.accentColor}
-                  backgroundUrl={settings.backgroundUrl}
-                  logoUrl={settings.logoUrl}
-                  signatureUrl={settings.signatureUrl}
-                  qrEnabled={settings.qrEnabled === 'true'}
-                  qrDestination={settings.qrDestination}
-                  footer={settings.footer}
-                  course={settings.course}
-                  layout={layout}
-                />
-              </div>
-            </div>
-          </>
-        )}
+        ) : null}
       </div>
     </div>
   );

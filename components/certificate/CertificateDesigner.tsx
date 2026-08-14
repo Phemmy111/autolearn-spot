@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard } from 'lucide-react'
+import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, MousePointer2 } from 'lucide-react'
 import { CertificateLayout, CertificateElement, validateLayout, cloneLayout, resetToDefault, getElementText, getElementSrc, DEMO_CERTIFICATE_DATA } from '@/lib/certificate-layout'
 
 interface CertificateDesignerProps {
@@ -26,7 +26,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [history, setHistory] = useState<CertificateLayout[]>([])
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [clipboard, setClipboard] = useState<CertificateElement | null>(null)
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [isPanning, setIsPanning] = useState(false)
+  const [activeTab, setActiveTab] = useState<'position' | 'style' | 'text' | 'layers'>('position')
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
+  const canvasContainerRef = useRef<HTMLDivElement>(null)
 
   // Track unsaved changes and manage history
   useEffect(() => {
@@ -338,12 +345,176 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [readOnly, selectedElement, clipboard, layout, history, historyIndex, handleDeleteElement, onLayoutChange])
 
+  // Handle zoom
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(prev + 0.1, 3))
+  }, [])
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => Math.max(prev - 0.1, 0.1))
+  }, [])
+
+  const handleZoomReset = useCallback(() => {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+  }, [])
+
+  const handleFitToScreen = useCallback(() => {
+    const container = canvasContainerRef.current
+    if (container) {
+      const containerWidth = container.clientWidth - 40 // padding
+      const containerHeight = container.clientHeight - 40
+      const scaleX = containerWidth / CANVAS_WIDTH
+      const scaleY = containerHeight / CANVAS_HEIGHT
+      const fitZoom = Math.min(scaleX, scaleY, 1)
+      setZoom(fitZoom)
+      setPan({ x: 0, y: 0 })
+    }
+  }, [])
+
+  // Handle pan
+  const handlePanStart = useCallback((e: React.MouseEvent) => {
+    if (e.button === 1 || (e.button === 0 && e.altKey)) { // Middle mouse or Alt+left click
+      setIsPanning(true)
+      setDragOffset({ x: e.clientX - pan.x, y: e.clientY - pan.y })
+    }
+  }, [pan])
+
+  const handlePanMove = useCallback((e: React.MouseEvent) => {
+    if (isPanning) {
+      setPan({ x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y })
+    }
+  }, [isPanning, dragOffset])
+
+  const handlePanEnd = useCallback(() => {
+    setIsPanning(false)
+  }, [])
+
+  // Add new element
+  const handleAddElement = useCallback((type: string) => {
+    const updatedLayout = cloneLayout(layout)
+    const newId = `${type}_${Date.now()}`
+    
+    let newElement: CertificateElement
+    
+    switch (type) {
+      case 'text':
+        newElement = {
+          id: newId,
+          type: 'text',
+          x: CANVAS_WIDTH / 2 - 100,
+          y: CANVAS_HEIGHT / 2,
+          width: 200,
+          height: 30,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          text: 'New Text',
+          style: {
+            fontSize: 16,
+            color: '#ffffff',
+            textAlign: 'center',
+          },
+        }
+        break
+      case 'image':
+        newElement = {
+          id: newId,
+          type: 'image',
+          x: CANVAS_WIDTH / 2 - 50,
+          y: CANVAS_HEIGHT / 2 - 50,
+          width: 100,
+          height: 100,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          style: {
+            objectFit: 'contain',
+          },
+        }
+        break
+      case 'shape':
+        newElement = {
+          id: newId,
+          type: 'text',
+          x: CANVAS_WIDTH / 2 - 50,
+          y: CANVAS_HEIGHT / 2 - 50,
+          width: 100,
+          height: 100,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          text: '■',
+          style: {
+            fontSize: 80,
+            color: '#00f0ff',
+            textAlign: 'center',
+          },
+        }
+        break
+      case 'qrCode':
+        newElement = {
+          id: newId,
+          type: 'qrCode',
+          x: CANVAS_WIDTH / 2 - 50,
+          y: CANVAS_HEIGHT / 2 - 50,
+          width: 100,
+          height: 100,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'qr',
+        }
+        break
+      case 'logo':
+        newElement = {
+          id: newId,
+          type: 'logo',
+          x: CANVAS_WIDTH / 2 - 50,
+          y: CANVAS_HEIGHT / 2 - 50,
+          width: 100,
+          height: 100,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'logo',
+          style: {
+            objectFit: 'contain',
+          },
+        }
+        break
+      case 'signature':
+        newElement = {
+          id: newId,
+          type: 'signature',
+          x: CANVAS_WIDTH / 2 - 50,
+          y: CANVAS_HEIGHT / 2 - 50,
+          width: 100,
+          height: 100,
+          rotation: 0,
+          visible: true,
+          locked: false,
+          binding: 'signature',
+          style: {
+            objectFit: 'contain',
+          },
+        }
+        break
+      default:
+        return
+    }
+    
+    updatedLayout.elements.push(newElement)
+    onLayoutChange(updatedLayout)
+    setSelectedElement(newId)
+  }, [layout, onLayoutChange])
+
   const selectedElementData = layout.elements.find(el => el.id === selectedElement)
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-[#0a0c10]">
+      {/* Top Toolbar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-[#0c0e12] border-b border-[#1f2229]">
         <div className="flex items-center gap-3">
           <Layers className="h-5 w-5 text-[#00f0ff]" />
           <h2 className="text-lg font-semibold text-white">Certificate Designer</h2>
@@ -358,7 +529,8 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             </span>
           )}
         </div>
-        <div className="flex gap-2">
+        
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleUndo}
@@ -377,21 +549,41 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           >
             <Redo className="h-4 w-4" />
           </button>
+          <div className="w-px h-6 bg-[#1f2229]" />
           <button
             type="button"
-            onClick={handleDuplicate}
-            disabled={!selectedElement || readOnly}
-            className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Duplicate (Ctrl+D)"
+            onClick={handleZoomOut}
+            className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors"
+            title="Zoom Out"
           >
-            <Copy className="h-4 w-4" />
+            <ZoomOut className="h-4 w-4" />
           </button>
+          <span className="text-sm text-[#b9cacb] min-w-[60px] text-center">
+            {Math.round(zoom * 100)}%
+          </span>
+          <button
+            type="button"
+            onClick={handleZoomIn}
+            className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors"
+            title="Zoom In"
+          >
+            <ZoomIn className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={handleZoomReset}
+            className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors"
+            title="Reset Zoom"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </button>
+          <div className="w-px h-6 bg-[#1f2229]" />
           <button
             type="button"
             onClick={handleReset}
             className="px-3 py-2 bg-[#1f2229] text-[#b9cacb] text-sm rounded hover:bg-[#2a2e38] transition-colors"
           >
-            Reset to Default
+            Reset
           </button>
           {onSave && (
             <button
@@ -416,31 +608,112 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Canvas */}
-        <div className="lg:col-span-2">
+      {/* Main Content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Sidebar - Elements */}
+        <div className={`w-64 bg-[#0c0e12] border-r border-[#1f2229] flex flex-col transition-all duration-300 ${leftSidebarCollapsed ? 'w-12' : ''}`}>
+          <button
+            type="button"
+            onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
+            className="p-2 border-b border-[#1f2229] text-[#b9cacb] hover:bg-[#1f2229]"
+          >
+            {leftSidebarCollapsed ? <ChevronDown className="h-4 w-4 rotate-90" /> : <ChevronDown className="h-4 w-4" />}
+          </button>
+          
+          {!leftSidebarCollapsed && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div>
+                <h3 className="text-xs font-semibold text-[#b9cacb] mb-3 uppercase tracking-wider">Elements</h3>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('text')}
+                    className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
+                  >
+                    <Type className="h-4 w-4 text-[#00f0ff]" />
+                    <span className="text-sm text-white">Text</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('image')}
+                    className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
+                  >
+                    <Image className="h-4 w-4 text-[#00f0ff]" />
+                    <span className="text-sm text-white">Image</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('shape')}
+                    className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
+                  >
+                    <Square className="h-4 w-4 text-[#00f0ff]" />
+                    <span className="text-sm text-white">Shape</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('qrCode')}
+                    className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
+                  >
+                    <QrCode className="h-4 w-4 text-[#00f0ff]" />
+                    <span className="text-sm text-white">QR Code</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('logo')}
+                    className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
+                  >
+                    <Award className="h-4 w-4 text-[#00f0ff]" />
+                    <span className="text-sm text-white">Logo</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAddElement('signature')}
+                    className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
+                  >
+                    <PenTool className="h-4 w-4 text-[#00f0ff]" />
+                    <span className="text-sm text-white">Signature</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-xs font-semibold text-[#b9cacb] mb-3 uppercase tracking-wider">Templates</h3>
+                <div className="p-3 bg-[#1f2229] rounded-lg text-center">
+                  <p className="text-xs text-[#b9cacb]">Coming soon</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Center Canvas */}
+        <div 
+          ref={canvasContainerRef}
+          className="flex-1 bg-[#0a0c10] overflow-hidden relative"
+          onMouseDown={handlePanStart}
+          onMouseMove={handlePanMove}
+          onMouseUp={handlePanEnd}
+          onMouseLeave={handlePanEnd}
+        >
           <div 
             ref={canvasRef}
-            className="relative bg-[#0a0c10] border border-[#1f2229] rounded-lg overflow-auto"
-            style={{ 
-              aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}`,
-              cursor: isDragging ? 'grabbing' : 'default',
-              minHeight: `${CANVAS_HEIGHT * SCALE}px`
+            className="absolute transition-transform duration-75"
+            style={{
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              transformOrigin: '0 0',
             }}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
           >
-            {/* Scaled container for WYSIWYG preview */}
-            <div style={{ 
-              transform: `scale(${SCALE})`,
-              transformOrigin: 'top left',
-              width: `${CANVAS_WIDTH}px`,
-              height: `${CANVAS_HEIGHT}px`,
-              position: 'absolute',
-              top: 0,
-              left: 0,
-            }}>
+            <div 
+              className="relative bg-[#0a0c10] border border-[#1f2229]"
+              style={{ 
+                width: `${CANVAS_WIDTH}px`,
+                height: `${CANVAS_HEIGHT}px`,
+                cursor: isDragging ? 'grabbing' : 'default',
+              }}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
               {/* Background */}
               {settings.backgroundUrl && (
                 <img
@@ -457,7 +730,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                 const displayText = getElementText(element, DEMO_CERTIFICATE_DATA, settings)
                 const displaySrc = getElementSrc(element, settings)
 
-                // Determine element type for rendering
                 const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
                 const isImageElement = ['logo', 'signature', 'image'].includes(element.type)
                 const isQrElement = element.type === 'qrCode'
@@ -520,270 +792,451 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               })}
             </div>
           </div>
+
+          {/* Canvas Controls */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg px-4 py-2">
+            <button
+              type="button"
+              onClick={handleZoomOut}
+              className="p-1 text-[#b9cacb] hover:text-white"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </button>
+            <input
+              type="range"
+              min="0.1"
+              max="3"
+              step="0.1"
+              value={zoom}
+              onChange={(e) => setZoom(Number(e.target.value))}
+              className="w-32"
+            />
+            <button
+              type="button"
+              onClick={handleZoomIn}
+              className="p-1 text-[#b9cacb] hover:text-white"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleFitToScreen}
+              className="p-1 text-[#b9cacb] hover:text-white"
+              title="Fit to Screen"
+            >
+              <Maximize2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Properties Panel */}
-        <div className="space-y-4">
-          {selectedElementData ? (
-            <>
-              <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-white">{selectedElementData.id}</h3>
-                  <div className="flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleVisible(selectedElementData.id)}
-                      className={`p-1.5 rounded transition-colors ${
-                        selectedElementData.visible !== false 
-                          ? 'bg-[#00f0ff]/20 text-[#00f0ff] hover:bg-[#00f0ff]/30' 
-                          : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'
-                      }`}
-                      title={selectedElementData.visible !== false ? 'Hide' : 'Show'}
-                    >
-                      {selectedElementData.visible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleLock(selectedElementData.id)}
-                      className={`p-1.5 rounded transition-colors ${
-                        selectedElementData.locked 
-                          ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30' 
-                          : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'
-                      }`}
-                      title={selectedElementData.locked ? 'Unlock' : 'Lock'}
-                    >
-                      {selectedElementData.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteElement(selectedElementData.id)}
-                      className="p-1.5 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Position */}
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-xs text-[#b9cacb] mb-1">Position X</label>
-                    <input
-                      type="number"
-                      value={Math.round(selectedElementData.x)}
-                      onChange={(e) => {
-                        const updatedLayout = cloneLayout(layout)
-                        const element = updatedLayout.elements.find(el => el.id === selectedElement)
-                        if (element) {
-                          element.x = Number(e.target.value)
-                          onLayoutChange(updatedLayout)
-                        }
-                      }}
-                      className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                      disabled={readOnly}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-[#b9cacb] mb-1">Position Y</label>
-                    <input
-                      type="number"
-                      value={Math.round(selectedElementData.y)}
-                      onChange={(e) => {
-                        const updatedLayout = cloneLayout(layout)
-                        const element = updatedLayout.elements.find(el => el.id === selectedElement)
-                        if (element) {
-                          element.y = Number(e.target.value)
-                          onLayoutChange(updatedLayout)
-                        }
-                      }}
-                      className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                      disabled={readOnly}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Width</label>
-                      <input
-                        type="number"
-                        value={Math.round(selectedElementData.width)}
-                        onChange={(e) => {
-                          const updatedLayout = cloneLayout(layout)
-                          const element = updatedLayout.elements.find(el => el.id === selectedElement)
-                          if (element) {
-                            element.width = Number(e.target.value)
-                            onLayoutChange(updatedLayout)
-                          }
-                        }}
-                        className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                        disabled={readOnly}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Height</label>
-                      <input
-                        type="number"
-                        value={Math.round(selectedElementData.height)}
-                        onChange={(e) => {
-                          const updatedLayout = cloneLayout(layout)
-                          const element = updatedLayout.elements.find(el => el.id === selectedElement)
-                          if (element) {
-                            element.height = Number(e.target.value)
-                            onLayoutChange(updatedLayout)
-                          }
-                        }}
-                        className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                        disabled={readOnly}
-                      />
-                    </div>
-                  </div>
-                </div>
+        {/* Right Sidebar - Properties */}
+        <div className={`w-80 bg-[#0c0e12] border-l border-[#1f2229] flex flex-col transition-all duration-300 ${rightSidebarCollapsed ? 'w-12' : ''}`}>
+          <button
+            type="button"
+            onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}
+            className="p-2 border-b border-[#1f2229] text-[#b9cacb] hover:bg-[#1f2229]"
+          >
+            {rightSidebarCollapsed ? <ChevronDown className="h-4 w-4 -rotate-90" /> : <ChevronDown className="h-4 w-4 -rotate-90" />}
+          </button>
+          
+          {!rightSidebarCollapsed && (
+            <div className="flex-1 overflow-y-auto">
+              {/* Tabs */}
+              <div className="flex border-b border-[#1f2229]">
+                {[
+                  { id: 'position', label: 'Position', icon: <Move className="h-4 w-4" /> },
+                  { id: 'style', label: 'Style', icon: <Settings className="h-4 w-4" /> },
+                  { id: 'text', label: 'Text', icon: <Type className="h-4 w-4" /> },
+                  { id: 'layers', label: 'Layers', icon: <LayoutGrid className="h-4 w-4" /> },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex-1 flex items-center justify-center gap-1 p-2 text-sm transition-colors ${
+                      activeTab === tab.id 
+                        ? 'bg-[#00f0ff]/20 text-[#00f0ff] border-b-2 border-[#00f0ff]' 
+                        : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                    }`}
+                  >
+                    {tab.icon}
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                ))}
               </div>
 
-              {/* Typography */}
-              {['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(selectedElementData.type) && (
-                <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-4">
-                  <h3 className="text-sm font-semibold text-white mb-4">Typography</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Font Size</label>
-                      <input
-                        type="number"
-                        value={selectedElementData.style?.fontSize || 12}
-                        onChange={(e) => handleStyleChange('fontSize', Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                        disabled={readOnly}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Color</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          value={selectedElementData.style?.color || '#ffffff'}
-                          onChange={(e) => handleStyleChange('color', e.target.value)}
-                          className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
-                          disabled={readOnly}
-                        />
-                        <input
-                          type="text"
-                          value={selectedElementData.style?.color || '#ffffff'}
-                          onChange={(e) => handleStyleChange('color', e.target.value)}
-                          className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                          disabled={readOnly}
-                        />
+              {/* Tab Content */}
+              <div className="p-4">
+                {selectedElementData ? (
+                  <>
+                    {/* Element Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-semibold text-white">{selectedElementData.id}</h3>
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleVisible(selectedElementData.id)}
+                          className={`p-1.5 rounded transition-colors ${
+                            selectedElementData.visible !== false 
+                              ? 'bg-[#00f0ff]/20 text-[#00f0ff] hover:bg-[#00f0ff]/30' 
+                              : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'
+                          }`}
+                          title={selectedElementData.visible !== false ? 'Hide' : 'Show'}
+                        >
+                          {selectedElementData.visible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleLock(selectedElementData.id)}
+                          className={`p-1.5 rounded transition-colors ${
+                            selectedElementData.locked 
+                              ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30' 
+                              : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'
+                          }`}
+                          title={selectedElementData.locked ? 'Unlock' : 'Lock'}
+                        >
+                          {selectedElementData.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteElement(selectedElementData.id)}
+                          className="p-1.5 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Text Align</label>
-                      <div className="flex gap-1">
-                        {['left', 'center', 'right'].map((align) => (
-                          <button
-                            key={align}
-                            type="button"
-                            onClick={() => handleStyleChange('textAlign', align)}
-                            className={`flex-1 p-2 rounded border ${
-                              selectedElementData.style?.textAlign === align
-                                ? 'bg-[#00f0ff] border-[#00f0ff] text-[#00363a]'
-                                : 'bg-[#070B12] border-[#1f2229] text-[#b9cacb] hover:border-[#00f0ff]'
-                            }`}
+
+                    {/* Position Tab */}
+                    {activeTab === 'position' && (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-[#b9cacb] mb-1">X</label>
+                            <input
+                              type="number"
+                              value={Math.round(selectedElementData.x)}
+                              onChange={(e) => {
+                                const updatedLayout = cloneLayout(layout)
+                                const element = updatedLayout.elements.find(el => el.id === selectedElement)
+                                if (element) {
+                                  element.x = Number(e.target.value)
+                                  onLayoutChange(updatedLayout)
+                                }
+                              }}
+                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-[#b9cacb] mb-1">Y</label>
+                            <input
+                              type="number"
+                              value={Math.round(selectedElementData.y)}
+                              onChange={(e) => {
+                                const updatedLayout = cloneLayout(layout)
+                                const element = updatedLayout.elements.find(el => el.id === selectedElement)
+                                if (element) {
+                                  element.y = Number(e.target.value)
+                                  onLayoutChange(updatedLayout)
+                                }
+                              }}
+                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-[#b9cacb] mb-1">Width</label>
+                            <input
+                              type="number"
+                              value={Math.round(selectedElementData.width)}
+                              onChange={(e) => {
+                                const updatedLayout = cloneLayout(layout)
+                                const element = updatedLayout.elements.find(el => el.id === selectedElement)
+                                if (element) {
+                                  element.width = Number(e.target.value)
+                                  onLayoutChange(updatedLayout)
+                                }
+                              }}
+                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-[#b9cacb] mb-1">Height</label>
+                            <input
+                              type="number"
+                              value={Math.round(selectedElementData.height)}
+                              onChange={(e) => {
+                                const updatedLayout = cloneLayout(layout)
+                                const element = updatedLayout.elements.find(el => el.id === selectedElement)
+                                if (element) {
+                                  element.height = Number(e.target.value)
+                                  onLayoutChange(updatedLayout)
+                                }
+                              }}
+                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Rotation</label>
+                          <input
+                            type="number"
+                            value={selectedElementData.rotation || 0}
+                            onChange={(e) => {
+                              const updatedLayout = cloneLayout(layout)
+                              const element = updatedLayout.elements.find(el => el.id === selectedElement)
+                              if (element) {
+                                element.rotation = Number(e.target.value)
+                                onLayoutChange(updatedLayout)
+                              }
+                            }}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                             disabled={readOnly}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Style Tab */}
+                    {activeTab === 'style' && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Opacity</label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={selectedElementData.style?.opacity || 1}
+                            onChange={(e) => handleStyleChange('opacity', Number(e.target.value))}
+                            className="w-full"
+                            disabled={readOnly}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Background Color</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={selectedElementData.style?.backgroundColor || '#000000'}
+                              onChange={(e) => handleStyleChange('backgroundColor', e.target.value)}
+                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              disabled={readOnly}
+                            />
+                            <input
+                              type="text"
+                              value={selectedElementData.style?.backgroundColor || '#000000'}
+                              onChange={(e) => handleStyleChange('backgroundColor', e.target.value)}
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Border Color</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={selectedElementData.style?.borderColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('borderColor', e.target.value)}
+                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              disabled={readOnly}
+                            />
+                            <input
+                              type="text"
+                              value={selectedElementData.style?.borderColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('borderColor', e.target.value)}
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Border Width</label>
+                          <input
+                            type="number"
+                            value={selectedElementData.style?.borderWidth || 0}
+                            onChange={(e) => handleStyleChange('borderWidth', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Text Tab */}
+                    {activeTab === 'text' && ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(selectedElementData.type) && (
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Font Size</label>
+                          <input
+                            type="number"
+                            value={selectedElementData.style?.fontSize || 12}
+                            onChange={(e) => handleStyleChange('fontSize', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Color</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={selectedElementData.style?.color || '#ffffff'}
+                              onChange={(e) => handleStyleChange('color', e.target.value)}
+                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              disabled={readOnly}
+                            />
+                            <input
+                              type="text"
+                              value={selectedElementData.style?.color || '#ffffff'}
+                              onChange={(e) => handleStyleChange('color', e.target.value)}
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Text Align</label>
+                          <div className="flex gap-1">
+                            {['left', 'center', 'right'].map((align) => (
+                              <button
+                                key={align}
+                                type="button"
+                                onClick={() => handleStyleChange('textAlign', align)}
+                                className={`flex-1 p-2 rounded border ${
+                                  selectedElementData.style?.textAlign === align
+                                    ? 'bg-[#00f0ff] border-[#00f0ff] text-[#00363a]'
+                                    : 'bg-[#070B12] border-[#1f2229] text-[#b9cacb] hover:border-[#00f0ff]'
+                                }`}
+                                disabled={readOnly}
+                              >
+                                {align === 'left' && <AlignLeft className="h-4 w-4 mx-auto" />}
+                                {align === 'center' && <AlignCenter className="h-4 w-4 mx-auto" />}
+                                {align === 'right' && <AlignRight className="h-4 w-4 mx-auto" />}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Line Height</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={selectedElementData.style?.lineHeight || 1}
+                            onChange={(e) => handleStyleChange('lineHeight', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Letter Spacing</label>
+                          <input
+                            type="number"
+                            step="0.5"
+                            value={selectedElementData.style?.letterSpacing || 0}
+                            onChange={(e) => handleStyleChange('letterSpacing', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Width</label>
+                          <input
+                            type="number"
+                            value={selectedElementData.style?.outlineWidth || 0}
+                            onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                            min="0"
+                            step="0.5"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Color</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={selectedElementData.style?.outlineColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
+                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              disabled={readOnly}
+                            />
+                            <input
+                              type="text"
+                              value={selectedElementData.style?.outlineColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Layers Tab */}
+                    {activeTab === 'layers' && (
+                      <div className="space-y-1">
+                        {layout.elements.map((element) => (
+                          <div
+                            key={element.id}
+                            className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
+                              selectedElement === element.id ? 'bg-[#00f0ff]/20' : 'hover:bg-[#1f2229]'
+                            } ${element.visible === false ? 'opacity-50' : ''}`}
+                            onClick={() => handleSelectElement(element.id)}
                           >
-                            {align === 'left' && <AlignLeft className="h-4 w-4 mx-auto" />}
-                            {align === 'center' && <AlignCenter className="h-4 w-4 mx-auto" />}
-                            {align === 'right' && <AlignRight className="h-4 w-4 mx-auto" />}
-                          </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleToggleVisible(element.id)
+                              }}
+                              className={`p-1 rounded transition-colors ${
+                                element.visible !== false 
+                                  ? 'text-[#00f0ff] hover:bg-[#00f0ff]/20' 
+                                  : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                              }`}
+                              title={element.visible !== false ? 'Hide' : 'Show'}
+                            >
+                              {element.visible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                            </button>
+                            <div className="flex-1 text-xs text-[#b9cacb]">{element.id}</div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleToggleLock(element.id)
+                              }}
+                              className={`p-1 rounded transition-colors ${
+                                element.locked 
+                                  ? 'text-yellow-400 hover:bg-yellow-400/20' 
+                                  : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                              }`}
+                              title={element.locked ? 'Unlock' : 'Lock'}
+                            >
+                              {element.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                            </button>
+                          </div>
                         ))}
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Outline Width</label>
-                      <input
-                        type="number"
-                        value={selectedElementData.style?.outlineWidth || 0}
-                        onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                        disabled={readOnly}
-                        min="0"
-                        step="0.5"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Outline Color</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          value={selectedElementData.style?.outlineColor || '#ffffff'}
-                          onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                          className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
-                          disabled={readOnly}
-                        />
-                        <input
-                          type="text"
-                          value={selectedElementData.style?.outlineColor || '#ffffff'}
-                          onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                          className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                          disabled={readOnly}
-                        />
-                      </div>
-                    </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-8">
+                    <MousePointer2 className="h-8 w-8 text-[#b9cacb] mx-auto mb-2" />
+                    <p className="text-sm text-[#b9cacb]">Select an element to edit its properties</p>
                   </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-4">
-              <p className="text-sm text-[#b9cacb]">Select an element to edit its properties</p>
+                )}
+              </div>
             </div>
           )}
-
-          {/* Layer Panel */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-white mb-4">Layers</h3>
-            <div className="space-y-1">
-              {layout.elements.map((element) => (
-                <div
-                  key={element.id}
-                  className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
-                    selectedElement === element.id ? 'bg-[#00f0ff]/20' : 'hover:bg-[#1f2229]'
-                  } ${element.visible === false ? 'opacity-50' : ''}`}
-                  onClick={() => handleSelectElement(element.id)}
-                >
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleToggleVisible(element.id)
-                    }}
-                    className={`p-1 rounded transition-colors ${
-                      element.visible !== false 
-                        ? 'text-[#00f0ff] hover:bg-[#00f0ff]/20' 
-                        : 'text-[#b9cacb] hover:bg-[#1f2229]'
-                    }`}
-                    title={element.visible !== false ? 'Hide' : 'Show'}
-                  >
-                    {element.visible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                  </button>
-                  <div className="flex-1 text-xs text-[#b9cacb]">{element.id}</div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleToggleLock(element.id)
-                    }}
-                    className={`p-1 rounded transition-colors ${
-                      element.locked 
-                        ? 'text-yellow-400 hover:bg-yellow-400/20' 
-                        : 'text-[#b9cacb] hover:bg-[#1f2229]'
-                    }`}
-                    title={element.locked ? 'Unlock' : 'Lock'}
-                  >
-                    {element.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>
