@@ -52,11 +52,15 @@ export default function AdminCertificatesSettingsPage() {
           
           // Load layout if it exists
           if (data.settings.layout) {
+            console.log('Layout found in settings:', data.settings.layout);
             try {
               const parsedLayout = JSON.parse(data.settings.layout);
+              console.log('Parsed layout:', parsedLayout);
               const validation = validateLayout(parsedLayout);
+              console.log('Layout validation:', validation);
               if (validation.valid) {
                 setLayout(parsedLayout);
+                console.log('Layout loaded successfully');
               } else {
                 console.error('Invalid layout loaded:', validation.errors);
                 setLayout(DEFAULT_CERTIFICATE_LAYOUT);
@@ -65,6 +69,8 @@ export default function AdminCertificatesSettingsPage() {
               console.error('Failed to parse layout:', e);
               setLayout(DEFAULT_CERTIFICATE_LAYOUT);
             }
+          } else {
+            console.log('No layout found in settings, using default');
           }
         }
       } else {
@@ -124,7 +130,7 @@ export default function AdminCertificatesSettingsPage() {
         backgroundUrl: uploadData.backgroundUrl || settings.backgroundUrl,
         logoUrl: uploadData.logoUrl || settings.logoUrl,
         signatureUrl: uploadData.signatureUrl || settings.signatureUrl,
-        layout: JSON.stringify(layout),
+        layout: layout,
       };
       
       console.log('Saving certificate settings with layout:', updatedSettings.layout ? 'present' : 'missing');
@@ -144,16 +150,20 @@ export default function AdminCertificatesSettingsPage() {
       });
 
       if (res.ok) {
+        console.log('Settings saved successfully');
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
         // Refresh settings from database to get the new uploaded URLs
+        console.log('Refreshing settings after save...');
         await fetchSettings();
+        console.log('Settings refreshed');
         // Clear file uploads after successful save
         setBackgroundFile(null);
         setLogoFile(null);
         setSignatureFile(null);
       } else {
         const data = await res.json();
+        console.error('Failed to save settings:', data);
         setError(data.error || 'Failed to save settings');
       }
     } catch (e) {
