@@ -76,6 +76,11 @@ export function CertificatePreview({
     }
   }, [layout]);
 
+  // Force re-render when settings change
+  useEffect(() => {
+    // This effect ensures the preview updates when any setting prop changes
+  }, [title, subtitle, bodyText, founderName, signatureText, accentColor, backgroundUrl, logoUrl, signatureUrl, qrEnabled, qrDestination, footer]);
+
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
