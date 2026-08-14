@@ -546,6 +546,7 @@ export default function AdminCertificatesSettingsPage() {
               qrEnabled={settings.qrEnabled === 'true'}
               qrDestination={settings.qrDestination}
               footer={settings.footer}
+              course={settings.course}
               layout={layout}
             />
           </div>
@@ -577,6 +578,7 @@ export default function AdminCertificatesSettingsPage() {
                   qrEnabled={settings.qrEnabled === 'true'}
                   qrDestination={settings.qrDestination}
                   footer={settings.footer}
+                  course={settings.course}
                   layout={layout}
                 />
               </div>

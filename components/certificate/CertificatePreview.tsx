@@ -17,6 +17,7 @@ interface CertificatePreviewProps {
   qrEnabled: boolean;
   qrDestination: string;
   footer: string;
+  course?: string;
   layout?: CertificateLayout;
 }
 
@@ -33,6 +34,7 @@ export function CertificatePreview({
   qrEnabled,
   qrDestination,
   footer,
+  course,
   layout,
 }: CertificatePreviewProps) {
   const [qrData, setQrData] = useState<any>(null);
@@ -79,7 +81,7 @@ export function CertificatePreview({
   // Force re-render when settings change
   useEffect(() => {
     // This effect ensures the preview updates when any setting prop changes
-  }, [title, subtitle, bodyText, founderName, signatureText, accentColor, backgroundUrl, logoUrl, signatureUrl, qrEnabled, qrDestination, footer]);
+  }, [title, subtitle, bodyText, founderName, signatureText, accentColor, backgroundUrl, logoUrl, signatureUrl, qrEnabled, qrDestination, footer, course]);
 
   useEffect(() => {
     const updateScale = () => {
@@ -114,7 +116,7 @@ export function CertificatePreview({
                 layout={activeLayout}
                 name="John Doe"
                 date="August 2026"
-                course="Master n8n & AI Automation"
+                course={course || "n8n Automation"}
                 certificateId="ALS-2026-DEMO-001"
                 logoSrc={logoUrl}
                 qrData={qrData}
@@ -143,7 +145,7 @@ export function CertificatePreview({
       <div className="mt-4 p-3 bg-[#070B12] border border-[#1f2229] rounded-lg">
         <p className="text-xs text-[#b9cacb]">
           <span className="text-[#00f0ff]">Student:</span> John Doe • 
-          <span className="text-[#00f0ff]">Course:</span> Master n8n & AI Automation • 
+          <span className="text-[#00f0ff]">Course:</span> {course || "n8n Automation"} • 
           <span className="text-[#00f0ff]"> Certificate ID:</span> ALS-2026-DEMO-001
         </p>
       </div>
