@@ -74,11 +74,12 @@ export async function POST(request: Request) {
         // Create partner record as fallback with minimal required fields
         try {
           const partnerData = {
-            partner_type: 'community',
-            community_ambassador_id: authResult.user.id,
+            partner_id: authResult.user.id, // Use the ambassador ID as partner_id
+            partner_type: partnerType,
+            ...(partnerType === 'community' ? { community_ambassador_id: authResult.user.id } : { influencer_id: authResult.user.id }),
             full_name: authResult.user.full_name || 'Partner',
             email: authResult.user.email,
-            commission_rate: 1500,
+            commission_rate: partnerType === 'community' ? 1500 : 2000,
             status: 'active'
           };
           
