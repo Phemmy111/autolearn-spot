@@ -185,9 +185,9 @@ export function CertificateTemplate({
               justifyContent: element.style?.textAlign === 'left' ? 'flex-start' : 
                            element.style?.textAlign === 'right' ? 'flex-end' : 'center',
               flexDirection: 'column',
-              background: element.style?.background || 'transparent',
-              border: element.style?.border || 'none',
-              borderRadius: element.style?.borderRadius || 0,
+              ...(element.style?.background && { background: element.style.background }),
+              ...(element.style?.border && { border: element.style.border }),
+              ...(element.style?.borderRadius && { borderRadius: element.style.borderRadius }),
             }}
           >
             {isTextElement && (

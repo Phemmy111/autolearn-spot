@@ -138,10 +138,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
 
   const handlePanelResizeStart = useCallback((panel: 'left' | 'right', e: React.MouseEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsResizingPanel(panel)
   }, [])
 
-  const handlePanelResize = useCallback((e: React.MouseEvent) => {
+  const handlePanelResize = useCallback((e: MouseEvent) => {
     if (!isResizingPanel) return
 
     if (isResizingPanel === 'left') {
@@ -152,6 +153,18 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       setRightSidebarWidth(Math.max(250, Math.min(newWidth, 500)))
     }
   }, [isResizingPanel])
+
+  // Add global event listener for panel resize
+  useEffect(() => {
+    if (isResizingPanel) {
+      window.addEventListener('mousemove', handlePanelResize)
+      window.addEventListener('mouseup', handleMouseUp)
+      return () => {
+        window.removeEventListener('mousemove', handlePanelResize)
+        window.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [isResizingPanel, handlePanelResize, handleMouseUp])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // Handle resizing
@@ -808,9 +821,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         <div 
           className={`bg-[#0c0e12] border-r border-[#1f2229] flex flex-col ${leftSidebarCollapsed ? 'w-12' : ''}`}
           style={{ width: leftSidebarCollapsed ? 48 : leftSidebarWidth }}
-          onMouseMove={handlePanelResize}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
         >
           <div className="flex items-center justify-between p-2 border-b border-[#1f2229]">
             <button
@@ -975,9 +985,9 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       opacity: element.visible !== false ? (element.style?.opacity || 1) : 0,
                       pointerEvents: element.locked ? 'none' : 'auto',
                       display: element.visible === false ? 'none' : 'block',
-                      background: element.style?.background || 'transparent',
-                      border: element.style?.border || 'none',
-                      borderRadius: element.style?.borderRadius || 0,
+                      ...(element.style?.background && { background: element.style.background }),
+                      ...(element.style?.border && { border: element.style.border }),
+                      ...(element.style?.borderRadius && { borderRadius: element.style.borderRadius }),
                     }}
                     onMouseDown={(e) => handleElementMouseDown(e, element)}
                     onClick={() => handleSelectElement(element.id)}
@@ -995,6 +1005,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               setEditingText(null)
                             }
                           }}
+                          onMouseDown={(e) => e.stopPropagation()}
                           className="w-full h-full bg-transparent text-white resize-none outline-none"
                           style={{
                             fontFamily: element.style?.fontFamily || 'Roboto',
@@ -1142,9 +1153,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         <div 
           className={`bg-[#0c0e12] border-l border-[#1f2229] flex flex-col ${rightSidebarCollapsed ? 'w-12' : ''}`}
           style={{ width: rightSidebarCollapsed ? 48 : rightSidebarWidth }}
-          onMouseMove={handlePanelResize}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
         >
           <div className="flex items-center justify-between p-2 border-b border-[#1f2229]">
             <button
