@@ -119,15 +119,21 @@ export async function GET(request: Request) {
     if (certSettings.certificate_layout) {
       try {
         const parsedLayout = JSON.parse(certSettings.certificate_layout)
+        console.log('Loaded layout from settings:', JSON.stringify(parsedLayout, null, 2))
         const validation = validateLayout(parsedLayout)
+        console.log('Layout validation:', validation)
         if (validation.valid) {
           certificateLayout = parsedLayout
         } else {
           console.error('Invalid certificate layout in settings:', validation.errors)
+          console.log('Falling back to default layout')
         }
       } catch (e) {
         console.error('Failed to parse certificate layout:', e)
+        console.log('Raw layout value:', certSettings.certificate_layout)
       }
+    } else {
+      console.log('No certificate_layout found in settings, using default')
     }
 
     // Use absolute URL for the background and logo so next/og can fetch them
