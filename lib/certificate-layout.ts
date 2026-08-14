@@ -901,36 +901,36 @@ export function getElementText(
   data: Record<string, string>,
   settings: Record<string, string>,
 ): string {
-  // Only use static text if there's NO binding (for custom text elements)
-  if (element.text && !element.binding) {
-    return element.text
+  // If element has a binding, always use the binding (ignore static text)
+  if (element.binding) {
+    switch (element.binding) {
+      case 'title':
+        return settings.title || 'Certificate of Completion'
+      case 'subtitle':
+        return settings.subtitle || 'This certifies that'
+      case 'bodyText':
+        return settings.bodyText || 'has successfully completed the'
+      case 'studentName':
+        return data.student_name || 'Student Name'
+      case 'course':
+        return data.course || 'Course Name'
+      case 'date':
+        return data.issue_date || 'January 1, 2024'
+      case 'signatureText':
+        return settings.signatureText || 'Founder'
+      case 'founderName':
+        return settings.founderName || 'Founder Name'
+      case 'certificateId':
+        return data.certificate_id || 'CERT-12345'
+      case 'footer':
+        return settings.footer || 'Footer Text'
+      default:
+        return element.text || ''
+    }
   }
 
-  // Otherwise, use binding to get dynamic text
-  switch (element.binding) {
-    case 'title':
-      return settings.title || 'Certificate of Completion'
-    case 'subtitle':
-      return settings.subtitle || 'This certifies that'
-    case 'bodyText':
-      return settings.bodyText || 'has successfully completed the'
-    case 'studentName':
-      return data.student_name || 'Student Name'
-    case 'course':
-      return data.course || 'Course Name'
-    case 'date':
-      return data.issue_date || 'January 1, 2024'
-    case 'signatureText':
-      return settings.signatureText || 'Founder'
-    case 'founderName':
-      return settings.founderName || 'Founder Name'
-    case 'certificateId':
-      return data.certificate_id || 'CERT-12345'
-    case 'footer':
-      return settings.footer || 'Footer Text'
-    default:
-      return element.text || ''
-  }
+  // Only use static text if there's NO binding (for custom text elements)
+  return element.text || ''
 }
 
 /**
