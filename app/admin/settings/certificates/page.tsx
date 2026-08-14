@@ -127,6 +127,9 @@ export default function AdminCertificatesSettingsPage() {
         layout: JSON.stringify(layout),
       };
       
+      console.log('Saving certificate settings with layout:', updatedSettings.layout ? 'present' : 'missing');
+      console.log('Layout being saved:', JSON.stringify(layout, null, 2));
+      
       // Save all settings
       const res = await fetch('/api/admin/master-settings', {
         method: 'PUT',

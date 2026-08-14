@@ -138,10 +138,12 @@ function convertToDatabaseKeys(settings: Record<string, any>): Record<string, st
     // Handle JSON values (like layout) by storing as JSON string
     if (key === 'layout' && typeof value === 'object') {
       converted[dbKey] = JSON.stringify(value);
+      console.log('Converting layout to database key:', dbKey, 'Value length:', JSON.stringify(value).length);
     } else {
       converted[dbKey] = String(value);
     }
   }
+  console.log('Converted settings keys:', Object.keys(converted));
   return converted;
 }
 
