@@ -39,6 +39,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [alignmentGuides, setAlignmentGuides] = useState<{ horizontal: number[]; vertical: number[] }>({ horizontal: [], vertical: [] })
   const [isResizing, setIsResizing] = useState(false)
   const [resizeHandle, setResizeHandle] = useState<string | null>(null)
+  const [editingText, setEditingText] = useState<string | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
 
@@ -121,6 +122,16 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       y: (e.clientY - rect.top) / scale - element.y
     })
   }, [readOnly, selectedElements, selectedElement])
+
+  const handleElementDoubleClick = useCallback((element: CertificateElement) => {
+    if (readOnly || element.locked || element.binding) return
+    
+    const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
+    if (isTextElement && !element.binding) {
+      setEditingText(element.id)
+      setSelectedElement(element.id)
+    }
+  }, [readOnly])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // Handle resizing
@@ -297,6 +308,17 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         element.style = {}
       }
       element.style[property] = value
+      onLayoutChange(updatedLayout)
+    }
+  }, [selectedElement, layout, onLayoutChange])
+
+  const handleTextChange = useCallback((text: string) => {
+    if (!selectedElement) return
+
+    const updatedLayout = cloneLayout(layout)
+    const element = updatedLayout.elements.find(el => el.id === selectedElement)
+    if (element && !element.binding) {
+      element.text = text
       onLayoutChange(updatedLayout)
     }
   }, [selectedElement, layout, onLayoutChange])
@@ -921,28 +943,66 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     }}
                     onMouseDown={(e) => handleElementMouseDown(e, element)}
                     onClick={() => handleSelectElement(element.id)}
+                    onDoubleClick={() => handleElementDoubleClick(element)}
                   >
                     {isTextElement && (
-                      <div
-                        style={{
-                          fontFamily: element.style?.fontFamily || 'Roboto',
-                          fontSize: element.style?.fontSize || 12,
-                          fontWeight: element.style?.fontWeight || 400,
-                          fontStyle: element.style?.fontStyle || 'normal',
-                          color: element.style?.color || '#ffffff',
-                          textAlign: element.style?.textAlign || 'left',
-                          lineHeight: element.style?.lineHeight || 1,
-                          letterSpacing: element.style?.letterSpacing || 0,
-                          whiteSpace: 'normal',
-                          overflow: 'visible',
-                          ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
-                            WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
-                            paintOrder: 'stroke',
-                          } : {}),
-                        }}
-                      >
-                        {displayText}
-                      </div>
+                      editingText === element.id ? (
+                        <textarea
+                          autoFocus
+                          value={element.text || ''}
+                          onChange={(e) => handleTextChange(e.target.value)}
+                          onBlur={() => setEditingText(null)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault()
+                              setEditingText(null)
+                            }
+                            if (e.key === 'Escape') {
+                              setEditingText(null)
+                            }
+                          }}
+                          className="w-full h-full bg-transparent text-white resize-none outline-none"
+                          style={{
+                            fontFamily: element.style?.fontFamily || 'Roboto',
+                            fontSize: element.style?.fontSize || 12,
+                            fontWeight: element.style?.fontWeight || 400,
+                            fontStyle: element.style?.fontStyle || 'normal',
+                            color: element.style?.color || '#ffffff',
+                            textAlign: element.style?.textAlign || 'left',
+                            lineHeight: element.style?.lineHeight || 1,
+                            letterSpacing: element.style?.letterSpacing || 0,
+                            whiteSpace: 'normal',
+                            overflow: 'visible',
+                            ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
+                              WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
+                              paintOrder: 'stroke',
+                            } : {}),
+                          }}
+                        />
+                      ) : (
+                        <div
+                          onDoubleClick={() => handleElementDoubleClick(element)}
+                          style={{
+                            fontFamily: element.style?.fontFamily || 'Roboto',
+                            fontSize: element.style?.fontSize || 12,
+                            fontWeight: element.style?.fontWeight || 400,
+                            fontStyle: element.style?.fontStyle || 'normal',
+                            color: element.style?.color || '#ffffff',
+                            textAlign: element.style?.textAlign || 'left',
+                            lineHeight: element.style?.lineHeight || 1,
+                            letterSpacing: element.style?.letterSpacing || 0,
+                            whiteSpace: 'normal',
+                            overflow: 'visible',
+                            cursor: element.binding ? 'default' : 'text',
+                            ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
+                              WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
+                              paintOrder: 'stroke',
+                            } : {}),
+                          }}
+                        >
+                          {displayText}
+                        </div>
+                      )
                     )}
                     {isImageElement && displaySrc && (
                       <img
@@ -1288,6 +1348,52 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     {/* Text Tab */}
                     {activeTab === 'text' && ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(selectedElementData.type) && (
                       <div className="space-y-3">
+                        {/* Text Content */}
+                        {!selectedElementData.binding && (
+                          <div>
+                            <label className="block text-xs text-[#b9cacb] mb-1">Text Content</label>
+                            <textarea
+                              value={selectedElementData.text || ''}
+                              onChange={(e) => {
+                                const updatedLayout = cloneLayout(layout)
+                                const element = updatedLayout.elements.find(el => el.id === selectedElement)
+                                if (element) {
+                                  element.text = e.target.value
+                                  onLayoutChange(updatedLayout)
+                                }
+                              }}
+                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white resize-none"
+                              disabled={readOnly}
+                              rows={2}
+                            />
+                          </div>
+                        )}
+                        {selectedElementData.binding && (
+                          <div>
+                            <label className="block text-xs text-[#b9cacb] mb-1">Dynamic Binding</label>
+                            <div className="px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-[#b9cacb]">
+                              {selectedElementData.binding}
+                            </div>
+                          </div>
+                        )}
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Font Family</label>
+                          <select
+                            value={selectedElementData.style?.fontFamily || 'Roboto'}
+                            onChange={(e) => handleStyleChange('fontFamily', e.target.value)}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          >
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Playfair Display">Playfair Display</option>
+                            <option value="Oswald">Oswald</option>
+                            <option value="Raleway">Raleway</option>
+                            <option value="Poppins">Poppins</option>
+                          </select>
+                        </div>
                         <div>
                           <label className="block text-xs text-[#b9cacb] mb-1">Font Size</label>
                           <input
@@ -1296,6 +1402,59 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             onChange={(e) => handleStyleChange('fontSize', Number(e.target.value))}
                             className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                             disabled={readOnly}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Font Weight</label>
+                          <select
+                            value={selectedElementData.style?.fontWeight || 400}
+                            onChange={(e) => handleStyleChange('fontWeight', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          >
+                            <option value={300}>Light</option>
+                            <option value={400}>Regular</option>
+                            <option value={500}>Medium</option>
+                            <option value={600}>Semibold</option>
+                            <option value={700}>Bold</option>
+                            <option value={800}>Extra Bold</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Font Style</label>
+                          <select
+                            value={selectedElementData.style?.fontStyle || 'normal'}
+                            onChange={(e) => handleStyleChange('fontStyle', e.target.value)}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          >
+                            <option value="normal">Normal</option>
+                            <option value="italic">Italic</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Text Transform</label>
+                          <select
+                            value={selectedElementData.style?.textTransform || 'none'}
+                            onChange={(e) => handleStyleChange('textTransform', e.target.value)}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                          >
+                            <option value="none">None</option>
+                            <option value="uppercase">Uppercase</option>
+                            <option value="lowercase">Lowercase</option>
+                            <option value="capitalize">Capitalize</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Text Shadow</label>
+                          <input
+                            type="text"
+                            value={selectedElementData.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)'}
+                            onChange={(e) => handleStyleChange('textShadow', e.target.value)}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                            placeholder="0 2px 8px rgba(0,0,0,0.78)"
                           />
                         </div>
                         <div>

@@ -59,6 +59,7 @@ export interface CertificateElementStyle {
   fontSize?: number
   fontWeight?: number | string
   fontFamily?: string
+  fontStyle?: 'normal' | 'italic'
   lineHeight?: number
   letterSpacing?: string
   textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize'
