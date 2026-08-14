@@ -15,7 +15,7 @@ interface CertificateDesignerProps {
 
 const CANVAS_WIDTH = 1200
 const CANVAS_HEIGHT = 800
-const SCALE = 0.5 // Scale down for admin UI
+const SCALE = 0.4 // Scale down for admin UI
 
 export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly = false, onSave, isSaving = false }: CertificateDesignerProps) {
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
@@ -185,10 +185,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         <div className="lg:col-span-2">
           <div 
             ref={canvasRef}
-            className="relative bg-[#0a0c10] border border-[#1f2229] rounded-lg overflow-hidden"
+            className="relative bg-[#0a0c10] border border-[#1f2229] rounded-lg overflow-auto"
             style={{ 
               aspectRatio: `${CANVAS_WIDTH}/${CANVAS_HEIGHT}`,
-              cursor: isDragging ? 'grabbing' : 'default'
+              cursor: isDragging ? 'grabbing' : 'default',
+              minHeight: `${CANVAS_HEIGHT * SCALE}px`
             }}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}

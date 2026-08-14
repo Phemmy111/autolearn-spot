@@ -30,6 +30,7 @@ export default function AdminCertificatesSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [splitPosition, setSplitPosition] = useState(50); // Split position in percentage
   
   // File upload states
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
@@ -554,17 +555,47 @@ export default function AdminCertificatesSettingsPage() {
         </>
         ) : (
           <>
-            {/* Visual Designer */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <CertificateDesigner
-                layout={layout}
-                onLayoutChange={setLayout}
-                settings={settings}
-                onSave={handleSave}
-                isSaving={isSaving}
+            {/* Visual Designer with Resizable Split */}
+            <div className="flex gap-4 h-full">
+              {/* Designer Panel */}
+              <div style={{ width: `${splitPosition}%` }} className="min-w-[300px]">
+                <CertificateDesigner
+                  layout={layout}
+                  onLayoutChange={setLayout}
+                  settings={settings}
+                  onSave={handleSave}
+                  isSaving={isSaving}
+                />
+              </div>
+              
+              {/* Resizable Divider */}
+              <div 
+                className="w-1 bg-[#1f2229] hover:bg-[#00f0ff] cursor-col-resize transition-colors"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  const startX = e.clientX
+                  const container = e.currentTarget.parentElement
+                  if (!container) return
+                  
+                  const handleMouseMove = (moveEvent: MouseEvent) => {
+                    const containerRect = container.getBoundingClientRect()
+                    const newSplitPosition = ((moveEvent.clientX - containerRect.left) / containerRect.width) * 100
+                    const clampedPosition = Math.max(30, Math.min(70, newSplitPosition))
+                    setSplitPosition(clampedPosition)
+                  }
+                  
+                  const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove)
+                    document.removeEventListener('mouseup', handleMouseUp)
+                  }
+                  
+                  document.addEventListener('mousemove', handleMouseMove)
+                  document.addEventListener('mouseup', handleMouseUp)
+                }}
               />
-              {/* Live Preview */}
-              <div className="lg:sticky lg:top-8 h-fit">
+              
+              {/* Live Preview Panel */}
+              <div style={{ width: `${100 - splitPosition}%` }} className="min-w-[300px]">
                 <CertificatePreview
                   title={settings.title}
                   subtitle={settings.subtitle}
