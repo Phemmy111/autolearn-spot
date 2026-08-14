@@ -554,11 +554,33 @@ export default function AdminCertificatesSettingsPage() {
         ) : (
           <>
             {/* Visual Designer */}
-            <CertificateDesigner
-              layout={layout}
-              onLayoutChange={setLayout}
-              settings={settings}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <CertificateDesigner
+                layout={layout}
+                onLayoutChange={setLayout}
+                settings={settings}
+                onSave={handleSave}
+                isSaving={isSaving}
+              />
+              {/* Live Preview */}
+              <div className="lg:sticky lg:top-8 h-fit">
+                <CertificatePreview
+                  title={settings.title}
+                  subtitle={settings.subtitle}
+                  bodyText={settings.bodyText}
+                  founderName={settings.founderName}
+                  signatureText={settings.signatureText}
+                  accentColor={settings.accentColor}
+                  backgroundUrl={settings.backgroundUrl}
+                  logoUrl={settings.logoUrl}
+                  signatureUrl={settings.signatureUrl}
+                  qrEnabled={settings.qrEnabled === 'true'}
+                  qrDestination={settings.qrDestination}
+                  footer={settings.footer}
+                  layout={layout}
+                />
+              </div>
+            </div>
           </>
         )}
       </div>

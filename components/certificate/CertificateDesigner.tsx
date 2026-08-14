@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2 } from 'lucide-react'
+import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2 } from 'lucide-react'
 import { CertificateLayout, CertificateElement, validateLayout, cloneLayout, resetToDefault, getElementText, getElementSrc, DEMO_CERTIFICATE_DATA } from '@/lib/certificate-layout'
 
 interface CertificateDesignerProps {
@@ -9,13 +9,15 @@ interface CertificateDesignerProps {
   onLayoutChange: (layout: CertificateLayout) => void
   settings: Record<string, string>
   readOnly?: boolean
+  onSave?: (e: React.FormEvent) => void
+  isSaving?: boolean
 }
 
 const CANVAS_WIDTH = 1200
 const CANVAS_HEIGHT = 800
 const SCALE = 0.5 // Scale down for admin UI
 
-export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly = false }: CertificateDesignerProps) {
+export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly = false, onSave, isSaving = false }: CertificateDesignerProps) {
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -157,6 +159,26 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           >
             Reset to Default
           </button>
+          {onSave && (
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-3 py-2 bg-[#00f0ff] text-[#00363a] text-sm rounded font-medium hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Save Layout
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
