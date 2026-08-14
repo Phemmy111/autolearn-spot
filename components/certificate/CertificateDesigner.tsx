@@ -42,6 +42,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [isResizing, setIsResizing] = useState(false)
   const [resizeHandle, setResizeHandle] = useState<string | null>(null)
   const [editingText, setEditingText] = useState<string | null>(null)
+  const [lastAutoSave, setLastAutoSave] = useState<number>(Date.now())
+  const [validationMode, setValidationMode] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [showTemplates, setShowTemplates] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
 
@@ -161,6 +165,122 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
   }, [leftSidebarWidth, rightSidebarWidth])
+
+  const handleValidateLayout = useCallback(() => {
+    const errors: string[] = []
+    
+    // Check for text overflow
+    layout.elements.forEach(element => {
+      if (['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)) {
+        const displayText = getElementText(element, DEMO_CERTIFICATE_DATA, settings)
+        if (displayText && displayText.length > 100) {
+          errors.push(`${element.id}: Text may be too long (${displayText.length} characters)`)
+        }
+      }
+      
+      // Check if element is outside canvas bounds
+      if (element.x < 0 || element.y < 0 || element.x + element.width > CANVAS_WIDTH || element.y + element.height > CANVAS_HEIGHT) {
+        errors.push(`${element.id}: Element is outside canvas bounds`)
+      }
+      
+      // Check if element is too small
+      if (element.width < 20 || element.height < 20) {
+        errors.push(`${element.id}: Element is too small (${element.width}x${element.height})`)
+      }
+    })
+    
+    // Check for required fields
+    const hasTitle = layout.elements.some(e => e.type === 'title' && e.visible !== false)
+    const hasStudentName = layout.elements.some(e => e.type === 'studentName' && e.visible !== false)
+    
+    if (!hasTitle) errors.push('Missing required element: Title')
+    if (!hasStudentName) errors.push('Missing required element: Student Name')
+    
+    setValidationErrors(errors)
+    setValidationMode(true)
+    
+    if (errors.length === 0) {
+      alert('No validation errors found! The layout looks good.')
+    }
+  }, [layout, settings])
+
+  // Predefined templates
+  const templates = [
+    {
+      name: 'Classic',
+      description: 'Traditional certificate layout',
+      layout: resetToDefault()
+    },
+    {
+      name: 'Minimal',
+      description: 'Clean and simple design',
+      layout: {
+        ...resetToDefault(),
+        name: 'Minimal Certificate',
+        elements: resetToDefault().elements.map(el => ({
+          ...el,
+          style: {
+            ...el.style,
+            fontSize: el.style?.fontSize ? el.style.fontSize * 0.8 : undefined
+          }
+        }))
+      }
+    },
+    {
+      name: 'Bold',
+      description: 'Large typography focus',
+      layout: {
+        ...resetToDefault(),
+        name: 'Bold Certificate',
+        elements: resetToDefault().elements.map(el => ({
+          ...el,
+          style: {
+            ...el.style,
+            fontSize: el.style?.fontSize ? el.style.fontSize * 1.2 : undefined,
+            fontWeight: 700
+          }
+        }))
+      }
+    }
+  ]
+
+  const handleLoadTemplate = useCallback((templateLayout: CertificateLayout) => {
+    if (confirm('Load template? This will replace your current layout.')) {
+      onLayoutChange(templateLayout)
+      setSelectedElement(null)
+      setUnsavedChanges(true)
+    }
+  }, [onLayoutChange])
+
+  const handleSaveAsTemplate = useCallback(() => {
+    const templateName = prompt('Enter template name:')
+    if (!templateName) return
+    
+    const templateDescription = prompt('Enter template description:') || 'Custom template'
+    
+    // For now, we'll just save it to localStorage
+    const savedTemplates = JSON.parse(localStorage.getItem('certificateTemplates') || '[]')
+    savedTemplates.push({
+      name: templateName,
+      description: templateDescription,
+      layout: layout,
+      createdAt: new Date().toISOString()
+    })
+    localStorage.setItem('certificateTemplates', JSON.stringify(savedTemplates))
+    
+    alert('Template saved successfully!')
+  }, [layout])
+
+  const handleExportPreview = useCallback(() => {
+    // Trigger a download of the current certificate
+    const element = document.querySelector('a[href="/api/certificate/download"]')
+    if (element) {
+      element.click()
+    } else {
+      // Fallback: navigate to download page
+      window.open('/api/certificate/download', '_blank')
+    }
+  }, [])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // Handle resizing
@@ -534,6 +654,23 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [readOnly, selectedElement, clipboard, layout, history, historyIndex, handleDeleteElement, onLayoutChange, editingText])
 
+  // Auto-save every 30 seconds when there are unsaved changes
+  useEffect(() => {
+    if (!unsavedChanges || readOnly) return
+
+    const interval = setInterval(() => {
+      const now = Date.now()
+      if (now - lastAutoSave >= 30000) {
+        // Trigger save via parent's onSave function
+        onSave()
+        setLastAutoSave(now)
+        console.log('[CertificateDesigner] Auto-saved layout')
+      }
+    }, 5000) // Check every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [unsavedChanges, lastAutoSave, readOnly, onSave])
+
   // Handle zoom
   const handleZoomIn = useCallback(() => {
     setZoom(prev => Math.min(prev + 0.1, 3))
@@ -710,6 +847,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           {unsavedChanges && (
             <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded">
               Unsaved changes
+              {lastAutoSave > 0 && (
+                <span className="ml-2 text-yellow-400/60">
+                  (Auto-saved {Math.floor((Date.now() - lastAutoSave) / 1000)}s ago)
+                </span>
+              )}
             </span>
           )}
           {selectedElements.length > 1 && (
@@ -790,6 +932,27 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             className="px-3 py-2 bg-[#1f2229] text-[#b9cacb] text-sm rounded hover:bg-[#2a2e38] transition-colors"
           >
             Reset
+          </button>
+          <button
+            type="button"
+            onClick={handleValidateLayout}
+            className={`px-3 py-2 text-sm rounded transition-colors ${validationMode ? 'bg-green-500/20 text-green-400' : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'}`}
+          >
+            Validate
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveAsTemplate}
+            className="px-3 py-2 bg-[#1f2229] text-[#b9cacb] text-sm rounded hover:bg-[#2a2e38] transition-colors"
+          >
+            Save as Template
+          </button>
+          <button
+            type="button"
+            onClick={handleExportPreview}
+            className="px-3 py-2 bg-[#1f2229] text-[#b9cacb] text-sm rounded hover:bg-[#2a2e38] transition-colors"
+          >
+            Export Preview
           </button>
           {onSave && (
             <button
@@ -891,6 +1054,35 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     <span className="text-sm text-white">Signature</span>
                   </button>
                 </div>
+              </div>
+              
+              {/* Templates */}
+              <div className="border-t border-[#1f2229] pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-semibold text-[#b9cacb] uppercase tracking-wider">Templates</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    className="text-[#b9cacb] hover:text-white"
+                  >
+                    {showTemplates ? <ChevronDown className="h-4 w-4 rotate-180" /> : <ChevronDown className="h-4 w-4" />}
+                  </button>
+                </div>
+                {showTemplates && (
+                  <div className="space-y-2">
+                    {templates.map((template, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => handleLoadTemplate(template.layout)}
+                        className="w-full p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
+                      >
+                        <div className="text-sm text-white">{template.name}</div>
+                        <div className="text-xs text-[#b9cacb]">{template.description}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               
               <div>
@@ -1117,6 +1309,25 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
 
           {/* Canvas Controls */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg px-4 py-2">
+            {validationMode && validationErrors.length > 0 && (
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-red-500/20 border border-red-500/50 rounded-lg p-3 min-w-[300px]">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-red-400">Validation Errors</h4>
+                  <button
+                    type="button"
+                    onClick={() => setValidationMode(false)}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <ul className="text-xs text-red-300 space-y-1">
+                  {validationErrors.map((error, index) => (
+                    <li key={index}>• {error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <button
               type="button"
               onClick={handleZoomOut}
