@@ -253,9 +253,8 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           textAlign: element.style?.textAlign || 'left',
                           lineHeight: element.style?.lineHeight || 1,
                           letterSpacing: element.style?.letterSpacing || 0,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
+                          whiteSpace: 'normal',
+                          overflow: 'visible',
                           ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
                             WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
                             paintOrder: 'stroke',

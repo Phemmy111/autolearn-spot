@@ -199,9 +199,8 @@ export function CertificateTemplate({
                   lineHeight: element.style?.lineHeight || 1,
                   letterSpacing: element.style?.letterSpacing || 0,
                   textShadow: element.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)',
-                  whiteSpace: element.style?.whiteSpace || 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
+                  whiteSpace: element.style?.whiteSpace || 'normal',
+                  overflow: 'visible',
                   maxWidth: element.style?.maxWidth || '100%',
                   textTransform: element.style?.textTransform || 'none',
                   ...(element.style?.outlineWidth && element.style?.outlineWidth > 0 ? {
