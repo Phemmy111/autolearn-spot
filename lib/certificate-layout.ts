@@ -73,6 +73,8 @@ export interface CertificateElementStyle {
   whiteSpace?: 'normal' | 'nowrap' | 'pre' | 'pre-wrap'
   overflowWrap?: 'normal' | 'break-word' | 'anywhere'
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
+  outlineWidth?: number
+  outlineColor?: string
 }
 
 /**

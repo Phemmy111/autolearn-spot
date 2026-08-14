@@ -246,7 +246,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                         letterSpacing: `${(element.style?.letterSpacing || 0) / SCALE}px`,
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
-                        textOverflow: 'ellipsis'
+                        textOverflow: 'ellipsis',
+                        WebkitTextStroke: element.style?.outlineWidth 
+                          ? `${element.style.outlineWidth / SCALE}px ${element.style.outlineColor || '#ffffff'}` 
+                          : 'none',
+                        paintOrder: element.style?.outlineWidth ? 'stroke' : 'normal',
                       }}
                     >
                       {displayText}
@@ -434,6 +438,37 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             {align === 'right' && <AlignRight className="h-4 w-4 mx-auto" />}
                           </button>
                         ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#b9cacb] mb-1">Outline Width</label>
+                      <input
+                        type="number"
+                        value={selectedElementData.style?.outlineWidth || 0}
+                        onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
+                        className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                        disabled={readOnly}
+                        min="0"
+                        step="0.5"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#b9cacb] mb-1">Outline Color</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={selectedElementData.style?.outlineColor || '#ffffff'}
+                          onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
+                          className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                          disabled={readOnly}
+                        />
+                        <input
+                          type="text"
+                          value={selectedElementData.style?.outlineColor || '#ffffff'}
+                          onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
+                          className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                          disabled={readOnly}
+                        />
                       </div>
                     </div>
                     <div>
