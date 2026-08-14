@@ -92,6 +92,7 @@ export function CertificateTemplate({
         overflow: 'hidden',
         fontFamily: '"Roboto", Arial, sans-serif',
         background: '#06101f',
+        display: 'flex',
       }}
     >
       {/* Background */}
@@ -117,6 +118,7 @@ export function CertificateTemplate({
             background:
               'linear-gradient(135deg, #03101f 0%, #07172a 48%, #020914 100%)',
             zIndex: 0,
+            display: 'flex',
           }}
         >
           <div
@@ -147,6 +149,7 @@ export function CertificateTemplate({
             'linear-gradient(to bottom, rgba(0,0,0,0.06), rgba(0,0,0,0.015) 48%, rgba(0,0,0,0.10))',
           zIndex: 1,
           pointerEvents: 'none',
+          display: 'flex',
         }}
       />
 
