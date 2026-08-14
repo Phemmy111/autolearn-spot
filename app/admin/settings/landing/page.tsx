@@ -21,6 +21,9 @@ export default function AdminLandingSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -47,27 +50,77 @@ export default function AdminLandingSettingsPage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setIsUploading(true);
     setError(null);
     setSuccess(false);
 
     try {
+      // Upload files first if provided
+      let uploadedVideoUrl = settings.videoUrl;
+      let uploadedImageUrl = settings.imageUrl;
+
+      if (videoFile) {
+        const formData = new FormData();
+        formData.append('videoFile', videoFile);
+        
+        const uploadRes = await fetch('/api/admin/landing-media', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          uploadedVideoUrl = uploadData.videoUrl;
+        } else {
+          throw new Error('Failed to upload video');
+        }
+      }
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('imageFile', imageFile);
+        
+        const uploadRes = await fetch('/api/admin/landing-media', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          uploadedImageUrl = uploadData.imageUrl;
+        } else {
+          throw new Error('Failed to upload image');
+        }
+      }
+
+      // Update settings with uploaded URLs
+      const updatedSettings = {
+        ...settings,
+        videoUrl: uploadedVideoUrl,
+        imageUrl: uploadedImageUrl,
+      };
+
       const res = await fetch('/api/admin/master-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings }),
+        body: JSON.stringify({ settings: updatedSettings }),
       });
 
       if (res.ok) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
+        // Clear file uploads after successful save
+        setVideoFile(null);
+        setImageFile(null);
       } else {
         const data = await res.json();
         setError(data.error || 'Failed to save settings');
       }
     } catch (e) {
-      setError('Failed to save settings');
+      setError(e instanceof Error ? e.message : 'Failed to save settings');
     } finally {
       setIsSaving(false);
+      setIsUploading(false);
     }
   };
 
@@ -218,27 +271,65 @@ export default function AdminLandingSettingsPage() {
                 </select>
               </div>
               {settings.mediaType === 'video' && (
-                <div>
-                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Video URL</label>
-                  <input
-                    type="url"
-                    value={settings.videoUrl}
-                    onChange={(e) => setSettings({ ...settings, videoUrl: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                    placeholder="https://..."
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Video URL</label>
+                    <input
+                      type="url"
+                      value={settings.videoUrl}
+                      onChange={(e) => setSettings({ ...settings, videoUrl: e.target.value })}
+                      className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Or Upload Video</label>
+                    <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                      <Video className="h-5 w-5 text-[#00f0ff]" />
+                      <div className="flex-1">
+                        <p className="text-sm text-white">{videoFile ? videoFile.name : 'Choose video file...'}</p>
+                        <p className="text-xs text-[#b9cacb]">MP4, WebM, MOV (max 50MB)</p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                        className="hidden"
+                        disabled={isUploading}
+                      />
+                    </label>
+                  </div>
                 </div>
               )}
               {settings.mediaType === 'image' && (
-                <div>
-                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Image URL</label>
-                  <input
-                    type="url"
-                    value={settings.imageUrl}
-                    onChange={(e) => setSettings({ ...settings, imageUrl: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
-                    placeholder="https://..."
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Image URL</label>
+                    <input
+                      type="url"
+                      value={settings.imageUrl}
+                      onChange={(e) => setSettings({ ...settings, imageUrl: e.target.value })}
+                      className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Or Upload Image</label>
+                    <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                      <Image className="h-5 w-5 text-[#00f0ff]" />
+                      <div className="flex-1">
+                        <p className="text-sm text-white">{imageFile ? imageFile.name : 'Choose image file...'}</p>
+                        <p className="text-xs text-[#b9cacb]">PNG, JPG, WebP (max 5MB)</p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                        className="hidden"
+                        disabled={isUploading}
+                      />
+                    </label>
+                  </div>
                 </div>
               )}
             </div>

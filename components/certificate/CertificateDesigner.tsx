@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, MousePointer2 } from 'lucide-react'
+import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, MousePointer2, Upload } from 'lucide-react'
 import { CertificateLayout, CertificateElement, validateLayout, cloneLayout, resetToDefault, getElementText, getElementSrc, DEMO_CERTIFICATE_DATA } from '@/lib/certificate-layout'
 
 interface CertificateDesignerProps {
@@ -46,6 +46,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [validationMode, setValidationMode] = useState(false)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
   const [showTemplates, setShowTemplates] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
 
@@ -281,6 +282,69 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       window.open('/api/certificate/download', '_blank')
     }
   }, [])
+
+  const handleImageUpload = useCallback(async (file: File) => {
+    if (!file) return
+
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      alert('Please upload a valid image file (PNG, JPG, GIF, or WebP)')
+      return
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File too large. Maximum size is 5MB')
+      return
+    }
+
+    setUploadingImage(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('imageFile', file)
+
+      const response = await fetch('/api/admin/certificate-upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to upload image')
+      }
+
+      const data = await response.json()
+      
+      // Create a new image element with the uploaded URL
+      const updatedLayout = cloneLayout(layout)
+      const newImageElement: CertificateElement = {
+        id: `image-${Date.now()}`,
+        type: 'image',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 200,
+        style: {
+          objectFit: 'contain'
+        },
+        src: data.url,
+        visible: true,
+        locked: false
+      }
+      
+      updatedLayout.elements.push(newImageElement)
+      onLayoutChange(updatedLayout)
+      setSelectedElement(newImageElement.id)
+      
+    } catch (error) {
+      console.error('Image upload error:', error)
+      alert(error instanceof Error ? error.message : 'Failed to upload image')
+    } finally {
+      setUploadingImage(false)
+    }
+  }, [layout, onLayoutChange])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // Handle resizing
@@ -1021,6 +1085,24 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     <Image className="h-4 w-4 text-[#00f0ff]" />
                     <span className="text-sm text-white">Image</span>
                   </button>
+                  <label className={`w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left cursor-pointer ${uploadingImage || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    {uploadingImage ? (
+                      <Loader2 className="h-4 w-4 text-[#00f0ff] animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4 text-[#00f0ff]" />
+                    )}
+                    <span className="text-sm text-white">{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleImageUpload(file)
+                      }}
+                      className="hidden"
+                      disabled={uploadingImage || readOnly}
+                    />
+                  </label>
                   <button
                     type="button"
                     onClick={() => handleAddElement('shape')}
