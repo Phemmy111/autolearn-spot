@@ -40,12 +40,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     if (!canvas) return
 
     const rect = canvas.getBoundingClientRect()
-    const scaleX = CANVAS_WIDTH / rect.width
-    const scaleY = CANVAS_HEIGHT / rect.height
+    const scale = SCALE
 
     setDragOffset({
-      x: (e.clientX - rect.left) * scaleX - element.x,
-      y: (e.clientY - rect.top) * scaleY - element.y
+      x: (e.clientX - rect.left) / scale - element.x,
+      y: (e.clientY - rect.top) / scale - element.y
     })
   }, [readOnly])
 
@@ -56,11 +55,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     if (!canvas) return
 
     const rect = canvas.getBoundingClientRect()
-    const scaleX = CANVAS_WIDTH / rect.width
-    const scaleY = CANVAS_HEIGHT / rect.height
+    const scale = SCALE
 
-    const newX = (e.clientX - rect.left) * scaleX - dragOffset.x
-    const newY = (e.clientY - rect.top) * scaleY - dragOffset.y
+    const newX = (e.clientX - rect.left) / scale - dragOffset.x
+    const newY = (e.clientY - rect.top) / scale - dragOffset.y
 
     const element = layout.elements.find(el => el.id === selectedElement)
     if (!element) return
@@ -196,84 +194,95 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
           >
-            {/* Background */}
-            {settings.backgroundUrl && (
-              <img
-                src={settings.backgroundUrl}
-                alt="Certificate background"
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ pointerEvents: 'none' }}
-              />
-            )}
+            {/* Scaled container for WYSIWYG preview */}
+            <div style={{ 
+              transform: `scale(${SCALE})`,
+              transformOrigin: 'top left',
+              width: `${CANVAS_WIDTH}px`,
+              height: `${CANVAS_HEIGHT}px`,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+            }}>
+              {/* Background */}
+              {settings.backgroundUrl && (
+                <img
+                  src={settings.backgroundUrl}
+                  alt="Certificate background"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ pointerEvents: 'none' }}
+                />
+              )}
 
-            {/* Elements */}
-            {layout.elements.map((element) => {
-              const isSelected = selectedElement === element.id
-              const displayText = getElementText(element, DEMO_CERTIFICATE_DATA, settings)
-              const displaySrc = getElementSrc(element, settings)
+              {/* Elements */}
+              {layout.elements.map((element) => {
+                const isSelected = selectedElement === element.id
+                const displayText = getElementText(element, DEMO_CERTIFICATE_DATA, settings)
+                const displaySrc = getElementSrc(element, settings)
 
-              // Determine element type for rendering
-              const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
-              const isImageElement = ['logo', 'signature', 'image'].includes(element.type)
-              const isQrElement = element.type === 'qrCode'
+                // Determine element type for rendering
+                const isTextElement = ['title', 'subtitle', 'studentName', 'bodyText', 'course', 'date', 'signatureText', 'founderName', 'certificateId', 'footer', 'text'].includes(element.type)
+                const isImageElement = ['logo', 'signature', 'image'].includes(element.type)
+                const isQrElement = element.type === 'qrCode'
 
-              return (
-                <div
-                  key={element.id}
-                  className={`absolute ${isSelected ? 'ring-2 ring-[#00f0ff]' : ''} ${element.locked ? 'opacity-75' : ''}`}
-                  style={{
-                    left: `${(element.x / CANVAS_WIDTH) * 100}%`,
-                    top: `${(element.y / CANVAS_HEIGHT) * 100}%`,
-                    width: `${(element.width / CANVAS_WIDTH) * 100}%`,
-                    height: `${(element.height / CANVAS_HEIGHT) * 100}%`,
-                    opacity: element.visible !== false ? (element.style?.opacity || 1) : 0,
-                    pointerEvents: element.locked ? 'none' : 'auto',
-                    display: element.visible === false ? 'none' : 'block'
-                  }}
-                  onMouseDown={(e) => handleElementMouseDown(e, element)}
-                  onClick={() => handleSelectElement(element.id)}
-                >
-                  {isTextElement && (
-                    <div
-                      style={{
-                        fontFamily: element.style?.fontFamily || 'Roboto',
-                        fontSize: `${(element.style?.fontSize || 12) / SCALE}px`,
-                        fontWeight: element.style?.fontWeight || 400,
-                        fontStyle: element.style?.fontStyle || 'normal',
-                        color: element.style?.color || '#ffffff',
-                        textAlign: element.style?.textAlign || 'left',
-                        lineHeight: element.style?.lineHeight || 1,
-                        letterSpacing: `${(element.style?.letterSpacing || 0) / SCALE}px`,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        WebkitTextStroke: element.style?.outlineWidth 
-                          ? `${element.style.outlineWidth / SCALE}px ${element.style.outlineColor || '#ffffff'}` 
-                          : 'none',
-                        paintOrder: element.style?.outlineWidth ? 'stroke' : 'normal',
-                      }}
-                    >
-                      {displayText}
-                    </div>
-                  )}
-                  {isImageElement && displaySrc && (
-                    <img
-                      src={displaySrc}
-                      alt={element.id}
-                      className="w-full h-full object-contain"
-                    />
-                  )}
-                  {isQrElement && (
-                    <div className="w-full h-full bg-white flex items-center justify-center">
-                      <div className="w-4/5 h-4/5 bg-gray-800 rounded" />
-                    </div>
-                  )}
-                  {isSelected && !readOnly && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00f0ff] rounded-full" />
-                  )}
-                </div>
-              )
-            })}
+                return (
+                  <div
+                    key={element.id}
+                    className={`absolute ${isSelected ? 'ring-2 ring-[#00f0ff]' : ''} ${element.locked ? 'opacity-75' : ''}`}
+                    style={{
+                      left: element.x,
+                      top: element.y,
+                      width: element.width,
+                      height: element.height,
+                      opacity: element.visible !== false ? (element.style?.opacity || 1) : 0,
+                      pointerEvents: element.locked ? 'none' : 'auto',
+                      display: element.visible === false ? 'none' : 'block'
+                    }}
+                    onMouseDown={(e) => handleElementMouseDown(e, element)}
+                    onClick={() => handleSelectElement(element.id)}
+                  >
+                    {isTextElement && (
+                      <div
+                        style={{
+                          fontFamily: element.style?.fontFamily || 'Roboto',
+                          fontSize: element.style?.fontSize || 12,
+                          fontWeight: element.style?.fontWeight || 400,
+                          fontStyle: element.style?.fontStyle || 'normal',
+                          color: element.style?.color || '#ffffff',
+                          textAlign: element.style?.textAlign || 'left',
+                          lineHeight: element.style?.lineHeight || 1,
+                          letterSpacing: element.style?.letterSpacing || 0,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          WebkitTextStroke: element.style?.outlineWidth 
+                            ? `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}` 
+                            : 'none',
+                          paintOrder: element.style?.outlineWidth ? 'stroke' : 'normal',
+                        }}
+                      >
+                        {displayText}
+                      </div>
+                    )}
+                    {isImageElement && displaySrc && (
+                      <img
+                        src={displaySrc}
+                        alt={element.id}
+                        className="w-full h-full object-contain"
+                      />
+                    )}
+                    {isQrElement && (
+                      <div className="w-full h-full bg-white flex items-center justify-center">
+                        <div className="w-4/5 h-4/5 bg-gray-800 rounded" />
+                      </div>
+                    )}
+                    {isSelected && !readOnly && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00f0ff] rounded-full" />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
 
@@ -470,19 +479,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           disabled={readOnly}
                         />
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs text-[#b9cacb] mb-1">Opacity</label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.1"
-                        value={selectedElementData.style?.opacity || 1}
-                        onChange={(e) => handleStyleChange('opacity', Number(e.target.value))}
-                        className="w-full"
-                        disabled={readOnly}
-                      />
                     </div>
                   </div>
                 </div>
