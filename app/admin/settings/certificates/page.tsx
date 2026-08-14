@@ -234,7 +234,7 @@ export default function AdminCertificatesSettingsPage() {
           </button>
         </div>
 
-        {fullScreenDesigner ? (
+        {fullScreenDesigner && (
           <div className="fixed inset-0 z-50 bg-[#0a0c10]">
             <div className="flex items-center justify-between px-4 py-2 bg-[#0c0e12] border-b border-[#1f2229]">
               <div className="flex items-center gap-3">
@@ -264,7 +264,9 @@ export default function AdminCertificatesSettingsPage() {
               isSaving={isSaving}
             />
           </div>
-        ) : (
+        )}
+
+        {!fullScreenDesigner && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Settings Form */}
@@ -606,7 +608,7 @@ export default function AdminCertificatesSettingsPage() {
           </div>
         </div>
         </>
-        ) : null}
+        )}
       </div>
     </div>
   );
