@@ -901,8 +901,8 @@ export function getElementText(
   data: Record<string, string>,
   settings: Record<string, string>,
 ): string {
-  // If element has static text, use it
-  if (element.text) {
+  // Only use static text if there's NO binding (for custom text elements)
+  if (element.text && !element.binding) {
     return element.text
   }
 
