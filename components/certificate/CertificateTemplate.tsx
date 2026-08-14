@@ -2,30 +2,12 @@ import React from 'react'
 
 interface QRCodeData {
   modules: {
-    size: number;
-    data: boolean[];
-  };
+    size: number
+    data: boolean[]
+  }
 }
 
-export function CertificateTemplate({
-  name,
-  date,
-  course,
-  certificateId,
-  logoSrc,
-  qrData,
-  backgroundSrc,
-  title,
-  subtitle,
-  bodyText,
-  founderName,
-  signatureUrl,
-  signatureText,
-  qrEnabled,
-  qrDestination,
-  footer,
-  accentColor,
-}: {
+interface CertificateTemplateProps {
   name: string
   date: string
   course?: string
@@ -43,29 +25,54 @@ export function CertificateTemplate({
   qrDestination?: string
   footer?: string
   accentColor?: string
-}) {
+}
+
+const CANVAS_WIDTH = 1200
+const CANVAS_HEIGHT = 800
+
+export function CertificateTemplate({
+  name,
+  date,
+  course,
+  certificateId,
+  logoSrc,
+  qrData,
+  backgroundSrc,
+  title,
+  subtitle,
+  bodyText,
+  founderName,
+  signatureUrl,
+  signatureText,
+  qrEnabled,
+  qrDestination: _qrDestination,
+  footer,
+  accentColor,
+}: CertificateTemplateProps) {
+  const accent = accentColor || '#00e5ff'
+
   return (
     <div
       style={{
-        display: 'flex',
-        width: '1200px',
-        height: '800px',
         position: 'relative',
-        fontFamily: '"Roboto", sans-serif',
+        width: `${CANVAS_WIDTH}px`,
+        height: `${CANVAS_HEIGHT}px`,
+        overflow: 'hidden',
+        fontFamily: '"Roboto", Arial, sans-serif',
+        background: '#06101f',
       }}
     >
-      {/* Background Image - Clean design without hardcoded text */}
+      {/* Background artwork only. No certificate text is baked in here. */}
       {backgroundSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={backgroundSrc}
-          alt="Certificate Background"
+          alt="Certificate background"
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '1200px',
-            height: '800px',
+            inset: 0,
+            width: `${CANVAS_WIDTH}px`,
+            height: `${CANVAS_HEIGHT}px`,
             objectFit: 'cover',
             zIndex: 0,
           }}
@@ -74,452 +81,482 @@ export function CertificateTemplate({
         <div
           style={{
             position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '1200px',
-            height: '800px',
-            background: `linear-gradient(135deg, ${accentColor || '#00f0ff'} 0%, #1a1a2e 50%, #0a0a0e 100%)`,
+            inset: 0,
+            width: `${CANVAS_WIDTH}px`,
+            height: `${CANVAS_HEIGHT}px`,
+            background:
+              'linear-gradient(135deg, #03101f 0%, #07172a 48%, #020914 100%)',
             zIndex: 0,
           }}
         >
-          {/* Decorative border */}
           <div
             style={{
               position: 'absolute',
-              top: '20px',
-              left: '20px',
-              right: '20px',
-              bottom: '20px',
-              border: `3px solid ${accentColor || '#00f0ff'}`,
-              borderRadius: '10px',
-              opacity: 0.3,
-            }}
-          />
-          {/* Corner decorations */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '30px',
-              left: '30px',
-              width: '50px',
-              height: '50px',
-              borderTop: `4px solid ${accentColor || '#00f0ff'}`,
-              borderLeft: `4px solid ${accentColor || '#00f0ff'}`,
-              opacity: 0.5,
+              inset: '18px',
+              border: `2px solid ${accent}`,
+              opacity: 0.32,
             }}
           />
           <div
             style={{
               position: 'absolute',
-              top: '30px',
-              right: '30px',
-              width: '50px',
-              height: '50px',
-              borderTop: `4px solid ${accentColor || '#00f0ff'}`,
-              borderRight: `4px solid ${accentColor || '#00f0ff'}`,
-              opacity: 0.5,
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '30px',
-              left: '30px',
-              width: '50px',
-              height: '50px',
-              borderBottom: `4px solid ${accentColor || '#00f0ff'}`,
-              borderLeft: `4px solid ${accentColor || '#00f0ff'}`,
-              opacity: 0.5,
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '30px',
-              right: '30px',
-              width: '50px',
-              height: '50px',
-              borderBottom: `4px solid ${accentColor || '#00f0ff'}`,
-              borderRight: `4px solid ${accentColor || '#00f0ff'}`,
-              opacity: 0.5,
+              inset: '28px',
+              border: `1px solid ${accent}`,
+              opacity: 0.15,
             }}
           />
         </div>
       )}
 
-      {/* Dynamic Overlay Layer */}
+      {/* Soft overlay improves text readability without changing the artwork. */}
       <div
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '1200px',
-          height: '800px',
-          display: 'flex',
-          flexDirection: 'column',
-          zIndex: 10,
+          inset: 0,
+          background:
+            'linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 45%, rgba(0,0,0,0.14))',
+          zIndex: 1,
+          pointerEvents: 'none',
         }}
-      >
-        {/* Logo - Top Center Emblem Area */}
-        {logoSrc && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '30px',
-              left: '0',
-              width: '1200px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={logoSrc}
-              alt="Logo"
-              style={{
-                width: '100px',
-                height: '100px',
-                objectFit: 'contain',
-              }}
-            />
-          </div>
-        )}
+      />
 
-        {/* Title - Inside Title Box */}
-        {title && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '140px',
-              left: '0',
-              width: '1200px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: '"Roboto", sans-serif',
-                fontSize: '24px',
-                fontWeight: 700,
-                color: '#ffffff',
-                textTransform: 'uppercase',
-                letterSpacing: '2px',
-                textShadow: '0px 2px 8px rgba(0,0,0,0.8)',
-                maxWidth: '600px',
-                textAlign: 'center',
-                lineHeight: 1.2,
-              }}
-            >
-              {title}
-            </span>
-          </div>
-        )}
+      {/* ================================================================
+          HEADER ZONE
+          The background has a dedicated logo area at the top centre.
+          ================================================================ */}
 
-        {/* Subtitle - Below Title Box */}
-        {subtitle && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '175px',
-              left: '0',
-              width: '1200px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: '"Roboto", sans-serif',
-                fontSize: '14px',
-                fontWeight: 400,
-                color: '#ffffff',
-                letterSpacing: '1px',
-                opacity: 0.95,
-                textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
-              }}
-            >
-              {subtitle}
-            </span>
-          </div>
-        )}
-
-        {/* Student Name - Large Central Area */}
+      {logoSrc && (
         <div
           style={{
             position: 'absolute',
-            top: '220px',
-            left: '0',
-            width: '1200px',
+            top: 28,
+            left: 0,
+            width: CANVAS_WIDTH,
+            height: 68,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 20,
+            zIndex: 10,
           }}
         >
-          <span
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoSrc}
+            alt="AutoLearn Spot logo"
             style={{
-              fontFamily: '"GreatVibes", cursive',
-              fontSize: '70px',
-              color: '#ffffff',
-              lineHeight: 1,
-              textShadow: '0px 4px 12px rgba(0,0,0,0.8)',
-              maxWidth: '800px',
-              textAlign: 'center',
+              width: 68,
+              height: 68,
+              objectFit: 'contain',
+              display: 'block',
             }}
-          >
-            {name}
-          </span>
+          />
         </div>
+      )}
 
-        {/* Body Text - Below Student Name */}
-        {bodyText && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '295px',
-              left: '0',
-              width: '1200px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: '"Roboto", sans-serif',
-                fontSize: '14px',
-                fontWeight: 400,
-                color: '#ffffff',
-                letterSpacing: '0.5px',
-                opacity: 0.9,
-                textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
-              }}
-            >
-              {bodyText}
-            </span>
-          </div>
-        )}
-
-        {/* Course - Below Body Text, Above Seal */}
-        {course && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '320px',
-              left: '0',
-              width: '1200px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: '"Roboto", sans-serif',
-                fontSize: '18px',
-                fontWeight: 600,
-                color: accentColor || '#00f0ff',
-                letterSpacing: '1.5px',
-                textTransform: 'uppercase',
-                textShadow: '0px 2px 8px rgba(0,0,0,0.8)',
-              }}
-            >
-              {course}
-            </span>
-          </div>
-        )}
-
-        {/* Date - Lower-Left Line Area (Under the line) */}
+      {title && (
         <div
           style={{
             position: 'absolute',
-            top: '675px',
-            left: '220px',
-            width: '250px',
+            top: 94,
+            left: 120,
+            width: 960,
+            minHeight: 38,
             display: 'flex',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 20,
+            textAlign: 'center',
+            zIndex: 10,
           }}
         >
-          <span
+          <div
             style={{
-              fontSize: '14px',
+              maxWidth: 820,
               color: '#ffffff',
-              fontWeight: 500,
-              textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
+              fontSize: 26,
+              lineHeight: 1.15,
+              fontWeight: 700,
+              letterSpacing: '1.8px',
+              textTransform: 'uppercase',
+              textShadow: '0 2px 8px rgba(0,0,0,0.75)',
+              whiteSpace: 'normal',
             }}
           >
-            {date}
-          </span>
+            {title}
+          </div>
         </div>
+      )}
 
-        {/* Signature - Lower-Right Line Area (Under the line) */}
+      {subtitle && (
         <div
           style={{
             position: 'absolute',
-            top: '625px',
-            right: '220px',
+            top: 132,
+            left: 150,
+            width: 900,
+            minHeight: 22,
             display: 'flex',
-            flexDirection: 'column',
+            justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 20,
+            textAlign: 'center',
+            zIndex: 10,
           }}
         >
-          {signatureUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={signatureUrl}
-              alt="Signature"
-              style={{
-                width: '100px',
-                height: '40px',
-                objectFit: 'contain',
-                marginBottom: '4px',
-              }}
-            />
-          )}
           <div
             style={{
-              textAlign: 'center',
+              maxWidth: 760,
+              color: '#ffffff',
+              fontSize: 14,
+              lineHeight: 1.25,
+              fontWeight: 400,
+              letterSpacing: '1.2px',
+              textShadow: '0 1px 5px rgba(0,0,0,0.7)',
             }}
           >
-            {founderName && (
-              <div
-                style={{
-                  fontFamily: '"Roboto", sans-serif',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: '#ffffff',
-                  marginBottom: '1px',
-                  textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
-                }}
-              >
-                {founderName}
-              </div>
-            )}
-            {signatureText && (
-              <div
-                style={{
-                  fontFamily: '"Roboto", sans-serif',
-                  fontSize: '10px',
-                  fontWeight: 400,
-                  color: '#ffffff',
-                  opacity: 0.85,
-                  textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
-                }}
-              >
-                {signatureText}
-              </div>
-            )}
+            {subtitle}
           </div>
         </div>
+      )}
 
-        {/* Certificate ID - Subtle Position */}
-        {certificateId && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '705px',
-              right: '220px',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            <span
-              style={{
-                fontSize: '10px',
-                color: '#ffffff',
-                fontWeight: 400,
-                opacity: 0.6,
-                fontFamily: '"Roboto", sans-serif',
-                letterSpacing: '0.5px',
-              }}
-            >
-              {certificateId}
-            </span>
-          </div>
-        )}
+      {/* ================================================================
+          RECIPIENT ZONE
+          Student name is deliberately the largest text on the certificate.
+          ================================================================ */}
 
-        {/* QR Code - Subtle Side Position (Adjusted) */}
-        {(qrEnabled !== false) && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '660px',
-              left: '150px',
-              display: 'flex',
-              width: '60px',
-              height: '60px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#ffffff',
-              padding: '3px',
-              borderRadius: '3px',
-              border: `1px solid ${accentColor || '#00ffaa'}`,
-              opacity: 0.9,
-            }}
-          >
-            {qrData && (
-              <svg
-                width="54"
-                height="54"
-                viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
-                fill="#000000"
-              >
-                {Array.from(qrData.modules.data).map((isDark, i) => {
-                  if (!isDark) return null
-                  const size = qrData.modules.size
-                  const x = i % size
-                  const y = Math.floor(i / size)
-                  return <rect key={i} x={x} y={y} width="1.05" height="1.05" />
-                })}
-              </svg>
-            )}
-          </div>
-        )}
-
-        {/* Footer - Bottom Center (Bigger) */}
-        {footer && (
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '25px',
-              left: '0',
-              width: '1200px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 20,
-            }}
-          >
-            <span
-              style={{
-                fontSize: '14px',
-                color: '#ffffff',
-                fontWeight: 400,
-                opacity: 0.75,
-                letterSpacing: '1px',
-                textShadow: '0px 1px 4px rgba(0,0,0,0.6)',
-              }}
-            >
-              {footer}
-            </span>
-          </div>
-        )}
-
+      <div
+        style={{
+          position: 'absolute',
+          top: 165,
+          left: 110,
+          width: 980,
+          minHeight: 82,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          zIndex: 10,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 900,
+            color: '#ffffff',
+            fontFamily: '"GreatVibes", "Brush Script MT", cursive',
+            fontSize: 70,
+            lineHeight: 1.05,
+            fontWeight: 400,
+            textShadow: '0 3px 12px rgba(0,0,0,0.85)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {name}
+        </div>
       </div>
+
+      {/* Decorative divider beneath the student's name. */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 244,
+          left: 285,
+          width: 630,
+          height: 1,
+          background:
+            'linear-gradient(to right, transparent, rgba(255,255,255,0.55), transparent)',
+          zIndex: 9,
+        }}
+      />
+
+      {/* ================================================================
+          COMPLETION ZONE
+          Body text and course are a single visual unit.
+          ================================================================ */}
+
+      {bodyText && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 255,
+            left: 170,
+            width: 860,
+            minHeight: 24,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+            zIndex: 10,
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 820,
+              color: '#ffffff',
+              fontSize: 18,
+              lineHeight: 1.25,
+              fontWeight: 400,
+              letterSpacing: '0.25px',
+              textShadow: '0 1px 5px rgba(0,0,0,0.75)',
+            }}
+          >
+            {bodyText}
+          </div>
+        </div>
+      )}
+
+      {course && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 282,
+            left: 130,
+            width: 940,
+            minHeight: 36,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+            zIndex: 10,
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 860,
+              color: accent,
+              fontSize: 27,
+              lineHeight: 1.15,
+              fontWeight: 700,
+              letterSpacing: '1px',
+              textTransform: 'uppercase',
+              textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+              whiteSpace: 'normal',
+            }}
+          >
+            {course}
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================
+          LOWER CREDENTIAL ZONE
+          These positions align with the open lower portion of the supplied
+          background. The seal itself is intentionally NOT drawn here because
+          the background artwork already provides the graduation/seal area.
+          ================================================================ */}
+
+      {/* Date */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 155,
+          bottom: 105,
+          width: 285,
+          height: 42,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-start',
+          zIndex: 10,
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            paddingBottom: 7,
+            borderBottom: '1px solid rgba(255,255,255,0.72)',
+            color: '#ffffff',
+            fontSize: 14,
+            lineHeight: 1.2,
+            fontWeight: 500,
+            textShadow: '0 1px 4px rgba(0,0,0,0.7)',
+          }}
+        >
+          {date}
+        </div>
+        <div
+          style={{
+            marginTop: 5,
+            color: 'rgba(255,255,255,0.78)',
+            fontSize: 11,
+            letterSpacing: '0.7px',
+            textTransform: 'uppercase',
+          }}
+        >
+          Date
+        </div>
+      </div>
+
+      {/* Signature */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 150,
+          bottom: 96,
+          width: 300,
+          height: 58,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          textAlign: 'center',
+          zIndex: 10,
+        }}
+      >
+        {signatureUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={signatureUrl}
+            alt="Signature"
+            style={{
+              width: 150,
+              height: 38,
+              objectFit: 'contain',
+              display: 'block',
+              marginBottom: 2,
+            }}
+          />
+        )}
+
+        <div
+          style={{
+            width: '100%',
+            paddingBottom: 6,
+            borderBottom: '1px solid rgba(255,255,255,0.72)',
+          }}
+        />
+
+        {signatureText && (
+          <div
+            style={{
+              marginTop: 5,
+              color: 'rgba(255,255,255,0.82)',
+              fontSize: 11,
+              lineHeight: 1.2,
+              letterSpacing: '0.6px',
+            }}
+          >
+            {signatureText}
+          </div>
+        )}
+
+        {founderName && (
+          <div
+            style={{
+              marginTop: 2,
+              color: '#ffffff',
+              fontSize: 13,
+              lineHeight: 1.2,
+              fontWeight: 600,
+              textShadow: '0 1px 4px rgba(0,0,0,0.7)',
+            }}
+          >
+            {founderName}
+          </div>
+        )}
+      </div>
+
+      {/* ================================================================
+          QR CODE
+          Never render an empty QR placeholder. If QR is disabled or data
+          is unavailable, this entire element disappears.
+          ================================================================ */}
+
+      {qrEnabled !== false && qrData && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 58,
+            bottom: 92,
+            width: 64,
+            height: 64,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#ffffff',
+            padding: 4,
+            borderRadius: 2,
+            opacity: 0.92,
+            zIndex: 10,
+          }}
+        >
+          <svg
+            width="56"
+            height="56"
+            viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
+            fill="#000000"
+            shapeRendering="crispEdges"
+            aria-label="Certificate verification QR code"
+          >
+            {Array.from(qrData.modules.data).map((isDark, index) => {
+              if (!isDark) return null
+
+              const size = qrData.modules.size
+              const x = index % size
+              const y = Math.floor(index / size)
+
+              return (
+                <rect
+                  key={index}
+                  x={x}
+                  y={y}
+                  width="1.05"
+                  height="1.05"
+                />
+              )
+            })}
+          </svg>
+        </div>
+      )}
+
+      {/* Certificate ID - deliberately subtle and separated from the footer. */}
+      {certificateId && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 70,
+            bottom: 53,
+            maxWidth: 250,
+            color: 'rgba(255,255,255,0.52)',
+            fontSize: 9,
+            lineHeight: 1.2,
+            letterSpacing: '0.45px',
+            textAlign: 'right',
+            zIndex: 10,
+          }}
+        >
+          Certificate ID: {certificateId}
+        </div>
+      )}
+
+      {/* Footer */}
+      {footer && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 120,
+            bottom: 20,
+            width: 960,
+            minHeight: 18,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+            zIndex: 10,
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 850,
+              color: 'rgba(255,255,255,0.78)',
+              fontSize: 11,
+              lineHeight: 1.2,
+              fontWeight: 400,
+              letterSpacing: '0.55px',
+              textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+            }}
+          >
+            {footer}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
