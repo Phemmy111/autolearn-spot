@@ -36,7 +36,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(256)
   const [rightSidebarWidth, setRightSidebarWidth] = useState(320)
-  const [isResizingPanel, setIsResizingPanel] = useState<'left' | 'right' | null>(null)
   const [snapToGrid, setSnapToGrid] = useState(true)
   const [showGrid, setShowGrid] = useState(true)
   const [alignmentGuides, setAlignmentGuides] = useState<{ horizontal: number[]; vertical: number[] }>({ horizontal: [], vertical: [] })
@@ -139,20 +138,29 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const handlePanelResizeStart = useCallback((panel: 'left' | 'right', e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setIsResizingPanel(panel)
-  }, [])
+    
+    const startX = e.clientX
+    const startLeftWidth = leftSidebarWidth
+    const startRightWidth = rightSidebarWidth
 
-  const handlePanelResize = useCallback((e: MouseEvent) => {
-    if (!isResizingPanel) return
-
-    if (isResizingPanel === 'left') {
-      const newWidth = e.clientX
-      setLeftSidebarWidth(Math.max(200, Math.min(newWidth, 400)))
-    } else if (isResizingPanel === 'right') {
-      const newWidth = window.innerWidth - e.clientX
-      setRightSidebarWidth(Math.max(250, Math.min(newWidth, 500)))
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (panel === 'left') {
+        const deltaX = moveEvent.clientX - startX
+        setLeftSidebarWidth(Math.max(200, Math.min(400, startLeftWidth + deltaX)))
+      } else {
+        const deltaX = startX - moveEvent.clientX
+        setRightSidebarWidth(Math.max(250, Math.min(500, startRightWidth + deltaX)))
+      }
     }
-  }, [isResizingPanel])
+
+    const handleMouseUp = () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+  }, [leftSidebarWidth, rightSidebarWidth])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // Handle resizing
@@ -294,23 +302,8 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     setIsDragging(false)
     setIsResizing(false)
     setResizeHandle(null)
-    setIsResizingPanel(null)
     setAlignmentGuides({ horizontal: [], vertical: [] })
   }, [])
-
-  // Add global event listener for panel resize
-  useEffect(() => {
-    if (isResizingPanel) {
-      const handleResize = (e: MouseEvent) => handlePanelResize(e)
-      const handleUp = () => handleMouseUp()
-      window.addEventListener('mousemove', handleResize)
-      window.addEventListener('mouseup', handleUp)
-      return () => {
-        window.removeEventListener('mousemove', handleResize)
-        window.removeEventListener('mouseup', handleUp)
-      }
-    }
-  }, [isResizingPanel, handlePanelResize, handleMouseUp])
 
   const handleSelectElement = useCallback((elementId: string) => {
     setSelectedElement(elementId)
@@ -834,7 +827,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             </button>
             {!leftSidebarCollapsed && (
               <div 
-                className="w-1 h-4 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff]"
+                className="w-2 h-8 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff] rounded"
                 onMouseDown={(e) => handlePanelResizeStart('left', e)}
               />
             )}
@@ -1007,7 +1000,13 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               setEditingText(null)
                             }
                           }}
-                          onMouseDown={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                          }}
                           className="w-full h-full bg-transparent text-white resize-none outline-none"
                           style={{
                             fontFamily: element.style?.fontFamily || 'Roboto',
@@ -1166,7 +1165,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             </button>
             {!rightSidebarCollapsed && (
               <div 
-                className="w-1 h-4 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff]"
+                className="w-2 h-8 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff] rounded"
                 onMouseDown={(e) => handlePanelResizeStart('right', e)}
               />
             )}
