@@ -694,7 +694,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       <div className="flex items-center justify-between px-4 py-2 bg-[#0c0e12] border-b border-[#1f2229]">
         <div className="flex items-center gap-3">
           <Layers className="h-5 w-5 text-[#00f0ff]" />
-          <h2 className="text-lg font-semibold text-white">Certificate Designer</h2>
+          <h2 className="text-lg font-semibold text-white">Certificate Designer v2.0</h2>
           {unsavedChanges && (
             <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded">
               Unsaved changes
