@@ -16,6 +16,8 @@ interface CertificateDesignerProps {
 const CANVAS_WIDTH = 1200
 const CANVAS_HEIGHT = 800
 const SCALE = 0.4 // Scale down for admin UI
+const GRID_SIZE = 20 // Grid size for snap-to-grid
+const SNAP_THRESHOLD = 10 // Pixels threshold for snapping
 
 export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly = false, onSave, isSaving = false }: CertificateDesignerProps) {
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
@@ -32,6 +34,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [activeTab, setActiveTab] = useState<'position' | 'style' | 'text' | 'layers'>('position')
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
+  const [snapToGrid, setSnapToGrid] = useState(true)
+  const [showGrid, setShowGrid] = useState(true)
+  const [alignmentGuides, setAlignmentGuides] = useState<{ horizontal: number[]; vertical: number[] }>({ horizontal: [], vertical: [] })
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeHandle, setResizeHandle] = useState<string | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
 
@@ -64,10 +71,26 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     }
   }, [])
 
-  const handleElementMouseDown = useCallback((e: React.MouseEvent, element: CertificateElement) => {
+  const handleElementMouseDown = useCallback((e: React.MouseEvent, element: CertificateElement, handle?: string) => {
     if (readOnly || element.locked) return
 
     e.stopPropagation()
+    
+    // Handle resize handles
+    if (handle) {
+      setIsResizing(true)
+      setResizeHandle(handle)
+      setSelectedElement(element.id)
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      const scale = SCALE
+      setDragOffset({
+        x: (e.clientX - rect.left) / scale,
+        y: (e.clientY - rect.top) / scale,
+      })
+      return
+    }
     
     // Handle multi-select with Shift+click
     if (e.shiftKey) {
@@ -100,6 +123,62 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   }, [readOnly, selectedElements, selectedElement])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    // Handle resizing
+    if (isResizing && selectedElement && resizeHandle && !readOnly) {
+      const canvas = canvasRef.current
+      if (!canvas) return
+
+      const rect = canvas.getBoundingClientRect()
+      const scale = SCALE
+      const mouseX = (e.clientX - rect.left) / scale
+      const mouseY = (e.clientY - rect.top) / scale
+
+      const element = layout.elements.find(el => el.id === selectedElement)
+      if (!element) return
+
+      const updatedLayout = cloneLayout(layout)
+      const updatedElement = updatedLayout.elements.find(el => el.id === selectedElement)
+      if (!updatedElement) return
+
+      let newWidth = element.width
+      let newHeight = element.height
+      let newX = element.x
+      let newY = element.y
+
+      // Handle different resize handles
+      if (resizeHandle.includes('e')) {
+        newWidth = Math.max(20, mouseX - element.x)
+      }
+      if (resizeHandle.includes('w')) {
+        newWidth = Math.max(20, element.width + element.x - mouseX)
+        newX = mouseX
+      }
+      if (resizeHandle.includes('s')) {
+        newHeight = Math.max(20, mouseY - element.y)
+      }
+      if (resizeHandle.includes('n')) {
+        newHeight = Math.max(20, element.height + element.y - mouseY)
+        newY = mouseY
+      }
+
+      // Snap to grid
+      if (snapToGrid) {
+        newWidth = Math.round(newWidth / GRID_SIZE) * GRID_SIZE
+        newHeight = Math.round(newHeight / GRID_SIZE) * GRID_SIZE
+        newX = Math.round(newX / GRID_SIZE) * GRID_SIZE
+        newY = Math.round(newY / GRID_SIZE) * GRID_SIZE
+      }
+
+      updatedElement.width = newWidth
+      updatedElement.height = newHeight
+      updatedElement.x = newX
+      updatedElement.y = newY
+
+      onLayoutChange(updatedLayout)
+      return
+    }
+
+    // Handle dragging
     if (!isDragging || !selectedElement || readOnly) return
 
     const canvas = canvasRef.current
@@ -108,11 +187,63 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     const rect = canvas.getBoundingClientRect()
     const scale = SCALE
 
-    const newX = (e.clientX - rect.left) / scale - dragOffset.x
-    const newY = (e.clientY - rect.top) / scale - dragOffset.y
+    let newX = (e.clientX - rect.left) / scale - dragOffset.x
+    let newY = (e.clientY - rect.top) / scale - dragOffset.y
 
     const element = layout.elements.find(el => el.id === selectedElement)
     if (!element) return
+
+    // Snap to grid
+    if (snapToGrid) {
+      newX = Math.round(newX / GRID_SIZE) * GRID_SIZE
+      newY = Math.round(newY / GRID_SIZE) * GRID_SIZE
+    }
+
+    // Calculate alignment guides
+    const horizontalGuides: number[] = []
+    const verticalGuides: number[] = []
+
+    layout.elements.forEach(otherElement => {
+      if (otherElement.id === selectedElement) return
+
+      // Check for horizontal alignment (center)
+      if (Math.abs((otherElement.x + otherElement.width / 2) - (newX + element.width / 2)) < SNAP_THRESHOLD) {
+        newX = otherElement.x + otherElement.width / 2 - element.width / 2
+        horizontalGuides.push(otherElement.y + otherElement.height / 2)
+      }
+
+      // Check for vertical alignment (center)
+      if (Math.abs((otherElement.y + otherElement.height / 2) - (newY + element.height / 2)) < SNAP_THRESHOLD) {
+        newY = otherElement.y + otherElement.height / 2 - element.height / 2
+        verticalGuides.push(otherElement.x + otherElement.width / 2)
+      }
+
+      // Check for left edge alignment
+      if (Math.abs(otherElement.x - newX) < SNAP_THRESHOLD) {
+        newX = otherElement.x
+        verticalGuides.push(otherElement.x)
+      }
+
+      // Check for right edge alignment
+      if (Math.abs((otherElement.x + otherElement.width) - (newX + element.width)) < SNAP_THRESHOLD) {
+        newX = otherElement.x + otherElement.width - element.width
+        verticalGuides.push(otherElement.x + otherElement.width)
+      }
+
+      // Check for top edge alignment
+      if (Math.abs(otherElement.y - newY) < SNAP_THRESHOLD) {
+        newY = otherElement.y
+        horizontalGuides.push(otherElement.y)
+      }
+
+      // Check for bottom edge alignment
+      if (Math.abs((otherElement.y + otherElement.height) - (newY + element.height)) < SNAP_THRESHOLD) {
+        newY = otherElement.y + otherElement.height - element.height
+        horizontalGuides.push(otherElement.y + otherElement.height)
+      }
+    })
+
+    setAlignmentGuides({ horizontal: horizontalGuides, vertical: verticalGuides })
 
     // Constrain to canvas bounds
     const constrainedX = Math.max(0, Math.min(newX, CANVAS_WIDTH - element.width))
@@ -125,10 +256,13 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       updatedElement.y = constrainedY
       onLayoutChange(updatedLayout)
     }
-  }, [isDragging, selectedElement, dragOffset, layout, onLayoutChange, readOnly])
+  }, [isDragging, isResizing, selectedElement, resizeHandle, dragOffset, layout, onLayoutChange, readOnly, snapToGrid])
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
+    setIsResizing(false)
+    setResizeHandle(null)
+    setAlignmentGuides({ horizontal: [], vertical: [] })
   }, [])
 
   const handleSelectElement = useCallback((elementId: string) => {
@@ -580,6 +714,23 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           <div className="w-px h-6 bg-[#1f2229]" />
           <button
             type="button"
+            onClick={() => setShowGrid(!showGrid)}
+            className={`p-2 rounded transition-colors ${showGrid ? 'bg-[#00f0ff]/20 text-[#00f0ff]' : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'}`}
+            title="Toggle Grid"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setSnapToGrid(!snapToGrid)}
+            className={`p-2 rounded transition-colors ${snapToGrid ? 'bg-[#00f0ff]/20 text-[#00f0ff]' : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'}`}
+            title="Toggle Snap to Grid"
+          >
+            <Layers className="h-4 w-4" />
+          </button>
+          <div className="w-px h-6 bg-[#1f2229]" />
+          <button
+            type="button"
             onClick={handleReset}
             className="px-3 py-2 bg-[#1f2229] text-[#b9cacb] text-sm rounded hover:bg-[#2a2e38] transition-colors"
           >
@@ -709,6 +860,11 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                 width: `${CANVAS_WIDTH}px`,
                 height: `${CANVAS_HEIGHT}px`,
                 cursor: isDragging ? 'grabbing' : 'default',
+                backgroundImage: showGrid ? `
+                  linear-gradient(to right, #1f2229 1px, transparent 1px),
+                  linear-gradient(to bottom, #1f2229 1px, transparent 1px)
+                ` : 'none',
+                backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
               }}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -723,6 +879,22 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                   style={{ pointerEvents: 'none' }}
                 />
               )}
+
+              {/* Alignment Guides */}
+              {alignmentGuides.horizontal.map((y, index) => (
+                <div
+                  key={`h-${index}`}
+                  className="absolute left-0 right-0 bg-[#00f0ff] pointer-events-none"
+                  style={{ top: y, height: '1px', opacity: 0.5 }}
+                />
+              ))}
+              {alignmentGuides.vertical.map((x, index) => (
+                <div
+                  key={`v-${index}`}
+                  className="absolute top-0 bottom-0 bg-[#00f0ff] pointer-events-none"
+                  style={{ left: x, width: '1px', opacity: 0.5 }}
+                />
+              ))}
 
               {/* Elements */}
               {layout.elements.map((element) => {
@@ -785,7 +957,49 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       </div>
                     )}
                     {isSelected && !readOnly && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00f0ff] rounded-full" />
+                      <>
+                        {/* Resize handles */}
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nwse-resize"
+                          style={{ top: -4, left: -4 }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 'nw')}
+                        />
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ns-resize"
+                          style={{ top: -4, left: '50%', transform: 'translateX(-50%)' }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 'n')}
+                        />
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nesw-resize"
+                          style={{ top: -4, right: -4 }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 'ne')}
+                        />
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ew-resize"
+                          style={{ top: '50%', right: -4, transform: 'translateY(-50%)' }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 'e')}
+                        />
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nwse-resize"
+                          style={{ bottom: -4, right: -4 }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 'se')}
+                        />
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ns-resize"
+                          style={{ bottom: -4, left: '50%', transform: 'translateX(-50%)' }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 's')}
+                        />
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nesw-resize"
+                          style={{ bottom: -4, left: -4 }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 'sw')}
+                        />
+                        <div
+                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ew-resize"
+                          style={{ top: '50%', left: -4, transform: 'translateY(-50%)' }}
+                          onMouseDown={(e) => handleElementMouseDown(e, element, 'w')}
+                        />
+                      </>
                     )}
                   </div>
                 )
