@@ -34,6 +34,9 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   const [activeTab, setActiveTab] = useState<'position' | 'style' | 'text' | 'layers'>('position')
   const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
   const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(false)
+  const [leftSidebarWidth, setLeftSidebarWidth] = useState(256)
+  const [rightSidebarWidth, setRightSidebarWidth] = useState(320)
+  const [isResizingPanel, setIsResizingPanel] = useState<'left' | 'right' | null>(null)
   const [snapToGrid, setSnapToGrid] = useState(true)
   const [showGrid, setShowGrid] = useState(true)
   const [alignmentGuides, setAlignmentGuides] = useState<{ horizontal: number[]; vertical: number[] }>({ horizontal: [], vertical: [] })
@@ -132,6 +135,23 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       setSelectedElement(element.id)
     }
   }, [readOnly])
+
+  const handlePanelResizeStart = useCallback((panel: 'left' | 'right', e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizingPanel(panel)
+  }, [])
+
+  const handlePanelResize = useCallback((e: React.MouseEvent) => {
+    if (!isResizingPanel) return
+
+    if (isResizingPanel === 'left') {
+      const newWidth = e.clientX
+      setLeftSidebarWidth(Math.max(200, Math.min(newWidth, 400)))
+    } else if (isResizingPanel === 'right') {
+      const newWidth = window.innerWidth - e.clientX
+      setRightSidebarWidth(Math.max(250, Math.min(newWidth, 500)))
+    }
+  }, [isResizingPanel])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // Handle resizing
@@ -273,6 +293,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     setIsDragging(false)
     setIsResizing(false)
     setResizeHandle(null)
+    setIsResizingPanel(null)
     setAlignmentGuides({ horizontal: [], vertical: [] })
   }, [])
 
@@ -784,14 +805,28 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Elements */}
-        <div className={`w-64 bg-[#0c0e12] border-r border-[#1f2229] flex flex-col transition-all duration-300 ${leftSidebarCollapsed ? 'w-12' : ''}`}>
-          <button
-            type="button"
-            onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
-            className="p-2 border-b border-[#1f2229] text-[#b9cacb] hover:bg-[#1f2229]"
-          >
-            {leftSidebarCollapsed ? <ChevronDown className="h-4 w-4 rotate-90" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
+        <div 
+          className={`bg-[#0c0e12] border-r border-[#1f2229] flex flex-col ${leftSidebarCollapsed ? 'w-12' : ''}`}
+          style={{ width: leftSidebarCollapsed ? 48 : leftSidebarWidth }}
+          onMouseMove={handlePanelResize}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          <div className="flex items-center justify-between p-2 border-b border-[#1f2229]">
+            <button
+              type="button"
+              onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
+              className="text-[#b9cacb] hover:bg-[#1f2229] p-1 rounded"
+            >
+              {leftSidebarCollapsed ? <ChevronDown className="h-4 w-4 rotate-90" /> : <ChevronDown className="h-4 w-4" />}
+            </button>
+            {!leftSidebarCollapsed && (
+              <div 
+                className="w-1 h-4 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff]"
+                onMouseDown={(e) => handlePanelResizeStart('left', e)}
+              />
+            )}
+          </div>
           
           {!leftSidebarCollapsed && (
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -939,7 +974,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       height: element.height,
                       opacity: element.visible !== false ? (element.style?.opacity || 1) : 0,
                       pointerEvents: element.locked ? 'none' : 'auto',
-                      display: element.visible === false ? 'none' : 'block'
+                      display: element.visible === false ? 'none' : 'block',
+                      background: element.style?.background || 'transparent',
+                      border: element.style?.border || 'none',
+                      borderRadius: element.style?.borderRadius || 0,
                     }}
                     onMouseDown={(e) => handleElementMouseDown(e, element)}
                     onClick={() => handleSelectElement(element.id)}
@@ -953,10 +991,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           onChange={(e) => handleTextChange(e.target.value)}
                           onBlur={() => setEditingText(null)}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault()
-                              setEditingText(null)
-                            }
                             if (e.key === 'Escape') {
                               setEditingText(null)
                             }
@@ -971,7 +1005,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             textAlign: element.style?.textAlign || 'left',
                             lineHeight: element.style?.lineHeight || 1,
                             letterSpacing: element.style?.letterSpacing || 0,
-                            whiteSpace: 'normal',
+                            whiteSpace: 'pre-wrap',
                             overflow: 'visible',
                             ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
                               WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
@@ -994,6 +1028,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             whiteSpace: 'normal',
                             overflow: 'visible',
                             cursor: element.binding ? 'default' : 'text',
+                            textShadow: element.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)',
                             ...(element.style?.outlineWidth && element.style.outlineWidth > 0 ? {
                               WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
                               paintOrder: 'stroke',
@@ -1104,19 +1139,33 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
         </div>
 
         {/* Right Sidebar - Properties */}
-        <div className={`w-80 bg-[#0c0e12] border-l border-[#1f2229] flex flex-col transition-all duration-300 ${rightSidebarCollapsed ? 'w-12' : ''}`}>
-          <button
-            type="button"
-            onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}
-            className="p-2 border-b border-[#1f2229] text-[#b9cacb] hover:bg-[#1f2229]"
-          >
-            {rightSidebarCollapsed ? <ChevronDown className="h-4 w-4 -rotate-90" /> : <ChevronDown className="h-4 w-4 -rotate-90" />}
-          </button>
+        <div 
+          className={`bg-[#0c0e12] border-l border-[#1f2229] flex flex-col ${rightSidebarCollapsed ? 'w-12' : ''}`}
+          style={{ width: rightSidebarCollapsed ? 48 : rightSidebarWidth }}
+          onMouseMove={handlePanelResize}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          <div className="flex items-center justify-between p-2 border-b border-[#1f2229]">
+            <button
+              type="button"
+              onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}
+              className="text-[#b9cacb] hover:bg-[#1f2229] p-1 rounded"
+            >
+              {rightSidebarCollapsed ? <ChevronDown className="h-4 w-4 -rotate-90" /> : <ChevronDown className="h-4 w-4 -rotate-90" />}
+            </button>
+            {!rightSidebarCollapsed && (
+              <div 
+                className="w-1 h-4 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff]"
+                onMouseDown={(e) => handlePanelResizeStart('right', e)}
+              />
+            )}
+          </div>
           
           {!rightSidebarCollapsed && (
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex flex-col h-full">
               {/* Tabs */}
-              <div className="flex border-b border-[#1f2229]">
+              <div className="flex border-b border-[#1f2229] shrink-0">
                 {[
                   { id: 'position', label: 'Position', icon: <Move className="h-4 w-4" /> },
                   { id: 'style', label: 'Style', icon: <Settings className="h-4 w-4" /> },
@@ -1140,7 +1189,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               </div>
 
               {/* Tab Content */}
-              <div className="p-4">
+              <div className="flex-1 overflow-y-auto p-4">
                 {selectedElementData ? (
                   <>
                     {/* Element Header */}
@@ -1298,34 +1347,15 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           <div className="flex gap-2">
                             <input
                               type="color"
-                              value={selectedElementData.style?.backgroundColor || '#000000'}
-                              onChange={(e) => handleStyleChange('backgroundColor', e.target.value)}
+                              value={selectedElementData.style?.background || '#000000'}
+                              onChange={(e) => handleStyleChange('background', e.target.value)}
                               className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
                               disabled={readOnly}
                             />
                             <input
                               type="text"
-                              value={selectedElementData.style?.backgroundColor || '#000000'}
-                              onChange={(e) => handleStyleChange('backgroundColor', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                              disabled={readOnly}
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs text-[#b9cacb] mb-1">Border Color</label>
-                          <div className="flex gap-2">
-                            <input
-                              type="color"
-                              value={selectedElementData.style?.borderColor || '#ffffff'}
-                              onChange={(e) => handleStyleChange('borderColor', e.target.value)}
-                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
-                              disabled={readOnly}
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementData.style?.borderColor || '#ffffff'}
-                              onChange={(e) => handleStyleChange('borderColor', e.target.value)}
+                              value={selectedElementData.style?.background || '#000000'}
+                              onChange={(e) => handleStyleChange('background', e.target.value)}
                               className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                               disabled={readOnly}
                             />
@@ -1336,11 +1366,44 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           <input
                             type="number"
                             value={selectedElementData.style?.borderWidth || 0}
-                            onChange={(e) => handleStyleChange('borderWidth', Number(e.target.value))}
+                            onChange={(e) => {
+                              const width = Number(e.target.value)
+                              const color = selectedElementData.style?.borderColor || '#ffffff'
+                              handleStyleChange('border', `${width}px solid ${color}`)
+                            }}
                             className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                             disabled={readOnly}
                             min="0"
                           />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Border Color</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={selectedElementData.style?.borderColor || '#ffffff'}
+                              onChange={(e) => {
+                                const color = e.target.value
+                                const width = selectedElementData.style?.borderWidth || 0
+                                handleStyleChange('border', `${width}px solid ${color}`)
+                                handleStyleChange('borderColor', color)
+                              }}
+                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              disabled={readOnly}
+                            />
+                            <input
+                              type="text"
+                              value={selectedElementData.style?.borderColor || '#ffffff'}
+                              onChange={(e) => {
+                                const color = e.target.value
+                                const width = selectedElementData.style?.borderWidth || 0
+                                handleStyleChange('border', `${width}px solid ${color}`)
+                                handleStyleChange('borderColor', color)
+                              }}
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
                         </div>
                       </div>
                     )}

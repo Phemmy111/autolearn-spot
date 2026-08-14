@@ -68,6 +68,8 @@ export interface CertificateElementStyle {
   opacity?: number
   background?: string
   border?: string
+  borderColor?: string
+  borderWidth?: number
   borderRadius?: number
   padding?: number | string
   maxWidth?: number
