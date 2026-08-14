@@ -207,7 +207,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
     accentColor: '#00e5ff',
   },
   elements: [
-    // Logo - top center
+    // Logo - top center (hidden by default, enable if background doesn't have logo)
     {
       id: 'logo',
       type: 'logo',
@@ -216,7 +216,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       width: 62,
       height: 62,
       rotation: 0,
-      visible: true,
+      visible: false,
       locked: false,
       binding: 'logo',
       style: {
