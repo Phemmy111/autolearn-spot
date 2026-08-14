@@ -431,6 +431,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (readOnly) return
+      if (editingText) return // Don't handle shortcuts when editing text
+
+      const activeElement = document.activeElement
+      const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA'
 
       // Ctrl+Z for undo
       if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
@@ -452,14 +456,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       }
       // Delete key
       else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedElement && document.activeElement.tagName !== 'INPUT') {
+        if (selectedElement && !isInput) {
           e.preventDefault()
           handleDeleteElement(selectedElement)
         }
       }
       // Ctrl+C for copy
       else if (e.ctrlKey && e.key === 'c') {
-        if (selectedElement && document.activeElement.tagName !== 'INPUT') {
+        if (selectedElement && !isInput) {
           e.preventDefault()
           const element = layout.elements.find(el => el.id === selectedElement)
           if (element) {
@@ -469,7 +473,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       }
       // Ctrl+V for paste
       else if (e.ctrlKey && e.key === 'v') {
-        if (clipboard && document.activeElement.tagName !== 'INPUT') {
+        if (clipboard && !isInput) {
           e.preventDefault()
           const updatedLayout = cloneLayout(layout)
           const newElement = JSON.parse(JSON.stringify(clipboard))
@@ -483,7 +487,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       }
       // Ctrl+D for duplicate
       else if (e.ctrlKey && e.key === 'd') {
-        if (selectedElement && document.activeElement.tagName !== 'INPUT') {
+        if (selectedElement && !isInput) {
           e.preventDefault()
           const element = layout.elements.find(el => el.id === selectedElement)
           if (element) {
@@ -500,7 +504,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       }
       // Arrow keys for nudge
       else if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        if (document.activeElement.tagName !== 'INPUT') {
+        if (!isInput) {
           e.preventDefault()
           const updatedLayout = cloneLayout(layout)
           const element = updatedLayout.elements.find(el => el.id === selectedElement)
@@ -528,7 +532,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [readOnly, selectedElement, clipboard, layout, history, historyIndex, handleDeleteElement, onLayoutChange])
+  }, [readOnly, selectedElement, clipboard, layout, history, historyIndex, handleDeleteElement, onLayoutChange, editingText])
 
   // Handle zoom
   const handleZoomIn = useCallback(() => {
@@ -1001,10 +1005,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             }
                           }}
                           onMouseDown={(e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                          }}
-                          onClick={(e) => {
                             e.stopPropagation()
                           }}
                           className="w-full h-full bg-transparent text-white resize-none outline-none"
@@ -1519,17 +1519,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs text-[#b9cacb] mb-1">Text Shadow</label>
-                          <input
-                            type="text"
-                            value={selectedElementData.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)'}
-                            onChange={(e) => handleStyleChange('textShadow', e.target.value)}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                            disabled={readOnly}
-                            placeholder="0 2px 8px rgba(0,0,0,0.78)"
-                          />
-                        </div>
-                        <div>
                           <label className="block text-xs text-[#b9cacb] mb-1">Color</label>
                           <div className="flex gap-2">
                             <input
@@ -1543,6 +1532,48 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               type="text"
                               value={selectedElementData.style?.color || '#ffffff'}
                               onChange={(e) => handleStyleChange('color', e.target.value)}
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              disabled={readOnly}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Text Shadow</label>
+                          <input
+                            type="text"
+                            value={selectedElementData.style?.textShadow || '0 2px 8px rgba(0,0,0,0.78)'}
+                            onChange={(e) => handleStyleChange('textShadow', e.target.value)}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                            placeholder="0 2px 8px rgba(0,0,0,0.78)"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Width</label>
+                          <input
+                            type="number"
+                            value={selectedElementData.style?.outlineWidth || 0}
+                            onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
+                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            disabled={readOnly}
+                            min="0"
+                            step="0.5"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Color</label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={selectedElementData.style?.outlineColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
+                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              disabled={readOnly}
+                            />
+                            <input
+                              type="text"
+                              value={selectedElementData.style?.outlineColor || '#ffffff'}
+                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
                               className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                               disabled={readOnly}
                             />
@@ -1591,37 +1622,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
                             disabled={readOnly}
                           />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Width</label>
-                          <input
-                            type="number"
-                            value={selectedElementData.style?.outlineWidth || 0}
-                            onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                            disabled={readOnly}
-                            min="0"
-                            step="0.5"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-[#b9cacb] mb-1">Outline Color</label>
-                          <div className="flex gap-2">
-                            <input
-                              type="color"
-                              value={selectedElementData.style?.outlineColor || '#ffffff'}
-                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
-                              disabled={readOnly}
-                            />
-                            <input
-                              type="text"
-                              value={selectedElementData.style?.outlineColor || '#ffffff'}
-                              onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
-                              disabled={readOnly}
-                            />
-                          </div>
                         </div>
                       </div>
                     )}
