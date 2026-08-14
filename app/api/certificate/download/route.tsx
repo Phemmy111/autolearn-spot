@@ -134,6 +134,15 @@ export async function GET(request: Request) {
       }
     } else {
       console.log('No certificate_layout found in settings, using default')
+      // Try to initialize the setting in the database
+      try {
+        await supabaseAdmin
+          .from('site_settings')
+          .insert({ key: 'certificate_layout', value: null })
+        console.log('Initialized certificate_layout setting in database')
+      } catch (initError) {
+        console.log('Could not initialize certificate_layout (may already exist):', initError)
+      }
     }
 
     // Use absolute URL for the background and logo so next/og can fetch them
