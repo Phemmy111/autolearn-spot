@@ -154,18 +154,6 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     }
   }, [isResizingPanel])
 
-  // Add global event listener for panel resize
-  useEffect(() => {
-    if (isResizingPanel) {
-      window.addEventListener('mousemove', handlePanelResize)
-      window.addEventListener('mouseup', handleMouseUp)
-      return () => {
-        window.removeEventListener('mousemove', handlePanelResize)
-        window.removeEventListener('mouseup', handleMouseUp)
-      }
-    }
-  }, [isResizingPanel, handlePanelResize, handleMouseUp])
-
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     // Handle resizing
     if (isResizing && selectedElement && resizeHandle && !readOnly) {
@@ -309,6 +297,20 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
     setIsResizingPanel(null)
     setAlignmentGuides({ horizontal: [], vertical: [] })
   }, [])
+
+  // Add global event listener for panel resize
+  useEffect(() => {
+    if (isResizingPanel) {
+      const handleResize = (e: MouseEvent) => handlePanelResize(e)
+      const handleUp = () => handleMouseUp()
+      window.addEventListener('mousemove', handleResize)
+      window.addEventListener('mouseup', handleUp)
+      return () => {
+        window.removeEventListener('mousemove', handleResize)
+        window.removeEventListener('mouseup', handleUp)
+      }
+    }
+  }, [isResizingPanel, handlePanelResize, handleMouseUp])
 
   const handleSelectElement = useCallback((elementId: string) => {
     setSelectedElement(elementId)
