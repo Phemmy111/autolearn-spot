@@ -131,13 +131,13 @@ const REVERSE_KEY_MAPPING: Record<string, string> = Object.fromEntries(
   Object.entries(KEY_MAPPING).map(([k, v]) => [v, k])
 );
 
-function convertToDatabaseKeys(settings: Record<string, any>): Record<string, string> {
-  const converted: Record<string, string> = {};
+function convertToDatabaseKeys(settings: Record<string, any>): Record<string, any> {
+  const converted: Record<string, any> = {};
   for (const [key, value] of Object.entries(settings)) {
     const dbKey = KEY_MAPPING[key] || key;
-    // Handle JSON values (like layout) by storing as JSON string
+    // Handle JSON values (like layout) - keep as object, will be stringified later
     if (key === 'layout' && typeof value === 'object') {
-      converted[dbKey] = JSON.stringify(value);
+      converted[dbKey] = value;
       console.log('Converting layout to database key:', dbKey, 'Value length:', JSON.stringify(value).length);
     } else {
       converted[dbKey] = String(value);
@@ -174,11 +174,15 @@ export async function GET(request: Request) {
       const result: Record<string, string> = {};
       if (settings) {
         for (const setting of settings) {
-          // Handle JSONB values - keep certificate_layout as JSON string
+          // Handle JSONB values - convert certificate_layout to JSON string
           let value = setting.value;
           if (setting.key === 'certificate_layout') {
-            // Keep layout as JSON string
-            value = String(value);
+            // Convert JSONB object to JSON string for frontend
+            if (typeof value === 'object') {
+              value = JSON.stringify(value);
+            } else {
+              value = String(value);
+            }
           } else if (typeof value === 'string') {
             try {
               const parsed = JSON.parse(value);
@@ -208,11 +212,15 @@ export async function GET(request: Request) {
       const result: Record<string, string> = {};
       if (settings) {
         for (const setting of settings) {
-          // Handle JSONB values - keep certificate_layout as JSON string
+          // Handle JSONB values - convert certificate_layout to JSON string
           let value = setting.value;
           if (setting.key === 'certificate_layout') {
-            // Keep layout as JSON string
-            value = String(value);
+            // Convert JSONB object to JSON string for frontend
+            if (typeof value === 'object') {
+              value = JSON.stringify(value);
+            } else {
+              value = String(value);
+            }
           } else if (typeof value === 'string') {
             try {
               const parsed = JSON.parse(value);
@@ -256,10 +264,14 @@ export async function PUT(request: Request) {
     // Convert frontend camelCase keys to database snake_case keys
     const dbSettings = convertToDatabaseKeys(settings);
 
-    const updates = Object.entries(dbSettings).map(([key, value]) => ({
-      key,
-      value: JSON.stringify(value),
-    }));
+    const updates = Object.entries(dbSettings).map(([key, value]) => {
+      // Handle layout as JSONB object, others as JSON strings
+      if (key === 'certificate_layout' && typeof value === 'object') {
+        return { key, value };
+      } else {
+        return { key, value: JSON.stringify(value) };
+      }
+    });
 
     const results = await Promise.all(
       updates.map(({ key, value }) =>
