@@ -307,9 +307,12 @@ export async function getPublicSettings(keys?: string[]): Promise<PublicSettings
 
     if (settings) {
       for (const setting of settings) {
-        // Handle JSONB values - unwrap if stored as JSON string
+        // Handle JSONB values - keep certificate_layout as JSON string
         let value = setting.value;
-        if (typeof value === 'string') {
+        if (setting.key === 'certificate_layout') {
+          // Keep layout as JSON string
+          value = String(value);
+        } else if (typeof value === 'string') {
           try {
             const parsed = JSON.parse(value);
             if (typeof parsed === 'string') {
