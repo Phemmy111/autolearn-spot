@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2 } from 'lucide-react'
+import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard } from 'lucide-react'
 import { CertificateLayout, CertificateElement, validateLayout, cloneLayout, resetToDefault, getElementText, getElementSrc, DEMO_CERTIFICATE_DATA } from '@/lib/certificate-layout'
 
 interface CertificateDesignerProps {
@@ -19,21 +19,65 @@ const SCALE = 0.4 // Scale down for admin UI
 
 export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly = false, onSave, isSaving = false }: CertificateDesignerProps) {
   const [selectedElement, setSelectedElement] = useState<string | null>(null)
+  const [selectedElements, setSelectedElements] = useState<string[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [unsavedChanges, setUnsavedChanges] = useState(false)
+  const [history, setHistory] = useState<CertificateLayout[]>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [clipboard, setClipboard] = useState<CertificateElement | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
 
-  // Track unsaved changes
+  // Track unsaved changes and manage history
   useEffect(() => {
     setUnsavedChanges(true)
+    
+    // Add to history for undo/redo
+    const validation = validateLayout(layout)
+    if (validation.valid) {
+      setHistory(prev => {
+        const newHistory = prev.slice(0, historyIndex + 1)
+        newHistory.push(layout)
+        // Keep only last 50 states
+        if (newHistory.length > 50) {
+          newHistory.shift()
+        }
+        return newHistory
+      })
+      setHistoryIndex(prev => Math.min(prev + 1, 49))
+    }
   }, [layout])
+
+  // Initialize history with current layout
+  useEffect(() => {
+    const validation = validateLayout(layout)
+    if (validation.valid && history.length === 0) {
+      setHistory([layout])
+      setHistoryIndex(0)
+    }
+  }, [])
 
   const handleElementMouseDown = useCallback((e: React.MouseEvent, element: CertificateElement) => {
     if (readOnly || element.locked) return
 
     e.stopPropagation()
-    setSelectedElement(element.id)
+    
+    // Handle multi-select with Shift+click
+    if (e.shiftKey) {
+      if (selectedElements.includes(element.id)) {
+        setSelectedElements(prev => prev.filter(id => id !== element.id))
+        if (selectedElement === element.id && selectedElements.length > 1) {
+          setSelectedElement(selectedElements.find(id => id !== element.id) || null)
+        }
+      } else {
+        setSelectedElements(prev => [...prev, element.id])
+        setSelectedElement(element.id)
+      }
+    } else {
+      setSelectedElement(element.id)
+      setSelectedElements([element.id])
+    }
+    
     setIsDragging(true)
 
     const canvas = canvasRef.current
@@ -46,7 +90,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       x: (e.clientX - rect.left) / scale - element.x,
       y: (e.clientY - rect.top) / scale - element.y
     })
-  }, [readOnly])
+  }, [readOnly, selectedElements, selectedElement])
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging || !selectedElement || readOnly) return
@@ -131,8 +175,168 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       if (selectedElement === elementId) {
         setSelectedElement(null)
       }
+      if (selectedElements.includes(elementId)) {
+        setSelectedElements(prev => prev.filter(id => id !== elementId))
+      }
     }
-  }, [layout, onLayoutChange, selectedElement, onLayoutChange])
+  }, [layout, onLayoutChange, selectedElement, selectedElements])
+
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      const newHistoryIndex = historyIndex - 1
+      setHistoryIndex(newHistoryIndex)
+      onLayoutChange(history[newHistoryIndex])
+    }
+  }, [history, historyIndex, onLayoutChange])
+
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newHistoryIndex = historyIndex + 1
+      setHistoryIndex(newHistoryIndex)
+      onLayoutChange(history[newHistoryIndex])
+    }
+  }, [history, historyIndex, onLayoutChange])
+
+  const handleCopy = useCallback(() => {
+    if (selectedElement) {
+      const element = layout.elements.find(el => el.id === selectedElement)
+      if (element) {
+        setClipboard(JSON.parse(JSON.stringify(element)))
+      }
+    }
+  }, [selectedElement, layout])
+
+  const handlePaste = useCallback(() => {
+    if (clipboard) {
+      const updatedLayout = cloneLayout(layout)
+      const newElement = JSON.parse(JSON.stringify(clipboard))
+      newElement.id = `${clipboard.id}_copy_${Date.now()}`
+      newElement.x += 20
+      newElement.y += 20
+      updatedLayout.elements.push(newElement)
+      onLayoutChange(updatedLayout)
+      setSelectedElement(newElement.id)
+    }
+  }, [clipboard, layout, onLayoutChange])
+
+  const handleDuplicate = useCallback(() => {
+    if (selectedElement) {
+      const element = layout.elements.find(el => el.id === selectedElement)
+      if (element) {
+        const updatedLayout = cloneLayout(layout)
+        const newElement = JSON.parse(JSON.stringify(element))
+        newElement.id = `${element.id}_copy_${Date.now()}`
+        newElement.x += 20
+        newElement.y += 20
+        updatedLayout.elements.push(newElement)
+        onLayoutChange(updatedLayout)
+        setSelectedElement(newElement.id)
+      }
+    }
+  }, [selectedElement, layout, onLayoutChange])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (readOnly) return
+
+      // Ctrl+Z for undo
+      if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        if (historyIndex > 0) {
+          const newHistoryIndex = historyIndex - 1
+          setHistoryIndex(newHistoryIndex)
+          onLayoutChange(history[newHistoryIndex])
+        }
+      }
+      // Ctrl+Shift+Z or Ctrl+Y for redo
+      else if ((e.ctrlKey && e.shiftKey && e.key === 'z') || (e.ctrlKey && e.key === 'y')) {
+        e.preventDefault()
+        if (historyIndex < history.length - 1) {
+          const newHistoryIndex = historyIndex + 1
+          setHistoryIndex(newHistoryIndex)
+          onLayoutChange(history[newHistoryIndex])
+        }
+      }
+      // Delete key
+      else if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedElement && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault()
+          handleDeleteElement(selectedElement)
+        }
+      }
+      // Ctrl+C for copy
+      else if (e.ctrlKey && e.key === 'c') {
+        if (selectedElement && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault()
+          const element = layout.elements.find(el => el.id === selectedElement)
+          if (element) {
+            setClipboard(JSON.parse(JSON.stringify(element)))
+          }
+        }
+      }
+      // Ctrl+V for paste
+      else if (e.ctrlKey && e.key === 'v') {
+        if (clipboard && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault()
+          const updatedLayout = cloneLayout(layout)
+          const newElement = JSON.parse(JSON.stringify(clipboard))
+          newElement.id = `${clipboard.id}_copy_${Date.now()}`
+          newElement.x += 20
+          newElement.y += 20
+          updatedLayout.elements.push(newElement)
+          onLayoutChange(updatedLayout)
+          setSelectedElement(newElement.id)
+        }
+      }
+      // Ctrl+D for duplicate
+      else if (e.ctrlKey && e.key === 'd') {
+        if (selectedElement && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault()
+          const element = layout.elements.find(el => el.id === selectedElement)
+          if (element) {
+            const updatedLayout = cloneLayout(layout)
+            const newElement = JSON.parse(JSON.stringify(element))
+            newElement.id = `${element.id}_copy_${Date.now()}`
+            newElement.x += 20
+            newElement.y += 20
+            updatedLayout.elements.push(newElement)
+            onLayoutChange(updatedLayout)
+            setSelectedElement(newElement.id)
+          }
+        }
+      }
+      // Arrow keys for nudge
+      else if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        if (document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault()
+          const updatedLayout = cloneLayout(layout)
+          const element = updatedLayout.elements.find(el => el.id === selectedElement)
+          if (element) {
+            const nudgeAmount = e.shiftKey ? 10 : 1
+            switch (e.key) {
+              case 'ArrowUp':
+                element.y -= nudgeAmount
+                break
+              case 'ArrowDown':
+                element.y += nudgeAmount
+                break
+              case 'ArrowLeft':
+                element.x -= nudgeAmount
+                break
+              case 'ArrowRight':
+                element.x += nudgeAmount
+                break
+            }
+            onLayoutChange(updatedLayout)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [readOnly, selectedElement, clipboard, layout, history, historyIndex, handleDeleteElement, onLayoutChange])
 
   const selectedElementData = layout.elements.find(el => el.id === selectedElement)
 
@@ -148,8 +352,40 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               Unsaved changes
             </span>
           )}
+          {selectedElements.length > 1 && (
+            <span className="px-2 py-1 bg-[#00f0ff]/20 text-[#00f0ff] text-xs rounded">
+              {selectedElements.length} selected
+            </span>
+          )}
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleUndo}
+            disabled={historyIndex <= 0 || readOnly}
+            className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Undo (Ctrl+Z)"
+          >
+            <Undo className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={handleRedo}
+            disabled={historyIndex >= history.length - 1 || readOnly}
+            className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Redo (Ctrl+Y)"
+          >
+            <Redo className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={handleDuplicate}
+            disabled={!selectedElement || readOnly}
+            className="p-2 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Duplicate (Ctrl+D)"
+          >
+            <Copy className="h-4 w-4" />
+          </button>
           <button
             type="button"
             onClick={handleReset}
@@ -229,7 +465,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                 return (
                   <div
                     key={element.id}
-                    className={`absolute ${isSelected ? 'ring-2 ring-[#00f0ff]' : ''} ${element.locked ? 'opacity-75' : ''}`}
+                    className={`absolute ${isSelected || selectedElements.includes(element.id) ? 'ring-2 ring-[#00f0ff]' : ''} ${element.locked ? 'opacity-75' : ''}`}
                     style={{
                       left: element.x,
                       top: element.y,
@@ -297,14 +533,24 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     <button
                       type="button"
                       onClick={() => handleToggleVisible(selectedElementData.id)}
-                      className="p-1.5 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38]"
+                      className={`p-1.5 rounded transition-colors ${
+                        selectedElementData.visible !== false 
+                          ? 'bg-[#00f0ff]/20 text-[#00f0ff] hover:bg-[#00f0ff]/30' 
+                          : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'
+                      }`}
+                      title={selectedElementData.visible !== false ? 'Hide' : 'Show'}
                     >
                       {selectedElementData.visible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                     </button>
                     <button
                       type="button"
                       onClick={() => handleToggleLock(selectedElementData.id)}
-                      className="p-1.5 bg-[#1f2229] text-[#b9cacb] rounded hover:bg-[#2a2e38]"
+                      className={`p-1.5 rounded transition-colors ${
+                        selectedElementData.locked 
+                          ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30' 
+                          : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'
+                      }`}
+                      title={selectedElementData.locked ? 'Unlock' : 'Lock'}
                     >
                       {selectedElementData.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
                     </button>
@@ -312,6 +558,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       type="button"
                       onClick={() => handleDeleteElement(selectedElementData.id)}
                       className="p-1.5 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30"
+                      title="Delete"
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
@@ -499,27 +746,37 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                   key={element.id}
                   className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
                     selectedElement === element.id ? 'bg-[#00f0ff]/20' : 'hover:bg-[#1f2229]'
-                  }`}
+                  } ${element.visible === false ? 'opacity-50' : ''}`}
                   onClick={() => handleSelectElement(element.id)}
                 >
-                  <div className="flex-1 text-xs text-[#b9cacb]">{element.id}</div>
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleToggleVisible(element.id)
                     }}
-                    className="p-1 text-[#b9cacb] hover:text-white"
+                    className={`p-1 rounded transition-colors ${
+                      element.visible !== false 
+                        ? 'text-[#00f0ff] hover:bg-[#00f0ff]/20' 
+                        : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                    }`}
+                    title={element.visible !== false ? 'Hide' : 'Show'}
                   >
                     {element.visible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                   </button>
+                  <div className="flex-1 text-xs text-[#b9cacb]">{element.id}</div>
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleToggleLock(element.id)
                     }}
-                    className="p-1 text-[#b9cacb] hover:text-white"
+                    className={`p-1 rounded transition-colors ${
+                      element.locked 
+                        ? 'text-yellow-400 hover:bg-yellow-400/20' 
+                        : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                    }`}
+                    title={element.locked ? 'Unlock' : 'Lock'}
                   >
                     {element.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
                   </button>
