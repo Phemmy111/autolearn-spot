@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, MousePointer2, Upload } from 'lucide-react'
+import { Lock, Unlock, Eye, EyeOff, Layers, AlignLeft, AlignCenter, AlignRight, Move, RotateCw, Trash2, Save, Loader2, Undo, Redo, Copy, Clipboard, ZoomIn, ZoomOut, Maximize2, Type, Image, Square, QrCode, Award, PenTool, Settings, LayoutGrid, ChevronDown, ChevronUp, MousePointer2, Upload } from 'lucide-react'
 import { CertificateLayout, CertificateElement, validateLayout, cloneLayout, resetToDefault, getElementText, getElementSrc, DEMO_CERTIFICATE_DATA } from '@/lib/certificate-layout'
 
 interface CertificateDesignerProps {
@@ -282,6 +282,32 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       window.open('/api/certificate/download', '_blank')
     }
   }, [])
+
+  const handleMoveLayerUp = useCallback((elementId: string) => {
+    const updatedLayout = cloneLayout(layout)
+    const elements = [...updatedLayout.elements]
+    const currentIndex = elements.findIndex(el => el.id === elementId)
+    
+    if (currentIndex > 0) {
+      const [element] = elements.splice(currentIndex, 1)
+      elements.splice(currentIndex - 1, 0, element)
+      updatedLayout.elements = elements
+      onLayoutChange(updatedLayout)
+    }
+  }, [layout, onLayoutChange])
+
+  const handleMoveLayerDown = useCallback((elementId: string) => {
+    const updatedLayout = cloneLayout(layout)
+    const elements = [...updatedLayout.elements]
+    const currentIndex = elements.findIndex(el => el.id === elementId)
+    
+    if (currentIndex < elements.length - 1) {
+      const [element] = elements.splice(currentIndex, 1)
+      elements.splice(currentIndex + 1, 0, element)
+      updatedLayout.elements = elements
+      onLayoutChange(updatedLayout)
+    }
+  }, [layout, onLayoutChange])
 
   const handleImageUpload = useCallback(async (file: File) => {
     if (!file) return
@@ -1967,7 +1993,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     {/* Layers Tab */}
                     {activeTab === 'layers' && (
                       <div className="space-y-1">
-                        {layout.elements.map((element) => (
+                        {layout.elements.map((element, index) => (
                           <div
                             key={element.id}
                             className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
@@ -1991,21 +2017,55 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               {element.visible !== false ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                             </button>
                             <div className="flex-1 text-xs text-[#b9cacb]">{element.id}</div>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleToggleLock(element.id)
-                              }}
-                              className={`p-1 rounded transition-colors ${
-                                element.locked 
-                                  ? 'text-yellow-400 hover:bg-yellow-400/20' 
-                                  : 'text-[#b9cacb] hover:bg-[#1f2229]'
-                              }`}
-                              title={element.locked ? 'Unlock' : 'Lock'}
-                            >
-                              {element.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
-                            </button>
+                            <div className="flex gap-1">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleMoveLayerUp(element.id)
+                                }}
+                                disabled={index === 0}
+                                className={`p-1 rounded transition-colors ${
+                                  index === 0 
+                                    ? 'text-[#b9cacb] opacity-30 cursor-not-allowed' 
+                                    : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                                }`}
+                                title="Move Up"
+                              >
+                                <ChevronUp className="h-3 w-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleMoveLayerDown(element.id)
+                                }}
+                                disabled={index === layout.elements.length - 1}
+                                className={`p-1 rounded transition-colors ${
+                                  index === layout.elements.length - 1 
+                                    ? 'text-[#b9cacb] opacity-30 cursor-not-allowed' 
+                                    : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                                }`}
+                                title="Move Down"
+                              >
+                                <ChevronDown className="h-3 w-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleToggleLock(element.id)
+                                }}
+                                className={`p-1 rounded transition-colors ${
+                                  element.locked 
+                                    ? 'text-yellow-400 hover:bg-yellow-400/20' 
+                                    : 'text-[#b9cacb] hover:bg-[#1f2229]'
+                                }`}
+                                title={element.locked ? 'Unlock' : 'Lock'}
+                              >
+                                {element.locked ? <Lock className="h-3 w-3" /> : <Unlock className="h-3 w-3" />}
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
