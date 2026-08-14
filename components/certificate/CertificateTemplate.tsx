@@ -30,6 +30,30 @@ interface CertificateTemplateProps {
 const CANVAS_WIDTH = 1200
 const CANVAS_HEIGHT = 800
 
+/**
+ * Keep typography stable on the fixed 1200x800 certificate canvas.
+ * Long values shrink gradually instead of overflowing or colliding with
+ * neighbouring certificate fields.
+ */
+function fitFontSize(
+  text: string | undefined,
+  preferred: number,
+  minimum: number,
+  maxChars: number,
+) {
+  if (!text) return preferred
+
+  const length = text.trim().length
+  if (length <= maxChars) return preferred
+
+  const reduction = Math.min(0.42, ((length - maxChars) / maxChars) * 0.55)
+  return Math.max(minimum, Math.round(preferred * (1 - reduction)))
+}
+
+function safeText(text: string | undefined, fallback = '') {
+  return text?.trim() || fallback
+}
+
 export function CertificateTemplate({
   name,
   date,
@@ -51,6 +75,31 @@ export function CertificateTemplate({
 }: CertificateTemplateProps) {
   const accent = accentColor || '#00e5ff'
 
+  const certificateTitle = safeText(title, 'Certificate of Completion')
+  const certificateSubtitle = safeText(subtitle, 'This certifies that')
+  const certificateBody = safeText(bodyText, 'has successfully completed the')
+  const certificateCourse = safeText(course, 'n8n Automation')
+  const certificateFounder = safeText(founderName, 'AutoLearn Spot')
+  const certificateSignatureText = safeText(signatureText, 'Founder')
+  const certificateName = safeText(name, 'Student Name')
+
+  /*
+   * The current production background already contains the AutoLearn Spot
+   * branding and graduation medallion. Do not draw a second logo over it.
+   *
+   * If a caller deliberately omits the background, the configured logo is
+   * still rendered in the header so the component remains self-contained.
+   */
+  const renderDynamicLogo = !backgroundSrc && !!logoSrc
+
+  const titleSize = fitFontSize(certificateTitle, 27, 18, 28)
+  const subtitleSize = fitFontSize(certificateSubtitle, 14, 11, 22)
+  const nameSize = fitFontSize(certificateName, 68, 42, 22)
+  const bodySize = fitFontSize(certificateBody, 18, 13, 38)
+  const courseSize = fitFontSize(certificateCourse, 25, 16, 30)
+  const founderSize = fitFontSize(certificateFounder, 12, 9, 20)
+  const footerSize = fitFontSize(footer, 10, 8, 70)
+
   return (
     <div
       style={{
@@ -59,10 +108,14 @@ export function CertificateTemplate({
         height: `${CANVAS_HEIGHT}px`,
         overflow: 'hidden',
         fontFamily: '"Roboto", Arial, sans-serif',
-        background: '#06101f',
+        background: '#030b18',
+        color: '#ffffff',
       }}
     >
-      {/* Background artwork only. No certificate text is baked in here. */}
+      {/* ================================================================
+          BACKGROUND
+          Artwork only. All editable certificate content is rendered below.
+          ================================================================ */}
       {backgroundSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -75,6 +128,7 @@ export function CertificateTemplate({
             height: `${CANVAS_HEIGHT}px`,
             objectFit: 'cover',
             zIndex: 0,
+            display: 'block',
           }}
         />
       ) : (
@@ -82,61 +136,58 @@ export function CertificateTemplate({
           style={{
             position: 'absolute',
             inset: 0,
-            width: `${CANVAS_WIDTH}px`,
-            height: `${CANVAS_HEIGHT}px`,
             background:
-              'linear-gradient(135deg, #03101f 0%, #07172a 48%, #020914 100%)',
+              'linear-gradient(135deg, #020915 0%, #07172b 48%, #020812 100%)',
             zIndex: 0,
           }}
         >
           <div
             style={{
               position: 'absolute',
-              inset: '18px',
+              inset: 18,
               border: `2px solid ${accent}`,
-              opacity: 0.32,
+              opacity: 0.35,
             }}
           />
           <div
             style={{
               position: 'absolute',
-              inset: '28px',
-              border: `1px solid ${accent}`,
-              opacity: 0.15,
+              inset: 30,
+              border: '1px solid rgba(255,255,255,0.16)',
             }}
           />
         </div>
       )}
 
-      {/* Soft overlay improves text readability without changing the artwork. */}
+      {/* Very light readability veil. It must never overpower the artwork. */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           background:
-            'linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.02) 45%, rgba(0,0,0,0.14))',
+            'linear-gradient(to bottom, rgba(0,0,0,0.02), rgba(0,0,0,0.01) 50%, rgba(0,0,0,0.10))',
           zIndex: 1,
           pointerEvents: 'none',
         }}
       />
 
       {/* ================================================================
-          HEADER ZONE
-          The background has a dedicated logo area at the top centre.
+          HEADER
+          The supplied background owns the main brand/logo artwork.
+          Only render a dynamic logo when there is no background artwork.
           ================================================================ */}
-
-      {logoSrc && (
+      {renderDynamicLogo && (
         <div
           style={{
             position: 'absolute',
             top: 28,
             left: 0,
             width: CANVAS_WIDTH,
-            height: 68,
+            height: 72,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 10,
+            zIndex: 5,
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -144,8 +195,8 @@ export function CertificateTemplate({
             src={logoSrc}
             alt="AutoLearn Spot logo"
             style={{
-              width: 68,
-              height: 68,
+              width: 64,
+              height: 64,
               objectFit: 'contain',
               display: 'block',
             }}
@@ -153,333 +204,299 @@ export function CertificateTemplate({
         </div>
       )}
 
-      {title && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 94,
-            left: 120,
-            width: 960,
-            minHeight: 38,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            zIndex: 10,
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 820,
-              color: '#ffffff',
-              fontSize: 26,
-              lineHeight: 1.15,
-              fontWeight: 700,
-              letterSpacing: '1.8px',
-              textTransform: 'uppercase',
-              textShadow: '0 2px 8px rgba(0,0,0,0.75)',
-              whiteSpace: 'normal',
-            }}
-          >
-            {title}
-          </div>
-        </div>
-      )}
-
-      {subtitle && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 132,
-            left: 150,
-            width: 900,
-            minHeight: 22,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            zIndex: 10,
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 760,
-              color: '#ffffff',
-              fontSize: 14,
-              lineHeight: 1.25,
-              fontWeight: 400,
-              letterSpacing: '1.2px',
-              textShadow: '0 1px 5px rgba(0,0,0,0.7)',
-            }}
-          >
-            {subtitle}
-          </div>
-        </div>
-      )}
-
       {/* ================================================================
-          RECIPIENT ZONE
-          Student name is deliberately the largest text on the certificate.
+          TITLE PANEL
+          Positioned inside the large upper gold frame of the background.
           ================================================================ */}
-
       <div
         style={{
           position: 'absolute',
           top: 165,
-          left: 110,
-          width: 980,
-          minHeight: 82,
+          left: 255,
+          width: 690,
+          height: 76,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          zIndex: 5,
+          padding: '0 30px',
+          boxSizing: 'border-box',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '100%',
+            color: '#ffffff',
+            fontSize: titleSize,
+            lineHeight: 1.1,
+            fontWeight: 700,
+            letterSpacing: '1.6px',
+            textTransform: 'uppercase',
+            textShadow: '0 2px 8px rgba(0,0,0,0.75)',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {certificateTitle}
+        </div>
+
+        <div
+          style={{
+            marginTop: 7,
+            maxWidth: '90%',
+            color: '#ffffff',
+            fontSize: subtitleSize,
+            lineHeight: 1.2,
+            fontWeight: 400,
+            letterSpacing: '1.4px',
+            textTransform: 'none',
+            textShadow: '0 1px 5px rgba(0,0,0,0.75)',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {certificateSubtitle}
+        </div>
+      </div>
+
+      {/* ================================================================
+          RECIPIENT
+          Student name gets the strongest typographic emphasis.
+          ================================================================ */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 245,
+          left: 150,
+          width: 900,
+          height: 82,
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
           textAlign: 'center',
-          zIndex: 10,
+          zIndex: 5,
+          padding: '0 25px',
+          boxSizing: 'border-box',
         }}
       >
         <div
           style={{
-            maxWidth: 900,
+            maxWidth: '100%',
             color: '#ffffff',
-            fontFamily: '"GreatVibes", "Brush Script MT", cursive',
-            fontSize: 70,
-            lineHeight: 1.05,
+            fontFamily: '"GreatVibes", "Brush Script MT", "Segoe Script", cursive',
+            fontSize: nameSize,
+            lineHeight: 1.0,
             fontWeight: 400,
-            textShadow: '0 3px 12px rgba(0,0,0,0.85)',
-            whiteSpace: 'nowrap',
+            textShadow: '0 3px 12px rgba(0,0,0,0.88)',
+            overflowWrap: 'anywhere',
           }}
         >
-          {name}
+          {certificateName}
         </div>
       </div>
 
-      {/* Decorative divider beneath the student's name. */}
+      {/* ================================================================
+          COMPLETION STATEMENT
+          Body text sits between the recipient and course panels.
+          ================================================================ */}
       <div
         style={{
           position: 'absolute',
-          top: 244,
-          left: 285,
-          width: 630,
-          height: 1,
-          background:
-            'linear-gradient(to right, transparent, rgba(255,255,255,0.55), transparent)',
-          zIndex: 9,
-        }}
-      />
-
-      {/* ================================================================
-          COMPLETION ZONE
-          Body text and course are a single visual unit.
-          ================================================================ */}
-
-      {bodyText && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 255,
-            left: 170,
-            width: 860,
-            minHeight: 24,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            zIndex: 10,
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 820,
-              color: '#ffffff',
-              fontSize: 18,
-              lineHeight: 1.25,
-              fontWeight: 400,
-              letterSpacing: '0.25px',
-              textShadow: '0 1px 5px rgba(0,0,0,0.75)',
-            }}
-          >
-            {bodyText}
-          </div>
-        </div>
-      )}
-
-      {course && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 282,
-            left: 130,
-            width: 940,
-            minHeight: 36,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            zIndex: 10,
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 860,
-              color: accent,
-              fontSize: 27,
-              lineHeight: 1.15,
-              fontWeight: 700,
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              textShadow: '0 2px 8px rgba(0,0,0,0.8)',
-              whiteSpace: 'normal',
-            }}
-          >
-            {course}
-          </div>
-        </div>
-      )}
-
-      {/* ================================================================
-          LOWER CREDENTIAL ZONE
-          These positions align with the open lower portion of the supplied
-          background. The seal itself is intentionally NOT drawn here because
-          the background artwork already provides the graduation/seal area.
-          ================================================================ */}
-
-      {/* Date */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 155,
-          bottom: 105,
-          width: 285,
-          height: 42,
+          top: 325,
+          left: 190,
+          width: 820,
+          minHeight: 32,
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          alignItems: 'flex-start',
-          zIndex: 10,
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          zIndex: 5,
+          padding: '0 20px',
+          boxSizing: 'border-box',
         }}
       >
         <div
           style={{
-            width: '100%',
-            paddingBottom: 7,
-            borderBottom: '1px solid rgba(255,255,255,0.72)',
+            maxWidth: '100%',
             color: '#ffffff',
-            fontSize: 14,
+            fontSize: bodySize,
             lineHeight: 1.2,
+            fontWeight: 400,
+            letterSpacing: '0.25px',
+            textShadow: '0 1px 5px rgba(0,0,0,0.78)',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {certificateBody}
+        </div>
+      </div>
+
+      {/* ================================================================
+          COURSE / PROGRAM
+          IMPORTANT: This is deliberately placed INSIDE the large gold
+          credential frame beneath the completion statement.
+          ================================================================ */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 392,
+          left: 300,
+          width: 600,
+          height: 76,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          zIndex: 5,
+          padding: '0 28px',
+          boxSizing: 'border-box',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '100%',
+            color: accent,
+            fontSize: courseSize,
+            lineHeight: 1.12,
+            fontWeight: 800,
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
+            textShadow: '0 2px 9px rgba(0,0,0,0.9)',
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {certificateCourse}
+        </div>
+      </div>
+
+      {/* ================================================================
+          LOWER CREDENTIALS
+          The background already supplies the decorative labels/medallion.
+          We render only the actual dynamic values.
+          ================================================================ */}
+
+      {/* Date value — no extra "DATE" label, because the artwork supplies it. */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 145,
+          bottom: 104,
+          width: 300,
+          height: 38,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-end',
+          textAlign: 'center',
+          zIndex: 5,
+        }}
+      >
+        <div
+          style={{
+            color: '#ffffff',
+            fontSize: 13,
+            lineHeight: 1.15,
             fontWeight: 500,
-            textShadow: '0 1px 4px rgba(0,0,0,0.7)',
+            textShadow: '0 1px 5px rgba(0,0,0,0.8)',
+            whiteSpace: 'nowrap',
           }}
         >
           {date}
         </div>
-        <div
-          style={{
-            marginTop: 5,
-            color: 'rgba(255,255,255,0.78)',
-            fontSize: 11,
-            letterSpacing: '0.7px',
-            textTransform: 'uppercase',
-          }}
-        >
-          Date
-        </div>
       </div>
 
-      {/* Signature */}
+      {/* Signature area — the background supplies the visual line/label. */}
       <div
         style={{
           position: 'absolute',
-          right: 150,
-          bottom: 96,
-          width: 300,
-          height: 58,
+          right: 140,
+          bottom: 94,
+          width: 330,
+          height: 70,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'flex-end',
           alignItems: 'center',
           textAlign: 'center',
-          zIndex: 10,
+          zIndex: 5,
+          padding: '0 10px',
+          boxSizing: 'border-box',
         }}
       >
         {signatureUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={signatureUrl}
-            alt="Signature"
+            alt="Founder signature"
             style={{
               width: 150,
-              height: 38,
+              height: 34,
               objectFit: 'contain',
               display: 'block',
-              marginBottom: 2,
+              marginBottom: 1,
             }}
           />
         )}
 
-        <div
-          style={{
-            width: '100%',
-            paddingBottom: 6,
-            borderBottom: '1px solid rgba(255,255,255,0.72)',
-          }}
-        />
-
         {signatureText && (
           <div
             style={{
-              marginTop: 5,
-              color: 'rgba(255,255,255,0.82)',
-              fontSize: 11,
-              lineHeight: 1.2,
-              letterSpacing: '0.6px',
+              color: 'rgba(255,255,255,0.88)',
+              fontSize: 10,
+              lineHeight: 1.15,
+              letterSpacing: '0.55px',
+              marginTop: 2,
+              maxWidth: '100%',
+              overflowWrap: 'anywhere',
             }}
           >
-            {signatureText}
+            {certificateSignatureText}
           </div>
         )}
 
-        {founderName && (
+        {certificateFounder && (
           <div
             style={{
-              marginTop: 2,
               color: '#ffffff',
-              fontSize: 13,
-              lineHeight: 1.2,
+              fontSize: founderSize,
+              lineHeight: 1.15,
               fontWeight: 600,
-              textShadow: '0 1px 4px rgba(0,0,0,0.7)',
+              marginTop: 2,
+              maxWidth: '100%',
+              overflowWrap: 'anywhere',
+              textShadow: '0 1px 4px rgba(0,0,0,0.8)',
             }}
           >
-            {founderName}
+            {certificateFounder}
           </div>
         )}
       </div>
 
       {/* ================================================================
-          QR CODE
-          Never render an empty QR placeholder. If QR is disabled or data
-          is unavailable, this entire element disappears.
+          QR
+          Small and visually subordinate. Never create a fake placeholder.
           ================================================================ */}
-
       {qrEnabled !== false && qrData && (
         <div
           style={{
             position: 'absolute',
-            right: 58,
-            bottom: 92,
-            width: 64,
-            height: 64,
+            right: 54,
+            bottom: 82,
+            width: 52,
+            height: 52,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             background: '#ffffff',
-            padding: 4,
+            padding: 3,
             borderRadius: 2,
-            opacity: 0.92,
-            zIndex: 10,
+            opacity: 0.84,
+            zIndex: 5,
+            boxSizing: 'border-box',
           }}
         >
           <svg
-            width="56"
-            height="56"
+            width="46"
+            height="46"
             viewBox={`0 0 ${qrData.modules.size} ${qrData.modules.size}`}
             fill="#000000"
             shapeRendering="crispEdges"
@@ -506,51 +523,57 @@ export function CertificateTemplate({
         </div>
       )}
 
-      {/* Certificate ID - deliberately subtle and separated from the footer. */}
+      {/* Certificate ID remains subtle and close to the QR area. */}
       {certificateId && (
         <div
           style={{
             position: 'absolute',
-            right: 70,
-            bottom: 53,
-            maxWidth: 250,
-            color: 'rgba(255,255,255,0.52)',
-            fontSize: 9,
+            right: 48,
+            bottom: 48,
+            width: 180,
+            color: 'rgba(255,255,255,0.48)',
+            fontSize: 8,
             lineHeight: 1.2,
-            letterSpacing: '0.45px',
+            letterSpacing: '0.35px',
             textAlign: 'right',
-            zIndex: 10,
+            zIndex: 5,
+            overflowWrap: 'anywhere',
           }}
         >
-          Certificate ID: {certificateId}
+          {certificateId}
         </div>
       )}
 
-      {/* Footer */}
+      {/* ================================================================
+          FOOTER
+          ================================================================ */}
       {footer && (
         <div
           style={{
             position: 'absolute',
-            left: 120,
+            left: 170,
             bottom: 20,
-            width: 960,
+            width: 860,
             minHeight: 18,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             textAlign: 'center',
-            zIndex: 10,
+            zIndex: 5,
+            padding: '0 20px',
+            boxSizing: 'border-box',
           }}
         >
           <div
             style={{
-              maxWidth: 850,
+              maxWidth: '100%',
               color: 'rgba(255,255,255,0.78)',
-              fontSize: 11,
-              lineHeight: 1.2,
+              fontSize: footerSize,
+              lineHeight: 1.15,
               fontWeight: 400,
-              letterSpacing: '0.55px',
-              textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+              letterSpacing: '0.45px',
+              textShadow: '0 1px 4px rgba(0,0,0,0.65)',
+              overflowWrap: 'anywhere',
             }}
           >
             {footer}
