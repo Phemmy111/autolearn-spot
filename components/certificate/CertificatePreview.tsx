@@ -2,6 +2,7 @@
 
 import { CertificateTemplate } from './CertificateTemplate';
 import { useEffect, useState, useRef } from 'react';
+import { CertificateLayout, validateLayout, DEFAULT_CERTIFICATE_LAYOUT } from '@/lib/certificate-layout';
 
 interface CertificatePreviewProps {
   title: string;
@@ -16,6 +17,7 @@ interface CertificatePreviewProps {
   qrEnabled: boolean;
   qrDestination: string;
   footer: string;
+  layout?: CertificateLayout;
 }
 
 export function CertificatePreview({
@@ -31,6 +33,7 @@ export function CertificatePreview({
   qrEnabled,
   qrDestination,
   footer,
+  layout,
 }: CertificatePreviewProps) {
   const [qrData, setQrData] = useState<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,6 +62,19 @@ export function CertificatePreview({
 
   // Use the new professional certificate background
   const cleanBackgroundUrl = backgroundUrl || '/certificate-template.png'
+
+  // Use provided layout or fall back to default
+  const activeLayout = layout || DEFAULT_CERTIFICATE_LAYOUT
+  
+  // Validate layout
+  useEffect(() => {
+    if (layout) {
+      const validation = validateLayout(layout);
+      if (!validation.valid) {
+        console.error('Invalid certificate layout in preview:', validation.errors);
+      }
+    }
+  }, [layout]);
 
   useEffect(() => {
     const updateScale = () => {
@@ -90,6 +106,7 @@ export function CertificatePreview({
           <div className="w-full h-full flex items-center justify-center">
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'center' }}>
               <CertificateTemplate
+                layout={activeLayout}
                 name="John Doe"
                 date="August 2026"
                 course="Master n8n & AI Automation"

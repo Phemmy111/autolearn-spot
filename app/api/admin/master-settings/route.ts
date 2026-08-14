@@ -11,7 +11,7 @@ const SETTINGS_CATEGORIES = {
   hero: ['hero_headline', 'hero_subheadline', 'hero_badge', 'hero_primary_cta_text', 'hero_primary_cta_link', 'hero_secondary_cta_text', 'hero_secondary_cta_link', 'hero_video_url', 'hero_image_url', 'hero_media_type'],
   liveClass: ['live_class_title', 'live_class_date', 'live_class_time', 'live_class_timezone', 'live_class_url', 'live_class_description', 'live_class_join_button_text', 'live_class_countdown_enabled', 'live_class_recording_url', 'live_class_replay_enabled', 'live_class_status'],
   enrollment: ['enrollment_open', 'enrollment_button_text', 'enrollment_announcement', 'enrollment_deadline', 'current_cohort_name', 'current_cohort_number', 'cohort_start_date', 'cohort_end_date', 'enrollment_page_headline', 'enrollment_page_description'],
-  certificate: ['certificate_background_url', 'certificate_logo_url', 'certificate_title', 'certificate_subtitle', 'certificate_body_text', 'certificate_course', 'certificate_founder_name', 'certificate_signature_url', 'certificate_signature_text', 'certificate_qr_enabled', 'certificate_qr_destination', 'certificate_footer', 'certificate_accent_color', 'certificate_number_format'],
+  certificate: ['certificate_background_url', 'certificate_logo_url', 'certificate_title', 'certificate_subtitle', 'certificate_body_text', 'certificate_course', 'certificate_founder_name', 'certificate_signature_url', 'certificate_signature_text', 'certificate_qr_enabled', 'certificate_qr_destination', 'certificate_footer', 'certificate_accent_color', 'certificate_number_format', 'certificate_layout'],
   seo: ['site_title', 'meta_description', 'og_title', 'og_description', 'og_image', 'twitter_card_type'],
   sections: ['section_hero_enabled', 'section_workflow_showcase_enabled', 'section_features_enabled', 'section_testimonials_enabled', 'section_pricing_enabled', 'section_scholarship_enabled', 'section_partnership_enabled', 'section_faq_enabled', 'section_cta_enabled', 'section_footer_enabled'],
   partner: ['partner_program_enabled', 'partner_program_headline', 'partner_program_description', 'partner_registration_open', 'partner_application_deadline', 'partner_whatsapp_link', 'partner_terms_link', 'partner_faq_link'],
@@ -92,6 +92,7 @@ const KEY_MAPPING: Record<string, string> = {
   footer: 'certificate_footer',
   accentColor: 'certificate_accent_color',
   numberFormat: 'certificate_number_format',
+  layout: 'certificate_layout',
   // SEO
   siteTitle: 'site_title',
   metaDescription: 'meta_description',
@@ -134,7 +135,12 @@ function convertToDatabaseKeys(settings: Record<string, any>): Record<string, st
   const converted: Record<string, string> = {};
   for (const [key, value] of Object.entries(settings)) {
     const dbKey = KEY_MAPPING[key] || key;
-    converted[dbKey] = String(value);
+    // Handle JSON values (like layout) by storing as JSON string
+    if (key === 'layout' && typeof value === 'object') {
+      converted[dbKey] = JSON.stringify(value);
+    } else {
+      converted[dbKey] = String(value);
+    }
   }
   return converted;
 }

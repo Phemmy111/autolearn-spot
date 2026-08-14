@@ -5,11 +5,10 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { isSuperAdmin } from '@/lib/admin'
 import { CertificateTemplate } from '@/components/certificate/CertificateTemplate'
-import fs from 'fs'
-import path from 'path'
-import QRCode from 'qrcode'
 import { getPublicSettings } from '@/lib/public-settings'
 import { supabaseAdmin } from '@/lib/supabase'
+import { CertificateLayout, validateLayout, DEFAULT_CERTIFICATE_LAYOUT } from '@/lib/certificate-layout'
+import QRCode from 'qrcode'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -80,6 +79,7 @@ export async function GET(request: Request) {
       'certificate_qr_destination',
       'certificate_footer',
       'certificate_accent_color',
+      'certificate_layout',
     ])
 
     // Use database settings with fallbacks to hardcoded values
@@ -114,6 +114,22 @@ export async function GET(request: Request) {
       qrData = { modules: { size: qrCodeData.modules.size, data: Array.from(qrCodeData.modules.data).map(byte => byte === 1) } }
     }
 
+    // Load and validate layout
+    let certificateLayout: CertificateLayout = DEFAULT_CERTIFICATE_LAYOUT
+    if (certSettings.certificate_layout) {
+      try {
+        const parsedLayout = JSON.parse(certSettings.certificate_layout)
+        const validation = validateLayout(parsedLayout)
+        if (validation.valid) {
+          certificateLayout = parsedLayout
+        } else {
+          console.error('Invalid certificate layout in settings:', validation.errors)
+        }
+      } catch (e) {
+        console.error('Failed to parse certificate layout:', e)
+      }
+    }
+
     // Use absolute URL for the background and logo so next/og can fetch them
     let absoluteLogoSrc = ''
     if (logoSrc) {
@@ -128,6 +144,7 @@ export async function GET(request: Request) {
     // Generate the certificate PNG using ImageResponse (satori)
     const imageResponse = new ImageResponse(
       (<CertificateTemplate 
+        layout={certificateLayout}
         name={userName} 
         date={dateStr} 
         course={course}

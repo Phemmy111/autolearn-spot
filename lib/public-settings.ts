@@ -79,6 +79,7 @@ interface PublicSettings {
   certificateFooter?: string;
   certificateAccentColor?: string;
   certificateNumberFormat?: string;
+  certificateLayout?: string;
 
   // SEO
   siteTitle?: string;
@@ -239,6 +240,7 @@ const KEY_MAPPING: Record<string, keyof PublicSettings> = {
   certificate_footer: 'certificateFooter',
   certificate_accent_color: 'certificateAccentColor',
   certificate_number_format: 'certificateNumberFormat',
+  certificate_layout: 'certificateLayout',
   // SEO
   site_title: 'siteTitle',
   meta_description: 'metaDescription',

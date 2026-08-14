@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Loader2, CheckCircle, AlertCircle, Save, Award, Image as ImageIcon, Upload } from 'lucide-react';
+import { ArrowLeft, Loader2, CheckCircle, AlertCircle, Save, Award, Image as ImageIcon, Upload, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { CertificatePreview } from '@/components/certificate/CertificatePreview';
+import { CertificateDesigner } from '@/components/certificate/CertificateDesigner';
+import { CertificateLayout, DEFAULT_CERTIFICATE_LAYOUT, validateLayout } from '@/lib/certificate-layout';
 
 export default function AdminCertificatesSettingsPage() {
   const [settings, setSettings] = useState({
@@ -22,6 +24,8 @@ export default function AdminCertificatesSettingsPage() {
     accentColor: '#00f0ff',
     numberFormat: 'ALS-{year}-{cohort}-{sequence}',
   });
+  const [layout, setLayout] = useState<CertificateLayout>(DEFAULT_CERTIFICATE_LAYOUT);
+  const [showDesigner, setShowDesigner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +48,23 @@ export default function AdminCertificatesSettingsPage() {
         const data = await res.json();
         if (data.settings) {
           setSettings(prev => ({ ...prev, ...data.settings }));
+          
+          // Load layout if it exists
+          if (data.settings.layout) {
+            try {
+              const parsedLayout = JSON.parse(data.settings.layout);
+              const validation = validateLayout(parsedLayout);
+              if (validation.valid) {
+                setLayout(parsedLayout);
+              } else {
+                console.error('Invalid layout loaded:', validation.errors);
+                setLayout(DEFAULT_CERTIFICATE_LAYOUT);
+              }
+            } catch (e) {
+              console.error('Failed to parse layout:', e);
+              setLayout(DEFAULT_CERTIFICATE_LAYOUT);
+            }
+          }
         }
       } else {
         setError('Failed to fetch settings');
@@ -102,6 +123,7 @@ export default function AdminCertificatesSettingsPage() {
         backgroundUrl: uploadData.backgroundUrl || settings.backgroundUrl,
         logoUrl: uploadData.logoUrl || settings.logoUrl,
         signatureUrl: uploadData.signatureUrl || settings.signatureUrl,
+        layout: JSON.stringify(layout),
       };
       
       // Save all settings
@@ -161,9 +183,38 @@ export default function AdminCertificatesSettingsPage() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Settings Form */}
-          <form onSubmit={handleSave} className="space-y-8">
+        {/* Tab Navigation */}
+        <div className="flex gap-4 mb-8 border-b border-[#1f2229] pb-4">
+          <button
+            type="button"
+            onClick={() => setShowDesigner(false)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              !showDesigner 
+                ? 'text-[#00f0ff] border-b-2 border-[#00f0ff]' 
+                : 'text-[#b9cacb] hover:text-white'
+            }`}
+          >
+            Certificate Content
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowDesigner(true)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              showDesigner 
+                ? 'text-[#00f0ff] border-b-2 border-[#00f0ff]' 
+                : 'text-[#b9cacb] hover:text-white'
+            }`}
+          >
+            <Layers className="h-4 w-4 inline mr-2" />
+            Visual Designer
+          </button>
+        </div>
+
+        {!showDesigner ? (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Settings Form */}
+              <form onSubmit={handleSave} className="space-y-8">
             {/* Status Messages */}
             {error && (
               <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -495,9 +546,21 @@ export default function AdminCertificatesSettingsPage() {
               qrEnabled={settings.qrEnabled === 'true'}
               qrDestination={settings.qrDestination}
               footer={settings.footer}
+              layout={layout}
             />
           </div>
         </div>
+        </>
+        ) : (
+          <>
+            {/* Visual Designer */}
+            <CertificateDesigner
+              layout={layout}
+              onLayoutChange={setLayout}
+              settings={settings}
+            />
+          </>
+        )}
       </div>
     </div>
   );
