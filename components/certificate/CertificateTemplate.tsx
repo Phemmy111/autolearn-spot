@@ -131,7 +131,7 @@ export function CertificateTemplate({
             style={{
               position: 'absolute',
               inset: 28,
-              border: '1px solid ${accent}`,
+              border: `1px solid ${accent}`,
               opacity: 0.15,
             }}
           />

@@ -27,7 +27,7 @@ export async function generateCertificatePNG(name: string, date: string, logoUrl
       <CertificateTemplate 
         name={name} 
         date={date} 
-        logoUrl={logoUrl || settings.certificateLogoUrl}
+        logoSrc={logoUrl || settings.certificateLogoUrl}
         backgroundSrc={settings.certificateBackgroundUrl}
         title={settings.certificateTitle}
         subtitle={settings.certificateSubtitle}
