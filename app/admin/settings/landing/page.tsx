@@ -16,6 +16,7 @@ export default function AdminLandingSettingsPage() {
     videoUrl: '',
     imageUrl: '',
     mediaType: 'workflow_panel',
+    previewVideoUrl: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -23,6 +24,7 @@ export default function AdminLandingSettingsPage() {
   const [success, setSuccess] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewVideoFile, setPreviewVideoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -35,7 +37,11 @@ export default function AdminLandingSettingsPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.settings) {
-          setSettings(prev => ({ ...prev, ...data.settings }));
+          setSettings(prev => ({ 
+            ...prev, 
+            ...data.settings,
+            previewVideoUrl: data.settings.previewVideoUrl || ''
+          }));
         }
       } else {
         setError('Failed to fetch settings');
@@ -93,11 +99,29 @@ export default function AdminLandingSettingsPage() {
         }
       }
 
+      if (previewVideoFile) {
+        const formData = new FormData();
+        formData.append('previewVideoFile', previewVideoFile);
+        
+        const uploadRes = await fetch('/api/admin/landing-media', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          settings.previewVideoUrl = uploadData.previewVideoUrl;
+        } else {
+          throw new Error('Failed to upload preview video');
+        }
+      }
+
       // Update settings with uploaded URLs
       const updatedSettings = {
         ...settings,
         videoUrl: uploadedVideoUrl,
         imageUrl: uploadedImageUrl,
+        previewVideoUrl: settings.previewVideoUrl,
       };
 
       const res = await fetch('/api/admin/master-settings', {
@@ -112,6 +136,7 @@ export default function AdminLandingSettingsPage() {
         // Clear file uploads after successful save
         setVideoFile(null);
         setImageFile(null);
+        setPreviewVideoFile(null);
       } else {
         const data = await res.json();
         setError(data.error || 'Failed to save settings');
@@ -332,6 +357,45 @@ export default function AdminLandingSettingsPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Preview Video for Watch Preview Button */}
+          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Video className="h-5 w-5 text-[#00f0ff]" />
+              <h2 className="text-lg font-semibold text-white">Preview Video</h2>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Preview Video URL</label>
+                <input
+                  type="url"
+                  value={settings.previewVideoUrl}
+                  onChange={(e) => setSettings({ ...settings, previewVideoUrl: e.target.value })}
+                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  placeholder="https://..."
+                />
+                <p className="text-xs text-[#b9cacb] mt-1">This video will play when users click "Watch Preview" on the landing page</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Or Upload Preview Video</label>
+                <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
+                  <Video className="h-5 w-5 text-[#00f0ff]" />
+                  <div className="flex-1">
+                    <p className="text-sm text-white">{previewVideoFile ? previewVideoFile.name : 'Choose preview video file...'}</p>
+                    <p className="text-xs text-[#b9cacb]">MP4, WebM, MOV (max 50MB)</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => setPreviewVideoFile(e.target.files?.[0] || null)}
+                    className="hidden"
+                    disabled={isUploading}
+                  />
+                </label>
+              </div>
+            </div>
             </div>
           </div>
 

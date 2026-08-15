@@ -5,6 +5,7 @@ import { Star, Play, VolumeX, Volume2 } from 'lucide-react'
 import { useDirectEnrollmentFee } from '@/hooks/useDirectEnrollmentFee'
 import { N8nWorkflowPanel } from '@/components/N8nWorkflowPanel'
 import { CohortCard } from '@/components/CohortCard'
+import { VideoModal } from '@/components/VideoModal'
 import { useState, useEffect, useRef } from 'react'
 import { getPublicSettings } from '@/lib/public-settings'
 
@@ -21,11 +22,13 @@ export function HeroSection() {
     heroVideoUrl: '',
     heroImageUrl: '',
     heroMediaType: 'video',
+    previewVideoUrl: '',
   });
 
   const [workflowShowcase, setWorkflowShowcase] = useState<any[]>([]);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadSettings() {
@@ -40,7 +43,8 @@ export function HeroSection() {
           'hero_secondary_cta_link',
           'hero_video_url',
           'hero_image_url',
-          'hero_media_type'
+          'hero_media_type',
+          'preview_video_url'
         ]);
         setSettings(loadedSettings);
       } catch (error) {
@@ -102,13 +106,20 @@ export function HeroSection() {
               >
                 {feeLoading ? 'Loading...' : `${settings.heroPrimaryCtaText} — ₦${fee.toLocaleString()}`}
               </Link>
-              <Link
-                href={settings.heroSecondaryCtaLink}
+              <button
+                onClick={() => {
+                  if (settings.previewVideoUrl) {
+                    setIsVideoModalOpen(true);
+                  } else {
+                    // Fallback to link if no preview video
+                    window.location.href = settings.heroSecondaryCtaLink;
+                  }
+                }}
                 className="flex items-center justify-center gap-2 border border-[var(--brand-primary)] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--brand-primary)] transition duration-150 hover:bg-[var(--brand-primary)]/10 w-full sm:w-auto btn-enhanced"
               >
                 <Play className="h-4 w-4" />
                 {settings.heroSecondaryCtaText}
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -165,6 +176,13 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+        videoUrl={settings.previewVideoUrl}
+      />
     </section>
   );
 }

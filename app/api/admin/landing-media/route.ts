@@ -15,6 +15,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const videoFile = formData.get('videoFile') as File | null;
     const imageFile = formData.get('imageFile') as File | null;
+    const previewVideoFile = formData.get('previewVideoFile') as File | null;
 
     const result: any = {};
 
@@ -88,6 +89,42 @@ export async function POST(request: Request) {
         .getPublicUrl(fileName);
 
       result.imageUrl = publicUrl;
+    }
+
+    // Handle preview video upload
+    if (previewVideoFile && previewVideoFile.size > 0) {
+      const validVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
+      
+      if (!validVideoTypes.includes(previewVideoFile.type)) {
+        return NextResponse.json({ error: 'Invalid video format. Must be MP4, WebM, or MOV' }, { status: 400 });
+      }
+
+      if (previewVideoFile.size > 50 * 1024 * 1024) { // 50MB limit
+        return NextResponse.json({ error: 'Preview video file too large. Maximum size is 50MB' }, { status: 400 });
+      }
+
+      const fileExt = previewVideoFile.name.split('.').pop();
+      const fileName = `landing/preview-video-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { data: uploadData, error: uploadError } = await supabaseAdmin
+        .storage
+        .from('admin-media')
+        .upload(fileName, previewVideoFile, {
+          contentType: previewVideoFile.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('[POST /api/admin/landing-media] Preview video upload error:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload preview video' }, { status: 500 });
+      }
+
+      const { data: { publicUrl } } = supabaseAdmin
+        .storage
+        .from('admin-media')
+        .getPublicUrl(fileName);
+
+      result.previewVideoUrl = publicUrl;
     }
 
     return NextResponse.json({ success: true, ...result });
