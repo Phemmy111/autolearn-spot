@@ -1,6 +1,6 @@
 import { requireAdmin, isSuperAdmin } from '@/lib/admin'
 import Link from 'next/link'
-import { Plus, BookOpen, Users, BarChart3, Activity, Trophy, Shield } from 'lucide-react'
+import { Plus, BookOpen, Users, BarChart3, Activity, Trophy, Shield, Bot } from 'lucide-react'
 import { ResetDataButton } from '@/components/admin/ResetDataButton'
 import { CertificateToggle } from '@/components/admin/CertificateToggle'
 import { CourseCompletionCard } from '@/components/admin/CourseCompletionCard'
@@ -84,6 +84,13 @@ export default async function AdminPage() {
                 Video Debug
               </Link>
             )}
+            <Link
+              href="/admin/alex-provider"
+              className="flex items-center gap-2 border border-[#00f0ff]/50 bg-[#00f0ff]/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#00f0ff] hover:bg-[#00f0ff]/20 transition-colors rounded"
+            >
+              <Bot className="h-4 w-4" />
+              ALEX Provider
+            </Link>
           </div>
         </div>
       </div>

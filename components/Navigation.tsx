@@ -42,6 +42,7 @@ export default function Navigation() {
     { name: 'Why AutoLearn', href: '#why' },
     { name: 'Scholarship', href: '/scholarship' },
     { name: 'Partner Program', href: '/partners' },
+    { name: 'ALEX', href: '/autolearn-ai' },
     { name: 'Contact', href: settings.supportWhatsApp ? `https://wa.me/${settings.supportWhatsApp.replace(/[^0-9]/g, '')}` : '#', external: true },
   ]
 
@@ -51,6 +52,7 @@ export default function Navigation() {
     { name: 'Why AutoLearn', href: '#why' },
     { name: 'Scholarship', href: '/scholarship' },
     { name: 'Partner Program', href: '/partners' },
+    { name: 'ALEX', href: '/autolearn-ai' },
     { name: 'Contact', href: settings.supportWhatsApp ? `https://wa.me/${settings.supportWhatsApp.replace(/[^0-9]/g, '')}` : '#', external: true },
   ]
 
