@@ -18,6 +18,8 @@ export function AlexChat({ userId }: AlexChatProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
 
   // Load conversations on mount
   useEffect(() => {
@@ -81,6 +83,11 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
 
     setIsLoading(true)
+    setIsGenerating(true)
+    
+    // Create abort controller for this request
+    const controller = new AbortController()
+    setAbortController(controller)
     
     // Add user message to UI immediately
     const userMessage: Message = {
@@ -101,6 +108,7 @@ export function AlexChat({ userId }: AlexChatProps) {
           content,
           mode,
         }),
+        signal: controller.signal,
       })
 
       if (res.ok) {
@@ -123,7 +131,8 @@ export function AlexChat({ userId }: AlexChatProps) {
                 
                 try {
                   const parsed = JSON.parse(data)
-                  if (parsed.content) {
+                  
+                  if (parsed.type === 'delta' && parsed.content) {
                     assistantContent += parsed.content
                     
                     // Update the assistant message in real-time
@@ -147,6 +156,19 @@ export function AlexChat({ userId }: AlexChatProps) {
                         ]
                       }
                     })
+                  } else if (parsed.type === 'error') {
+                    console.error('Stream error:', parsed.error)
+                    // Handle error in UI
+                    setMessages(prev => [
+                      ...prev,
+                      {
+                        id: crypto.randomUUID(),
+                        conversation_id: currentConversation.id,
+                        role: 'assistant',
+                        content: `Error: ${parsed.error}`,
+                        created_at: new Date().toISOString(),
+                      }
+                    ])
                   }
                 } catch (e) {
                   // Ignore parse errors for non-JSON lines
@@ -157,14 +179,26 @@ export function AlexChat({ userId }: AlexChatProps) {
         }
       }
     } catch (error) {
-      console.error('Failed to send message:', error)
+      if (error.name === 'AbortError') {
+        console.log('Generation stopped by user')
+      } else {
+        console.error('Failed to send message:', error)
+      }
     } finally {
       setIsLoading(false)
+      setIsGenerating(false)
+      setAbortController(null)
+    }
+  }
+
+  const stopGeneration = () => {
+    if (abortController) {
+      abortController.abort()
     }
   }
 
   return (
-    <div className="flex h-[calc(100vh-73px)]">
+    <div className="flex h-[calc(100vh-73px)] alex-chat-container">
       {/* Sidebar */}
       <AlexSidebar
         isOpen={isSidebarOpen}
@@ -184,7 +218,12 @@ export function AlexChat({ userId }: AlexChatProps) {
         <AlexMessageList messages={messages} isLoading={isLoading} />
 
         {/* Input Area */}
-        <AlexInputArea onSendMessage={sendMessage} isLoading={isLoading} />
+        <AlexInputArea 
+          onSendMessage={sendMessage} 
+          onStopGeneration={stopGeneration}
+          isLoading={isLoading} 
+          isGenerating={isGenerating}
+        />
       </div>
     </div>
   )

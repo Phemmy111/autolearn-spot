@@ -691,3 +691,28 @@
     display: none;
   }
 }
+
+/* Mobile safe area support for ALEX composer */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+}
+
+/* Mobile keyboard handling */
+@media (max-width: 768px) {
+  .alex-composer-container {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  /* Ensure viewport is properly sized when keyboard is open */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  /* Prevent rubber-banding on mobile */
+  .alex-chat-container {
+    overscroll-behavior: contain;
+  }
+}

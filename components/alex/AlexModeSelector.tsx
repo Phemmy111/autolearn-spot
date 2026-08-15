@@ -20,17 +20,19 @@ export function AlexModeSelector({ currentMode, onModeChange }: AlexModeSelector
   return (
     <div className="border-b border-[#1f2229] bg-[#0c0e12]/50 px-6 py-3">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-2 overflow-x-auto">
+        <div className="flex items-center gap-2 overflow-x-auto" role="group" aria-label="ALEX mode selection">
           {MODES.map((mode) => (
             <button
               key={mode.id}
               onClick={() => onModeChange(mode.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-[#00f0ff] focus:ring-offset-2 focus:ring-offset-[#0c0e12] ${
                 currentMode === mode.id
                   ? 'bg-[#00f0ff] text-[#00363a]'
                   : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#1f2229]/80 hover:text-white'
               }`}
               title={mode.description}
+              aria-label={`Switch to ${mode.name} mode: ${mode.description}`}
+              aria-pressed={currentMode === mode.id}
             >
               {mode.name}
             </button>

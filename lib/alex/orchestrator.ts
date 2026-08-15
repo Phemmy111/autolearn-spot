@@ -1,6 +1,7 @@
 import { AlexMode } from './types'
 import { detectIntent } from './intent-detector'
 import { assembleContext } from './context-assembly'
+import { AIRequest, AIMessage } from './provider/provider-interface'
 
 export interface OrchestratorRequest {
   content: string
@@ -13,11 +14,12 @@ export interface OrchestratorResponse {
   context: string
   detectedIntent?: string
   suggestedMode?: AlexMode
+  aiRequest: AIRequest
 }
 
 /**
  * ALEX Orchestrator - Central coordination for AI interactions
- * This is Phase 1 implementation with basic intent detection and context assembly
+ * Refactored for provider independence - communicates through AI Engine interface
  */
 export class AlexOrchestrator {
   /**
@@ -42,12 +44,52 @@ export class AlexOrchestrator {
     // Generate system prompt based on mode
     const systemPrompt = this.generateSystemPrompt(mode, detectedIntent)
 
+    // Build AI request for provider-agnostic interface
+    const aiRequest: AIRequest = {
+      messages: this.buildMessages(content, systemPrompt, conversationHistory),
+      stream: true, // Default to streaming
+    }
+
     return {
       systemPrompt,
       context,
       detectedIntent,
       suggestedMode,
+      aiRequest,
     }
+  }
+
+  /**
+   * Build message array for AI request
+   */
+  private static buildMessages(
+    content: string,
+    systemPrompt: string,
+    conversationHistory: Array<{ role: string; content: string }>
+  ): AIMessage[] {
+    const messages: AIMessage[] = [
+      {
+        role: 'system',
+        content: systemPrompt,
+      },
+    ]
+
+    // Add conversation history (limit to recent messages to manage context window)
+    const recentHistory = conversationHistory.slice(-10)
+    for (const msg of recentHistory) {
+      messages.push({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      })
+    }
+
+    // Add current user message
+    messages.push({
+      role: 'user',
+      content,
+    })
+
+    return messages
   }
 
   /**

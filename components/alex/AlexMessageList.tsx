@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Message } from '@/lib/alex/types'
-import { Loader2, Bot, User } from 'lucide-react'
+import { Loader2, Bot, User, Copy, Check } from 'lucide-react'
 
 interface AlexMessageListProps {
   messages: Message[]
@@ -11,10 +11,76 @@ interface AlexMessageListProps {
 
 export function AlexMessageList({ messages, isLoading }: AlexMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Enhanced Markdown rendering with XSS protection
+  const renderMarkdown = (content: string) => {
+    const safeContent = content
+      // Escape HTML to prevent XSS
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      // Code blocks with language support and copy button
+      .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+        const language = lang || 'text'
+        const codeId = `code-${Math.random().toString(36).substr(2, 9)}`
+        return `
+          <div class="relative group">
+            <div class="flex items-center justify-between text-xs text-[#b9cacb] mb-2">
+              <span class="capitalize">${language}</span>
+              <button 
+                onclick="copyCode('${codeId}')"
+                class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:text-[#00f0ff]"
+                title="Copy code"
+              >
+                <span id="${codeId}-text">${copiedCode === codeId ? 'Copied!' : 'Copy'}</span>
+                ${copiedCode === codeId ? '<Check class="h-3 w-3 text-green-400"/>' : '<Copy class="h-3 w-3"/>'}
+              </button>
+            </div>
+            <pre class="bg-[#070B12] rounded-lg p-4 my-4 overflow-x-auto"><code id="${codeId}" class="text-sm">${code}</code></pre>
+          </div>
+        `
+      })
+      // Inline code
+      .replace(/`([^`]+)`/g, '<code class="bg-[#1f2229] px-1.5 py-0.5 rounded text-[#00f0ff]">$1</code>')
+      // Bold
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+      // Headers
+      .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-4 mb-2">$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>')
+      // Lists
+      .replace(/^\- (.*$)/gm, '<li class="ml-4">$1</li>')
+      // Line breaks
+      .replace(/\n/g, '<br />')
+      
+    return safeContent
+  }
+
+  const handleCopyCode = (codeId: string) => {
+    const codeElement = document.getElementById(codeId)
+    if (codeElement) {
+      navigator.clipboard.writeText(codeElement.textContent || '')
+      setCopiedCode(codeId)
+      setTimeout(() => setCopiedCode(null), 2000)
+    }
+  }
+
+  // Add copy function to window for onclick handlers
+  useEffect(() => {
+    ;(window as any).copyCode = handleCopyCode
+    return () => {
+      delete (window as any).copyCode
+    }
+  }, [copiedCode])
 
   return (
     <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -50,9 +116,10 @@ export function AlexMessageList({ messages, isLoading }: AlexMessageListProps) {
                   : 'bg-[#1f2229] text-white'
               }`}
             >
-              <div className="prose prose-invert prose-sm max-w-none">
-                {message.content}
-              </div>
+              <div 
+                className="prose prose-invert prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
+              />
             </div>
 
             {message.role === 'user' && (

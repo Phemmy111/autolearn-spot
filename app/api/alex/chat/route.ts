@@ -2,15 +2,44 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { auth } from '@clerk/nextjs/server'
 import { AlexMode } from '@/lib/alex/types'
-import { AlexOrchestrator } from '@/lib/alex/orchestrator'
+import { AIEngine } from '@/lib/alex/ai-engine'
 import { AlexCostTracker } from '@/lib/alex/cost-tracker'
 import { handleAlexError, AlexErrors } from '@/lib/alex/error-handler'
 import { alexLogger } from '@/lib/alex/logger'
+import { providerRegistry } from '@/lib/alex/provider/provider-registry'
+import { SelfHostedProvider } from '@/lib/alex/provider/self-hosted-provider'
+
+// Initialize providers from environment configuration
+function initializeProviders() {
+  // Initialize self-hosted provider if configured
+  const selfHostedEndpoint = process.env.ALEX_SELF_HOSTED_ENDPOINT
+  const selfHostedModel = process.env.ALEX_SELF_HOSTED_MODEL
+
+  if (selfHostedEndpoint && selfHostedModel) {
+    const selfHostedProvider = new SelfHostedProvider({
+      id: 'self-hosted-primary',
+      name: 'Self-Hosted Primary',
+      endpoint: selfHostedEndpoint,
+      model: selfHostedModel,
+      apiKey: process.env.ALEX_SELF_HOSTED_API_KEY, // Optional
+      priority: 1,
+      enabled: true,
+    })
+    providerRegistry.registerProvider(selfHostedProvider)
+    alexLogger.info('PROVIDER', 'Self-hosted provider initialized')
+  }
+  
+  // Additional providers can be initialized here from environment variables
+  // in future phases (OpenRouter, Groq, etc.)
+}
 
 // POST /api/alex/chat - Stream chat completion
 export async function POST(request: NextRequest) {
   try {
     alexLogger.info('CHAT', 'Starting chat request')
+
+    // Initialize providers
+    initializeProviders()
 
     const { userId } = await auth()
     if (!userId) {
@@ -103,65 +132,119 @@ export async function POST(request: NextRequest) {
       .order('created_at', { ascending: true })
       .limit(20)
 
-    // Orchestrate the request
-    const orchestratorResult = await AlexOrchestrator.orchestrate({
-      content,
-      mode: mode as AlexMode,
-      conversationHistory: historyMessages?.map(m => ({
-        role: m.role,
-        content: m.content
-      })) || []
-    })
+    // Build conversation history for orchestrator
+    const conversationHistory = historyMessages?.map(m => ({
+      role: m.role,
+      content: m.content
+    })) || []
 
-    // Generate AI response (placeholder for now - will integrate with provider system)
-    const aiResponse = await generateAIResponse(content, mode as AlexMode, orchestratorResult)
-
-    // Save assistant message
-    const { data: assistantMessage, error: assistantMsgError } = await supabase
-      .from('alex_messages')
-      .insert({
-        conversation_id: conversationId,
-        role: 'assistant',
-        content: aiResponse.content,
-        model_used: aiResponse.model,
-        tokens: aiResponse.tokens,
-      })
-      .select()
-      .single()
-
-    if (assistantMsgError) {
-      console.error('Error saving assistant message:', assistantMsgError)
-      return NextResponse.json({ error: 'Failed to save message' }, { status: 500 })
+    // Check if any provider is available
+    const activeProvider = providerRegistry.getActiveProvider()
+    if (!activeProvider) {
+      alexLogger.warn('CHAT', 'No active provider configured')
+      const error = handleAlexError(AlexErrors.PROVIDER_NOT_CONFIGURED)
+      return NextResponse.json({ error: error.message }, { status: error.statusCode })
     }
 
-    // Track usage
-    await AlexCostTracker.trackUsage({
-      userId,
-      conversationId,
-      model: aiResponse.model,
-      tokensUsed: aiResponse.tokens,
-      mode: mode as AlexMode,
-    })
-
-    alexLogger.info('CHAT', 'Chat request completed', { 
-      conversationId, 
-      model: aiResponse.model, 
-      tokens: aiResponse.tokens 
-    })
-
-    // Return streaming response
+    // Stream response through AI engine
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Stream the full response at once for now (will be true streaming with provider)
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ content: aiResponse.content })}\n\n`)
-          )
-          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
-          controller.close()
+          let fullContent = ''
+          let tokensUsed = 0
+          let modelUsed = activeProvider.name
+
+          // Process through AI engine
+          for await (const chunk of AIEngine.streamChat({
+            content,
+            mode: mode as AlexMode,
+            conversationHistory,
+          })) {
+            if (chunk.type === 'orchestrator') {
+              // Send orchestrator metadata
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ 
+                  type: 'metadata',
+                  data: chunk.data 
+                })}\n\n`)
+              )
+            } else if (chunk.type === 'stream') {
+              const event = chunk.data
+              
+              if (event.type === 'start') {
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`)
+                )
+              } else if (event.type === 'delta') {
+                const text = event.data?.text || ''
+                fullContent += text
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({ 
+                    type: 'delta',
+                    content: text 
+                  })}\n\n`)
+                )
+              } else if (event.type === 'usage') {
+                // Update usage info from provider
+                if (event.data?.usage) {
+                  tokensUsed = event.data.usage.totalTokens || 0
+                }
+              } else if (event.type === 'finish') {
+                // Save assistant message
+                const { data: assistantMessage, error: assistantMsgError } = await supabase
+                  .from('alex_messages')
+                  .insert({
+                    conversation_id: conversationId,
+                    role: 'assistant',
+                    content: fullContent,
+                    model_used: modelUsed,
+                    tokens: tokensUsed,
+                  })
+                  .select()
+                  .single()
+
+                if (assistantMsgError) {
+                  console.error('Error saving assistant message:', assistantMsgError)
+                }
+
+                // Track usage
+                await AlexCostTracker.trackUsage({
+                  userId,
+                  conversationId,
+                  model: modelUsed,
+                  tokensUsed,
+                  mode: mode as AlexMode,
+                })
+
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({ 
+                    type: 'finish',
+                    usage: event.data?.usage 
+                  })}\n\n`)
+                )
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+                controller.close()
+              } else if (event.type === 'error') {
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({ 
+                    type: 'error',
+                    error: event.data?.error 
+                  })}\n\n`)
+                )
+                controller.close()
+              }
+            }
+          }
         } catch (error) {
-          controller.error(error)
+          alexLogger.error('CHAT', 'Streaming error', { error })
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ 
+              type: 'error',
+              error: error instanceof Error ? error.message : 'Unknown error' 
+            })}\n\n`)
+          )
+          controller.close()
         }
       },
     })
@@ -177,35 +260,5 @@ export async function POST(request: NextRequest) {
     alexLogger.error('CHAT', 'Chat request failed', { error })
     const handled = handleAlexError(error)
     return NextResponse.json({ error: handled.message }, { status: handled.statusCode })
-  }
-}
-
-// Placeholder AI response generator (will be replaced with actual provider integration)
-async function generateAIResponse(content: string, mode: AlexMode, orchestratorResult?: any) {
-  // This is a placeholder - will integrate with ALEX provider system
-  const modeDescriptions: Record<AlexMode, string> = {
-    auto: orchestratorResult?.detectedIntent 
-      ? `I detected you need help with: ${orchestratorResult.detectedIntent}. I'm using ${orchestratorResult.suggestedMode} mode to assist you.`
-      : `I understand you're asking about: "${content}". As ALEX in Auto mode, I'm determining the best approach to help you.`,
-    tutor: `As your tutor, I'll help you understand: "${content}". Let me break this down step by step...`,
-    developer: `From a development perspective, regarding "${content}": I can help with code, debugging, and technical solutions.`,
-    automation: `For automation workflow assistance with "${content}": I can help you design n8n workflows and automation solutions.`,
-    research: `Researching "${content}" for you: I can help find and verify information (web search coming in Phase 3).`,
-    agent_builder: `To build an AI agent for "${content}": I can help you design agent configurations and capabilities (agent deployment coming in Phase 5).`,
-  }
-
-  const baseResponse = modeDescriptions[mode] || modeDescriptions.auto
-  
-  // Add orchestrator context if available
-  let enhancedResponse = baseResponse
-  if (orchestratorResult?.systemPrompt) {
-    enhancedResponse += `\n\n[System context: ${orchestratorResult.detectedIntent || 'general'} mode activated]`
-  }
-
-  return {
-    content: enhancedResponse + `\n\n*This is a placeholder response. The actual AI integration will be implemented once the ALEX provider system is configured with a valid API key.*`,
-    model: 'placeholder-model',
-    tokens: 150,
-    estimatedCost: 0.0015,
   }
 }
