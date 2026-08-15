@@ -396,7 +396,6 @@ export default function AdminLandingSettingsPage() {
                 </label>
               </div>
             </div>
-            </div>
           </div>
 
           {/* Save Button */}
