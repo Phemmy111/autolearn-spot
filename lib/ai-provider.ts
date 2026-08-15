@@ -29,7 +29,7 @@ export interface ProviderConfig {
 }
 
 // Provider-specific configurations
-const PROVIDER_CONFIGS: Record<ProviderType, { baseUrl: string; modelsEndpoint: string }> = {
+const PROVIDER_CONFIGS: Record<ProviderType, { baseUrl: string; modelsEndpoint: string | null }> = {
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
     modelsEndpoint: 'https://openrouter.ai/api/v1/models',

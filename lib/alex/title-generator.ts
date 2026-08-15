@@ -24,7 +24,10 @@ export async function generateConversationTitle(
   try {
     const providerConfig = await AlexProviderManager.getProviderConfig()
     if (providerConfig && providerConfig.apiKey) {
-      return await generateAITitle(firstMessage, mode, providerConfig)
+      const aiTitle = await generateAITitle(firstMessage, mode, providerConfig)
+      if (aiTitle) {
+        return aiTitle
+      }
     }
   } catch (error) {
     console.error('AI title generation failed, using fallback:', error)
@@ -77,7 +80,7 @@ async function generateAITitle(
   message: string,
   mode: AlexMode,
   providerConfig: any
-): Promise<string> {
+): Promise<string | null> {
   try {
     // This would make an actual API call to the AI provider
     // For now, we'll use a more sophisticated rule-based approach

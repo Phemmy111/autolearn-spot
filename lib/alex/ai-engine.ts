@@ -3,22 +3,58 @@
  * 
  * Coordinates between the orchestrator and provider registry.
  * This is the main entry point for AI operations in ALEX.
+ * Phase 2B: Integrated platform context loading
  */
 
 import { AlexOrchestrator, OrchestratorRequest, OrchestratorResponse } from './orchestrator';
 import { providerRegistry } from './provider/provider-registry';
 import { AIProvider, AIStreamEvent } from './provider/provider-interface';
+import { PlatformContext } from './context/context-types';
+import { loadPlatformContext } from './context';
 
 export class AIEngine {
   /**
    * Process a chat request through the ALEX AI engine
    */
-  static async processChat(request: OrchestratorRequest): Promise<{
+  static async processChat(request: OrchestratorRequest & { 
+    userId?: string;
+    userEmail?: string;
+    userName?: string;
+  }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     provider: AIProvider;
+    platformContext?: PlatformContext;
   }> {
+    // Load platform context if user ID is provided
+    let platformContext: PlatformContext | undefined;
+    if (request.userId) {
+      try {
+        const contextResult = await loadPlatformContext({
+          userId: request.userId,
+          userEmail: request.userEmail,
+          userIntent: request.content,
+          conversationMode: request.mode,
+        });
+        platformContext = contextResult.context;
+        
+        // Log context loading results
+        if (contextResult.unavailableContexts.length > 0) {
+          console.log('[AI Engine] Some contexts unavailable:', contextResult.unavailableContexts);
+        }
+        if (contextResult.errors.length > 0) {
+          console.log('[AI Engine] Context loading errors:', contextResult.errors);
+        }
+      } catch (error) {
+        console.error('[AI Engine] Failed to load platform context:', error);
+        // Continue without platform context if loading fails
+      }
+    }
+
     // Get orchestrator response with AI request
-    const orchestratorResponse = await AlexOrchestrator.orchestrate(request);
+    const orchestratorResponse = await AlexOrchestrator.orchestrate({
+      ...request,
+      platformContext,
+    });
 
     // Get active provider from registry
     const provider = providerRegistry.getActiveProvider();
@@ -30,13 +66,18 @@ export class AIEngine {
     return {
       orchestratorResponse,
       provider,
+      platformContext,
     };
   }
 
   /**
    * Stream a chat response
    */
-  static async *streamChat(request: OrchestratorRequest): AsyncGenerator<{
+  static async *streamChat(request: OrchestratorRequest & {
+    userId?: string;
+    userEmail?: string;
+    userName?: string;
+  }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
   }> {

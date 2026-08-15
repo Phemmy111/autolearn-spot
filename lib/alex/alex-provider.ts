@@ -19,7 +19,7 @@ export interface AlexProviderConfigInput {
 }
 
 // Provider-specific configurations
-export const PROVIDER_CONFIGS: Record<AlexProviderType, { baseUrl: string; modelsEndpoint: string }> = {
+export const PROVIDER_CONFIGS: Record<AlexProviderType, { baseUrl: string; modelsEndpoint: string | null }> = {
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
     modelsEndpoint: 'https://openrouter.ai/api/v1/models',

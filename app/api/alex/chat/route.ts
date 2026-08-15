@@ -41,7 +41,11 @@ export async function POST(request: NextRequest) {
     // Initialize providers
     initializeProviders()
 
-    const { userId } = await auth()
+    const authResult = await auth()
+    const { userId } = authResult
+    const userEmail = authResult?.emailAddresses?.[0]?.emailAddress || undefined
+    const userName = authResult?.firstName || authResult?.username || undefined
+    
     if (!userId) {
       alexLogger.warn('CHAT', 'Unauthorized access attempt')
       const error = handleAlexError(AlexErrors.UNAUTHORIZED)
@@ -155,11 +159,13 @@ export async function POST(request: NextRequest) {
           let tokensUsed = 0
           let modelUsed = activeProvider.name
 
-          // Process through AI engine
+          // Process through AI engine with platform context
           for await (const chunk of AIEngine.streamChat({
             content,
             mode: mode as AlexMode,
             conversationHistory,
+            userId,
+            userEmail,
           })) {
             if (chunk.type === 'orchestrator') {
               // Send orchestrator metadata

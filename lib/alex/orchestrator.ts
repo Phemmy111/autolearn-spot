@@ -2,11 +2,14 @@ import { AlexMode } from './types'
 import { detectIntent } from './intent-detector'
 import { assembleContext } from './context-assembly'
 import { AIRequest, AIMessage } from './provider/provider-interface'
+import { PlatformContext } from './context/context-types'
 
 export interface OrchestratorRequest {
   content: string
   mode: AlexMode
   conversationHistory: Array<{ role: string; content: string }>
+  platformContext?: PlatformContext
+  userIntent?: string
 }
 
 export interface OrchestratorResponse {
@@ -20,13 +23,14 @@ export interface OrchestratorResponse {
 /**
  * ALEX Orchestrator - Central coordination for AI interactions
  * Refactored for provider independence - communicates through AI Engine interface
+ * Phase 2B: Integrated platform context from AutoLearn Spot
  */
 export class AlexOrchestrator {
   /**
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory } = request
+    const { content, mode, conversationHistory, platformContext, userIntent } = request
 
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
@@ -38,11 +42,14 @@ export class AlexOrchestrator {
       suggestedMode = intentResult.suggestedMode
     }
 
-    // Assemble context based on mode
-    const context = await assembleContext(mode, conversationHistory)
+    // Assemble context with platform context if available
+    const context = await assembleContext(mode, conversationHistory, {
+      platformContext,
+      userIntent: userIntent || content,
+    })
 
     // Generate system prompt based on mode
-    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent)
+    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext)
 
     // Build AI request for provider-agnostic interface
     const aiRequest: AIRequest = {
@@ -95,7 +102,7 @@ export class AlexOrchestrator {
   /**
    * Generate system prompt based on mode
    */
-  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string): string {
+  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext): string {
     const basePrompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an AI assistant for AutoLearn Spot students. You help students learn n8n automation, build AI-powered workflows, and master technical skills.
 
 Your responses should be:
@@ -105,8 +112,22 @@ Your responses should be:
 - Technical when appropriate, but accessible
 - Focused on helping students succeed`
 
+    // Add platform context awareness if platform data is available
+    let platformAwareness = ''
+    if (platformContext && Object.keys(platformContext).length > 0) {
+      platformAwareness = `
+
+IMPORTANT: You have been provided with AutoLearn Spot platform context above.
+- Platform context contains authoritative data about the user's actual account, enrollments, progress, scholarships, and certificates.
+- Use this information to answer platform-specific questions accurately.
+- If the platform context does not contain information needed to answer a platform-specific question, state that the information is not available.
+- Do not invent or hallucinate platform-specific facts when the platform context is available.
+- Distinguish clearly between authoritative platform facts and general knowledge.
+- For questions about progress, enrollment, certificates, or scholarships, rely on the provided platform context.`
+    }
+
     const modePrompts: Record<AlexMode, string> = {
-      auto: `${basePrompt}
+      auto: `${basePrompt}${platformAwareness}
 
 In Auto mode, you determine the best approach based on the user's request. You can switch between tutoring, development assistance, automation guidance, research, or agent building as needed.
 

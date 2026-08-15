@@ -1,21 +1,38 @@
 import { AlexMode } from './types'
+import { PlatformContext } from './context/context-types'
+import { formatPlatformContextForPrompt } from './context'
 
 export interface ConversationMessage {
   role: string
   content: string
 }
 
+export interface AssemblyOptions {
+  platformContext?: PlatformContext
+  userIntent?: string
+}
+
 /**
  * Context Assembly for different ALEX modes
- * Phase 1: Basic conversation history context
- * Future phases: AutoLearn knowledge integration, project context, file context
+ * Phase 2B: Integrated platform context from AutoLearn Spot
  */
 export async function assembleContext(
   mode: AlexMode,
-  conversationHistory: ConversationMessage[]
+  conversationHistory: ConversationMessage[],
+  options?: AssemblyOptions
 ): Promise<string> {
+  let context = ''
+
+  // Add platform context if available
+  if (options?.platformContext) {
+    const platformContextStr = formatPlatformContextForPrompt(options.platformContext)
+    if (platformContextStr) {
+      context += platformContextStr + '\n'
+    }
+  }
+
   // Build context from conversation history
-  let context = 'Conversation History:\n'
+  context += 'Conversation History:\n'
   
   if (conversationHistory.length === 0) {
     context += 'This is the beginning of the conversation.\n'

@@ -16,6 +16,7 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
 
   // Basic keyword patterns for mode detection
   const patterns: Record<AlexMode, string[]> = {
+    auto: [],
     tutor: [
       'explain', 'teach', 'learn', 'understand', 'what is', 'how does', 'help me understand',
       'concept', 'theory', 'principle', 'example', 'analogy', 'study', 'lesson'
