@@ -18,10 +18,10 @@ import { alexLogger } from '../logger';
  * Load platform context for an authenticated user's request
  */
 export async function loadPlatformContext(request: ContextRequest): Promise<ContextResult> {
-  const { userId, userEmail, userIntent, conversationMode } = request;
+  const { userId, userEmail, userName, userIntent, conversationMode } = request;
   
   // Use email prefix as fallback name if not provided
-  const userName = userEmail ? userEmail.split('@')[0] : undefined;
+  const finalUserName = userName || (userEmail ? userEmail.split('@')[0] : undefined);
   
   alexLogger.info('CONTEXT', 'Loading platform context', { userId, userIntent, conversationMode });
 
@@ -40,7 +40,7 @@ export async function loadPlatformContext(request: ContextRequest): Promise<Cont
   // Load required contexts
   for (const contextType of routing.requiredContexts) {
     try {
-      const result = await loadContext(contextType, userId, userEmail, userName);
+      const result = await loadContext(contextType, userId, userEmail, finalUserName);
       
       if (result.error) {
         errors.push(result.error);
@@ -67,7 +67,7 @@ export async function loadPlatformContext(request: ContextRequest): Promise<Cont
   // Load optional contexts (non-blocking)
   for (const contextType of routing.optionalContexts) {
     try {
-      const result = await loadContext(contextType, userId, userEmail, userName);
+      const result = await loadContext(contextType, userId, userEmail, finalUserName);
       
       if (result.error) {
         // Optional context errors are logged but don't block
