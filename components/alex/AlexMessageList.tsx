@@ -175,7 +175,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Tables
     table: ({ children }: any) => (
-      <div className="overflow-x-auto my-4 max-w-full -mx-2 px-2">
+      <div className="overflow-x-auto my-4 max-w-full -mx-4 px-4">
         <table className="min-w-full divide-y divide-slate-700 border border-slate-700 rounded-lg text-xs">
           {children}
         </table>
@@ -191,12 +191,12 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
       <tr className="hover:bg-slate-800/50">{children}</tr>
     ),
     th: ({ children }: any) => (
-      <th className="px-2 py-1.5 text-left text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+      <th className="px-3 py-2 text-left text-[10px] font-medium text-slate-400 uppercase tracking-wider">
         {children}
       </th>
     ),
     td: ({ children }: any) => (
-      <td className="px-2 py-1.5 text-[11px] text-slate-300">{children}</td>
+      <td className="px-3 py-2 text-[11px] text-slate-300">{children}</td>
     ),
 
     // Horizontal rule
@@ -307,7 +307,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white'
               }`}
             >
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-3">
                 <div className="flex-1 min-w-0">
                   {message.role === 'assistant' ? (
                     <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
@@ -331,7 +331,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   )}
                 </div>
                 {message.role === 'assistant' && (
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-700/50">
                     <button
                       onClick={() => handleCopyMessage(message.content, message.id)}
                       className="p-1.5 text-slate-500 hover:text-cyan-400 transition-colors"
@@ -369,7 +369,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   </div>
                 )}
                 {message.role === 'user' && editingMessageId !== message.id && (
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-600/30">
                     <button
                       onClick={() => handleCopyMessage(message.content, message.id)}
                       className="p-1.5 text-slate-700 hover:text-white transition-colors"
@@ -393,7 +393,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   </div>
                 )}
                 {message.role === 'user' && editingMessageId === message.id && (
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-600/30">
                     <button
                       onClick={handleSaveEdit}
                       className="p-1.5 text-slate-700 hover:text-green-400 transition-colors"

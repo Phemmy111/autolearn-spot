@@ -43,7 +43,10 @@ export default function LiveClassPage() {
           'live_class_replay_enabled',
           'live_class_status',
         ]);
-        setSettings(loadedSettings);
+        // Only update if we got actual settings, otherwise keep defaults
+        if (loadedSettings && Object.keys(loadedSettings).length > 0) {
+          setSettings(prev => ({ ...prev, ...loadedSettings }));
+        }
       } catch (error) {
         console.error('Failed to load settings:', error);
       }
