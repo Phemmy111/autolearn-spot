@@ -39,9 +39,9 @@ export default function AutolearnAIPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0e12]">
+    <div className="h-screen bg-[#0c0e12] flex flex-col">
       {/* Header */}
-      <header className="border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-6 py-4">
+      <header className="border-b border-[#1f2229] bg-[#0c0e12]/95 backdrop-blur-xl px-6 py-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 bg-[#00f0ff]/10 rounded-lg">
@@ -61,7 +61,9 @@ export default function AutolearnAIPage() {
       </header>
 
       {/* Main Chat Interface */}
-      <AlexChat userId={user?.id || ''} />
+      <div className="flex-1 min-h-0">
+        <AlexChat userId={user?.id || ''} />
+      </div>
     </div>
   )
 }
