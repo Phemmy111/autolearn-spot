@@ -53,7 +53,7 @@ export class AlexOrchestrator {
 
     // Build AI request for provider-agnostic interface
     const aiRequest: AIRequest = {
-      messages: this.buildMessages(content, systemPrompt, conversationHistory),
+      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext),
       stream: true, // Default to streaming
     }
 

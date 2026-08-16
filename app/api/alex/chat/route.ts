@@ -176,6 +176,7 @@ export async function POST(request: NextRequest) {
             conversationHistory,
             userId,
             userEmail,
+            userName,
           })) {
             if (chunk.type === 'orchestrator') {
               // Send orchestrator metadata
