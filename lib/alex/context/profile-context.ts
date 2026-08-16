@@ -15,12 +15,6 @@ export async function getUserProfileContext(
   userName?: string
 ): Promise<{ context: UserProfileContext | null; error: ContextError | null }> {
   try {
-    console.log('[Profile Context] Loading profile for user:', {
-      authenticatedUserId,
-      userEmail,
-      userName,
-    });
-
     // First, try to get profile data from enrollments table (authoritative source)
     // Use .limit(1) to handle cases where user might have multiple enrollments
     const { data: enrollments, error: enrollmentError } = await supabaseAdmin
@@ -30,8 +24,6 @@ export async function getUserProfileContext(
       .limit(1);
 
     const enrollment = enrollments && enrollments.length > 0 ? enrollments[0] : null;
-
-    console.log('[Profile Context] Enrollment data:', { enrollment, enrollmentError, allEnrollments: enrollments });
 
     let firstName: string | undefined;
     let lastName: string | undefined;
@@ -69,8 +61,6 @@ export async function getUserProfileContext(
       fullName,
       email,
     };
-
-    console.log('[Profile Context] Final profile context:', profileContext);
 
     return { context: profileContext, error: null };
   } catch (error) {
