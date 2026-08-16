@@ -216,7 +216,7 @@ export function AlexSidebar({
                         e.stopPropagation()
                         setShowMenu(showMenu === conversation.id ? null : conversation.id)
                       }}
-                      className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center text-slate-500 hover:text-white transition-opacity"
+                      className={`${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} w-6 h-6 flex items-center justify-center text-slate-500 hover:text-white transition-opacity`}
                       aria-label="Conversation options"
                     >
                       <MoreVertical className="h-4 w-4" />

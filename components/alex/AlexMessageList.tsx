@@ -175,8 +175,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Tables
     table: ({ children }: any) => (
-      <div className="overflow-x-auto my-4">
-        <table className="min-w-full divide-y divide-slate-700 border border-slate-700 rounded-lg">
+      <div className="overflow-x-auto my-4 max-w-full">
+        <table className="min-w-full divide-y divide-slate-700 border border-slate-700 rounded-lg text-xs">
           {children}
         </table>
       </div>
@@ -191,12 +191,12 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
       <tr className="hover:bg-slate-800/50">{children}</tr>
     ),
     th: ({ children }: any) => (
-      <th className="px-4 py-2 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+      <th className="px-2 py-1.5 text-left text-[10px] font-medium text-slate-400 uppercase tracking-wider whitespace-nowrap">
         {children}
       </th>
     ),
     td: ({ children }: any) => (
-      <td className="px-4 py-2 text-sm text-slate-300">{children}</td>
+      <td className="px-2 py-1.5 text-[11px] text-slate-300 whitespace-nowrap">{children}</td>
     ),
 
     // Horizontal rule
