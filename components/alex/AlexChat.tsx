@@ -342,7 +342,7 @@ export function AlexChat({ userId }: AlexChatProps) {
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Desktop Header - Fixed */}
         {!isMobile && (
           <div className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-3 flex-shrink-0">
