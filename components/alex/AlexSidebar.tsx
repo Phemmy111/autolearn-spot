@@ -107,7 +107,7 @@ export function AlexSidebar({
         {/* Overlay */}
         {isOpen && (
           <div
-            className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 ${
+            className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 overflow-hidden ${
               isAnimating ? 'opacity-100' : 'opacity-0'
             }`}
             onClick={onToggleSidebar}
@@ -117,7 +117,7 @@ export function AlexSidebar({
         
         {/* Mobile Sidebar */}
         <div
-          className={`fixed left-0 top-0 bottom-0 w-80 bg-slate-900 z-50 flex flex-col transition-transform duration-300 ease-out transform ${
+          className={`fixed left-0 top-0 bottom-0 w-80 bg-slate-900 z-50 flex flex-col transition-transform duration-300 ease-out transform overflow-hidden ${
             isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
           style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -266,8 +266,8 @@ export function AlexSidebar({
 
   // Desktop expanded state
   return (
-    <div 
-      className="bg-slate-900/50 backdrop-blur-sm border-r border-slate-800 flex flex-col transition-all duration-300"
+    <div
+      className="bg-slate-900/50 backdrop-blur-sm border-r border-slate-800 flex flex-col transition-all duration-300 overflow-hidden"
       style={{ width: `${width}px` }}
     >
       {/* Header */}
