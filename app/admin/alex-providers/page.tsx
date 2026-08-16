@@ -324,7 +324,7 @@ export default function AlexProvidersPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-white">ALEX Providers (EDIT TEST)</h1>
+              <h1 className="font-heading text-4xl font-bold text-white">ALEX Providers</h1>
               <p className="font-mono text-sm text-[#b9cacb]">Manage ALEX AI providers with fallback and health monitoring</p>
             </div>
           </div>
