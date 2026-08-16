@@ -22,6 +22,23 @@ export default function LiveClassPage() {
     replayEnabled: 'false',
     status: 'scheduled',
   });
+
+  const handleSettingUpdate = (loadedSettings: any) => {
+    setSettings(prev => ({
+      ...prev,
+      title: loadedSettings.liveClassTitle || prev.title,
+      date: loadedSettings.liveClassDate || prev.date,
+      time: loadedSettings.liveClassTime || prev.time,
+      timezone: loadedSettings.liveClassTimezone || prev.timezone,
+      url: loadedSettings.liveClassUrl || prev.url,
+      description: loadedSettings.liveClassDescription || prev.description,
+      joinButtonText: loadedSettings.liveClassJoinButtonText || prev.joinButtonText,
+      countdownEnabled: loadedSettings.liveClassCountdownEnabled || prev.countdownEnabled,
+      recordingUrl: loadedSettings.liveClassRecordingUrl || prev.recordingUrl,
+      replayEnabled: loadedSettings.liveClassReplayEnabled || prev.replayEnabled,
+      status: loadedSettings.liveClassStatus || prev.status,
+    }));
+  };
   const [showJitsi, setShowJitsi] = useState(false);
   const [roomName, setRoomName] = useState("");
   const [countdown, setCountdown] = useState<string>("");
@@ -31,21 +48,22 @@ export default function LiveClassPage() {
     async function loadSettings() {
       try {
         const loadedSettings = await getPublicSettings([
-          'live_class_title',
-          'live_class_date',
-          'live_class_time',
-          'live_class_timezone',
-          'live_class_url',
-          'live_class_description',
-          'live_class_join_button_text',
-          'live_class_countdown_enabled',
-          'live_class_recording_url',
-          'live_class_replay_enabled',
-          'live_class_status',
+          'liveClassTitle',
+          'liveClassDate',
+          'liveClassTime',
+          'liveClassTimezone',
+          'liveClassUrl',
+          'liveClassDescription',
+          'liveClassJoinButtonText',
+          'liveClassCountdownEnabled',
+          'liveClassRecordingUrl',
+          'liveClassReplayEnabled',
+          'liveClassStatus',
         ]);
+        console.log('Loaded settings:', loadedSettings);
         // Only update if we got actual settings, otherwise keep defaults
         if (loadedSettings && Object.keys(loadedSettings).length > 0) {
-          setSettings(prev => ({ ...prev, ...loadedSettings }));
+          handleSettingUpdate(loadedSettings);
         }
       } catch (error) {
         console.error('Failed to load settings:', error);
