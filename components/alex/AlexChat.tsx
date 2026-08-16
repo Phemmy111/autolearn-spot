@@ -342,10 +342,10 @@ export function AlexChat({ userId }: AlexChatProps) {
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
+      <div className="flex-1 flex flex-col min-w-0 h-0">
         {/* Desktop Header - Fixed */}
         {!isMobile && (
-          <div className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-3 flex-shrink-0 z-20">
+          <div className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-3 flex-shrink-0">
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               <div className="flex items-center gap-3">
                 <button
@@ -383,7 +383,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         </div>
 
         {/* Input Area - Fixed at bottom */}
-        <div className={`bg-slate-900/50 backdrop-blur-sm border-t border-slate-800 flex-shrink-0 z-20 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
+        <div className={`bg-slate-900/50 backdrop-blur-sm border-t border-slate-800 flex-shrink-0 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
           <AlexInputArea
             onSendMessage={sendMessage}
             onStopGeneration={stopGeneration}
