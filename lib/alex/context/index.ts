@@ -51,7 +51,7 @@ export async function loadPlatformContext(request: ContextRequest): Promise<Cont
       
       if (result.context) {
         // Map context type to PlatformContext property name
-        const propertyName = contextType === 'enrollment' ? 'enrollments' : contextType;
+        const propertyName = getContextPropertyName(contextType);
         platformContext[propertyName as keyof PlatformContext] = result.context;
       }
     } catch (error) {
@@ -76,7 +76,7 @@ export async function loadPlatformContext(request: ContextRequest): Promise<Cont
       
       if (result.context) {
         // Map context type to PlatformContext property name
-        const propertyName = contextType === 'enrollment' ? 'enrollments' : contextType;
+        const propertyName = getContextPropertyName(contextType);
         platformContext[propertyName as keyof PlatformContext] = result.context;
       }
     } catch (error) {
@@ -96,6 +96,24 @@ export async function loadPlatformContext(request: ContextRequest): Promise<Cont
     unavailableContexts,
     errors,
   };
+}
+
+/**
+ * Map context type string to PlatformContext property name
+ */
+function getContextPropertyName(contextType: ContextTypeEnum): string {
+  switch (contextType) {
+    case 'profile':
+      return 'user';
+    case 'enrollment':
+      return 'enrollments';
+    case 'scholarship':
+      return 'scholarships';
+    case 'certificate':
+      return 'certificates';
+    default:
+      return contextType;
+  }
 }
 
 /**
