@@ -107,7 +107,7 @@ export function AlexSidebar({
         {/* Overlay */}
         {isOpen && (
           <div
-            className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 overflow-hidden ${
+            className={`fixed inset-0 bg-black/60 z-40 transition-opacity duration-300 overflow-hidden touch-none ${
               isAnimating ? 'opacity-100' : 'opacity-0'
             }`}
             onClick={onToggleSidebar}
@@ -168,7 +168,7 @@ export function AlexSidebar({
           </div>
 
           {/* Conversation List */}
-          <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 space-y-1 pb-4 touch-auto">
             {filteredConversations.length === 0 ? (
               <div className="text-center py-8">
                 {searchQuery ? (
@@ -314,7 +314,7 @@ export function AlexSidebar({
       </div>
 
       {/* Conversation List */}
-      <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 space-y-1 pb-4">
         {filteredConversations.length === 0 ? (
           <div className="text-center py-8">
             {searchQuery ? (
