@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Message } from '@/lib/alex/types'
-import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap } from 'lucide-react'
+import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -19,6 +19,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [feedback, setFeedback] = useState<Record<string, 'up' | 'down' | null>>({})
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -29,6 +30,21 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
     navigator.clipboard.writeText(code)
     setCopiedCode(codeId)
     setTimeout(() => setCopiedCode(null), 2000)
+  }
+
+  // Handle copy entire message
+  const handleCopyMessage = (content: string, messageId: string) => {
+    navigator.clipboard.writeText(content)
+    setCopiedCode(messageId)
+    setTimeout(() => setCopiedCode(null), 2000)
+  }
+
+  // Handle feedback
+  const handleFeedback = (messageId: string, type: 'up' | 'down') => {
+    setFeedback(prev => ({
+      ...prev,
+      [messageId]: prev[messageId] === type ? null : type
+    }))
   }
 
   // Generate code block ID
@@ -266,18 +282,51 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white'
               }`}
             >
-              {message.role === 'assistant' ? (
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={MarkdownComponents}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  {message.role === 'assistant' ? (
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={MarkdownComponents}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="text-slate-900 leading-relaxed">{message.content}</p>
+                  )}
                 </div>
-              ) : (
-                <p className="text-slate-900 leading-relaxed">{message.content}</p>
-              )}
+                {message.role === 'assistant' && (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => handleCopyMessage(message.content, message.id)}
+                      className="p-1.5 text-slate-500 hover:text-cyan-400 transition-colors"
+                      title="Copy response"
+                    >
+                      {copiedCode === message.id ? (
+                        <Check className="h-4 w-4 text-green-400" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleFeedback(message.id, 'up')}
+                      className={`p-1.5 transition-colors ${feedback[message.id] === 'up' ? 'text-green-400' : 'text-slate-500 hover:text-green-400'}`}
+                      title="Helpful"
+                    >
+                      <ThumbsUp className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleFeedback(message.id, 'down')}
+                      className={`p-1.5 transition-colors ${feedback[message.id] === 'down' ? 'text-red-400' : 'text-slate-500 hover:text-red-400'}`}
+                      title="Not helpful"
+                    >
+                      <ThumbsDown className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {message.role === 'user' && (

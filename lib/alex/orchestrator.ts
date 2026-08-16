@@ -72,7 +72,8 @@ export class AlexOrchestrator {
   private static buildMessages(
     content: string,
     systemPrompt: string,
-    conversationHistory: Array<{ role: string; content: string }>
+    conversationHistory: Array<{ role: string; content: string }>,
+    platformContext?: PlatformContext
   ): AIMessage[] {
     const messages: AIMessage[] = [
       {
@@ -80,6 +81,18 @@ export class AlexOrchestrator {
         content: systemPrompt,
       },
     ]
+
+    // Add platform context as a system message if available
+    if (platformContext && Object.keys(platformContext).length > 0) {
+      const { formatPlatformContextForPrompt } = require('./context')
+      const platformContextStr = formatPlatformContextForPrompt(platformContext)
+      if (platformContextStr) {
+        messages.push({
+          role: 'system',
+          content: platformContextStr,
+        })
+      }
+    }
 
     // Add conversation history (limit to recent messages to manage context window)
     const recentHistory = conversationHistory.slice(-10)
