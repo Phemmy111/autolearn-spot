@@ -60,8 +60,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark">
-        <body className="font-sans antialiased">
+      <html lang="en" className="dark h-full">
+        <body className="font-sans antialiased h-full overflow-hidden">
           <BrandTheming />
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
