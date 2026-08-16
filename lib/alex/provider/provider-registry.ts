@@ -3,23 +3,18 @@
  * 
  * Manages provider registration, selection, and fallback logic.
  * ALEX communicates with providers through this registry only.
+ * 
+ * IMPORTANT: This is NOT a singleton. Each request should create
+ * its own instance to ensure request-local isolation and concurrency safety.
  */
 
 import { AIProvider, AIProviderType, AIProviderHealth } from './provider-interface';
 
 export class ProviderRegistry {
-  private static instance: ProviderRegistry;
   private providers: Map<string, AIProvider> = new Map();
   private providerConfigs: Map<string, any> = new Map();
 
-  private constructor() {}
-
-  static getInstance(): ProviderRegistry {
-    if (!ProviderRegistry.instance) {
-      ProviderRegistry.instance = new ProviderRegistry();
-    }
-    return ProviderRegistry.instance;
-  }
+  constructor() {}
 
   /**
    * Register a provider
@@ -139,13 +134,10 @@ export class ProviderRegistry {
   }
 
   /**
-   * Clear all registered providers (useful for testing)
+   * Clear all registered providers
    */
   clear(): void {
     this.providers.clear();
     this.providerConfigs.clear();
   }
 }
-
-// Export singleton instance
-export const providerRegistry = ProviderRegistry.getInstance();

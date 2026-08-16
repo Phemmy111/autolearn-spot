@@ -5,7 +5,7 @@
  * ALEX itself must not depend on any specific provider implementation.
  */
 
-export type AIProviderType = 'self_hosted' | 'openrouter' | 'openai' | 'groq' | 'gemini';
+export type AIProviderType = 'self_hosted' | 'openrouter' | 'openai' | 'groq' | 'gemini' | 'openai_compatible';
 
 export type MessageRole = 'user' | 'assistant' | 'system';
 

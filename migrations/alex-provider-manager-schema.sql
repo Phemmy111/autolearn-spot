@@ -1,5 +1,28 @@
 -- ALEX Provider Manager Schema Migration
 -- Adds fields for multi-provider management, health monitoring, and fallback
+--
+-- IMPORTANT: Set ALEX_PROVIDER_ENCRYPTION_KEY in your environment
+-- This should be a 32-byte key for AES-256-GCM encryption of API keys
+-- Example: openssl rand -base64 32
+--
+
+-- First, update provider_type constraint to support all required types
+DO $$
+BEGIN
+    -- Drop existing check constraint if it exists
+    IF EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'alex_provider_config_provider_type_check' 
+        AND conrelid = 'alex_provider_config'::regclass
+    ) THEN
+        ALTER TABLE alex_provider_config DROP CONSTRAINT alex_provider_config_provider_type_check;
+    END IF;
+END $$;
+
+-- Add new check constraint with all supported provider types
+ALTER TABLE alex_provider_config
+ADD CONSTRAINT alex_provider_config_provider_type_check 
+CHECK (provider_type IN ('self_hosted', 'groq', 'openrouter', 'gemini', 'openai', 'openai_compatible'));
 
 -- Add new columns to alex_provider_config (without CHECK constraints first)
 ALTER TABLE alex_provider_config
@@ -98,8 +121,41 @@ $$ LANGUAGE plpgsql;
 -- Backfill current_model from models JSON if not set
 UPDATE alex_provider_config
 SET current_model = CASE 
-  WHEN current_model IS NULL AND models IS NOT NULL THEN 
+  WHEN current_model IS NULL AND models IS NOT NULL AND models->>'default' IS NOT NULL THEN 
     (models->>'default')::text
+  WHEN current_model IS NULL AND provider_type = 'groq' THEN 'llama3-70b-8192'
+  WHEN current_model IS NULL AND provider_type = 'openrouter' THEN 'anthropic/claude-3.5-sonnet'
+  WHEN current_model IS NULL AND provider_type = 'openai' THEN 'gpt-4o-mini'
+  WHEN current_model IS NULL AND provider_type = 'gemini' THEN 'gemini-1.5-flash'
+  WHEN current_model IS NULL AND provider_type = 'self_hosted' THEN 'default'
+  WHEN current_model IS NULL AND provider_type = 'openai_compatible' THEN 'default'
   ELSE current_model
 END
 WHERE current_model IS NULL;
+
+-- Ensure auth_type is set correctly for self_hosted
+UPDATE alex_provider_config
+SET auth_type = 'none'
+WHERE provider_type = 'self_hosted' AND (auth_type IS NULL OR auth_type = 'bearer');
+
+-- Security Note: RLS policies already restrict alex_provider_config to admins only
+-- API routes use requireSuperAdmin() for additional protection
+-- API keys are encrypted using AES-256-GCM before storage
+
+-- Add a trigger to automatically update updated_at (if not exists)
+-- Note: We use a table-specific function to avoid conflicts with other tables
+DROP TRIGGER IF EXISTS update_alex_provider_config_updated_at ON alex_provider_config;
+DROP FUNCTION IF EXISTS update_alex_provider_config_updated_at();
+
+CREATE OR REPLACE FUNCTION update_alex_provider_config_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_alex_provider_config_updated_at
+  BEFORE UPDATE ON alex_provider_config
+  FOR EACH ROW
+  EXECUTE FUNCTION update_alex_provider_config_updated_at();

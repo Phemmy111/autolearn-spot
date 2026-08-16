@@ -6,50 +6,11 @@ import { AIEngine } from '@/lib/alex/ai-engine'
 import { AlexCostTracker } from '@/lib/alex/cost-tracker'
 import { handleAlexError, AlexErrors } from '@/lib/alex/error-handler'
 import { alexLogger } from '@/lib/alex/logger'
-import { providerRegistry } from '@/lib/alex/provider/provider-registry'
-import { SelfHostedProvider } from '@/lib/alex/provider/self-hosted-provider'
-
-// Initialize providers from environment configuration
-function initializeProviders() {
-  // Initialize self-hosted provider if configured (supports Groq and other OpenAI-compatible APIs)
-  const selfHostedEndpoint = process.env.ALEX_SELF_HOSTED_ENDPOINT || 'https://api.groq.com/openai/v1'
-  const selfHostedModel = process.env.ALEX_SELF_HOSTED_MODEL || 'llama-3.3-70b-versatile'
-  const apiKey = process.env.ALEX_SELF_HOSTED_API_KEY
-
-  if (selfHostedEndpoint && selfHostedModel && apiKey) {
-    const selfHostedProvider = new SelfHostedProvider({
-      id: 'self-hosted-primary',
-      name: 'ALEX AI Provider',
-      endpoint: selfHostedEndpoint,
-      model: selfHostedModel,
-      apiKey: apiKey,
-      priority: 1,
-      enabled: true,
-    })
-    providerRegistry.registerProvider(selfHostedProvider)
-    alexLogger.info('PROVIDER', 'ALEX AI provider initialized', { 
-      endpoint: selfHostedEndpoint,
-      model: selfHostedModel 
-    })
-  } else {
-    alexLogger.warn('PROVIDER', 'ALEX AI provider not configured - missing environment variables', {
-      hasEndpoint: !!selfHostedEndpoint,
-      hasModel: !!selfHostedModel,
-      hasApiKey: !!apiKey
-    })
-  }
-  
-  // Additional providers can be initialized here from environment variables
-  // in future phases (OpenRouter, custom endpoints, etc.)
-}
 
 // POST /api/alex/chat - Stream chat completion
 export async function POST(request: NextRequest) {
   try {
     alexLogger.info('CHAT', 'Starting chat request')
-
-    // Initialize providers
-    initializeProviders()
 
     const authResult = await auth()
     const { userId } = authResult
@@ -171,14 +132,6 @@ export async function POST(request: NextRequest) {
       content: m.content
     })) || []
 
-    // Check if any provider is available
-    const activeProvider = providerRegistry.getActiveProvider()
-    if (!activeProvider) {
-      alexLogger.warn('CHAT', 'No active provider configured')
-      const error = handleAlexError(AlexErrors.PROVIDER_NOT_CONFIGURED)
-      return NextResponse.json({ error: error.message }, { status: error.statusCode })
-    }
-
     // Stream response through AI engine
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
@@ -186,7 +139,7 @@ export async function POST(request: NextRequest) {
         try {
           let fullContent = ''
           let tokensUsed = 0
-          let modelUsed = activeProvider.name
+          let modelUsed = 'unknown'
 
           // Process through AI engine with platform context
           for await (const chunk of AIEngine.streamChat({

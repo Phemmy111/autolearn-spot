@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import crypto from 'crypto'
 import { AlexProviderConfig } from './types'
 
-export type AlexProviderType = 'openrouter' | 'openai' | 'gemini' | 'groq'
+export type AlexProviderType = 'self_hosted' | 'openrouter' | 'openai' | 'gemini' | 'groq' | 'openai_compatible'
 
 export interface AlexProviderConfigInput {
   provider_name: string
@@ -20,6 +20,10 @@ export interface AlexProviderConfigInput {
 
 // Provider-specific configurations
 export const PROVIDER_CONFIGS: Record<AlexProviderType, { baseUrl: string; modelsEndpoint: string | null }> = {
+  self_hosted: {
+    baseUrl: '', // User-configured
+    modelsEndpoint: null, // Depends on server
+  },
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
     modelsEndpoint: 'https://openrouter.ai/api/v1/models',
@@ -36,10 +40,15 @@ export const PROVIDER_CONFIGS: Record<AlexProviderType, { baseUrl: string; model
     baseUrl: 'https://api.groq.com/openai/v1',
     modelsEndpoint: 'https://api.groq.com/openai/v1/models',
   },
+  openai_compatible: {
+    baseUrl: '', // User-configured
+    modelsEndpoint: null, // Depends on server
+  },
 }
 
 // Default model lists for providers without models endpoints
 const DEFAULT_MODELS: Record<AlexProviderType, string[]> = {
+  self_hosted: ['default'],
   openrouter: [],
   openai: [],
   gemini: [
@@ -50,6 +59,7 @@ const DEFAULT_MODELS: Record<AlexProviderType, string[]> = {
     'gemini-pro-vision',
   ],
   groq: [],
+  openai_compatible: ['default'],
 }
 
 // Encryption key (must be 32 bytes for AES-256)
