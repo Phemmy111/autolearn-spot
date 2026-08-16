@@ -6,7 +6,7 @@ import { AlexMessageList } from './AlexMessageList'
 import { AlexInputArea } from './AlexInputArea'
 import { AlexSidebar } from './AlexSidebar'
 import { Message, Conversation } from '@/lib/alex/types'
-import { Menu, X, Bot, Plus, Sparkles } from 'lucide-react'
+import { Menu, X, Bot, Plus, Sparkles, Home } from 'lucide-react'
 
 interface AlexChatProps {
   userId: string
@@ -298,6 +298,13 @@ export function AlexChat({ userId }: AlexChatProps) {
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.location.href = '/'}
+              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              aria-label="Go to homepage"
+            >
+              <Home className="h-4 w-4" />
+            </button>
             <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
               <Bot className="h-4 w-4 text-white" />
             </div>
@@ -339,9 +346,16 @@ export function AlexChat({ userId }: AlexChatProps) {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Desktop Header */}
         {!isMobile && (
-          <div className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-3">
+          <div className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-3 flex-shrink-0">
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-xl hover:bg-slate-800"
+                  aria-label="Go to homepage"
+                >
+                  <Home className="h-5 w-5" />
+                </button>
                 <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
                   <Bot className="h-5 w-5 text-white" />
                 </div>
@@ -358,7 +372,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         )}
 
         {/* Mode Selector - Compact */}
-        <div className={`bg-slate-900/30 backdrop-blur-sm border-b border-slate-800 ${isMobile ? 'pt-16' : ''}`}>
+        <div className={`bg-slate-900/30 backdrop-blur-sm border-b border-slate-800 flex-shrink-0 ${isMobile ? 'pt-16' : ''}`}>
           <AlexModeSelector currentMode={mode} onModeChange={setMode} isMobile={isMobile} />
         </div>
 
@@ -375,11 +389,11 @@ export function AlexChat({ userId }: AlexChatProps) {
         </div>
 
         {/* Input Area */}
-        <div className={`bg-slate-900/50 backdrop-blur-sm border-t border-slate-800 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
-          <AlexInputArea 
-            onSendMessage={sendMessage} 
+        <div className={`bg-slate-900/50 backdrop-blur-sm border-t border-slate-800 flex-shrink-0 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
+          <AlexInputArea
+            onSendMessage={sendMessage}
             onStopGeneration={stopGeneration}
-            isLoading={isLoading} 
+            isLoading={isLoading}
             isGenerating={isGenerating}
             isMobile={isMobile}
           />
