@@ -371,7 +371,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         )}
 
         {/* Messages - Scrollable */}
-        <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isMobile ? 'pt-2' : ''}`}>
+        <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isMobile ? 'pt-20' : ''}`}>
           <AlexMessageList
             messages={messages}
             isLoading={isLoading}
