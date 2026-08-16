@@ -53,16 +53,32 @@ export async function POST(request: NextRequest) {
 
     const authResult = await auth()
     const { userId } = authResult
-    const userEmail = authResult?.emailAddresses?.[0]?.emailAddress || undefined
-    const userName = authResult?.fullName || authResult?.firstName || authResult?.username || undefined
+
+    // Try to get user data from Clerk
+    let userEmail: string | undefined
+    let userName: string | undefined
+
+    try {
+      const user = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.CLERK_SECRET_KEY}`,
+        },
+      }).then(res => res.json()).catch(() => null)
+
+      if (user) {
+        userEmail = user.email_addresses?.[0]?.email_address
+        userName = user.first_name && user.last_name
+          ? `${user.first_name} ${user.last_name}`
+          : user.first_name || user.last_name || user.username || user.email_addresses?.[0]?.email_address?.split('@')[0]
+      }
+    } catch (error) {
+      console.error('[Chat Route] Failed to fetch user from Clerk API:', error)
+    }
 
     console.log('[Chat Route] Clerk auth data:', {
       userId,
       userEmail,
       userName,
-      fullName: authResult?.fullName,
-      firstName: authResult?.firstName,
-      username: authResult?.username,
     });
     
     if (!userId) {
