@@ -20,6 +20,7 @@ import {
   Activity,
   Clock,
   Server,
+  Edit,
 } from 'lucide-react'
 
 type ProviderType = 'self_hosted' | 'groq' | 'openrouter' | 'gemini' | 'openai' | 'openai_compatible'
@@ -52,8 +53,12 @@ export default function AlexProvidersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [editingProvider, setEditingProvider] = useState<ProviderConfig | null>(null)
   const [testingProvider, setTestingProvider] = useState<string | null>(null)
   const [fetchingModels, setFetchingModels] = useState<string | null>(null)
+  const [availableModels, setAvailableModels] = useState<string[]>([])
+  const [showModelSelector, setShowModelSelector] = useState(false)
 
   // Form state
   const [newProvider, setNewProvider] = useState({
@@ -158,7 +163,8 @@ export default function AlexProvidersPage() {
 
       const data = await res.json()
       if (data.models && data.models.length > 0) {
-        alert(`Successfully fetched ${data.models.length} models`)
+        setAvailableModels(data.models)
+        setShowModelSelector(true)
         fetchProviders()
       } else {
         alert('No models found or fetch failed')
@@ -167,6 +173,41 @@ export default function AlexProvidersPage() {
       alert(`Failed to fetch models: ${err.message}`)
     } finally {
       setFetchingModels(null)
+    }
+  }
+
+  const handleEditProvider = (provider: ProviderConfig) => {
+    setEditingProvider(provider)
+    setShowEditModal(true)
+  }
+
+  const handleUpdateProvider = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingProvider) return
+
+    try {
+      const res = await fetch(`/api/admin/alex-providers/${editingProvider.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          display_name: editingProvider.display_name,
+          current_model: editingProvider.current_model,
+          priority: editingProvider.priority,
+          fallback_enabled: editingProvider.fallback_enabled,
+          request_timeout: editingProvider.request_timeout,
+        }),
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Failed to update provider')
+      }
+
+      setShowEditModal(false)
+      setEditingProvider(null)
+      fetchProviders()
+    } catch (err: any) {
+      setError(err.message || 'Failed to update provider')
     }
   }
 
@@ -356,6 +397,13 @@ export default function AlexProvidersPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() => handleEditProvider(provider)}
+                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    title="Edit Provider"
+                  >
+                    <Edit className="h-4 w-4 text-[#00f0ff]" />
+                  </button>
+                  <button
                     onClick={() => handleTestConnection(provider.id)}
                     disabled={testingProvider === provider.id}
                     className="p-2 rounded hover:bg-[#1f2229] transition-colors"
@@ -369,7 +417,7 @@ export default function AlexProvidersPage() {
                     className="p-2 rounded hover:bg-[#1f2229] transition-colors"
                     title="Fetch Models"
                   >
-                    <Settings className={`h-4 w-4 text-[#00f0ff] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
+                    <Globe className={`h-4 w-4 text-[#00f0ff] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
                   </button>
                   <button
                     onClick={() => handleToggleActive(provider.id, provider.is_active)}
@@ -488,14 +536,31 @@ export default function AlexProvidersPage() {
                   )}
                   <div>
                     <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
-                    <input
-                      type="text"
-                      value={newProvider.current_model}
-                      onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
-                      placeholder="llama3-70b-8192"
-                      required
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newProvider.current_model}
+                        onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
+                        className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        placeholder="llama3-70b-8192"
+                        required
+                      />
+                      {newProvider.provider_type !== 'gemini' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            alert('Create provider first, then use "Fetch Models" button to discover available models')
+                          }}
+                          className="px-3 py-2 bg-[#1f2229] border border-[#3b494b] rounded hover:bg-[#2a2d35] transition-colors"
+                          title="Fetch Models (available after creation)"
+                        >
+                          <Globe className="h-4 w-4 text-[#5d5f63]" />
+                        </button>
+                      )}
+                    </div>
+                    <p className="font-mono text-xs text-[#5d5f63] mt-1">
+                      Enter model manually or create provider first to fetch available models
+                    </p>
                   </div>
                   <div>
                     <label className="block font-mono text-xs text-[#b9cacb] mb-2">Priority (Lower = Higher Priority)</label>
@@ -545,6 +610,120 @@ export default function AlexProvidersPage() {
                     className="flex-1 bg-[#00f0ff] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
                   >
                     Add Provider
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {showEditModal && editingProvider && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto my-4">
+              <h2 className="font-heading text-2xl font-bold text-white mb-4">Edit Provider</h2>
+              <form onSubmit={handleUpdateProvider}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Display Name</label>
+                    <input
+                      type="text"
+                      value={editingProvider.display_name}
+                      onChange={(e) => setEditingProvider({ ...editingProvider, display_name: e.target.value })}
+                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editingProvider.current_model}
+                        onChange={(e) => setEditingProvider({ ...editingProvider, current_model: e.target.value })}
+                        className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleFetchModels(editingProvider.id)}
+                        disabled={fetchingModels === editingProvider.id}
+                        className="px-3 py-2 bg-[#1f2229] border border-[#3b494b] rounded hover:bg-[#2a2d35] transition-colors"
+                        title="Fetch Models"
+                      >
+                        <Globe className={`h-4 w-4 text-[#00f0ff] ${fetchingModels === editingProvider.id ? 'animate-spin' : ''}`} />
+                      </button>
+                    </div>
+                    {showModelSelector && availableModels.length > 0 && (
+                      <div className="mt-2 p-2 bg-[#1f2229] border border-[#3b494b] rounded max-h-32 overflow-y-auto">
+                        <p className="font-mono text-xs text-[#b9cacb] mb-2">Available Models:</p>
+                        {availableModels.map((model) => (
+                          <button
+                            key={model}
+                            type="button"
+                            onClick={() => {
+                              setEditingProvider({ ...editingProvider, current_model: model })
+                              setShowModelSelector(false)
+                            }}
+                            className="block w-full text-left px-2 py-1 font-mono text-xs text-[#b9cacb] hover:bg-[#2a2d35] rounded"
+                          >
+                            {model}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Priority (Lower = Higher Priority)</label>
+                    <input
+                      type="number"
+                      value={editingProvider.priority}
+                      onChange={(e) => setEditingProvider({ ...editingProvider, priority: parseInt(e.target.value) || 1 })}
+                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      min="1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Request Timeout (ms)</label>
+                    <input
+                      type="number"
+                      value={editingProvider.request_timeout}
+                      onChange={(e) => setEditingProvider({ ...editingProvider, request_timeout: parseInt(e.target.value) || 30000 })}
+                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      min="1000"
+                      required
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="editFallbackEnabled"
+                      checked={editingProvider.fallback_enabled}
+                      onChange={(e) => setEditingProvider({ ...editingProvider, fallback_enabled: e.target.checked })}
+                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                    />
+                    <label htmlFor="editFallbackEnabled" className="font-mono text-xs text-[#b9cacb]">
+                      Enable as fallback provider
+                    </label>
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEditModal(false)
+                      setEditingProvider(null)
+                      setShowModelSelector(false)
+                    }}
+                    className="flex-1 border border-[#3b494b] text-[#b9cacb] font-mono text-sm px-4 py-2 rounded hover:bg-[#1f2229] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-[#00f0ff] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
+                  >
+                    Save Changes
                   </button>
                 </div>
               </form>
