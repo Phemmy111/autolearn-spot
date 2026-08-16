@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const authResult = await auth()
     const { userId } = authResult
     const userEmail = authResult?.emailAddresses?.[0]?.emailAddress || undefined
-    const userName = authResult?.firstName || authResult?.username || undefined
+    const userName = authResult?.fullName || authResult?.firstName || authResult?.username || undefined
     
     if (!userId) {
       alexLogger.warn('CHAT', 'Unauthorized access attempt')

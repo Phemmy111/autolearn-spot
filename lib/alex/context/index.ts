@@ -20,7 +20,7 @@ import { alexLogger } from '../logger';
 export async function loadPlatformContext(request: ContextRequest): Promise<ContextResult> {
   const { userId, userEmail, userIntent, conversationMode } = request;
   
-  // Extract user name from email for profile context
+  // Use email prefix as fallback name if not provided
   const userName = userEmail ? userEmail.split('@')[0] : undefined;
   
   alexLogger.info('CONTEXT', 'Loading platform context', { userId, userIntent, conversationMode });

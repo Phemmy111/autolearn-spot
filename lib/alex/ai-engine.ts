@@ -32,6 +32,7 @@ export class AIEngine {
         const contextResult = await loadPlatformContext({
           userId: request.userId,
           userEmail: request.userEmail,
+          userName: request.userName,
           userIntent: request.content,
           conversationMode: request.mode,
         });

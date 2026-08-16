@@ -97,6 +97,7 @@ export interface CertificateInfo {
 export interface ContextRequest {
   userId: string;
   userEmail?: string;
+  userName?: string;
   userIntent?: string;
   conversationMode?: string;
 }

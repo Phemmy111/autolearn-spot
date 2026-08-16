@@ -167,7 +167,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
   return (
     <div 
       ref={containerRef}
-      className="flex-1 overflow-y-auto px-4 py-6"
+      className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6"
+      style={{ height: '100%' }}
     >
       <div className={`mx-auto space-y-6 ${isMobile ? 'max-w-full' : 'max-w-3xl'}`}>
         {/* Empty State */}

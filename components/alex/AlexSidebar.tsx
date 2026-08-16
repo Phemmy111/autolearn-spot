@@ -11,7 +11,9 @@ interface AlexSidebarProps {
   onSelectConversation: (id: string) => void
   onNewConversation: () => void
   onToggleSidebar: () => void
+  onConversationsChanged: () => void
   isMobile: boolean
+  width?: number
 }
 
 export function AlexSidebar({
@@ -21,7 +23,9 @@ export function AlexSidebar({
   onSelectConversation,
   onNewConversation,
   onToggleSidebar,
+  onConversationsChanged,
   isMobile,
+  width = 280,
 }: AlexSidebarProps) {
   const [showMenu, setShowMenu] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -44,6 +48,9 @@ export function AlexSidebar({
         method: 'DELETE',
       })
       if (res.ok) {
+        // Refresh conversations list
+        onConversationsChanged()
+        // If deleted conversation was active, clear it
         if (currentConversation?.id === conversationId) {
           onNewConversation()
         }
@@ -113,6 +120,7 @@ export function AlexSidebar({
           className={`fixed left-0 top-0 bottom-0 w-80 bg-slate-900 z-50 flex flex-col transition-transform duration-300 ease-out transform ${
             isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
+          style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
           {/* Header */}
           <div className="p-4 border-b border-slate-800 flex items-center justify-between pt-safe-area-top">
@@ -258,7 +266,10 @@ export function AlexSidebar({
 
   // Desktop expanded state
   return (
-    <div className="w-72 bg-slate-900/50 backdrop-blur-sm border-r border-slate-800 flex flex-col transition-all duration-300">
+    <div 
+      className="bg-slate-900/50 backdrop-blur-sm border-r border-slate-800 flex flex-col transition-all duration-300"
+      style={{ width: `${width}px` }}
+    >
       {/* Header */}
       <div className="p-4 border-b border-slate-800">
         <div className="flex items-center justify-between mb-4">

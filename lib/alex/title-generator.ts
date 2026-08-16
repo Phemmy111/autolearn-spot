@@ -42,14 +42,23 @@ export async function generateConversationTitle(
  */
 function generateRuleBasedTitle(message: string, mode: AlexMode): string | null {
   const trimmedMessage = message.trim()
-  const words = trimmedMessage.split(/\s+/).slice(0, 5) // First 5 words
+  const words = trimmedMessage.split(/\s+/).slice(0, 8) // First 8 words for better context
   
   if (words.length === 0) {
     return null
   }
 
-  // Create title from first few words
-  let title = words.join(' ')
+  // Filter out common stop words for better titles
+  const stopWords = ['what', 'how', 'can', 'i', 'the', 'a', 'an', 'is', 'are', 'to', 'for', 'with', 'on', 'at', 'in', 'my', 'me', 'please', 'help']
+  const meaningfulWords = words.filter(word => 
+    !stopWords.includes(word.toLowerCase()) && word.length > 2
+  )
+
+  // If no meaningful words, use first 3 words
+  const titleWords = meaningfulWords.length > 0 ? meaningfulWords.slice(0, 5) : words.slice(0, 3)
+  
+  // Create title from meaningful words
+  let title = titleWords.join(' ')
   
   // Clean up the title
   title = title
@@ -57,17 +66,19 @@ function generateRuleBasedTitle(message: string, mode: AlexMode): string | null 
     .replace(/\s+/g, ' ') // Normalize spaces
     .trim()
 
-  // Capitalize first letter
-  title = title.charAt(0).toUpperCase() + title.slice(1)
+  // Capitalize first letter of each word
+  title = title.split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  ).join(' ')
 
-  // Add ellipsis if truncated
-  if (trimmedMessage.split(/\s+/).length > 5) {
-    title += '...'
+  // Ensure title isn't too long (target 3-8 words)
+  if (titleWords.length > 5) {
+    title = titleWords.slice(0, 5).join(' ')
   }
 
-  // Ensure title isn't too long
-  if (title.length > 50) {
-    title = title.substring(0, 47) + '...'
+  // Truncate if still too long
+  if (title.length > 60) {
+    title = title.substring(0, 57) + '...'
   }
 
   return title || null

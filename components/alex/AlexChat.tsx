@@ -22,6 +22,8 @@ export function AlexChat({ userId }: AlexChatProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [sidebarWidth, setSidebarWidth] = useState(280)
+  const [isResizing, setIsResizing] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Detect mobile device
@@ -83,7 +85,8 @@ export function AlexChat({ userId }: AlexChatProps) {
       if (res.ok) {
         const data = await res.json()
         setCurrentConversation(data.conversation)
-        setMode(data.conversation.mode)
+        // Ensure mode is set from the loaded conversation
+        setMode(data.conversation.mode || 'auto')
         
         // Load messages
         const messagesRes = await fetch(`/api/alex/conversations/${conversationId}/messages`)
@@ -218,6 +221,36 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
   }
 
+  // Handle sidebar resize
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isMobile) return
+    setIsResizing(true)
+    e.preventDefault()
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return
+      const newWidth = e.clientX
+      // Clamp width between 200 and 500
+      setSidebarWidth(Math.max(200, Math.min(500, newWidth)))
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing])
+
   return (
     <div 
       ref={containerRef}
@@ -257,8 +290,19 @@ export function AlexChat({ userId }: AlexChatProps) {
         onSelectConversation={selectConversation}
         onNewConversation={startNewConversation}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        onConversationsChanged={loadConversations}
         isMobile={isMobile}
+        width={sidebarWidth}
       />
+
+      {/* Resize Handle (Desktop Only) */}
+      {!isMobile && isSidebarOpen && (
+        <div
+          onMouseDown={handleMouseDown}
+          className="w-1 bg-slate-800 hover:bg-cyan-500 cursor-col-resize transition-colors z-20 flex-shrink-0"
+          style={{ cursor: isResizing ? 'col-resize' : 'col-resize' }}
+        />
+      )}
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -288,7 +332,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         </div>
 
         {/* Messages */}
-        <div className={`flex-1 overflow-hidden ${isMobile ? 'pt-2' : ''}`}>
+        <div className={`flex-1 ${isMobile ? 'pt-2' : ''}`}>
           <AlexMessageList 
             messages={messages} 
             isLoading={isLoading} 
