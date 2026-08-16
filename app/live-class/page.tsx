@@ -114,7 +114,7 @@ export default function LiveClassPage() {
         </div>
       ) : (
         <>
-          {settings.date && settings.time ? (
+          {settings.date && settings.time && settings.date !== '' && settings.time !== '' ? (
             <div className="text-center mb-8">
               <p className="text-lg">{settings.date} at {settings.time} ({settings.timezone})</p>
               {settings.countdownEnabled === 'true' && (
@@ -132,7 +132,7 @@ export default function LiveClassPage() {
               )}
             </div>
           ) : (
-            <p className="text-center">Loading schedule...</p>
+            <p className="text-center">No live class scheduled. Please check back later.</p>
           )}
           {settings.status === 'replay' && settings.recordingUrl && settings.replayEnabled === 'true' && (
             <div className="text-center mt-8">
