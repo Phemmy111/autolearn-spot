@@ -139,6 +139,7 @@ export default function AlexProviderPage() {
     try {
       const res = await fetch(`/api/admin/alex-provider/${providerId}/test`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const result = await res.json()
