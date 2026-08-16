@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Message } from '@/lib/alex/types'
-import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown, Edit2, X } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -13,13 +13,17 @@ interface AlexMessageListProps {
   isLoading: boolean
   isGenerating?: boolean
   isMobile?: boolean
+  onEditMessage?: (messageId: string, newContent: string) => void
+  onRegenerateResponse?: (messageId: string) => void
 }
 
-export function AlexMessageList({ messages, isLoading, isGenerating = false, isMobile = false }: AlexMessageListProps) {
+export function AlexMessageList({ messages, isLoading, isGenerating = false, isMobile = false, onEditMessage, onRegenerateResponse }: AlexMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [feedback, setFeedback] = useState<Record<string, 'up' | 'down' | null>>({})
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [editContent, setEditContent] = useState('')
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -45,6 +49,27 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
       ...prev,
       [messageId]: prev[messageId] === type ? null : type
     }))
+  }
+
+  // Handle start edit
+  const handleStartEdit = (messageId: string, content: string) => {
+    setEditingMessageId(messageId)
+    setEditContent(content)
+  }
+
+  // Handle save edit
+  const handleSaveEdit = () => {
+    if (editingMessageId && onEditMessage) {
+      onEditMessage(editingMessageId, editContent)
+    }
+    setEditingMessageId(null)
+    setEditContent('')
+  }
+
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setEditingMessageId(null)
+    setEditContent('')
   }
 
   // Generate code block ID
@@ -293,6 +318,14 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                         {message.content}
                       </ReactMarkdown>
                     </div>
+                  ) : editingMessageId === message.id ? (
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      className="w-full bg-white/20 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
+                      rows={3}
+                      autoFocus
+                    />
                   ) : (
                     <p className="text-slate-900 leading-relaxed">{message.content}</p>
                   )}
@@ -323,6 +356,57 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                       title="Not helpful"
                     >
                       <ThumbsDown className="h-4 w-4" />
+                    </button>
+                    {onRegenerateResponse && index === messages.length - 1 && message.role === 'assistant' && (
+                      <button
+                        onClick={() => onRegenerateResponse(message.id)}
+                        className="p-1.5 text-slate-500 hover:text-cyan-400 transition-colors"
+                        title="Regenerate response"
+                      >
+                        <Zap className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                {message.role === 'user' && editingMessageId !== message.id && (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => handleCopyMessage(message.content, message.id)}
+                      className="p-1.5 text-slate-700 hover:text-white transition-colors"
+                      title="Copy message"
+                    >
+                      {copiedCode === message.id ? (
+                        <Check className="h-4 w-4 text-green-400" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </button>
+                    {onEditMessage && (
+                      <button
+                        onClick={() => handleStartEdit(message.id, message.content)}
+                        className="p-1.5 text-slate-700 hover:text-white transition-colors"
+                        title="Edit message"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+                {message.role === 'user' && editingMessageId === message.id && (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={handleSaveEdit}
+                      className="p-1.5 text-slate-700 hover:text-green-400 transition-colors"
+                      title="Save"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="p-1.5 text-slate-700 hover:text-red-400 transition-colors"
+                      title="Cancel"
+                    >
+                      <X className="h-4 w-4" />
                     </button>
                   </div>
                 )}

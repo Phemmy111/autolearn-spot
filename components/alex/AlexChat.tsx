@@ -221,6 +221,37 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
   }
 
+  const handleEditMessage = async (messageId: string, newContent: string) => {
+    // Update the message in local state
+    setMessages(prev => prev.map(msg =>
+      msg.id === messageId ? { ...msg, content: newContent } : msg
+    ))
+
+    // Update in database
+    try {
+      await fetch(`/api/alex/messages/${messageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newContent }),
+      })
+    } catch (error) {
+      console.error('Failed to edit message:', error)
+    }
+  }
+
+  const handleRegenerateResponse = async (messageId: string) => {
+    // Find the user message that preceded this assistant message
+    const messageIndex = messages.findIndex(m => m.id === messageId)
+    if (messageIndex <= 0) return
+
+    const userMessage = messages[messageIndex - 1]
+    if (userMessage.role !== 'user') return
+
+    // Remove the assistant message and regenerate
+    setMessages(prev => prev.slice(0, messageIndex))
+    await sendMessage(userMessage.content)
+  }
+
   // Handle sidebar resize
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMobile) return
@@ -333,11 +364,13 @@ export function AlexChat({ userId }: AlexChatProps) {
 
         {/* Messages */}
         <div className={`flex-1 ${isMobile ? 'pt-2' : ''}`}>
-          <AlexMessageList 
-            messages={messages} 
-            isLoading={isLoading} 
+          <AlexMessageList
+            messages={messages}
+            isLoading={isLoading}
             isGenerating={isGenerating}
             isMobile={isMobile}
+            onEditMessage={handleEditMessage}
+            onRegenerateResponse={handleRegenerateResponse}
           />
         </div>
 
