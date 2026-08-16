@@ -59,6 +59,7 @@ export default function AlexProvidersPage() {
   const [fetchingModels, setFetchingModels] = useState<string | null>(null)
   const [availableModels, setAvailableModels] = useState<string[]>([])
   const [showModelSelector, setShowModelSelector] = useState(false)
+  const [editApiKey, setEditApiKey] = useState('')
 
   // Form state
   const [newProvider, setNewProvider] = useState({
@@ -178,6 +179,7 @@ export default function AlexProvidersPage() {
 
   const handleEditProvider = (provider: ProviderConfig) => {
     setEditingProvider(provider)
+    setEditApiKey('') // API key is not returned from API for security
     setShowEditModal(true)
   }
 
@@ -186,16 +188,23 @@ export default function AlexProvidersPage() {
     if (!editingProvider) return
 
     try {
+      const updateData: any = {
+        display_name: editingProvider.display_name,
+        current_model: editingProvider.current_model,
+        priority: editingProvider.priority,
+        fallback_enabled: editingProvider.fallback_enabled,
+        request_timeout: editingProvider.request_timeout,
+      }
+
+      // Only include API key if it was changed (not empty)
+      if (editApiKey && editingProvider.provider_type !== 'self_hosted') {
+        updateData.api_key = editApiKey
+      }
+
       const res = await fetch(`/api/admin/alex-providers/${editingProvider.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          display_name: editingProvider.display_name,
-          current_model: editingProvider.current_model,
-          priority: editingProvider.priority,
-          fallback_enabled: editingProvider.fallback_enabled,
-          request_timeout: editingProvider.request_timeout,
-        }),
+        body: JSON.stringify(updateData),
       })
 
       if (!res.ok) {
@@ -205,6 +214,7 @@ export default function AlexProvidersPage() {
 
       setShowEditModal(false)
       setEditingProvider(null)
+      setEditApiKey('')
       fetchProviders()
     } catch (err: any) {
       setError(err.message || 'Failed to update provider')
@@ -536,30 +546,21 @@ export default function AlexProvidersPage() {
                   )}
                   <div>
                     <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={newProvider.current_model}
-                        onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
-                        className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
-                        placeholder="llama3-70b-8192"
-                        required
-                      />
-                      {newProvider.provider_type !== 'gemini' && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            alert('Create provider first, then use "Fetch Models" button to discover available models')
-                          }}
-                          className="px-3 py-2 bg-[#1f2229] border border-[#3b494b] rounded hover:bg-[#2a2d35] transition-colors"
-                          title="Fetch Models (available after creation)"
-                        >
-                          <Globe className="h-4 w-4 text-[#5d5f63]" />
-                        </button>
-                      )}
-                    </div>
+                    <input
+                      type="text"
+                      value={newProvider.current_model}
+                      onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
+                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      placeholder="llama3-70b-8192"
+                      required
+                    />
                     <p className="font-mono text-xs text-[#5d5f63] mt-1">
-                      Enter model manually or create provider first to fetch available models
+                      {newProvider.provider_type === 'groq' && 'Common models: llama3-70b-8192, mixtral-8x7b-32768, gemma-7b-it'}
+                      {newProvider.provider_type === 'openai' && 'Common models: gpt-4o-mini, gpt-4o, gpt-3.5-turbo'}
+                      {newProvider.provider_type === 'gemini' && 'Common models: gemini-1.5-pro, gemini-1.5-flash, gemini-pro'}
+                      {newProvider.provider_type === 'openrouter' && 'Enter any OpenRouter model ID'}
+                      {newProvider.provider_type === 'self_hosted' && 'Enter your self-hosted model name'}
+                      {newProvider.provider_type === 'openai_compatible' && 'Enter your custom model name'}
                     </p>
                   </div>
                   <div>
@@ -633,6 +634,18 @@ export default function AlexProvidersPage() {
                       required
                     />
                   </div>
+                  {editingProvider.provider_type !== 'self_hosted' && (
+                    <div>
+                      <label className="block font-mono text-xs text-[#b9cacb] mb-2">API Key (leave empty to keep existing)</label>
+                      <input
+                        type="password"
+                        value={editApiKey}
+                        onChange={(e) => setEditApiKey(e.target.value)}
+                        className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        placeholder="Enter new API key to update (or leave empty)"
+                      />
+                    </div>
+                  )}
                   <div>
                     <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
                     <div className="flex gap-2">
@@ -647,15 +660,15 @@ export default function AlexProvidersPage() {
                         type="button"
                         onClick={() => handleFetchModels(editingProvider.id)}
                         disabled={fetchingModels === editingProvider.id}
-                        className="px-3 py-2 bg-[#1f2229] border border-[#3b494b] rounded hover:bg-[#2a2d35] transition-colors"
+                        className="px-3 py-2 bg-[#00f0ff] text-black font-bold font-mono text-xs rounded hover:bg-white transition-colors"
                         title="Fetch Models"
                       >
-                        <Globe className={`h-4 w-4 text-[#00f0ff] ${fetchingModels === editingProvider.id ? 'animate-spin' : ''}`} />
+                        {fetchingModels === editingProvider.id ? 'Loading...' : 'Fetch Models'}
                       </button>
                     </div>
                     {showModelSelector && availableModels.length > 0 && (
-                      <div className="mt-2 p-2 bg-[#1f2229] border border-[#3b494b] rounded max-h-32 overflow-y-auto">
-                        <p className="font-mono text-xs text-[#b9cacb] mb-2">Available Models:</p>
+                      <div className="mt-2 p-2 bg-[#1f2229] border border-[#3b494b] rounded max-h-40 overflow-y-auto">
+                        <p className="font-mono text-xs text-[#b9cacb] mb-2 font-bold">Available Models:</p>
                         {availableModels.map((model) => (
                           <button
                             key={model}
@@ -664,7 +677,7 @@ export default function AlexProvidersPage() {
                               setEditingProvider({ ...editingProvider, current_model: model })
                               setShowModelSelector(false)
                             }}
-                            className="block w-full text-left px-2 py-1 font-mono text-xs text-[#b9cacb] hover:bg-[#2a2d35] rounded"
+                            className="block w-full text-left px-2 py-1 font-mono text-xs text-[#b9cacb] hover:bg-[#2a2d35] rounded mb-1"
                           >
                             {model}
                           </button>
@@ -713,6 +726,7 @@ export default function AlexProvidersPage() {
                     onClick={() => {
                       setShowEditModal(false)
                       setEditingProvider(null)
+                      setEditApiKey('')
                       setShowModelSelector(false)
                     }}
                     className="flex-1 border border-[#3b494b] text-[#b9cacb] font-mono text-sm px-4 py-2 rounded hover:bg-[#1f2229] transition-colors"

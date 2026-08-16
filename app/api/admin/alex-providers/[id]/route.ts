@@ -2,6 +2,56 @@ import { NextResponse } from 'next/server'
 import { requireSuperAdmin } from '@/lib/admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AIEngine } from '@/lib/alex/ai-engine'
+import crypto from 'crypto'
+
+// Encryption key (must be 32 bytes for AES-256)
+const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY
+
+function getEncryptionKey(): Buffer {
+  if (!ENCRYPTION_KEY) {
+    throw new Error('ALEX_PROVIDER_ENCRYPTION_KEY environment variable is required')
+  }
+
+  // Try base64 decoding first
+  let key: Buffer
+  try {
+    key = Buffer.from(ENCRYPTION_KEY, 'base64')
+  } catch {
+    // Fallback to UTF-8 if not base64
+    key = Buffer.from(ENCRYPTION_KEY, 'utf8')
+  }
+
+  // Validate key length
+  if (key.length !== 32) {
+    throw new Error('ALEX_PROVIDER_ENCRYPTION_KEY must be exactly 32 bytes after decoding')
+  }
+
+  return key
+}
+
+function encrypt(text: string): string {
+  try {
+    const key = getEncryptionKey()
+    const iv = crypto.randomBytes(16)
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+
+    let encrypted = cipher.update(text, 'utf8', 'hex')
+    encrypted += cipher.final('hex')
+
+    const authTag = cipher.getAuthTag()
+
+    const combined = Buffer.concat([
+      iv,
+      authTag,
+      Buffer.from(encrypted, 'hex')
+    ])
+
+    return combined.toString('base64')
+  } catch (error) {
+    console.error('ALEX Encryption error:', error)
+    throw new Error('Failed to encrypt ALEX provider data')
+  }
+}
 
 // PATCH - Super Admin only: Update provider
 export async function PATCH(
@@ -25,6 +75,11 @@ export async function PATCH(
     if (body.base_url !== undefined) updates.base_url = body.base_url || null
     if (body.display_name) updates.display_name = body.display_name
     if (body.request_timeout !== undefined) updates.request_timeout = body.request_timeout
+
+    // Handle API key update if provided
+    if (body.api_key) {
+      updates.api_key_encrypted = encrypt(body.api_key)
+    }
 
     const { data: provider, error } = await supabaseAdmin
       .from('alex_provider_config')
