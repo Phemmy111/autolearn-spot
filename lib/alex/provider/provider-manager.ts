@@ -552,11 +552,9 @@ export class ProviderManager {
       throw new Error(`Provider ${providerId} not found`)
     }
 
-    const providerConfig = this.mapDbConfigToProviderConfig(provider)
-
     try {
       // For Gemini, use default models list (no public API)
-      if (providerConfig.providerType === 'gemini') {
+      if (provider.provider_type === 'gemini') {
         const defaultModels = [
           'gemini-1.5-pro',
           'gemini-1.5-flash',
@@ -578,8 +576,8 @@ export class ProviderManager {
       }
 
       // For OpenAI-compatible providers, fetch from /models endpoint
-      const baseUrl = providerConfig.baseUrl || this.getDefaultBaseUrl(providerConfig.providerType)
-      const headers = this.getAuthHeaders(providerConfig)
+      const baseUrl = provider.base_url || this.getDefaultBaseUrl(provider.provider_type)
+      const headers = this.getAuthHeadersForProvider(provider)
 
       const response = await fetch(`${baseUrl}/models`, {
         headers,
@@ -607,6 +605,40 @@ export class ProviderManager {
       console.error('Failed to refresh models:', error)
       throw error
     }
+  }
+
+  /**
+   * Get auth headers for provider (simplified version for model discovery)
+   */
+  private getAuthHeadersForProvider(provider: any): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    // Decrypt API key if available
+    if (provider.api_key_encrypted) {
+      try {
+        const apiKey = this.decrypt(provider.api_key_encrypted)
+
+        if (provider.auth_type === 'bearer' && apiKey) {
+          headers['Authorization'] = `Bearer ${apiKey}`
+        } else if (provider.auth_type === 'api_key' && apiKey) {
+          headers['Authorization'] = `Key ${apiKey}`
+        } else if (provider.auth_type === 'custom' && apiKey) {
+          headers['Authorization'] = apiKey
+        }
+      } catch (error) {
+        console.error('Failed to decrypt API key for model discovery:', error)
+      }
+    }
+
+    // Add OpenRouter-specific headers
+    if (provider.provider_type === 'openrouter') {
+      headers['HTTP-Referer'] = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      headers['X-Title'] = 'Autolearn ALEX'
+    }
+
+    return headers
   }
 
   /**
