@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Paperclip, Square, Mic, StopCircle } from 'lucide-react'
+import { Send, Paperclip, Square, Mic, StopCircle, ChevronDown, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap } from 'lucide-react'
 
 interface AlexInputAreaProps {
   onSendMessage: (content: string) => void
@@ -9,19 +9,51 @@ interface AlexInputAreaProps {
   isLoading: boolean
   isGenerating?: boolean
   isMobile: boolean
+  currentMode?: 'auto' | 'tutor' | 'developer' | 'automation' | 'research' | 'agent_builder'
+  onModeChange?: (mode: 'auto' | 'tutor' | 'developer' | 'automation' | 'research' | 'agent_builder') => void
 }
 
-export function AlexInputArea({ 
-  onSendMessage, 
-  onStopGeneration, 
-  isLoading, 
+const modes = [
+  { value: 'auto', label: 'Auto', icon: Sparkles },
+  { value: 'tutor', label: 'Tutor', icon: Lightbulb },
+  { value: 'developer', label: 'Developer', icon: Workflow },
+  { value: 'automation', label: 'Automation', icon: Search },
+  { value: 'research', label: 'Research', icon: BookOpen },
+  { value: 'agent_builder', label: 'Agent Builder', icon: Zap },
+]
+
+export function AlexInputArea({
+  onSendMessage,
+  onStopGeneration,
+  isLoading,
   isGenerating = false,
-  isMobile 
+  isMobile,
+  currentMode = 'auto',
+  onModeChange
 }: AlexInputAreaProps) {
   const [content, setContent] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [isComposing, setIsComposing] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
+  const [showModeDropdown, setShowModeDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowModeDropdown(false)
+      }
+    }
+
+    if (showModeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showModeDropdown])
 
   // Auto-grow textarea with mobile keyboard handling
   useEffect(() => {
@@ -112,6 +144,52 @@ export function AlexInputArea({
     <div className="px-4 py-4">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-end gap-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-2 shadow-lg">
+          {/* Mode Selector Button */}
+          {onModeChange && (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setShowModeDropdown(!showModeDropdown)}
+                className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50 rounded-xl transition-all"
+                title="Select mode"
+                disabled={isLoading || isGenerating}
+                aria-label="Select mode"
+              >
+                {(() => {
+                  const CurrentIcon = modes.find(m => m.value === currentMode)?.icon || Sparkles
+                  return <CurrentIcon className="h-5 w-5" />
+                })()}
+              </button>
+
+              {/* Mode Dropdown */}
+              {showModeDropdown && (
+                <div className="absolute bottom-full left-0 mb-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 min-w-[180px] py-1">
+                  {modes.map((mode) => {
+                    const Icon = mode.icon
+                    return (
+                      <button
+                        key={mode.value}
+                        type="button"
+                        onClick={() => {
+                          onModeChange(mode.value as any)
+                          setShowModeDropdown(false)
+                        }}
+                        className={`w-full px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
+                          currentMode === mode.value
+                            ? 'bg-cyan-500/20 text-cyan-400'
+                            : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span>{mode.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Attachment Button */}
           <button
             type="button"
