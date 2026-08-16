@@ -22,13 +22,16 @@ export async function getUserProfileContext(
     });
 
     // First, try to get profile data from enrollments table (authoritative source)
-    const { data: enrollment, error: enrollmentError } = await supabaseAdmin
+    // Use .limit(1) to handle cases where user might have multiple enrollments
+    const { data: enrollments, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .select('first_name, last_name, full_name, email')
       .eq('clerk_user_id', authenticatedUserId)
-      .single();
+      .limit(1);
 
-    console.log('[Profile Context] Enrollment data:', { enrollment, enrollmentError });
+    const enrollment = enrollments && enrollments.length > 0 ? enrollments[0] : null;
+
+    console.log('[Profile Context] Enrollment data:', { enrollment, enrollmentError, allEnrollments: enrollments });
 
     let firstName: string | undefined;
     let lastName: string | undefined;

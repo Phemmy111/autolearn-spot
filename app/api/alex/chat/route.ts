@@ -125,7 +125,8 @@ export async function POST(request: NextRequest) {
     
     if (isDefaultTitle) {
       try {
-        await fetch(`/api/alex/conversations/${conversationId}/title`, {
+        const baseUrl = request.nextUrl.origin
+        await fetch(`${baseUrl}/api/alex/conversations/${conversationId}/title`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ firstMessage: content, mode }),
