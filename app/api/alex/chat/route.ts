@@ -73,14 +73,7 @@ export async function POST(request: NextRequest) {
       }
     } catch (error) {
       console.error('[Chat Route] Failed to fetch user from Clerk API:', error)
-    }
-
-    console.log('[Chat Route] Clerk auth data:', {
-      userId,
-      userEmail,
-      userName,
-    });
-    
+    }    
     if (!userId) {
       alexLogger.warn('CHAT', 'Unauthorized access attempt')
       const error = handleAlexError(AlexErrors.UNAUTHORIZED)
