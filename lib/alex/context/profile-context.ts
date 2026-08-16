@@ -15,12 +15,20 @@ export async function getUserProfileContext(
   userName?: string
 ): Promise<{ context: UserProfileContext | null; error: ContextError | null }> {
   try {
+    console.log('[Profile Context] Loading profile for user:', {
+      authenticatedUserId,
+      userEmail,
+      userName,
+    });
+
     // First, try to get profile data from enrollments table (authoritative source)
     const { data: enrollment, error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .select('first_name, last_name, full_name, email')
       .eq('clerk_user_id', authenticatedUserId)
       .single();
+
+    console.log('[Profile Context] Enrollment data:', { enrollment, enrollmentError });
 
     let firstName: string | undefined;
     let lastName: string | undefined;
@@ -58,6 +66,8 @@ export async function getUserProfileContext(
       fullName,
       email,
     };
+
+    console.log('[Profile Context] Final profile context:', profileContext);
 
     return { context: profileContext, error: null };
   } catch (error) {

@@ -55,6 +55,15 @@ export async function POST(request: NextRequest) {
     const { userId } = authResult
     const userEmail = authResult?.emailAddresses?.[0]?.emailAddress || undefined
     const userName = authResult?.fullName || authResult?.firstName || authResult?.username || undefined
+
+    console.log('[Chat Route] Clerk auth data:', {
+      userId,
+      userEmail,
+      userName,
+      fullName: authResult?.fullName,
+      firstName: authResult?.firstName,
+      username: authResult?.username,
+    });
     
     if (!userId) {
       alexLogger.warn('CHAT', 'Unauthorized access attempt')
