@@ -283,9 +283,9 @@ export function AlexChat({ userId }: AlexChatProps) {
   }, [isResizing])
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="flex h-full w-full overflow-hidden bg-slate-950"
+      className="flex h-full w-full overflow-hidden bg-slate-950 overflow-y-hidden"
     >
       {/* Mobile Header */}
       {isMobile && (
@@ -336,7 +336,7 @@ export function AlexChat({ userId }: AlexChatProps) {
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Desktop Header */}
         {!isMobile && (
           <div className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-3">
