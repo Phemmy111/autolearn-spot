@@ -77,7 +77,7 @@ export default function AlexProviderPage() {
 
   const fetchProviders = async () => {
     try {
-      const res = await fetch('/api/admin/alex-providers')
+      const res = await fetch('/api/admin/alex-provider')
       if (!res.ok) {
         if (res.status === 403) {
           router.push('/admin')
@@ -104,7 +104,7 @@ export default function AlexProviderPage() {
     if (!newProvider.provider_name || !newProvider.display_name) return
 
     try {
-      const res = await fetch('/api/admin/alex-providers', {
+      const res = await fetch('/api/admin/alex-provider', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProvider),
@@ -137,7 +137,7 @@ export default function AlexProviderPage() {
   const handleTestConnection = async (providerId: string) => {
     setTestingProvider(providerId)
     try {
-      const res = await fetch(`/api/admin/alex-providers/${providerId}/test`, {
+      const res = await fetch(`/api/admin/alex-provider/${providerId}/test`, {
         method: 'POST',
       })
 
@@ -158,7 +158,7 @@ export default function AlexProviderPage() {
   const handleFetchModels = async (providerId: string) => {
     setFetchingModels(providerId)
     try {
-      const res = await fetch(`/api/admin/alex-providers/${providerId}/models`, {
+      const res = await fetch(`/api/admin/alex-provider/${providerId}/models`, {
         method: 'POST',
       })
 
@@ -201,7 +201,7 @@ export default function AlexProviderPage() {
         updateData.api_key = editApiKey
       }
 
-      const res = await fetch(`/api/admin/alex-providers/${editingProvider.id}`, {
+      const res = await fetch(`/api/admin/alex-provider/${editingProvider.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData),
@@ -225,7 +225,7 @@ export default function AlexProviderPage() {
     if (!confirm('Are you sure you want to delete this provider?')) return
 
     try {
-      const res = await fetch(`/api/admin/alex-providers/${providerId}`, {
+      const res = await fetch(`/api/admin/alex-provider/${providerId}`, {
         method: 'DELETE',
       })
 
@@ -242,7 +242,7 @@ export default function AlexProviderPage() {
 
   const handleToggleActive = async (providerId: string, currentState: boolean) => {
     try {
-      const res = await fetch(`/api/admin/alex-providers/${providerId}`, {
+      const res = await fetch(`/api/admin/alex-provider/${providerId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: !currentState }),
