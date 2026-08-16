@@ -337,6 +337,11 @@ export default function AlexProvidersPage() {
           </button>
         </div>
 
+        {/* Debug info - remove after deployment verification */}
+        <div className="mb-4 p-2 bg-yellow-500/10 border border-yellow-500/50 rounded text-xs font-mono text-yellow-400">
+          Debug: Edit functionality deployed (commit be73b89)
+        </div>
+
         {error && (
           <div className="mb-6 border border-red-500/50 bg-red-500/10 p-4 rounded-xl flex items-center gap-3">
             <AlertCircle className="h-5 w-5 text-red-400" />
