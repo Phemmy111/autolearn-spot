@@ -31,10 +31,17 @@ export async function getUserProfileContext(
       // Use enrollment data as primary source
       firstName = enrollment.first_name || undefined;
       lastName = enrollment.last_name || undefined;
-      fullName = enrollment.full_name || (enrollment.first_name && enrollment.last_name 
-        ? `${enrollment.first_name} ${enrollment.last_name}` 
+      fullName = enrollment.full_name || (enrollment.first_name && enrollment.last_name
+        ? `${enrollment.first_name} ${enrollment.last_name}`
         : undefined);
       email = enrollment.email || userEmail;
+
+      // If enrollment doesn't have name data, fall back to Clerk data
+      if (!fullName && !firstName && !lastName && userName) {
+        firstName = userName.split(' ')[0] || userName;
+        lastName = userName.includes(' ') ? userName.split(' ').slice(1).join(' ') : undefined;
+        fullName = userName;
+      }
     } else {
       // Fallback to Clerk data if no enrollment found
       firstName = userName?.split(' ')[0] || userName;
