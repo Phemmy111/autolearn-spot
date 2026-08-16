@@ -411,8 +411,8 @@ export default function AlexProvidersPage() {
         )}
 
         {showAddModal && (
-          <div className="fixed inset-0 bg-black/80 flex items-start justify-center z-50 overflow-y-auto">
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl max-w-md w-full mx-4 mt-10 mb-10">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl max-w-md w-full my-8">
               <h2 className="font-heading text-2xl font-bold text-white mb-4">Add ALEX Provider</h2>
               <form onSubmit={handleAddProvider}>
                 <div className="space-y-4">
