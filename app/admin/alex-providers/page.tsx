@@ -324,7 +324,7 @@ export default function AlexProvidersPage() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-white">ALEX Providers</h1>
+              <h1 className="font-heading text-4xl font-bold text-white">ALEX Providers (EDIT TEST)</h1>
               <p className="font-mono text-sm text-[#b9cacb]">Manage ALEX AI providers with fallback and health monitoring</p>
             </div>
           </div>
@@ -335,11 +335,6 @@ export default function AlexProvidersPage() {
             <Plus className="h-4 w-4" />
             Add Provider
           </button>
-        </div>
-
-        {/* Debug info - remove after deployment verification */}
-        <div className="mb-4 p-2 bg-yellow-500/10 border border-yellow-500/50 rounded text-xs font-mono text-yellow-400">
-          Debug: Edit functionality deployed (commit be73b89)
         </div>
 
         {error && (
