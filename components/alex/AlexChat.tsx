@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AlexModeSelector } from './AlexModeSelector'
 import { AlexMessageList } from './AlexMessageList'
 import { AlexInputArea } from './AlexInputArea'
 import { AlexSidebar } from './AlexSidebar'
 import { Message, Conversation } from '@/lib/alex/types'
+import { Menu, X, Bot } from 'lucide-react'
 
 interface AlexChatProps {
   userId: string
@@ -15,16 +16,36 @@ export function AlexChat({ userId }: AlexChatProps) {
   const [mode, setMode] = useState<'auto' | 'tutor' | 'developer' | 'automation' | 'research' | 'agent_builder'>('auto')
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Load conversations on mount
   useEffect(() => {
     loadConversations()
   }, [userId])
+
+  // Close sidebar on mobile when conversation is selected
+  useEffect(() => {
+    if (isMobile && currentConversation) {
+      setIsSidebarOpen(false)
+    }
+  }, [isMobile, currentConversation])
 
   const loadConversations = async () => {
     try {
@@ -198,7 +219,30 @@ export function AlexChat({ userId }: AlexChatProps) {
   }
 
   return (
-    <div className="flex h-[calc(100vh-73px)] alex-chat-container">
+    <div 
+      ref={containerRef}
+      className="flex h-full w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
+    >
+      {/* Mobile Header */}
+      {isMobile && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800 px-4 py-3 flex items-center justify-between safe-area-top">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+            aria-label="Open conversations"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center">
+              <Bot className="h-4 w-4 text-cyan-400" />
+            </div>
+            <span className="font-semibold text-white">ALEX</span>
+          </div>
+          <div className="w-10" /> {/* Spacer for balance */}
+        </div>
+      )}
+
       {/* Sidebar */}
       <AlexSidebar
         isOpen={isSidebarOpen}
@@ -207,23 +251,59 @@ export function AlexChat({ userId }: AlexChatProps) {
         onSelectConversation={selectConversation}
         onNewConversation={startNewConversation}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        isMobile={isMobile}
       />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Desktop Header */}
+        {!isMobile && (
+          <div className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-800 px-6 py-4">
+            <div className="flex items-center justify-between max-w-7xl mx-auto">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center">
+                  <Bot className="h-5 w-5 text-cyan-400" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-white">ALEX</h1>
+                  <p className="text-xs text-slate-400">AutoLearn Intelligence & Execution Agent</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+              >
+                {isSidebarOpen ? 'Hide' : 'Show'} Conversations
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Mode Selector */}
-        <AlexModeSelector currentMode={mode} onModeChange={setMode} />
+        <div className={`bg-slate-900/30 backdrop-blur-sm border-b border-slate-800 ${isMobile ? 'pt-16' : ''}`}>
+          <AlexModeSelector currentMode={mode} onModeChange={setMode} isMobile={isMobile} />
+        </div>
 
         {/* Messages */}
-        <AlexMessageList messages={messages} isLoading={isLoading} />
+        <div className={`flex-1 overflow-hidden ${isMobile ? 'pt-4' : ''}`}>
+          <AlexMessageList 
+            messages={messages} 
+            isLoading={isLoading} 
+            isGenerating={isGenerating}
+            isMobile={isMobile}
+          />
+        </div>
 
         {/* Input Area */}
-        <AlexInputArea 
-          onSendMessage={sendMessage} 
-          onStopGeneration={stopGeneration}
-          isLoading={isLoading} 
-          isGenerating={isGenerating}
-        />
+        <div className={`bg-slate-900/50 backdrop-blur-xl border-t border-slate-800 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
+          <AlexInputArea 
+            onSendMessage={sendMessage} 
+            onStopGeneration={stopGeneration}
+            isLoading={isLoading} 
+            isGenerating={isGenerating}
+            isMobile={isMobile}
+          />
+        </div>
       </div>
     </div>
   )

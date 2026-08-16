@@ -2,145 +2,278 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Message } from '@/lib/alex/types'
-import { Loader2, Bot, User, Copy, Check } from 'lucide-react'
+import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 interface AlexMessageListProps {
   messages: Message[]
   isLoading: boolean
+  isGenerating?: boolean
+  isMobile?: boolean
 }
 
-export function AlexMessageList({ messages, isLoading }: AlexMessageListProps) {
+export function AlexMessageList({ messages, isLoading, isGenerating = false, isMobile = false }: AlexMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Enhanced Markdown rendering with XSS protection
-  const renderMarkdown = (content: string) => {
-    const safeContent = content
-      // Escape HTML to prevent XSS
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-      // Code blocks with language support and copy button
-      .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
-        const language = lang || 'text'
-        const codeId = `code-${Math.random().toString(36).substr(2, 9)}`
-        return `
-          <div class="relative group">
-            <div class="flex items-center justify-between text-xs text-[#b9cacb] mb-2">
-              <span class="capitalize">${language}</span>
-              <button 
-                onclick="copyCode('${codeId}')"
-                class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 hover:text-[#00f0ff]"
-                title="Copy code"
+  // Handle code copy
+  const handleCopyCode = (code: string, codeId: string) => {
+    navigator.clipboard.writeText(code)
+    setCopiedCode(codeId)
+    setTimeout(() => setCopiedCode(null), 2000)
+  }
+
+  // Generate code block ID
+  const generateCodeId = () => `code-${Math.random().toString(36).substr(2, 9)}`
+
+  // Custom markdown components
+  const MarkdownComponents = {
+    // Code blocks with syntax highlighting
+    code({ node, inline, className, children, ...props }: any) {
+      const match = /language-(\w+)/.exec(className || '')
+      const language = match ? match[1] : 'text'
+      const codeId = generateCodeId()
+      const codeString = String(children).replace(/\n$/, '')
+
+      if (!inline && match) {
+        return (
+          <div className="relative group my-4">
+            <div className="flex items-center justify-between bg-slate-800 px-4 py-2 rounded-t-lg border-b border-slate-700">
+              <span className="text-xs font-medium text-slate-400 capitalize">{language}</span>
+              <button
+                onClick={() => handleCopyCode(codeString, codeId)}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors"
               >
-                <span id="${codeId}-text">${copiedCode === codeId ? 'Copied!' : 'Copy'}</span>
-                ${copiedCode === codeId ? '<Check class="h-3 w-3 text-green-400"/>' : '<Copy class="h-3 w-3"/>'}
+                {copiedCode === codeId ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-green-400" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    <span>Copy</span>
+                  </>
+                )}
               </button>
             </div>
-            <pre class="bg-[#070B12] rounded-lg p-4 my-4 overflow-x-auto"><code id="${codeId}" class="text-sm">${code}</code></pre>
+            <SyntaxHighlighter
+              style={vscDarkPlus}
+              language={language}
+              PreTag="div"
+              className="!bg-slate-900 !rounded-b-lg !rounded-t-none !m-0 !p-4 text-sm overflow-x-auto"
+              {...props}
+            >
+              {codeString}
+            </SyntaxHighlighter>
           </div>
-        `
-      })
+        )
+      }
+
       // Inline code
-      .replace(/`([^`]+)`/g, '<code class="bg-[#1f2229] px-1.5 py-0.5 rounded text-[#00f0ff]">$1</code>')
-      // Bold
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      // Italic
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-      // Headers
-      .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mt-4 mb-2">$1</h2>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>')
-      // Lists
-      .replace(/^\- (.*$)/gm, '<li class="ml-4">$1</li>')
-      // Line breaks
-      .replace(/\n/g, '<br />')
-      
-    return safeContent
-  }
+      return (
+        <code className="bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+          {children}
+        </code>
+      )
+    },
 
-  const handleCopyCode = (codeId: string) => {
-    const codeElement = document.getElementById(codeId)
-    if (codeElement) {
-      navigator.clipboard.writeText(codeElement.textContent || '')
-      setCopiedCode(codeId)
-      setTimeout(() => setCopiedCode(null), 2000)
-    }
-  }
+    // Headings
+    h1: ({ children }: any) => (
+      <h1 className="text-2xl font-bold text-white mt-6 mb-3">{children}</h1>
+    ),
+    h2: ({ children }: any) => (
+      <h2 className="text-xl font-semibold text-white mt-5 mb-2">{children}</h2>
+    ),
+    h3: ({ children }: any) => (
+      <h3 className="text-lg font-medium text-white mt-4 mb-2">{children}</h3>
+    ),
 
-  // Add copy function to window for onclick handlers
-  useEffect(() => {
-    ;(window as any).copyCode = handleCopyCode
-    return () => {
-      delete (window as any).copyCode
-    }
-  }, [copiedCode])
+    // Paragraphs
+    p: ({ children }: any) => (
+      <p className="text-slate-300 leading-relaxed mb-4">{children}</p>
+    ),
+
+    // Lists
+    ul: ({ children }: any) => (
+      <ul className="list-disc list-inside text-slate-300 mb-4 space-y-1">{children}</ul>
+    ),
+    ol: ({ children }: any) => (
+      <ol className="list-decimal list-inside text-slate-300 mb-4 space-y-1">{children}</ol>
+    ),
+    li: ({ children }: any) => (
+      <li className="ml-2">{children}</li>
+    ),
+
+    // Blockquotes
+    blockquote: ({ children }: any) => (
+      <blockquote className="border-l-4 border-cyan-500/30 pl-4 py-2 my-4 bg-slate-800/30 rounded-r-lg">
+        <p className="text-slate-400 italic">{children}</p>
+      </blockquote>
+    ),
+
+    // Links
+    a: ({ href, children }: any) => (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-cyan-400 hover:text-cyan-300 underline"
+      >
+        {children}
+      </a>
+    ),
+
+    // Tables
+    table: ({ children }: any) => (
+      <div className="overflow-x-auto my-4">
+        <table className="min-w-full divide-y divide-slate-700 border border-slate-700 rounded-lg">
+          {children}
+        </table>
+      </div>
+    ),
+    thead: ({ children }: any) => (
+      <thead className="bg-slate-800">{children}</thead>
+    ),
+    tbody: ({ children }: any) => (
+      <tbody className="bg-slate-900/50 divide-y divide-slate-700">{children}</tbody>
+    ),
+    tr: ({ children }: any) => (
+      <tr className="hover:bg-slate-800/50">{children}</tr>
+    ),
+    th: ({ children }: any) => (
+      <th className="px-4 py-2 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+        {children}
+      </th>
+    ),
+    td: ({ children }: any) => (
+      <td className="px-4 py-2 text-sm text-slate-300">{children}</td>
+    ),
+
+    // Horizontal rule
+    hr: () => (
+      <hr className="border-slate-700 my-6" />
+    ),
+  }
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {messages.length === 0 && !isLoading && (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#00f0ff]/10 rounded-full mb-4">
-              <Bot className="h-8 w-8 text-[#00f0ff]" />
+    <div 
+      ref={containerRef}
+      className="flex-1 overflow-y-auto px-4 py-6"
+    >
+      <div className={`mx-auto space-y-6 ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
+        {/* Empty State */}
+        {messages.length === 0 && !isLoading && !isGenerating && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full"></div>
+              <div className="relative w-20 h-20 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30">
+                <Sparkles className="h-10 w-10 text-cyan-400" />
+              </div>
             </div>
-            <h2 className="text-xl font-semibold text-white mb-2">Welcome to ALEX</h2>
-            <p className="text-[#b9cacb]">Your AutoLearn Intelligence & Execution Agent</p>
-            <p className="text-sm text-[#b9cacb] mt-4">Select a mode and start a conversation to get started.</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Welcome to ALEX</h2>
+            <p className="text-slate-400 mb-4">Your AutoLearn Intelligence & Execution Agent</p>
+            <div className="flex flex-wrap justify-center gap-2 mt-6">
+              <span className="px-3 py-1.5 bg-slate-800/50 rounded-full text-xs text-slate-400 border border-slate-700">
+                💡 Learning Assistant
+              </span>
+              <span className="px-3 py-1.5 bg-slate-800/50 rounded-full text-xs text-slate-400 border border-slate-700">
+                🔧 Technical Help
+              </span>
+              <span className="px-3 py-1.5 bg-slate-800/50 rounded-full text-xs text-slate-400 border border-slate-700">
+                ⚡ Automation Expert
+              </span>
+            </div>
+            <p className="text-sm text-slate-500 mt-6 max-w-md">
+              Select a mode above and start a conversation to get started with personalized assistance.
+            </p>
           </div>
         )}
 
-        {messages.map((message) => (
+        {/* Messages */}
+        {messages.map((message, index) => (
           <div
             key={message.id}
             className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {message.role === 'assistant' && (
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-[#00f0ff]/10 rounded-lg flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-[#00f0ff]" />
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
+                  <Bot className="h-5 w-5 text-cyan-400" />
                 </div>
               </div>
             )}
             
             <div
-              className={`max-w-2xl rounded-lg px-4 py-3 ${
+              className={`max-w-2xl rounded-2xl px-5 py-4 ${
                 message.role === 'user'
-                  ? 'bg-[#00f0ff] text-[#00363a]'
-                  : 'bg-[#1f2229] text-white'
+                  ? 'bg-gradient-to-br from-cyan-500 to-cyan-600 text-slate-900 shadow-lg shadow-cyan-500/20'
+                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white'
               }`}
             >
-              <div 
-                className="prose prose-invert prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(message.content) }}
-              />
+              {message.role === 'assistant' ? (
+                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={MarkdownComponents}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-slate-900 leading-relaxed">{message.content}</p>
+              )}
             </div>
 
             {message.role === 'user' && (
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-[#00f0ff] rounded-lg flex items-center justify-center">
-                  <User className="h-4 w-4 text-[#00363a]" />
+                <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center border border-slate-600">
+                  <User className="h-5 w-5 text-slate-300" />
                 </div>
               </div>
             )}
           </div>
         ))}
 
-        {isLoading && (
+        {/* Loading State */}
+        {(isLoading || isGenerating) && (
           <div className="flex gap-4 justify-start">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-[#00f0ff]/10 rounded-lg flex items-center justify-center">
-                <Bot className="h-4 w-4 text-[#00f0ff]" />
+              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
+                <Bot className="h-5 w-5 text-cyan-400" />
               </div>
             </div>
-            <div className="bg-[#1f2229] rounded-lg px-4 py-3">
-              <Loader2 className="h-4 w-4 text-[#b9cacb] animate-spin" />
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl px-5 py-4">
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 text-cyan-400 animate-spin" />
+                <span className="text-sm text-slate-400">
+                  {isGenerating ? 'Generating response...' : 'Thinking...'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {messages.some(m => m.content.startsWith('Error:')) && (
+          <div className="flex gap-4 justify-start">
+            <div className="flex-shrink-0">
+              <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center border border-red-500/30">
+                <AlertCircle className="h-5 w-5 text-red-400" />
+              </div>
+            </div>
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-5 py-4">
+              <p className="text-sm text-red-400">
+                Something went wrong. Please try again.
+              </p>
             </div>
           </div>
         )}

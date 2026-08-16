@@ -11,26 +11,36 @@ import { SelfHostedProvider } from '@/lib/alex/provider/self-hosted-provider'
 
 // Initialize providers from environment configuration
 function initializeProviders() {
-  // Initialize self-hosted provider if configured
-  const selfHostedEndpoint = process.env.ALEX_SELF_HOSTED_ENDPOINT
-  const selfHostedModel = process.env.ALEX_SELF_HOSTED_MODEL
+  // Initialize self-hosted provider if configured (supports Groq and other OpenAI-compatible APIs)
+  const selfHostedEndpoint = process.env.ALEX_SELF_HOSTED_ENDPOINT || 'https://api.groq.com/openai/v1'
+  const selfHostedModel = process.env.ALEX_SELF_HOSTED_MODEL || 'llama-3.3-70b-versatile'
+  const apiKey = process.env.ALEX_SELF_HOSTED_API_KEY
 
-  if (selfHostedEndpoint && selfHostedModel) {
+  if (selfHostedEndpoint && selfHostedModel && apiKey) {
     const selfHostedProvider = new SelfHostedProvider({
       id: 'self-hosted-primary',
-      name: 'Self-Hosted Primary',
+      name: 'ALEX AI Provider',
       endpoint: selfHostedEndpoint,
       model: selfHostedModel,
-      apiKey: process.env.ALEX_SELF_HOSTED_API_KEY, // Optional
+      apiKey: apiKey,
       priority: 1,
       enabled: true,
     })
     providerRegistry.registerProvider(selfHostedProvider)
-    alexLogger.info('PROVIDER', 'Self-hosted provider initialized')
+    alexLogger.info('PROVIDER', 'ALEX AI provider initialized', { 
+      endpoint: selfHostedEndpoint,
+      model: selfHostedModel 
+    })
+  } else {
+    alexLogger.warn('PROVIDER', 'ALEX AI provider not configured - missing environment variables', {
+      hasEndpoint: !!selfHostedEndpoint,
+      hasModel: !!selfHostedModel,
+      hasApiKey: !!apiKey
+    })
   }
   
   // Additional providers can be initialized here from environment variables
-  // in future phases (OpenRouter, Groq, etc.)
+  // in future phases (OpenRouter, custom endpoints, etc.)
 }
 
 // POST /api/alex/chat - Stream chat completion

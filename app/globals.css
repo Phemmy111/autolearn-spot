@@ -697,6 +697,14 @@
   .pb-safe {
     padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
   }
+  
+  .pb-safe-area-bottom {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+  
+  .pt-safe-area-top {
+    padding-top: calc(env(safe-area-inset-top) + 1rem);
+  }
 }
 
 /* Mobile keyboard handling */
@@ -714,5 +722,19 @@
   /* Prevent rubber-banding on mobile */
   .alex-chat-container {
     overscroll-behavior: contain;
+  }
+  
+  /* ALEX-specific mobile optimizations */
+  .alex-mobile-header {
+    padding-top: calc(env(safe-area-inset-top) + 0.75rem);
+  }
+  
+  .alex-mobile-composer {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  .alex-mobile-no-scroll {
+    overflow-x: hidden;
   }
 }

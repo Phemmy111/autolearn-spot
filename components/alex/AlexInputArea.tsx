@@ -1,47 +1,73 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Paperclip, Square } from 'lucide-react'
+import { Send, Paperclip, Square, Mic, StopCircle } from 'lucide-react'
 
 interface AlexInputAreaProps {
   onSendMessage: (content: string) => void
   onStopGeneration?: () => void
   isLoading: boolean
   isGenerating?: boolean
+  isMobile: boolean
 }
 
 export function AlexInputArea({ 
   onSendMessage, 
   onStopGeneration, 
   isLoading, 
-  isGenerating = false 
+  isGenerating = false,
+  isMobile 
 }: AlexInputAreaProps) {
   const [content, setContent] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const [isComposing, setIsComposing] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
 
-  // Detect mobile device
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Auto-grow textarea
+  // Auto-grow textarea with mobile keyboard handling
   useEffect(() => {
     const textarea = textareaRef.current
     if (textarea) {
-      textarea.style.height = 'auto'
-      const newHeight = Math.min(textarea.scrollHeight, 200) // Max height of 200px
-      textarea.style.height = `${newHeight}px`
+      const resetHeight = () => {
+        textarea.style.height = 'auto'
+        const newHeight = Math.min(textarea.scrollHeight, isMobile ? 120 : 200)
+        textarea.style.height = `${newHeight}px`
+      }
+      
+      resetHeight()
+      
+      // Handle mobile keyboard
+      if (isMobile) {
+        const handleKeyboardShow = () => {
+          setTimeout(resetHeight, 100)
+        }
+        
+        const handleKeyboardHide = () => {
+          setTimeout(resetHeight, 100)
+        }
+        
+        window.addEventListener('resize', handleKeyboardShow)
+        window.addEventListener('focusin', handleKeyboardShow)
+        window.addEventListener('focusout', handleKeyboardHide)
+        
+        return () => {
+          window.removeEventListener('resize', handleKeyboardShow)
+          window.removeEventListener('focusin', handleKeyboardShow)
+          window.removeEventListener('focusout', handleKeyboardHide)
+        }
+      }
     }
-  }, [content])
+  }, [content, isMobile])
+
+  // Focus textarea on desktop when not generating
+  useEffect(() => {
+    if (!isMobile && !isGenerating && !isLoading) {
+      textareaRef.current?.focus()
+    }
+  }, [isMobile, isGenerating, isLoading])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (isComposing) return // Don't handle keys while composing (IME input)
+
     if (isMobile) {
       // Mobile: Enter always creates newline, never sends
       return
@@ -77,15 +103,27 @@ export function AlexInputArea({
     console.log('Attachment button clicked')
   }
 
+  const handleVoiceInput = () => {
+    // Placeholder for future voice input functionality
+    setIsRecording(!isRecording)
+  }
+
+  const getMinHeight = () => {
+    if (isMobile) {
+      return '56px' // Larger touch target for mobile
+    }
+    return '48px'
+  }
+
   return (
-    <div className="border-t border-[#1f2229] bg-[#0c0e12]/50 px-4 py-4 alex-composer-container">
+    <div className="px-4 py-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-end gap-3">
+        <div className="flex items-end gap-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-2 shadow-lg">
           {/* Attachment Button */}
           <button
             type="button"
             onClick={handleAttachment}
-            className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-[#1f2229] rounded-lg text-[#b9cacb] hover:text-[#00f0ff] transition-colors mb-2"
+            className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50 rounded-xl transition-all"
             title="Attach files (coming soon)"
             disabled={isLoading || isGenerating}
             aria-label="Attach files"
@@ -100,10 +138,14 @@ export function AlexInputArea({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               onKeyDown={handleKeyDown}
+              onCompositionStart={() => setIsComposing(true)}
+              onCompositionEnd={() => setIsComposing(false)}
               placeholder="Ask ALEX anything..."
               disabled={isLoading || isGenerating}
               rows={1}
-              className="w-full bg-[#1f2229] border border-[#1f2229] rounded-lg px-4 py-3 text-white placeholder-[#b9cacb] focus:outline-none focus:border-[#00f0ff] disabled:opacity-50 resize-none overflow-y-auto min-h-[44px] max-h-[200px]"
+              className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto ${
+                isMobile ? 'min-h-[56px] max-h-[120px] py-3 px-2 text-base' : 'min-h-[48px] max-h-[200px] py-2 px-2 text-sm'
+              }`}
               style={{ height: 'auto' }}
               aria-label="Message input"
               aria-describedby={isMobile ? "mobile-input-hint" : undefined}
@@ -115,12 +157,30 @@ export function AlexInputArea({
             )}
           </div>
           
+          {/* Voice Input Button (Mobile Only) */}
+          {isMobile && (
+            <button
+              type="button"
+              onClick={handleVoiceInput}
+              className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                isRecording 
+                  ? 'bg-red-500/20 text-red-400 animate-pulse' 
+                  : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50'
+              }`}
+              title="Voice input (coming soon)"
+              disabled={isLoading || isGenerating}
+              aria-label="Voice input"
+            >
+              {isRecording ? <StopCircle className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            </button>
+          )}
+          
           {/* Send/Stop Button */}
           {isGenerating ? (
             <button
               type="button"
               onClick={handleStop}
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 hover:bg-red-500/30 transition-colors mb-2"
+              className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 hover:bg-red-500/30 transition-all"
               title="Stop generation"
               aria-label="Stop generation"
             >
@@ -131,7 +191,11 @@ export function AlexInputArea({
               type="button"
               onClick={handleSend}
               disabled={!content.trim() || isLoading}
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-[#00f0ff] rounded-lg text-[#00363a] hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+              className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                content.trim() && !isLoading
+                  ? 'bg-cyan-500 hover:bg-cyan-600 text-slate-900 shadow-lg shadow-cyan-500/20'
+                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+              }`}
               title="Send message"
               aria-label="Send message"
             >
@@ -140,11 +204,20 @@ export function AlexInputArea({
           )}
         </div>
         
-        {/* Character count hint (optional, can be removed) */}
-        {content.length > 0 && (
-          <div className="text-right mt-1">
-            <span className="text-xs text-[#b9cacb]">
-              {content.length} characters
+        {/* Character count and hint (Desktop Only) */}
+        {!isMobile && content.length > 0 && (
+          <div className="text-right mt-2">
+            <span className="text-xs text-slate-500">
+              {content.length} character{content.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        )}
+
+        {/* Mobile keyboard hint */}
+        {isMobile && content.length === 0 && (
+          <div className="text-center mt-2">
+            <span className="text-xs text-slate-600">
+              Tap the send button to send your message
             </span>
           </div>
         )}
