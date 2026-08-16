@@ -81,7 +81,7 @@ export default function AdminLiveClassesSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] flex flex-col">
+    <div className="h-screen bg-[#0a0c10] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="border-b border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
