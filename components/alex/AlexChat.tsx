@@ -6,7 +6,7 @@ import { AlexMessageList } from './AlexMessageList'
 import { AlexInputArea } from './AlexInputArea'
 import { AlexSidebar } from './AlexSidebar'
 import { Message, Conversation } from '@/lib/alex/types'
-import { Menu, X, Bot } from 'lucide-react'
+import { Menu, X, Bot, Plus, Sparkles } from 'lucide-react'
 
 interface AlexChatProps {
   userId: string
@@ -221,11 +221,11 @@ export function AlexChat({ userId }: AlexChatProps) {
   return (
     <div 
       ref={containerRef}
-      className="flex h-full w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
+      className="flex h-full w-full overflow-hidden bg-slate-950"
     >
       {/* Mobile Header */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800 px-4 py-3 flex items-center justify-between safe-area-top">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between safe-area-top">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
@@ -234,12 +234,18 @@ export function AlexChat({ userId }: AlexChatProps) {
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-              <Bot className="h-4 w-4 text-cyan-400" />
+            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
+              <Bot className="h-4 w-4 text-white" />
             </div>
-            <span className="font-semibold text-white">ALEX</span>
+            <span className="font-semibold text-white text-sm">ALEX</span>
           </div>
-          <div className="w-10" /> {/* Spacer for balance */}
+          <button
+            onClick={startNewConversation}
+            className="w-10 h-10 flex items-center justify-center bg-cyan-500/10 text-cyan-400 rounded-xl hover:bg-cyan-500/20 transition-colors"
+            aria-label="New conversation"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
         </div>
       )}
 
@@ -258,34 +264,31 @@ export function AlexChat({ userId }: AlexChatProps) {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Desktop Header */}
         {!isMobile && (
-          <div className="bg-slate-900/50 backdrop-blur-xl border-b border-slate-800 px-6 py-4">
-            <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-6 py-3">
+            <div className="flex items-center justify-between max-w-4xl mx-auto">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center">
-                  <Bot className="h-5 w-5 text-cyan-400" />
+                <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
+                  <Bot className="h-5 w-5 text-white" />
                 </div>
-                <div>
-                  <h1 className="text-lg font-semibold text-white">ALEX</h1>
-                  <p className="text-xs text-slate-400">AutoLearn Intelligence & Execution Agent</p>
-                </div>
+                <span className="font-semibold text-white">ALEX</span>
               </div>
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                className="text-sm text-slate-400 hover:text-white transition-colors"
               >
-                {isSidebarOpen ? 'Hide' : 'Show'} Conversations
+                {isSidebarOpen ? 'Hide' : 'Show'} conversations
               </button>
             </div>
           </div>
         )}
 
-        {/* Mode Selector */}
+        {/* Mode Selector - Compact */}
         <div className={`bg-slate-900/30 backdrop-blur-sm border-b border-slate-800 ${isMobile ? 'pt-16' : ''}`}>
           <AlexModeSelector currentMode={mode} onModeChange={setMode} isMobile={isMobile} />
         </div>
 
         {/* Messages */}
-        <div className={`flex-1 overflow-hidden ${isMobile ? 'pt-4' : ''}`}>
+        <div className={`flex-1 overflow-hidden ${isMobile ? 'pt-2' : ''}`}>
           <AlexMessageList 
             messages={messages} 
             isLoading={isLoading} 
@@ -295,7 +298,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         </div>
 
         {/* Input Area */}
-        <div className={`bg-slate-900/50 backdrop-blur-xl border-t border-slate-800 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
+        <div className={`bg-slate-900/50 backdrop-blur-sm border-t border-slate-800 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
           <AlexInputArea 
             onSendMessage={sendMessage} 
             onStopGeneration={stopGeneration}

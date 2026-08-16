@@ -50,8 +50,8 @@ const MODES = [
 
 export function AlexModeSelector({ currentMode, onModeChange, isMobile = false }: AlexModeSelectorProps) {
   return (
-    <div className={`${isMobile ? 'px-4 py-3' : 'px-6 py-4'}`}>
-      <div className={`flex items-center gap-2 overflow-x-auto ${isMobile ? 'pb-2' : ''}`} role="group" aria-label="ALEX mode selection">
+    <div className={`${isMobile ? 'px-3 py-2' : 'px-4 py-2'}`}>
+      <div className={`flex items-center gap-2 overflow-x-auto ${isMobile ? 'pb-1' : ''}`} role="group" aria-label="ALEX mode selection">
         {MODES.map((mode) => {
           const Icon = mode.icon
           const isActive = currentMode === mode.id
@@ -60,16 +60,16 @@ export function AlexModeSelector({ currentMode, onModeChange, isMobile = false }
             <button
               key={mode.id}
               onClick={() => onModeChange(mode.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
                 isActive
-                  ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-900 shadow-lg shadow-cyan-500/20'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/20'
                   : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-white border border-slate-700'
               }`}
               title={mode.description}
               aria-label={`Switch to ${mode.name} mode: ${mode.description}`}
               aria-pressed={isActive}
             >
-              <Icon className={`h-4 w-4 ${isActive ? 'text-slate-900' : ''}`} />
+              <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : ''}`} />
               <span>{mode.name}</span>
             </button>
           )

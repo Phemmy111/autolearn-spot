@@ -39,6 +39,9 @@ export interface LearningContext {
   recentLessonProgress: LessonProgressItem[];
   currentCohortId: string;
   currentCohortName: string;
+  allLessons: LessonInfo[];
+  currentLesson?: LessonInfo;
+  nextLesson?: LessonInfo;
 }
 
 export interface LessonProgressItem {
@@ -50,16 +53,32 @@ export interface LessonProgressItem {
   lastPosition?: number;
 }
 
+export interface LessonInfo {
+  lessonId: string;
+  title: string;
+  weekNumber: number;
+  sessionNumber: number;
+  orderIndex: number;
+  completed: boolean;
+  watchPercentage: number;
+  available: boolean;
+}
+
 export interface ScholarshipContext {
   hasApplications: boolean;
   applications: ScholarshipApplication[];
+  hasActiveApplication: boolean;
+  applicationStatus: string;
 }
 
 export interface ScholarshipApplication {
   referenceNumber: string;
   status: string;
+  statusDescription?: string;
   submittedDate: string;
   paymentStatus?: string;
+  paymentDate?: string;
+  applicantName?: string;
 }
 
 export interface CertificateContext {

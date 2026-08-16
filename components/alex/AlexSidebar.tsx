@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Conversation } from '@/lib/alex/types'
-import { Plus, MessageSquare, X, MoreVertical, Trash2, Download, Search, Clock } from 'lucide-react'
+import { Plus, MessageSquare, X, MoreVertical, Trash2, Download, Search, Clock, Check } from 'lucide-react'
 
 interface AlexSidebarProps {
   isOpen: boolean
@@ -110,15 +110,15 @@ export function AlexSidebar({
         
         {/* Mobile Sidebar */}
         <div
-          className={`fixed left-0 top-0 bottom-0 w-80 bg-slate-900/95 backdrop-blur-xl z-50 flex flex-col transition-transform duration-300 ease-out transform ${
+          className={`fixed left-0 top-0 bottom-0 w-80 bg-slate-900 z-50 flex flex-col transition-transform duration-300 ease-out transform ${
             isOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           {/* Header */}
           <div className="p-4 border-b border-slate-800 flex items-center justify-between pt-safe-area-top">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-                <MessageSquare className="h-4 w-4 text-cyan-400" />
+              <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+                <MessageSquare className="h-4 w-4 text-white" />
               </div>
               <h2 className="text-sm font-semibold text-white">Conversations</h2>
             </div>
@@ -137,7 +137,7 @@ export function AlexSidebar({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
               <input
                 type="text"
-                placeholder="Search conversations..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
@@ -152,15 +152,15 @@ export function AlexSidebar({
                 onNewConversation()
                 onToggleSidebar()
               }}
-              className="w-full flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-medium rounded-lg px-4 py-3 transition-colors"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-cyan-500/20"
             >
               <Plus className="h-4 w-4" />
-              New Conversation
+              New Chat
             </button>
           </div>
 
           {/* Conversation List */}
-          <div className="flex-1 overflow-y-auto px-2 space-y-1 pb-4">
+          <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
             {filteredConversations.length === 0 ? (
               <div className="text-center py-8">
                 {searchQuery ? (
@@ -169,7 +169,7 @@ export function AlexSidebar({
                   <>
                     <MessageSquare className="h-8 w-8 text-slate-700 mx-auto mb-2" />
                     <p className="text-sm text-slate-500">No conversations yet</p>
-                    <p className="text-xs text-slate-600 mt-1">Start a new conversation to get started</p>
+                    <p className="text-xs text-slate-600 mt-1">Start a new conversation</p>
                   </>
                 )}
               </div>
@@ -258,13 +258,13 @@ export function AlexSidebar({
 
   // Desktop expanded state
   return (
-    <div className="w-80 bg-slate-900/50 backdrop-blur-xl border-r border-slate-800 flex flex-col transition-all duration-300">
+    <div className="w-72 bg-slate-900/50 backdrop-blur-sm border-r border-slate-800 flex flex-col transition-all duration-300">
       {/* Header */}
       <div className="p-4 border-b border-slate-800">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center">
-              <MessageSquare className="h-4 w-4 text-cyan-400" />
+            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <MessageSquare className="h-4 w-4 text-white" />
             </div>
             <h2 className="text-sm font-semibold text-white">Conversations</h2>
           </div>
@@ -283,7 +283,7 @@ export function AlexSidebar({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
           <input
             type="text"
-            placeholder="Search conversations..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
@@ -295,15 +295,15 @@ export function AlexSidebar({
       <div className="p-4">
         <button
           onClick={onNewConversation}
-          className="w-full flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-medium rounded-lg px-4 py-3 transition-colors"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-cyan-500/20"
         >
           <Plus className="h-4 w-4" />
-          New Conversation
+          New Chat
         </button>
       </div>
 
       {/* Conversation List */}
-      <div className="flex-1 overflow-y-auto px-2 space-y-1 pb-4">
+      <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
         {filteredConversations.length === 0 ? (
           <div className="text-center py-8">
             {searchQuery ? (
@@ -312,7 +312,7 @@ export function AlexSidebar({
               <>
                 <MessageSquare className="h-8 w-8 text-slate-700 mx-auto mb-2" />
                 <p className="text-sm text-slate-500">No conversations yet</p>
-                <p className="text-xs text-slate-600 mt-1">Start a new conversation to get started</p>
+                <p className="text-xs text-slate-600 mt-1">Start a new conversation</p>
               </>
             )}
           </div>

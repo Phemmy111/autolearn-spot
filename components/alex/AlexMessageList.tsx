@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Message } from '@/lib/alex/types'
-import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles } from 'lucide-react'
+import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -88,13 +88,13 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Headings
     h1: ({ children }: any) => (
-      <h1 className="text-2xl font-bold text-white mt-6 mb-3">{children}</h1>
+      <h1 className="text-xl font-bold text-white mt-6 mb-3">{children}</h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="text-xl font-semibold text-white mt-5 mb-2">{children}</h2>
+      <h2 className="text-lg font-semibold text-white mt-5 mb-2">{children}</h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="text-lg font-medium text-white mt-4 mb-2">{children}</h3>
+      <h3 className="text-base font-medium text-white mt-4 mb-2">{children}</h3>
     ),
 
     // Paragraphs
@@ -169,32 +169,78 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
       ref={containerRef}
       className="flex-1 overflow-y-auto px-4 py-6"
     >
-      <div className={`mx-auto space-y-6 ${isMobile ? 'max-w-full' : 'max-w-4xl'}`}>
+      <div className={`mx-auto space-y-6 ${isMobile ? 'max-w-full' : 'max-w-3xl'}`}>
         {/* Empty State */}
         {messages.length === 0 && !isLoading && !isGenerating && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="relative mb-6">
               <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full"></div>
-              <div className="relative w-20 h-20 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30">
-                <Sparkles className="h-10 w-10 text-cyan-400" />
+              <div className="relative w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30">
+                <Sparkles className="h-8 w-8 text-cyan-400" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Welcome to ALEX</h2>
-            <p className="text-slate-400 mb-4">Your AutoLearn Intelligence & Execution Agent</p>
-            <div className="flex flex-wrap justify-center gap-2 mt-6">
-              <span className="px-3 py-1.5 bg-slate-800/50 rounded-full text-xs text-slate-400 border border-slate-700">
-                💡 Learning Assistant
-              </span>
-              <span className="px-3 py-1.5 bg-slate-800/50 rounded-full text-xs text-slate-400 border border-slate-700">
-                🔧 Technical Help
-              </span>
-              <span className="px-3 py-1.5 bg-slate-800/50 rounded-full text-xs text-slate-400 border border-slate-700">
-                ⚡ Automation Expert
-              </span>
+            <h2 className="text-xl font-bold text-white mb-2">Welcome to ALEX</h2>
+            <p className="text-slate-400 mb-6">Your AutoLearn Intelligence & Execution Agent</p>
+            
+            {/* Example Prompts */}
+            <div className="flex flex-wrap justify-center gap-2 max-w-md">
+              <button
+                onClick={() => {
+                  const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+                  if (textarea) {
+                    textarea.value = "Check my course progress"
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+                    textarea.focus()
+                  }
+                }}
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+              >
+                <BookOpen className="h-4 w-4 inline mr-2" />
+                Check my progress
+              </button>
+              <button
+                onClick={() => {
+                  const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+                  if (textarea) {
+                    textarea.value = "What should I study next?"
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+                    textarea.focus()
+                  }
+                }}
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+              >
+                <Lightbulb className="h-4 w-4 inline mr-2" />
+                What should I study next?
+              </button>
+              <button
+                onClick={() => {
+                  const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+                  if (textarea) {
+                    textarea.value = "Tell me about my scholarship"
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+                    textarea.focus()
+                  }
+                }}
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+              >
+                <Award className="h-4 w-4 inline mr-2" />
+                My scholarship status
+              </button>
+              <button
+                onClick={() => {
+                  const textarea = document.querySelector('textarea') as HTMLTextAreaElement
+                  if (textarea) {
+                    textarea.value = "Help me build an automation"
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+                    textarea.focus()
+                  }
+                }}
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+              >
+                <Workflow className="h-4 w-4 inline mr-2" />
+                Build automation
+              </button>
             </div>
-            <p className="text-sm text-slate-500 mt-6 max-w-md">
-              Select a mode above and start a conversation to get started with personalized assistance.
-            </p>
           </div>
         )}
 
@@ -202,20 +248,20 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
         {messages.map((message, index) => (
           <div
             key={message.id}
-            className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {message.role === 'assistant' && (
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
-                  <Bot className="h-5 w-5 text-cyan-400" />
+                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
+                  <Bot className="h-4 w-4 text-cyan-400" />
                 </div>
               </div>
             )}
             
             <div
-              className={`max-w-2xl rounded-2xl px-5 py-4 ${
+              className={`max-w-2xl rounded-2xl px-4 py-3 ${
                 message.role === 'user'
-                  ? 'bg-gradient-to-br from-cyan-500 to-cyan-600 text-slate-900 shadow-lg shadow-cyan-500/20'
+                  ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-slate-900 shadow-lg shadow-cyan-500/20'
                   : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white'
               }`}
             >
@@ -235,8 +281,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
             {message.role === 'user' && (
               <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center border border-slate-600">
-                  <User className="h-5 w-5 text-slate-300" />
+                <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center border border-slate-600">
+                  <User className="h-4 w-4 text-slate-300" />
                 </div>
               </div>
             )}
@@ -245,17 +291,17 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
         {/* Loading State */}
         {(isLoading || isGenerating) && (
-          <div className="flex gap-4 justify-start">
+          <div className="flex gap-3 justify-start">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
-                <Bot className="h-5 w-5 text-cyan-400" />
+              <div className="w-8 h-8 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
+                <Bot className="h-4 w-4 text-cyan-400" />
               </div>
             </div>
-            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl px-5 py-4">
+            <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl px-4 py-3">
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 text-cyan-400 animate-spin" />
                 <span className="text-sm text-slate-400">
-                  {isGenerating ? 'Generating response...' : 'Thinking...'}
+                  {isGenerating ? 'Thinking...' : 'Loading...'}
                 </span>
               </div>
             </div>
@@ -264,13 +310,13 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
         {/* Error State */}
         {messages.some(m => m.content.startsWith('Error:')) && (
-          <div className="flex gap-4 justify-start">
+          <div className="flex gap-3 justify-start">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center border border-red-500/30">
-                <AlertCircle className="h-5 w-5 text-red-400" />
+              <div className="w-8 h-8 bg-red-500/20 rounded-xl flex items-center justify-center border border-red-500/30">
+                <AlertCircle className="h-4 w-4 text-red-400" />
               </div>
             </div>
-            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-5 py-4">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3">
               <p className="text-sm text-red-400">
                 Something went wrong. Please try again.
               </p>

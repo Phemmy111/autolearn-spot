@@ -108,16 +108,9 @@ export function AlexInputArea({
     setIsRecording(!isRecording)
   }
 
-  const getMinHeight = () => {
-    if (isMobile) {
-      return '56px' // Larger touch target for mobile
-    }
-    return '48px'
-  }
-
   return (
     <div className="px-4 py-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <div className="flex items-end gap-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-2 shadow-lg">
           {/* Attachment Button */}
           <button
@@ -140,11 +133,11 @@ export function AlexInputArea({
               onKeyDown={handleKeyDown}
               onCompositionStart={() => setIsComposing(true)}
               onCompositionEnd={() => setIsComposing(false)}
-              placeholder="Ask ALEX anything..."
+              placeholder={isMobile ? "Message ALEX..." : "Ask ALEX anything..."}
               disabled={isLoading || isGenerating}
               rows={1}
               className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto ${
-                isMobile ? 'min-h-[56px] max-h-[120px] py-3 px-2 text-base' : 'min-h-[48px] max-h-[200px] py-2 px-2 text-sm'
+                isMobile ? 'min-h-[52px] max-h-[120px] py-3 px-3 text-base' : 'min-h-[44px] max-h-[200px] py-2 px-3 text-sm'
               }`}
               style={{ height: 'auto' }}
               aria-label="Message input"
@@ -193,7 +186,7 @@ export function AlexInputArea({
               disabled={!content.trim() || isLoading}
               className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
                 content.trim() && !isLoading
-                  ? 'bg-cyan-500 hover:bg-cyan-600 text-slate-900 shadow-lg shadow-cyan-500/20'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/20'
                   : 'bg-slate-700 text-slate-500 cursor-not-allowed'
               }`}
               title="Send message"
@@ -203,24 +196,6 @@ export function AlexInputArea({
             </button>
           )}
         </div>
-        
-        {/* Character count and hint (Desktop Only) */}
-        {!isMobile && content.length > 0 && (
-          <div className="text-right mt-2">
-            <span className="text-xs text-slate-500">
-              {content.length} character{content.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-        )}
-
-        {/* Mobile keyboard hint */}
-        {isMobile && content.length === 0 && (
-          <div className="text-center mt-2">
-            <span className="text-xs text-slate-600">
-              Tap the send button to send your message
-            </span>
-          </div>
-        )}
       </div>
     </div>
   )

@@ -169,6 +169,14 @@ export function formatPlatformContextForPrompt(context: PlatformContext): string
     prompt += `Course: ${context.learning.currentCohortName}\n`;
     prompt += `Progress: ${context.learning.progressPercentage}% (${context.learning.completedLessons}/${context.learning.totalLessons} lessons)\n`;
     
+    if (context.learning.currentLesson) {
+      prompt += `Current Lesson: ${context.learning.currentLesson.title} (Week ${context.learning.currentLesson.weekNumber}, Session ${context.learning.currentLesson.sessionNumber})\n`;
+    }
+    
+    if (context.learning.nextLesson) {
+      prompt += `Next Lesson: ${context.learning.nextLesson.title} (Week ${context.learning.nextLesson.weekNumber}, Session ${context.learning.nextLesson.sessionNumber})\n`;
+    }
+    
     if (context.learning.recentLessonProgress.length > 0) {
       prompt += 'Recent Activity:\n';
       context.learning.recentLessonProgress.slice(0, 3).forEach(progress => {
@@ -180,14 +188,25 @@ export function formatPlatformContextForPrompt(context: PlatformContext): string
 
   if (context.scholarships && context.scholarships.hasApplications) {
     prompt += '--- Scholarship Applications ---\n';
+    if (context.scholarships.applicationStatus) {
+      prompt += `Status: ${context.scholarships.applicationStatus}\n`;
+    }
     context.scholarships.applications.forEach(app => {
       prompt += `Reference: ${app.referenceNumber}\n`;
-      prompt += `Status: ${app.status}\n`;
+      if (app.statusDescription) {
+        prompt += `Details: ${app.statusDescription}\n`;
+      }
       if (app.paymentStatus) {
         prompt += `Payment Status: ${app.paymentStatus}\n`;
       }
+      if (app.paymentDate) {
+        prompt += `Payment Date: ${new Date(app.paymentDate).toLocaleDateString()}\n`;
+      }
       prompt += '\n';
     });
+  } else if (context.scholarships && !context.scholarships.hasApplications) {
+    prompt += '--- Scholarship Applications ---\n';
+    prompt += 'No scholarship application on file\n\n';
   }
 
   if (context.certificates && context.certificates.hasCertificate) {
