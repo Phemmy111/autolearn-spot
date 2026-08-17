@@ -149,6 +149,8 @@ export async function POST(request: Request) {
         }, { status: 400 })
       }
 
+
+
       // Add OpenRouter-specific headers
       if (provider.provider_type === 'openrouter') {
         headers['HTTP-Referer'] = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -180,7 +182,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ models })
     } catch (error: any) {
       console.error('Error fetching models from provider:', error)
-      return NextResponse.json({ error: error.message || 'Failed to fetch models' }, { status: 500 })
+      return NextResponse.json({ 
+        error: error.message || 'Failed to fetch models',
+        details: error.stack?.substring(0, 200) || 'No stack trace available'
+      }, { status: 500 })
     }
   } catch (error: any) {
     if (error.message?.includes('Unauthorized')) {
