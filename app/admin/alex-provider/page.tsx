@@ -60,6 +60,7 @@ export default function AlexProviderPage() {
   const [availableModels, setAvailableModels] = useState<string[]>([])
   const [showModelSelector, setShowModelSelector] = useState(false)
   const [editApiKey, setEditApiKey] = useState('')
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false)
 
   // Form state
   const [newProvider, setNewProvider] = useState({
@@ -200,20 +201,14 @@ export default function AlexProviderPage() {
 
   const handleEditProvider = (provider: ProviderConfig) => {
     setEditingProvider(provider)
-    setEditApiKey('') // API key is not returned from API for security
+    setEditApiKey('') // Always start with empty for security
+    setShowApiKeyInput(false) // Don't show input by default
     setShowEditModal(true)
   }
 
   const handleUpdateProvider = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editingProvider) return
-
-    console.log('Update Provider Form Submit:', {
-      providerId: editingProvider.id,
-      providerType: editingProvider.provider_type,
-      editApiKeyLength: editApiKey.length,
-      editApiKey: editApiKey ? editApiKey.substring(0, 4) + '...' : 'empty',
-    })
 
     try {
       const updateData: any = {
@@ -223,17 +218,14 @@ export default function AlexProviderPage() {
         request_timeout: editingProvider.request_timeout,
       }
 
-      // Only include current_model if it's not empty
-      if (editingProvider.current_model) {
+      // Always include current_model for non-self_hosted providers
+      if (editingProvider.provider_type !== 'self_hosted' && editingProvider.current_model) {
         updateData.current_model = editingProvider.current_model
       }
 
-      // Only include API key if it was changed (not empty)
-      if (editApiKey && editingProvider.provider_type !== 'self_hosted') {
+      // Only include API key if user provided a new one
+      if (showApiKeyInput && editApiKey && editingProvider.provider_type !== 'self_hosted') {
         updateData.api_key = editApiKey
-        console.log('Including API key in update request')
-      } else {
-        console.log('NOT including API key - field is empty or provider is self_hosted')
       }
 
       const res = await fetch(`/api/admin/alex-provider/update?id=${editingProvider.id}`, {
@@ -678,24 +670,50 @@ export default function AlexProviderPage() {
                   </div>
                   {editingProvider.provider_type !== 'self_hosted' && (
                     <div>
-                      <label className="block font-mono text-xs text-[#b9cacb] mb-2">API Key (leave empty to keep existing)</label>
-                      <input
-                        type="password"
-                        value={editApiKey}
-                        onChange={(e) => {
-                          console.log('API Key input changed:', e.target.value.length, 'chars')
-                          setEditApiKey(e.target.value)
-                        }}
-                        className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
-                        placeholder="Enter new API key to update (or leave empty)"
-                      />
-                      <p className="font-mono text-xs text-[#5d5f63] mt-1">
-                        Current length: {editApiKey.length} characters
-                      </p>
+                      <label className="block font-mono text-xs text-[#b9cacb] mb-2">API Key</label>
+                      {!showApiKeyInput ? (
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm">
+                            ✓ Configured
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowApiKeyInput(true)
+                              setEditApiKey('')
+                            }}
+                            className="px-3 py-2 bg-[#1f2229] border border-[#3b494b] text-[#b9cacb] font-mono text-xs rounded hover:bg-[#2a2d35] transition-colors"
+                          >
+                            Replace Key
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <input
+                            type="password"
+                            value={editApiKey}
+                            onChange={(e) => {
+                              setEditApiKey(e.target.value)
+                            }}
+                            className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                            placeholder="Enter new API key"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowApiKeyInput(false)
+                              setEditApiKey('')
+                            }}
+                            className="mt-2 text-xs text-[#5d5f63] font-mono hover:text-[#b9cacb]"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model (optional)</label>
+                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -703,6 +721,7 @@ export default function AlexProviderPage() {
                         onChange={(e) => setEditingProvider({ ...editingProvider, current_model: e.target.value })}
                         className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
                         placeholder="Enter model ID or fetch from provider"
+                        required={editingProvider.provider_type !== 'self_hosted'}
                       />
                       <button
                         type="button"

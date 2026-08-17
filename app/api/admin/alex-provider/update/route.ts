@@ -66,13 +66,6 @@ export async function PATCH(request: Request) {
 
     const body = await request.json()
 
-    console.log('ALEX Provider Update Request:', {
-      id,
-      hasApiKey: !!body.api_key,
-      apiKeyLength: body.api_key?.length,
-      providerType: body.provider_type,
-    })
-
     const updates: any = {
       updated_at: new Date().toISOString(),
     }
@@ -87,10 +80,7 @@ export async function PATCH(request: Request) {
 
     // Handle API key update if provided
     if (body.api_key) {
-      console.log('Encrypting API key for provider update')
       updates.api_key_encrypted = encrypt(body.api_key)
-    } else {
-      console.log('No API key provided in update request')
     }
 
     const { data: provider, error } = await supabaseAdmin

@@ -3,7 +3,9 @@ import { requireSuperAdmin } from '@/lib/admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import crypto from 'crypto'
 
-// Emergency endpoint to directly set API key for a provider
+// Secure endpoint to update API key for a provider
+// POST /api/admin/alex-provider/set-key
+// Body: { providerId: string, apiKey: string }
 export async function POST(request: Request) {
   try {
     await requireSuperAdmin()
@@ -11,8 +13,12 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { providerId, apiKey } = body
 
-    if (!providerId || !apiKey) {
-      return NextResponse.json({ error: 'providerId and apiKey required' }, { status: 400 })
+    if (!providerId) {
+      return NextResponse.json({ error: 'providerId required' }, { status: 400 })
+    }
+
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+      return NextResponse.json({ error: 'apiKey required and must be non-empty' }, { status: 400 })
     }
 
     const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY
@@ -20,6 +26,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Encryption key not configured' }, { status: 500 })
     }
 
+    // Encrypt API key server-side
     const key = Buffer.from(ENCRYPTION_KEY, 'base64')
     const iv = crypto.randomBytes(16)
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
@@ -37,6 +44,7 @@ export async function POST(request: Request) {
 
     const encryptedKey = combined.toString('base64')
 
+    // Update only the encrypted key
     const { error } = await supabaseAdmin
       .from('alex_provider_config')
       .update({ 
@@ -47,7 +55,12 @@ export async function POST(request: Request) {
 
     if (error) throw error
 
-    return NextResponse.json({ success: true, message: 'API key updated successfully' })
+    // Never return the key or ciphertext
+    return NextResponse.json({ 
+      success: true, 
+      configured: true,
+      message: 'API key updated successfully' 
+    })
   } catch (error: any) {
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Super admin access required' }, { status: 403 })
