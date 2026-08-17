@@ -61,17 +61,15 @@ function getDefaultBaseUrl(providerType: string): string {
   return defaults[providerType] || ''
 }
 
-// POST - Super Admin only: Test provider connection
-export async function POST(request: Request) {
+// POST - Super Admin only: Fetch models from provider
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     await requireSuperAdmin()
 
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
-
-    if (!id) {
-      return NextResponse.json({ error: 'Provider ID required' }, { status: 400 })
-    }
+    const { id } = params
 
     // Get provider config from database
     const { data: provider, error } = await supabaseAdmin
@@ -85,21 +83,52 @@ export async function POST(request: Request) {
     }
 
     try {
-      // Decrypt API key
-      const apiKey = provider.api_key_encrypted ? decrypt(provider.api_key_encrypted) : null
+      // For Gemini, use default models list (no public API)
+      if (provider.provider_type === 'gemini') {
+        const defaultModels = [
+          'gemini-1.5-pro',
+          'gemini-1.5-flash',
+          'gemini-1.0-pro',
+          'gemini-pro',
+          'gemini-pro-vision',
+        ]
 
-      // Build request based on provider type
+        await supabaseAdmin
+          .from('alex_provider_config')
+          .update({
+            models: { available: defaultModels },
+            model_list_metadata: { lastRefreshed: new Date().toISOString() },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id)
+
+        return NextResponse.json({ models: defaultModels })
+      }
+
+      // For OpenAI-compatible providers, fetch from /models endpoint
       const baseUrl = provider.base_url || getDefaultBaseUrl(provider.provider_type)
+      
+      // Build auth headers
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       }
 
-      if (provider.auth_type === 'bearer' && apiKey) {
-        headers['Authorization'] = `Bearer ${apiKey}`
-      } else if (provider.auth_type === 'api_key' && apiKey) {
-        headers['Authorization'] = `Key ${apiKey}`
-      } else if (provider.auth_type === 'custom' && apiKey) {
-        headers['Authorization'] = apiKey
+      // Decrypt and add API key if available
+      if (provider.api_key_encrypted && provider.provider_type !== 'self_hosted') {
+        try {
+          const apiKey = decrypt(provider.api_key_encrypted)
+
+          if (provider.auth_type === 'bearer' && apiKey) {
+            headers['Authorization'] = `Bearer ${apiKey}`
+          } else if (provider.auth_type === 'api_key' && apiKey) {
+            headers['Authorization'] = `Key ${apiKey}`
+          } else if (provider.auth_type === 'custom' && apiKey) {
+            headers['Authorization'] = apiKey
+          }
+        } catch (error) {
+          console.error('Failed to decrypt API key for model discovery:', error)
+          return NextResponse.json({ error: 'Failed to decrypt API key' }, { status: 500 })
+        }
       }
 
       // Add OpenRouter-specific headers
@@ -108,58 +137,37 @@ export async function POST(request: Request) {
         headers['X-Title'] = 'Autolearn ALEX'
       }
 
-      // Test with a simple completion request
-      const testPayload = {
-        model: provider.current_model || 'test',
-        messages: [{ role: 'user', content: 'test' }],
-        max_tokens: 10,
-      }
-
-      const response = await fetch(`${baseUrl}/chat/completions`, {
-        method: 'POST',
+      const response = await fetch(`${baseUrl}/models`, {
         headers,
-        body: JSON.stringify(testPayload),
         signal: AbortSignal.timeout(30000),
       })
 
-      if (response.ok) {
-        // Update provider health on success
-        await supabaseAdmin
-          .from('alex_provider_config')
-          .update({
-            health_status: 'healthy',
-            last_health_check: new Date().toISOString(),
-            last_success_at: new Date().toISOString(),
-            consecutive_failure_count: 0,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', id)
-
-        return NextResponse.json({ success: true })
-      } else {
-        const errorText = await response.text()
-        throw new Error(`Provider returned ${response.status}: ${errorText}`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch models: ${response.status}`)
       }
-    } catch (error: any) {
-      // Update provider health on failure
+
+      const data = await response.json()
+      const models = data.data?.map((m: any) => m.id) || []
+
       await supabaseAdmin
         .from('alex_provider_config')
         .update({
-          health_status: 'unavailable',
-          health_error: error.message,
-          last_health_check: new Date().toISOString(),
-          consecutive_failure_count: 1,
+          models: { available: models },
+          model_list_metadata: { lastRefreshed: new Date().toISOString() },
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
 
-      return NextResponse.json({ success: false, error: error.message })
+      return NextResponse.json({ models })
+    } catch (error: any) {
+      console.error('Error fetching models from provider:', error)
+      return NextResponse.json({ error: error.message || 'Failed to fetch models' }, { status: 500 })
     }
   } catch (error: any) {
     if (error.message?.includes('Unauthorized')) {
       return NextResponse.json({ error: 'Unauthorized: Super admin access required' }, { status: 403 })
     }
-    console.error('Error testing ALEX provider:', error)
-    return NextResponse.json({ success: false, error: error.message || 'Test failed' }, { status: 500 })
+    console.error('Unexpected error fetching ALEX provider models:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

@@ -137,7 +137,7 @@ export default function AlexProviderPage() {
   const handleTestConnection = async (providerId: string) => {
     setTestingProvider(providerId)
     try {
-      const res = await fetch(`/api/admin/alex-provider/${providerId}/test`, {
+      const res = await fetch(`/api/admin/alex-provider/test?id=${providerId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -159,7 +159,7 @@ export default function AlexProviderPage() {
   const handleFetchModels = async (providerId: string) => {
     setFetchingModels(providerId)
     try {
-      const res = await fetch(`/api/admin/alex-provider/${providerId}/models`, {
+      const res = await fetch(`/api/admin/alex-provider/models?id=${providerId}`, {
         method: 'POST',
       })
 
@@ -202,7 +202,7 @@ export default function AlexProviderPage() {
         updateData.api_key = editApiKey
       }
 
-      const res = await fetch(`/api/admin/alex-provider/${editingProvider.id}`, {
+      const res = await fetch(`/api/admin/alex-provider/update?id=${editingProvider.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updateData),
@@ -226,7 +226,7 @@ export default function AlexProviderPage() {
     if (!confirm('Are you sure you want to delete this provider?')) return
 
     try {
-      const res = await fetch(`/api/admin/alex-provider/${providerId}`, {
+      const res = await fetch(`/api/admin/alex-provider/update?id=${providerId}`, {
         method: 'DELETE',
       })
 
@@ -243,7 +243,7 @@ export default function AlexProviderPage() {
 
   const handleToggleActive = async (providerId: string, currentState: boolean) => {
     try {
-      const res = await fetch(`/api/admin/alex-provider/${providerId}`, {
+      const res = await fetch(`/api/admin/alex-provider/update?id=${providerId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_active: !currentState }),
