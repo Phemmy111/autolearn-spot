@@ -62,14 +62,16 @@ function getDefaultBaseUrl(providerType: string): string {
 }
 
 // POST - Super Admin only: Fetch models from provider
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: Request) {
   try {
     await requireSuperAdmin()
 
-    const { id } = params
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'Provider ID required' }, { status: 400 })
+    }
 
     // Get provider config from database
     const { data: provider, error } = await supabaseAdmin
