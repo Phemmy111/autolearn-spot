@@ -62,10 +62,10 @@ const DEFAULT_MODELS: Record<AlexProviderType, string[]> = {
   openai_compatible: ['default'],
 }
 
-// Encryption key (must be 32 bytes for AES-256)
-const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY || 'default-alex-key-change-in-production-32bytes'
+// Encryption key (matching quiz system approach)
+const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY || 'default-key-change-in-production-32bytes'
 
-// Ensure the key is exactly 32 bytes for AES-256
+// Simple encryption key handling (matching quiz system)
 function getEncryptionKey(): Buffer {
   const key = Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32))
   return key
