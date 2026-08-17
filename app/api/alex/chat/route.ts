@@ -166,12 +166,12 @@ export async function POST(request: NextRequest) {
                   encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`)
                 )
               } else if (event.type === 'delta') {
-                const text = event.data?.text || ''
+                const text = event.data?.content || event.data?.text || ''
                 fullContent += text
                 controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ 
+                  encoder.encode(`data: ${JSON.stringify({
                     type: 'delta',
-                    content: text 
+                    content: text
                   })}\n\n`)
                 )
               } else if (event.type === 'usage') {
