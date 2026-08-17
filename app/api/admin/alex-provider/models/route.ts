@@ -109,6 +109,14 @@ export async function POST(request: Request) {
 
       // For OpenAI-compatible providers, fetch from /models endpoint
       const baseUrl = provider.base_url || getDefaultBaseUrl(provider.provider_type)
+
+      // If no base URL available, return error
+      if (!baseUrl) {
+        return NextResponse.json({ 
+          error: 'Base URL required for this provider type',
+          details: 'Please configure a base URL in the provider settings'
+        }, { status: 400 })
+      }
       
       // Build auth headers
       const headers: Record<string, string> = {

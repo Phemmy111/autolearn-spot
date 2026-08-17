@@ -218,10 +218,14 @@ export default function AlexProviderPage() {
     try {
       const updateData: any = {
         display_name: editingProvider.display_name,
-        current_model: editingProvider.current_model,
         priority: editingProvider.priority,
         fallback_enabled: editingProvider.fallback_enabled,
         request_timeout: editingProvider.request_timeout,
+      }
+
+      // Only include current_model if it's not empty
+      if (editingProvider.current_model) {
+        updateData.current_model = editingProvider.current_model
       }
 
       // Only include API key if it was changed (not empty)
@@ -678,21 +682,27 @@ export default function AlexProviderPage() {
                       <input
                         type="password"
                         value={editApiKey}
-                        onChange={(e) => setEditApiKey(e.target.value)}
+                        onChange={(e) => {
+                          console.log('API Key input changed:', e.target.value.length, 'chars')
+                          setEditApiKey(e.target.value)
+                        }}
                         className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
                         placeholder="Enter new API key to update (or leave empty)"
                       />
+                      <p className="font-mono text-xs text-[#5d5f63] mt-1">
+                        Current length: {editApiKey.length} characters
+                      </p>
                     </div>
                   )}
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
+                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model (optional)</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={editingProvider.current_model}
                         onChange={(e) => setEditingProvider({ ...editingProvider, current_model: e.target.value })}
                         className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
-                        required
+                        placeholder="Enter model ID or fetch from provider"
                       />
                       <button
                         type="button"
