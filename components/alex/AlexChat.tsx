@@ -151,12 +151,16 @@ export function AlexChat({ userId }: AlexChatProps) {
               if (line.startsWith('data: ')) {
                 const data = line.slice(6)
                 if (data === '[DONE]') continue
-                
+
+                console.log('[AlexChat] Received data:', data)
+
                 try {
                   const parsed = JSON.parse(data)
-                  
+                  console.log('[AlexChat] Parsed event:', parsed)
+
                   if (parsed.type === 'delta' && parsed.content) {
                     assistantContent += parsed.content
+                    console.log('[AlexChat] Delta content:', parsed.content, 'Total:', assistantContent)
                     
                     // Update the assistant message in real-time
                     setMessages(prev => {
