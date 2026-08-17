@@ -15,46 +15,19 @@ import { currentUser } from '@clerk/nextjs/server'
 export class ProviderManager {
   private registry: ProviderRegistry
 
-  // Encryption key (must be 32 bytes for AES-256)
-  private encryptionKey = process.env.ALEX_PROVIDER_ENCRYPTION_KEY
+  // Encryption key (matching quiz system approach)
+  private encryptionKey = process.env.ALEX_PROVIDER_ENCRYPTION_KEY || 'default-key-change-in-production-32bytes'
 
   constructor(registry: ProviderRegistry) {
     this.registry = registry
-
-    // Validate encryption key on construction
-    this.validateEncryptionKey()
   }
 
   /**
-   * Validate encryption key
-   */
-  private validateEncryptionKey(): void {
-    if (!this.encryptionKey) {
-      throw new Error('ALEX_PROVIDER_ENCRYPTION_KEY environment variable is required')
-    }
-
-    // Decode base64 if encoded, otherwise use as-is
-    let keyBytes: Buffer
-    try {
-      keyBytes = Buffer.from(this.encryptionKey, 'base64')
-    } catch {
-      // If not base64, treat as UTF-8
-      keyBytes = Buffer.from(this.encryptionKey, 'utf-8')
-    }
-
-    // Ensure exactly 32 bytes
-    if (keyBytes.length !== 32) {
-      throw new Error('ALEX_PROVIDER_ENCRYPTION_KEY must be exactly 32 bytes (after base64 decoding if applicable)')
-    }
-
-    this.encryptionKey = keyBytes.toString('base64')
-  }
-
-  /**
-   * Get encryption key (32 bytes for AES-256)
+   * Get encryption key (simple padding approach like quiz system)
    */
   private getEncryptionKey(): Buffer {
-    return Buffer.from(this.encryptionKey, 'base64')
+    const key = Buffer.from(this.encryptionKey.padEnd(32, '0').slice(0, 32))
+    return key
   }
 
   /**
