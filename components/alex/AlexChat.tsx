@@ -228,19 +228,12 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
 
     // Reload files after sending message to keep attachment UI in sync
-    ;(async () => {
-      if (currentConversation) {
-        try {
-          const filesRes = await fetch(`/api/alex/files?conversationId=${currentConversation.id}`)
-          if (filesRes.ok) {
-            const filesData = await filesRes.json()
-            setAttachedFiles(filesData.files || [])
-          }
-        } catch (error) {
-          console.error('Failed to reload files:', error)
-        }
-      }
-    })()
+    if (currentConversation) {
+      fetch(`/api/alex/files?conversationId=${currentConversation.id}`)
+        .then(res => res.json())
+        .then(data => setAttachedFiles(data.files || []))
+        .catch(err => console.error('Failed to reload files:', err))
+    }
   }
 
   const stopGeneration = () => {
