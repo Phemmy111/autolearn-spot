@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { requireAdmin } from '@/lib/admin'
 
+// Health check endpoint - v2 (trigger redeploy)
 export async function GET() {
   try {
     await requireAdmin()
