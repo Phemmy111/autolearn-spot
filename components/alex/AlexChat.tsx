@@ -226,6 +226,15 @@ export function AlexChat({ userId }: AlexChatProps) {
       setIsGenerating(false)
       setAbortController(null)
     }
+
+    // Reload files after sending message to keep attachment UI in sync
+    if (currentConversation) {
+      const filesRes = await fetch(`/api/alex/files?conversationId=${currentConversation.id}`)
+      if (filesRes.ok) {
+        const filesData = await filesRes.json()
+        setAttachedFiles(filesData.files || [])
+      }
+    }
   }
 
   const stopGeneration = () => {

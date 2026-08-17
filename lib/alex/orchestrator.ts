@@ -59,6 +59,10 @@ export class AlexOrchestrator {
       stream: true, // Default to streaming
     }
 
+    console.log('[Orchestrator] AI Request messages count:', aiRequest.messages.length)
+    console.log('[Orchestrator] Context length:', context.length)
+    console.log('[Orchestrator] Has file context:', context.includes('Attached Documents'))
+
     return {
       systemPrompt,
       context,
