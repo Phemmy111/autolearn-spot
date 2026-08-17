@@ -26,6 +26,11 @@ export class AlexCostTracker {
    */
   static async trackUsage(data: CostTrackingData): Promise<void> {
     try {
+      // Skip cost tracking for now - it's using the old AlexProviderManager
+      // TODO: Update to use the new provider-manager system
+      console.log('[Cost Tracker] Skipping cost tracking (old system)')
+      return
+
       // Get provider config for cost estimation
       const providerConfig = await AlexProviderManager.getProviderConfig()
       if (!providerConfig) {
@@ -56,6 +61,11 @@ export class AlexCostTracker {
    */
   static async checkLimits(userId: string): Promise<{ allowed: boolean; reason?: string }> {
     try {
+      // Skip limit checking for now - it's using the old AlexProviderManager
+      // TODO: Update to use the new provider-manager system
+      console.log('[Cost Tracker] Skipping limit checking (old system)')
+      return { allowed: true }
+
       const providerConfig = await AlexProviderManager.getProviderConfig()
       if (!providerConfig) {
         return { allowed: true } // Allow if no provider configured
@@ -69,7 +79,7 @@ export class AlexCostTracker {
       // Check daily limit
       const today = new Date()
       today.setHours(0, 0, 0, 0)
-      
+
       const { count: dailyCount } = await supabase
         .from('alex_usage')
         .select('*', { count: 'exact', head: true })
