@@ -168,6 +168,48 @@ export default function AlexProviderPage() {
       if (data.models && data.models.length > 0) {
         setAvailableModels(data.models)
         setShowModelSelector(true)
+      } else {
+        alert('No models found or failed to fetch models')
+      }
+    } catch (err: any) {
+      alert(`Failed to fetch models: ${err.message}`)
+    } finally {
+      setFetchingModels(null)
+    }
+  }
+
+  const handleFetchModelsForNewProvider = async () => {
+    if (!newProvider.api_key && newProvider.provider_type !== 'self_hosted') {
+      alert('Please enter an API key first')
+      return
+    }
+
+    setFetchingModels('new')
+    try {
+      const res = await fetch('/api/admin/alex-provider/models/fetch-models', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider_type: newProvider.provider_type,
+          api_key: newProvider.api_key,
+          base_url: newProvider.base_url,
+        }),
+      })
+
+      const data = await res.json()
+      if (data.models && data.models.length > 0) {
+        setAvailableModels(data.models)
+        setShowModelSelector(true)
+      } else {
+        alert('No models found or failed to fetch models')
+      }
+    } catch (err: any) {
+      alert(`Failed to fetch models: ${err.message}`)
+    } finally {
+      setFetchingModels(null)
+    }
+  }
+        setShowModelSelector(true)
         fetchProviders()
       } else {
         alert(`Failed to fetch models: ${data.error || data.details || 'Unknown error'}`)
@@ -580,14 +622,26 @@ export default function AlexProviderPage() {
                   )}
                   <div>
                     <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
-                    <input
-                      type="text"
-                      value={newProvider.current_model}
-                      onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
-                      placeholder="llama3-70b-8192"
-                      required
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newProvider.current_model}
+                        onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
+                        className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        placeholder="llama3-70b-8192"
+                        required
+                      />
+                      {newProvider.provider_type !== 'self_hosted' && newProvider.provider_type !== 'gemini' && (
+                        <button
+                          type="button"
+                          onClick={handleFetchModelsForNewProvider}
+                          disabled={fetchingModels === 'new' || !newProvider.api_key}
+                          className="border border-[#3b494b] text-[#b9cacb] font-mono text-xs px-3 py-2 rounded hover:bg-[#1f2229] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {fetchingModels === 'new' ? 'Loading...' : 'Fetch'}
+                        </button>
+                      )}
+                    </div>
                     <p className="font-mono text-xs text-[#5d5f63] mt-1">
                       {newProvider.provider_type === 'groq' && 'Common models: llama3-70b-8192, mixtral-8x7b-32768, gemma-7b-it'}
                       {newProvider.provider_type === 'openai' && 'Common models: gpt-4o-mini, gpt-4o, gpt-3.5-turbo'}
@@ -596,6 +650,24 @@ export default function AlexProviderPage() {
                       {newProvider.provider_type === 'self_hosted' && 'Enter your self-hosted model name'}
                       {newProvider.provider_type === 'openai_compatible' && 'Enter your custom model name'}
                     </p>
+                    {showModelSelector && availableModels.length > 0 && (
+                      <div className="mt-2 p-2 bg-[#1f2229] border border-[#3b494b] rounded max-h-40 overflow-y-auto">
+                        <p className="font-mono text-xs text-[#b9cacb] mb-2 font-bold">Available Models:</p>
+                        {availableModels.map((model) => (
+                          <button
+                            key={model}
+                            type="button"
+                            onClick={() => {
+                              setNewProvider({ ...newProvider, current_model: model })
+                              setShowModelSelector(false)
+                            }}
+                            className="block w-full text-left px-2 py-1 font-mono text-xs text-[#b9cacb] hover:bg-[#2a2d35] hover:text-white rounded transition-colors"
+                          >
+                            {model}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="block font-mono text-xs text-[#b9cacb] mb-2">Priority (Lower = Higher Priority)</label>
