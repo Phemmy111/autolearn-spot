@@ -208,6 +208,13 @@ export default function AlexProviderPage() {
     e.preventDefault()
     if (!editingProvider) return
 
+    console.log('Update Provider Form Submit:', {
+      providerId: editingProvider.id,
+      providerType: editingProvider.provider_type,
+      editApiKeyLength: editApiKey.length,
+      editApiKey: editApiKey ? editApiKey.substring(0, 4) + '...' : 'empty',
+    })
+
     try {
       const updateData: any = {
         display_name: editingProvider.display_name,
@@ -220,6 +227,9 @@ export default function AlexProviderPage() {
       // Only include API key if it was changed (not empty)
       if (editApiKey && editingProvider.provider_type !== 'self_hosted') {
         updateData.api_key = editApiKey
+        console.log('Including API key in update request')
+      } else {
+        console.log('NOT including API key - field is empty or provider is self_hosted')
       }
 
       const res = await fetch(`/api/admin/alex-provider/update?id=${editingProvider.id}`, {
