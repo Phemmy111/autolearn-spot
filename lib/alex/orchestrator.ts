@@ -55,7 +55,7 @@ export class AlexOrchestrator {
 
     // Build AI request for provider-agnostic interface
     const aiRequest: AIRequest = {
-      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext),
+      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context),
       stream: true, // Default to streaming
     }
 
@@ -75,7 +75,8 @@ export class AlexOrchestrator {
     content: string,
     systemPrompt: string,
     conversationHistory: Array<{ role: string; content: string }>,
-    platformContext?: PlatformContext
+    platformContext?: PlatformContext,
+    fileContext?: string
   ): AIMessage[] {
     const messages: AIMessage[] = [
       {
@@ -94,6 +95,14 @@ export class AlexOrchestrator {
           content: platformContextStr,
         })
       }
+    }
+
+    // Add file context as a system message if available (Phase 3A)
+    if (fileContext && fileContext.trim().length > 0) {
+      messages.push({
+        role: 'system',
+        content: fileContext,
+      })
     }
 
     // Add conversation history (limit to recent messages to manage context window)
