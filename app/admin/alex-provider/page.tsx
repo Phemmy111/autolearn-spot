@@ -209,17 +209,6 @@ export default function AlexProviderPage() {
       setFetchingModels(null)
     }
   }
-        setShowModelSelector(true)
-        fetchProviders()
-      } else {
-        alert(`Failed to fetch models: ${data.error || data.details || 'Unknown error'}`)
-      }
-    } catch (err: any) {
-      alert(`Failed to fetch models: ${err.message}`)
-    } finally {
-      setFetchingModels(null)
-    }
-  }
 
   const handleClearApiKey = async (providerId: string) => {
     if (!confirm('This will clear your API key. You will need to re-enter it. Continue?')) return
