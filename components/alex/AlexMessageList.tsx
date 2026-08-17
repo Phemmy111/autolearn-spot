@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Message } from '@/lib/alex/types'
-import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown, Edit2, X } from 'lucide-react'
+import { Message, AlexFile } from '@/lib/alex/types'
+import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown, Edit2, X, FileText } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -74,6 +74,20 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
   // Generate code block ID
   const generateCodeId = () => `code-${Math.random().toString(36).substr(2, 9)}`
+
+  const getFileIcon = (fileName: string) => {
+    const ext = fileName.split('.').pop()?.toLowerCase()
+    if (ext === 'pdf') return <FileText className="h-4 w-4" />
+    if (['doc', 'docx'].includes(ext || '')) return <FileText className="h-4 w-4" />
+    if (['txt', 'md', 'js', 'jsx', 'ts', 'tsx', 'json', 'css', 'html', 'py', 'java', 'c', 'cpp', 'cs'].includes(ext || '')) return <FileText className="h-4 w-4" />
+    return <FileText className="h-4 w-4" />
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B'
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
 
   // Custom markdown components
   const MarkdownComponents = {
@@ -308,6 +322,25 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
               }`}
             >
               <div className="flex flex-col gap-3">
+                {/* Display attachments for user messages */}
+                {message.role === 'user' && message.attached_files && message.attached_files.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {message.attached_files.map((file) => (
+                      <div
+                        key={file.id}
+                        className="flex items-center gap-2 bg-white/20 rounded-lg px-3 py-2"
+                      >
+                        {getFileIcon(file.original_filename)}
+                        <span className="text-sm text-slate-900 truncate max-w-[150px]">
+                          {file.original_filename}
+                        </span>
+                        <span className="text-xs text-slate-700">
+                          ({formatFileSize(file.file_size)})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   {message.role === 'assistant' ? (
                     <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">

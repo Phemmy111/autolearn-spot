@@ -19,7 +19,8 @@ export interface Message {
   tokens?: number
   model_used?: string
   created_at: string
-  attached_files?: AlexFile[] // Files attached to this message
+  file_ids?: string[] // File IDs attached to this message
+  attached_files?: AlexFile[] // Full file objects (populated on load)
 }
 
 export interface AlexProviderConfig {

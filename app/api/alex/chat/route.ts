@@ -88,13 +88,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode })
     }
 
-    // Save user message
+    // Save user message with file IDs (Phase 3A)
     const { data: userMessage, error: userMsgError } = await supabase
       .from('alex_messages')
       .insert({
         conversation_id: conversationId,
         role: 'user',
         content,
+        file_ids: fileIds || [], // Store file IDs with the message
       })
       .select()
       .single()

@@ -135,7 +135,7 @@ export function AlexInputArea({
       console.log('[AlexInputArea] Attached files state:', attachedFiles.map(f => ({ id: f.id, uploadedFileId: f.uploadedFileId, status: f.status })))
       onSendMessage(content.trim(), fileIds)
       setContent('')
-      // Don't clear attachedFiles - they should remain visible in the conversation
+      setAttachedFiles([]) // Clear composer attachments after send
 
       // Reset textarea height
       if (textareaRef.current) {

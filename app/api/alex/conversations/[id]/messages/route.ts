@@ -27,7 +27,7 @@ export async function GET(
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
-    // Get messages
+    // Get messages with file IDs
     const { data: messages, error } = await supabase
       .from('alex_messages')
       .select('*')
@@ -39,7 +39,21 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
     }
 
-    return NextResponse.json({ messages })
+    // Fetch file details for messages that have file_ids
+    const messagesWithFiles = await Promise.all(
+      (messages || []).map(async (message) => {
+        if (message.file_ids && message.file_ids.length > 0) {
+          const { data: files } = await supabase
+            .from('alex_files')
+            .select('*')
+            .in('id', message.file_ids)
+          return { ...message, attached_files: files || [] }
+        }
+        return message
+      })
+    )
+
+    return NextResponse.json({ messages: messagesWithFiles })
   } catch (error) {
     console.error('Error in GET /api/alex/conversations/[id]/messages:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
