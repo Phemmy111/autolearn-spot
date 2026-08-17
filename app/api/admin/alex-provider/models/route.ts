@@ -129,8 +129,20 @@ export async function POST(request: Request) {
           }
         } catch (error) {
           console.error('Failed to decrypt API key for model discovery:', error)
-          return NextResponse.json({ error: 'Failed to decrypt API key' }, { status: 500 })
+          console.error('Provider ID:', id)
+          console.error('Provider type:', provider.provider_type)
+          console.error('Has encrypted key:', !!provider.api_key_encrypted)
+          return NextResponse.json({ 
+            error: 'Failed to decrypt API key. Please re-enter your API key in the admin panel.',
+            details: 'The encryption key may have changed. Re-enter your provider API key to fix this.'
+          }, { status: 500 })
         }
+      } else if (provider.provider_type !== 'self_hosted' && !provider.api_key_encrypted) {
+        console.error('Provider has no API key configured:', id)
+        return NextResponse.json({ 
+          error: 'No API key configured for this provider',
+          details: 'Please add an API key in the admin panel before fetching models'
+        }, { status: 400 })
       }
 
       // Add OpenRouter-specific headers

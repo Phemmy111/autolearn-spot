@@ -169,12 +169,32 @@ export default function AlexProviderPage() {
         setShowModelSelector(true)
         fetchProviders()
       } else {
-        alert('No models found or fetch failed')
+        alert(`Failed to fetch models: ${data.error || data.details || 'Unknown error'}`)
       }
     } catch (err: any) {
       alert(`Failed to fetch models: ${err.message}`)
     } finally {
       setFetchingModels(null)
+    }
+  }
+
+  const handleClearApiKey = async (providerId: string) => {
+    if (!confirm('This will clear your API key. You will need to re-enter it. Continue?')) return
+
+    try {
+      const res = await fetch(`/api/admin/alex-provider/clear-key?id=${providerId}`, {
+        method: 'POST',
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        alert('API key cleared. Please re-enter your API key in the edit form.')
+        fetchProviders()
+      } else {
+        alert(`Failed to clear API key: ${data.error}`)
+      }
+    } catch (err: any) {
+      alert(`Failed to clear API key: ${err.message}`)
     }
   }
 
@@ -429,6 +449,13 @@ export default function AlexProviderPage() {
                     title="Fetch Models"
                   >
                     <Globe className={`h-4 w-4 text-[#00f0ff] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
+                  </button>
+                  <button
+                    onClick={() => handleClearApiKey(provider.id)}
+                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    title="Clear API Key (to re-enter)"
+                  >
+                    <Key className="h-4 w-4 text-orange-400" />
                   </button>
                   <button
                     onClick={() => handleToggleActive(provider.id, provider.is_active)}
