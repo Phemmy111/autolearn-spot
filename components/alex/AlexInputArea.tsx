@@ -128,6 +128,8 @@ export function AlexInputArea({
   const handleSend = () => {
     if (content.trim() && !isLoading && !isGenerating) {
       const fileIds = attachedFiles.filter(f => f.status === 'ready' && f.uploadedFileId).map(f => f.uploadedFileId!)
+      console.log('[AlexInputArea] Sending message with file IDs:', fileIds)
+      console.log('[AlexInputArea] Attached files state:', attachedFiles.map(f => ({ id: f.id, uploadedFileId: f.uploadedFileId, status: f.status })))
       onSendMessage(content.trim(), fileIds)
       setContent('')
       setAttachedFiles([])
@@ -174,6 +176,8 @@ export function AlexInputArea({
 
   const uploadFile = async (attachedFile: AttachedFile) => {
     try {
+      console.log('[AlexInputArea] Starting file upload:', attachedFile.file.name)
+
       const formData = new FormData()
       formData.append('file', attachedFile.file)
       formData.append('conversationId', conversationId!)
@@ -185,7 +189,10 @@ export function AlexInputArea({
 
       const data = await response.json()
 
+      console.log('[AlexInputArea] Upload response:', data)
+
       if (data.success) {
+        console.log('[AlexInputArea] Upload successful, file ID:', data.file.id)
         setAttachedFiles(prev =>
           prev.map(f =>
             f.id === attachedFile.id
@@ -194,6 +201,7 @@ export function AlexInputArea({
           )
         )
       } else {
+        console.error('[AlexInputArea] Upload failed:', data.error)
         setAttachedFiles(prev =>
           prev.map(f =>
             f.id === attachedFile.id
@@ -203,6 +211,7 @@ export function AlexInputArea({
         )
       }
     } catch (error) {
+      console.error('[AlexInputArea] Upload error:', error)
       setAttachedFiles(prev =>
         prev.map(f =>
           f.id === attachedFile.id

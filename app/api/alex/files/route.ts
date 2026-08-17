@@ -109,9 +109,16 @@ export async function POST(request: Request) {
     // In production, this would go to a queue/job system
     triggerExtraction(fileRecord.id, file)
 
-    return NextResponse.json({ 
-      success: true, 
-      file: fileRecord 
+    console.log('[Files Route] File upload successful', {
+      fileId: fileRecord.id,
+      filename: file.name,
+      status: fileRecord.status,
+      extraction_status: fileRecord.extraction_status
+    })
+
+    return NextResponse.json({
+      success: true,
+      file: fileRecord
     })
   } catch (error: any) {
     console.error('Error uploading file:', error)
@@ -175,20 +182,33 @@ export async function GET(request: Request) {
 // Non-blocking text extraction trigger
 async function triggerExtraction(fileId: string, file: File) {
   try {
+    console.log('[Files Route] Starting extraction for file:', fileId, file.name)
+
     // Update status to processing
     await supabase
       .from('alex_files')
-      .update({ 
+      .update({
         status: 'processing',
         extraction_status: 'processing'
       })
       .eq('id', fileId)
 
+    console.log('[Files Route] File status updated to processing')
+
     // Extract text
     const extraction = await extractTextFromFile(file)
 
+    console.log('[Files Route] Extraction result:', {
+      success: extraction.success,
+      textLength: extraction.text.length,
+      metadata: extraction.metadata,
+      error: extraction.error
+    })
+
     if (extraction.success && isMeaningfulText(extraction.text)) {
       const sanitizedText = sanitizeExtractedText(extraction.text)
+
+      console.log('[Files Route] Text is meaningful, updating file with extracted text')
 
       await supabase
         .from('alex_files')
@@ -203,7 +223,11 @@ async function triggerExtraction(fileId: string, file: File) {
           }
         })
         .eq('id', fileId)
+
+      console.log('[Files Route] File updated successfully with extracted text')
     } else {
+      console.log('[Files Route] Extraction failed or text not meaningful')
+
       await supabase
         .from('alex_files')
         .update({
@@ -214,7 +238,7 @@ async function triggerExtraction(fileId: string, file: File) {
         .eq('id', fileId)
     }
   } catch (error) {
-    console.error('Extraction error for file', fileId, error)
+    console.error('[Files Route] Extraction error for file', fileId, error)
     await supabase
       .from('alex_files')
       .update({
