@@ -132,7 +132,7 @@ export function AlexInputArea({
       console.log('[AlexInputArea] Attached files state:', attachedFiles.map(f => ({ id: f.id, uploadedFileId: f.uploadedFileId, status: f.status })))
       onSendMessage(content.trim(), fileIds)
       setContent('')
-      setAttachedFiles([])
+      // Don't clear attachedFiles - they should remain visible in the conversation
 
       // Reset textarea height
       if (textareaRef.current) {
