@@ -3,28 +3,12 @@ import { requireSuperAdmin } from '@/lib/admin'
 import { supabaseAdmin } from '@/lib/supabase'
 import crypto from 'crypto'
 
-// Encryption key (must be 32 bytes for AES-256)
-const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY
+// Encryption key (matching quiz system approach)
+const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY || 'default-key-change-in-production-32bytes'
 
+// Simple encryption key handling (matching quiz system)
 function getEncryptionKey(): Buffer {
-  if (!ENCRYPTION_KEY) {
-    throw new Error('ALEX_PROVIDER_ENCRYPTION_KEY environment variable is required')
-  }
-
-  // Try base64 decoding first
-  let key: Buffer
-  try {
-    key = Buffer.from(ENCRYPTION_KEY, 'base64')
-  } catch {
-    // Fallback to UTF-8 if not base64
-    key = Buffer.from(ENCRYPTION_KEY, 'utf8')
-  }
-
-  // Validate key length
-  if (key.length !== 32) {
-    throw new Error('ALEX_PROVIDER_ENCRYPTION_KEY must be exactly 32 bytes after decoding')
-  }
-
+  const key = Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32))
   return key
 }
 

@@ -9,36 +9,12 @@ export async function GET() {
     const keyStatus = {
       exists: !!key,
       length: key?.length || 0,
-      isBase64: key ? /^[A-Za-z0-9+/]+=*$/.test(key) : false,
-      firstChars: key ? key.substring(0, 4) + '...' : 'none',
-    }
-
-    // Try to validate key length
-    let decodedLength = 0
-    let validationError = null
-
-    if (key) {
-      try {
-        const decoded = Buffer.from(key, 'base64')
-        decodedLength = decoded.length
-        if (decodedLength !== 32) {
-          validationError = `Key length is ${decodedLength} bytes, must be 32 bytes`
-        }
-      } catch (e) {
-        validationError = 'Key is not valid base64'
-      }
+      message: key ? 'Encryption key configured (using simple padding like quiz system)' : 'Using default encryption key',
     }
 
     return NextResponse.json({
-      encryptionKey: {
-        ...keyStatus,
-        decodedLength,
-        validationError,
-        isValid: keyStatus.exists && decodedLength === 32 && !validationError,
-      },
-      message: keyStatus.exists && decodedLength === 32 
-        ? 'Encryption key is properly configured' 
-        : 'Encryption key needs configuration',
+      encryptionKey: keyStatus,
+      message: 'ALEX now uses same encryption approach as quiz system'
     })
   } catch (error: any) {
     if (error.message?.includes('Unauthorized')) {

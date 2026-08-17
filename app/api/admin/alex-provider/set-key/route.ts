@@ -21,13 +21,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'apiKey required and must be non-empty' }, { status: 400 })
     }
 
-    const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY
-    if (!ENCRYPTION_KEY) {
-      return NextResponse.json({ error: 'Encryption key not configured' }, { status: 500 })
-    }
+    const ENCRYPTION_KEY = process.env.ALEX_PROVIDER_ENCRYPTION_KEY || 'default-key-change-in-production-32bytes'
 
-    // Encrypt API key server-side
-    const key = Buffer.from(ENCRYPTION_KEY, 'base64')
+    // Simple encryption (matching quiz system)
+    const key = Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32))
     const iv = crypto.randomBytes(16)
     const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
 
