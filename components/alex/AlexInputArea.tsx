@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip, Square, Mic, StopCircle, ChevronDown, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, X, FileText, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { AlexFile } from '@/lib/alex/types'
 
 interface AlexInputAreaProps {
   onSendMessage: (content: string, fileIds?: string[]) => void
@@ -12,6 +13,7 @@ interface AlexInputAreaProps {
   currentMode?: 'auto' | 'tutor' | 'developer' | 'automation' | 'research' | 'agent_builder'
   onModeChange?: (mode: 'auto' | 'tutor' | 'developer' | 'automation' | 'research' | 'agent_builder') => void
   conversationId?: string
+  onFileUploaded?: () => void // Callback to notify parent to reload files
 }
 
 interface AttachedFile {
@@ -39,7 +41,8 @@ export function AlexInputArea({
   isMobile,
   currentMode = 'auto',
   onModeChange,
-  conversationId
+  conversationId,
+  onFileUploaded
 }: AlexInputAreaProps) {
   const [content, setContent] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -200,6 +203,10 @@ export function AlexInputArea({
               : f
           )
         )
+        // Notify parent to reload files from database
+        if (onFileUploaded) {
+          onFileUploaded()
+        }
       } else {
         console.error('[AlexInputArea] Upload failed:', data.error)
         setAttachedFiles(prev =>

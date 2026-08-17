@@ -19,6 +19,7 @@ export interface Message {
   tokens?: number
   model_used?: string
   created_at: string
+  attached_files?: AlexFile[] // Files attached to this message
 }
 
 export interface AlexProviderConfig {

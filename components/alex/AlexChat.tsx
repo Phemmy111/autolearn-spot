@@ -438,6 +438,15 @@ export function AlexChat({ userId }: AlexChatProps) {
             currentMode={mode}
             onModeChange={setMode}
             conversationId={currentConversation?.id}
+            onFileUploaded={() => {
+              // Reload files after upload
+              if (currentConversation) {
+                fetch(`/api/alex/files?conversationId=${currentConversation.id}`)
+                  .then(res => res.json())
+                  .then(data => setAttachedFiles(data.files || []))
+                  .catch(err => console.error('Failed to reload files:', err))
+              }
+            }}
           />
         </div>
       </div>
