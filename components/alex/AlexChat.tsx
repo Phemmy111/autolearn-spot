@@ -108,7 +108,7 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
   }
 
-  const sendMessage = async (content: string, files?: File[]) => {
+  const sendMessage = async (content: string, fileIds?: string[]) => {
     if (!currentConversation) {
       await startNewConversation()
       return
@@ -116,11 +116,11 @@ export function AlexChat({ userId }: AlexChatProps) {
 
     setIsLoading(true)
     setIsGenerating(true)
-    
+
     // Create abort controller for this request
     const controller = new AbortController()
     setAbortController(controller)
-    
+
     // Add user message to UI immediately
     const userMessage: Message = {
       id: crypto.randomUUID(),
@@ -131,23 +131,6 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
     setMessages([...messages, userMessage])
 
-    // Upload files if provided
-    if (files && files.length > 0) {
-      const formData = new FormData()
-      files.forEach(file => formData.append('file', file))
-      formData.append('conversationId', currentConversation.id)
-
-      try {
-        await fetch('/api/alex/files', {
-          method: 'POST',
-          body: formData
-        })
-      } catch (error) {
-        console.error('Failed to upload files:', error)
-        // Continue with message even if file upload fails
-      }
-    }
-
     try {
       const res = await fetch('/api/alex/chat', {
         method: 'POST',
@@ -156,6 +139,7 @@ export function AlexChat({ userId }: AlexChatProps) {
           conversationId: currentConversation.id,
           content,
           mode,
+          fileIds,
         }),
         signal: controller.signal,
       })

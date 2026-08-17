@@ -50,9 +50,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { conversationId, content, mode } = body
+    const { conversationId, content, mode, fileIds } = body
 
-    alexLogger.debug('CHAT', 'Request received', { conversationId, mode })
+    alexLogger.debug('CHAT', 'Request received', { conversationId, mode, fileIds })
 
     if (!conversationId || !content || !mode) {
       alexLogger.warn('CHAT', 'Missing required fields', { body })
@@ -127,12 +127,16 @@ export async function POST(request: NextRequest) {
       .limit(20)
 
     // Get attached files for context (Phase 3A)
-    const { data: attachedFiles } = await supabase
-      .from('alex_files')
-      .select('*')
-      .eq('conversation_id', conversationId)
-      .eq('status', 'ready')
-      .eq('extraction_status', 'completed')
+    let attachedFiles: any[] = []
+    if (fileIds && fileIds.length > 0) {
+      const { data: files } = await supabase
+        .from('alex_files')
+        .select('*')
+        .in('id', fileIds)
+        .eq('status', 'ready')
+        .eq('extraction_status', 'completed')
+      attachedFiles = files || []
+    }
 
     // Build conversation history for orchestrator
     const conversationHistory = historyMessages?.map(m => ({

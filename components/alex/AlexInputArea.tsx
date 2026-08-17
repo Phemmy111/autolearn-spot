@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip, Square, Mic, StopCircle, ChevronDown, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, X, FileText, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 
 interface AlexInputAreaProps {
-  onSendMessage: (content: string, files?: File[]) => void
+  onSendMessage: (content: string, fileIds?: string[]) => void
   onStopGeneration?: () => void
   isLoading: boolean
   isGenerating?: boolean
@@ -17,6 +17,7 @@ interface AlexInputAreaProps {
 interface AttachedFile {
   file: File
   id: string
+  uploadedFileId?: string // The actual file ID from server after upload
   status: 'uploading' | 'processing' | 'ready' | 'failed'
   error?: string
 }
@@ -126,11 +127,11 @@ export function AlexInputArea({
 
   const handleSend = () => {
     if (content.trim() && !isLoading && !isGenerating) {
-      const filesToUpload = attachedFiles.filter(f => f.status === 'ready').map(f => f.file)
-      onSendMessage(content.trim(), filesToUpload)
+      const fileIds = attachedFiles.filter(f => f.status === 'ready' && f.uploadedFileId).map(f => f.uploadedFileId!)
+      onSendMessage(content.trim(), fileIds)
       setContent('')
       setAttachedFiles([])
-      
+
       // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto'
@@ -185,26 +186,26 @@ export function AlexInputArea({
       const data = await response.json()
 
       if (data.success) {
-        setAttachedFiles(prev => 
-          prev.map(f => 
-            f.id === attachedFile.id 
-              ? { ...f, status: 'ready' }
+        setAttachedFiles(prev =>
+          prev.map(f =>
+            f.id === attachedFile.id
+              ? { ...f, status: 'ready', uploadedFileId: data.file.id }
               : f
           )
         )
       } else {
-        setAttachedFiles(prev => 
-          prev.map(f => 
-            f.id === attachedFile.id 
+        setAttachedFiles(prev =>
+          prev.map(f =>
+            f.id === attachedFile.id
               ? { ...f, status: 'failed', error: data.error }
               : f
           )
         )
       }
     } catch (error) {
-      setAttachedFiles(prev => 
-        prev.map(f => 
-          f.id === attachedFile.id 
+      setAttachedFiles(prev =>
+        prev.map(f =>
+          f.id === attachedFile.id
             ? { ...f, status: 'failed', error: 'Upload failed' }
             : f
         )
@@ -403,7 +404,7 @@ export function AlexInputArea({
             <button
               type="button"
               onClick={handleSend}
-              disabled={!content.trim() || isLoading || attachedFiles.some(f => f.status !== 'ready')}
+              disabled={!content.trim() || isLoading || attachedFiles.some(f => f.status !== 'ready' || !f.uploadedFileId)}
               className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
                 content.trim() && !isLoading && !attachedFiles.some(f => f.status !== 'ready')
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/20'

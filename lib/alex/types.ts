@@ -54,6 +54,7 @@ export interface ChatRequest {
   conversationId: string
   content: string
   mode: AlexMode
+  fileIds?: string[]
 }
 
 export interface ChatResponse {
