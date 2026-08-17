@@ -129,7 +129,7 @@ export class AlexProviderManager {
         .from('alex_provider_config')
         .select('*')
         .eq('is_active', true)
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.error('Error fetching ALEX provider:', error)
@@ -155,7 +155,7 @@ export class AlexProviderManager {
         .from('alex_provider_config')
         .select('id')
         .eq('is_active', true)
-        .single()
+        .maybeSingle()
 
       let result
 
@@ -285,6 +285,7 @@ export class AlexProviderManager {
         return null
       }
 
+      // Use the quiz system encryption approach
       const apiKey = decrypt(provider.api_key_encrypted)
       const config = PROVIDER_CONFIGS[provider.provider_type]
       const baseUrl = provider.base_url || config.baseUrl
