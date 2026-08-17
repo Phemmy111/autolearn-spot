@@ -133,8 +133,7 @@ export async function POST(request: NextRequest) {
         .from('alex_files')
         .select('*')
         .in('id', fileIds)
-        .eq('status', 'ready')
-        .eq('extraction_status', 'completed')
+        .in('status', ['uploaded', 'processing', 'ready']) // Include files in various processing states
       attachedFiles = files || []
       alexLogger.debug('CHAT', 'Attached files retrieved', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
     }
