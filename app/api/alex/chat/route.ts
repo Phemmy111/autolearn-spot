@@ -126,6 +126,14 @@ export async function POST(request: NextRequest) {
       .order('created_at', { ascending: true })
       .limit(20)
 
+    // Get attached files for context (Phase 3A)
+    const { data: attachedFiles } = await supabase
+      .from('alex_files')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .eq('status', 'ready')
+      .eq('extraction_status', 'completed')
+
     // Build conversation history for orchestrator
     const conversationHistory = historyMessages?.map(m => ({
       role: m.role,
@@ -149,6 +157,7 @@ export async function POST(request: NextRequest) {
             userId,
             userEmail,
             userName,
+            attachedFiles: attachedFiles || [],
           })) {
             if (chunk.type === 'orchestrator') {
               // Send orchestrator metadata

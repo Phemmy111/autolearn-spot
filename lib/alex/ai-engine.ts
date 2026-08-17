@@ -6,6 +6,7 @@
  * Phase 2B: Integrated platform context loading
  * Phase 2C: Database-driven provider management with fallback
  * Phase 2D: Request-local provider isolation for concurrency safety
+ * Phase 3A: File/document context integration
  */
 
 import { AlexOrchestrator, OrchestratorRequest, OrchestratorResponse } from './orchestrator';
@@ -14,6 +15,7 @@ import { ProviderManager } from './provider/provider-manager';
 import { AIProvider, AIStreamEvent } from './provider/provider-interface';
 import { PlatformContext } from './context/context-types';
 import { loadPlatformContext } from './context';
+import { AlexFile } from './types';
 
 export class AIEngine {
   private static adminProviderManager: ProviderManager | null = null
@@ -26,6 +28,7 @@ export class AIEngine {
     userId?: string;
     userEmail?: string;
     userName?: string;
+    attachedFiles?: AlexFile[];
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     provider: AIProvider;
@@ -68,6 +71,7 @@ export class AIEngine {
     const orchestratorResponse = await AlexOrchestrator.orchestrate({
       ...request,
       platformContext,
+      attachedFiles: request.attachedFiles,
     });
 
     // Get active provider from registry (request-local)
@@ -92,6 +96,7 @@ export class AIEngine {
     userId?: string;
     userEmail?: string;
     userName?: string;
+    attachedFiles?: AlexFile[];
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -103,7 +108,10 @@ export class AIEngine {
     try {
       console.log('[AI Engine] Starting streamChat')
       // Process through orchestrator
-      const { orchestratorResponse, provider } = await this.processChat(request);
+      const { orchestratorResponse, provider } = await this.processChat({
+        ...request,
+        attachedFiles: request.attachedFiles,
+      });
       console.log('[AI Engine] Orchestrator response received, provider:', provider.id)
 
       yield {

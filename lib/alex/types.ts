@@ -61,3 +61,43 @@ export interface ChatResponse {
   model: string
   tokens: number
 }
+
+// Phase 3A - File System Types
+export interface AlexFile {
+  id: string
+  user_id: string
+  conversation_id: string
+  original_filename: string
+  storage_path: string
+  mime_type: string
+  file_size: number
+  status: 'uploaded' | 'processing' | 'ready' | 'failed'
+  extraction_status: 'pending' | 'completed' | 'failed'
+  extraction_error?: string
+  extracted_text?: string
+  page_count?: number
+  metadata: Record<string, any>
+  created_at: string
+  updated_at: string
+}
+
+export interface FileUploadRequest {
+  conversationId: string
+  file: File
+}
+
+export interface FileUploadResponse {
+  success: boolean
+  file?: AlexFile
+  error?: string
+}
+
+export interface FileExtractionRequest {
+  fileId: string
+}
+
+export interface FileExtractionResponse {
+  success: boolean
+  file?: AlexFile
+  error?: string
+}

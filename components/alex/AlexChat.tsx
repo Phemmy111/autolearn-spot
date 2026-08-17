@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { AlexMessageList } from './AlexMessageList'
 import { AlexInputArea } from './AlexInputArea'
 import { AlexSidebar } from './AlexSidebar'
-import { Message, Conversation } from '@/lib/alex/types'
+import { AlexFileList } from './AlexFileList'
+import { Message, Conversation, AlexFile } from '@/lib/alex/types'
 import { Menu, X, Bot, Plus, Sparkles, Home } from 'lucide-react'
 
 interface AlexChatProps {
@@ -23,6 +24,7 @@ export function AlexChat({ userId }: AlexChatProps) {
   const [isMobile, setIsMobile] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(280)
   const [isResizing, setIsResizing] = useState(false)
+  const [attachedFiles, setAttachedFiles] = useState<AlexFile[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Detect mobile device
@@ -93,13 +95,20 @@ export function AlexChat({ userId }: AlexChatProps) {
           const messagesData = await messagesRes.json()
           setMessages(messagesData.messages || [])
         }
+
+        // Load files
+        const filesRes = await fetch(`/api/alex/files?conversationId=${conversationId}`)
+        if (filesRes.ok) {
+          const filesData = await filesRes.json()
+          setAttachedFiles(filesData.files || [])
+        }
       }
     } catch (error) {
       console.error('Failed to load conversation:', error)
     }
   }
 
-  const sendMessage = async (content: string) => {
+  const sendMessage = async (content: string, files?: File[]) => {
     if (!currentConversation) {
       await startNewConversation()
       return
@@ -121,6 +130,23 @@ export function AlexChat({ userId }: AlexChatProps) {
       created_at: new Date().toISOString(),
     }
     setMessages([...messages, userMessage])
+
+    // Upload files if provided
+    if (files && files.length > 0) {
+      const formData = new FormData()
+      files.forEach(file => formData.append('file', file))
+      formData.append('conversationId', currentConversation.id)
+
+      try {
+        await fetch('/api/alex/files', {
+          method: 'POST',
+          body: formData
+        })
+      } catch (error) {
+        console.error('Failed to upload files:', error)
+        // Continue with message even if file upload fails
+      }
+    }
 
     try {
       const res = await fetch('/api/alex/chat', {
@@ -206,7 +232,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         }
       }
     } catch (error) {
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         console.log('Generation stopped by user')
       } else {
         console.error('Failed to send message:', error)
@@ -253,6 +279,24 @@ export function AlexChat({ userId }: AlexChatProps) {
     // Remove the assistant message and regenerate
     setMessages(prev => prev.slice(0, messageIndex))
     await sendMessage(userMessage.content)
+  }
+
+  const handleRemoveFile = async (fileId: string) => {
+    try {
+      const res = await fetch(`/api/alex/files/${fileId}`, {
+        method: 'DELETE'
+      })
+
+      if (res.ok) {
+        setAttachedFiles(prev => prev.filter(f => f.id !== fileId))
+      } else {
+        const error = await res.json()
+        alert(`Failed to remove file: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Failed to remove file:', error)
+      alert('Failed to remove file')
+    }
   }
 
   // Handle sidebar resize
@@ -376,6 +420,11 @@ export function AlexChat({ userId }: AlexChatProps) {
 
         {/* Messages - Scrollable */}
         <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isMobile ? 'pt-20' : ''}`}>
+          <AlexFileList
+            files={attachedFiles}
+            onRemoveFile={handleRemoveFile}
+            isMobile={isMobile}
+          />
           <AlexMessageList
             messages={messages}
             isLoading={isLoading}
@@ -396,6 +445,7 @@ export function AlexChat({ userId }: AlexChatProps) {
             isMobile={isMobile}
             currentMode={mode}
             onModeChange={setMode}
+            conversationId={currentConversation?.id}
           />
         </div>
       </div>

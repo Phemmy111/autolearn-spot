@@ -1,4 +1,4 @@
-import { AlexMode } from './types'
+import { AlexMode, AlexFile } from './types'
 import { detectIntent } from './intent-detector'
 import { assembleContext } from './context-assembly'
 import { AIRequest, AIMessage } from './provider/provider-interface'
@@ -10,6 +10,7 @@ export interface OrchestratorRequest {
   conversationHistory: Array<{ role: string; content: string }>
   platformContext?: PlatformContext
   userIntent?: string
+  attachedFiles?: AlexFile[]
 }
 
 export interface OrchestratorResponse {
@@ -30,7 +31,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles } = request
 
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
@@ -42,10 +43,11 @@ export class AlexOrchestrator {
       suggestedMode = intentResult.suggestedMode
     }
 
-    // Assemble context with platform context if available
+    // Assemble context with platform context and files if available
     const context = await assembleContext(mode, conversationHistory, {
       platformContext,
       userIntent: userIntent || content,
+      attachedFiles,
     })
 
     // Generate system prompt based on mode
