@@ -101,8 +101,10 @@ export class AIEngine {
     let fallbackAttempted = false
 
     try {
+      console.log('[AI Engine] Starting streamChat')
       // Process through orchestrator
       const { orchestratorResponse, provider } = await this.processChat(request);
+      console.log('[AI Engine] Orchestrator response received, provider:', provider.id)
 
       yield {
         type: 'orchestrator',
@@ -112,9 +114,11 @@ export class AIEngine {
         },
       };
 
+      console.log('[AI Engine] Starting provider stream, supportsStreaming:', provider.supportsStreaming())
       // Stream from provider
       if (provider.supportsStreaming()) {
         for await (const event of provider.stream(orchestratorResponse.aiRequest)) {
+          console.log('[AI Engine] Stream event:', event.type)
           // Track if meaningful content has been emitted
           if (event.type === 'delta' && event.data?.text) {
             hasEmittedContent = true
