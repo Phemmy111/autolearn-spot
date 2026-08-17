@@ -139,11 +139,16 @@ export class OpenAICompatibleAdapter implements AIProvider {
             const data = line.slice(6)
             if (data === '[DONE]') continue
 
+            console.log('[OpenAI Adapter] Received line:', data)
+
             try {
               const parsed = JSON.parse(data)
+              console.log('[OpenAI Adapter] Parsed:', parsed)
               const delta = parsed.choices?.[0]?.delta
+              console.log('[OpenAI Adapter] Delta:', delta)
 
               if (delta?.content) {
+                console.log('[OpenAI Adapter] Yielding delta content:', delta.content)
                 yield { type: 'delta', data: { content: delta.content } }
               }
 
@@ -155,6 +160,7 @@ export class OpenAICompatibleAdapter implements AIProvider {
                 yield { type: 'finish', data: { finishReason: parsed.choices[0].finish_reason } }
               }
             } catch (e) {
+              console.log('[OpenAI Adapter] Parse error:', e)
               // Skip invalid JSON
             }
           }
