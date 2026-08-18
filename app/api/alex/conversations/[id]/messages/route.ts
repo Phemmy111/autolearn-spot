@@ -53,15 +53,55 @@ export async function GET(
           console.log('[DIAGNOSTIC] MESSAGE FILE FETCH', {
             messageId: message.id,
             fileIds: message.file_ids,
-            fileIdsCount: message.file_ids.length
+            fileIdsCount: message.file_ids.length,
+            fileIdsType: typeof message.file_ids
           })
 
-          const { data: files, error: filesError } = await supabase
-            .from('alex_files')
-            .select('*')
-            .in('id', message.file_ids)
+          // Try different approaches for UUID array querying
+          let files = null
+          let filesError = null
 
-          console.log('[DIAGNOSTIC] MESSAGE FILE FETCH RESULT', {
+          // Approach 1: Use .in() with array
+          try {
+            const result = await supabase
+              .from('alex_files')
+              .select('*')
+              .in('id', message.file_ids)
+            files = result.data
+            filesError = result.error
+            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 1 (.in)', {
+              messageId: message.id,
+              filesFound: files?.length || 0,
+              fetchError: filesError?.message
+            })
+          } catch (err) {
+            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 1 EXCEPTION', {
+              messageId: message.id,
+              error: err instanceof Error ? err.message : 'Unknown error'
+            })
+          }
+
+          // Approach 2: Try individual queries if .in() fails
+          if (!files || files.length === 0) {
+            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 (individual queries)')
+            const filePromises = message.file_ids.map(async (fileId) => {
+              const result = await supabase
+                .from('alex_files')
+                .select('*')
+                .eq('id', fileId)
+                .single()
+              return result.data
+            })
+            const individualFiles = await Promise.all(filePromises)
+            files = individualFiles.filter(f => f !== null)
+            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 RESULT', {
+              messageId: message.id,
+              filesFound: files?.length || 0,
+              fileIdsRequested: message.file_ids.length
+            })
+          }
+
+          console.log('[DIAGNOSTIC] MESSAGE FILE FETCH FINAL RESULT', {
             messageId: message.id,
             filesFound: files?.length || 0,
             fetchError: filesError?.message,
