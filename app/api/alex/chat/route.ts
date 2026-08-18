@@ -98,7 +98,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message with file IDs (Phase 3A)
-    console.log('[CHAT] Saving user message with file_ids:', fileIds)
+    console.log('[DIAGNOSTIC] MESSAGE PERSISTENCE START', {
+      conversationId,
+      userId,
+      content,
+      fileIdsPresent: !!fileIds,
+      fileIdsCount: fileIds?.length || 0,
+      fileIds: fileIds || []
+    })
+
     const { data: userMessage, error: userMsgError } = await supabase
       .from('alex_messages')
       .insert({
@@ -109,6 +117,19 @@ export async function POST(request: NextRequest) {
       })
       .select()
       .single()
+
+    console.log('[DIAGNOSTIC] MESSAGE PERSISTENCE RESULT', {
+      insertSuccess: !userMsgError,
+      insertError: userMsgError?.message,
+      messageId: userMessage?.id,
+      persistedFileIds: userMessage?.file_ids,
+      persistedFileIdsCount: userMessage?.file_ids?.length || 0
+    })
+
+    if (userMsgError) {
+      alexLogger.error('CHAT', 'Failed to save user message', { error: userMsgError, userId })
+      return NextResponse.json({ error: 'Failed to save message' }, { status: 500 })
+    }
 
     // Generate title if conversation has default title
     const isDefaultTitle = conversation.title.startsWith('New') || 

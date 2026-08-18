@@ -34,6 +34,13 @@ export async function GET(
       .eq('conversation_id', id)
       .order('created_at', { ascending: true })
 
+    console.log('[DIAGNOSTIC] MESSAGE LOAD START', {
+      conversationId: id,
+      userId,
+      messagesFound: messages?.length || 0,
+      messagesWithFileIds: messages?.filter(m => m.file_ids && m.file_ids.length > 0).length || 0
+    })
+
     if (error) {
       console.error('Error fetching messages:', error)
       return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
@@ -43,15 +50,40 @@ export async function GET(
     const messagesWithFiles = await Promise.all(
       (messages || []).map(async (message) => {
         if (message.file_ids && message.file_ids.length > 0) {
-          const { data: files } = await supabase
+          console.log('[DIAGNOSTIC] MESSAGE FILE FETCH', {
+            messageId: message.id,
+            fileIds: message.file_ids,
+            fileIdsCount: message.file_ids.length
+          })
+
+          const { data: files, error: filesError } = await supabase
             .from('alex_files')
             .select('*')
             .in('id', message.file_ids)
+
+          console.log('[DIAGNOSTIC] MESSAGE FILE FETCH RESULT', {
+            messageId: message.id,
+            filesFound: files?.length || 0,
+            fetchError: filesError?.message,
+            returnedFileIds: files?.map(f => f.id) || []
+          })
+
           return { ...message, attached_files: files || [] }
         }
         return message
       })
     )
+
+    console.log('[DIAGNOSTIC] MESSAGE LOAD COMPLETE', {
+      conversationId: id,
+      totalMessages: messagesWithFiles.length,
+      messagesWithAttachments: messagesWithFiles.filter(m => m.attached_files && m.attached_files.length > 0).length,
+      messageFileIds: messagesWithFiles.map(m => ({
+        id: m.id,
+        fileIds: m.file_ids,
+        attachedFilesCount: m.attached_files?.length || 0
+      }))
+    })
 
     return NextResponse.json({ messages: messagesWithFiles })
   } catch (error) {
