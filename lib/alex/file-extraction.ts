@@ -245,10 +245,32 @@ async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
  */
 async function extractDOCX(buffer: Uint8Array): Promise<ExtractionResult> {
   try {
-    const result = await mammoth.extractRawText({ arrayBuffer: buffer.buffer })
+    console.log('[DIAGNOSTIC] DOCX PARSE START', {
+      bufferSize: buffer.length,
+      bufferType: buffer.constructor.name
+    })
+
+    // Try different buffer formats for mammoth
+    let result
+    try {
+      // Try with ArrayBuffer directly
+      result = await mammoth.extractRawText({ arrayBuffer: buffer.buffer })
+    } catch (bufferError) {
+      console.log('[DIAGNOSTIC] DOCX ArrayBuffer failed, trying Buffer')
+      // Try with Node.js Buffer
+      result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) })
+    }
+
     const text = result.value
-    
+
+    console.log('[DIAGNOSTIC] DOCX PARSE RESULT', {
+      textLength: text.length,
+      textTrimmedLength: text.trim().length,
+      hasText: !!text && text.trim().length > 0
+    })
+
     if (!text || text.trim().length === 0) {
+      console.log('[DIAGNOSTIC] DOCX EXTRACTION FAILED - NO TEXT')
       return {
         success: false,
         text: '',
@@ -269,6 +291,10 @@ async function extractDOCX(buffer: Uint8Array): Promise<ExtractionResult> {
       }
     }
   } catch (error) {
+    console.log('[DIAGNOSTIC] DOCX EXTRACTION EXCEPTION', {
+      error: error instanceof Error ? error.message : 'DOCX extraction failed',
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
+    })
     return {
       success: false,
       text: '',

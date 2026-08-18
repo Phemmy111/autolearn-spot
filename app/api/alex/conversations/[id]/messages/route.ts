@@ -49,12 +49,27 @@ export async function GET(
     // Fetch file details for messages that have file_ids
     const messagesWithFiles = await Promise.all(
       (messages || []).map(async (message) => {
-        if (message.file_ids && message.file_ids.length > 0) {
+        // Normalize file_ids to array regardless of how database returns it
+        let fileIds = message.file_ids
+        if (!fileIds) {
+          fileIds = []
+        } else if (!Array.isArray(fileIds)) {
+          // Handle case where database returns object instead of array
+          console.log('[DIAGNOSTIC] NORMALIZING FILE_IDS FROM OBJECT TO ARRAY', {
+            messageId: message.id,
+            originalType: typeof fileIds,
+            originalValue: JSON.stringify(fileIds)
+          })
+          fileIds = Object.values(fileIds).filter(id => id !== null && id !== undefined)
+        }
+
+        if (fileIds.length > 0) {
           console.log('[DIAGNOSTIC] MESSAGE FILE FETCH', {
             messageId: message.id,
-            fileIds: message.file_ids,
-            fileIdsCount: message.file_ids.length,
-            fileIdsType: typeof message.file_ids
+            fileIds: fileIds,
+            fileIdsCount: fileIds.length,
+            fileIdsType: typeof fileIds,
+            isArray: Array.isArray(fileIds)
           })
 
           // Try different approaches for UUID array querying
@@ -66,7 +81,7 @@ export async function GET(
             const result = await supabase
               .from('alex_files')
               .select('*')
-              .in('id', message.file_ids)
+              .in('id', fileIds)
             files = result.data
             filesError = result.error
             console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 1 (.in)', {
@@ -84,7 +99,7 @@ export async function GET(
           // Approach 2: Try individual queries if .in() fails
           if (!files || files.length === 0) {
             console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 (individual queries)')
-            const filePromises = message.file_ids.map(async (fileId) => {
+            const filePromises = fileIds.map(async (fileId) => {
               const result = await supabase
                 .from('alex_files')
                 .select('*')
@@ -97,7 +112,7 @@ export async function GET(
             console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 RESULT', {
               messageId: message.id,
               filesFound: files?.length || 0,
-              fileIdsRequested: message.file_ids.length
+              fileIdsRequested: fileIds.length
             })
           }
 
