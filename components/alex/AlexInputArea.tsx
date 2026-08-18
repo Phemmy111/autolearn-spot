@@ -23,6 +23,7 @@ interface AttachedFile {
   status: 'uploading' | 'processing' | 'ready' | 'failed'
   error?: string
   extractionStatus?: 'pending' | 'processing' | 'completed' | 'failed'
+  abortController?: AbortController // Track individual abort controller per file
 }
 
 const modes = [
@@ -76,7 +77,7 @@ export function AlexInputArea({
   // Cleanup polling on unmount
   useEffect(() => {
     return () => {
-      // Abort any active polling when component unmounts
+      // Abort all active polling when component unmounts
       activePollingControllersRef.current.forEach(controller => {
         controller.abort()
       })
@@ -278,6 +279,15 @@ export function AlexInputArea({
     const abortController = new AbortController()
     activePollingControllersRef.current.push(abortController)
 
+    // Store the abort controller with the attached file for individual cleanup
+    setAttachedFiles(prev =>
+      prev.map(f =>
+        f.id === attachedFileId
+          ? { ...f, abortController }
+          : f
+      )
+    )
+
     const maxAttempts = 30 // 30 seconds max (1 second intervals)
     const interval = 1000 // 1 second
 
@@ -314,7 +324,8 @@ export function AlexInputArea({
                       ...f,
                       status: data.file.extraction_status === 'completed' ? 'ready' : 'failed',
                       extractionStatus: data.file.extraction_status,
-                      error: data.file.extraction_status === 'failed' ? data.file.extraction_error : undefined
+                      error: data.file.extraction_status === 'failed' ? data.file.extraction_error : undefined,
+                      abortController: undefined // Clean up abort controller when done
                     }
                   : f
               )
@@ -335,7 +346,7 @@ export function AlexInputArea({
       setAttachedFiles(prev =>
         prev.map(f =>
           f.id === attachedFileId
-            ? { ...f, status: 'failed', error: 'Extraction timed out' }
+            ? { ...f, status: 'failed', error: 'Extraction timed out', abortController: undefined }
             : f
         )
       )
@@ -348,14 +359,18 @@ export function AlexInputArea({
   }
 
   const removeAttachment = (id: string) => {
-    // Abort all active polling when any file is removed
-    // This is a simple approach that prevents stale polling
-    activePollingControllersRef.current.forEach(controller => {
-      controller.abort()
+    // Only abort the specific file's polling controller
+    setAttachedFiles(prev => {
+      const fileToRemove = prev.find(f => f.id === id)
+      if (fileToRemove?.abortController) {
+        fileToRemove.abortController.abort()
+        // Clean up the abort controller from the ref
+        activePollingControllersRef.current = activePollingControllersRef.current.filter(
+          controller => controller !== fileToRemove.abortController
+        )
+      }
+      return prev.filter(f => f.id !== id)
     })
-    activePollingControllersRef.current = []
-
-    setAttachedFiles(prev => prev.filter(f => f.id !== id))
   }
 
   const handleVoiceInput = () => {
