@@ -121,12 +121,19 @@ export function AlexChat({ userId }: AlexChatProps) {
     const controller = new AbortController()
     setAbortController(controller)
 
-    // Add user message to UI immediately
+    // Find matching AlexFile objects for the file IDs
+    const attachedFilesForMessage = fileIds
+      ? attachedFiles.filter(f => fileIds.includes(f.id))
+      : []
+
+    // Add user message to UI immediately with attachment metadata
     const userMessage: Message = {
       id: crypto.randomUUID(),
       conversation_id: currentConversation.id,
       role: 'user',
       content,
+      file_ids: fileIds || [],
+      attached_files: attachedFilesForMessage,
       created_at: new Date().toISOString(),
     }
     setMessages([...messages, userMessage])
@@ -268,9 +275,9 @@ export function AlexChat({ userId }: AlexChatProps) {
     const userMessage = messages[messageIndex - 1]
     if (userMessage.role !== 'user') return
 
-    // Remove the assistant message and regenerate
+    // Remove the assistant message and regenerate with original file attachments
     setMessages(prev => prev.slice(0, messageIndex))
-    await sendMessage(userMessage.content)
+    await sendMessage(userMessage.content, userMessage.file_ids)
   }
 
   const handleRemoveFile = async (fileId: string) => {
