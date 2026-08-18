@@ -69,12 +69,27 @@ export async function GET(
             fileIds: fileIds,
             fileIdsCount: fileIds.length,
             fileIdsType: typeof fileIds,
-            isArray: Array.isArray(fileIds)
+            isArray: Array.isArray(fileIds),
+            fileIdsSample: fileIds.slice(0, 2)
           })
 
           // Try different approaches for UUID array querying
           let files = null
           let filesError = null
+
+          // DEBUG: First check if files exist by querying all files in conversation
+          const { data: allConvFiles, error: allConvError } = await supabase
+            .from('alex_files')
+            .select('id, original_filename')
+            .eq('conversation_id', id)
+
+          console.log('[DIAGNOSTIC] ALL CONVERSATION FILES', {
+            conversationId: id,
+            allFilesCount: allConvFiles?.length || 0,
+            allFileIds: allConvFiles?.map(f => f.id) || [],
+            allFilenames: allConvFiles?.map(f => f.original_filename) || [],
+            allError: allConvError?.message
+          })
 
           // Approach 1: Use .in() with array
           try {
@@ -87,7 +102,9 @@ export async function GET(
             console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 1 (.in)', {
               messageId: message.id,
               filesFound: files?.length || 0,
-              fetchError: filesError?.message
+              fetchError: filesError?.message,
+              requestedIds: fileIds,
+              foundIds: files?.map(f => f.id) || []
             })
           } catch (err) {
             console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 1 EXCEPTION', {
@@ -105,6 +122,11 @@ export async function GET(
                 .select('*')
                 .eq('id', fileId)
                 .single()
+              console.log('[DIAGNOSTIC] INDIVIDUAL FILE QUERY', {
+                fileId,
+                found: !!result.data,
+                error: result.error?.message
+              })
               return result.data
             })
             const individualFiles = await Promise.all(filePromises)
@@ -112,7 +134,8 @@ export async function GET(
             console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 RESULT', {
               messageId: message.id,
               filesFound: files?.length || 0,
-              fileIdsRequested: fileIds.length
+              fileIdsRequested: fileIds.length,
+              individualFileIds: files?.map(f => f.id) || []
             })
           }
 
@@ -120,6 +143,7 @@ export async function GET(
             messageId: message.id,
             filesFound: files?.length || 0,
             fetchError: filesError?.message,
+            requestedFileIds: fileIds,
             returnedFileIds: files?.map(f => f.id) || []
           })
 
