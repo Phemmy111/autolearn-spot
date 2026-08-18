@@ -36,6 +36,11 @@ export async function assembleContext(
 
   // Add file context if available (Phase 3A)
   if (options?.attachedFiles && options.attachedFiles.length > 0) {
+    console.log('[DIAGNOSTIC] CONTEXT ASSEMBLY START', {
+      filesCount: options.attachedFiles.length,
+      fileIds: options.attachedFiles.map(f => f.id),
+      filenames: options.attachedFiles.map(f => f.original_filename)
+    })
     console.log('[Context Assembly] Processing attached files:', options.attachedFiles.length)
     console.log('[Context Assembly] File details:', options.attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })))
 
@@ -84,10 +89,16 @@ export async function assembleContext(
       }
 
       context += '\n[End of attached documents]\n'
+      console.log('[DIAGNOSTIC] CONTEXT ASSEMBLY COMPLETE', {
+        totalContextLength: context.length,
+        fileContextIncluded: context.includes('Attached Documents'),
+        firstChars: context.substring(0, 200)
+      })
       console.log('[Context Assembly] File context generated, length:', context.length)
       console.log('[Context Assembly] File context preview:', context.substring(0, 500))
     }
   } else {
+    console.log('[DIAGNOSTIC] CONTEXT ASSEMBLY - NO FILES')
     console.log('[Context Assembly] No attached files provided')
   }
 

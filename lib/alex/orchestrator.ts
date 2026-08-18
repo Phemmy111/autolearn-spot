@@ -59,6 +59,17 @@ export class AlexOrchestrator {
       stream: true, // Default to streaming
     }
 
+    console.log('[DIAGNOSTIC] ORCHESTRATOR OUTPUT', {
+      messagesCount: aiRequest.messages.length,
+      contextLength: context.length,
+      hasFileContext: context.includes('Attached Documents'),
+      contextPreview: context.substring(0, 300),
+      messagesPreview: aiRequest.messages.map(m => ({
+        role: m.role,
+        contentLength: m.content?.length || 0,
+        contentPreview: m.content?.substring(0, 100) || ''
+      }))
+    })
     console.log('[Orchestrator] AI Request messages count:', aiRequest.messages.length)
     console.log('[Orchestrator] Context length:', context.length)
     console.log('[Orchestrator] Has file context:', context.includes('Attached Documents'))

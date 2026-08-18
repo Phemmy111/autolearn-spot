@@ -107,12 +107,24 @@ export class AIEngine {
     let constructedMessages: AIMessage[] | null = null
 
     try {
+      console.log('[DIAGNOSTIC] AI ENGINE START', {
+        hasAttachedFiles: !!request.attachedFiles,
+        attachedFilesCount: request.attachedFiles?.length || 0,
+        attachedFileIds: request.attachedFiles?.map(f => f.id) || []
+      })
       console.log('[AI Engine] Starting streamChat')
       // Process through orchestrator
       const { orchestratorResponse, provider } = await this.processChat({
         ...request,
         attachedFiles: request.attachedFiles,
       });
+      console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {
+        providerId: provider.id,
+        orchestratorMessagesCount: orchestratorResponse.aiRequest.messages.length,
+        orchestratorHasFileContext: orchestratorResponse.aiRequest.messages.some(m =>
+          m.content?.includes('Attached Documents') || m.content?.includes('ALPHA-7391')
+        )
+      })
       console.log('[AI Engine] Orchestrator response received, provider:', provider.id)
 
       // Preserve constructed messages for potential fallback

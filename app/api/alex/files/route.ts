@@ -64,6 +64,15 @@ export async function POST(request: Request) {
     const fileExt = file.name.split('.').pop()
     const storagePath = `alex/${userId}/${conversationId}/${fileId}/${file.name}`
 
+    console.log('[DIAGNOSTIC] UPLOAD START', {
+      fileId,
+      filename: file.name,
+      userId,
+      conversationId,
+      fileSize: file.size,
+      mimeType: file.type
+    })
+
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('alex-files')
@@ -71,6 +80,13 @@ export async function POST(request: Request) {
         upsert: false,
         contentType: file.type
       })
+
+    console.log('[DIAGNOSTIC] STORAGE UPLOAD', {
+      fileId,
+      storagePath,
+      uploadSuccess: !uploadError,
+      uploadError: uploadError?.message
+    })
 
     if (uploadError) {
       console.error('Supabase storage error:', uploadError)
@@ -97,6 +113,15 @@ export async function POST(request: Request) {
       })
       .select()
       .single()
+
+    console.log('[DIAGNOSTIC] DATABASE INSERT', {
+      fileId,
+      dbSuccess: !dbError,
+      dbError: dbError?.message,
+      recordId: fileRecord?.id,
+      initialStatus: fileRecord?.status,
+      initialExtractionStatus: fileRecord?.extraction_status
+    })
 
     if (dbError) {
       console.error('Database error:', dbError)
@@ -185,22 +210,32 @@ export async function GET(request: Request) {
 // Non-blocking text extraction trigger
 async function triggerExtraction(fileId: string, file: File) {
   try {
-    console.log('[Files Route] Starting extraction for file:', fileId, file.name)
+    console.log('[DIAGNOSTIC] EXTRACTION START', {
+      fileId,
+      filename: file.name,
+      fileSize: file.size,
+      mimeType: file.type
+    })
 
     // Extract text
     const extraction = await extractTextFromFile(file)
 
-    console.log('[Files Route] Extraction result:', {
+    console.log('[DIAGNOSTIC] EXTRACTION RESULT', {
+      fileId,
       success: extraction.success,
       textLength: extraction.text.length,
       metadata: extraction.metadata,
-      error: extraction.error
+      error: extraction.error,
+      isMeaningful: isMeaningfulText(extraction.text)
     })
 
     if (extraction.success && isMeaningfulText(extraction.text)) {
       const sanitizedText = sanitizeExtractedText(extraction.text)
 
-      console.log('[Files Route] Text is meaningful, updating file with extracted text')
+      console.log('[DIAGNOSTIC] TEXT PERSISTENCE START', {
+        fileId,
+        sanitizedTextLength: sanitizedText.length
+      })
 
       // First persist the extracted text
       const { error: updateError } = await supabase
@@ -214,6 +249,12 @@ async function triggerExtraction(fileId: string, file: File) {
           }
         })
         .eq('id', fileId)
+
+      console.log('[DIAGNOSTIC] TEXT PERSISTENCE RESULT', {
+        fileId,
+        persistenceSuccess: !updateError,
+        persistenceError: updateError?.message
+      })
 
       if (updateError) {
         console.error('[Files Route] Failed to persist extracted text:', updateError)
@@ -238,9 +279,16 @@ async function triggerExtraction(fileId: string, file: File) {
         })
         .eq('id', fileId)
 
-      console.log('[Files Route] File marked as ready with extracted text')
+      console.log('[DIAGNOSTIC] FILE MARKED READY', {
+        fileId,
+        finalStatus: 'ready',
+        finalExtractionStatus: 'completed'
+      })
     } else {
-      console.log('[Files Route] Extraction failed or text not meaningful')
+      console.log('[DIAGNOSTIC] EXTRACTION FAILED', {
+        fileId,
+        reason: extraction.error || 'Text not meaningful'
+      })
 
       await supabase
         .from('alex_files')
@@ -252,7 +300,10 @@ async function triggerExtraction(fileId: string, file: File) {
         .eq('id', fileId)
     }
   } catch (error) {
-    console.error('[Files Route] Extraction error for file', fileId, error)
+    console.error('[DIAGNOSTIC] EXTRACTION EXCEPTION', {
+      fileId,
+      error: error instanceof Error ? error.message : 'Unknown extraction error'
+    })
     await supabase
       .from('alex_files')
       .update({

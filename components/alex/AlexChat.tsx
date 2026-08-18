@@ -139,6 +139,17 @@ export function AlexChat({ userId }: AlexChatProps) {
     setMessages([...messages, userMessage])
 
     try {
+      console.log('[DIAGNOSTIC] FRONTEND CHAT REQUEST', {
+        conversationId: currentConversation.id,
+        content,
+        mode,
+        fileIdsPresent: !!fileIds,
+        fileIdsCount: fileIds?.length || 0,
+        fileIds: fileIds || [],
+        attachedFilesForMessageCount: attachedFilesForMessage.length,
+        attachedFilesForMessageIds: attachedFilesForMessage.map(f => f.id)
+      })
+
       const res = await fetch('/api/alex/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

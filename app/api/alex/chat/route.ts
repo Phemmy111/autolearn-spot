@@ -66,6 +66,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { conversationId, content, mode, fileIds } = body
 
+    console.log('[DIAGNOSTIC] CHAT REQUEST START', {
+      conversationId,
+      mode,
+      fileIdsPresent: !!fileIds,
+      fileIdsCount: fileIds?.length || 0,
+      fileIds: fileIds || [],
+      contentPreview: content.substring(0, 100)
+    })
+
     alexLogger.debug('CHAT', 'Request received', { conversationId, mode, fileIds })
 
     if (!conversationId || !content || !mode) {
@@ -145,7 +154,11 @@ export async function POST(request: NextRequest) {
     // Get attached files for context (Phase 3A)
     let attachedFiles: any[] = []
     if (fileIds && fileIds.length > 0) {
-      console.log('[CHAT] Fetching files with IDs:', fileIds)
+      console.log('[DIAGNOSTIC] CHAT FILE FETCH START', {
+        fileIds,
+        userId,
+        conversationId
+      })
 
       // Fetch files with user ownership check
       const { data: files, error: filesError } = await supabase
@@ -154,12 +167,21 @@ export async function POST(request: NextRequest) {
         .in('id', fileIds)
         .eq('user_id', userId)
 
+      console.log('[DIAGNOSTIC] CHAT FILE FETCH RESULT', {
+        fileIds,
+        fetchSuccess: !filesError,
+        fetchError: filesError?.message,
+        filesFound: files?.length || 0,
+        fileIdsRequested: fileIds.length
+      })
+
       if (filesError) {
         console.error('[CHAT] Error fetching files:', filesError)
         return NextResponse.json({ error: 'Failed to fetch attached files' }, { status: 500 })
       }
 
       if (!files || files.length === 0) {
+        console.log('[DIAGNOSTIC] CHAT FILE FETCH FAILED - NO FILES FOUND')
         return NextResponse.json({ error: 'Attached files not found or access denied' }, { status: 404 })
       }
 
@@ -169,6 +191,18 @@ export async function POST(request: NextRequest) {
         !f.extracted_text ||
         f.extracted_text.trim().length === 0
       )
+
+      console.log('[DIAGNOSTIC] CHAT FILE VALIDATION', {
+        totalFiles: files.length,
+        notReadyFiles: notReadyFiles.length,
+        filesStatus: files.map(f => ({
+          id: f.id,
+          filename: f.original_filename,
+          extraction_status: f.extraction_status,
+          has_text: !!f.extracted_text,
+          text_length: f.extracted_text?.length
+        }))
+      })
 
       if (notReadyFiles.length > 0) {
         const failedFiles = notReadyFiles.filter(f => f.extraction_status === 'failed')
@@ -190,6 +224,11 @@ export async function POST(request: NextRequest) {
       }
 
       attachedFiles = files
+      console.log('[DIAGNOSTIC] CHAT FILES VALIDATED', {
+        attachedFilesCount: attachedFiles.length,
+        fileIds: attachedFiles.map(f => f.id),
+        filenames: attachedFiles.map(f => f.original_filename)
+      })
       console.log('[CHAT] All files validated and ready for context')
       console.log('[CHAT] File details:', attachedFiles.map(f => ({ id: f.id, original_filename: f.original_filename, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text, text_length: f.extracted_text?.length })))
       alexLogger.debug('CHAT', 'Attached files validated', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
