@@ -56,26 +56,28 @@ export async function assembleContext(
       // Generate bounded context from files
       // For Phase 3A, use simple strategy: include summaries and limited content
       const maxTotalChars = 10000 // 10K character limit for file context
-      
+
       let totalChars = 0
       for (const file of readyFiles) {
         if (totalChars >= maxTotalChars) break
-        
+
         if (file.extracted_text) {
           const summary = generateFileSummary(file.extracted_text, file.original_filename)
           const remainingChars = maxTotalChars - totalChars
           const content = file.extracted_text.substring(0, remainingChars)
-          
+
           context += `\n--- ${file.original_filename} ---\n`
           context += summary + '\n'
           context += '\nContent:\n' + content + '\n'
-          
+
           totalChars += summary.length + content.length
+          console.log('[Context Assembly] Added file to context:', file.original_filename, 'chars:', summary.length + content.length)
         }
       }
-      
+
       context += '\n[End of attached documents]\n'
       console.log('[Context Assembly] File context generated, length:', context.length)
+      console.log('[Context Assembly] File context preview:', context.substring(0, 500))
     } else {
       console.log('[Context Assembly] No ready files with extracted text found')
     }

@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message with file IDs (Phase 3A)
+    console.log('[CHAT] Saving user message with file_ids:', fileIds)
     const { data: userMessage, error: userMsgError } = await supabase
       .from('alex_messages')
       .insert({
