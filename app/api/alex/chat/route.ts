@@ -147,38 +147,52 @@ export async function POST(request: NextRequest) {
     if (fileIds && fileIds.length > 0) {
       console.log('[CHAT] Fetching files with IDs:', fileIds)
 
-      // Wait for file extraction to complete (max 10 seconds)
-      const maxRetries = 10
-      const retryDelay = 1000 // 1 second
+      // Fetch files with user ownership check
+      const { data: files, error: filesError } = await supabase
+        .from('alex_files')
+        .select('*')
+        .in('id', fileIds)
+        .eq('user_id', userId)
 
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        const { data: files } = await supabase
-          .from('alex_files')
-          .select('*')
-          .in('id', fileIds)
+      if (filesError) {
+        console.error('[CHAT] Error fetching files:', filesError)
+        return NextResponse.json({ error: 'Failed to fetch attached files' }, { status: 500 })
+      }
 
-        const pendingFiles = files?.filter(f => f.extraction_status !== 'completed' || !f.extracted_text)
+      if (!files || files.length === 0) {
+        return NextResponse.json({ error: 'Attached files not found or access denied' }, { status: 404 })
+      }
 
-        if (!pendingFiles || pendingFiles.length === 0) {
-          attachedFiles = files || []
-          console.log('[CHAT] All files ready for context')
-          break
+      // Validate that all files are ready and have extracted text
+      const notReadyFiles = files.filter(f =>
+        f.extraction_status !== 'completed' ||
+        !f.extracted_text ||
+        f.extracted_text.trim().length === 0
+      )
+
+      if (notReadyFiles.length > 0) {
+        const failedFiles = notReadyFiles.filter(f => f.extraction_status === 'failed')
+        const processingFiles = notReadyFiles.filter(f => f.extraction_status !== 'failed')
+
+        if (failedFiles.length > 0) {
+          return NextResponse.json({
+            error: 'Some attached files failed to process',
+            failedFiles: failedFiles.map(f => f.original_filename)
+          }, { status: 400 })
         }
 
-        console.log(`[CHAT] Waiting for extraction: ${pendingFiles.length} files still processing (attempt ${attempt + 1}/${maxRetries})`)
-
-        if (attempt < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, retryDelay))
-        } else {
-          // Use whatever we have after max retries
-          attachedFiles = files || []
-          console.log('[CHAT] Max retries reached, using files with partial extraction')
+        if (processingFiles.length > 0) {
+          return NextResponse.json({
+            error: 'Some attached files are still processing',
+            processingFiles: processingFiles.map(f => f.original_filename)
+          }, { status: 400 })
         }
       }
 
-      console.log('[CHAT] Files retrieved from database:', attachedFiles.length)
+      attachedFiles = files
+      console.log('[CHAT] All files validated and ready for context')
       console.log('[CHAT] File details:', attachedFiles.map(f => ({ id: f.id, original_filename: f.original_filename, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text, text_length: f.extracted_text?.length })))
-      alexLogger.debug('CHAT', 'Attached files retrieved', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
+      alexLogger.debug('CHAT', 'Attached files validated', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
     }
 
     // Build conversation history for orchestrator

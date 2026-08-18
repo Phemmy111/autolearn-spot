@@ -19,6 +19,41 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
 
+// GET /api/alex/files/[id] - Get a single file by ID
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { id } = await params
+
+    // Get file with user ownership check
+    const { data: file, error: fileError } = await supabase
+      .from('alex_files')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single()
+
+    if (fileError || !file) {
+      return NextResponse.json({ error: 'File not found or access denied' }, { status: 404 })
+    }
+
+    return NextResponse.json({ file })
+  } catch (error: any) {
+    console.error('Error fetching file:', error)
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
 // DELETE /api/alex/files/[id] - Delete a file
 export async function DELETE(
   request: Request,

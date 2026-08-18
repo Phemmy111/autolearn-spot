@@ -22,6 +22,7 @@ interface AttachedFile {
   uploadedFileId?: string // The actual file ID from server after upload
   status: 'uploading' | 'processing' | 'ready' | 'failed'
   error?: string
+  extractionStatus?: 'pending' | 'processing' | 'completed' | 'failed'
 }
 
 const modes = [
@@ -53,6 +54,7 @@ export function AlexInputArea({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([])
   const [showFileSelector, setShowFileSelector] = useState(false)
+  const activePollingControllersRef = useRef<AbortController[]>([])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -70,6 +72,17 @@ export function AlexInputArea({
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showModeDropdown])
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      // Abort any active polling when component unmounts
+      activePollingControllersRef.current.forEach(controller => {
+        controller.abort()
+      })
+      activePollingControllersRef.current = []
+    }
+  }, []) // Empty dependency array - only run on unmount
 
   // Auto-grow textarea with mobile keyboard handling
   useEffect(() => {
@@ -130,7 +143,24 @@ export function AlexInputArea({
 
   const handleSend = () => {
     if (content.trim() && !isLoading && !isGenerating) {
-      const fileIds = attachedFiles.filter(f => f.uploadedFileId).map(f => f.uploadedFileId!)
+      // Check if any attached files are not ready
+      const notReadyFiles = attachedFiles.filter(f => f.status !== 'ready')
+      if (notReadyFiles.length > 0) {
+        const processingFiles = notReadyFiles.filter(f => f.status === 'processing')
+        const failedFiles = notReadyFiles.filter(f => f.status === 'failed')
+
+        if (processingFiles.length > 0) {
+          alert('Please wait for file processing to complete before sending.')
+          return
+        }
+
+        if (failedFiles.length > 0) {
+          alert('Some files failed to process. Please remove them and try again.')
+          return
+        }
+      }
+
+      const fileIds = attachedFiles.filter(f => f.uploadedFileId && f.status === 'ready').map(f => f.uploadedFileId!)
       console.log('[AlexInputArea] Sending message with file IDs:', fileIds)
       console.log('[AlexInputArea] Attached files state:', attachedFiles.map(f => ({ id: f.id, uploadedFileId: f.uploadedFileId, status: f.status })))
       onSendMessage(content.trim(), fileIds)
@@ -195,14 +225,29 @@ export function AlexInputArea({
       console.log('[AlexInputArea] Upload response:', data)
 
       if (data.success) {
-        console.log('[AlexInputArea] Upload successful, file ID:', data.file.id)
+        console.log('[AlexInputArea] Upload successful, file ID:', data.file.id, 'extraction_status:', data.file.extraction_status)
+
+        // Set status based on actual extraction state from server
+        const newStatus = data.file.extraction_status === 'completed' ? 'ready' : 'processing'
+
         setAttachedFiles(prev =>
           prev.map(f =>
             f.id === attachedFile.id
-              ? { ...f, status: 'ready', uploadedFileId: data.file.id }
+              ? {
+                  ...f,
+                  status: newStatus,
+                  uploadedFileId: data.file.id,
+                  extractionStatus: data.file.extraction_status
+                }
               : f
           )
         )
+
+        // Start polling for extraction completion if not ready
+        if (newStatus === 'processing') {
+          pollForExtractionCompletion(data.file.id, attachedFile.id)
+        }
+
         // Notify parent to reload files from database
         if (onFileUploaded) {
           onFileUploaded()
@@ -229,7 +274,87 @@ export function AlexInputArea({
     }
   }
 
+  const pollForExtractionCompletion = async (fileId: string, attachedFileId: string) => {
+    const abortController = new AbortController()
+    activePollingControllersRef.current.push(abortController)
+
+    const maxAttempts = 30 // 30 seconds max (1 second intervals)
+    const interval = 1000 // 1 second
+
+    try {
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        // Check if polling was aborted
+        if (abortController.signal.aborted) {
+          console.log('[AlexInputArea] Polling aborted for file:', fileId)
+          return
+        }
+
+        await new Promise(resolve => setTimeout(resolve, interval))
+
+        // Check again after delay
+        if (abortController.signal.aborted) {
+          console.log('[AlexInputArea] Polling aborted for file:', fileId)
+          return
+        }
+
+        try {
+          const response = await fetch(`/api/alex/files/${fileId}`, {
+            signal: abortController.signal
+          })
+          if (!response.ok) continue
+
+          const data = await response.json()
+          if (data.file && (data.file.extraction_status === 'completed' || data.file.extraction_status === 'failed')) {
+            console.log('[AlexInputArea] Extraction completed for file:', fileId, 'status:', data.file.extraction_status)
+
+            setAttachedFiles(prev =>
+              prev.map(f =>
+                f.id === attachedFileId
+                  ? {
+                      ...f,
+                      status: data.file.extraction_status === 'completed' ? 'ready' : 'failed',
+                      extractionStatus: data.file.extraction_status,
+                      error: data.file.extraction_status === 'failed' ? data.file.extraction_error : undefined
+                    }
+                  : f
+              )
+            )
+            return
+          }
+        } catch (error) {
+          if (error.name === 'AbortError') {
+            console.log('[AlexInputArea] Polling aborted for file:', fileId)
+            return
+          }
+          console.error('[AlexInputArea] Error polling extraction status:', error)
+        }
+      }
+
+      // Timeout - mark as failed
+      console.log('[AlexInputArea] Extraction timeout for file:', fileId)
+      setAttachedFiles(prev =>
+        prev.map(f =>
+          f.id === attachedFileId
+            ? { ...f, status: 'failed', error: 'Extraction timed out' }
+            : f
+        )
+      )
+    } finally {
+      // Clean up abort controller from ref
+      activePollingControllersRef.current = activePollingControllersRef.current.filter(
+        controller => controller !== abortController
+      )
+    }
+  }
+
   const removeAttachment = (id: string) => {
+    // Abort all active polling when any file is removed
+    // This is a simple approach that prevents stale polling
+    activePollingControllersRef.current.forEach(controller => {
+      controller.abort()
+    })
+    activePollingControllersRef.current = []
+
     setAttachedFiles(prev => prev.filter(f => f.id !== id))
   }
 
@@ -272,6 +397,9 @@ export function AlexInputArea({
                 </span>
                 {attachedFile.status === 'uploading' && (
                   <Loader2 className="h-4 w-4 text-cyan-400 animate-spin" />
+                )}
+                {attachedFile.status === 'processing' && (
+                  <Loader2 className="h-4 w-4 text-yellow-400 animate-spin" />
                 )}
                 {attachedFile.status === 'ready' && (
                   <CheckCircle className="h-4 w-4 text-green-400" />
@@ -422,7 +550,9 @@ export function AlexInputArea({
               onClick={handleSend}
               disabled={!content.trim() || isLoading || attachedFiles.some(f => f.status !== 'ready' || !f.uploadedFileId)}
               className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                content.trim() && !isLoading && !attachedFiles.some(f => f.status !== 'ready')
+                content.trim() && !isLoading && attachedFiles.length > 0 && attachedFiles.every(f => f.status === 'ready' && f.uploadedFileId)
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/20'
+                  : content.trim() && !isLoading && attachedFiles.length === 0
                   ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-lg shadow-cyan-500/20'
                   : 'bg-slate-700 text-slate-500 cursor-not-allowed'
               }`}

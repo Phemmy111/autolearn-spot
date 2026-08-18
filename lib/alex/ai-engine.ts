@@ -12,7 +12,7 @@
 import { AlexOrchestrator, OrchestratorRequest, OrchestratorResponse } from './orchestrator';
 import { ProviderRegistry } from './provider/provider-registry';
 import { ProviderManager } from './provider/provider-manager';
-import { AIProvider, AIStreamEvent } from './provider/provider-interface';
+import { AIProvider, AIStreamEvent, AIMessage } from './provider/provider-interface';
 import { PlatformContext } from './context/context-types';
 import { loadPlatformContext } from './context';
 import { AlexFile } from './types';
@@ -104,6 +104,7 @@ export class AIEngine {
     let hasEmittedContent = false
     let streamError: Error | null = null
     let fallbackAttempted = false
+    let constructedMessages: AIMessage[] | null = null
 
     try {
       console.log('[AI Engine] Starting streamChat')
@@ -113,6 +114,9 @@ export class AIEngine {
         attachedFiles: request.attachedFiles,
       });
       console.log('[AI Engine] Orchestrator response received, provider:', provider.id)
+
+      // Preserve constructed messages for potential fallback
+      constructedMessages = orchestratorResponse.aiRequest.messages
 
       yield {
         type: 'orchestrator',
@@ -182,10 +186,15 @@ export class AIEngine {
         try {
           const registry = new ProviderRegistry()
           const providerManager = new ProviderManager(registry)
-          
+
+          // Use the preserved constructed messages to maintain file context in fallback
+          const messagesForFallback = constructedMessages || [{ role: 'user', content: request.content }]
+
+          console.log('[AI Engine] Attempting fallback with preserved messages:', messagesForFallback.length)
+
           // Stream with fallback through ProviderManager
           for await (const event of providerManager.executeStreamingWithFallback({
-            messages: request.messages || [{ role: 'user', content: request.content }],
+            messages: messagesForFallback,
             model: request.model,
             temperature: request.temperature,
             maxTokens: request.maxTokens,
@@ -207,7 +216,7 @@ export class AIEngine {
             type: 'stream',
             data: {
               type: 'error',
-              data: { 
+              data: {
                 error: streamError.message,
                 fallbackFailed: true,
               },

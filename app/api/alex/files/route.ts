@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: uploadError.message }, { status: 500 })
     }
 
-    // Create database record
+    // Create database record with processing status
     const { data: fileRecord, error: dbError } = await supabase
       .from('alex_files')
       .insert({
@@ -87,8 +87,8 @@ export async function POST(request: Request) {
         storage_path: storagePath,
         mime_type: file.type,
         file_size: file.size,
-        status: 'uploaded',
-        extraction_status: 'pending',
+        status: 'processing',
+        extraction_status: 'processing',
         metadata: {
           fileName: file.name,
           fileType: file.type,
@@ -107,15 +107,18 @@ export async function POST(request: Request) {
 
     // Trigger text extraction (non-blocking)
     // In production, this would go to a queue/job system
+    // Extraction happens asynchronously - the response will show 'processing' status
     triggerExtraction(fileRecord.id, file)
 
-    console.log('[Files Route] File upload successful', {
+    console.log('[Files Route] File upload successful, extraction started', {
       fileId: fileRecord.id,
       filename: file.name,
       status: fileRecord.status,
       extraction_status: fileRecord.extraction_status
     })
 
+    // Return the file record with accurate extraction state
+    // The client must check extraction_status === 'completed' before considering the file ready
     return NextResponse.json({
       success: true,
       file: fileRecord
@@ -184,17 +187,6 @@ async function triggerExtraction(fileId: string, file: File) {
   try {
     console.log('[Files Route] Starting extraction for file:', fileId, file.name)
 
-    // Update status to processing
-    await supabase
-      .from('alex_files')
-      .update({
-        status: 'processing',
-        extraction_status: 'processing'
-      })
-      .eq('id', fileId)
-
-    console.log('[Files Route] File status updated to processing')
-
     // Extract text
     const extraction = await extractTextFromFile(file)
 
@@ -210,11 +202,10 @@ async function triggerExtraction(fileId: string, file: File) {
 
       console.log('[Files Route] Text is meaningful, updating file with extracted text')
 
-      await supabase
+      // First persist the extracted text
+      const { error: updateError } = await supabase
         .from('alex_files')
         .update({
-          status: 'ready',
-          extraction_status: 'completed',
           extracted_text: sanitizedText,
           page_count: extraction.metadata.pageCount,
           metadata: {
@@ -224,7 +215,30 @@ async function triggerExtraction(fileId: string, file: File) {
         })
         .eq('id', fileId)
 
-      console.log('[Files Route] File updated successfully with extracted text')
+      if (updateError) {
+        console.error('[Files Route] Failed to persist extracted text:', updateError)
+        // Mark as failed if text persistence fails
+        await supabase
+          .from('alex_files')
+          .update({
+            status: 'failed',
+            extraction_status: 'failed',
+            extraction_error: 'Failed to persist extracted text'
+          })
+          .eq('id', fileId)
+        return
+      }
+
+      // Only mark as ready after text is successfully persisted
+      await supabase
+        .from('alex_files')
+        .update({
+          status: 'ready',
+          extraction_status: 'completed'
+        })
+        .eq('id', fileId)
+
+      console.log('[Files Route] File marked as ready with extracted text')
     } else {
       console.log('[Files Route] Extraction failed or text not meaningful')
 
