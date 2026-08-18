@@ -145,11 +145,39 @@ export async function POST(request: NextRequest) {
     // Get attached files for context (Phase 3A)
     let attachedFiles: any[] = []
     if (fileIds && fileIds.length > 0) {
-      const { data: files } = await supabase
-        .from('alex_files')
-        .select('*')
-        .in('id', fileIds)
-      attachedFiles = files || []
+      console.log('[CHAT] Fetching files with IDs:', fileIds)
+
+      // Wait for file extraction to complete (max 10 seconds)
+      const maxRetries = 10
+      const retryDelay = 1000 // 1 second
+
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const { data: files } = await supabase
+          .from('alex_files')
+          .select('*')
+          .in('id', fileIds)
+
+        const pendingFiles = files?.filter(f => f.extraction_status !== 'completed' || !f.extracted_text)
+
+        if (!pendingFiles || pendingFiles.length === 0) {
+          attachedFiles = files || []
+          console.log('[CHAT] All files ready for context')
+          break
+        }
+
+        console.log(`[CHAT] Waiting for extraction: ${pendingFiles.length} files still processing (attempt ${attempt + 1}/${maxRetries})`)
+
+        if (attempt < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, retryDelay))
+        } else {
+          // Use whatever we have after max retries
+          attachedFiles = files || []
+          console.log('[CHAT] Max retries reached, using files with partial extraction')
+        }
+      }
+
+      console.log('[CHAT] Files retrieved from database:', attachedFiles.length)
+      console.log('[CHAT] File details:', attachedFiles.map(f => ({ id: f.id, original_filename: f.original_filename, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text, text_length: f.extracted_text?.length })))
       alexLogger.debug('CHAT', 'Attached files retrieved', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
     }
 

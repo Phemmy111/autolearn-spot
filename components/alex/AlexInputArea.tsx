@@ -130,7 +130,7 @@ export function AlexInputArea({
 
   const handleSend = () => {
     if (content.trim() && !isLoading && !isGenerating) {
-      const fileIds = attachedFiles.filter(f => f.status === 'ready' && f.uploadedFileId).map(f => f.uploadedFileId!)
+      const fileIds = attachedFiles.filter(f => f.uploadedFileId).map(f => f.uploadedFileId!)
       console.log('[AlexInputArea] Sending message with file IDs:', fileIds)
       console.log('[AlexInputArea] Attached files state:', attachedFiles.map(f => ({ id: f.id, uploadedFileId: f.uploadedFileId, status: f.status })))
       onSendMessage(content.trim(), fileIds)
