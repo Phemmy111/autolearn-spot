@@ -91,16 +91,44 @@ export function validateFile(file: File): FileValidation {
  */
 export async function extractTextFromFile(file: File): Promise<ExtractionResult> {
   try {
+    console.log('[DIAGNOSTIC] EXTRACTION START', {
+      filename: file.name,
+      mimeType: file.type,
+      fileSize: file.size,
+      fileExtension: file.name.split('.').pop()
+    })
+
     const buffer = await file.arrayBuffer()
     const uint8Array = new Uint8Array(buffer)
 
+    console.log('[DIAGNOSTIC] FILE BUFFER LOADED', {
+      bufferSize: buffer.byteLength,
+      uint8ArrayLength: uint8Array.length
+    })
+
     switch (file.type) {
       case 'application/pdf':
-        return await extractPDF(uint8Array)
+        console.log('[DIAGNOSTIC] PDF EXTRACTION START')
+        const pdfResult = await extractPDF(uint8Array)
+        console.log('[DIAGNOSTIC] PDF EXTRACTION RESULT', {
+          success: pdfResult.success,
+          textLength: pdfResult.text.length,
+          error: pdfResult.error,
+          pageCount: pdfResult.metadata.pageCount
+        })
+        return pdfResult
       
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       case 'application/msword':
-        return await extractDOCX(uint8Array)
+        console.log('[DIAGNOSTIC] DOCX EXTRACTION START')
+        const docxResult = await extractDOCX(uint8Array)
+        console.log('[DIAGNOSTIC] DOCX EXTRACTION RESULT', {
+          success: docxResult.success,
+          textLength: docxResult.text.length,
+          error: docxResult.error,
+          paragraphs: docxResult.metadata.paragraphs
+        })
+        return docxResult
       
       case 'text/plain':
       case 'text/markdown':
@@ -117,9 +145,21 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
       case 'text/x-c++':
       case 'text/x-csharp':
       case 'text/csv':
-        return extractTextFile(uint8Array)
+        console.log('[DIAGNOSTIC] TEXT FILE EXTRACTION START')
+        const textResult = extractTextFile(uint8Array)
+        console.log('[DIAGNOSTIC] TEXT FILE EXTRACTION RESULT', {
+          success: textResult.success,
+          textLength: textResult.text.length,
+          error: textResult.error,
+          lines: textResult.metadata.lines
+        })
+        return textResult
       
       default:
+        console.log('[DIAGNOSTIC] UNSUPPORTED FILE TYPE', {
+          mimeType: file.type,
+          filename: file.name
+        })
         return {
           success: false,
           text: '',
@@ -128,6 +168,11 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
         }
     }
   } catch (error) {
+    console.log('[DIAGNOSTIC] EXTRACTION EXCEPTION', {
+      error: error instanceof Error ? error.message : 'Unknown extraction error',
+      filename: file.name,
+      mimeType: file.type
+    })
     return {
       success: false,
       text: '',
@@ -142,16 +187,28 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
  */
 async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
   try {
+    console.log('[DIAGNOSTIC] PDF PARSE START', {
+      bufferSize: buffer.length
+    })
+
     const data = await pdf(Buffer.from(buffer))
     const text = data.text
-    
+
+    console.log('[DIAGNOSTIC] PDF PARSE RESULT', {
+      pageCount: data.numpages,
+      textLength: text.length,
+      textTrimmedLength: text.trim().length,
+      hasText: !!text && text.trim().length > 0
+    })
+
     if (!text || text.trim().length === 0) {
+      console.log('[DIAGNOSTIC] PDF EXTRACTION FAILED - NO TEXT')
       return {
         success: false,
         text: '',
-        metadata: { 
+        metadata: {
           pageCount: data.numpages,
-          extractionMethod: 'pdf-parse' 
+          extractionMethod: 'pdf-parse'
         },
         error: 'PDF contains no extractable text'
       }
@@ -170,6 +227,10 @@ async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
       }
     }
   } catch (error) {
+    console.log('[DIAGNOSTIC] PDF EXTRACTION EXCEPTION', {
+      error: error instanceof Error ? error.message : 'PDF extraction failed',
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
+    })
     return {
       success: false,
       text: '',
