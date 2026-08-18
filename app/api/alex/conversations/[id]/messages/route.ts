@@ -121,7 +121,7 @@ export async function GET(
                 .from('alex_files')
                 .select('*')
                 .eq('id', fileId)
-                .single()
+                .maybeSingle() // Use maybeSingle instead of single to handle no rows gracefully
               console.log('[DIAGNOSTIC] INDIVIDUAL FILE QUERY', {
                 fileId,
                 found: !!result.data,
