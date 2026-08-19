@@ -93,92 +93,116 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: uploadError.message }, { status: 500 })
     }
 
-    // Create database record with processing status
-    const { data: fileRecord, error: dbError } = await supabase
-      .from('alex_files')
-      .insert({
-        user_id: userId,
-        conversation_id: conversationId,
-        original_filename: file.name,
-        storage_path: storagePath,
-        mime_type: file.type,
-        file_size: file.size,
-        status: 'processing',
-        extraction_status: 'processing',
-        metadata: {
-          fileName: file.name,
-          fileType: file.type,
-          fileSize: file.size
-        }
-      })
-      .select()
-      .single()
-
-    console.log('[DIAGNOSTIC] DATABASE INSERT', {
-      fileId,
-      dbSuccess: !dbError,
-      dbError: dbError?.message,
-      recordId: fileRecord?.id,
-      initialStatus: fileRecord?.status,
-      initialExtractionStatus: fileRecord?.extraction_status
-    })
-
-    if (dbError) {
-      console.error('Database error:', dbError)
-      // Rollback storage upload
-      await supabase.storage.from('alex-files').remove([storagePath])
-      return NextResponse.json({ error: dbError.message }, { status: 500 })
-    }
-
-    // Trigger text extraction (non-blocking)
-    // In production, this would go to a queue/job system
-    // Extraction happens asynchronously - the response will show 'processing' status
-    // For images, skip extraction and mark as ready immediately
+    // For images, create database record directly as ready (no extraction needed)
+    // For text files, create as processing and trigger extraction
+    let fileRecord
     if (file.type.startsWith('image/')) {
-      console.log('[Files Route] Image file detected, marking as ready immediately')
-      await supabase
-        .from('alex_files')
-        .update({
-          status: 'ready',
-          extraction_status: 'completed'
-        })
-        .eq('id', fileRecord.id)
+      console.log('[Files Route] Image file detected, creating record as ready')
 
-      // Fetch the updated record to return accurate status
-      const { data: updatedFileRecord } = await supabase
+      const { data: imageFileRecord, error: imageDbError } = await supabase
         .from('alex_files')
-        .select('*')
-        .eq('id', fileRecord.id)
+        .insert({
+          user_id: userId,
+          conversation_id: conversationId,
+          original_filename: file.name,
+          storage_path: storagePath,
+          mime_type: file.type,
+          file_size: file.size,
+          status: 'ready',
+          extraction_status: 'completed',
+          metadata: {
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size
+          }
+        })
+        .select()
         .single()
 
-      console.log('[Files Route] Image file marked ready', {
+      console.log('[DIAGNOSTIC] IMAGE DATABASE INSERT', {
+        fileId,
+        dbSuccess: !imageDbError,
+        dbError: imageDbError?.message,
+        recordId: imageFileRecord?.id,
+        finalStatus: imageFileRecord?.status,
+        finalExtractionStatus: imageFileRecord?.extraction_status
+      })
+
+      if (imageDbError) {
+        console.error('Database error for image:', imageDbError)
+        // Rollback storage upload
+        await supabase.storage.from('alex-files').remove([storagePath])
+        return NextResponse.json({ error: imageDbError.message }, { status: 500 })
+      }
+
+      fileRecord = imageFileRecord
+
+      console.log('[Files Route] Image file ready immediately', {
         fileId: fileRecord.id,
         filename: file.name,
-        finalStatus: updatedFileRecord?.status,
-        finalExtractionStatus: updatedFileRecord?.extraction_status
+        status: fileRecord.status,
+        extraction_status: fileRecord.extraction_status
       })
 
       return NextResponse.json({
         success: true,
-        file: updatedFileRecord || fileRecord
+        file: fileRecord
       })
     } else {
+      // Create database record with processing status for text files
+      const { data: textFileRecord, error: textDbError } = await supabase
+        .from('alex_files')
+        .insert({
+          user_id: userId,
+          conversation_id: conversationId,
+          original_filename: file.name,
+          storage_path: storagePath,
+          mime_type: file.type,
+          file_size: file.size,
+          status: 'processing',
+          extraction_status: 'processing',
+          metadata: {
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size
+          }
+        })
+        .select()
+        .single()
+
+      console.log('[DIAGNOSTIC] TEXT DATABASE INSERT', {
+        fileId,
+        dbSuccess: !textDbError,
+        dbError: textDbError?.message,
+        recordId: textFileRecord?.id,
+        initialStatus: textFileRecord?.status,
+        initialExtractionStatus: textFileRecord?.extraction_status
+      })
+
+      if (textDbError) {
+        console.error('Database error:', textDbError)
+        // Rollback storage upload
+        await supabase.storage.from('alex-files').remove([storagePath])
+        return NextResponse.json({ error: textDbError.message }, { status: 500 })
+      }
+
+      fileRecord = textFileRecord
+
+      // Trigger text extraction (non-blocking)
       triggerExtraction(fileRecord.id, file)
+
+      console.log('[Files Route] Text file upload successful, extraction started', {
+        fileId: fileRecord.id,
+        filename: file.name,
+        status: fileRecord.status,
+        extraction_status: fileRecord.extraction_status
+      })
+
+      return NextResponse.json({
+        success: true,
+        file: fileRecord
+      })
     }
-
-    console.log('[Files Route] File upload successful, extraction started', {
-      fileId: fileRecord.id,
-      filename: file.name,
-      status: fileRecord.status,
-      extraction_status: fileRecord.extraction_status
-    })
-
-    // Return the file record with accurate extraction state
-    // The client must check extraction_status === 'completed' before considering the file ready
-    return NextResponse.json({
-      success: true,
-      file: fileRecord
-    })
   } catch (error: any) {
     console.error('Error uploading file:', error)
     return NextResponse.json(
