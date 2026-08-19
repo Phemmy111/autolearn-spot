@@ -67,6 +67,12 @@ export async function DELETE(
 
     const { id } = await params
 
+    console.log('[DIAGNOSTIC] FILE DELETE REQUEST', {
+      fileId: id,
+      userId,
+      timestamp: new Date().toISOString()
+    })
+
     // Get file to verify ownership
     const { data: file, error: fileError } = await supabase
       .from('alex_files')
@@ -76,8 +82,18 @@ export async function DELETE(
       .single()
 
     if (fileError || !file) {
+      console.log('[DIAGNOSTIC] FILE DELETE - FILE NOT FOUND', {
+        fileId: id,
+        error: fileError?.message
+      })
       return NextResponse.json({ error: 'File not found or access denied' }, { status: 404 })
     }
+
+    console.log('[DIAGNOSTIC] FILE DELETE - FILE FOUND', {
+      fileId: id,
+      filename: file.original_filename,
+      conversationId: file.conversation_id
+    })
 
     // Delete from storage
     const { error: storageError } = await supabase.storage
@@ -99,6 +115,12 @@ export async function DELETE(
       console.error('Database deletion error:', dbError)
       return NextResponse.json({ error: dbError.message }, { status: 500 })
     }
+
+    console.log('[DIAGNOSTIC] FILE DELETE - SUCCESS', {
+      fileId: id,
+      deletedFromStorage: !storageError,
+      deletedFromDatabase: !dbError
+    })
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
