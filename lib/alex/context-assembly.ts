@@ -136,17 +136,24 @@ export async function assembleContext(
       console.log('[Context Assembly] All text files validated, building context:', readyFiles.length)
 
       if (readyFiles.length > 0) {
-        // Generate bounded context from files
-        // For Phase 3A, use simple strategy: include summaries and limited content
-        const maxTotalChars = 10000 // 10K character limit for file context
+        // Generate bounded context from files - increased limit to support multiple files
+        const maxTotalChars = 50000 // 50K character limit for file context (increased from 10K)
+        const maxCharsPerFile = 5000 // Maximum characters per file to ensure all files get some content
 
         let totalChars = 0
+        let filesIncluded = 0
+        let filesSkipped = 0
+
         for (const file of readyFiles) {
-          if (totalChars >= maxTotalChars) break
+          if (totalChars >= maxTotalChars) {
+            console.log('[Context Assembly] Skipping file due to total character limit:', file.original_filename)
+            filesSkipped++
+            continue
+          }
 
           if (file.extracted_text) {
             const summary = generateFileSummary(file.extracted_text, file.original_filename)
-            const remainingChars = maxTotalChars - totalChars
+            const remainingChars = Math.min(maxTotalChars - totalChars, maxCharsPerFile)
             const content = file.extracted_text.substring(0, remainingChars)
 
             context += `\n--- ${file.original_filename} ---\n`
@@ -154,11 +161,26 @@ export async function assembleContext(
             context += '\nContent:\n' + content + '\n'
 
             totalChars += summary.length + content.length
-            console.log('[Context Assembly] Added file to context:', file.original_filename, 'chars:', summary.length + content.length)
+            filesIncluded++
+            console.log('[Context Assembly] Added file to context:', {
+              filename: file.original_filename,
+              chars: summary.length + content.length,
+              totalChars: totalChars,
+              remainingBudget: maxTotalChars - totalChars
+            })
           }
         }
 
         context += '\n[End of attached documents]\n'
+        
+        console.log('[Context Assembly] Multi-file context assembly complete:', {
+          totalFiles: readyFiles.length,
+          filesIncluded: filesIncluded,
+          filesSkipped: filesSkipped,
+          totalChars: totalChars,
+          maxChars: maxTotalChars
+        })
+        
         console.log('[DIAGNOSTIC] CONTEXT ASSEMBLY COMPLETE', {
           totalContextLength: context.length,
           fileContextIncluded: context.includes('Attached Documents'),

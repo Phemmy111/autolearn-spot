@@ -207,8 +207,9 @@ export async function POST(request: NextRequest) {
     // Get attached files for context (Phase 3A)
     let attachedFiles: any[] = []
     if (fileIds && fileIds.length > 0) {
-      console.log('[DIAGNOSTIC] CHAT FILE FETCH START', {
-        fileIds,
+      console.log('[MULTI-FILE] Chat request with file attachments', {
+        fileIdsReceived: fileIds.length,
+        fileIds: fileIds,
         userId,
         conversationId
       })
@@ -220,21 +221,27 @@ export async function POST(request: NextRequest) {
         .in('id', fileIds)
         .eq('user_id', userId)
 
-      console.log('[DIAGNOSTIC] CHAT FILE FETCH RESULT', {
-        fileIds,
+      console.log('[MULTI-FILE] Database fetch result', {
+        fileIdsRequested: fileIds.length,
+        filesFound: files?.length || 0,
         fetchSuccess: !filesError,
         fetchError: filesError?.message,
-        filesFound: files?.length || 0,
-        fileIdsRequested: fileIds.length
+        filesReturned: files?.map(f => ({
+          id: f.id,
+          filename: f.original_filename,
+          mime_type: f.mime_type,
+          extraction_status: f.extraction_status,
+          status: f.status
+        }))
       })
 
       if (filesError) {
-        console.error('[CHAT] Error fetching files:', filesError)
+        console.error('[MULTI-FILE] Error fetching files:', filesError)
         return NextResponse.json({ error: 'Failed to fetch attached files' }, { status: 500 })
       }
 
       if (!files || files.length === 0) {
-        console.log('[DIAGNOSTIC] CHAT FILE FETCH FAILED - NO FILES FOUND')
+        console.log('[MULTI-FILE] No files found in database')
         return NextResponse.json({ error: 'Attached files not found or access denied' }, { status: 404 })
       }
 
@@ -248,24 +255,30 @@ export async function POST(request: NextRequest) {
         )
       )
 
-      console.log('[DIAGNOSTIC] CHAT FILE VALIDATION', {
+      console.log('[MULTI-FILE] File validation', {
         totalFiles: files.length,
         notReadyFiles: notReadyFiles.length,
         imageFiles: files.filter(f => f.mime_type.startsWith('image/')).length,
         textFiles: files.filter(f => !f.mime_type.startsWith('image/')).length,
-        filesStatus: files.map(f => ({
+        validationDetails: files.map(f => ({
           id: f.id,
           filename: f.original_filename,
           mime_type: f.mime_type,
           extraction_status: f.extraction_status,
           has_text: !!f.extracted_text,
-          text_length: f.extracted_text?.length
+          text_length: f.extracted_text?.length,
+          ready: f.mime_type.startsWith('image/') || (f.extraction_status === 'completed' && f.extracted_text && f.extracted_text.trim().length > 0)
         }))
       })
 
       if (notReadyFiles.length > 0) {
         const failedFiles = notReadyFiles.filter(f => f.extraction_status === 'failed')
         const processingFiles = notReadyFiles.filter(f => f.extraction_status !== 'failed')
+
+        console.log('[MULTI-FILE] Files not ready', {
+          failed: failedFiles.map(f => f.original_filename),
+          processing: processingFiles.map(f => f.original_filename)
+        })
 
         if (failedFiles.length > 0) {
           return NextResponse.json({
@@ -283,13 +296,12 @@ export async function POST(request: NextRequest) {
       }
 
       attachedFiles = files
-      console.log('[DIAGNOSTIC] CHAT FILES VALIDATED', {
+      console.log('[MULTI-FILE] All files validated and ready for context', {
         attachedFilesCount: attachedFiles.length,
         fileIds: attachedFiles.map(f => f.id),
-        filenames: attachedFiles.map(f => f.original_filename)
+        filenames: attachedFiles.map(f => f.original_filename),
+        totalTextLength: attachedFiles.reduce((sum, f) => sum + (f.extracted_text?.length || 0), 0)
       })
-      console.log('[CHAT] All files validated and ready for context')
-      console.log('[CHAT] File details:', attachedFiles.map(f => ({ id: f.id, original_filename: f.original_filename, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text, text_length: f.extracted_text?.length })))
       alexLogger.debug('CHAT', 'Attached files validated', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
 
       // For image files, fetch the actual image data and convert to base64

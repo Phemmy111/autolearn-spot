@@ -50,9 +50,15 @@ const FILE_TYPE_MAP: Record<string, string[]> = {
   'text/x-c++': ['cpp'],
   'text/x-csharp': ['cs'],
   'text/csv': ['csv'],
+  'application/vnd.ms-excel': ['xls'],
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['xlsx'],
+  'application/vnd.ms-powerpoint': ['ppt'],
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['pptx'],
   'image/png': ['png'],
   'image/jpeg': ['jpg', 'jpeg'],
   'image/webp': ['webp'],
+  'image/gif': ['gif'],
+  'image/bmp': ['bmp'],
 }
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
@@ -172,6 +178,26 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
         })
         return docxResult
       
+      case 'application/vnd.ms-excel':
+      case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        console.log('[EXTRACTION] Excel file detected - not supported for text extraction')
+        return {
+          success: false,
+          text: '',
+          metadata: { extractionMethod: 'none' },
+          error: 'Excel files (.xls, .xlsx) are not supported for text extraction. Please convert to CSV format.'
+        }
+      
+      case 'application/vnd.ms-powerpoint':
+      case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+        console.log('[EXTRACTION] PowerPoint file detected - not supported for text extraction')
+        return {
+          success: false,
+          text: '',
+          metadata: { extractionMethod: 'none' },
+          error: 'PowerPoint files (.ppt, .pptx) are not supported for text extraction. Please convert to PDF format.'
+        }
+      
       case 'text/plain':
       case 'text/markdown':
       case 'text/javascript':
@@ -200,7 +226,9 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
       case 'image/png':
       case 'image/jpeg':
       case 'image/webp':
-        console.log('[EXTRACTION] Image file detected - no text extraction needed')
+      case 'image/gif':
+      case 'image/bmp':
+        console.log('[EXTRACTION] Image file detected - no text extraction needed (vision-only)')
         // Images don't need text extraction - they're used directly for vision
         return {
           success: true,
@@ -219,7 +247,7 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
           success: false,
           text: '',
           metadata: { extractionMethod: 'none' },
-          error: `Unsupported file type: ${file.type}`
+          error: `Unsupported file type: ${file.type}. Supported types: PDF, DOCX, DOC, TXT, Markdown, JSON, CSV, HTML, code files, and images (PNG, JPG, WEBP, GIF, BMP).`
         }
     }
   } catch (error) {
