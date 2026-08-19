@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { auth } from '@clerk/nextjs/server'
-import { validateFile, extractTextFromFile, sanitizeExtractedText, isMeaningfulText } from '@/lib/alex/file-extraction'
+import { validateFile, extractTextFromFile, sanitizeExtractedText, isMeaningfulText, ExtractionResult } from '@/lib/alex/file-extraction'
 import { AlexFile } from '@/lib/alex/types'
 import { indexFile } from '@/lib/alex/indexing'
 
@@ -291,19 +291,26 @@ async function triggerExtraction(fileId: string, file: File) {
       return
     }
 
-    // Extract text
-    const extraction = await extractTextFromFile(file)
+    // Extract text with timeout
+    const EXTRACTION_TIMEOUT = 60000 // 60 seconds
+    const extraction = await Promise.race([
+      extractTextFromFile(file),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Extraction timeout')), EXTRACTION_TIMEOUT)
+      )
+    ]) as ExtractionResult
 
     console.log('[DIAGNOSTIC] EXTRACTION RESULT', {
       fileId,
       success: extraction.success,
-      textLength: extraction.text.length,
+      textLength: extraction.text?.length || 0,
       metadata: extraction.metadata,
       error: extraction.error,
-      isMeaningful: isMeaningfulText(extraction.text)
+      isMeaningful: extraction.text ? isMeaningfulText(extraction.text) : false,
+      textPreview: extraction.text?.substring(0, 200) || 'none'
     })
 
-    if (extraction.success && isMeaningfulText(extraction.text)) {
+    if (extraction.success && extraction.text && isMeaningfulText(extraction.text)) {
       const sanitizedText = sanitizeExtractedText(extraction.text)
 
       console.log('[DIAGNOSTIC] TEXT PERSISTENCE START', {
@@ -369,7 +376,10 @@ async function triggerExtraction(fileId: string, file: File) {
     } else {
       console.log('[DIAGNOSTIC] EXTRACTION FAILED', {
         fileId,
-        reason: extraction.error || 'Text not meaningful'
+        reason: extraction.error || 'Text not meaningful',
+        extractionSuccess: extraction.success,
+        hasText: !!extraction.text,
+        textLength: extraction.text?.length || 0
       })
 
       await supabase
@@ -384,14 +394,20 @@ async function triggerExtraction(fileId: string, file: File) {
   } catch (error) {
     console.error('[DIAGNOSTIC] EXTRACTION EXCEPTION', {
       fileId,
-      error: error instanceof Error ? error.message : 'Unknown extraction error'
+      error: error instanceof Error ? error.message : 'Unknown extraction error',
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
     })
+    
+    // Specific handling for timeout
+    const errorMessage = error instanceof Error ? error.message : 'Unknown extraction error'
+    const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('Timeout')
+    
     await supabase
       .from('alex_files')
       .update({
         status: 'failed',
         extraction_status: 'failed',
-        extraction_error: error instanceof Error ? error.message : 'Unknown extraction error'
+        extraction_error: isTimeout ? 'Extraction timeout - file may be too large or complex' : errorMessage
       })
       .eq('id', fileId)
   }
