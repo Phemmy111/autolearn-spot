@@ -74,15 +74,13 @@ export async function POST(request: Request) {
     })
 
     // Upload to Supabase Storage
-    // For images, use generic content type to avoid Supabase MIME type restrictions
+    // Try without contentType to let Supabase handle detection
     const uploadOptions: any = {
       upsert: false
     }
 
-    // Use generic content type for images to bypass Supabase restrictions
-    if (file.type.startsWith('image/')) {
-      uploadOptions.contentType = 'application/octet-stream'
-    } else {
+    // Only set contentType for text files - let Supabase auto-detect images
+    if (!file.type.startsWith('image/')) {
       uploadOptions.contentType = file.type
     }
 
@@ -95,7 +93,7 @@ export async function POST(request: Request) {
       storagePath,
       uploadSuccess: !uploadError,
       uploadError: uploadError?.message,
-      contentTypeUsed: uploadOptions.contentType
+      contentTypeUsed: uploadOptions.contentType || 'auto-detect'
     })
 
     if (uploadError) {
