@@ -74,18 +74,26 @@ export async function POST(request: Request) {
     })
 
     // Upload to Supabase Storage
+    // For images, try without contentType to avoid Supabase MIME type restrictions
+    const uploadOptions: any = {
+      upsert: false
+    }
+
+    // Only set contentType for non-image files to avoid Supabase storage restrictions
+    if (!file.type.startsWith('image/')) {
+      uploadOptions.contentType = file.type
+    }
+
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('alex-files')
-      .upload(storagePath, file, {
-        upsert: false,
-        contentType: file.type
-      })
+      .upload(storagePath, file, uploadOptions)
 
     console.log('[DIAGNOSTIC] STORAGE UPLOAD', {
       fileId,
       storagePath,
       uploadSuccess: !uploadError,
-      uploadError: uploadError?.message
+      uploadError: uploadError?.message,
+      contentTypeUsed: uploadOptions.contentType || 'auto-detected'
     })
 
     if (uploadError) {
