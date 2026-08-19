@@ -277,11 +277,16 @@ export async function GET(request: Request) {
 
 // Non-blocking text extraction trigger
 async function triggerExtraction(fileId: string, file: File, userId: string) {
+  // Calculate timeout based on file size - move outside try block for catch block access
+  const EXTRACTION_TIMEOUT = Math.max(60000, Math.min(300000, file.size / 1000)) // 60s minimum, 5s per MB, max 5 minutes
+  
   try {
     console.log('[EXTRACTION] Extraction trigger start', {
       fileId,
       filename: file.name,
       fileSize: file.size,
+      fileSizeMB: (file.size / 1024 / 1024).toFixed(2),
+      timeoutMs: EXTRACTION_TIMEOUT,
       mimeType: file.type
     })
 
@@ -291,9 +296,10 @@ async function triggerExtraction(fileId: string, file: File, userId: string) {
       return
     }
 
-    // Extract text with timeout
-    const EXTRACTION_TIMEOUT = 60000 // 60 seconds
-    console.log('[EXTRACTION] Starting extraction with timeout')
+    console.log('[EXTRACTION] Starting extraction with timeout', {
+      timeoutMs: EXTRACTION_TIMEOUT,
+      fileSizeMB: (file.size / 1024 / 1024).toFixed(2)
+    })
     const extraction = await Promise.race([
       extractTextFromFile(file),
       new Promise((_, reject) => 
@@ -404,12 +410,16 @@ async function triggerExtraction(fileId: string, file: File, userId: string) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown extraction error'
     const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('Timeout')
     
+    const timeoutMessage = isTimeout 
+      ? `Extraction timeout (${Math.round(EXTRACTION_TIMEOUT/1000)}s) - file ${file.name} (${(file.size/1024/1024).toFixed(2)}MB) may be too large or complex for current server load`
+      : errorMessage
+    
     await supabase
       .from('alex_files')
       .update({
         status: 'failed',
         extraction_status: 'failed',
-        extraction_error: isTimeout ? 'Extraction timeout - file may be too large or complex' : errorMessage
+        extraction_error: timeoutMessage
       })
       .eq('id', fileId)
   }
