@@ -61,6 +61,14 @@ const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
  * Validate file before upload
  */
 export function validateFile(file: File): FileValidation {
+  console.log('[DIAGNOSTIC] FILE VALIDATION', {
+    filename: file.name,
+    fileType: file.type,
+    fileSize: file.size,
+    allowedTypes: Object.keys(FILE_TYPE_MAP),
+    typeInMap: Object.keys(FILE_TYPE_MAP).includes(file.type)
+  })
+
   // Check file size
   if (file.size > MAX_FILE_SIZE) {
     return {
@@ -74,6 +82,32 @@ export function validateFile(file: File): FileValidation {
   // Check file type
   const allowedTypes = Object.keys(FILE_TYPE_MAP)
   if (!allowedTypes.includes(file.type)) {
+    console.log('[DIAGNOSTIC] FILE TYPE REJECTED, CHECKING EXTENSION', {
+      fileType: file.type,
+      allowedTypes,
+      reason: 'Type not in allowed types'
+    })
+
+    // Fallback: check file extension if MIME type doesn't match
+    const fileExt = file.name.split('.').pop()?.toLowerCase()
+    console.log('[DIAGNOSTIC] FILE EXTENSION CHECK', {
+      fileExt,
+      isImageExt: ['png', 'jpg', 'jpeg', 'webp'].includes(fileExt || '')
+    })
+
+    // Allow image files based on extension as fallback
+    if (['png', 'jpg', 'jpeg', 'webp'].includes(fileExt || '')) {
+      console.log('[DIAGNOSTIC] FILE ACCEPTED BY EXTENSION', {
+        fileExt,
+        filename: file.name
+      })
+      return {
+        valid: true,
+        maxSize: MAX_FILE_SIZE,
+        allowedTypes
+      }
+    }
+
     return {
       valid: false,
       maxSize: MAX_FILE_SIZE,
@@ -81,6 +115,11 @@ export function validateFile(file: File): FileValidation {
       error: `File type ${file.type} not supported`
     }
   }
+
+  console.log('[DIAGNOSTIC] FILE TYPE ACCEPTED', {
+    fileType: file.type,
+    filename: file.name
+  })
 
   return {
     valid: true,
