@@ -226,10 +226,11 @@ export function AlexInputArea({
       console.log('[AlexInputArea] Upload response:', data)
 
       if (data.success) {
-        console.log('[AlexInputArea] Upload successful, file ID:', data.file.id, 'extraction_status:', data.file.extraction_status)
+        console.log('[AlexInputArea] Upload successful, file ID:', data.file.id, 'extraction_status:', data.file.extraction_status, 'mime_type:', data.file.mime_type)
 
-        // Set status based on actual extraction state from server
-        const newStatus = data.file.extraction_status === 'completed' ? 'ready' : 'processing'
+        // For images, they're ready immediately. For text files, check extraction status
+        const isImage = data.file.mime_type?.startsWith('image/')
+        const newStatus = isImage ? 'ready' : (data.file.extraction_status === 'completed' ? 'ready' : 'processing')
 
         setAttachedFiles(prev =>
           prev.map(f =>
@@ -244,8 +245,8 @@ export function AlexInputArea({
           )
         )
 
-        // Start polling for extraction completion if not ready
-        if (newStatus === 'processing') {
+        // Start polling for extraction completion if not ready (only for text files)
+        if (newStatus === 'processing' && !isImage) {
           pollForExtractionCompletion(data.file.id, attachedFile.id)
         }
 

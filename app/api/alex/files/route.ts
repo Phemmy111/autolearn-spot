@@ -143,6 +143,25 @@ export async function POST(request: Request) {
           extraction_status: 'completed'
         })
         .eq('id', fileRecord.id)
+
+      // Fetch the updated record to return accurate status
+      const { data: updatedFileRecord } = await supabase
+        .from('alex_files')
+        .select('*')
+        .eq('id', fileRecord.id)
+        .single()
+
+      console.log('[Files Route] Image file marked ready', {
+        fileId: fileRecord.id,
+        filename: file.name,
+        finalStatus: updatedFileRecord?.status,
+        finalExtractionStatus: updatedFileRecord?.extraction_status
+      })
+
+      return NextResponse.json({
+        success: true,
+        file: updatedFileRecord || fileRecord
+      })
     } else {
       triggerExtraction(fileRecord.id, file)
     }
