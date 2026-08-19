@@ -364,15 +364,6 @@ export async function POST(request: NextRequest) {
                 })}\n\n`)
               )
             } else if (chunk.type === 'stream') {
-            if (chunk.type === 'orchestrator') {
-              // Send orchestrator metadata
-              controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({ 
-                  type: 'metadata',
-                  data: chunk.data 
-                })}\n\n`)
-              )
-            } else if (chunk.type === 'stream') {
               const event = chunk.data
               
               if (event.type === 'start') {
