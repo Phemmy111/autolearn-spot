@@ -226,11 +226,25 @@ export function AlexInputArea({
       console.log('[AlexInputArea] Upload response:', data)
 
       if (data.success) {
-        console.log('[AlexInputArea] Upload successful, file ID:', data.file.id, 'extraction_status:', data.file.extraction_status, 'mime_type:', data.file.mime_type)
+        console.log('[AlexInputArea] Upload successful, FILE DATA:', {
+          id: data.file.id,
+          filename: data.file.original_filename,
+          mime_type: data.file.mime_type,
+          status: data.file.status,
+          extraction_status: data.file.extraction_status,
+          isImage: data.file.mime_type?.startsWith('image/')
+        })
 
         // For images, they're ready immediately. For text files, check extraction status
         const isImage = data.file.mime_type?.startsWith('image/')
         const newStatus = isImage ? 'ready' : (data.file.extraction_status === 'completed' ? 'ready' : 'processing')
+
+        console.log('[AlexInputArea] Status determination:', {
+          isImage,
+          serverStatus: data.file.status,
+          serverExtractionStatus: data.file.extraction_status,
+          determinedStatus: newStatus
+        })
 
         setAttachedFiles(prev =>
           prev.map(f =>
