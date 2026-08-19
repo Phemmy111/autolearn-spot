@@ -4,7 +4,7 @@
  * Orchestrates multi-provider management, health monitoring, and fallback
  */
 
-import { supabaseAdmin } from '@/lib/supabase'
+
 import { ProviderConfig, ProviderHealthCheck, ProviderRequestResult, FallbackAttempt, classifyError, isRetryableError } from './provider-manager-types'
 import { ProviderRegistry } from './provider-registry'
 import { AIProvider, AIStreamEvent } from './provider-interface'
@@ -427,11 +427,14 @@ export class ProviderManager {
   async *executeStreamingWithFallback(request: any): AsyncGenerator<AIStreamEvent> {
     const fallbackAttempts: FallbackAttempt[] = []
 
+    console.log('[ProviderManager] executeStreamingWithFallback: Loading providers for fallback')
     // Reload providers to get current configuration
     await this.loadProviders()
 
     // Get active providers from registry
     const activeProviders = this.registry.getEnabledProviders()
+
+    console.log('[ProviderManager] executeStreamingWithFallback: Active providers:', activeProviders.length, activeProviders.map(p => p.id))
 
     if (activeProviders.length === 0) {
       throw new Error('No active providers available')
@@ -439,6 +442,7 @@ export class ProviderManager {
 
     // Try each provider in priority order
     for (const provider of activeProviders) {
+      console.log('[ProviderManager] executeStreamingWithFallback: Trying provider:', provider.id, provider.name)
       try {
         let firstEvent = true
         for await (const event of provider.stream(request)) {
@@ -447,9 +451,12 @@ export class ProviderManager {
         }
 
         // Stream completed successfully
+        console.log('[ProviderManager] executeStreamingWithFallback: Provider succeeded:', provider.id)
         return
       } catch (error) {
         const providerError = classifyError(error)
+
+        console.log('[ProviderManager] executeStreamingWithFallback: Provider failed:', provider.id, 'error:', providerError.type, 'retryable:', providerError.retryable)
 
         // Log attempt
         fallbackAttempts.push({
@@ -462,6 +469,7 @@ export class ProviderManager {
 
         // Update provider health
         if (!isRetryableError(providerError)) {
+          console.log('[ProviderManager] executeStreamingWithFallback: Non-retryable error, stopping fallback')
           await this.updateProviderHealth(provider.id, {
             healthStatus: 'unavailable',
             healthError: providerError.message,
@@ -472,6 +480,7 @@ export class ProviderManager {
         }
 
         // Retryable error - mark as degraded and try next provider
+        console.log('[ProviderManager] executeStreamingWithFallback: Retryable error, trying next provider')
         await this.updateProviderHealth(provider.id, {
           healthStatus: 'degraded',
           healthError: providerError.message,
