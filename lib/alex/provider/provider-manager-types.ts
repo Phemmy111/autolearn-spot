@@ -106,41 +106,49 @@ export function isRetryableError(error: ProviderError): boolean {
 }
 
 export function classifyError(error: any, statusCode?: number): ProviderError {
+  // Extract status code from error message if not provided
+  if (!statusCode && error.message) {
+    const match = error.message.match(/(\d{3})/)
+    if (match) {
+      statusCode = parseInt(match[1], 10)
+    }
+  }
+
   // Connection errors
   if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
     return { type: 'connection', message: error.message, retryable: true }
   }
-  
+
   // Timeout
   if (error.message?.includes('timeout') || error.code === 'ETIMEDOUT') {
     return { type: 'timeout', message: error.message, retryable: true }
   }
-  
+
   // Rate limiting
-  if (statusCode === 429) {
+  if (statusCode === 429 || error.message?.includes('Rate limit')) {
     return { type: 'rate_limit', message: 'Rate limit exceeded', retryable: true, statusCode }
   }
-  
+
   // Server errors
   if (statusCode && statusCode >= 500) {
     return { type: 'server_error', message: 'Server error', retryable: true, statusCode }
   }
-  
+
   // Authentication errors
-  if (statusCode === 401 || statusCode === 403) {
+  if (statusCode === 401 || statusCode === 403 || error.message?.includes('Authentication') || error.message?.includes('auth')) {
     return { type: 'invalid_credentials', message: 'Authentication failed', retryable: false, statusCode }
   }
-  
+
   // Invalid model
   if (error.message?.includes('model') || statusCode === 404) {
     return { type: 'invalid_model', message: 'Invalid model', retryable: false, statusCode }
   }
-  
+
   // Invalid request
   if (statusCode === 400) {
     return { type: 'invalid_request', message: 'Invalid request', retryable: false, statusCode }
   }
-  
+
   // Default to non-retryable for unknown errors
   return { type: 'malformed_request', message: error.message || 'Unknown error', retryable: false }
 }
