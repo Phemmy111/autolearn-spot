@@ -431,17 +431,24 @@ export function generateFileSummary(text: string, filename: string): string {
 
 /**
  * Check if extracted text is meaningful (not just garbage)
+ * Made more lenient to accept structured data like JSON, code, etc.
  */
 export function isMeaningfulText(text: string): boolean {
-  if (!text || text.length < 10) return false
+  if (!text || text.length < 5) return false
   
-  // Check for minimum word count
+  // Remove whitespace-only check
+  if (text.trim().length === 0) return false
+  
+  // Check for minimum word count (reduced from 3 to 1 for structured data)
   const words = text.split(/\s+/).filter(w => w.length > 0)
-  if (words.length < 3) return false
+  if (words.length < 1) return false
   
-  // Check for reasonable character-to-word ratio (indicates actual text)
-  const charWordRatio = text.length / words.length
-  if (charWordRatio < 2 || charWordRatio > 20) return false
+  // Skip character-to-word ratio check for structured data
+  // JSON, code, and other structured data often have unusual ratios
+  
+  // Additional check: ensure text isn't just repeated characters
+  const uniqueChars = new Set(text.trim()).size
+  if (uniqueChars < 3) return false
   
   return true
 }
