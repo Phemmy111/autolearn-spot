@@ -11,6 +11,9 @@ export interface OrchestratorRequest {
   platformContext?: PlatformContext
   userIntent?: string
   attachedFiles?: AlexFile[]
+  userId?: string
+  conversationId?: string
+  enableRetrieval?: boolean
 }
 
 export interface OrchestratorResponse {
@@ -32,7 +35,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval } = request
 
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
@@ -44,11 +47,14 @@ export class AlexOrchestrator {
       suggestedMode = intentResult.suggestedMode
     }
 
-    // Assemble context with platform context and files if available
+    // Assemble context with platform context, files, and retrieval if available
     const assemblyResult = await assembleContext(mode, conversationHistory, {
       platformContext,
       userIntent: userIntent || content,
       attachedFiles,
+      userId,
+      conversationId,
+      enableRetrieval,
     })
 
     const { context, imageFiles } = assemblyResult

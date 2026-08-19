@@ -2,6 +2,7 @@ import { AlexMode, AlexFile } from './types'
 import { PlatformContext } from './context/context-types'
 import { formatPlatformContextForPrompt } from './context'
 import { generateFileSummary } from './file-extraction'
+import { retrieveChunks } from './retrieval'
 
 export interface ConversationMessage {
   role: string
@@ -12,6 +13,9 @@ export interface AssemblyOptions {
   platformContext?: PlatformContext
   userIntent?: string
   attachedFiles?: AlexFile[]
+  userId?: string
+  conversationId?: string
+  enableRetrieval?: boolean
 }
 
 export interface AssemblyResult {
@@ -37,6 +41,50 @@ export async function assembleContext(
     const platformContextStr = formatPlatformContextForPrompt(options.platformContext)
     if (platformContextStr) {
       context += platformContextStr + '\n'
+    }
+  }
+
+  // Add retrieved document context if enabled (Phase 3B)
+  if (options?.enableRetrieval && options.userId && options.conversationId) {
+    try {
+      // Build query from the most recent user message
+      const lastUserMessage = conversationHistory
+        .filter(m => m.role === 'user')
+        .pop()
+
+      if (lastUserMessage && lastUserMessage.content) {
+        console.log('[Context Assembly] Retrieving relevant chunks for query:', lastUserMessage.content.substring(0, 100))
+
+        const retrievalResult = await retrieveChunks(
+          lastUserMessage.content,
+          options.userId,
+          {
+            conversationId: options.conversationId,
+            limit: 5,
+            minSimilarity: 0.7
+          }
+        )
+
+        if (retrievalResult.chunks.length > 0) {
+          console.log('[Context Assembly] Retrieved relevant chunks:', retrievalResult.chunks.length)
+
+          context += '\nRetrieved Document Context:\n'
+          context += 'The following document sections are relevant to your query:\n\n'
+
+          for (const chunk of retrievalResult.chunks) {
+            const filename = chunk.filename || 'Unknown file'
+            context += `--- ${filename} (similarity: ${chunk.similarity.toFixed(2)}) ---\n`
+            context += chunk.content + '\n\n'
+          }
+
+          context += '[End of retrieved context]\n'
+        } else {
+          console.log('[Context Assembly] No relevant chunks retrieved')
+        }
+      }
+    } catch (error) {
+      console.error('[Context Assembly] Retrieval failed, continuing without retrieved context:', error)
+      // Don't fail the entire context assembly if retrieval fails
     }
   }
 

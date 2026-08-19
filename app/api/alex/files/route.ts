@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { auth } from '@clerk/nextjs/server'
 import { validateFile, extractTextFromFile, sanitizeExtractedText, isMeaningfulText } from '@/lib/alex/file-extraction'
 import { AlexFile } from '@/lib/alex/types'
+import { indexFile } from '@/lib/alex/indexing'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -353,6 +354,14 @@ async function triggerExtraction(fileId: string, file: File) {
         finalStatus: 'ready',
         finalExtractionStatus: 'completed'
       })
+
+      // Trigger Phase 3B indexing (non-blocking)
+      console.log('[Files Route] Triggering Phase 3B indexing for file:', fileId)
+      indexFile(fileId, userId).catch(error => {
+        console.error('[Files Route] Indexing failed for file:', fileId, 'error:', error)
+        // Indexing failure is logged but doesn't affect file readiness
+      })
+      console.log('[Files Route] Indexing triggered (non-blocking)')
     } else {
       console.log('[DIAGNOSTIC] EXTRACTION FAILED', {
         fileId,

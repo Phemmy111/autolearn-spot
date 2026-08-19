@@ -29,6 +29,8 @@ export class AIEngine {
     userEmail?: string;
     userName?: string;
     attachedFiles?: AlexFile[];
+    conversationId?: string;
+    enableRetrieval?: boolean;
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     provider: AIProvider;
@@ -99,6 +101,8 @@ export class AIEngine {
     userEmail?: string;
     userName?: string;
     attachedFiles?: AlexFile[];
+    conversationId?: string;
+    enableRetrieval?: boolean;
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -120,6 +124,8 @@ export class AIEngine {
       const { orchestratorResponse, provider } = await this.processChat({
         ...request,
         attachedFiles: request.attachedFiles,
+        conversationId: request.conversationId,
+        enableRetrieval: request.enableRetrieval,
       });
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {
         providerId: provider.id,

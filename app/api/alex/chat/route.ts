@@ -361,6 +361,8 @@ export async function POST(request: NextRequest) {
             userEmail,
             userName,
             attachedFiles: attachedFiles || [],
+            enableRetrieval: true, // Enable Phase 3B retrieval
+            conversationId,
           })) {
             if (chunk.type === 'orchestrator') {
               // Store image files and AI request for later processing
