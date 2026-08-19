@@ -33,17 +33,9 @@ export class AIEngine {
     enableRetrieval?: boolean;
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
-    provider: AIProvider;
     platformContext?: PlatformContext;
     imageFiles?: AlexFile[];
   }> {
-    // Create request-local provider registry
-    const registry = new ProviderRegistry()
-    const providerManager = new ProviderManager(registry)
-
-    // Load providers from database (per-request)
-    await providerManager.loadProviders()
-
     // Load platform context if user ID is provided
     let platformContext: PlatformContext | undefined;
     if (request.userId) {
@@ -77,16 +69,8 @@ export class AIEngine {
       attachedFiles: request.attachedFiles,
     });
 
-    // Get active provider from registry (request-local)
-    const provider = registry.getActiveProvider();
-
-    if (!provider) {
-      throw new Error('No active AI provider configured');
-    }
-
     return {
       orchestratorResponse,
-      provider,
       platformContext,
       imageFiles: orchestratorResponse.imageFiles,
     };
@@ -114,27 +98,47 @@ export class AIEngine {
     let constructedMessages: AIMessage[] | null = null
 
     try {
+      console.log('[FALLBACK] Starting provider selection for streaming request')
       console.log('[DIAGNOSTIC] AI ENGINE START', {
         hasAttachedFiles: !!request.attachedFiles,
         attachedFilesCount: request.attachedFiles?.length || 0,
         attachedFileIds: request.attachedFiles?.map(f => f.id) || []
       })
       console.log('[AI Engine] Starting streamChat')
-      // Process through orchestrator
-      const { orchestratorResponse, provider } = await this.processChat({
+      
+      // Create request-local provider registry and manager
+      const registry = new ProviderRegistry()
+      const providerManager = new ProviderManager(registry)
+      
+      // Load all providers from database
+      await providerManager.loadProviders()
+      
+      console.log('[FALLBACK] Providers loaded from database')
+      
+      // Get all enabled providers
+      const allProviders = registry.getEnabledProviders()
+      console.log('[FALLBACK] Available providers:', allProviders.map(p => ({
+        id: p.id,
+        name: p.name,
+        priority: p.priority,
+        type: p.type
+      })))
+      
+      // Process through orchestrator first
+      const { orchestratorResponse, platformContext } = await this.processChat({
         ...request,
         attachedFiles: request.attachedFiles,
         conversationId: request.conversationId,
         enableRetrieval: request.enableRetrieval,
       });
+      
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {
-        providerId: provider.id,
         orchestratorMessagesCount: orchestratorResponse.aiRequest.messages.length,
         orchestratorHasFileContext: orchestratorResponse.aiRequest.messages.some(m =>
           m.content?.includes('Attached Documents') || m.content?.includes('ALPHA-7391')
         )
       })
-      console.log('[AI Engine] Orchestrator response received, provider:', provider.id)
+      console.log('[AI Engine] Orchestrator response received')
 
       // Preserve constructed messages for potential fallback
       constructedMessages = orchestratorResponse.aiRequest.messages
@@ -149,51 +153,28 @@ export class AIEngine {
         imageFiles: orchestratorResponse.imageFiles,
       };
 
-      console.log('[AI Engine] Starting provider stream, supportsStreaming:', provider.supportsStreaming())
-      // Stream from provider
-      if (provider.supportsStreaming()) {
-        for await (const event of provider.stream(orchestratorResponse.aiRequest)) {
-          console.log('[AI Engine] Stream event:', event.type)
-
-          // If this is an error event, throw it to trigger fallback
-          if (event.type === 'error') {
-            console.log('[AI Engine] ERROR EVENT DETECTED - throwing to trigger fallback')
-            const errorMessage = event.error || event.data?.error || 'Stream error'
-            console.log('[AI Engine] Error message:', errorMessage)
-            throw new Error(errorMessage)
-          }
-
-          // Track if meaningful content has been emitted
-          if (event.type === 'delta' && event.data?.text) {
-            hasEmittedContent = true
-          }
-
-          yield {
-            type: 'stream',
-            data: event,
-          };
+      console.log('[FALLBACK] Starting streaming with fallback through ProviderManager')
+      // Stream with fallback through ProviderManager (instead of single provider)
+      for await (const event of providerManager.executeStreamingWithFallback({
+        messages: orchestratorResponse.aiRequest.messages,
+        model: request.model,
+        temperature: request.temperature,
+        maxTokens: request.maxTokens,
+        stream: true,
+        conversationId: request.conversationId,
+        mode: request.mode,
+      })) {
+        if (event.type === 'delta' && event.data?.text) {
+          hasEmittedContent = true
         }
-      } else {
-        // Fallback to non-streaming for providers that don't support it
-        const response = await provider.generate(orchestratorResponse.aiRequest);
-        hasEmittedContent = true
         yield {
           type: 'stream',
-          data: {
-            type: 'delta',
-            data: { text: response.content },
-          },
-        };
-        yield {
-          type: 'stream',
-          data: {
-            type: 'finish',
-            data: { usage: response.usage },
-          },
+          data: event,
         };
       }
     } catch (error) {
       streamError = error instanceof Error ? error : new Error('Unknown error')
+      console.log('[FALLBACK] Streaming failed with error:', streamError.message)
 
       // If content was already emitted, do NOT attempt fallback
       // Terminate stream with error instead
@@ -222,7 +203,7 @@ export class AIEngine {
           // Use the preserved constructed messages to maintain file context in fallback
           const messagesForFallback = constructedMessages || [{ role: 'user', content: request.content }]
 
-          console.log('[AI Engine] Attempting fallback with preserved messages:', messagesForFallback.length)
+          console.log('[FALLBACK] Attempting fallback with preserved messages:', messagesForFallback.length)
 
           // Stream with fallback through ProviderManager
           for await (const event of providerManager.executeStreamingWithFallback({
@@ -244,6 +225,7 @@ export class AIEngine {
           }
         } catch (fallbackError) {
           // Fallback also failed
+          console.log('[FALLBACK] Fallback also failed:', fallbackError)
           yield {
             type: 'stream',
             data: {

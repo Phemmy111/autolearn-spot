@@ -366,13 +366,23 @@ export class ProviderManager {
     const fallbackAttempts: FallbackAttempt[] = []
     const exhaustedProviders = new Set<string>() // Track providers with exhausted quota
 
+    console.log('[FALLBACK] executeWithFallback called')
+    
     // Reload providers to get current configuration
     await this.loadProviders()
 
     // Get active providers from registry
     const activeProviders = this.registry.getEnabledProviders()
 
+    console.log('[FALLBACK] Active providers for fallback:', activeProviders.map(p => ({
+      id: p.id,
+      name: p.name,
+      priority: p.priority,
+      type: p.type
+    })))
+
     if (activeProviders.length === 0) {
+      console.log('[FALLBACK] No active providers available')
       throw new Error('No active providers available')
     }
 
@@ -380,11 +390,26 @@ export class ProviderManager {
     for (const provider of activeProviders) {
       // Skip providers that have exhausted quota in this request
       if (exhaustedProviders.has(provider.id)) {
+        console.log('[FALLBACK] Skipping exhausted provider:', provider.id, provider.name)
         continue
       }
 
+      console.log('[FALLBACK] Attempting provider:', {
+        id: provider.id,
+        name: provider.name,
+        priority: provider.priority,
+        type: provider.type
+      })
+      
       try {
         const result = await this.executeOnProvider(provider, request)
+        
+        console.log('[FALLBACK] Provider succeeded:', {
+          id: provider.id,
+          name: provider.name,
+          priority: provider.priority
+        })
+        
         return {
           ...result,
           fallbackOccurred: fallbackAttempts.length > 0,
@@ -392,6 +417,16 @@ export class ProviderManager {
         }
       } catch (error) {
         const providerError = classifyError(error)
+
+        console.log('[FALLBACK] Provider failed:', {
+          id: provider.id,
+          name: provider.name,
+          priority: provider.priority,
+          errorType: providerError.type,
+          errorMessage: providerError.message,
+          retryable: providerError.retryable,
+          statusCode: providerError.statusCode
+        })
 
         // Log attempt
         fallbackAttempts.push({
@@ -406,6 +441,7 @@ export class ProviderManager {
         if (!isRetryableError(providerError)) {
           // Special handling for quota_exhausted - skip provider but continue fallback
           if (providerError.type === 'quota_exhausted') {
+            console.log('[FALLBACK] Quota exhausted detected - skipping provider but continuing fallback:', provider.id)
             exhaustedProviders.add(provider.id) // Mark as exhausted for this request
             await this.updateProviderHealth(provider.id, {
               healthStatus: 'unavailable',
@@ -416,6 +452,7 @@ export class ProviderManager {
             continue
           }
           
+          console.log('[FALLBACK] Non-retryable error - stopping fallback chain:', providerError.type)
           await this.updateProviderHealth(provider.id, {
             healthStatus: 'unavailable',
             healthError: providerError.message,
@@ -426,6 +463,7 @@ export class ProviderManager {
         }
 
         // Retryable error - mark as degraded and try next provider
+        console.log('[FALLBACK] Retryable error - trying next provider')
         await this.updateProviderHealth(provider.id, {
           healthStatus: 'degraded',
           healthError: providerError.message,
@@ -435,6 +473,7 @@ export class ProviderManager {
     }
 
     // All providers failed
+    console.log('[FALLBACK] All providers failed - throwing error')
     throw new Error('All providers failed')
   }
 
@@ -446,13 +485,23 @@ export class ProviderManager {
     const fallbackAttempts: FallbackAttempt[] = []
     const exhaustedProviders = new Set<string>() // Track providers with exhausted quota
 
+    console.log('[FALLBACK] executeStreamingWithFallback called')
+    
     // Reload providers to get current configuration
     await this.loadProviders()
 
     // Get active providers from registry
     const activeProviders = this.registry.getEnabledProviders()
 
+    console.log('[FALLBACK] Active providers for fallback:', activeProviders.map(p => ({
+      id: p.id,
+      name: p.name,
+      priority: p.priority,
+      type: p.type
+    })))
+
     if (activeProviders.length === 0) {
+      console.log('[FALLBACK] No active providers available')
       throw new Error('No active providers available')
     }
 
@@ -460,11 +509,17 @@ export class ProviderManager {
     for (const provider of activeProviders) {
       // Skip providers that have exhausted quota in this request
       if (exhaustedProviders.has(provider.id)) {
-        console.log('[ProviderManager] Skipping exhausted provider:', provider.id)
+        console.log('[FALLBACK] Skipping exhausted provider:', provider.id, provider.name)
         continue
       }
 
-      console.log('[ProviderManager] Trying provider:', provider.id, provider.name)
+      console.log('[FALLBACK] Attempting provider:', {
+        id: provider.id,
+        name: provider.name,
+        priority: provider.priority,
+        type: provider.type
+      })
+      
       try {
         let firstEvent = true
         for await (const event of provider.stream(request)) {
@@ -473,12 +528,24 @@ export class ProviderManager {
         }
 
         // Stream completed successfully
-        console.log('[ProviderManager] Provider succeeded:', provider.id)
+        console.log('[FALLBACK] Provider succeeded:', {
+          id: provider.id,
+          name: provider.name,
+          priority: provider.priority
+        })
         return
       } catch (error) {
         const providerError = classifyError(error)
 
-        console.log('[ProviderManager] Provider failed:', provider.id, 'error type:', providerError.type, 'retryable:', providerError.retryable)
+        console.log('[FALLBACK] Provider failed:', {
+          id: provider.id,
+          name: provider.name,
+          priority: provider.priority,
+          errorType: providerError.type,
+          errorMessage: providerError.message,
+          retryable: providerError.retryable,
+          statusCode: providerError.statusCode
+        })
 
         // Log attempt
         fallbackAttempts.push({
@@ -493,7 +560,7 @@ export class ProviderManager {
         if (!isRetryableError(providerError)) {
           // Special handling for quota_exhausted - skip provider but continue fallback
           if (providerError.type === 'quota_exhausted') {
-            console.log('[ProviderManager] Quota exhausted, skipping provider but continuing fallback')
+            console.log('[FALLBACK] Quota exhausted detected - skipping provider but continuing fallback:', provider.id)
             exhaustedProviders.add(provider.id) // Mark as exhausted for this request
             await this.updateProviderHealth(provider.id, {
               healthStatus: 'unavailable',
@@ -504,7 +571,7 @@ export class ProviderManager {
             continue
           }
           
-          console.log('[ProviderManager] Non-retryable error, stopping fallback')
+          console.log('[FALLBACK] Non-retryable error - stopping fallback chain:', providerError.type)
           await this.updateProviderHealth(provider.id, {
             healthStatus: 'unavailable',
             healthError: providerError.message,
@@ -515,7 +582,7 @@ export class ProviderManager {
         }
 
         // Retryable error - mark as degraded and try next provider
-        console.log('[ProviderManager] Retryable error, trying next provider')
+        console.log('[FALLBACK] Retryable error - trying next provider')
         await this.updateProviderHealth(provider.id, {
           healthStatus: 'degraded',
           healthError: providerError.message,
@@ -525,6 +592,7 @@ export class ProviderManager {
     }
 
     // All providers failed
+    console.log('[FALLBACK] All providers failed - throwing error')
     throw new Error('All providers failed')
   }
 
