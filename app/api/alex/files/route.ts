@@ -202,7 +202,7 @@ export async function POST(request: Request) {
       fileRecord = textFileRecord
 
       // Trigger text extraction (non-blocking)
-      triggerExtraction(fileRecord.id, file)
+      triggerExtraction(fileRecord.id, file, userId)
 
       console.log('[Files Route] Text file upload successful, extraction started', {
         fileId: fileRecord.id,
@@ -276,9 +276,9 @@ export async function GET(request: Request) {
 }
 
 // Non-blocking text extraction trigger
-async function triggerExtraction(fileId: string, file: File) {
+async function triggerExtraction(fileId: string, file: File, userId: string) {
   try {
-    console.log('[DIAGNOSTIC] EXTRACTION START', {
+    console.log('[EXTRACTION] Extraction trigger start', {
       fileId,
       filename: file.name,
       fileSize: file.size,
@@ -287,12 +287,13 @@ async function triggerExtraction(fileId: string, file: File) {
 
     // Skip extraction for images - they're already marked as ready
     if (file.type.startsWith('image/')) {
-      console.log('[DIAGNOSTIC] IMAGE EXTRACTION SKIPPED - ALREADY READY')
+      console.log('[EXTRACTION] Image extraction skipped - already ready')
       return
     }
 
     // Extract text with timeout
     const EXTRACTION_TIMEOUT = 60000 // 60 seconds
+    console.log('[EXTRACTION] Starting extraction with timeout')
     const extraction = await Promise.race([
       extractTextFromFile(file),
       new Promise((_, reject) => 
@@ -300,7 +301,7 @@ async function triggerExtraction(fileId: string, file: File) {
       )
     ]) as ExtractionResult
 
-    console.log('[DIAGNOSTIC] EXTRACTION RESULT', {
+    console.log('[EXTRACTION] Extraction completed', {
       fileId,
       success: extraction.success,
       textLength: extraction.text?.length || 0,
@@ -313,7 +314,7 @@ async function triggerExtraction(fileId: string, file: File) {
     if (extraction.success && extraction.text && isMeaningfulText(extraction.text)) {
       const sanitizedText = sanitizeExtractedText(extraction.text)
 
-      console.log('[DIAGNOSTIC] TEXT PERSISTENCE START', {
+      console.log('[EXTRACTION] Text persistence start', {
         fileId,
         sanitizedTextLength: sanitizedText.length
       })
@@ -331,14 +332,14 @@ async function triggerExtraction(fileId: string, file: File) {
         })
         .eq('id', fileId)
 
-      console.log('[DIAGNOSTIC] TEXT PERSISTENCE RESULT', {
+      console.log('[EXTRACTION] Text persistence result', {
         fileId,
         persistenceSuccess: !updateError,
         persistenceError: updateError?.message
       })
 
       if (updateError) {
-        console.error('[Files Route] Failed to persist extracted text:', updateError)
+        console.error('[EXTRACTION] Failed to persist extracted text:', updateError)
         // Mark as failed if text persistence fails
         await supabase
           .from('alex_files')
@@ -360,21 +361,21 @@ async function triggerExtraction(fileId: string, file: File) {
         })
         .eq('id', fileId)
 
-      console.log('[DIAGNOSTIC] FILE MARKED READY', {
+      console.log('[EXTRACTION] File marked ready', {
         fileId,
         finalStatus: 'ready',
         finalExtractionStatus: 'completed'
       })
 
       // Trigger Phase 3B indexing (non-blocking)
-      console.log('[Files Route] Triggering Phase 3B indexing for file:', fileId)
+      console.log('[EXTRACTION] Triggering Phase 3B indexing for file:', fileId)
       indexFile(fileId, userId).catch(error => {
-        console.error('[Files Route] Indexing failed for file:', fileId, 'error:', error)
+        console.error('[EXTRACTION] Indexing failed for file:', fileId, 'error:', error)
         // Indexing failure is logged but doesn't affect file readiness
       })
-      console.log('[Files Route] Indexing triggered (non-blocking)')
+      console.log('[EXTRACTION] Indexing triggered (non-blocking)')
     } else {
-      console.log('[DIAGNOSTIC] EXTRACTION FAILED', {
+      console.log('[EXTRACTION] Extraction failed', {
         fileId,
         reason: extraction.error || 'Text not meaningful',
         extractionSuccess: extraction.success,
@@ -392,10 +393,11 @@ async function triggerExtraction(fileId: string, file: File) {
         .eq('id', fileId)
     }
   } catch (error) {
-    console.error('[DIAGNOSTIC] EXTRACTION EXCEPTION', {
+    console.error('[EXTRACTION] Extraction exception', {
       fileId,
       error: error instanceof Error ? error.message : 'Unknown extraction error',
-      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+      stack: error instanceof Error ? error.stack : undefined
     })
     
     // Specific handling for timeout

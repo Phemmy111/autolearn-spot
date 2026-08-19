@@ -133,7 +133,7 @@ export function validateFile(file: File): FileValidation {
  */
 export async function extractTextFromFile(file: File): Promise<ExtractionResult> {
   try {
-    console.log('[DIAGNOSTIC] EXTRACTION START', {
+    console.log('[EXTRACTION] File extraction start', {
       filename: file.name,
       mimeType: file.type,
       fileSize: file.size,
@@ -143,16 +143,16 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
     const buffer = await file.arrayBuffer()
     const uint8Array = new Uint8Array(buffer)
 
-    console.log('[DIAGNOSTIC] FILE BUFFER LOADED', {
+    console.log('[EXTRACTION] File buffer loaded', {
       bufferSize: buffer.byteLength,
       uint8ArrayLength: uint8Array.length
     })
 
     switch (file.type) {
       case 'application/pdf':
-        console.log('[DIAGNOSTIC] PDF EXTRACTION START')
+        console.log('[EXTRACTION] PDF extraction selected')
         const pdfResult = await extractPDF(uint8Array)
-        console.log('[DIAGNOSTIC] PDF EXTRACTION RESULT', {
+        console.log('[EXTRACTION] PDF extraction completed', {
           success: pdfResult.success,
           textLength: pdfResult.text.length,
           error: pdfResult.error,
@@ -162,9 +162,9 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
       
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       case 'application/msword':
-        console.log('[DIAGNOSTIC] DOCX EXTRACTION START')
+        console.log('[EXTRACTION] DOCX extraction selected')
         const docxResult = await extractDOCX(uint8Array)
-        console.log('[DIAGNOSTIC] DOCX EXTRACTION RESULT', {
+        console.log('[EXTRACTION] DOCX extraction completed', {
           success: docxResult.success,
           textLength: docxResult.text.length,
           error: docxResult.error,
@@ -187,9 +187,9 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
       case 'text/x-c++':
       case 'text/x-csharp':
       case 'text/csv':
-        console.log('[DIAGNOSTIC] TEXT FILE EXTRACTION START')
+        console.log('[EXTRACTION] Text file extraction selected')
         const textResult = extractTextFile(uint8Array)
-        console.log('[DIAGNOSTIC] TEXT FILE EXTRACTION RESULT', {
+        console.log('[EXTRACTION] Text file extraction completed', {
           success: textResult.success,
           textLength: textResult.text.length,
           error: textResult.error,
@@ -200,7 +200,7 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
       case 'image/png':
       case 'image/jpeg':
       case 'image/webp':
-        console.log('[DIAGNOSTIC] IMAGE FILE DETECTED')
+        console.log('[EXTRACTION] Image file detected - no text extraction needed')
         // Images don't need text extraction - they're used directly for vision
         return {
           success: true,
@@ -211,7 +211,7 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
         }
 
       default:
-        console.log('[DIAGNOSTIC] UNSUPPORTED FILE TYPE', {
+        console.log('[EXTRACTION] Unsupported file type', {
           mimeType: file.type,
           filename: file.name
         })
@@ -223,10 +223,11 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
         }
     }
   } catch (error) {
-    console.log('[DIAGNOSTIC] EXTRACTION EXCEPTION', {
+    console.log('[EXTRACTION] Extraction exception', {
       error: error instanceof Error ? error.message : 'Unknown extraction error',
       filename: file.name,
-      mimeType: file.type
+      mimeType: file.type,
+      stack: error instanceof Error ? error.stack : undefined
     })
     return {
       success: false,
@@ -242,14 +243,14 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
  */
 async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
   try {
-    console.log('[DIAGNOSTIC] PDF PARSE START', {
+    console.log('[EXTRACTION] PDF extraction start', {
       bufferSize: buffer.length
     })
 
     const data = await pdf(Buffer.from(buffer))
     const text = data.text
 
-    console.log('[DIAGNOSTIC] PDF PARSE RESULT', {
+    console.log('[EXTRACTION] PDF extraction result', {
       pageCount: data.numpages,
       textLength: text.length,
       textTrimmedLength: text.trim().length,
@@ -257,7 +258,7 @@ async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
     })
 
     if (!text || text.trim().length === 0) {
-      console.log('[DIAGNOSTIC] PDF EXTRACTION FAILED - NO TEXT')
+      console.log('[EXTRACTION] PDF extraction failed - no text found')
       return {
         success: false,
         text: '',
@@ -269,6 +270,7 @@ async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
       }
     }
 
+    console.log('[EXTRACTION] PDF extraction succeeded')
     return {
       success: true,
       text: text.trim(),
@@ -282,9 +284,10 @@ async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
       }
     }
   } catch (error) {
-    console.log('[DIAGNOSTIC] PDF EXTRACTION EXCEPTION', {
+    console.log('[EXTRACTION] PDF extraction exception', {
       error: error instanceof Error ? error.message : 'PDF extraction failed',
-      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+      stack: error instanceof Error ? error.stack : undefined
     })
     return {
       success: false,
@@ -300,32 +303,44 @@ async function extractPDF(buffer: Uint8Array): Promise<ExtractionResult> {
  */
 async function extractDOCX(buffer: Uint8Array): Promise<ExtractionResult> {
   try {
-    console.log('[DIAGNOSTIC] DOCX PARSE START', {
+    console.log('[EXTRACTION] DOCX extraction start', {
       bufferSize: buffer.length,
       bufferType: buffer.constructor.name
     })
 
     // Try different buffer formats for mammoth
     let result
+    let lastError: Error | null = null
+    
     try {
+      console.log('[EXTRACTION] DOCX trying ArrayBuffer format')
       // Try with ArrayBuffer directly
       result = await mammoth.extractRawText({ arrayBuffer: buffer.buffer })
+      console.log('[EXTRACTION] DOCX ArrayBuffer format succeeded')
     } catch (bufferError) {
-      console.log('[DIAGNOSTIC] DOCX ArrayBuffer failed, trying Buffer')
+      lastError = bufferError instanceof Error ? bufferError : new Error(String(bufferError))
+      console.log('[EXTRACTION] DOCX ArrayBuffer failed, trying Buffer format:', lastError.message)
       // Try with Node.js Buffer
-      result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) })
+      try {
+        result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) })
+        console.log('[EXTRACTION] DOCX Buffer format succeeded')
+      } catch (bufferError2) {
+        const bufferError2Typed = bufferError2 instanceof Error ? bufferError2 : new Error(String(bufferError2))
+        console.log('[EXTRACTION] DOCX Buffer format also failed:', bufferError2Typed.message)
+        throw new Error(`DOCX extraction failed with both formats: ${lastError.message} | ${bufferError2Typed.message}`)
+      }
     }
 
     const text = result.value
 
-    console.log('[DIAGNOSTIC] DOCX PARSE RESULT', {
+    console.log('[EXTRACTION] DOCX extraction result', {
       textLength: text.length,
       textTrimmedLength: text.trim().length,
       hasText: !!text && text.trim().length > 0
     })
 
     if (!text || text.trim().length === 0) {
-      console.log('[DIAGNOSTIC] DOCX EXTRACTION FAILED - NO TEXT')
+      console.log('[EXTRACTION] DOCX extraction failed - no text found')
       return {
         success: false,
         text: '',
@@ -334,6 +349,7 @@ async function extractDOCX(buffer: Uint8Array): Promise<ExtractionResult> {
       }
     }
 
+    console.log('[EXTRACTION] DOCX extraction succeeded')
     return {
       success: true,
       text: text.trim(),
@@ -346,9 +362,10 @@ async function extractDOCX(buffer: Uint8Array): Promise<ExtractionResult> {
       }
     }
   } catch (error) {
-    console.log('[DIAGNOSTIC] DOCX EXTRACTION EXCEPTION', {
+    console.log('[EXTRACTION] DOCX extraction exception', {
       error: error instanceof Error ? error.message : 'DOCX extraction failed',
-      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown',
+      stack: error instanceof Error ? error.stack : undefined
     })
     return {
       success: false,
