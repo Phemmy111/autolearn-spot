@@ -113,11 +113,7 @@ export function AlexChat({ userId }: AlexChatProps) {
   const sendMessage = async (content: string, fileIds?: string[]) => {
     if (!currentConversation) {
       await startNewConversation()
-      // Re-check currentConversation after creation
-      if (!currentConversation) {
-        console.error('Failed to create conversation')
-        return
-      }
+      return
     }
 
     setIsLoading(true)
