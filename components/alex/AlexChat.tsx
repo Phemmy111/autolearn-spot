@@ -74,7 +74,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         setCurrentConversation(data.conversation)
         setMessages([])
         loadConversations()
-        return data.conversation // Return the conversation
+        return data.conversation
       }
     } catch (error) {
       console.error('Failed to create conversation:', error)
@@ -113,6 +113,12 @@ export function AlexChat({ userId }: AlexChatProps) {
   const sendMessage = async (content: string, fileIds?: string[]) => {
     if (!currentConversation) {
       await startNewConversation()
+      // Wait a moment for state to update
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+
+    if (!currentConversation) {
+      console.error('Failed to create conversation')
       return
     }
 
