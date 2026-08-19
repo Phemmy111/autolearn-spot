@@ -72,8 +72,7 @@ function generateRuleBasedTitle(message: string, mode: AlexMode): string | null 
   ).join(' ')
 
   // Ensure title isn't too long (target 3-6 words)
-  const wordCount = title.split(' ').length
-  if (wordCount > 6) {
+  if (title.split(' ').length > 6) {
     title = title.split(' ').slice(0, 6).join(' ')
   }
 
