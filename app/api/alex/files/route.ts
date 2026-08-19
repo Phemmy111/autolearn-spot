@@ -63,11 +63,15 @@ export async function POST(request: Request) {
     // Generate file ID and storage path
     const fileId = crypto.randomUUID()
     const fileExt = file.name.split('.').pop()
-    const storagePath = `alex/${userId}/${conversationId}/${fileId}/${file.name}`
+    
+    // Sanitize filename for storage path (remove special characters)
+    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const storagePath = `alex/${userId}/${conversationId}/${fileId}/${sanitizedFilename}`
 
     console.log('[DIAGNOSTIC] UPLOAD START', {
       fileId,
-      filename: file.name,
+      originalFilename: file.name,
+      sanitizedFilename,
       userId,
       conversationId,
       fileSize: file.size,
