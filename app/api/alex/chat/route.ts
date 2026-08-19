@@ -132,6 +132,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate title if conversation has default title
+    console.log('[DIAGNOSTIC] STARTING TITLE GENERATION LOGIC', {
+      conversationId,
+      conversationTitle: conversation.title
+    })
+
     const isDefaultTitle = conversation.title.startsWith('New') ||
                            conversation.title.startsWith('Learning') ||
                            conversation.title.startsWith('Development') ||
