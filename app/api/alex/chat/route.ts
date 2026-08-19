@@ -132,21 +132,47 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate title if conversation has default title
-    const isDefaultTitle = conversation.title.startsWith('New') || 
-                           conversation.title.startsWith('Learning') || 
-                           conversation.title.startsWith('Development') || 
+    const isDefaultTitle = conversation.title.startsWith('New') ||
+                           conversation.title.startsWith('Learning') ||
+                           conversation.title.startsWith('Development') ||
                            conversation.title.startsWith('Automation') ||
-                           conversation.title.startsWith('Research') || 
+                           conversation.title.startsWith('Research') ||
                            conversation.title.startsWith('Agent')
-    
+
+    console.log('[DIAGNOSTIC] TITLE GENERATION CHECK', {
+      conversationId,
+      currentTitle: conversation.title,
+      isDefaultTitle,
+      firstMessage: content,
+      mode
+    })
+
     if (isDefaultTitle) {
       try {
         const baseUrl = request.nextUrl.origin
-        await fetch(`${baseUrl}/api/alex/conversations/${conversationId}/title`, {
+        console.log('[DIAGNOSTIC] CALLING TITLE GENERATION API', {
+          url: `${baseUrl}/api/alex/conversations/${conversationId}/title`,
+          payload: { firstMessage: content, mode }
+        })
+
+        const titleResponse = await fetch(`${baseUrl}/api/alex/conversations/${conversationId}/title`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ firstMessage: content, mode }),
         })
+
+        console.log('[DIAGNOSTIC] TITLE GENERATION RESPONSE', {
+          status: titleResponse.status,
+          ok: titleResponse.ok
+        })
+
+        if (titleResponse.ok) {
+          const titleData = await titleResponse.json()
+          console.log('[DIAGNOSTIC] NEW TITLE GENERATED', {
+            newTitle: titleData.conversation?.title,
+            oldTitle: conversation.title
+          })
+        }
       } catch (error) {
         console.error('Failed to generate conversation title:', error)
         // Don't fail the whole request if title generation fails
