@@ -4,13 +4,14 @@
  * Orchestrates multi-provider management, health monitoring, and fallback
  */
 
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseUrl, supabaseServiceRoleKey, supabaseAdmin } from '@/lib/supabase'
 import { ProviderConfig, ProviderHealthCheck, ProviderRequestResult, FallbackAttempt, classifyError, isRetryableError } from './provider-manager-types'
 import { ProviderRegistry } from './provider-registry'
 import { AIProvider, AIStreamEvent } from './provider-interface'
 import { ProviderFactory } from './provider-factory'
 import crypto from 'crypto'
 import { currentUser } from '@clerk/nextjs/server'
+import { createClient } from '@supabase/supabase-js'
 
 export class ProviderManager {
   private registry: ProviderRegistry
@@ -28,6 +29,36 @@ export class ProviderManager {
   private getEncryptionKey(): Buffer {
     const key = Buffer.from(this.encryptionKey.padEnd(32, '0').slice(0, 32))
     return key
+  }
+
+  /**
+   * Get Supabase admin client (lazy initialization)
+   */
+  private getSupabaseAdmin() {
+    if (!supabaseServiceRoleKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for provider management')
+    }
+    return createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  }
+
+  /**
+   * Get Supabase admin client (lazy initialization)
+   */
+  private getSupabaseAdmin() {
+    if (!supabaseServiceRoleKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for provider management')
+    }
+    return createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
   }
 
   /**
@@ -61,7 +92,7 @@ export class ProviderManager {
    */
   async loadProviders(): Promise<void> {
     try {
-      const { data: configs, error } = await supabaseAdmin
+      const { data: configs, error } = await this.getSupabaseAdmin()
         .from('alex_provider_config')
         .select('*')
         .eq('is_active', true)
@@ -178,7 +209,7 @@ export class ProviderManager {
     await this.loadProviders()
 
     // Get provider config from database
-    const { data: provider, error } = await supabaseAdmin
+    const { data: provider, error } = await this.getSupabaseAdmin()
       .from('alex_provider_config')
       .select('*')
       .eq('id', providerId)
@@ -259,7 +290,7 @@ export class ProviderManager {
     providerId: string,
     updates: Partial<ProviderConfig>
   ): Promise<void> {
-    const { error } = await supabaseAdmin
+    const { error } = await this.getSupabaseAdmin()
       .from('alex_provider_config')
       .update({
         health_status: updates.healthStatus,
@@ -298,7 +329,7 @@ export class ProviderManager {
       const conversationId = request.conversationId
 
       // Get provider type from database
-      const { data: provider } = await supabaseAdmin
+      const { data: provider } = await this.getSupabaseAdmin()
         .from('alex_provider_config')
         .select('provider_type')
         .eq('id', providerId)
@@ -306,7 +337,7 @@ export class ProviderManager {
 
       const providerType = provider?.provider_type || 'unknown'
 
-      await supabaseAdmin.from('alex_usage').insert({
+      await this.getSupabaseAdmin().from('alex_usage').insert({
         user_id: userId || 'system',
         conversation_id: conversationId || null,
         model,
@@ -515,7 +546,7 @@ export class ProviderManager {
    */
   async refreshModels(providerId: string): Promise<string[]> {
     // Get provider config from database
-    const { data: provider, error } = await supabaseAdmin
+    const { data: provider, error } = await this.getSupabaseAdmin()
       .from('alex_provider_config')
       .select('*')
       .eq('id', providerId)
@@ -536,7 +567,7 @@ export class ProviderManager {
           'gemini-pro-vision',
         ]
 
-        await supabaseAdmin
+        await this.getSupabaseAdmin()
           .from('alex_provider_config')
           .update({
             models: { available: defaultModels },
@@ -564,7 +595,7 @@ export class ProviderManager {
       const data = await response.json()
       const models = data.data?.map((m: any) => m.id) || []
 
-      await supabaseAdmin
+      await this.getSupabaseAdmin()
         .from('alex_provider_config')
         .update({
           models: { available: models },
