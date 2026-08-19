@@ -149,28 +149,29 @@ export async function POST(request: NextRequest) {
 
     if (isDefaultTitle) {
       try {
-        const baseUrl = request.nextUrl.origin
-        console.log('[DIAGNOSTIC] CALLING TITLE GENERATION API', {
-          url: `${baseUrl}/api/alex/conversations/${conversationId}/title`,
-          payload: { firstMessage: content, mode }
+        // Import and call title generation directly to avoid authentication issues
+        const { generateConversationTitle } = await import('@/lib/alex/title-generator')
+        const newTitle = await generateConversationTitle(content, mode)
+
+        console.log('[DIAGNOSTIC] TITLE GENERATED', {
+          newTitle,
+          oldTitle: conversation.title
         })
 
-        const titleResponse = await fetch(`${baseUrl}/api/alex/conversations/${conversationId}/title`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ firstMessage: content, mode }),
-        })
+        // Update conversation title directly
+        const { data: updatedConversation, error: updateError } = await supabase
+          .from('alex_conversations')
+          .update({ title: newTitle })
+          .eq('id', conversationId)
+          .select()
+          .single()
 
-        console.log('[DIAGNOSTIC] TITLE GENERATION RESPONSE', {
-          status: titleResponse.status,
-          ok: titleResponse.ok
-        })
-
-        if (titleResponse.ok) {
-          const titleData = await titleResponse.json()
-          console.log('[DIAGNOSTIC] NEW TITLE GENERATED', {
-            newTitle: titleData.conversation?.title,
-            oldTitle: conversation.title
+        if (updateError) {
+          console.error('Failed to update conversation title:', updateError)
+        } else {
+          console.log('[DIAGNOSTIC] TITLE UPDATED SUCCESSFULLY', {
+            conversationId,
+            newTitle: updatedConversation.title
           })
         }
       } catch (error) {
