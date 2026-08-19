@@ -133,7 +133,19 @@ export async function POST(request: Request) {
     // Trigger text extraction (non-blocking)
     // In production, this would go to a queue/job system
     // Extraction happens asynchronously - the response will show 'processing' status
-    triggerExtraction(fileRecord.id, file)
+    // For images, skip extraction and mark as ready immediately
+    if (file.type.startsWith('image/')) {
+      console.log('[Files Route] Image file detected, marking as ready immediately')
+      await supabase
+        .from('alex_files')
+        .update({
+          status: 'ready',
+          extraction_status: 'completed'
+        })
+        .eq('id', fileRecord.id)
+    } else {
+      triggerExtraction(fileRecord.id, file)
+    }
 
     console.log('[Files Route] File upload successful, extraction started', {
       fileId: fileRecord.id,
@@ -216,6 +228,12 @@ async function triggerExtraction(fileId: string, file: File) {
       fileSize: file.size,
       mimeType: file.type
     })
+
+    // Skip extraction for images - they're already marked as ready
+    if (file.type.startsWith('image/')) {
+      console.log('[DIAGNOSTIC] IMAGE EXTRACTION SKIPPED - ALREADY READY')
+      return
+    }
 
     // Extract text
     const extraction = await extractTextFromFile(file)

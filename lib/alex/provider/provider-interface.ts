@@ -9,9 +9,17 @@ export type AIProviderType = 'self_hosted' | 'openrouter' | 'openai' | 'groq' | 
 
 export type MessageRole = 'user' | 'assistant' | 'system';
 
+export interface ImageContent {
+  type: 'image_url';
+  image_url: {
+    url: string;
+    detail?: 'low' | 'high' | 'auto';
+  };
+}
+
 export interface AIMessage {
   role: MessageRole;
-  content: string;
+  content: string | Array<{ type: 'text'; text: string } | ImageContent>;
 }
 
 export interface AIRequest {

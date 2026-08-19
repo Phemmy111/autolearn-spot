@@ -206,19 +206,25 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Attached files not found or access denied' }, { status: 404 })
       }
 
-      // Validate that all files are ready and have extracted text
+      // Validate that all files are ready and have extracted text (for text files)
+      // Images are ready immediately and don't need text extraction
       const notReadyFiles = files.filter(f =>
-        f.extraction_status !== 'completed' ||
-        !f.extracted_text ||
-        f.extracted_text.trim().length === 0
+        !f.mime_type.startsWith('image/') && (
+          f.extraction_status !== 'completed' ||
+          !f.extracted_text ||
+          f.extracted_text.trim().length === 0
+        )
       )
 
       console.log('[DIAGNOSTIC] CHAT FILE VALIDATION', {
         totalFiles: files.length,
         notReadyFiles: notReadyFiles.length,
+        imageFiles: files.filter(f => f.mime_type.startsWith('image/')).length,
+        textFiles: files.filter(f => !f.mime_type.startsWith('image/')).length,
         filesStatus: files.map(f => ({
           id: f.id,
           filename: f.original_filename,
+          mime_type: f.mime_type,
           extraction_status: f.extraction_status,
           has_text: !!f.extracted_text,
           text_length: f.extracted_text?.length
@@ -253,6 +259,47 @@ export async function POST(request: NextRequest) {
       console.log('[CHAT] All files validated and ready for context')
       console.log('[CHAT] File details:', attachedFiles.map(f => ({ id: f.id, original_filename: f.original_filename, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text, text_length: f.extracted_text?.length })))
       alexLogger.debug('CHAT', 'Attached files validated', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
+
+      // For image files, fetch the actual image data and convert to base64
+      const imageFiles = attachedFiles.filter(f => f.mime_type.startsWith('image/'))
+      if (imageFiles.length > 0) {
+        console.log('[DIAGNOSTIC] FETCHING IMAGE DATA', {
+          imageCount: imageFiles.length,
+          imageFilenames: imageFiles.map(f => f.original_filename)
+        })
+
+        for (const imageFile of imageFiles) {
+          try {
+            // Download the image from Supabase Storage
+            const { data: fileData, error: downloadError } = await supabase.storage
+              .from('alex-files')
+              .download(imageFile.storage_path)
+
+            if (downloadError) {
+              console.error('[CHAT] Failed to download image:', downloadError)
+              continue
+            }
+
+            // Convert to base64
+            const arrayBuffer = await fileData.arrayBuffer()
+            const base64 = Buffer.from(arrayBuffer).toString('base64')
+            const mimeType = imageFile.mime_type
+            const dataUrl = `data:${mimeType};base64,${base64}`
+
+            // Store the data URL in the file object for later use
+            imageFile.imageDataUrl = dataUrl
+
+            console.log('[DIAGNOSTIC] IMAGE DATA FETCHED', {
+              fileId: imageFile.id,
+              filename: imageFile.original_filename,
+              dataSize: base64.length,
+              mimeType
+            })
+          } catch (error) {
+            console.error('[CHAT] Error processing image:', error)
+          }
+        }
+      }
     }
 
     // Build conversation history for orchestrator
@@ -271,6 +318,9 @@ export async function POST(request: NextRequest) {
           let modelUsed = 'unknown'
 
           // Process through AI engine with platform context
+          let imageFiles: any[] = []
+          let aiRequest: any = null
+
           for await (const chunk of AIEngine.streamChat({
             content,
             mode: mode as AlexMode,
@@ -280,6 +330,40 @@ export async function POST(request: NextRequest) {
             userName,
             attachedFiles: attachedFiles || [],
           })) {
+            if (chunk.type === 'orchestrator') {
+              // Store image files and AI request for later processing
+              imageFiles = chunk.imageFiles || []
+              aiRequest = chunk.data?.aiRequest
+
+              // Replace placeholder URLs with actual image data URLs
+              if (imageFiles.length > 0 && aiRequest?.messages) {
+                for (const message of aiRequest.messages) {
+                  if (message.role === 'user' && Array.isArray(message.content)) {
+                    for (const contentItem of message.content) {
+                      if (contentItem.type === 'image_url' && contentItem.image_url?.url?.startsWith('placeholder://')) {
+                        const fileId = contentItem.image_url.url.replace('placeholder://', '')
+                        const imageFile = imageFiles.find(f => f.id === fileId)
+                        if (imageFile?.imageDataUrl) {
+                          contentItem.image_url.url = imageFile.imageDataUrl
+                          console.log('[DIAGNOSTIC] REPLACED IMAGE PLACEHOLDER', {
+                            fileId,
+                            filename: imageFile.original_filename
+                          })
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+
+              // Send orchestrator metadata
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({
+                  type: 'metadata',
+                  data: chunk.data
+                })}\n\n`)
+              )
+            } else if (chunk.type === 'stream') {
             if (chunk.type === 'orchestrator') {
               // Send orchestrator metadata
               controller.enqueue(

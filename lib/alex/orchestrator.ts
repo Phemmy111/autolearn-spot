@@ -1,7 +1,7 @@
 import { AlexMode, AlexFile } from './types'
 import { detectIntent } from './intent-detector'
-import { assembleContext } from './context-assembly'
-import { AIRequest, AIMessage } from './provider/provider-interface'
+import { assembleContext, AssemblyResult } from './context-assembly'
+import { AIRequest, AIMessage, ImageContent } from './provider/provider-interface'
 import { PlatformContext } from './context/context-types'
 
 export interface OrchestratorRequest {
@@ -19,6 +19,7 @@ export interface OrchestratorResponse {
   detectedIntent?: string
   suggestedMode?: AlexMode
   aiRequest: AIRequest
+  imageFiles?: AlexFile[]
 }
 
 /**
@@ -44,18 +45,20 @@ export class AlexOrchestrator {
     }
 
     // Assemble context with platform context and files if available
-    const context = await assembleContext(mode, conversationHistory, {
+    const assemblyResult = await assembleContext(mode, conversationHistory, {
       platformContext,
       userIntent: userIntent || content,
       attachedFiles,
     })
+
+    const { context, imageFiles } = assemblyResult
 
     // Generate system prompt based on mode
     const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext)
 
     // Build AI request for provider-agnostic interface
     const aiRequest: AIRequest = {
-      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context),
+      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context, imageFiles),
       stream: true, // Default to streaming
     }
 
@@ -63,16 +66,20 @@ export class AlexOrchestrator {
       messagesCount: aiRequest.messages.length,
       contextLength: context.length,
       hasFileContext: context.includes('Attached Documents'),
+      hasImageFiles: imageFiles.length > 0,
+      imageFilesCount: imageFiles.length,
+      imageFilenames: imageFiles.map(f => f.original_filename),
       contextPreview: context.substring(0, 300),
       messagesPreview: aiRequest.messages.map(m => ({
         role: m.role,
-        contentLength: m.content?.length || 0,
-        contentPreview: m.content?.substring(0, 100) || ''
+        contentLength: typeof m.content === 'string' ? m.content.length : 'multimodal',
+        contentPreview: typeof m.content === 'string' ? m.content.substring(0, 100) : 'multimodal content'
       }))
     })
     console.log('[Orchestrator] AI Request messages count:', aiRequest.messages.length)
     console.log('[Orchestrator] Context length:', context.length)
     console.log('[Orchestrator] Has file context:', context.includes('Attached Documents'))
+    console.log('[Orchestrator] Has image files:', imageFiles.length > 0)
 
     return {
       systemPrompt,
@@ -80,6 +87,7 @@ export class AlexOrchestrator {
       detectedIntent,
       suggestedMode,
       aiRequest,
+      imageFiles,
     }
   }
 
@@ -91,7 +99,8 @@ export class AlexOrchestrator {
     systemPrompt: string,
     conversationHistory: Array<{ role: string; content: string }>,
     platformContext?: PlatformContext,
-    fileContext?: string
+    fileContext?: string,
+    imageFiles?: AlexFile[]
   ): AIMessage[] {
     const messages: AIMessage[] = [
       {
@@ -129,11 +138,37 @@ export class AlexOrchestrator {
       })
     }
 
-    // Add current user message
-    messages.push({
-      role: 'user',
-      content,
-    })
+    // Add current user message with multimodal content if images are present
+    if (imageFiles && imageFiles.length > 0) {
+      // Build multimodal content: text + images
+      const multimodalContent: Array<{ type: 'text'; text: string } | ImageContent> = [
+        { type: 'text', text: content }
+      ]
+
+      // Add images to the content
+      for (const imageFile of imageFiles) {
+        // For now, we'll use a placeholder - the actual image data will be added in the chat route
+        // The chat route will replace this with the actual base64 data
+        multimodalContent.push({
+          type: 'image_url',
+          image_url: {
+            url: `placeholder://${imageFile.id}`,
+            detail: 'auto'
+          }
+        })
+      }
+
+      messages.push({
+        role: 'user',
+        content: multimodalContent
+      })
+    } else {
+      // Regular text-only message
+      messages.push({
+        role: 'user',
+        content,
+      })
+    }
 
     return messages
   }

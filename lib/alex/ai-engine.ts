@@ -33,6 +33,7 @@ export class AIEngine {
     orchestratorResponse: OrchestratorResponse;
     provider: AIProvider;
     platformContext?: PlatformContext;
+    imageFiles?: AlexFile[];
   }> {
     // Create request-local provider registry
     const registry = new ProviderRegistry()
@@ -85,6 +86,7 @@ export class AIEngine {
       orchestratorResponse,
       provider,
       platformContext,
+      imageFiles: orchestratorResponse.imageFiles,
     };
   }
 
@@ -100,6 +102,7 @@ export class AIEngine {
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
+    imageFiles?: AlexFile[];
   }> {
     let hasEmittedContent = false
     let streamError: Error | null = null
@@ -135,7 +138,9 @@ export class AIEngine {
         data: {
           detectedIntent: orchestratorResponse.detectedIntent,
           suggestedMode: orchestratorResponse.suggestedMode,
+          aiRequest: orchestratorResponse.aiRequest,
         },
+        imageFiles: orchestratorResponse.imageFiles,
       };
 
       console.log('[AI Engine] Starting provider stream, supportsStreaming:', provider.supportsStreaming())

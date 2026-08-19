@@ -82,6 +82,7 @@ export interface AlexFile {
   metadata: Record<string, any>
   created_at: string
   updated_at: string
+  imageDataUrl?: string // Added for image support - base64 data URL
 }
 
 export interface FileUploadRequest {

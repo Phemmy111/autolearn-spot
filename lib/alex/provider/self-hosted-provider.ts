@@ -12,7 +12,8 @@ import {
   AIResponse,
   AIStreamEvent,
   AIProviderHealth,
-  MessageRole
+  MessageRole,
+  ImageContent
 } from './provider-interface';
 
 export interface SelfHostedProviderConfig {
@@ -163,10 +164,16 @@ export class SelfHostedProvider implements AIProvider {
 
   private async makeRequest(request: AIRequest, stream: boolean): Promise<Response> {
     const headers = this.getHeaders();
-    
+
+    // Convert message content to OpenAI-compatible format
+    const messages = request.messages.map(msg => ({
+      role: msg.role,
+      content: typeof msg.content === 'string' ? msg.content : msg.content
+    }));
+
     const body = {
       model: this.config.model,
-      messages: request.messages,
+      messages,
       stream,
       ...(request.temperature !== undefined && { temperature: request.temperature }),
       ...(request.maxTokens !== undefined && { max_tokens: request.maxTokens }),

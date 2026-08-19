@@ -50,6 +50,9 @@ const FILE_TYPE_MAP: Record<string, string[]> = {
   'text/x-c++': ['cpp'],
   'text/x-csharp': ['cs'],
   'text/csv': ['csv'],
+  'image/png': ['png'],
+  'image/jpeg': ['jpg', 'jpeg'],
+  'image/webp': ['webp'],
 }
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
@@ -154,7 +157,20 @@ export async function extractTextFromFile(file: File): Promise<ExtractionResult>
           lines: textResult.metadata.lines
         })
         return textResult
-      
+
+      case 'image/png':
+      case 'image/jpeg':
+      case 'image/webp':
+        console.log('[DIAGNOSTIC] IMAGE FILE DETECTED')
+        // Images don't need text extraction - they're used directly for vision
+        return {
+          success: true,
+          text: '', // No text needed for images
+          metadata: {
+            extractionMethod: 'vision'
+          }
+        }
+
       default:
         console.log('[DIAGNOSTIC] UNSUPPORTED FILE TYPE', {
           mimeType: file.type,
