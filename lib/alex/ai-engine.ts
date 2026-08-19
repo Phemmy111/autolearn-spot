@@ -155,15 +155,17 @@ export class AIEngine {
         for await (const event of provider.stream(orchestratorResponse.aiRequest)) {
           console.log('[AI Engine] Stream event:', event.type)
 
+          // If this is an error event, throw it to trigger fallback
+          if (event.type === 'error') {
+            console.log('[AI Engine] ERROR EVENT DETECTED - throwing to trigger fallback')
+            const errorMessage = event.error || event.data?.error || 'Stream error'
+            console.log('[AI Engine] Error message:', errorMessage)
+            throw new Error(errorMessage)
+          }
+
           // Track if meaningful content has been emitted
           if (event.type === 'delta' && event.data?.text) {
             hasEmittedContent = true
-          }
-
-          // If this is an error event, throw it to trigger fallback
-          if (event.type === 'error') {
-            console.log('[AI Engine] Error event received from provider, throwing to trigger fallback:', event.error || event.data?.error)
-            throw new Error(event.error || event.data?.error || 'Stream error')
           }
 
           yield {
