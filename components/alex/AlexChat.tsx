@@ -111,7 +111,6 @@ export function AlexChat({ userId }: AlexChatProps) {
   const sendMessage = async (content: string, fileIds?: string[]) => {
     if (!currentConversation) {
       await startNewConversation()
-      return
     }
 
     setIsLoading(true)
