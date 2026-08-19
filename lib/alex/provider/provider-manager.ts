@@ -4,7 +4,7 @@
  * Orchestrates multi-provider management, health monitoring, and fallback
  */
 
-import { supabaseUrl, supabaseServiceRoleKey, supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { ProviderConfig, ProviderHealthCheck, ProviderRequestResult, FallbackAttempt, classifyError, isRetryableError } from './provider-manager-types'
 import { ProviderRegistry } from './provider-registry'
 import { AIProvider, AIStreamEvent } from './provider-interface'
@@ -35,22 +35,10 @@ export class ProviderManager {
    * Get Supabase admin client (lazy initialization)
    */
   private getSupabaseAdmin() {
-    if (!supabaseServiceRoleKey) {
-      throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for provider management')
-    }
-    return createClient(supabaseUrl, supabaseServiceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    })
-  }
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  /**
-   * Get Supabase admin client (lazy initialization)
-   */
-  private getSupabaseAdmin() {
-    if (!supabaseServiceRoleKey) {
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY is required for provider management')
     }
     return createClient(supabaseUrl, supabaseServiceRoleKey, {
