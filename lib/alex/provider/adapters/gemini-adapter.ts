@@ -167,7 +167,8 @@ export class GeminiAdapter implements AIProvider {
         }
       }
     } catch (error) {
-      yield { type: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } }
+      console.log('[Gemini Adapter] Stream error - throwing to trigger fallback:', error instanceof Error ? error.message : 'Unknown error')
+      throw error // Throw instead of yielding to trigger fallback logic
     }
   }
 

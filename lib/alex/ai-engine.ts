@@ -93,9 +93,6 @@ export class AIEngine {
     imageFiles?: AlexFile[];
   }> {
     let hasEmittedContent = false
-    let streamError: Error | null = null
-    let fallbackAttempted = false
-    let constructedMessages: AIMessage[] | null = null
 
     try {
       console.log('[FALLBACK] Starting provider selection for streaming request')
@@ -140,9 +137,6 @@ export class AIEngine {
       })
       console.log('[AI Engine] Orchestrator response received')
 
-      // Preserve constructed messages for potential fallback
-      constructedMessages = orchestratorResponse.aiRequest.messages
-
       yield {
         type: 'orchestrator',
         data: {
@@ -164,6 +158,12 @@ export class AIEngine {
         conversationId: request.conversationId,
         mode: request.mode,
       })) {
+        // Check for error events and convert to thrown errors for proper fallback handling
+        if (event.type === 'error') {
+          console.log('[AI Engine] Error event from provider - throwing to trigger fallback:', event.data?.error)
+          throw new Error(event.data?.error || 'Stream error')
+        }
+        
         if (event.type === 'delta' && event.data?.text) {
           hasEmittedContent = true
         }
@@ -173,11 +173,10 @@ export class AIEngine {
         };
       }
     } catch (error) {
-      streamError = error instanceof Error ? error : new Error('Unknown error')
-      console.log('[FALLBACK] Streaming failed with error:', streamError.message)
+      const streamError = error instanceof Error ? error : new Error('Unknown error')
+      console.log('[FALLBACK] All providers failed - final error:', streamError.message)
 
-      // If content was already emitted, do NOT attempt fallback
-      // Terminate stream with error instead
+      // If content was already emitted, indicate partial response
       if (hasEmittedContent) {
         yield {
           type: 'stream',
@@ -193,60 +192,17 @@ export class AIEngine {
         return
       }
 
-      // If no content emitted yet and fallback not yet attempted, try fallback
-      if (!fallbackAttempted) {
-        fallbackAttempted = true
-        try {
-          const registry = new ProviderRegistry()
-          const providerManager = new ProviderManager(registry)
-
-          // Use the preserved constructed messages to maintain file context in fallback
-          const messagesForFallback = constructedMessages || [{ role: 'user', content: request.content }]
-
-          console.log('[FALLBACK] Attempting fallback with preserved messages:', messagesForFallback.length)
-
-          // Stream with fallback through ProviderManager
-          for await (const event of providerManager.executeStreamingWithFallback({
-            messages: messagesForFallback,
-            model: request.model,
-            temperature: request.temperature,
-            maxTokens: request.maxTokens,
-            stream: true,
-            conversationId: request.conversationId,
-            mode: request.mode,
-          })) {
-            if (event.type === 'delta' && event.data?.text) {
-              hasEmittedContent = true
-            }
-            yield {
-              type: 'stream',
-              data: event,
-            };
-          }
-        } catch (fallbackError) {
-          // Fallback also failed
-          console.log('[FALLBACK] Fallback also failed:', fallbackError)
-          yield {
-            type: 'stream',
-            data: {
-              type: 'error',
-              data: {
-                error: streamError.message,
-                fallbackFailed: true,
-              },
-            },
-          };
-        }
-      } else {
-        // Already attempted fallback and it failed
-        yield {
-          type: 'stream',
+      // No content emitted - yield final error after all providers failed
+      yield {
+        type: 'stream',
+        data: {
+          type: 'error',
           data: {
-            type: 'error',
-            data: { error: streamError.message },
+            error: streamError.message,
+            allProvidersFailed: true,
           },
-        };
-      }
+        },
+      };
     }
   }
 

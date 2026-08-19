@@ -81,6 +81,7 @@ export class OpenAICompatibleAdapter implements AIProvider {
       } catch {
         // Keep original error text if not JSON
       }
+      console.log('[OpenAI Adapter] HTTP error in generate() - throwing to trigger fallback:', errorMessage)
       throw new Error(errorMessage)
     }
 
@@ -139,6 +140,7 @@ export class OpenAICompatibleAdapter implements AIProvider {
         } catch {
           // Keep original error text if not JSON
         }
+        console.log('[OpenAI Adapter] HTTP error - throwing to trigger fallback:', errorMessage)
         throw new Error(errorMessage)
       }
 
@@ -191,7 +193,8 @@ export class OpenAICompatibleAdapter implements AIProvider {
         }
       }
     } catch (error) {
-      yield { type: 'error', data: { error: error instanceof Error ? error.message : 'Unknown error' } }
+      console.log('[OpenAI Adapter] Stream error - throwing to trigger fallback:', error instanceof Error ? error.message : 'Unknown error')
+      throw error // Throw instead of yielding to trigger fallback logic
     }
   }
 
