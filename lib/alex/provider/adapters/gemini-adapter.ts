@@ -48,7 +48,7 @@ export class GeminiAdapter implements AIProvider {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
-      signal: AbortSignal.timeout(this.config.requestTimeout),
+      signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
     })
 
     if (!response.ok) {
@@ -93,7 +93,7 @@ export class GeminiAdapter implements AIProvider {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(this.config.requestTimeout),
+        signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
       })
 
       if (!response.ok) {

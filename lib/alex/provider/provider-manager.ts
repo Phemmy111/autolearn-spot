@@ -159,7 +159,7 @@ export class ProviderManager {
       healthError: dbConfig.health_error,
       fallbackEnabled: dbConfig.fallback_enabled !== false,
       capabilities: dbConfig.capabilities || [],
-      requestTimeout: dbConfig.request_timeout || 30000,
+      requestTimeout: dbConfig.request_timeout || 120000, // Increased from 30s to 2 minutes
       modelListMetadata: dbConfig.model_list_metadata || {},
       lastSuccessAt: dbConfig.last_success_at,
       failureCount: dbConfig.failure_count || 0,
@@ -554,7 +554,7 @@ export class ProviderManager {
 
       const response = await fetch(`${baseUrl}/models`, {
         headers,
-        signal: AbortSignal.timeout(30000),
+        signal: AbortSignal.timeout(120000), // Increased from 30s to 2 minutes
       })
 
       if (!response.ok) {

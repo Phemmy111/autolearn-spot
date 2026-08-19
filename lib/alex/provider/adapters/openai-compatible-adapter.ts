@@ -64,7 +64,7 @@ export class OpenAICompatibleAdapter implements AIProvider {
         max_tokens: request.maxTokens ?? 4000,
         stream: false,
       }),
-      signal: AbortSignal.timeout(this.config.requestTimeout),
+      signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
     })
 
     if (!response.ok) {
@@ -110,7 +110,7 @@ export class OpenAICompatibleAdapter implements AIProvider {
           max_tokens: request.maxTokens ?? 4000,
           stream: true,
         }),
-        signal: AbortSignal.timeout(this.config.requestTimeout),
+        signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
       })
 
       if (!response.ok) {

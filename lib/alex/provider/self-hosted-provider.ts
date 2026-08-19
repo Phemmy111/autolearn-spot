@@ -41,7 +41,7 @@ export class SelfHostedProvider implements AIProvider {
       endpoint: config.endpoint,
       model: config.model,
       apiKey: config.apiKey,
-      timeout: config.timeout || 30000,
+      timeout: config.timeout || 120000, // Increased from 30s to 2 minutes
     };
   }
 
@@ -183,7 +183,7 @@ export class SelfHostedProvider implements AIProvider {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(this.config.timeout || 30000),
+      signal: AbortSignal.timeout(this.config.timeout || 120000), // Increased from 30s to 2 minutes
     });
 
     if (!response.ok) {
