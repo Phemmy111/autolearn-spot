@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Paperclip, Square, Mic, StopCircle, ChevronDown, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, X, FileText, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { Send, Paperclip, Square, Mic, StopCircle, ChevronDown, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, X, FileText, Upload, CheckCircle, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react'
 import { AlexFile } from '@/lib/alex/types'
 
 interface AlexInputAreaProps {
@@ -389,6 +389,7 @@ export function AlexInputArea({
     if (ext === 'pdf') return <FileText className="h-4 w-4" />
     if (['doc', 'docx'].includes(ext || '')) return <FileText className="h-4 w-4" />
     if (['txt', 'md', 'js', 'jsx', 'ts', 'tsx', 'json', 'css', 'html', 'py', 'java', 'c', 'cpp', 'cs'].includes(ext || '')) return <FileText className="h-4 w-4" />
+    if (['png', 'jpg', 'jpeg', 'webp'].includes(ext || '')) return <ImageIcon className="h-4 w-4" />
     return <FileText className="h-4 w-4" />
   }
 
@@ -498,7 +499,7 @@ export function AlexInputArea({
               ref={fileInputRef}
               type="file"
               multiple
-              accept=".pdf,.doc,.docx,.txt,.md,.js,.jsx,.ts,.tsx,.json,.css,.html,.py,.java,.c,.cpp,.cs,.csv"
+              accept=".pdf,.doc,.docx,.txt,.md,.js,.jsx,.ts,.tsx,.json,.css,.html,.py,.java,.c,.cpp,.cs,.csv,.png,.jpg,.jpeg,.webp"
               onChange={handleFileSelect}
               className="hidden"
             />
