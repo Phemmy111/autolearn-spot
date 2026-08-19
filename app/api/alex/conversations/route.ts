@@ -45,13 +45,28 @@ export async function GET() {
 // POST /api/alex/conversations - Create new conversation
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    console.log('[CONVERSATION CREATE] Starting conversation creation')
+
+    const authResult = await auth()
+    console.log('[CONVERSATION CREATE] Auth result', {
+      hasUserId: !!authResult?.userId,
+      userId: authResult?.userId
+    })
+
+    const { userId } = authResult
     if (!userId) {
+      console.error('[CONVERSATION CREATE] No userId found in auth')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
     const { mode = 'auto' } = body
+
+    console.log('[CONVERSATION CREATE] Creating conversation', {
+      userId,
+      mode,
+      defaultTitle: getDefaultTitle(mode)
+    })
 
     const { data: conversation, error } = await supabase
       .from('alex_conversations')
@@ -64,13 +79,18 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating conversation:', error)
+      console.error('[CONVERSATION CREATE] Database error:', error)
       return NextResponse.json({ error: 'Failed to create conversation' }, { status: 500 })
     }
 
+    console.log('[CONVERSATION CREATE] Success', {
+      conversationId: conversation.id,
+      title: conversation.title
+    })
+
     return NextResponse.json({ conversation }, { status: 201 })
   } catch (error) {
-    console.error('Error in POST /api/alex/conversations:', error)
+    console.error('[CONVERSATION CREATE] Exception:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

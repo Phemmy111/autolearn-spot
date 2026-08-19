@@ -64,20 +64,37 @@ export function AlexChat({ userId }: AlexChatProps) {
 
   const startNewConversation = async () => {
     try {
+      console.log('[AlexChat] Starting new conversation creation')
       const res = await fetch('/api/alex/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode }),
       })
+
+      console.log('[AlexChat] Conversation creation response', {
+        status: res.status,
+        ok: res.ok
+      })
+
       if (res.ok) {
         const data = await res.json()
+        console.log('[AlexChat] Conversation created successfully', {
+          conversationId: data.conversation?.id,
+          title: data.conversation?.title
+        })
         setCurrentConversation(data.conversation)
         setMessages([])
         loadConversations()
         return data.conversation
+      } else {
+        const errorData = await res.json().catch(() => ({}))
+        console.error('[AlexChat] Conversation creation failed', {
+          status: res.status,
+          error: errorData.error || 'Unknown error'
+        })
       }
     } catch (error) {
-      console.error('Failed to create conversation:', error)
+      console.error('[AlexChat] Failed to create conversation:', error)
     }
     return null
   }
