@@ -162,8 +162,8 @@ export class AIEngine {
 
           // If this is an error event, throw it to trigger fallback
           if (event.type === 'error') {
-            console.log('[AI Engine] Error event received from provider, throwing to trigger fallback')
-            throw new Error(event.data?.error || 'Stream error')
+            console.log('[AI Engine] Error event received from provider, throwing to trigger fallback:', event.error || event.data?.error)
+            throw new Error(event.error || event.data?.error || 'Stream error')
           }
 
           yield {
