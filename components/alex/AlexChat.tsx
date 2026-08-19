@@ -128,15 +128,19 @@ export function AlexChat({ userId }: AlexChatProps) {
   }
 
   const sendMessage = async (content: string, fileIds?: string[]) => {
-    if (!currentConversation) {
-      await startNewConversation()
-      // Wait a moment for state to update
-      await new Promise(resolve => setTimeout(resolve, 100))
-    }
+    let conversationToUse = currentConversation
 
-    if (!currentConversation) {
-      console.error('Failed to create conversation')
-      return
+    if (!conversationToUse) {
+      console.log('[AlexChat] No current conversation, creating new one')
+      const newConversation = await startNewConversation()
+      if (!newConversation) {
+        console.error('[AlexChat] Failed to create conversation')
+        return
+      }
+      conversationToUse = newConversation
+      console.log('[AlexChat] Using newly created conversation', {
+        conversationId: conversationToUse.id
+      })
     }
 
     setIsLoading(true)
@@ -154,7 +158,7 @@ export function AlexChat({ userId }: AlexChatProps) {
     // Add user message to UI immediately with attachment metadata
     const userMessage: Message = {
       id: crypto.randomUUID(),
-      conversation_id: currentConversation.id,
+      conversation_id: conversationToUse.id,
       role: 'user',
       content,
       file_ids: fileIds || [],
@@ -165,7 +169,7 @@ export function AlexChat({ userId }: AlexChatProps) {
 
     try {
       console.log('[DIAGNOSTIC] FRONTEND CHAT REQUEST', {
-        conversationId: currentConversation.id,
+        conversationId: conversationToUse.id,
         content,
         mode,
         fileIdsPresent: !!fileIds,
@@ -179,7 +183,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          conversationId: currentConversation.id,
+          conversationId: conversationToUse.id,
           content,
           mode,
           fileIds,
@@ -228,7 +232,7 @@ export function AlexChat({ userId }: AlexChatProps) {
                           ...prev,
                           {
                             id: crypto.randomUUID(),
-                            conversation_id: currentConversation.id,
+                            conversation_id: conversationToUse.id,
                             role: 'assistant',
                             content: assistantContent,
                             created_at: new Date().toISOString(),
@@ -243,7 +247,7 @@ export function AlexChat({ userId }: AlexChatProps) {
                       ...prev,
                       {
                         id: crypto.randomUUID(),
-                        conversation_id: currentConversation.id,
+                        conversation_id: conversationToUse.id,
                         role: 'assistant',
                         content: `Error: ${parsed.error}`,
                         created_at: new Date().toISOString(),
@@ -271,8 +275,8 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
 
     // Reload files after sending message to keep attachment UI in sync
-    if (currentConversation) {
-      fetch(`/api/alex/files?conversationId=${currentConversation.id}`)
+    if (conversationToUse) {
+      fetch(`/api/alex/files?conversationId=${conversationToUse.id}`)
         .then(res => res.json())
         .then(data => setAttachedFiles(data.files || []))
         .catch(err => console.error('Failed to reload files:', err))
