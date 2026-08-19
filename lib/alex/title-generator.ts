@@ -14,9 +14,21 @@ export async function generateConversationTitle(
   firstMessage: string,
   mode: AlexMode
 ): Promise<string> {
+  console.log('[TITLE GENERATOR] Starting title generation', {
+    firstMessage,
+    mode,
+    messageLength: firstMessage.length
+  })
+
   // Try enhanced rule-based generation first
   const ruleBasedTitle = generateRuleBasedTitle(firstMessage, mode)
+  console.log('[TITLE GENERATOR] Rule-based result', {
+    ruleBasedTitle,
+    isValid: !!ruleBasedTitle && ruleBasedTitle.length > 5
+  })
+
   if (ruleBasedTitle && ruleBasedTitle.length > 5) {
+    console.log('[TITLE GENERATOR] Using rule-based title', ruleBasedTitle)
     return ruleBasedTitle
   }
 
@@ -26,6 +38,7 @@ export async function generateConversationTitle(
     if (providerConfig && providerConfig.apiKey) {
       const aiTitle = await generateAITitle(firstMessage, mode, providerConfig)
       if (aiTitle && aiTitle.length > 5) {
+        console.log('[TITLE GENERATOR] Using AI title', aiTitle)
         return aiTitle
       }
     }
@@ -34,17 +47,26 @@ export async function generateConversationTitle(
   }
 
   // Final fallback
-  return getDefaultTitle(mode)
+  const defaultTitle = getDefaultTitle(mode)
+  console.log('[TITLE GENERATOR] Using default title', defaultTitle)
+  return defaultTitle
 }
 
 /**
  * Rule-based title generation
  */
 function generateRuleBasedTitle(message: string, mode: AlexMode): string | null {
+  console.log('[TITLE GENERATOR] Rule-based generation starting', {
+    message,
+    mode,
+    messageLength: message.length
+  })
+
   const trimmedMessage = message.trim()
   const words = trimmedMessage.split(/\s+/).slice(0, 10) // First 10 words for better context
 
   if (words.length === 0) {
+    console.log('[TITLE GENERATOR] No words found')
     return null
   }
 
@@ -53,6 +75,12 @@ function generateRuleBasedTitle(message: string, mode: AlexMode): string | null 
   const meaningfulWords = words.filter(word =>
     !stopWords.includes(word.toLowerCase()) && word.length > 2
   )
+
+  console.log('[TITLE GENERATOR] Word filtering', {
+    totalWords: words.length,
+    meaningfulWords: meaningfulWords.length,
+    stopWordsRemoved: words.length - meaningfulWords.length
+  })
 
   // If no meaningful words, use first 3 words
   const titleWords = meaningfulWords.length > 0 ? meaningfulWords.slice(0, 6) : words.slice(0, 3)
@@ -80,6 +108,12 @@ function generateRuleBasedTitle(message: string, mode: AlexMode): string | null 
   if (title.length > 50) {
     title = title.substring(0, 47) + '...'
   }
+
+  console.log('[TITLE GENERATOR] Rule-based result', {
+    title,
+    wordCount: title.split(' ').length,
+    charCount: title.length
+  })
 
   return title || null
 }
