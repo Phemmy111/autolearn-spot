@@ -11,16 +11,18 @@ import { generateEmbeddings, Chunk } from './embeddings'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error('Missing Supabase environment variables for retrieval')
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+// Create client lazily to avoid module-level errors
+function getSupabaseClient() {
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing Supabase environment variables for retrieval')
   }
-})
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 export interface RetrievalOptions {
   conversationId?: string
@@ -191,7 +193,7 @@ async function performSimilaritySearch(
   minSimilarity: number
 ): Promise<any[]> {
   // Call the match_document_chunks RPC function
-  const { data, error } = await supabase.rpc('match_document_chunks', {
+  const { data, error } = await getSupabaseClient().rpc('match_document_chunks', {
     p_query_embedding: queryEmbedding,
     p_user_id: userId,
     p_conversation_id: conversationId || null,
@@ -214,7 +216,7 @@ async function formatRetrievedChunks(chunks: any[]): Promise<RetrievedChunk[]> {
   const fileIds = [...new Set(chunks.map(c => c.file_id))]
 
   // Fetch filenames for all files
-  const { data: files, error: filesError } = await supabase
+  const { data: files, error: filesError } = await getSupabaseClient()
     .from('alex_files')
     .select('id, original_filename')
     .in('id', fileIds)
@@ -252,7 +254,7 @@ async function formatRetrievedChunks(chunks: any[]): Promise<RetrievedChunk[]> {
 export async function isRetrievalAvailable(userId: string): Promise<boolean> {
   try {
     // Check if user has any indexed files
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient()
       .from('alex_files')
       .select('id')
       .eq('user_id', userId)
@@ -276,7 +278,7 @@ export async function isRetrievalAvailable(userId: string): Promise<boolean> {
  */
 export async function getIndexedChunkCount(userId: string, conversationId?: string): Promise<number> {
   try {
-    let query = supabase
+    let query = getSupabaseClient()
       .from('alex_document_chunks')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId)

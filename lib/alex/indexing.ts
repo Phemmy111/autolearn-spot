@@ -12,16 +12,18 @@ import { generateEmbeddings, EmbeddedChunk, validateEmbeddedChunks } from './emb
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error('Missing Supabase environment variables for indexing')
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+// Create client lazily to avoid module-level errors
+function getSupabaseClient() {
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing Supabase environment variables for indexing')
   }
-})
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 export interface IndexingOptions {
   chunkSize?: number
@@ -126,7 +128,7 @@ export async function indexFile(
  * Load file with ownership verification
  */
 async function loadFileWithOwnership(fileId: string, userId: string): Promise<any> {
-  const { data: file, error } = await supabase
+  const { data: file, error } = await getSupabaseClient()
     .from('alex_files')
     .select('*')
     .eq('id', fileId)
@@ -161,7 +163,7 @@ function verifyFileReadyForIndexing(file: any): void {
  * Prevent concurrent indexing of the same file
  */
 async function preventConcurrentIndexing(fileId: string): Promise<void> {
-  const { data: file } = await supabase
+  const { data: file } = await getSupabaseClient()
     .from('alex_files')
     .select('indexing_status')
     .eq('id', fileId)
@@ -176,7 +178,7 @@ async function preventConcurrentIndexing(fileId: string): Promise<void> {
  * Set indexing status
  */
 async function setIndexingStatus(fileId: string, status: string): Promise<void> {
-  const { error } = await supabase
+  const { error } = await getSupabaseClient()
     .from('alex_files')
     .update({
       indexing_status: status,
@@ -250,7 +252,7 @@ async function replaceChunks(
   console.log('[Indexing] Replacing chunks for file:', fileId)
 
   // Step 1: Delete existing chunks for this file
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await getSupabaseClient()
     .from('alex_document_chunks')
     .delete()
     .eq('file_id', fileId)
@@ -278,14 +280,14 @@ async function replaceChunks(
     embedding_dimension: chunk.embeddingDimension
   }))
 
-  const { error: insertError } = await supabase
+  const { error: insertError } = await getSupabaseClient()
     .from('alex_document_chunks')
     .insert(chunkRecords)
 
   if (insertError) {
     // If insert fails, we have a partial state - attempt cleanup
     console.error('[Indexing] Failed to insert new chunks, attempting cleanup:', insertError)
-    await supabase
+    await getSupabaseClient()
       .from('alex_document_chunks')
       .delete()
       .eq('file_id', fileId)
@@ -307,7 +309,7 @@ async function verifyFinalState(
   console.log('[Indexing] Verifying final state for file:', fileId)
 
   // Step 1: Verify chunk count matches
-  const { data: storedChunks, error: fetchError } = await supabase
+  const { data: storedChunks, error: fetchError } = await getSupabaseClient()
     .from('alex_document_chunks')
     .select('*')
     .eq('file_id', fileId)
@@ -371,7 +373,7 @@ async function markAsIndexed(
   embeddedChunks: EmbeddedChunk[],
   embeddingModel?: string
 ): Promise<void> {
-  const { error } = await supabase
+  const { error } = await getSupabaseClient()
     .from('alex_files')
     .update({
       indexing_status: 'indexed',
@@ -400,7 +402,7 @@ async function markAsFailed(fileId: string, errorMessage: string): Promise<void>
 
   // Attempt to clean up partial chunks
   try {
-    await supabase
+    await getSupabaseClient()
       .from('alex_document_chunks')
       .delete()
       .eq('file_id', fileId)
@@ -410,7 +412,7 @@ async function markAsFailed(fileId: string, errorMessage: string): Promise<void>
     // Continue with marking as failed even if cleanup fails
   }
 
-  const { error } = await supabase
+  const { error } = await getSupabaseClient()
     .from('alex_files')
     .update({
       indexing_status: 'failed',
