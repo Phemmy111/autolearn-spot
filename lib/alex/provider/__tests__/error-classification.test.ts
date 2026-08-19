@@ -28,6 +28,22 @@ describe('Error Classification', () => {
       expect(classified.statusCode).toBe(429)
     })
 
+    it('should classify OpenRouter free-model quota exhaustion as non-retryable', () => {
+      const error = { message: 'Rate limit exceeded: free-models-per-day' }
+      const classified = classifyError(error, 429)
+      expect(classified.type).toBe('quota_exhausted')
+      expect(classified.retryable).toBe(false)
+      expect(classified.statusCode).toBe(429)
+    })
+
+    it('should classify OpenRouter free tier daily limit as non-retryable', () => {
+      const error = { message: 'openrouter_free_tier_daily exceeded' }
+      const classified = classifyError(error, 429)
+      expect(classified.type).toBe('quota_exhausted')
+      expect(classified.retryable).toBe(false)
+      expect(classified.statusCode).toBe(429)
+    })
+
     it('should classify server errors (5xx) as retryable', () => {
       const error = { message: 'Internal server error' }
       const classified = classifyError(error, 500)

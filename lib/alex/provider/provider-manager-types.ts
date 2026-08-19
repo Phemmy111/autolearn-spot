@@ -92,7 +92,7 @@ export interface ProviderRequestResult {
 
 export type RetryableErrorType = 'timeout' | 'connection' | 'rate_limit' | 'provider_unavailable' | 'server_error'
 
-export type NonRetryableErrorType = 'invalid_request' | 'invalid_credentials' | 'invalid_model' | 'malformed_request' | 'auth_error'
+export type NonRetryableErrorType = 'invalid_request' | 'invalid_credentials' | 'invalid_model' | 'malformed_request' | 'auth_error' | 'quota_exhausted'
 
 export interface ProviderError {
   type: RetryableErrorType | NonRetryableErrorType
@@ -126,6 +126,12 @@ export function classifyError(error: any, statusCode?: number): ProviderError {
 
   // Rate limiting
   if (statusCode === 429 || error.message?.includes('Rate limit')) {
+    // Check for OpenRouter free-model daily quota exhaustion - treat as hard failure
+    if (error.message?.includes('free-models-per-day') || 
+        error.message?.includes('openrouter_free_tier_daily') ||
+        error.message?.includes('free-models')) {
+      return { type: 'quota_exhausted', message: 'OpenRouter free-model daily quota exhausted', retryable: false, statusCode }
+    }
     return { type: 'rate_limit', message: 'Rate limit exceeded', retryable: true, statusCode }
   }
 

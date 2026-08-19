@@ -364,6 +364,7 @@ export class ProviderManager {
    */
   async executeWithFallback(request: any): Promise<ProviderRequestResult> {
     const fallbackAttempts: FallbackAttempt[] = []
+    const exhaustedProviders = new Set<string>() // Track providers with exhausted quota
 
     // Reload providers to get current configuration
     await this.loadProviders()
@@ -377,6 +378,11 @@ export class ProviderManager {
 
     // Try each provider in priority order
     for (const provider of activeProviders) {
+      // Skip providers that have exhausted quota in this request
+      if (exhaustedProviders.has(provider.id)) {
+        continue
+      }
+
       try {
         const result = await this.executeOnProvider(provider, request)
         return {
@@ -398,6 +404,18 @@ export class ProviderManager {
 
         // Update provider health
         if (!isRetryableError(providerError)) {
+          // Special handling for quota_exhausted - skip provider but continue fallback
+          if (providerError.type === 'quota_exhausted') {
+            exhaustedProviders.add(provider.id) // Mark as exhausted for this request
+            await this.updateProviderHealth(provider.id, {
+              healthStatus: 'unavailable',
+              healthError: providerError.message,
+              consecutiveFailureCount: 3,
+            })
+            // Continue to next provider in the chain
+            continue
+          }
+          
           await this.updateProviderHealth(provider.id, {
             healthStatus: 'unavailable',
             healthError: providerError.message,
@@ -426,6 +444,7 @@ export class ProviderManager {
    */
   async *executeStreamingWithFallback(request: any): AsyncGenerator<AIStreamEvent> {
     const fallbackAttempts: FallbackAttempt[] = []
+    const exhaustedProviders = new Set<string>() // Track providers with exhausted quota
 
     // Reload providers to get current configuration
     await this.loadProviders()
@@ -439,6 +458,12 @@ export class ProviderManager {
 
     // Try each provider in priority order
     for (const provider of activeProviders) {
+      // Skip providers that have exhausted quota in this request
+      if (exhaustedProviders.has(provider.id)) {
+        console.log('[ProviderManager] Skipping exhausted provider:', provider.id)
+        continue
+      }
+
       console.log('[ProviderManager] Trying provider:', provider.id, provider.name)
       try {
         let firstEvent = true
@@ -466,6 +491,19 @@ export class ProviderManager {
 
         // Update provider health
         if (!isRetryableError(providerError)) {
+          // Special handling for quota_exhausted - skip provider but continue fallback
+          if (providerError.type === 'quota_exhausted') {
+            console.log('[ProviderManager] Quota exhausted, skipping provider but continuing fallback')
+            exhaustedProviders.add(provider.id) // Mark as exhausted for this request
+            await this.updateProviderHealth(provider.id, {
+              healthStatus: 'unavailable',
+              healthError: providerError.message,
+              consecutiveFailureCount: 3,
+            })
+            // Continue to next provider in the chain
+            continue
+          }
+          
           console.log('[ProviderManager] Non-retryable error, stopping fallback')
           await this.updateProviderHealth(provider.id, {
             healthStatus: 'unavailable',

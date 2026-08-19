@@ -69,7 +69,19 @@ export class OpenAICompatibleAdapter implements AIProvider {
 
     if (!response.ok) {
       const error = await response.text()
-      throw new Error(`API error: ${response.status} - ${error}`)
+      // Try to parse as JSON for better error classification
+      let errorMessage = `API error: ${response.status} - ${error}`
+      try {
+        const errorJson = JSON.parse(error)
+        if (errorJson.error?.message) {
+          errorMessage = errorJson.error.message
+        } else if (errorJson.message) {
+          errorMessage = errorJson.message
+        }
+      } catch {
+        // Keep original error text if not JSON
+      }
+      throw new Error(errorMessage)
     }
 
     const data = await response.json()
@@ -115,7 +127,19 @@ export class OpenAICompatibleAdapter implements AIProvider {
 
       if (!response.ok) {
         const error = await response.text()
-        throw new Error(`API error: ${response.status} - ${error}`)
+        // Try to parse as JSON for better error classification
+        let errorMessage = `API error: ${response.status} - ${error}`
+        try {
+          const errorJson = JSON.parse(error)
+          if (errorJson.error?.message) {
+            errorMessage = errorJson.error.message
+          } else if (errorJson.message) {
+            errorMessage = errorJson.message
+          }
+        } catch {
+          // Keep original error text if not JSON
+        }
+        throw new Error(errorMessage)
       }
 
       const reader = response.body?.getReader()
