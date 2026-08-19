@@ -74,10 +74,12 @@ export function AlexChat({ userId }: AlexChatProps) {
         setCurrentConversation(data.conversation)
         setMessages([])
         loadConversations()
+        return data.conversation // Return the conversation
       }
     } catch (error) {
       console.error('Failed to create conversation:', error)
     }
+    return null
   }
 
   const selectConversation = async (conversationId: string) => {
@@ -111,6 +113,11 @@ export function AlexChat({ userId }: AlexChatProps) {
   const sendMessage = async (content: string, fileIds?: string[]) => {
     if (!currentConversation) {
       await startNewConversation()
+      // Re-check currentConversation after creation
+      if (!currentConversation) {
+        console.error('Failed to create conversation')
+        return
+      }
     }
 
     setIsLoading(true)
