@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
 import { auth } from '@clerk/nextjs/server'
 
 // GET /api/alex/conversations/[id]/messages - Get conversation messages
@@ -38,7 +38,8 @@ export async function GET(
       conversationId: id,
       userId,
       messagesFound: messages?.length || 0,
-      messagesWithFileIds: messages?.filter(m => m.file_ids && m.file_ids.length > 0).length || 0
+      messagesWithFileIds: messages?.filter(m => m.file_ids && m.file_ids.length > 0).length || 0,
+      clientType: 'anon (regular)'
     })
 
     if (error) {
@@ -78,28 +79,32 @@ export async function GET(
           let filesError = null
 
           // DEBUG: First check if files exist by querying all files in conversation
-          const { data: allConvFiles, error: allConvError } = await supabase
+          // Test with both clients to check RLS issues
+          const { data: allConvFiles, error: allConvError } = await supabaseAdmin
             .from('alex_files')
-            .select('id, original_filename')
+            .select('id, original_filename, conversation_id, user_id, status, extraction_status')
             .eq('conversation_id', id)
 
-          console.log('[DIAGNOSTIC] ALL CONVERSATION FILES', {
+          console.log('[DIAGNOSTIC] ALL CONVERSATION FILES (SERVICE ROLE)', {
             conversationId: id,
             allFilesCount: allConvFiles?.length || 0,
             allFileIds: allConvFiles?.map(f => f.id) || [],
             allFilenames: allConvFiles?.map(f => f.original_filename) || [],
-            allError: allConvError?.message
+            allError: allConvError?.message,
+            conversationIdMatch: allConvFiles?.map(f => f.conversation_id === id),
+            userIdMatch: allConvFiles?.map(f => f.user_id === userId),
+            clientType: 'service-role-admin'
           })
 
-          // Approach 1: Use .in() with array
+          // Approach 1: Use .in() with array with service role client
           try {
-            const result = await supabase
+            const result = await supabaseAdmin
               .from('alex_files')
               .select('*')
               .in('id', fileIds)
             files = result.data
             filesError = result.error
-            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 1 (.in)', {
+            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 1 (.in) - SERVICE ROLE', {
               messageId: message.id,
               filesFound: files?.length || 0,
               fetchError: filesError?.message,
@@ -115,14 +120,14 @@ export async function GET(
 
           // Approach 2: Try individual queries if .in() fails
           if (!files || files.length === 0) {
-            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 (individual queries)')
+            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 (individual queries) - SERVICE ROLE')
             const filePromises = fileIds.map(async (fileId) => {
-              const result = await supabase
+              const result = await supabaseAdmin
                 .from('alex_files')
                 .select('*')
                 .eq('id', fileId)
                 .maybeSingle() // Use maybeSingle instead of single to handle no rows gracefully
-              console.log('[DIAGNOSTIC] INDIVIDUAL FILE QUERY', {
+              console.log('[DIAGNOSTIC] INDIVIDUAL FILE QUERY - SERVICE ROLE', {
                 fileId,
                 found: !!result.data,
                 error: result.error?.message
@@ -131,7 +136,7 @@ export async function GET(
             })
             const individualFiles = await Promise.all(filePromises)
             files = individualFiles.filter(f => f !== null)
-            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 RESULT', {
+            console.log('[DIAGNOSTIC] MESSAGE FILE FETCH APPROACH 2 RESULT - SERVICE ROLE', {
               messageId: message.id,
               filesFound: files?.length || 0,
               fileIdsRequested: fileIds.length,
