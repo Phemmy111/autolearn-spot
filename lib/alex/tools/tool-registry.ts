@@ -72,7 +72,7 @@ export class ToolRegistry {
   /**
    * Validate tool arguments against input schema
    */
-  validateToolArguments(toolName: string, arguments: Record<string, any>): { valid: boolean; error?: string } {
+  validateToolArguments(toolName: string, args: Record<string, any>): { valid: boolean; error?: string } {
     const tool = this.tools.get(toolName)
     if (!tool) {
       return { valid: false, error: `Tool "${toolName}" not found` }
@@ -83,7 +83,7 @@ export class ToolRegistry {
     // Basic validation - check required fields
     if (definition.inputSchema.required) {
       for (const requiredField of definition.inputSchema.required) {
-        if (!(requiredField in arguments)) {
+        if (!(requiredField in args)) {
           return { valid: false, error: `Missing required argument: ${requiredField}` }
         }
       }
@@ -92,8 +92,8 @@ export class ToolRegistry {
     // Type validation for known fields
     if (definition.inputSchema.properties) {
       for (const [fieldName, fieldSchema] of Object.entries(definition.inputSchema.properties)) {
-        if (fieldName in arguments) {
-          const value = arguments[fieldName]
+        if (fieldName in args) {
+          const value = args[fieldName]
           const schema = fieldSchema as any
 
           // Type checking
