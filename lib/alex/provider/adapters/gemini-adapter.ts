@@ -309,6 +309,8 @@ export class GeminiAdapter implements AIProvider {
           parameters: tool.inputSchema
         }]
       }))
+      console.log('[ToolDebug] tool_definitions_sent:', requestBody.tools.length)
+      console.log('[ToolDebug] tool_names:', requestBody.tools.map((t: any) => t.functionDeclarations[0].name))
     }
 
     return requestBody

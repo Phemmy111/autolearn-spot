@@ -137,8 +137,11 @@ export class OpenAICompatibleAdapter implements AIProvider {
           }
         }))
         requestBody.tool_choice = 'auto' // Let model decide when to use tools
+        console.log('[ToolDebug] tool_definitions_sent:', requestBody.tools.length)
+        console.log('[ToolDebug] tool_names:', requestBody.tools.map((t: any) => t.function.name))
       } else if (request.disableTools) {
         requestBody.tool_choice = 'none'
+        console.log('[ToolDebug] tools_disabled')
       }
 
       const response = await fetch(`${this.baseUrl}/chat/completions`, {

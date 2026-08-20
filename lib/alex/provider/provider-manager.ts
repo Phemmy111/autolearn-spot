@@ -491,7 +491,10 @@ export class ProviderManager {
     const exhaustedProviders = new Set<string>() // Track providers with exhausted quota
 
     console.log('[FALLBACK] executeStreamingWithFallback called')
-    
+    console.log('[ToolDebug] request_has_tools:', !!request.tools)
+    console.log('[ToolDebug] request_tools_count:', request.tools?.length || 0)
+    console.log('[ToolDebug] request_disableTools:', request.disableTools)
+
     // Reload providers to get current configuration
     await this.loadProviders()
 
@@ -524,10 +527,18 @@ export class ProviderManager {
         priority: provider.priority,
         type: provider.type
       })
-      
+
+      console.log('[ToolDebug] provider:', provider.name)
+      console.log('[ToolDebug] model:', enhancedRequest.model)
+      console.log('[ToolDebug] request_has_tools:', !!enhancedRequest.tools)
+      console.log('[ToolDebug] request_disableTools:', enhancedRequest.disableTools)
+
       try {
         let firstEvent = true
         for await (const event of provider.stream(enhancedRequest)) {
+          if (event.type === 'tool_call') {
+            console.log('[ToolDebug] tool_call_received from provider:', event.data.toolCall.toolName)
+          }
           yield event
           firstEvent = false
         }

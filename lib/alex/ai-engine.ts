@@ -291,7 +291,13 @@ export class AIEngine {
       };
 
       console.log('[FALLBACK] Starting streaming with fallback through ProviderManager')
-      // Stream with fallback through ProviderManager (instead of single provider)
+      console.log('[ToolDebug] tools_enabled:', request.enableTools)
+      console.log('[ToolDebug] tool_definitions_count:', request.enableTools && this.toolRegistry ? this.toolRegistry.listEnabledTools().length : 0)
+
+      // First streaming attempt - check for tool calls
+      let toolCallReceived = false
+      let receivedToolCall: any = null
+
       for await (const event of providerManager.executeStreamingWithFallback({
         messages: orchestratorResponse.aiRequest.messages,
         model: request.model,
@@ -312,37 +318,11 @@ export class AIEngine {
         // Handle tool calls
         if (event.type === 'tool_call' && request.enableTools && this.toolExecutionService) {
           const toolCall = event.data.toolCall
-          console.log('[AI Engine] Tool call received:', toolCall)
-
-          // Execute tool
-          this.toolExecutionService.resetRequestCallCount(request.userId || '', request.conversationId)
-          const toolResult = await this.toolExecutionService.executeTool(
-            {
-              id: toolCall.id,
-              toolName: toolCall.toolName,
-              arguments: toolCall.arguments,
-              userId: request.userId || '',
-              conversationId: request.conversationId
-            },
-            { userId: request.userId || '', conversationId: request.conversationId }
-          )
-
-          console.log('[AI Engine] Tool result:', toolResult)
-
-          // Yield tool result event
-          yield {
-            type: 'stream',
-            data: {
-              type: 'tool_result',
-              data: {
-                toolCallId: toolCall.id,
-                toolName: toolCall.toolName,
-                result: toolResult.success ? toolResult.result : { error: toolResult.error },
-                success: toolResult.success,
-                error: toolResult.error
-              }
-            }
-          }
+          console.log('[ToolDebug] tool_call_received:', toolCall.toolName)
+          console.log('[ToolDebug] tool_name:', toolCall.toolName)
+          toolCallReceived = true
+          receivedToolCall = toolCall
+          break // Stop streaming, execute tool
         }
 
         if (event.type === 'delta' && event.data?.text) {
@@ -353,6 +333,89 @@ export class AIEngine {
           data: event,
         };
       }
+
+      // If no tool call, we're done
+      if (!toolCallReceived) {
+        console.log('[ToolDebug] no_tool_call - normal response')
+        return
+      }
+
+      // Execute tool
+      console.log('[ToolDebug] tool_execution_started:', receivedToolCall.toolName)
+      this.toolExecutionService.resetRequestCallCount(request.userId || '', request.conversationId)
+      const toolResult = await this.toolExecutionService.executeTool(
+        {
+          id: receivedToolCall.id,
+          toolName: receivedToolCall.toolName,
+          arguments: receivedToolCall.arguments,
+          userId: request.userId || '',
+          conversationId: request.conversationId
+        },
+        { userId: request.userId || '', conversationId: request.conversationId }
+      )
+
+      console.log('[ToolDebug] tool_execution_completed:', receivedToolCall.toolName)
+      console.log('[ToolDebug] tool_result:', toolResult.success ? 'success' : 'failed')
+
+      // Yield tool result event to frontend
+      yield {
+        type: 'stream',
+        data: {
+          type: 'tool_result',
+          data: {
+            toolCallId: receivedToolCall.id,
+            toolName: receivedToolCall.toolName,
+            result: toolResult.success ? toolResult.result : { error: toolResult.error },
+            success: toolResult.success,
+            error: toolResult.error
+          }
+        }
+      }
+
+      // Add tool result to conversation for final response
+      const updatedMessages = [
+        ...orchestratorResponse.aiRequest.messages,
+        {
+          role: 'assistant',
+          content: JSON.stringify({
+            tool_call_id: receivedToolCall.id,
+            tool_name: receivedToolCall.toolName,
+            result: toolResult.success ? toolResult.result : { error: toolResult.error }
+          })
+        }
+      ]
+
+      console.log('[ToolDebug] tool_result_sent_to_model')
+      console.log('[ToolDebug] starting_final_response')
+
+      // Stream final response with tool result
+      for await (const event of providerManager.executeStreamingWithFallback({
+        messages: updatedMessages,
+        model: request.model,
+        temperature: request.temperature,
+        maxTokens: request.maxTokens,
+        stream: true,
+        conversationId: request.conversationId,
+        mode: request.mode,
+        disableTools: true, // Disable tools for final response
+        tools: undefined, // No tools for final response
+      })) {
+        // Check for error events and convert to thrown errors for proper fallback handling
+        if (event.type === 'error') {
+          console.log('[AI Engine] Error event from provider - throwing to trigger fallback:', event.data?.error)
+          throw new Error(event.data?.error || 'Stream error')
+        }
+
+        if (event.type === 'delta' && event.data?.text) {
+          hasEmittedContent = true
+        }
+        yield {
+          type: 'stream',
+          data: event,
+        };
+      }
+
+      console.log('[ToolDebug] final_response')
     } catch (error) {
       const streamError = error instanceof Error ? error : new Error('Unknown error')
       console.log('[FALLBACK] All providers failed - final error:', streamError.message)
