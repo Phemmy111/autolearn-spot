@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE IF NOT EXISTS alex_tool_executions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id VARCHAR(255) NOT NULL,
-  conversation_id UUID,
+  conversation_id VARCHAR(255),
   tool_call_id VARCHAR(255) NOT NULL,
   tool_name VARCHAR(100) NOT NULL,
   arguments JSONB NOT NULL,
@@ -34,13 +34,13 @@ ALTER TABLE alex_tool_executions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own tool executions"
   ON alex_tool_executions
   FOR SELECT
-  USING (user_id = auth.uid());
+  USING (user_id::text = auth.uid()::text);
 
 -- Users can insert their own tool executions
 CREATE POLICY "Users can insert own tool executions"
   ON alex_tool_executions
   FOR INSERT
-  WITH CHECK (user_id = auth.uid());
+  WITH CHECK (user_id::text = auth.uid()::text);
 
 -- Admins can view all tool executions (for monitoring)
 CREATE POLICY "Admins can view all tool executions"
