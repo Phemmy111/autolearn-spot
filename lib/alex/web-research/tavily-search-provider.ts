@@ -37,22 +37,23 @@ export class TavilySearchProvider implements SearchProvider {
     }
 
     try {
-      const searchParams = new URLSearchParams({
+      const requestBody = {
         api_key: this.apiKey,
         query: query.query,
-        max_results: (query.maxResults || 10).toString(),
+        max_results: query.maxResults || 10,
         search_depth: query.fetchContent ? 'advanced' : 'basic',
-        include_answer: 'false',
-        include_raw_content: query.fetchContent ? 'true' : 'false',
-        include_images: 'false',
-        include_image_descriptions: 'false'
-      });
+        include_answer: false,
+        include_raw_content: query.fetchContent,
+        include_images: false,
+        include_image_descriptions: false
+      };
 
-      const response = await fetch(`${this.baseUrl}?${searchParams}`, {
-        method: 'GET',
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify(requestBody),
         signal: AbortSignal.timeout(30000) // 30 second timeout
       });
 
