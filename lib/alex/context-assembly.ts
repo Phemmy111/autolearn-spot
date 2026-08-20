@@ -61,11 +61,23 @@ export async function assembleContext(
   }
 
   // Phase 3C: Web research if enabled and research mode
+  console.log('[Context Assembly] Web research check:', {
+    enableWebResearch: options?.enableWebResearch,
+    hasWebResearchService: !!options?.webResearchService,
+    conversationHistoryLength: conversationHistory.length
+  });
+  
   if (options?.enableWebResearch && options?.webResearchService) {
     try {
       const lastUserMessage = conversationHistory
         .filter(m => m.role === 'user')
         .pop()
+
+      console.log('[Context Assembly] Last user message:', {
+        hasMessage: !!lastUserMessage,
+        hasContent: !!lastUserMessage?.content,
+        contentPreview: lastUserMessage?.content?.substring(0, 100) || 'none'
+      });
 
       if (lastUserMessage && lastUserMessage.content) {
         console.log('[Context Assembly] Performing web research for query:', lastUserMessage.content.substring(0, 100))

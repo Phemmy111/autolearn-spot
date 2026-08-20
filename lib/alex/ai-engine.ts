@@ -35,6 +35,12 @@ export class AIEngine {
       // Try to use Tavily if API key is available
       const tavilyApiKey = process.env.TAVILY_API_KEY;
       
+      console.log('[AI Engine] Web research initialization check:', {
+        hasApiKey: !!tavilyApiKey,
+        keyLength: tavilyApiKey?.length || 0,
+        keyPrefix: tavilyApiKey?.substring(0, 8) + '...' || 'none'
+      });
+      
       if (tavilyApiKey) {
         console.log('[AI Engine] Initializing web research service with Tavily provider');
         const tavilyProvider = new TavilySearchProvider({
@@ -46,6 +52,7 @@ export class AIEngine {
           config: { apiKey: tavilyApiKey }
         });
         this.webResearchService = new WebResearchService(tavilyProvider);
+        console.log('[AI Engine] Tavily provider initialized successfully');
       } else {
         console.log('[AI Engine] Tavily API key not configured, using mock provider');
         // Fall back to mock provider for development/testing
