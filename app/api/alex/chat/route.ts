@@ -412,6 +412,7 @@ export async function POST(request: NextRequest) {
             userName,
             attachedFiles: attachedFiles || [],
             enableRetrieval: true, // Enable Phase 3B retrieval
+            enableWebResearch: true, // Enable Phase 3C web research
             conversationId,
           })) {
             if (chunk.type === 'orchestrator') {
