@@ -290,11 +290,6 @@ export class VisionService {
       const fallbackType = (process.env.ALEX_VISION_PROVIDER as 'openai' | 'gemini') || 'openai'
       return new FallbackVisionProvider(fallbackType)
     }
-
-    } catch (error) {
-      console.error('[Vision Service] Error selecting vision provider:', error)
-      return null
-    }
   }
 
   /**
