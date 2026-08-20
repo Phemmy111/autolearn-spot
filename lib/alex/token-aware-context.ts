@@ -91,7 +91,7 @@ export async function assembleTokenAwareContext(
         providerManager: options.providerManager,
         providerRegistry: options.providerRegistry,
         maxAnalysisTokens: 2000, // Use fewer tokens for token-aware context
-        analysisTimeout: 60000 // 60 second timeout for vision analysis
+        analysisTimeout: 120000 // 120 second timeout for vision analysis
       })
 
       // If vision preprocessing was used, add the text context and clear image files

@@ -325,11 +325,11 @@ export class VisionService {
 
       console.log('[Vision Service] Executing vision analysis request with provider')
       
-      // Execute the vision analysis using the actual provider with timeout
+      // Execute the vision analysis using the actual provider with extended timeout
       const analysisResult = await Promise.race([
         this.executeVisionAnalysis(visionRequest, visionProvider),
         new Promise<any>((_, reject) => 
-          setTimeout(() => reject(new Error('Vision analysis timeout')), 60000) // 60 second timeout
+          setTimeout(() => reject(new Error('Vision analysis timeout (120s)')), 120000) // 120 second timeout
         )
       ])
 
@@ -447,10 +447,16 @@ Format your response as structured text that can be easily parsed and used as co
     technicalDetails?: string
     confidence?: number
   }> {
-    console.log('[Vision Service] Executing vision analysis with provider:', visionProvider.name)
+    console.log('[Vision Service] Executing vision analysis with provider:', {
+      providerName: visionProvider.name,
+      providerType: visionProvider.type,
+      messageCount: request.messages.length,
+      hasImageContent: request.messages.some(msg => Array.isArray(msg.content))
+    })
     
     try {
       // Execute the vision request using the actual provider adapter
+      console.log('[Vision Service] Calling provider.generate()...')
       const response = await visionProvider.generate(request)
       
       console.log('[Vision Service] Vision analysis response received:', {
@@ -462,7 +468,10 @@ Format your response as structured text that can be easily parsed and used as co
       // Parse the response to extract structured information
       return this.parseVisionResponse(response.content)
     } catch (error) {
-      console.error('[Vision Service] Provider execution failed:', error)
+      console.error('[Vision Service] Provider execution failed:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      })
       
       // Return error information as part of the analysis
       return {
