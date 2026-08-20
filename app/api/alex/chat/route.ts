@@ -77,6 +77,41 @@ export async function POST(request: NextRequest) {
 
     alexLogger.debug('CHAT', 'Request received', { conversationId, mode, fileIds })
 
+    // Resolve effective file IDs: current message + conversation files
+    const currentMessageFileIds = fileIds || []
+    let persistedConversationFileIds: string[] = []
+    let effectiveFileIds: string[] = []
+
+    try {
+      // Fetch all files associated with this conversation
+      const { data: conversationFiles, error: convFilesError } = await supabase
+        .from('alex_files')
+        .select('id')
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId)
+
+      if (!convFilesError && conversationFiles) {
+        persistedConversationFileIds = conversationFiles.map(f => f.id)
+      }
+
+      // Combine and deduplicate file IDs
+      const allFileIds = new Set([...currentMessageFileIds, ...persistedConversationFileIds])
+      effectiveFileIds = Array.from(allFileIds)
+
+      console.log('[FILE RESOLUTION DIAGNOSTICS]', {
+        currentMessageFileIds,
+        currentMessageFileCount: currentMessageFileIds.length,
+        persistedConversationFileIds,
+        persistedConversationFileCount: persistedConversationFileIds.length,
+        effectiveFileIds,
+        deduplicatedFileCount: effectiveFileIds.length
+      })
+    } catch (error) {
+      console.error('[FILE RESOLUTION ERROR]', error)
+      // Fall back to current message file IDs only on error
+      effectiveFileIds = currentMessageFileIds
+    }
+
     if (!conversationId || !content || !mode) {
       alexLogger.warn('CHAT', 'Missing required fields', { body })
       const error = handleAlexError(AlexErrors.INVALID_REQUEST)
@@ -204,25 +239,26 @@ export async function POST(request: NextRequest) {
       .order('created_at', { ascending: true })
       .limit(20)
 
-    // Get attached files for context (Phase 3A)
+    // Get attached files for context (Phase 3A + conversation-level persistence)
     let attachedFiles: any[] = []
-    if (fileIds && fileIds.length > 0) {
+    if (effectiveFileIds.length > 0) {
       console.log('[MULTI-FILE] Chat request with file attachments', {
-        fileIdsReceived: fileIds.length,
-        fileIds: fileIds,
+        fileIdsReceived: effectiveFileIds.length,
+        fileIds: effectiveFileIds,
         userId,
-        conversationId
+        conversationId,
+        source: 'conversation-level persistence'
       })
 
-      // Fetch files with user ownership check
+      // Fetch files with user ownership check using effective file IDs
       const { data: files, error: filesError } = await supabase
         .from('alex_files')
         .select('*')
-        .in('id', fileIds)
+        .in('id', effectiveFileIds)
         .eq('user_id', userId)
 
       console.log('[MULTI-FILE] Database fetch result', {
-        fileIdsRequested: fileIds.length,
+        fileIdsRequested: effectiveFileIds.length,
         filesFound: files?.length || 0,
         fetchSuccess: !filesError,
         fetchError: filesError?.message,
@@ -300,9 +336,11 @@ export async function POST(request: NextRequest) {
         attachedFilesCount: attachedFiles.length,
         fileIds: attachedFiles.map(f => f.id),
         filenames: attachedFiles.map(f => f.original_filename),
-        totalTextLength: attachedFiles.reduce((sum, f) => sum + (f.extracted_text?.length || 0), 0)
+        totalTextLength: attachedFiles.reduce((sum, f) => sum + (f.extracted_text?.length || 0), 0),
+        availableFileCount: attachedFiles.length,
+        unavailableFileCount: effectiveFileIds.length - attachedFiles.length
       })
-      alexLogger.debug('CHAT', 'Attached files validated', { fileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
+      alexLogger.debug('CHAT', 'Attached files validated', { effectiveFileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
 
       // For image files, fetch the actual image data and convert to base64
       const imageFiles = attachedFiles.filter(f => f.mime_type.startsWith('image/'))
