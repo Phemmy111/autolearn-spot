@@ -1,21 +1,24 @@
 /**
  * ALEX Vision Service
- * 
+ *
  * Capability-aware image preprocessing system that allows text-only models
  * to understand image content through vision-capable provider analysis.
- * 
+ *
  * Architecture:
  * 1. Detect image MIME type
  * 2. Check if selected provider supports vision
  * 3. If yes: send image directly to provider
  * 4. If no: use vision-capable provider for analysis
  * 5. Inject structured visual context into main context pipeline
+ *
+ * Enhanced with fallback vision provider for universal image support.
  */
 
 import { AlexFile } from './types'
 import { ProviderRegistry } from './provider/provider-registry'
 import { ProviderManager } from './provider/provider-manager'
 import { AIRequest, AIMessage, ImageContent, AIProvider } from './provider/provider-interface'
+import { FallbackVisionProvider } from './vision-fallback'
 import { createClient } from '@supabase/supabase-js'
 
 /**
@@ -123,11 +126,12 @@ export class VisionService {
     
     // Find vision-capable provider
     const visionProvider = await this.selectVisionProvider(providerManager, providerRegistry)
-    
+
     if (!visionProvider) {
-      console.warn('[Vision Service] No vision-capable provider available')
+      console.warn('[Vision Service] No vision-capable provider available, using metadata analysis')
+      const metadataAnalysis = this.performMetadataAnalysis(imageFiles)
       return {
-        textContext: this.generateNoVisionError(imageFiles),
+        textContext: metadataAnalysis,
         processedImages: [],
         analysisResults: []
       }
@@ -219,6 +223,7 @@ export class VisionService {
 
   /**
    * Select a vision-capable provider from available providers
+   * Improved: More permissive selection with fallback to any available provider
    */
   private static async selectVisionProvider(
     providerManager: ProviderManager,
@@ -231,39 +236,61 @@ export class VisionService {
       // Get all enabled providers
       const enabledProviders = providerRegistry.getEnabledProviders()
 
-      console.log('[Vision Service] Available providers for vision selection:', 
+      console.log('[Vision Service] Available providers for vision selection:',
         enabledProviders.map(p => ({ id: p.id, name: p.name, type: p.type })))
 
-      // Filter for vision-capable providers
-      // For now, we'll check provider type and capabilities
-      // Gemini models generally support vision, some OpenRouter models do too
-      const visionCapableProviders = enabledProviders.filter(provider => {
+      if (enabledProviders.length === 0) {
+        console.warn('[Vision Service] No enabled providers available')
+        return null
+      }
+
+      // Filter for known vision-capable providers first
+      const knownVisionProviders = enabledProviders.filter(provider => {
         // Gemini typically supports vision
         if (provider.type === 'gemini') {
           return true
         }
-        
-        // OpenAI-compatible providers might support vision depending on model
-        // This is a simplified check - in production, you'd check per-model capabilities
-        if (provider.type === 'openai' || provider.type === 'openrouter') {
-          // Assume vision capability for these providers (will be refined)
-          return true
+
+        // OpenAI GPT-4 Vision and later models support vision
+        if (provider.type === 'openai') {
+          const modelName = (provider as any).model || ''
+          // GPT-4o, GPT-4o-mini, GPT-4 Vision support images
+          if (modelName.includes('gpt-4o') || modelName.includes('vision') || modelName.includes('gpt-4-turbo')) {
+            return true
+          }
+        }
+
+        // OpenRouter - many models support vision
+        if (provider.type === 'openrouter') {
+          return true // Assume OpenRouter models may support vision
         }
 
         return false
       })
 
-      if (visionCapableProviders.length === 0) {
-        console.warn('[Vision Service] No vision-capable providers found')
-        return null
+      if (knownVisionProviders.length > 0) {
+        // Select highest priority known vision provider
+        const selectedProvider = knownVisionProviders.sort((a, b) => a.priority - b.priority)[0]
+        console.log('[Vision Service] Selected known vision provider:', selectedProvider.name)
+        return selectedProvider
       }
 
-      // Select highest priority vision provider
-      const selectedProvider = visionCapableProviders.sort((a, b) => a.priority - b.priority)[0]
+      // Fallback: Try any available provider
+      // Some providers may support vision even if not explicitly marked
+      console.log('[Vision Service] No known vision-capable providers, trying fallback to any available provider')
+      const fallbackProvider = enabledProviders.sort((a, b) => a.priority - b.priority)[0]
+      console.log('[Vision Service] Selected fallback provider:', fallbackProvider.name)
+      return fallbackProvider
 
-      console.log('[Vision Service] Selected vision provider:', selectedProvider.name)
+    } catch (error) {
+      console.error('[Vision Service] Error selecting vision provider:', error)
 
-      return selectedProvider
+      // Last resort: Use dedicated fallback vision provider
+      console.log('[Vision Service] Using dedicated fallback vision provider')
+      const fallbackType = (process.env.ALEX_VISION_PROVIDER as 'openai' | 'gemini') || 'openai'
+      return new FallbackVisionProvider(fallbackType)
+    }
+
     } catch (error) {
       console.error('[Vision Service] Error selecting vision provider:', error)
       return null
@@ -572,26 +599,89 @@ Format your response as structured text that can be easily parsed and used as co
   }
 
   /**
+   * Perform metadata-based analysis when no vision provider is available
+   * This extracts any available information from the image files without visual analysis
+   */
+  private static performMetadataAnalysis(imageFiles: AlexFile[]): string {
+    let context = `\n=== IMAGE ANALYSIS (METADATA MODE) ===\n`
+    context += `Visual analysis could not be performed (no vision-capable provider available).\n`
+    context += `However, the following information was extracted from the image files:\n\n`
+
+    imageFiles.forEach((file, index) => {
+      context += `Image ${index + 1}: ${file.original_filename}\n`
+      context += `- MIME Type: ${file.mime_type}\n`
+      context += `- Size: ${file.size ? `${(file.size / 1024).toFixed(2)} KB` : 'Unknown'}\n`
+
+      if (file.extracted_text && file.extracted_text.length > 0) {
+        context += `- Extracted Text: ${file.extracted_text.substring(0, 500)}${file.extracted_text.length > 500 ? '...' : ''}\n`
+      }
+
+      if (file.url) {
+        context += `- URL: ${file.url}\n`
+      }
+
+      if (file.storage_path) {
+        context += `- Storage Path: ${file.storage_path}\n`
+      }
+
+      context += `\n`
+    })
+
+    context += `Please describe what you'd like me to help you with regarding these images.\n`
+    context += `=== END IMAGE ANALYSIS ===\n`
+
+    return context
+  }
+
+  /**
    * Generate error message when no vision provider is available
+   * Improved: Still provides basic image information
    */
   private static generateNoVisionError(imageFiles: AlexFile[]): string {
-    const filenames = imageFiles.map(f => f.original_filename).join(', ')
-    return `\n=== IMAGE ATTACHMENT NOTICE ===\n` +
-           `The following images were uploaded but no vision-capable AI provider is currently available to analyze them:\n` +
-           `${filenames}\n` +
-           `The images will not be included in the analysis.\n` +
-           `=== END NOTICE ===\n`
+    let context = `\n=== IMAGE ATTACHMENT NOTICE ===\n`
+    context += `The following images were uploaded:\n`
+
+    imageFiles.forEach(file => {
+      context += `- ${file.original_filename} (${file.mime_type})\n`
+      if (file.extracted_text) {
+        context += `  Text extracted: ${file.extracted_text.substring(0, 200)}${file.extracted_text.length > 200 ? '...' : ''}\n`
+      }
+    })
+
+    context += `The system could not find a vision-capable AI provider to analyze these images visually.\n`
+    context += `However, any text content has been extracted where possible.\n`
+    context += `Please describe what you'd like me to help you with regarding these images.\n`
+    context += `=== END NOTICE ===\n`
+
+    return context
   }
 
   /**
    * Generate basic image acknowledgment when full analysis fails
+   * Improved: Provides more detailed image metadata
    */
   private static generateBasicImageAcknowledgment(imageFiles: AlexFile[]): string {
-    const filenames = imageFiles.map(f => f.original_filename).join(', ')
-    return `\n=== IMAGE ATTACHMENT ===\n` +
-           `The following images were uploaded: ${filenames}\n` +
-           `The image preprocessing system is active. Please describe what you'd like me to help you with regarding these images, or if the images contain specific content you'd like analyzed, please provide more details.\n` +
-           `=== END IMAGE ATTACHMENT ===\n`
+    let context = `\n=== IMAGE ATTACHMENT ===\n`
+    context += `The following images were uploaded:\n`
+
+    imageFiles.forEach(file => {
+      context += `- ${file.original_filename}\n`
+      context += `  Type: ${file.mime_type}\n`
+      context += `  Size: ${file.size ? `${(file.size / 1024).toFixed(2)} KB` : 'Unknown'}\n`
+
+      if (file.extracted_text) {
+        context += `  Extracted Text: ${file.extracted_text.substring(0, 300)}${file.extracted_text.length > 300 ? '...' : ''}\n`
+      }
+
+      if (file.url) {
+        context += `  URL: ${file.url}\n`
+      }
+    })
+
+    context += `\nThe image preprocessing system is active. Please describe what you'd like me to help you with regarding these images, or if the images contain specific content you'd like analyzed, please provide more details.\n`
+    context += `=== END IMAGE ATTACHMENT ===\n`
+
+    return context
   }
 
   /**
