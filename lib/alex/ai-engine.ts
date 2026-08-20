@@ -7,6 +7,7 @@
  * Phase 2C: Database-driven provider management with fallback
  * Phase 2D: Request-local provider isolation for concurrency safety
  * Phase 3A: File/document context integration
+ * Phase 3C: Web research integration
  */
 
 import { AlexOrchestrator, OrchestratorRequest, OrchestratorResponse } from './orchestrator';
@@ -16,10 +17,32 @@ import { AIProvider, AIStreamEvent, AIMessage } from './provider/provider-interf
 import { PlatformContext } from './context/context-types';
 import { loadPlatformContext } from './context';
 import { AlexFile } from './types';
+import { WebResearchService } from './web-research/web-research-service';
+import { MockSearchProvider } from './web-research/mock-search-provider';
 
 export class AIEngine {
   private static adminProviderManager: ProviderManager | null = null
   private static adminProviderRegistry: ProviderRegistry | null = null
+  private static webResearchService: WebResearchService | null = null
+
+  /**
+   * Initialize web research service with mock provider
+   * In production, this should be configured with a real search provider
+   */
+  private static initializeWebResearchService(): void {
+    if (!this.webResearchService) {
+      // Use mock provider by default - can be replaced with real provider
+      const mockProvider = new MockSearchProvider({
+        id: 'mock-search',
+        name: 'Mock Search Provider',
+        type: 'custom',
+        priority: 100,
+        enabled: true,
+        config: {}
+      });
+      this.webResearchService = new WebResearchService(mockProvider);
+    }
+  }
 
   /**
    * Process a chat request through the ALEX AI engine
@@ -35,6 +58,7 @@ export class AIEngine {
     modelName?: string;
     enableTokenAwareAssembly?: boolean;
     providerCapabilities?: string[];
+    enableWebResearch?: boolean;
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     platformContext?: PlatformContext;
@@ -66,12 +90,20 @@ export class AIEngine {
       }
     }
 
+    // Initialize web research service if enabled
+    let webResearchService: WebResearchService | undefined;
+    if (request.enableWebResearch) {
+      this.initializeWebResearchService();
+      webResearchService = this.webResearchService;
+    }
+
     // Get orchestrator response with AI request
     const orchestratorResponse = await AlexOrchestrator.orchestrate({
       ...request,
       platformContext,
       attachedFiles: request.attachedFiles,
       providerCapabilities: request.providerCapabilities,
+      webResearchService,
     });
 
     return {
@@ -95,6 +127,7 @@ export class AIEngine {
     modelName?: string;
     enableTokenAwareAssembly?: boolean;
     providerCapabilities?: string[];
+    enableWebResearch?: boolean;
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -136,6 +169,10 @@ export class AIEngine {
       
       // Process through orchestrator first
       const firstProvider = allProviders[0]
+      
+      // Enable web research for research mode or when explicitly requested
+      const enableWebResearch = request.enableWebResearch || request.mode === 'research';
+      
       const { orchestratorResponse, platformContext } = await this.processChat({
         ...request,
         attachedFiles: request.attachedFiles,
@@ -146,6 +183,7 @@ export class AIEngine {
         providerCapabilities: request.providerCapabilities || firstProvider?.capabilities || [], // Pass provider capabilities
         providerManager: providerManager, // Pass provider manager for vision preprocessing
         providerRegistry: registry, // Pass provider registry for vision preprocessing
+        enableWebResearch, // Phase 3C: Enable web research
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

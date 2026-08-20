@@ -5,6 +5,7 @@ import { AIRequest, AIMessage, ImageContent } from './provider/provider-interfac
 import { PlatformContext } from './context/context-types'
 import { ProviderManager } from './provider/provider-manager'
 import { ProviderRegistry } from './provider/provider-registry'
+import { WebResearchService } from './web-research/web-research-service'
 
 export interface OrchestratorRequest {
   content: string
@@ -21,6 +22,7 @@ export interface OrchestratorRequest {
   providerCapabilities?: string[] // Provider capabilities (e.g., 'vision', 'multimodal')
   providerManager?: ProviderManager // Provider manager for vision preprocessing
   providerRegistry?: ProviderRegistry // Provider registry for vision preprocessing
+  webResearchService?: WebResearchService // Phase 3C: Web research service
 }
 
 export interface OrchestratorResponse {
@@ -42,7 +44,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService } = request
     
     // Ensure providerCapabilities is always an array
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
@@ -60,7 +62,10 @@ export class AlexOrchestrator {
     // Generate system prompt for token estimation
     const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext)
 
-    // Assemble context with platform context, files, and retrieval if available
+    // Enable web research for research mode or when intent suggests research
+    const enableWebResearch = mode === 'research' || suggestedMode === 'research'
+
+    // Assemble context with platform context, files, retrieval, and web research if available
     const assemblyResult = await assembleContext(mode, conversationHistory, {
       platformContext,
       userIntent: userIntent || content,
@@ -73,7 +78,9 @@ export class AlexOrchestrator {
       systemPrompt,
       providerCapabilities: capabilities, // Pass capabilities to context assembly
       providerManager: request.providerManager, // Pass provider manager for vision preprocessing
-      providerRegistry: request.providerRegistry // Pass provider registry for vision preprocessing
+      providerRegistry: request.providerRegistry, // Pass provider registry for vision preprocessing
+      enableWebResearch, // Phase 3C: Enable web research
+      webResearchService // Phase 3C: Pass web research service
     })
 
     const { context, imageFiles } = assemblyResult
