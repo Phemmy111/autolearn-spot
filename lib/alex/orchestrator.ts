@@ -227,7 +227,15 @@ Your responses should be:
 - Practical and actionable
 - Encouraging and supportive
 - Technical when appropriate, but accessible
-- Focused on helping students succeed`
+- Focused on helping students succeed
+
+IMPORTANT FUNCTION CALLING RESTRICTION:
+- DO NOT use any function calling, tool calling, or plugin syntax
+- DO NOT generate <tool_use>, <function_call>, or similar XML-style tags
+- DO NOT attempt to call search, web browsing, or other functions
+- Respond only with plain text content
+- If you need to search the web, rely on the provided web research context in the system messages
+- Any web search has already been performed server-side before you receive this request`
 
     // Add platform context awareness if platform data is available
     let platformAwareness = ''
@@ -248,7 +256,9 @@ IMPORTANT: You have been provided with AutoLearn Spot platform context above.
 
 In Auto mode, you determine the best approach based on the user's request. You can switch between tutoring, development assistance, automation guidance, research, or agent building as needed.
 
-Current detected intent: ${detectedIntent || 'general assistance'}`,
+Current detected intent: ${detectedIntent || 'general assistance'}
+
+IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
 
       tutor: `${basePrompt}
 
@@ -258,7 +268,9 @@ In Tutor mode, your primary focus is learning and education. You should:
 - Ask questions to check understanding
 - Encourage active learning
 - Reference AutoLearn course content when relevant
-- Help students understand the "why" behind the "how"`,
+- Help students understand the "why" behind the "how"
+
+IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
 
       developer: `${basePrompt}
 
@@ -271,7 +283,9 @@ In Developer mode, you provide technical assistance for:
 - Best practices
 - Code review
 
-Focus on practical, working solutions with clear explanations.`,
+Focus on practical, working solutions with clear explanations.
+
+IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
 
       automation: `${basePrompt}
 
@@ -283,7 +297,9 @@ In Automation mode, you specialize in:
 - Business process automation
 - Data processing workflows
 
-Provide specific, actionable guidance for building automations.`,
+Provide specific, actionable guidance for building automations.
+
+IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
 
       research: `${basePrompt}
 
@@ -294,7 +310,11 @@ In Research mode, you help with:
 - Identifying current vs outdated information
 - Providing citations where possible
 
-Be thorough and cite your sources when available.`,
+IMPORTANT: Web search has already been performed server-side using the provided search context.
+- DO NOT attempt to call search functions or tools
+- DO NOT generate search-related function call syntax
+- Use the provided web research context in the system messages
+- Be thorough and cite your sources when available.`,
 
       agent_builder: `${basePrompt}
 
@@ -306,7 +326,9 @@ In Agent Builder mode, you help users:
 - Set up agent knowledge bases
 - Design agent interactions
 
-Focus on creating practical, deployable agent configurations.`
+Focus on creating practical, deployable agent configurations.
+
+IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`
     }
 
     return modePrompts[mode] || modePrompts.auto
