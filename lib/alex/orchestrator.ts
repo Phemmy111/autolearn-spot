@@ -39,6 +39,9 @@ export class AlexOrchestrator {
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
     const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities } = request
+    
+    // Ensure providerCapabilities is always an array
+    const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
 
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
@@ -63,7 +66,8 @@ export class AlexOrchestrator {
       enableRetrieval,
       enableTokenAwareAssembly: enableTokenAwareAssembly || (attachedFiles && attachedFiles.length > 1), // Auto-enable for multi-file
       modelName: modelName || 'openai/gpt-oss-120b',
-      systemPrompt
+      systemPrompt,
+      providerCapabilities: capabilities // Pass capabilities to context assembly
     })
 
     const { context, imageFiles } = assemblyResult
@@ -152,7 +156,7 @@ export class AlexOrchestrator {
 
     // Add current user message with multimodal content if images are present
     // Only use multimodal content if provider supports vision/multimodal capabilities
-    const supportsVision = providerCapabilities?.includes('vision') || providerCapabilities?.includes('multimodal')
+    const supportsVision = capabilities.includes('vision') || capabilities.includes('multimodal')
     
     if (imageFiles && imageFiles.length > 0 && supportsVision) {
       // Build multimodal content: text + images

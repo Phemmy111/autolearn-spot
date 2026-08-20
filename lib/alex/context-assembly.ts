@@ -20,6 +20,7 @@ export interface AssemblyOptions {
   enableTokenAwareAssembly?: boolean // New parameter for token-aware assembly
   modelName?: string // Model name for context limit calculation
   systemPrompt?: string // System prompt for token estimation
+  providerCapabilities?: string[] // Provider capabilities for multimodal support
 }
 
 export interface AssemblyResult {
@@ -40,6 +41,7 @@ export async function assembleContext(
   options?: AssemblyOptions
 ): Promise<AssemblyResult> {
   let context = ''
+  let imageFiles: AlexFile[] = []
 
   // Add platform context if available
   if (options?.platformContext) {
@@ -153,9 +155,6 @@ export async function assembleContext(
       // Don't fail the entire context assembly if retrieval fails
     }
   }
-
-  // Separate images from text files - images are handled as multimodal content, not text context
-  let imageFiles: AlexFile[] = []
 
   // Add file context if available (Phase 3A)
   if (options?.attachedFiles && options.attachedFiles.length > 0) {
