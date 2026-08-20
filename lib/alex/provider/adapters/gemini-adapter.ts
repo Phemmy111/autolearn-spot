@@ -274,6 +274,8 @@ export class GeminiAdapter implements AIProvider {
         temperature: request.temperature ?? 0.7,
         maxOutputTokens: request.maxTokens ?? 4000,
       },
+      // Disable function calling to prevent unwanted function use
+      // Gemini doesn't have direct tool_choice, but we can omit function declarations
     }
   }
 }

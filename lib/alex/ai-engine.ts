@@ -77,6 +77,7 @@ export class AIEngine {
     enableTokenAwareAssembly?: boolean;
     providerCapabilities?: string[];
     enableWebResearch?: boolean;
+    disableTools?: boolean;
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     platformContext?: PlatformContext;
@@ -146,6 +147,7 @@ export class AIEngine {
     enableTokenAwareAssembly?: boolean;
     providerCapabilities?: string[];
     enableWebResearch?: boolean;
+    disableTools?: boolean;
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -202,6 +204,7 @@ export class AIEngine {
         providerManager: providerManager, // Pass provider manager for vision preprocessing
         providerRegistry: registry, // Pass provider registry for vision preprocessing
         enableWebResearch, // Phase 3C: Enable web research
+        disableTools: true, // Disable model's built-in function calling to use our Phase 3C web research instead
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {
@@ -232,6 +235,7 @@ export class AIEngine {
         stream: true,
         conversationId: request.conversationId,
         mode: request.mode,
+        disableTools: true, // Disable model's built-in function calling to use our Phase 3C web research instead
       })) {
         // Check for error events and convert to thrown errors for proper fallback handling
         if (event.type === 'error') {

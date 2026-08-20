@@ -29,6 +29,7 @@ export interface AssemblyOptions {
   providerRegistry?: ProviderRegistry // Provider registry for vision preprocessing
   enableWebResearch?: boolean // Phase 3C: Enable web research
   webResearchService?: WebResearchService // Phase 3C: Web research service
+  disableTools?: boolean // Disable model's built-in function calling
 }
 
 export interface AssemblyResult {

@@ -28,6 +28,8 @@ export interface AIRequest {
   temperature?: number;
   maxTokens?: number;
   stream?: boolean;
+  tools?: string[]; // Optional: list of tools to enable/disable
+  disableTools?: boolean; // Optional: disable all tool/function calling
 }
 
 export interface AIUsage {

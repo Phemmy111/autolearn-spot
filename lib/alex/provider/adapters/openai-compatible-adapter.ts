@@ -63,6 +63,8 @@ export class OpenAICompatibleAdapter implements AIProvider {
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 4000,
         stream: false,
+        // Disable tool/function calling to prevent unwanted function use
+        tool_choice: request.disableTools ? 'none' : undefined,
       }),
       signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
     })
@@ -122,6 +124,8 @@ export class OpenAICompatibleAdapter implements AIProvider {
           temperature: request.temperature ?? 0.7,
           max_tokens: request.maxTokens ?? 4000,
           stream: true,
+          // Disable tool/function calling to prevent unwanted function use
+          tool_choice: request.disableTools ? 'none' : undefined,
         }),
         signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
       })

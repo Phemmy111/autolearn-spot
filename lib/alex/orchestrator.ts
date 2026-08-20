@@ -23,6 +23,7 @@ export interface OrchestratorRequest {
   providerManager?: ProviderManager // Provider manager for vision preprocessing
   providerRegistry?: ProviderRegistry // Provider registry for vision preprocessing
   webResearchService?: WebResearchService // Phase 3C: Web research service
+  disableTools?: boolean // Disable model's built-in function calling to use Phase 3C web research instead
 }
 
 export interface OrchestratorResponse {
@@ -44,7 +45,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService, disableTools } = request
     
     // Ensure providerCapabilities is always an array
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
@@ -89,6 +90,7 @@ export class AlexOrchestrator {
     const aiRequest: AIRequest = {
       messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context, imageFiles, capabilities),
       stream: true, // Default to streaming
+      disableTools: true, // Disable model's built-in function calling to use our Phase 3C web research instead
     }
 
     console.log('[DIAGNOSTIC] ORCHESTRATOR OUTPUT', {

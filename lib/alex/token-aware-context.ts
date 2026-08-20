@@ -37,6 +37,7 @@ export interface TokenAwareAssemblyOptions {
   providerRegistry?: ProviderRegistry
   enableWebResearch?: boolean
   webResearchService?: WebResearchService
+  disableTools?: boolean
 }
 
 export interface TokenAwareAssemblyResult {
