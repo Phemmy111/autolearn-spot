@@ -19,6 +19,7 @@ import { loadPlatformContext } from './context';
 import { AlexFile } from './types';
 import { WebResearchService } from './web-research/web-research-service';
 import { MockSearchProvider } from './web-research/mock-search-provider';
+import { TavilySearchProvider } from './web-research/tavily-search-provider';
 
 export class AIEngine {
   private static adminProviderManager: ProviderManager | null = null
@@ -26,21 +27,38 @@ export class AIEngine {
   private static webResearchService: WebResearchService | null = null
 
   /**
-   * Initialize web research service with mock provider
-   * In production, this should be configured with a real search provider
+   * Initialize web research service with Tavily provider
+   * Falls back to mock provider if Tavily API key is not configured
    */
   private static initializeWebResearchService(): void {
     if (!this.webResearchService) {
-      // Use mock provider by default - can be replaced with real provider
-      const mockProvider = new MockSearchProvider({
-        id: 'mock-search',
-        name: 'Mock Search Provider',
-        type: 'custom',
-        priority: 100,
-        enabled: true,
-        config: {}
-      });
-      this.webResearchService = new WebResearchService(mockProvider);
+      // Try to use Tavily if API key is available
+      const tavilyApiKey = process.env.TAVILY_API_KEY;
+      
+      if (tavilyApiKey) {
+        console.log('[AI Engine] Initializing web research service with Tavily provider');
+        const tavilyProvider = new TavilySearchProvider({
+          id: 'tavily-search',
+          name: 'Tavily Search',
+          type: 'tavily',
+          priority: 1, // Higher priority than mock
+          enabled: true,
+          config: { apiKey: tavilyApiKey }
+        });
+        this.webResearchService = new WebResearchService(tavilyProvider);
+      } else {
+        console.log('[AI Engine] Tavily API key not configured, using mock provider');
+        // Fall back to mock provider for development/testing
+        const mockProvider = new MockSearchProvider({
+          id: 'mock-search',
+          name: 'Mock Search Provider',
+          type: 'custom',
+          priority: 100,
+          enabled: true,
+          config: {}
+        });
+        this.webResearchService = new WebResearchService(mockProvider);
+      }
     }
   }
 
