@@ -20,7 +20,7 @@ import { AlexFile } from './types';
 import { WebResearchService } from './web-research/web-research-service';
 import { MockSearchProvider } from './web-research/mock-search-provider';
 import { TavilySearchProvider } from './web-research/tavily-search-provider';
-import { ToolRegistry, ToolExecutionService, calculatorToolDefinition, calculatorToolExecutor, currentTimeToolDefinition, currentTimeToolExecutor, createWebSearchToolExecutor } from './tools';
+import { ToolRegistry, ToolExecutionService, calculatorToolDefinition, calculatorToolExecutor, currentTimeToolDefinition, currentTimeToolExecutor, webSearchToolDefinition, createWebSearchToolExecutor } from './tools';
 
 export class AIEngine {
   private static adminProviderManager: ProviderManager | null = null
@@ -52,33 +52,6 @@ export class AIEngine {
       // Check if web_search is already registered
       if (!this.toolRegistry.hasTool('web_search')) {
         const webSearchExecutor = createWebSearchToolExecutor(this.webResearchService)
-        const webSearchToolDefinition = {
-          name: 'web_search',
-          description: 'Search the web for current information. Returns search results with titles, URLs, and content snippets.',
-          inputSchema: {
-            type: 'object',
-            required: ['query'],
-            properties: {
-              query: {
-                type: 'string',
-                description: 'Search query to execute',
-                minLength: 1,
-                maxLength: 500
-              },
-              maxResults: {
-                type: 'number',
-                description: 'Maximum number of results to return (default: 5, max: 10)',
-                minimum: 1,
-                maximum: 10,
-                default: 5
-              }
-            }
-          },
-          category: 'information' as const,
-          permissions: [],
-          enabled: true,
-          timeoutMs: 30000
-        }
         this.toolRegistry.registerTool(webSearchToolDefinition, webSearchExecutor)
         console.log('[AI Engine] Web search tool registered')
       }
