@@ -214,7 +214,7 @@ export class AIEngine {
         providerRegistry: registry, // Pass provider registry for vision preprocessing
         enableWebResearch, // Phase 3C: Enable web research
         disableTools: true, // Disable model's built-in function calling to use our Phase 3C web research instead
-        enableMemory: true // Phase 4: Enable memory retrieval
+        enableMemory: request.enableMemory // Phase 4: Enable memory retrieval
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {
