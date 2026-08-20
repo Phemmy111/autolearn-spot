@@ -131,6 +131,8 @@ export class AIEngine {
     enableWebResearch?: boolean;
     disableTools?: boolean;
     enableMemory?: boolean;
+    enableAgent?: boolean; // Phase 6: Enable agent mode
+    aiEngine?: AIEngine; // Phase 6: AI engine instance
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     platformContext?: PlatformContext;
@@ -176,6 +178,8 @@ export class AIEngine {
       attachedFiles: request.attachedFiles,
       providerCapabilities: request.providerCapabilities,
       webResearchService,
+      enableAgent: request.enableAgent, // Phase 6: Pass agent flag
+      aiEngine: request.aiEngine || this, // Phase 6: Pass AI engine
     });
 
     return {
@@ -203,6 +207,7 @@ export class AIEngine {
     disableTools?: boolean;
     enableMemory?: boolean;
     enableTools?: boolean;
+    enableAgent?: boolean; // Phase 6: Enable agent mode
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -269,7 +274,9 @@ export class AIEngine {
         enableMemory: request.enableMemory, // Phase 4: Enable memory retrieval
         enableTools: request.enableTools, // Phase 5: Enable tool calling
         toolRegistry: this.toolRegistry, // Phase 5: Pass tool registry
-        toolExecutionService: this.toolExecutionService // Phase 5: Pass tool execution service
+        toolExecutionService: this.toolExecutionService, // Phase 5: Pass tool execution service
+        enableAgent: request.enableAgent, // Phase 6: Enable agent mode
+        aiEngine: this // Phase 6: Pass AI engine instance for agent execution
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

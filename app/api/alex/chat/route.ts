@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { conversationId, content, mode, fileIds } = body
+    const { conversationId, content, mode, fileIds, enableAgent } = body
 
     console.log('[DIAGNOSTIC] CHAT REQUEST START', {
       conversationId,
@@ -451,6 +451,7 @@ export async function POST(request: NextRequest) {
             enableWebResearch: true, // Enable Phase 3C web research
             enableMemory: true, // Phase 4: Enable memory retrieval
             enableTools: true, // Phase 5: Enable tool calling
+            enableAgent: enableAgent || false, // Phase 6: Enable agent mode
             conversationId,
           })) {
             if (chunk.type === 'orchestrator') {

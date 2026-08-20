@@ -7,6 +7,8 @@ import { ProviderManager } from './provider/provider-manager'
 import { ProviderRegistry } from './provider/provider-registry'
 import { WebResearchService } from './web-research/web-research-service'
 import { ToolRegistry, ToolExecutionService } from './tools'
+import { AgentService, AgentExecutionResult } from './agents'
+import { AIEngine } from './ai-engine'
 
 export interface OrchestratorRequest {
   content: string
@@ -29,6 +31,9 @@ export interface OrchestratorRequest {
   enableTools?: boolean // Phase 5: Enable tool calling
   toolRegistry?: ToolRegistry // Phase 5: Tool registry
   toolExecutionService?: ToolExecutionService // Phase 5: Tool execution service
+  enableAgent?: boolean // Phase 6: Enable agent mode for multi-step execution
+  aiEngine?: AIEngine // Phase 6: AI engine for agent execution
+  signal?: AbortSignal // Phase 6: Cancellation signal
 }
 
 export interface OrchestratorResponse {
@@ -38,6 +43,7 @@ export interface OrchestratorResponse {
   suggestedMode?: AlexMode
   aiRequest: AIRequest
   imageFiles?: AlexFile[]
+  agentResult?: AgentExecutionResult // Phase 6: Agent execution result
 }
 
 /**
@@ -50,10 +56,66 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService, disableTools, enableMemory, enableTools, toolRegistry, toolExecutionService } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService, disableTools, enableMemory, enableTools, toolRegistry, toolExecutionService, enableAgent, aiEngine, signal } = request
     
     // Ensure providerCapabilities is always an array
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
+
+    // Phase 6: Check if agent mode is enabled
+    if (enableAgent && aiEngine && toolRegistry && toolExecutionService && userId) {
+      console.log('[Orchestrator] Agent mode enabled, executing controlled multi-step execution')
+
+      const agentService = new AgentService(toolRegistry, toolExecutionService, aiEngine)
+
+      const agentRequest = {
+        userId,
+        conversationId,
+        content,
+        mode,
+        conversationHistory,
+        platformContext,
+        systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools),
+        enableWebResearch: mode === 'research' || request.enableWebResearch,
+        enableMemory,
+        enableRetrieval,
+        webResearchService,
+        memoryService: undefined, // Will be handled in context assembly
+        toolRegistry,
+        toolExecutionService,
+        providerManager: request.providerManager,
+        providerRegistry: request.providerRegistry,
+        providerCapabilities: capabilities,
+        modelName: modelName || 'openai/gpt-oss-120b',
+        signal
+      }
+
+      const agentResult = await agentService.execute(agentRequest, (step) => {
+        console.log('[AgentDebug] step_progress', {
+          executionId: agentResult.executionId,
+          stepNumber: step.stepNumber,
+          type: step.type,
+          toolName: step.toolName
+        })
+      })
+
+      // Return agent result with minimal context for streaming
+      return {
+        systemPrompt: agentRequest.systemPrompt,
+        context: `Agent execution completed with ${agentResult.stepCount} steps and ${agentResult.toolCallCount} tool calls.`,
+        detectedIntent: 'Agent execution',
+        suggestedMode: mode,
+        aiRequest: {
+          messages: [
+            { role: 'system', content: agentRequest.systemPrompt },
+            { role: 'user', content: content }
+          ],
+          stream: true,
+          disableTools: true
+        },
+        imageFiles: [],
+        agentResult
+      }
+    }
 
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
