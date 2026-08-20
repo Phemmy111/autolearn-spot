@@ -58,6 +58,37 @@ export interface AIStreamEvent {
   data?: any;
 }
 
+// Phase 5: Tool-related interfaces for provider-agnostic tool calling
+export interface ToolDefinition {
+  name: string;
+  description: string;
+  inputSchema: Record<string, any>;
+}
+
+export interface ToolCall {
+  id: string;
+  toolName: string;
+  arguments: Record<string, any>;
+}
+
+export interface ToolCallEvent {
+  type: 'tool_call';
+  data: {
+    toolCall: ToolCall;
+  };
+}
+
+export interface ToolResultEvent {
+  type: 'tool_result';
+  data: {
+    toolCallId: string;
+    toolName: string;
+    result: any;
+    success: boolean;
+    error?: string;
+  };
+}
+
 export type AIProviderHealthStatus = 'healthy' | 'degraded' | 'unavailable' | 'unknown';
 
 export interface AIProviderHealth {

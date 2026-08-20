@@ -20,11 +20,80 @@ import { AlexFile } from './types';
 import { WebResearchService } from './web-research/web-research-service';
 import { MockSearchProvider } from './web-research/mock-search-provider';
 import { TavilySearchProvider } from './web-research/tavily-search-provider';
+import { ToolRegistry, ToolExecutionService, calculatorToolDefinition, calculatorToolExecutor, currentTimeToolDefinition, currentTimeToolExecutor, createWebSearchToolExecutor } from './tools';
 
 export class AIEngine {
   private static adminProviderManager: ProviderManager | null = null
   private static adminProviderRegistry: ProviderRegistry | null = null
   private static webResearchService: WebResearchService | null = null
+  private static toolRegistry: ToolRegistry | null = null
+  private static toolExecutionService: ToolExecutionService | null = null
+
+  /**
+   * Initialize tool registry with built-in tools
+   */
+  private static initializeToolRegistry(): void {
+    if (!this.toolRegistry) {
+      this.toolRegistry = new ToolRegistry()
+
+      // Register built-in tools
+      this.toolRegistry.registerTool(calculatorToolDefinition, calculatorToolExecutor)
+      this.toolRegistry.registerTool(currentTimeToolDefinition, currentTimeToolExecutor)
+
+      console.log('[AI Engine] Tool registry initialized with', this.toolRegistry.getToolCount(), 'tools')
+    }
+  }
+
+  /**
+   * Initialize web search tool (called after web research service is initialized)
+   */
+  private static initializeWebSearchTool(): void {
+    if (this.toolRegistry && this.webResearchService) {
+      // Check if web_search is already registered
+      if (!this.toolRegistry.hasTool('web_search')) {
+        const webSearchExecutor = createWebSearchToolExecutor(this.webResearchService)
+        const webSearchToolDefinition = {
+          name: 'web_search',
+          description: 'Search the web for current information. Returns search results with titles, URLs, and content snippets.',
+          inputSchema: {
+            type: 'object',
+            required: ['query'],
+            properties: {
+              query: {
+                type: 'string',
+                description: 'Search query to execute',
+                minLength: 1,
+                maxLength: 500
+              },
+              maxResults: {
+                type: 'number',
+                description: 'Maximum number of results to return (default: 5, max: 10)',
+                minimum: 1,
+                maximum: 10,
+                default: 5
+              }
+            }
+          },
+          category: 'information' as const,
+          permissions: [],
+          enabled: true,
+          timeoutMs: 30000
+        }
+        this.toolRegistry.registerTool(webSearchToolDefinition, webSearchExecutor)
+        console.log('[AI Engine] Web search tool registered')
+      }
+    }
+  }
+
+  /**
+   * Initialize tool execution service
+   */
+  private static initializeToolExecutionService(): void {
+    if (!this.toolExecutionService && this.toolRegistry) {
+      this.toolExecutionService = new ToolExecutionService(this.toolRegistry)
+      console.log('[AI Engine] Tool execution service initialized')
+    }
+  }
 
   /**
    * Initialize web research service with Tavily provider
@@ -66,6 +135,9 @@ export class AIEngine {
         });
         this.webResearchService = new WebResearchService(mockProvider);
       }
+
+      // Initialize web search tool after web research service is ready
+      this.initializeWebSearchTool()
     }
   }
 
@@ -157,6 +229,7 @@ export class AIEngine {
     enableWebResearch?: boolean;
     disableTools?: boolean;
     enableMemory?: boolean;
+    enableTools?: boolean;
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -172,7 +245,13 @@ export class AIEngine {
         attachedFileIds: request.attachedFiles?.map(f => f.id) || []
       })
       console.log('[AI Engine] Starting streamChat')
-      
+
+      // Initialize tool registry and execution service if tools are enabled
+      if (request.enableTools) {
+        this.initializeToolRegistry()
+        this.initializeToolExecutionService()
+      }
+
       // Create request-local provider registry and manager
       const registry = new ProviderRegistry()
       const providerManager = new ProviderManager(registry)
@@ -214,7 +293,10 @@ export class AIEngine {
         providerRegistry: registry, // Pass provider registry for vision preprocessing
         enableWebResearch, // Phase 3C: Enable web research
         disableTools: true, // Disable model's built-in function calling to use our Phase 3C web research instead
-        enableMemory: request.enableMemory // Phase 4: Enable memory retrieval
+        enableMemory: request.enableMemory, // Phase 4: Enable memory retrieval
+        enableTools: request.enableTools, // Phase 5: Enable tool calling
+        toolRegistry: this.toolRegistry, // Phase 5: Pass tool registry
+        toolExecutionService: this.toolExecutionService // Phase 5: Pass tool execution service
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

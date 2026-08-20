@@ -166,3 +166,61 @@ export interface MemoryCommand {
   content: string
   extractedMemory?: string
 }
+
+// Phase 5 - Tools & Workflows Types
+export type ToolCategory = 'utility' | 'information' | 'computation' | 'integration' | 'workflow'
+
+export interface ToolDefinition {
+  name: string
+  description: string
+  inputSchema: Record<string, any> // JSON Schema for input validation
+  outputSchema?: Record<string, any> // JSON Schema for output
+  category: ToolCategory
+  permissions: string[] // Required permissions/capabilities
+  enabled: boolean
+  timeoutMs?: number // Execution timeout in milliseconds
+}
+
+export interface ToolCall {
+  id: string
+  toolName: string
+  arguments: Record<string, any>
+  conversationId?: string
+  userId: string
+  metadata?: Record<string, any>
+}
+
+export interface ToolResult {
+  toolCallId: string
+  toolName: string
+  success: boolean
+  result?: any
+  error?: string
+  metadata?: Record<string, any>
+  executionTimeMs: number
+}
+
+export interface ToolExecutionRecord {
+  id: string
+  user_id: string
+  conversation_id?: string
+  tool_name: string
+  tool_call_id: string
+  arguments: Record<string, any>
+  success: boolean
+  result?: any
+  error?: string
+  execution_time_ms: number
+  created_at: string
+}
+
+export interface ToolExecutor {
+  name: string
+  execute(args: Record<string, any>, context: ToolExecutionContext): Promise<any>
+}
+
+export interface ToolExecutionContext {
+  userId: string
+  conversationId?: string
+  metadata?: Record<string, any>
+}

@@ -6,6 +6,7 @@ import { PlatformContext } from './context/context-types'
 import { ProviderManager } from './provider/provider-manager'
 import { ProviderRegistry } from './provider/provider-registry'
 import { WebResearchService } from './web-research/web-research-service'
+import { ToolRegistry, ToolExecutionService } from './tools'
 
 export interface OrchestratorRequest {
   content: string
@@ -25,6 +26,9 @@ export interface OrchestratorRequest {
   webResearchService?: WebResearchService // Phase 3C: Web research service
   disableTools?: boolean // Disable model's built-in function calling to use Phase 3C web research instead
   enableMemory?: boolean // Phase 4: Enable memory retrieval
+  enableTools?: boolean // Phase 5: Enable tool calling
+  toolRegistry?: ToolRegistry // Phase 5: Tool registry
+  toolExecutionService?: ToolExecutionService // Phase 5: Tool execution service
 }
 
 export interface OrchestratorResponse {
@@ -46,7 +50,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService, disableTools, enableMemory } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService, disableTools, enableMemory, enableTools, toolRegistry, toolExecutionService } = request
     
     // Ensure providerCapabilities is always an array
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
@@ -92,7 +96,12 @@ export class AlexOrchestrator {
     const aiRequest: AIRequest = {
       messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context, imageFiles, capabilities),
       stream: true, // Default to streaming
-      disableTools: true, // Disable model's built-in function calling to use our Phase 3C web research instead
+      disableTools: !enableTools, // Disable model's built-in function calling unless Phase 5 tools are enabled
+      tools: enableTools && toolRegistry ? toolRegistry.listEnabledTools().map(t => ({
+        name: t.name,
+        description: t.description,
+        inputSchema: t.inputSchema
+      })) : undefined
     }
 
     console.log('[DIAGNOSTIC] ORCHESTRATOR OUTPUT', {
