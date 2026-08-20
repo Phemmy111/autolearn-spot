@@ -250,10 +250,10 @@ export class AIEngine {
       
       // Process through orchestrator first
       const firstProvider = allProviders[0]
-      
+
       // Enable web research for research mode or when explicitly requested
       const enableWebResearch = request.enableWebResearch || request.mode === 'research';
-      
+
       const { orchestratorResponse, platformContext } = await this.processChat({
         ...request,
         attachedFiles: request.attachedFiles,
@@ -300,14 +300,51 @@ export class AIEngine {
         stream: true,
         conversationId: request.conversationId,
         mode: request.mode,
-        disableTools: true, // Disable model's built-in function calling to use our Phase 3C web research instead
+        disableTools: !request.enableTools, // Pass through tool enable/disable
+        tools: request.enableTools && this.toolRegistry ? this.toolRegistry.listEnabledTools() : undefined,
       })) {
         // Check for error events and convert to thrown errors for proper fallback handling
         if (event.type === 'error') {
           console.log('[AI Engine] Error event from provider - throwing to trigger fallback:', event.data?.error)
           throw new Error(event.data?.error || 'Stream error')
         }
-        
+
+        // Handle tool calls
+        if (event.type === 'tool_call' && request.enableTools && this.toolExecutionService) {
+          const toolCall = event.data.toolCall
+          console.log('[AI Engine] Tool call received:', toolCall)
+
+          // Execute tool
+          this.toolExecutionService.resetRequestCallCount(request.userId || '', request.conversationId)
+          const toolResult = await this.toolExecutionService.executeTool(
+            {
+              id: toolCall.id,
+              toolName: toolCall.toolName,
+              arguments: toolCall.arguments,
+              userId: request.userId || '',
+              conversationId: request.conversationId
+            },
+            { userId: request.userId || '', conversationId: request.conversationId }
+          )
+
+          console.log('[AI Engine] Tool result:', toolResult)
+
+          // Yield tool result event
+          yield {
+            type: 'stream',
+            data: {
+              type: 'tool_result',
+              data: {
+                toolCallId: toolCall.id,
+                toolName: toolCall.toolName,
+                result: toolResult.success ? toolResult.result : { error: toolResult.error },
+                success: toolResult.success,
+                error: toolResult.error
+              }
+            }
+          }
+        }
+
         if (event.type === 'delta' && event.data?.text) {
           hasEmittedContent = true
         }

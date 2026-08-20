@@ -114,19 +114,37 @@ export class OpenAICompatibleAdapter implements AIProvider {
 
     yield { type: 'start', data: { model } }
 
+    // Tool call accumulation state
+    const pendingToolCalls = new Map<number, { id?: string; name?: string; arguments: Record<string, any> }>()
+
     try {
+      const requestBody: any = {
+        model,
+        messages: request.messages,
+        temperature: request.temperature ?? 0.7,
+        max_tokens: request.maxTokens ?? 4000,
+        stream: true,
+      }
+
+      // Add tool definitions if provided and tools not disabled
+      if (request.tools && !request.disableTools) {
+        requestBody.tools = request.tools.map(tool => ({
+          type: 'function',
+          function: {
+            name: tool.name,
+            description: tool.description,
+            parameters: tool.inputSchema
+          }
+        }))
+        requestBody.tool_choice = 'auto' // Let model decide when to use tools
+      } else if (request.disableTools) {
+        requestBody.tool_choice = 'none'
+      }
+
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: this.getHeaders(),
-        body: JSON.stringify({
-          model,
-          messages: request.messages,
-          temperature: request.temperature ?? 0.7,
-          max_tokens: request.maxTokens ?? 4000,
-          stream: true,
-          // Disable tool/function calling to prevent unwanted function use
-          tool_choice: request.disableTools ? 'none' : undefined,
-        }),
+        body: JSON.stringify(requestBody),
         signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
       })
 
@@ -169,16 +187,81 @@ export class OpenAICompatibleAdapter implements AIProvider {
             const data = line.slice(6)
             if (data === '[DONE]') continue
 
-            console.log('[OpenAI Adapter] Received line:', data)
-
             try {
               const parsed = JSON.parse(data)
-              console.log('[OpenAI Adapter] Parsed:', parsed)
               const delta = parsed.choices?.[0]?.delta
-              console.log('[OpenAI Adapter] Delta:', delta)
+              const index = parsed.choices?.[0]?.index ?? 0
 
+              // Handle tool calls
+              if (delta?.tool_calls) {
+                for (const toolCallDelta of delta.tool_calls) {
+                  const callIndex = toolCallDelta.index ?? index
+                  if (!pendingToolCalls.has(callIndex)) {
+                    pendingToolCalls.set(callIndex, { arguments: {} })
+                  }
+
+                  const pending = pendingToolCalls.get(callIndex)!
+
+                  // Accumulate tool call ID
+                  if (toolCallDelta.id) {
+                    pending.id = toolCallDelta.id
+                  }
+
+                  // Accumulate function name
+                  if (toolCallDelta.function?.name) {
+                    pending.name = toolCallDelta.function.name
+                  }
+
+                  // Accumulate arguments (may be fragmented)
+                  if (toolCallDelta.function?.arguments) {
+                    const argsSoFar = pending.arguments
+                    const newArgs = toolCallDelta.function.arguments
+
+                    try {
+                      // Try to parse as JSON and merge
+                      if (newArgs.startsWith('{')) {
+                        const parsedArgs = JSON.parse(newArgs)
+                        Object.assign(argsSoFar, parsedArgs)
+                      } else {
+                        // Fragmented JSON - accumulate and parse at end
+                        const currentString = JSON.stringify(argsSoFar) || '{}'
+                        const mergedString = currentString.slice(0, -1) + newArgs
+                        try {
+                          Object.assign(argsSoFar, JSON.parse(mergedString))
+                        } catch {
+                          // Not yet complete, continue accumulating
+                        }
+                      }
+                    } catch {
+                      // Arguments may be incomplete, continue accumulating
+                    }
+                  }
+                }
+              }
+
+              // When finish_reason is 'tool_calls', emit accumulated tool calls
+              if (parsed.choices?.[0]?.finish_reason === 'tool_calls') {
+                for (const [index, toolCall] of pendingToolCalls) {
+                  if (toolCall.id && toolCall.name && Object.keys(toolCall.arguments).length > 0) {
+                    yield {
+                      type: 'tool_call',
+                      data: {
+                        toolCall: {
+                          id: toolCall.id,
+                          toolName: toolCall.name,
+                          arguments: toolCall.arguments
+                        }
+                      }
+                    }
+                  }
+                }
+                pendingToolCalls.clear()
+                yield { type: 'finish', data: { finishReason: 'tool_calls' } }
+                continue
+              }
+
+              // Normal content delta
               if (delta?.content) {
-                console.log('[OpenAI Adapter] Yielding delta content:', delta.content)
                 yield { type: 'delta', data: { content: delta.content } }
               }
 
@@ -186,7 +269,7 @@ export class OpenAICompatibleAdapter implements AIProvider {
                 yield { type: 'usage', data: parsed.usage }
               }
 
-              if (parsed.choices?.[0]?.finish_reason) {
+              if (parsed.choices?.[0]?.finish_reason && parsed.choices[0].finish_reason !== 'tool_calls') {
                 yield { type: 'finish', data: { finishReason: parsed.choices[0].finish_reason } }
               }
             } catch (e) {

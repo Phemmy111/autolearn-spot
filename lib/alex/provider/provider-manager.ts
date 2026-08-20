@@ -482,10 +482,10 @@ export class ProviderManager {
    * This is called from AIEngine when no content has been emitted yet
    */
   async *executeStreamingWithFallback(request: any): AsyncGenerator<AIStreamEvent> {
-    // Ensure disableTools is set to prevent model function calling
+    // Pass through disableTools and tools from request
     const enhancedRequest = {
       ...request,
-      disableTools: true // Always disable model's built-in function calling to use our Phase 3C web research instead
+      // disableTools is passed through from caller
     };
     const fallbackAttempts: FallbackAttempt[] = []
     const exhaustedProviders = new Set<string>() // Track providers with exhausted quota

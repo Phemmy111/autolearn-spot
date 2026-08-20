@@ -450,7 +450,7 @@ export async function POST(request: NextRequest) {
             enableRetrieval: true, // Enable Phase 3B retrieval
             enableWebResearch: true, // Enable Phase 3C web research
             enableMemory: true, // Phase 4: Enable memory retrieval
-            enableTools: false, // Phase 5: Tools disabled for now (will be enabled via model support)
+            enableTools: true, // Phase 5: Enable tool calling
             conversationId,
           })) {
             if (chunk.type === 'orchestrator') {

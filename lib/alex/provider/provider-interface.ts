@@ -28,7 +28,7 @@ export interface AIRequest {
   temperature?: number;
   maxTokens?: number;
   stream?: boolean;
-  tools?: string[]; // Optional: list of tools to enable/disable
+  tools?: ToolDefinition[]; // Optional: tool definitions for function calling
   disableTools?: boolean; // Optional: disable all tool/function calling
 }
 
@@ -46,12 +46,13 @@ export interface AIResponse {
   providerMetadata?: Record<string, any>;
 }
 
-export type AIStreamEventType = 
+export type AIStreamEventType =
   | 'start'
   | 'delta'
   | 'usage'
   | 'finish'
-  | 'error';
+  | 'error'
+  | 'tool_call';
 
 export interface AIStreamEvent {
   type: AIStreamEventType;

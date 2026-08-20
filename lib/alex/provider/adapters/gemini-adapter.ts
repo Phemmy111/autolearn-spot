@@ -155,6 +155,30 @@ export class GeminiAdapter implements AIProvider {
               const candidate = parsed.candidates?.[0]
               const delta = candidate?.content?.parts?.[0]
 
+              // Handle function calls
+              if (delta?.functionCall) {
+                const functionCall = delta.functionCall
+                const functionName = functionCall.name
+                const functionArgs = functionCall.args || {}
+
+                // Generate a unique ID for Gemini function calls (Gemini doesn't provide IDs)
+                const toolCallId = `gemini_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
+                yield {
+                  type: 'tool_call',
+                  data: {
+                    toolCall: {
+                      id: toolCallId,
+                      toolName: functionName,
+                      arguments: functionArgs
+                    }
+                  }
+                }
+
+                yield { type: 'finish', data: { finishReason: 'STOP' } }
+                continue
+              }
+
               if (delta?.text) {
                 yield { type: 'delta', data: { content: delta.text } }
               }
@@ -232,7 +256,7 @@ export class GeminiAdapter implements AIProvider {
       if (msg.role === 'system') {
         return { role: 'user', parts: [{ text: `System: ${msg.content}` }] }
       }
-      
+
       // Handle multimodal content (text + images)
       if (Array.isArray(msg.content)) {
         const parts: any[] = []
@@ -260,7 +284,7 @@ export class GeminiAdapter implements AIProvider {
           parts
         }
       }
-      
+
       // Regular text content
       return {
         role: msg.role === 'assistant' ? 'model' : 'user',
@@ -268,14 +292,25 @@ export class GeminiAdapter implements AIProvider {
       }
     })
 
-    return {
+    const requestBody: any = {
       contents,
       generationConfig: {
         temperature: request.temperature ?? 0.7,
         maxOutputTokens: request.maxTokens ?? 4000,
       },
-      // Disable function calling to prevent unwanted function use
-      // Gemini doesn't have direct tool_choice, but we can omit function declarations
     }
+
+    // Add tool declarations if provided and tools not disabled
+    if (request.tools && !request.disableTools) {
+      requestBody.tools = request.tools.map(tool => ({
+        functionDeclarations: [{
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.inputSchema
+        }]
+      }))
+    }
+
+    return requestBody
   }
 }
