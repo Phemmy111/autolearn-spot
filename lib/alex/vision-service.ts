@@ -15,7 +15,8 @@
 import { AlexFile } from './types'
 import { ProviderRegistry } from './provider/provider-registry'
 import { ProviderManager } from './provider/provider-manager'
-import { AIRequest, AIMessage, ImageContent } from './provider/provider-interface'
+import { AIRequest, AIMessage, ImageContent, AIProvider } from './provider/provider-interface'
+import { createClient } from '@supabase/supabase-js'
 
 /**
  * SVG-specific analysis result
@@ -59,6 +60,25 @@ export interface VisionPreprocessingOptions {
  * Main vision preprocessing service
  */
 export class VisionService {
+  /**
+   * Get Supabase client for storage operations
+   */
+  private static getSupabaseClient() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    return createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  }
+
   /**
    * Process images for vision preprocessing
    */
@@ -201,7 +221,7 @@ export class VisionService {
   private static async selectVisionProvider(
     providerManager: ProviderManager,
     providerRegistry: ProviderRegistry
-  ): Promise<{ id: string; name: string; type: string } | null> {
+  ): Promise<AIProvider | null> {
     try {
       // Reload providers to get current configuration
       await providerManager.loadProviders()
@@ -241,11 +261,7 @@ export class VisionService {
 
       console.log('[Vision Service] Selected vision provider:', selectedProvider.name)
 
-      return {
-        id: selectedProvider.id,
-        name: selectedProvider.name,
-        type: selectedProvider.type
-      }
+      return selectedProvider
     } catch (error) {
       console.error('[Vision Service] Error selecting vision provider:', error)
       return null
@@ -257,7 +273,7 @@ export class VisionService {
    */
   private static async analyzeImage(
     imageFile: AlexFile,
-    visionProvider: { id: string; name: string; type: string },
+    visionProvider: AIProvider,
     maxTokens: number
   ): Promise<VisionAnalysisResult> {
     console.log('[Vision Service] Analyzing image with provider:', {
@@ -276,7 +292,7 @@ export class VisionService {
           success: true,
           filename: imageFile.original_filename,
           mimeType: imageFile.mime_type,
-          visualDescription: `Image uploaded: ${imageFile.original_filename}. The system detected the image but preprocessing requires additional setup for full visual analysis.`,
+          visualDescription: `Image uploaded: ${imageFile.original_filename}. The system detected the image but could not retrieve the image data for analysis.`,
           confidence: 0.3
         }
       }
@@ -305,10 +321,9 @@ export class VisionService {
         stream: false
       }
 
-      // For now, we'll use a simplified approach
-      // In production, you'd use the actual provider adapter to execute this request
-      // This is a placeholder that simulates the analysis
+      console.log('[Vision Service] Executing vision analysis request with provider')
       
+      // Execute the vision analysis using the actual provider
       const analysisResult = await this.executeVisionAnalysis(visionRequest, visionProvider)
 
       return {
@@ -340,14 +355,38 @@ export class VisionService {
         return imageFile.imageDataUrl
       }
 
-      // In production, this would retrieve the actual image data from storage
-      // For now, we'll use the storage_path if available
+      // Retrieve from Supabase storage
       if (imageFile.storage_path) {
-        // This would typically involve reading from cloud storage
-        console.log('[Vision Service] Image storage path:', imageFile.storage_path)
-        // For now, we'll need to implement actual storage retrieval
-        // This requires Supabase storage integration
-        return null // Return null to trigger error handling
+        console.log('[Vision Service] Downloading image from storage:', imageFile.storage_path)
+        
+        const supabase = this.getSupabaseClient()
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('alex-files')
+          .download(imageFile.storage_path)
+
+        if (downloadError) {
+          console.error('[Vision Service] Failed to download image from storage:', downloadError)
+          return null
+        }
+
+        if (!fileData) {
+          console.error('[Vision Service] No data returned from storage')
+          return null
+        }
+
+        // Convert to base64
+        const arrayBuffer = await fileData.arrayBuffer()
+        const base64 = Buffer.from(arrayBuffer).toString('base64')
+        const mimeType = imageFile.mime_type
+        const dataUrl = `data:${mimeType};base64,${base64}`
+
+        console.log('[Vision Service] Successfully converted image to base64:', {
+          filename: imageFile.original_filename,
+          dataSize: base64.length,
+          mimeType
+        })
+
+        return dataUrl
       }
 
       // If the file has extracted content or URL, use that
@@ -391,7 +430,7 @@ Format your response as structured text that can be easily parsed and used as co
    */
   private static async executeVisionAnalysis(
     request: AIRequest,
-    visionProvider: { id: string; name: string; type: string }
+    visionProvider: AIProvider
   ): Promise<{
     visualDescription: string
     detectedText?: string
@@ -403,20 +442,78 @@ Format your response as structured text that can be easily parsed and used as co
   }> {
     console.log('[Vision Service] Executing vision analysis with provider:', visionProvider.name)
     
-    // This is a simplified implementation
-    // In production, you would use the actual provider adapter to execute the request
-    // For now, we'll return a basic analysis to indicate the system is working
-    
-    // Return a basic analysis result
-    return {
-      visualDescription: 'Image uploaded and detected by the system. The image preprocessing service is active and attempting to analyze visual content.',
-      detectedText: '',
-      structure: '',
-      uiElements: [],
-      importantLabels: [],
-      technicalDetails: '',
-      confidence: 0.5
+    try {
+      // Execute the vision request using the actual provider adapter
+      const response = await visionProvider.generate(request)
+      
+      console.log('[Vision Service] Vision analysis response received:', {
+        model: response.model,
+        contentLength: response.content.length,
+        usage: response.usage
+      })
+
+      // Parse the response to extract structured information
+      return this.parseVisionResponse(response.content)
+    } catch (error) {
+      console.error('[Vision Service] Provider execution failed:', error)
+      
+      // Return error information as part of the analysis
+      return {
+        visualDescription: `Vision analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        confidence: 0.1
+      }
     }
+  }
+
+  /**
+   * Parse vision response to extract structured information
+   */
+  private static parseVisionResponse(content: string): {
+    visualDescription: string
+    detectedText?: string
+    structure?: string
+    uiElements?: string[]
+    importantLabels?: string[]
+    technicalDetails?: string
+    confidence?: number
+  } {
+    // Try to parse structured information from the response
+    const result = {
+      visualDescription: content,
+      confidence: 0.8
+    }
+
+    // Extract detected text if present
+    const textMatch = content.match(/Detected Text:?\s*([^\n]+)/i)
+    if (textMatch) {
+      result.detectedText = textMatch[1].trim()
+    }
+
+    // Extract structure information
+    const structureMatch = content.match(/Structure:?\s*([^\n]+)/i)
+    if (structureMatch) {
+      result.structure = structureMatch[1].trim()
+    }
+
+    // Extract UI elements
+    const uiMatch = content.match(/UI Elements:?\s*([^\n]+)/i)
+    if (uiMatch) {
+      result.uiElements = uiMatch[1].split(',').map(s => s.trim())
+    }
+
+    // Extract important labels
+    const labelsMatch = content.match(/Important Labels:?\s*([^\n]+)/i)
+    if (labelsMatch) {
+      result.importantLabels = labelsMatch[1].split(',').map(s => s.trim())
+    }
+
+    // Extract technical details
+    const techMatch = content.match(/Technical Details:?\s*([^\n]+)/i)
+    if (techMatch) {
+      result.technicalDetails = techMatch[1].trim()
+    }
+
+    return result
   }
 
   /**
@@ -486,7 +583,7 @@ Format your response as structured text that can be easily parsed and used as co
    */
   private static async analyzeSVG(
     svgFile: AlexFile,
-    visionProvider: { id: string; name: string; type: string },
+    visionProvider: AIProvider,
     maxTokens: number
   ): Promise<SVGAnalysisResult> {
     console.log('[Vision Service] Analyzing SVG file:', svgFile.original_filename)
