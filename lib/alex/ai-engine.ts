@@ -31,6 +31,8 @@ export class AIEngine {
     attachedFiles?: AlexFile[];
     conversationId?: string;
     enableRetrieval?: boolean;
+    modelName?: string;
+    enableTokenAwareAssembly?: boolean;
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     platformContext?: PlatformContext;
@@ -87,6 +89,8 @@ export class AIEngine {
     attachedFiles?: AlexFile[];
     conversationId?: string;
     enableRetrieval?: boolean;
+    modelName?: string;
+    enableTokenAwareAssembly?: boolean;
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -127,6 +131,8 @@ export class AIEngine {
         attachedFiles: request.attachedFiles,
         conversationId: request.conversationId,
         enableRetrieval: request.enableRetrieval,
+        modelName: allProviders[0]?.model || 'openai/gpt-oss-120b', // Use active provider's model
+        enableTokenAwareAssembly: (request.attachedFiles?.length || 0) > 1, // Auto-enable for multi-file
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

@@ -14,6 +14,8 @@ export interface OrchestratorRequest {
   userId?: string
   conversationId?: string
   enableRetrieval?: boolean
+  modelName?: string // Model name for context limit calculation
+  enableTokenAwareAssembly?: boolean // Enable token-aware assembly for multi-file
 }
 
 export interface OrchestratorResponse {
@@ -35,7 +37,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly } = request
 
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
@@ -47,6 +49,9 @@ export class AlexOrchestrator {
       suggestedMode = intentResult.suggestedMode
     }
 
+    // Generate system prompt for token estimation
+    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext)
+
     // Assemble context with platform context, files, and retrieval if available
     const assemblyResult = await assembleContext(mode, conversationHistory, {
       platformContext,
@@ -55,12 +60,12 @@ export class AlexOrchestrator {
       userId,
       conversationId,
       enableRetrieval,
+      enableTokenAwareAssembly: enableTokenAwareAssembly || (attachedFiles && attachedFiles.length > 1), // Auto-enable for multi-file
+      modelName: modelName || 'openai/gpt-oss-120b',
+      systemPrompt
     })
 
     const { context, imageFiles } = assemblyResult
-
-    // Generate system prompt based on mode
-    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext)
 
     // Build AI request for provider-agnostic interface
     const aiRequest: AIRequest = {

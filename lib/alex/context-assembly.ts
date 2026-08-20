@@ -3,6 +3,7 @@ import { PlatformContext } from './context/context-types'
 import { formatPlatformContextForPrompt } from './context'
 import { generateFileSummary } from './file-extraction'
 import { retrieveChunks } from './retrieval'
+import { assembleTokenAwareContext, TokenAwareAssemblyOptions } from './token-aware-context'
 
 export interface ConversationMessage {
   role: string
@@ -16,6 +17,9 @@ export interface AssemblyOptions {
   userId?: string
   conversationId?: string
   enableRetrieval?: boolean
+  enableTokenAwareAssembly?: boolean // New parameter for token-aware assembly
+  modelName?: string // Model name for context limit calculation
+  systemPrompt?: string // System prompt for token estimation
 }
 
 export interface AssemblyResult {
@@ -28,6 +32,7 @@ export interface AssemblyResult {
  * Phase 2B: Integrated platform context from AutoLearn Spot
  * Phase 3A: Integrated file/document context
  * Phase 3A+: Image support for multimodal input
+ * Phase 3B+: Token-aware multi-file context with RAG
  */
 export async function assembleContext(
   mode: AlexMode,
@@ -44,6 +49,67 @@ export async function assembleContext(
     }
   }
 
+  // Use token-aware assembly if enabled (preferred for multi-file scenarios)
+  if (options?.enableTokenAwareAssembly && options?.attachedFiles && options.userId && options.conversationId) {
+    console.log('[Context Assembly] Using token-aware assembly for multi-file context')
+    
+    try {
+      const lastUserMessage = conversationHistory
+        .filter(m => m.role === 'user')
+        .pop()
+
+      const userQuery = lastUserMessage?.content || ''
+      const systemPrompt = options.systemPrompt || `You are ALEX (AutoLearn Intelligence & Execution Agent), an AI assistant for AutoLearn Spot students.`
+      const platformContextStr = formatPlatformContextForPrompt(options.platformContext || {})
+      const modelName = options.modelName || 'openai/gpt-oss-120b'
+
+      const tokenAwareResult = await assembleTokenAwareContext({
+        attachedFiles: options.attachedFiles,
+        userId: options.userId,
+        conversationId: options.conversationId,
+        userQuery,
+        conversationHistory,
+        systemPrompt,
+        platformContext: platformContextStr,
+        modelName
+      })
+
+      console.log('[Context Assembly] Token-aware assembly complete:', tokenAwareResult.diagnostics)
+
+      // Combine platform context with token-aware file context
+      const platformContextOnly = formatPlatformContextForPrompt(options.platformContext || {})
+      context = platformContextOnly + '\n' + tokenAwareResult.context
+
+      // Add conversation history
+      context += '\nConversation History:\n'
+      
+      if (conversationHistory.length === 0) {
+        context += 'This is the beginning of the conversation.\n'
+      } else {
+        const recentMessages = conversationHistory.slice(-10)
+        for (const msg of recentMessages) {
+          const role = msg.role === 'user' ? 'User' : 'ALEX'
+          context += `${role}: ${msg.content}\n`
+        }
+      }
+
+      // Add mode-specific context
+      const modeContext = getModeContext(mode)
+      if (modeContext) {
+        context += `\n${modeContext}\n`
+      }
+
+      return {
+        context,
+        imageFiles: tokenAwareResult.imageFiles
+      }
+    } catch (error) {
+      console.error('[Context Assembly] Token-aware assembly failed, falling back to standard assembly:', error)
+      // Fall back to standard assembly if token-aware fails
+    }
+  }
+
+  // Standard assembly (fallback or when token-aware not enabled)
   // Add retrieved document context if enabled (Phase 3B)
   if (options?.enableRetrieval && options.userId && options.conversationId) {
     try {

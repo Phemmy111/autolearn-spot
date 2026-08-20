@@ -30,6 +30,8 @@ export interface RetrievalOptions {
   minSimilarity?: number
   embeddingModel?: string
   embeddingApiKey?: string
+  fileIds?: string[] // Specific file IDs to retrieve from
+  userId?: string // Required for file-specific retrieval
 }
 
 export interface RetrievedChunk {
@@ -87,6 +89,7 @@ export async function retrieveChunks(
       queryEmbedding,
       userId,
       options.conversationId,
+      options.fileIds,
       options.limit || DEFAULT_LIMIT,
       options.minSimilarity || DEFAULT_MIN_SIMILARITY
     )
@@ -152,6 +155,15 @@ function validateRetrievalInputs(
   if (options.conversationId !== undefined && typeof options.conversationId !== 'string') {
     throw new Error('Conversation ID must be a string if provided')
   }
+
+  if (options.fileIds !== undefined) {
+    if (!Array.isArray(options.fileIds)) {
+      throw new Error('File IDs must be an array if provided')
+    }
+    if (options.fileIds.some(id => typeof id !== 'string')) {
+      throw new Error('All file IDs must be strings')
+    }
+  }
 }
 
 /**
@@ -189,6 +201,7 @@ async function performSimilaritySearch(
   queryEmbedding: number[],
   userId: string,
   conversationId: string | undefined,
+  fileIds: string[] | undefined,
   limit: number,
   minSimilarity: number
 ): Promise<any[]> {
@@ -197,6 +210,7 @@ async function performSimilaritySearch(
     p_query_embedding: queryEmbedding,
     p_user_id: userId,
     p_conversation_id: conversationId || null,
+    p_file_ids: fileIds || null, // Pass specific file IDs if provided
     p_limit: limit,
     p_min_similarity: minSimilarity
   })
