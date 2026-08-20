@@ -14,6 +14,20 @@ export interface IntentDetectionResult {
 export async function detectIntent(content: string): Promise<IntentDetectionResult> {
   const lowerContent = content.toLowerCase()
 
+  // Check for current-time requests first (priority over research)
+  const currentTimePatterns = [
+    'what time is it', 'current time', 'right now time', 'time in', 'what\'s the time'
+  ]
+  const isCurrentTimeRequest = currentTimePatterns.some(pattern => lowerContent.includes(pattern))
+
+  if (isCurrentTimeRequest) {
+    return {
+      intent: 'Current time query',
+      suggestedMode: 'auto',
+      confidence: 0.9
+    }
+  }
+
   // Basic keyword patterns for mode detection
   const patterns: Record<AlexMode, string[]> = {
     auto: [],
@@ -31,7 +45,8 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
     ],
     research: [
       'find', 'search', 'research', 'look up', 'information about', 'what is the latest',
-      'compare', 'difference between', 'sources', 'verify', 'current', 'up to date'
+      'compare', 'difference between', 'sources', 'verify', 'up to date',
+      'search for', 'look into', 'investigate', 'find out about'
     ],
     agent_builder: [
       'agent', 'bot', 'assistant', 'ai agent', 'create agent', 'build agent',

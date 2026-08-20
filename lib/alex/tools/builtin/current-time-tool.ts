@@ -8,14 +8,14 @@ import { ToolDefinition, ToolExecutor, ToolExecutionContext } from '../../types'
 
 export const currentTimeToolDefinition: ToolDefinition = {
   name: 'current_time',
-  description: 'Get the current time for a specific timezone. Returns both ISO timestamp and human-readable format.',
+  description: 'MUST be used for questions asking for the current time, current date/time, or "right now" time in a location. Returns the actual current timestamp for any IANA timezone. Do NOT use web research, model knowledge, or stale timestamps for current-time queries. Examples: "What time is it in Lagos right now?", "What time is it in New York?", "Tell me the current time in Africa/Lagos."',
   inputSchema: {
     type: 'object',
     required: ['timezone'],
     properties: {
       timezone: {
         type: 'string',
-        description: 'IANA timezone identifier (e.g., "America/New_York", "Europe/London", "Asia/Tokyo", "Africa/Lagos")',
+        description: 'IANA timezone identifier (e.g., "Africa/Lagos" for Nigeria, "America/New_York", "Europe/London", "Asia/Tokyo"). Use standard IANA timezone names.',
         minLength: 1,
         maxLength: 100
       }

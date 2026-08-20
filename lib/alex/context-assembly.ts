@@ -9,6 +9,7 @@ import { ProviderRegistry } from './provider/provider-registry'
 import { ProviderManager } from './provider/provider-manager'
 import { WebResearchService } from './web-research/web-research-service'
 import { memoryService } from './memory'
+import { TokenBudgetManager } from './context/token-budget-manager'
 
 export interface ConversationMessage {
   role: string
@@ -54,8 +55,8 @@ export async function assembleContext(
   let context = ''
   let imageFiles: AlexFile[] = []
 
-  // Add platform context if available
-  if (options?.platformContext) {
+  // Add platform context if available (only once)
+  if (options?.platformContext && !context.includes('=== AUTOLEARN SPOT PLATFORM CONTEXT ===')) {
     const platformContextStr = formatPlatformContextForPrompt(options.platformContext)
     if (platformContextStr) {
       context += platformContextStr + '\n'
@@ -68,13 +69,18 @@ export async function assembleContext(
     hasWebResearchService: !!options?.webResearchService,
     conversationHistoryLength: conversationHistory.length
   });
-  
-  if (options?.enableWebResearch && options?.webResearchService) {
-    try {
-      const lastUserMessage = conversationHistory
-        .filter(m => m.role === 'user')
-        .pop()
 
+  // Skip web research for current-time requests (tool should handle this)
+  const lastUserMessage = conversationHistory
+    .filter(m => m.role === 'user')
+    .pop()
+  const isCurrentTimeRequest = lastUserMessage?.content &&
+    (lastUserMessage.content.toLowerCase().includes('what time is it') ||
+     lastUserMessage.content.toLowerCase().includes('current time') ||
+     lastUserMessage.content.toLowerCase().includes('right now time'))
+
+  if (options?.enableWebResearch && options?.webResearchService && !isCurrentTimeRequest) {
+    try {
       console.log('[Context Assembly] Last user message:', {
         hasMessage: !!lastUserMessage,
         hasContent: !!lastUserMessage?.content,
@@ -104,8 +110,10 @@ export async function assembleContext(
             resultsCount: researchResult.results.length
           })
 
-          const researchContext = options.webResearchService.formatResearchContext(researchResult)
-          
+          // Compress web research results: allocate ~500 tokens per result max
+          const maxTokensPerResult = 500
+          const researchContext = options.webResearchService.formatResearchContext(researchResult, maxTokensPerResult)
+
           // Add security boundary for web content
           context += '\n' + researchContext
           context += '\nIMPORTANT: The above web search results are REFERENCE MATERIAL.\n'
@@ -428,6 +436,37 @@ export async function assembleContext(
     context += `\n${modeContext}\n`
   }
 
+  // Apply token budgeting if model name is provided
+  if (options?.modelName) {
+    console.log('[Context Assembly] Applying token budgeting for model:', options.modelName)
+
+    const budgetPlan = TokenBudgetManager.calculateBudget({
+      systemPrompt: this.generateSystemPrompt(mode, undefined, options?.platformContext),
+      platformContext: context.includes('=== AUTOLEARN SPOT PLATFORM CONTEXT ===') ? context.substring(context.indexOf('=== AUTOLEARN SPOT PLATFORM CONTEXT ==='), context.indexOf('=== END PLATFORM CONTEXT ===') + '=== END PLATFORM CONTEXT ===\n'.length) : '',
+      memoryContext: context.includes('=== MEMORY CONTEXT ===') ? context.substring(context.indexOf('=== MEMORY CONTEXT ==='), context.indexOf('=== END MEMORY CONTEXT ===') + '=== END MEMORY CONTEXT ===\n'.length) : '',
+      webResearchContext: context.includes('=== WEB RESEARCH CONTEXT ===') ? context.substring(context.indexOf('=== WEB RESEARCH CONTEXT ==='), context.indexOf('=== END WEB RESEARCH CONTEXT ===') + '=== END WEB RESEARCH CONTEXT ===\n'.length) : '',
+      ragContext: context.includes('Retrieved Document Context:') ? context.substring(context.indexOf('Retrieved Document Context:'), context.indexOf('[End of retrieved context]') + '[End of retrieved context]\n'.length) : '',
+      fileContext: context.includes('Attached Documents:') ? context.substring(context.indexOf('Attached Documents:'), context.indexOf('[End of attached documents]') + '[End of attached documents]\n'.length) : '',
+      conversationHistory,
+      modelName: options.modelName,
+      reservedOutputTokens: 2000,
+      safetyMargin: 0.8
+    })
+
+    if (!budgetPlan.fitsInBudget) {
+      console.log('[Context Assembly] Context truncated to fit budget:', {
+        originalTokens: budgetPlan.totalEstimatedTokens,
+        budget: budgetPlan.availableInputBudget,
+        truncatedSections: budgetPlan.contextSections.filter(s => s.isTruncated).map(s => s.name)
+      })
+
+      // Rebuild context with truncated sections
+      context = rebuildContextFromBudget(budgetPlan, context, mode)
+    } else {
+      console.log('[Context Assembly] Context fits in budget, no truncation needed')
+    }
+  }
+
   return {
     context,
     imageFiles
@@ -448,4 +487,56 @@ function getModeContext(mode: AlexMode): string {
   }
 
   return contexts[mode] || ''
+}
+
+/**
+ * Rebuild context from budget plan
+ */
+function rebuildContextFromBudget(budgetPlan: any, originalContext: string, mode: AlexMode): string {
+  const truncated = TokenBudgetManager.getTruncatedContext(budgetPlan)
+  let newContext = ''
+
+  // Add system prompt (always use original, never truncated)
+  const systemPromptEndIndex = originalContext.indexOf('\n\n')
+  const systemPrompt = systemPromptEndIndex >= 0 ? originalContext.substring(0, systemPromptEndIndex) : originalContext.substring(0, 500)
+  newContext += systemPrompt + '\n'
+
+  // Add platform context if present
+  if (truncated.platformContext) {
+    newContext += truncated.platformContext + '\n'
+  }
+
+  // Add file context if present
+  if (truncated.fileContext) {
+    newContext += truncated.fileContext + '\n'
+  }
+
+  // Add RAG context if present
+  if (truncated.ragContext) {
+    newContext += truncated.ragContext + '\n'
+  }
+
+  // Add web research context if present
+  if (truncated.webResearchContext) {
+    newContext += truncated.webResearchContext + '\n'
+  }
+
+  // Add memory context if present
+  if (truncated.memoryContext) {
+    newContext += truncated.memoryContext + '\n'
+  }
+
+  // Add conversation history if present
+  if (truncated.conversationHistory) {
+    newContext += '\nConversation History:\n'
+    newContext += truncated.conversationHistory + '\n'
+  }
+
+  // Add mode-specific context
+  const modeContext = getModeContext(mode)
+  if (modeContext) {
+    newContext += `\n${modeContext}\n`
+  }
+
+  return newContext
 }

@@ -66,7 +66,7 @@ export class AlexOrchestrator {
     }
 
     // Generate system prompt for token estimation
-    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext)
+    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools)
 
     // Enable web research for research mode, when intent suggests research, or when explicitly requested
     const enableWebResearch = mode === 'research' || suggestedMode === 'research' || request.enableWebResearch
@@ -93,8 +93,10 @@ export class AlexOrchestrator {
     const { context, imageFiles } = assemblyResult
 
     // Build AI request for provider-agnostic interface
+    // Note: context already includes platform context, files, web research, memory, etc.
+    // So we pass undefined for platformContext to avoid duplication
     const aiRequest: AIRequest = {
-      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context, imageFiles, capabilities),
+      messages: this.buildMessages(content, systemPrompt, conversationHistory, undefined, context, imageFiles, capabilities),
       stream: true, // Default to streaming
       disableTools: !enableTools, // Disable model's built-in function calling unless Phase 5 tools are enabled
       tools: enableTools && toolRegistry ? toolRegistry.listEnabledTools().map(t => ({
@@ -152,17 +154,8 @@ export class AlexOrchestrator {
       },
     ]
 
-    // Add platform context as a system message if available
-    if (platformContext && Object.keys(platformContext).length > 0) {
-      const { formatPlatformContextForPrompt } = require('./context')
-      const platformContextStr = formatPlatformContextForPrompt(platformContext)
-      if (platformContextStr) {
-        messages.push({
-          role: 'system',
-          content: platformContextStr,
-        })
-      }
-    }
+    // Platform context is already included in the main context string, don't duplicate
+    // The buildMessages function receives context as a parameter which includes platform context
 
     // Add file context as a system message if available (Phase 3A)
     if (fileContext && fileContext.trim().length > 0) {
@@ -230,15 +223,31 @@ export class AlexOrchestrator {
   /**
    * Generate system prompt based on mode
    */
-  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext): string {
+  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext, enableTools?: boolean): string {
     const basePrompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an AI assistant for AutoLearn Spot students. You help students learn n8n automation, build AI-powered workflows, and master technical skills.
 
 Your responses should be:
-- Clear and educational
-- Practical and actionable
-- Encouraging and supportive
-- Technical when appropriate, but accessible
-- Focused on helping students succeed
+|- Clear and educational
+|- Practical and actionable
+|- Encouraging and supportive
+|- Technical when appropriate, but accessible
+|- Focused on helping students succeed`
+
+    // Add tool calling instructions based on whether tools are enabled
+    let toolInstructions = ''
+    if (enableTools) {
+      toolInstructions = `
+
+CURRENT TIME RULE:
+For questions asking for the current time, current date/time, or "right now" time in a location, use the \`current_time\` tool.
+- Do NOT use web research for current-time requests.
+- Do NOT answer using stale timestamps from context.
+- Do NOT calculate the current time from an old timestamp.
+- Do NOT invent the current time.
+- The actual current time must come from \`current_time\`.
+- Use IANA timezone identifiers (e.g., "Africa/Lagos" for Nigeria, "America/New_York", "Europe/London").`
+    } else {
+      toolInstructions = `
 
 IMPORTANT FUNCTION CALLING RESTRICTION:
 - DO NOT use any function calling, tool calling, or plugin syntax
@@ -247,6 +256,7 @@ IMPORTANT FUNCTION CALLING RESTRICTION:
 - Respond only with plain text content
 - If you need to search the web, rely on the provided web research context in the system messages
 - Any web search has already been performed server-side before you receive this request`
+    }
 
     // Add platform context awareness if platform data is available
     let platformAwareness = ''
@@ -254,92 +264,92 @@ IMPORTANT FUNCTION CALLING RESTRICTION:
       platformAwareness = `
 
 IMPORTANT: You have been provided with AutoLearn Spot platform context above.
-- Platform context contains authoritative data about the user's actual account, enrollments, progress, scholarships, and certificates.
-- Use this information to answer platform-specific questions accurately.
-- If the platform context does not contain information needed to answer a platform-specific question, state that the information is not available.
-- Do not invent or hallucinate platform-specific facts when the platform context is available.
-- Distinguish clearly between authoritative platform facts and general knowledge.
-- For questions about progress, enrollment, certificates, or scholarships, rely on the provided platform context.`
+|- Platform context contains authoritative data about the user's actual account, enrollments, progress, scholarships, and certificates.
+|- Use this information to answer platform-specific questions accurately.
+|- If the platform context does not contain information needed to answer a platform-specific question, state that the information is not available.
+|- Do not invent or hallucinate platform-specific facts when the platform context is available.
+|- Distinguish clearly between authoritative platform facts and general knowledge.
+|- For questions about progress, enrollment, certificates, or scholarships, rely on the provided platform context.`
     }
 
     const modePrompts: Record<AlexMode, string> = {
-      auto: `${basePrompt}${platformAwareness}
+      auto: `${basePrompt}${toolInstructions}${platformAwareness}
 
 In Auto mode, you determine the best approach based on the user's request. You can switch between tutoring, development assistance, automation guidance, research, or agent building as needed.
 
 Current detected intent: ${detectedIntent || 'general assistance'}
 
-IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
+${enableTools ? 'You have access to tools. Use them when appropriate for the user\'s request.' : 'IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.'}`,
 
-      tutor: `${basePrompt}
+      tutor: `${basePrompt}${toolInstructions}
 
 In Tutor mode, your primary focus is learning and education. You should:
-- Explain concepts step by step
-- Provide examples and analogies
-- Ask questions to check understanding
-- Encourage active learning
-- Reference AutoLearn course content when relevant
-- Help students understand the "why" behind the "how"
+|- Explain concepts step by step
+|- Provide examples and analogies
+|- Ask questions to check understanding
+|- Encourage active learning
+|- Reference AutoLearn course content when relevant
+|- Help students understand the "why" behind the "how"
 
-IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
+${enableTools ? 'You have access to tools. Use them when appropriate for educational purposes.' : 'IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.'}`,
 
-      developer: `${basePrompt}
+      developer: `${basePrompt}${toolInstructions}
 
 In Developer mode, you provide technical assistance for:
-- Code generation and debugging
-- API troubleshooting
-- Database assistance
-- Configuration issues
-- Error analysis
-- Best practices
-- Code review
+|- Code generation and debugging
+|- API troubleshooting
+|- Database assistance
+|- Configuration issues
+|- Error analysis
+|- Best practices
+|- Code review
 
 Focus on practical, working solutions with clear explanations.
 
-IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
+${enableTools ? 'You have access to tools. Use them when appropriate for technical tasks.' : 'IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.'}`,
 
-      automation: `${basePrompt}
+      automation: `${basePrompt}${toolInstructions}
 
 In Automation mode, you specialize in:
-- n8n workflow design and troubleshooting
-- API integrations
-- Webhooks
-- Automation best practices
-- Business process automation
-- Data processing workflows
+|- n8n workflow design and troubleshooting
+|- API integrations
+|- Webhooks
+|- Automation best practices
+|- Business process automation
+|- Data processing workflows
 
 Provide specific, actionable guidance for building automations.
 
-IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`,
+${enableTools ? 'You have access to tools. Use them when appropriate for automation tasks.' : 'IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.'}`,
 
-      research: `${basePrompt}
+      research: `${basePrompt}${toolInstructions}
 
 In Research mode, you help with:
-- Finding and verifying information
-- Comparing sources
-- Summarizing complex topics
-- Identifying current vs outdated information
-- Providing citations where possible
+|- Finding and verifying information
+|- Comparing sources
+|- Summarizing complex topics
+|- Identifying current vs outdated information
+|- Providing citations where possible
 
 IMPORTANT: Web search has already been performed server-side using the provided search context.
-- DO NOT attempt to call search functions or tools
+${enableTools ? 'You have access to tools. Use them when appropriate for research tasks.' : '- DO NOT attempt to call search functions or tools
 - DO NOT generate search-related function call syntax
 - Use the provided web research context in the system messages
-- Be thorough and cite your sources when available.`,
+- Be thorough and cite your sources when available.'}`,
 
-      agent_builder: `${basePrompt}
+      agent_builder: `${basePrompt}${toolInstructions}
 
 In Agent Builder mode, you help users:
-- Design AI agents
-- Define agent purposes and personalities
-- Configure agent capabilities
-- Plan agent workflows
-- Set up agent knowledge bases
-- Design agent interactions
+|- Design AI agents
+|- Define agent purposes and personalities
+|- Configure agent capabilities
+|- Plan agent workflows
+|- Set up agent knowledge bases
+|- Design agent interactions
 
 Focus on creating practical, deployable agent configurations.
 
-IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.`
+${enableTools ? 'You have access to tools. Use them when appropriate for agent configuration.' : 'IMPORTANT: DO NOT use function calling, tool calling, or plugin syntax. Respond only with plain text content.'}`
     }
 
     return modePrompts[mode] || modePrompts.auto
