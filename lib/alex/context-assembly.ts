@@ -441,7 +441,7 @@ export async function assembleContext(
     console.log('[Context Assembly] Applying token budgeting for model:', options.modelName)
 
     const budgetPlan = TokenBudgetManager.calculateBudget({
-      systemPrompt: this.generateSystemPrompt(mode, undefined, options?.platformContext),
+      systemPrompt: options?.systemPrompt || '',
       platformContext: context.includes('=== AUTOLEARN SPOT PLATFORM CONTEXT ===') ? context.substring(context.indexOf('=== AUTOLEARN SPOT PLATFORM CONTEXT ==='), context.indexOf('=== END PLATFORM CONTEXT ===') + '=== END PLATFORM CONTEXT ===\n'.length) : '',
       memoryContext: context.includes('=== MEMORY CONTEXT ===') ? context.substring(context.indexOf('=== MEMORY CONTEXT ==='), context.indexOf('=== END MEMORY CONTEXT ===') + '=== END MEMORY CONTEXT ===\n'.length) : '',
       webResearchContext: context.includes('=== WEB RESEARCH CONTEXT ===') ? context.substring(context.indexOf('=== WEB RESEARCH CONTEXT ==='), context.indexOf('=== END WEB RESEARCH CONTEXT ===') + '=== END WEB RESEARCH CONTEXT ===\n'.length) : '',
@@ -487,6 +487,39 @@ function getModeContext(mode: AlexMode): string {
   }
 
   return contexts[mode] || ''
+}
+
+/**
+ * Generate system prompt for token estimation (simplified version)
+ */
+function generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext): string {
+  const basePrompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an AI assistant for AutoLearn Spot students. You help students learn n8n automation, build AI-powered workflows, and master technical skills.
+
+Your responses should be:
+- Clear and educational
+- Practical and actionable
+- Encouraging and supportive
+- Technical when appropriate, but accessible
+- Focused on helping students succeed`
+
+  // Add platform context awareness if platform data is available
+  let platformAwareness = ''
+  if (platformContext && Object.keys(platformContext).length > 0) {
+    platformAwareness = `
+
+IMPORTANT: You have been provided with AutoLearn Spot platform context above.
+- Platform context contains authoritative data about the user's actual account, enrollments, progress, scholarships, and certificates.
+- Use this information to answer platform-specific questions accurately.
+- If the platform context does not contain information needed to answer a platform-specific question, state that the information is not available.
+- Do not invent or hallucinate platform-specific facts when the platform context is available.
+- Distinguish clearly between authoritative platform facts and general knowledge.
+- For questions about progress, enrollment, certificates, or scholarships, rely on the provided platform context.`
+  }
+
+  return `${basePrompt}${platformAwareness}
+
+Current detected intent: ${detectedIntent || 'general assistance'}
+Current mode: ${mode}`
 }
 
 /**

@@ -415,32 +415,45 @@ export class WebResearchService {
   }
 
   /**
-   * Format research results for context injection
+   * Format research results for context injection with token budgeting
    */
-  formatResearchContext(results: ResearchResult): string {
+  formatResearchContext(results: ResearchResult, maxTokens?: number): string {
     if (!results.success || results.results.length === 0) {
       return '';
     }
 
     let context = '=== WEB RESEARCH CONTEXT ===\n\n';
 
-    for (let i = 0; i < results.results.length; i++) {
-      const result = results.results[i];
+    // Sort by relevance if available
+    const sortedResults = [...results.results].sort((a, b) => (b.relevance || 0) - (a.relevance || 0));
+
+    for (let i = 0; i < sortedResults.length; i++) {
+      const result = sortedResults[i];
       context += `Source ${i + 1}:\n`;
       context += `Title: ${result.title}\n`;
       context += `URL: ${result.url}\n`;
       context += `Source: ${result.source}\n`;
-      
+
       if (result.publishedDate) {
         context += `Published: ${result.publishedDate}\n`;
       }
-      
-      context += `Content: ${result.content}\n`;
-      
+
+      // Intelligently truncate content based on relevance and budget
+      let content = result.content;
+      if (maxTokens) {
+        // Conservative estimate: ~4 chars per token
+        const maxChars = maxTokens * 4;
+        if (content.length > maxChars) {
+          content = content.substring(0, maxChars) + '...';
+        }
+      }
+
+      context += `Content: ${content}\n`;
+
       if (result.relevance) {
         context += `Relevance: ${result.relevance}\n`;
       }
-      
+
       context += '\n';
     }
 

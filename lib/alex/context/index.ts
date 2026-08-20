@@ -13,6 +13,7 @@ import { getLearningContext } from './learning-context';
 import { getScholarshipContext } from './scholarship-context';
 import { getCertificateContext } from './certificate-context';
 import { alexLogger } from '../logger';
+import { TokenBudgetManager } from './token-budget-manager';
 
 /**
  * Load platform context for an authenticated user's request
