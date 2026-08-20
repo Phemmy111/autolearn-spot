@@ -105,3 +105,64 @@ export interface FileExtractionResponse {
   file?: AlexFile
   error?: string
 }
+
+// Phase 4 - Memory System Types
+export type MemoryType = 'preference' | 'fact' | 'instruction'
+
+export interface Memory {
+  id: string
+  user_id: string
+  memory_type: MemoryType
+  content: string
+  embedding?: number[]
+  embedding_model?: string
+  embedding_dimension?: number
+  metadata: Record<string, any>
+  source: 'explicit' | 'inferred' | 'system'
+  source_conversation_id?: string
+  confidence: number // 0.0 to 1.0
+  importance: number // 0.0 to 1.0
+  last_accessed_at?: string
+  access_count: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface MemoryCreateInput {
+  content: string
+  memory_type?: MemoryType
+  importance?: number
+  source?: 'explicit' | 'inferred' | 'system'
+  source_conversation_id?: string
+}
+
+export interface MemoryUpdateInput {
+  content?: string
+  importance?: number
+  is_active?: boolean
+}
+
+export interface MemoryRetrievalOptions {
+  maxResults?: number
+  maxTokens?: number
+  minSimilarity?: number
+  minImportance?: number
+  memoryTypes?: MemoryType[]
+}
+
+export interface MemoryRetrievalResult {
+  memories: Memory[]
+  metadata: {
+    queryLength: number
+    memoriesRetrieved: number
+    totalTokens: number
+    processingTimeMs: number
+  }
+}
+
+export interface MemoryCommand {
+  type: 'remember' | 'forget' | 'list' | 'clear'
+  content: string
+  extractedMemory?: string
+}

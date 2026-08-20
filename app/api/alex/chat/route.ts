@@ -6,6 +6,7 @@ import { AIEngine } from '@/lib/alex/ai-engine'
 import { AlexCostTracker } from '@/lib/alex/cost-tracker'
 import { handleAlexError, AlexErrors } from '@/lib/alex/error-handler'
 import { alexLogger } from '@/lib/alex/logger'
+import { detectMemoryCommand, memoryService } from '@/lib/alex/memory'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -231,6 +232,41 @@ export async function POST(request: NextRequest) {
       .update({ updated_at: new Date().toISOString() })
       .eq('id', conversationId)
 
+    // Phase 4: Handle memory commands
+    const memoryCommand = detectMemoryCommand(content)
+    if (memoryCommand) {
+      console.log('[Memory Command] Detected:', memoryCommand.type, memoryCommand.content.substring(0, 100))
+      
+      try {
+        if (memoryCommand.type === 'remember' && memoryCommand.extractedMemory) {
+          await memoryService.createMemory(userId, {
+            content: memoryCommand.extractedMemory,
+            source: 'explicit',
+            source_conversation_id: conversationId
+          })
+          console.log('[Memory Command] Memory created successfully')
+        } else if (memoryCommand.type === 'forget' && memoryCommand.extractedMemory) {
+          // Search for matching memories
+          const matchingMemories = await memoryService.searchMemories(userId, memoryCommand.extractedMemory, { limit: 10 })
+          
+          // Delete all matching memories
+          for (const memory of matchingMemories) {
+            await memoryService.deleteMemory(memory.id, userId)
+          }
+          
+          console.log('[Memory Command] Deleted memories:', matchingMemories.length)
+        } else if (memoryCommand.type === 'clear') {
+          const deletedCount = await memoryService.deleteAllMemories(userId)
+          console.log('[Memory Command] Cleared all memories:', deletedCount)
+        }
+        // For 'list' command, we'll let the normal chat flow handle it
+        // The memory context will be injected automatically
+      } catch (error) {
+        console.error('[Memory Command] Failed:', error)
+        // Don't fail the chat if memory command fails
+      }
+    }
+
     // Get conversation history for context
     const { data: historyMessages } = await supabase
       .from('alex_messages')
@@ -413,6 +449,7 @@ export async function POST(request: NextRequest) {
             attachedFiles: attachedFiles || [],
             enableRetrieval: true, // Enable Phase 3B retrieval
             enableWebResearch: true, // Enable Phase 3C web research
+            enableMemory: true, // Phase 4: Enable memory retrieval
             conversationId,
           })) {
             if (chunk.type === 'orchestrator') {

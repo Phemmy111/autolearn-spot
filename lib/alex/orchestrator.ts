@@ -24,6 +24,7 @@ export interface OrchestratorRequest {
   providerRegistry?: ProviderRegistry // Provider registry for vision preprocessing
   webResearchService?: WebResearchService // Phase 3C: Web research service
   disableTools?: boolean // Disable model's built-in function calling to use Phase 3C web research instead
+  enableMemory?: boolean // Phase 4: Enable memory retrieval
 }
 
 export interface OrchestratorResponse {
@@ -66,7 +67,7 @@ export class AlexOrchestrator {
     // Enable web research for research mode, when intent suggests research, or when explicitly requested
     const enableWebResearch = mode === 'research' || suggestedMode === 'research' || request.enableWebResearch
 
-    // Assemble context with platform context, files, retrieval, and web research if available
+    // Assemble context with platform context, files, retrieval, web research, and memory if available
     const assemblyResult = await assembleContext(mode, conversationHistory, {
       platformContext,
       userIntent: userIntent || content,
@@ -81,7 +82,8 @@ export class AlexOrchestrator {
       providerManager: request.providerManager, // Pass provider manager for vision preprocessing
       providerRegistry: request.providerRegistry, // Pass provider registry for vision preprocessing
       enableWebResearch, // Phase 3C: Enable web research
-      webResearchService // Phase 3C: Pass web research service
+      webResearchService, // Phase 3C: Pass web research service
+      enableMemory // Phase 4: Enable memory retrieval
     })
 
     const { context, imageFiles } = assemblyResult

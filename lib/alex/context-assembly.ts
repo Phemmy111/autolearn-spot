@@ -8,6 +8,7 @@ import { VisionService } from './vision-service'
 import { ProviderRegistry } from './provider/provider-registry'
 import { ProviderManager } from './provider/provider-manager'
 import { WebResearchService } from './web-research/web-research-service'
+import { memoryService } from './memory'
 
 export interface ConversationMessage {
   role: string
@@ -30,6 +31,7 @@ export interface AssemblyOptions {
   enableWebResearch?: boolean // Phase 3C: Enable web research
   webResearchService?: WebResearchService // Phase 3C: Web research service
   disableTools?: boolean // Disable model's built-in function calling
+  enableMemory?: boolean // Phase 4: Enable memory retrieval
 }
 
 export interface AssemblyResult {
@@ -118,6 +120,42 @@ export async function assembleContext(
     } catch (error) {
       console.error('[Context Assembly] Web research failed, continuing without research context:', error)
       // Don't fail the entire context assembly if web research fails
+    }
+  }
+
+  // Phase 4: Memory retrieval if enabled
+  if (options?.enableMemory && options?.userId) {
+    try {
+      const lastUserMessage = conversationHistory
+        .filter(m => m.role === 'user')
+        .pop()
+
+      if (lastUserMessage && lastUserMessage.content) {
+        console.log('[Context Assembly] Retrieving memory for query:', lastUserMessage.content.substring(0, 100))
+
+        const memoryResult = await memoryService.retrieveRelevantMemories(
+          lastUserMessage.content,
+          options.userId,
+          {
+            maxResults: 5,
+            maxTokens: 2000,
+            minSimilarity: 0.7,
+            memoryTypes: ['preference', 'fact', 'instruction']
+          }
+        )
+
+        if (memoryResult.memories.length > 0) {
+          console.log('[Context Assembly] Memory retrieved:', memoryResult.memories.length)
+          
+          const memoryContext = memoryService.formatMemoryContext(memoryResult)
+          context += memoryContext
+        } else {
+          console.log('[Context Assembly] No relevant memories retrieved')
+        }
+      }
+    } catch (error) {
+      console.error('[Context Assembly] Memory retrieval failed, continuing without memory:', error)
+      // Graceful degradation - memory failure doesn't break chat
     }
   }
 
