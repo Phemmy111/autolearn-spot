@@ -54,6 +54,7 @@ export interface VisionPreprocessingOptions {
   providerManager: ProviderManager
   providerRegistry: ProviderRegistry
   maxAnalysisTokens?: number
+  analysisTimeout?: number // Timeout for vision analysis in milliseconds
 }
 
 /**
@@ -92,7 +93,8 @@ export class VisionService {
       primaryProviderCapabilities,
       providerManager,
       providerRegistry,
-      maxAnalysisTokens = 3000
+      maxAnalysisTokens = 3000,
+      analysisTimeout = 60000 // Default 60 seconds for vision analysis
     } = options
 
     console.log('[Vision Service] Processing images:', {
@@ -323,8 +325,13 @@ export class VisionService {
 
       console.log('[Vision Service] Executing vision analysis request with provider')
       
-      // Execute the vision analysis using the actual provider
-      const analysisResult = await this.executeVisionAnalysis(visionRequest, visionProvider)
+      // Execute the vision analysis using the actual provider with timeout
+      const analysisResult = await Promise.race([
+        this.executeVisionAnalysis(visionRequest, visionProvider),
+        new Promise<any>((_, reject) => 
+          setTimeout(() => reject(new Error('Vision analysis timeout')), 60000) // 60 second timeout
+        )
+      ])
 
       return {
         success: true,

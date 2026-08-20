@@ -232,6 +232,36 @@ export class GeminiAdapter implements AIProvider {
       if (msg.role === 'system') {
         return { role: 'user', parts: [{ text: `System: ${msg.content}` }] }
       }
+      
+      // Handle multimodal content (text + images)
+      if (Array.isArray(msg.content)) {
+        const parts: any[] = []
+        for (const item of msg.content) {
+          if (item.type === 'text') {
+            parts.push({ text: item.text })
+          } else if (item.type === 'image_url') {
+            // Gemini expects inline data format for images
+            const imageData = item.image_url.url
+            if (imageData.startsWith('data:')) {
+              // Extract base64 data from data URL
+              const [mimeType, base64Data] = imageData.split(';base64,')
+              const mimeTypeClean = mimeType.replace('data:', '')
+              parts.push({
+                inline_data: {
+                  mime_type: mimeTypeClean,
+                  data: base64Data
+                }
+              })
+            }
+          }
+        }
+        return {
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts
+        }
+      }
+      
+      // Regular text content
       return {
         role: msg.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: msg.content }],

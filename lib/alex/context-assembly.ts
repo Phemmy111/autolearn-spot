@@ -192,7 +192,8 @@ export async function assembleContext(
           primaryProviderCapabilities: options.providerCapabilities || [],
           providerManager: options.providerManager,
           providerRegistry: options.providerRegistry,
-          maxAnalysisTokens: 3000
+          maxAnalysisTokens: 3000,
+          analysisTimeout: 60000 // 60 second timeout for vision analysis
         })
 
         // If vision preprocessing was used, add the text context and clear image files
