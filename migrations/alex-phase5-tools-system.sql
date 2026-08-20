@@ -31,19 +31,19 @@ CREATE INDEX IF NOT EXISTS idx_alex_tool_executions_user_created ON alex_tool_ex
 ALTER TABLE alex_tool_executions ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own tool executions
-CREATE POLICY IF NOT EXISTS "Users can view own tool executions"
+CREATE POLICY "Users can view own tool executions"
   ON alex_tool_executions
   FOR SELECT
   USING (user_id = auth.uid());
 
 -- Users can insert their own tool executions
-CREATE POLICY IF NOT EXISTS "Users can insert own tool executions"
+CREATE POLICY "Users can insert own tool executions"
   ON alex_tool_executions
   FOR INSERT
   WITH CHECK (user_id = auth.uid());
 
 -- Admins can view all tool executions (for monitoring)
-CREATE POLICY IF NOT EXISTS "Admins can view all tool executions"
+CREATE POLICY "Admins can view all tool executions"
   ON alex_tool_executions
   FOR SELECT
   USING (
