@@ -133,6 +133,7 @@ export class AIEngine {
         enableRetrieval: request.enableRetrieval,
         modelName: allProviders[0]?.model || 'openai/gpt-oss-120b', // Use active provider's model
         enableTokenAwareAssembly: (request.attachedFiles?.length || 0) > 1, // Auto-enable for multi-file
+        providerCapabilities: allProviders[0]?.capabilities || [], // Pass provider capabilities
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

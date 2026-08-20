@@ -16,6 +16,7 @@ export interface OrchestratorRequest {
   enableRetrieval?: boolean
   modelName?: string // Model name for context limit calculation
   enableTokenAwareAssembly?: boolean // Enable token-aware assembly for multi-file
+  providerCapabilities?: string[] // Provider capabilities (e.g., 'vision', 'multimodal')
 }
 
 export interface OrchestratorResponse {
@@ -37,7 +38,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities } = request
 
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
@@ -150,7 +151,10 @@ export class AlexOrchestrator {
     }
 
     // Add current user message with multimodal content if images are present
-    if (imageFiles && imageFiles.length > 0) {
+    // Only use multimodal content if provider supports vision/multimodal capabilities
+    const supportsVision = providerCapabilities?.includes('vision') || providerCapabilities?.includes('multimodal')
+    
+    if (imageFiles && imageFiles.length > 0 && supportsVision) {
       // Build multimodal content: text + images
       const multimodalContent: Array<{ type: 'text'; text: string } | ImageContent> = [
         { type: 'text', text: content }
@@ -174,10 +178,17 @@ export class AlexOrchestrator {
         content: multimodalContent
       })
     } else {
-      // Regular text-only message
+      // Regular text-only message (either no images or provider doesn't support vision)
+      // If there are images but provider doesn't support vision, add a note about them
+      let messageContent = content
+      if (imageFiles && imageFiles.length > 0 && !supportsVision) {
+        const imageNames = imageFiles.map(f => f.original_filename).join(', ')
+        messageContent = `${content}\n\n[Note: Images attached but current AI provider doesn't support vision: ${imageNames}]`
+      }
+      
       messages.push({
         role: 'user',
-        content,
+        content: messageContent,
       })
     }
 
