@@ -74,7 +74,7 @@ export class AlexOrchestrator {
 
     // Build AI request for provider-agnostic interface
     const aiRequest: AIRequest = {
-      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context, imageFiles),
+      messages: this.buildMessages(content, systemPrompt, conversationHistory, platformContext, context, imageFiles, capabilities),
       stream: true, // Default to streaming
     }
 
@@ -116,7 +116,8 @@ export class AlexOrchestrator {
     conversationHistory: Array<{ role: string; content: string }>,
     platformContext?: PlatformContext,
     fileContext?: string,
-    imageFiles?: AlexFile[]
+    imageFiles?: AlexFile[],
+    providerCapabilities?: string[]
   ): AIMessage[] {
     const messages: AIMessage[] = [
       {
@@ -156,6 +157,7 @@ export class AlexOrchestrator {
 
     // Add current user message with multimodal content if images are present
     // Only use multimodal content if provider supports vision/multimodal capabilities
+    const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
     const supportsVision = capabilities.includes('vision') || capabilities.includes('multimodal')
     
     if (imageFiles && imageFiles.length > 0 && supportsVision) {
