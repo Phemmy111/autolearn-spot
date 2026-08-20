@@ -225,7 +225,7 @@ export function AlexInputArea({
 
       console.log('[AlexInputArea] Upload response:', data)
 
-      if (data.success) {
+      if (data.success && data.file) {
         console.log('[AlexInputArea] Upload successful, FILE DATA:', {
           id: data.file.id,
           filename: data.file.original_filename,
@@ -269,11 +269,11 @@ export function AlexInputArea({
           onFileUploaded()
         }
       } else {
-        console.error('[AlexInputArea] Upload failed:', data.error)
+        console.error('[AlexInputArea] Upload failed or invalid response:', data.error || 'Invalid response')
         setAttachedFiles(prev =>
           prev.map(f =>
             f.id === attachedFile.id
-              ? { ...f, status: 'failed', error: data.error }
+              ? { ...f, status: 'failed', error: data.error || 'Upload failed' }
               : f
           )
         )
@@ -329,7 +329,14 @@ export function AlexInputArea({
           if (!response.ok) continue
 
           const data = await response.json()
-          if (data.file && (data.file.extraction_status === 'completed' || data.file.extraction_status === 'failed')) {
+          
+          // Add defensive check for file data
+          if (!data || !data.file) {
+            console.log('[AlexInputArea] Invalid file data received for file:', fileId, data)
+            continue
+          }
+          
+          if (data.file.extraction_status === 'completed' || data.file.extraction_status === 'failed') {
             console.log('[AlexInputArea] Extraction completed for file:', fileId, 'status:', data.file.extraction_status)
 
             setAttachedFiles(prev =>
@@ -339,7 +346,7 @@ export function AlexInputArea({
                       ...f,
                       status: data.file.extraction_status === 'completed' ? 'ready' : 'failed',
                       extractionStatus: data.file.extraction_status,
-                      error: data.file.extraction_status === 'failed' ? data.file.extraction_error : undefined,
+                      error: data.file.extraction_status === 'failed' ? (data.file.extraction_error || 'Extraction failed') : undefined,
                       abortController: undefined // Clean up abort controller when done
                     }
                   : f

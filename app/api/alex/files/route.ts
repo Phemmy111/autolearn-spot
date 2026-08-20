@@ -277,8 +277,8 @@ export async function GET(request: Request) {
 
 // Non-blocking text extraction trigger
 async function triggerExtraction(fileId: string, file: File, userId: string) {
-  // Calculate timeout based on file size - move outside try block for catch block access
-  const EXTRACTION_TIMEOUT = Math.max(60000, Math.min(300000, file.size / 1000)) // 60s minimum, 5s per MB, max 5 minutes
+  // Calculate timeout based on file size - more generous scaling for large files
+  const EXTRACTION_TIMEOUT = Math.max(120000, Math.min(600000, file.size / 500)) // 2 minutes minimum, 2s per MB, max 10 minutes
   
   try {
     console.log('[EXTRACTION] Extraction trigger start', {
@@ -287,6 +287,7 @@ async function triggerExtraction(fileId: string, file: File, userId: string) {
       fileSize: file.size,
       fileSizeMB: (file.size / 1024 / 1024).toFixed(2),
       timeoutMs: EXTRACTION_TIMEOUT,
+      timeoutMinutes: (EXTRACTION_TIMEOUT / 60000).toFixed(1),
       mimeType: file.type
     })
 
@@ -298,6 +299,7 @@ async function triggerExtraction(fileId: string, file: File, userId: string) {
 
     console.log('[EXTRACTION] Starting extraction with timeout', {
       timeoutMs: EXTRACTION_TIMEOUT,
+      timeoutMinutes: (EXTRACTION_TIMEOUT / 60000).toFixed(1),
       fileSizeMB: (file.size / 1024 / 1024).toFixed(2)
     })
     const extraction = await Promise.race([
@@ -411,7 +413,7 @@ async function triggerExtraction(fileId: string, file: File, userId: string) {
     const isTimeout = errorMessage.includes('timeout') || errorMessage.includes('Timeout')
     
     const timeoutMessage = isTimeout 
-      ? `Extraction timeout (${Math.round(EXTRACTION_TIMEOUT/1000)}s) - file ${file.name} (${(file.size/1024/1024).toFixed(2)}MB) may be too large or complex for current server load`
+      ? `Extraction timeout (${(EXTRACTION_TIMEOUT/60000).toFixed(1)} minutes) - file ${file.name} (${(file.size/1024/1024).toFixed(2)}MB) may be too large or complex for current server load`
       : errorMessage
     
     await supabase
