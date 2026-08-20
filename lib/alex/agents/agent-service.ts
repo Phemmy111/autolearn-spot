@@ -25,6 +25,7 @@ import {
 import { getAgentConfig, AgentConfig } from './agent-config'
 import { ToolRegistry, ToolExecutionService } from '../tools'
 import { AIEngine } from '../ai-engine'
+import { WorkflowAgent } from '../workflows'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -106,30 +107,52 @@ export class AgentService {
         return this.buildResult(state, 'Agent execution cancelled by user')
       }
 
-      // Delegate to AI engine which handles the actual multi-step execution
-      // The AI engine's existing Phase 5 tool execution already handles multiple tool calls
-      const response = await this.aiEngine.chat({
-        messages: [
-          { role: 'system', content: request.systemPrompt },
-          ...request.conversationHistory.slice(-5),
-          { role: 'user', content: request.content }
-        ],
-        userId: request.userId,
-        conversationId: request.conversationId,
-        modelName: request.modelName,
-        providerManager: request.providerManager,
-        providerRegistry: request.providerRegistry,
-        enableTools: true,
-        toolRegistry: this.toolRegistry,
-        toolExecutionService: this.toolExecutionService,
-        enableWebResearch: request.enableWebResearch,
-        webResearchService: request.webResearchService,
-        enableMemory: request.enableMemory,
-        disableTools: false,
-        // Phase 7: Workflow generation support
-        attachedFiles: request.attachedFiles,
-        enableRetrieval: request.enableRetrieval
-      })
+      // Phase 7: Check if this is a workflow-related request
+      const isWorkflowRequest = this.isWorkflowRequest(request.content, request.attachedFiles, request.workflowJson)
+
+      let responseContent: string
+      let workflowArtifact: any = undefined
+
+      if (isWorkflowRequest) {
+        console.log('[AgentDebug] workflow_request_detected', { executionId })
+        // Use WorkflowAgent for workflow-specific requests
+        const workflowResult = await WorkflowAgent.processRequest(
+          request.content,
+          request.attachedFiles || [],
+          request.workflowJson,
+          request.workflowErrors,
+          this.aiEngine,
+          request.webResearchService
+        )
+        responseContent = workflowResult.response
+        workflowArtifact = workflowResult.artifact
+      } else {
+        // Delegate to AI engine which handles the actual multi-step execution
+        // The AI engine's existing Phase 5 tool execution already handles multiple tool calls
+        const response = await this.aiEngine.chat({
+          messages: [
+            { role: 'system', content: request.systemPrompt },
+            ...request.conversationHistory.slice(-5),
+            { role: 'user', content: request.content }
+          ],
+          userId: request.userId,
+          conversationId: request.conversationId,
+          modelName: request.modelName,
+          providerManager: request.providerManager,
+          providerRegistry: request.providerRegistry,
+          enableTools: true,
+          toolRegistry: this.toolRegistry,
+          toolExecutionService: this.toolExecutionService,
+          enableWebResearch: request.enableWebResearch,
+          webResearchService: request.webResearchService,
+          enableMemory: request.enableMemory,
+          disableTools: false,
+          // Phase 7: Workflow generation support
+          attachedFiles: request.attachedFiles,
+          enableRetrieval: request.enableRetrieval
+        })
+        responseContent = response.content
+      }
 
       state.status = 'completed'
       state.completedAt = new Date().toISOString()
@@ -140,7 +163,7 @@ export class AgentService {
         stepCount: state.stepCount
       })
 
-      return this.buildResult(state, undefined, response.content)
+      return this.buildResult(state, undefined, responseContent, workflowArtifact)
 
     } catch (error) {
       console.error('[AgentDebug] execution_failed', {
@@ -163,7 +186,8 @@ export class AgentService {
   private buildResult(
     state: AgentExecutionState,
     error?: string,
-    finalResponse?: string
+    finalResponse?: string,
+    workflowArtifact?: any
   ): AgentExecutionResult {
     const durationMs = Date.now() - new Date(state.startedAt).getTime()
 
@@ -175,8 +199,47 @@ export class AgentService {
       toolCallCount: state.toolCallCount,
       durationMs,
       steps: state.history,
-      error
+      error,
+      ...(workflowArtifact && { workflowArtifact })
     }
+  }
+
+  /**
+   * Check if request is workflow-related
+   */
+  private isWorkflowRequest(
+    content: string,
+    attachedFiles?: any[],
+    workflowJson?: string
+  ): boolean {
+    const contentLower = content.toLowerCase()
+
+    // Workflow-related keywords
+    const workflowKeywords = [
+      'workflow',
+      'n8n',
+      'automation',
+      'trigger',
+      'node',
+      'webhook',
+      'google sheets',
+      'email automation',
+      'create a workflow',
+      'generate workflow',
+      'debug workflow',
+      'validate workflow',
+      'repair workflow',
+      'analyze workflow'
+    ]
+
+    const hasWorkflowKeyword = workflowKeywords.some(keyword =>
+      contentLower.includes(keyword)
+    )
+
+    // Has workflow JSON or file
+    const hasWorkflowData = !!workflowJson || (attachedFiles && attachedFiles.length > 0)
+
+    return hasWorkflowKeyword || hasWorkflowData
   }
 
   /**

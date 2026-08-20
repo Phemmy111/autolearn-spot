@@ -67,6 +67,7 @@ export interface AgentExecutionResult {
   durationMs: number
   steps?: AgentStep[]
   error?: string
+  workflowArtifact?: any // Phase 7: Workflow artifact metadata
 }
 
 export interface AgentExecutionRequest {
