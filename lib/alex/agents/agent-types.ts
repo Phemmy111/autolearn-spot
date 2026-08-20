@@ -2,6 +2,17 @@
  * Phase 6: Agent Types and Interfaces
  * 
  * Defines the type system for controlled multi-step agent execution.
+ * 
+ * PHASE 7 COMPATIBILITY:
+ * This architecture supports future n8n workflow generation tools that can:
+ * - Consume uploaded workflow JSON (via attachedFiles)
+ * - Consume workflow errors (via content)
+ * - Consume screenshots/images (via image support + vision preprocessing)
+ * - Consume web research results (via enableWebResearch)
+ * - Consume n8n documentation (via web research + RAG)
+ * - Be registered through ToolRegistry
+ * - Be executed through ToolExecutionService
+ * - Generate downloadable workflow artifacts
  */
 
 export type AgentExecutionStatus =
@@ -78,6 +89,11 @@ export interface AgentExecutionRequest {
   providerCapabilities?: string[]
   modelName?: string
   signal?: AbortSignal
+  // Phase 7: Workflow generation support
+  attachedFiles?: any[] // For workflow JSON uploads
+  workflowJson?: string // For direct workflow JSON input
+  workflowErrors?: string[] // For workflow error debugging
+  generateWorkflowArtifact?: boolean // For downloadable workflow generation
 }
 
 export interface AgentConfig {

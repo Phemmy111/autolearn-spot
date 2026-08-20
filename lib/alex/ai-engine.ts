@@ -133,6 +133,10 @@ export class AIEngine {
     enableMemory?: boolean;
     enableAgent?: boolean; // Phase 6: Enable agent mode
     aiEngine?: AIEngine; // Phase 6: AI engine instance
+    // Phase 7: Workflow generation support
+    workflowJson?: string;
+    workflowErrors?: string[];
+    generateWorkflowArtifact?: boolean;
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     platformContext?: PlatformContext;
@@ -208,6 +212,10 @@ export class AIEngine {
     enableMemory?: boolean;
     enableTools?: boolean;
     enableAgent?: boolean; // Phase 6: Enable agent mode
+    // Phase 7: Workflow generation support
+    workflowJson?: string;
+    workflowErrors?: string[];
+    generateWorkflowArtifact?: boolean;
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;

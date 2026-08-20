@@ -2,6 +2,14 @@
  * Phase 6: Agent Configuration
  * 
  * Centralized safety limits and configuration for agent execution.
+ * 
+ * PHASE 7 COMPATIBILITY:
+ * These limits can be overridden for workflow generation tasks which may require:
+ * - More steps for complex workflow creation
+ * - More tool calls for multi-step workflow building
+ * - Longer execution time for artifact generation
+ * 
+ * Workflow tools registered in Phase 7 will use this same configuration.
  */
 
 import { AgentConfig } from './agent-types'

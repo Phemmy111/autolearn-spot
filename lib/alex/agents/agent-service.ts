@@ -4,6 +4,15 @@
  * Controlled multi-step agent execution with safety limits.
  * Reuses existing ToolRegistry and ToolExecutionService.
  * Delegates actual execution to orchestrator for simplicity.
+ * 
+ * PHASE 7 COMPATIBILITY:
+ * This service can execute workflow generation tools registered in Phase 7:
+ * - Consumes uploaded workflow JSON via attachedFiles
+ * - Consumes workflow errors via workflowErrors parameter
+ * - Supports artifact generation via generateWorkflowArtifact
+ * - Works with vision-capable providers for screenshot analysis
+ * - Integrates with web research for n8n documentation
+ * - Uses RAG for stored workflow examples
  */
 
 import {
@@ -116,7 +125,10 @@ export class AgentService {
         enableWebResearch: request.enableWebResearch,
         webResearchService: request.webResearchService,
         enableMemory: request.enableMemory,
-        disableTools: false
+        disableTools: false,
+        // Phase 7: Workflow generation support
+        attachedFiles: request.attachedFiles,
+        enableRetrieval: request.enableRetrieval
       })
 
       state.status = 'completed'

@@ -34,6 +34,10 @@ export interface OrchestratorRequest {
   enableAgent?: boolean // Phase 6: Enable agent mode for multi-step execution
   aiEngine?: AIEngine // Phase 6: AI engine for agent execution
   signal?: AbortSignal // Phase 6: Cancellation signal
+  // Phase 7: Workflow generation support
+  workflowJson?: string // Direct workflow JSON input
+  workflowErrors?: string[] // Workflow error debugging
+  generateWorkflowArtifact?: boolean // Generate downloadable workflow
 }
 
 export interface OrchestratorResponse {
@@ -86,7 +90,12 @@ export class AlexOrchestrator {
         providerRegistry: request.providerRegistry,
         providerCapabilities: capabilities,
         modelName: modelName || 'openai/gpt-oss-120b',
-        signal
+        signal,
+        // Phase 7: Workflow generation support
+        attachedFiles: request.attachedFiles,
+        workflowJson: request.workflowJson,
+        workflowErrors: request.workflowErrors,
+        generateWorkflowArtifact: request.generateWorkflowArtifact
       }
 
       const agentResult = await agentService.execute(agentRequest, (step) => {
