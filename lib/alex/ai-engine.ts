@@ -19,6 +19,7 @@ import { AlexFile } from './types';
 
 export class AIEngine {
   private static adminProviderManager: ProviderManager | null = null
+  private static adminProviderRegistry: ProviderRegistry | null = null
 
   /**
    * Process a chat request through the ALEX AI engine
@@ -143,6 +144,8 @@ export class AIEngine {
         modelName: firstProvider?.model || 'openai/gpt-oss-120b', // Use active provider's model
         enableTokenAwareAssembly: (request.attachedFiles?.length || 0) > 1, // Auto-enable for multi-file
         providerCapabilities: request.providerCapabilities || firstProvider?.capabilities || [], // Pass provider capabilities
+        providerManager: providerManager, // Pass provider manager for vision preprocessing
+        providerRegistry: registry, // Pass provider registry for vision preprocessing
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

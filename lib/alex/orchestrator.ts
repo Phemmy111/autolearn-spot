@@ -3,6 +3,8 @@ import { detectIntent } from './intent-detector'
 import { assembleContext, AssemblyResult } from './context-assembly'
 import { AIRequest, AIMessage, ImageContent } from './provider/provider-interface'
 import { PlatformContext } from './context/context-types'
+import { ProviderManager } from './provider/provider-manager'
+import { ProviderRegistry } from './provider/provider-registry'
 
 export interface OrchestratorRequest {
   content: string
@@ -17,6 +19,8 @@ export interface OrchestratorRequest {
   modelName?: string // Model name for context limit calculation
   enableTokenAwareAssembly?: boolean // Enable token-aware assembly for multi-file
   providerCapabilities?: string[] // Provider capabilities (e.g., 'vision', 'multimodal')
+  providerManager?: ProviderManager // Provider manager for vision preprocessing
+  providerRegistry?: ProviderRegistry // Provider registry for vision preprocessing
 }
 
 export interface OrchestratorResponse {
@@ -67,7 +71,9 @@ export class AlexOrchestrator {
       enableTokenAwareAssembly: enableTokenAwareAssembly || (attachedFiles && attachedFiles.length > 1), // Auto-enable for multi-file
       modelName: modelName || 'openai/gpt-oss-120b',
       systemPrompt,
-      providerCapabilities: capabilities // Pass capabilities to context assembly
+      providerCapabilities: capabilities, // Pass capabilities to context assembly
+      providerManager: request.providerManager, // Pass provider manager for vision preprocessing
+      providerRegistry: request.providerRegistry // Pass provider registry for vision preprocessing
     })
 
     const { context, imageFiles } = assemblyResult

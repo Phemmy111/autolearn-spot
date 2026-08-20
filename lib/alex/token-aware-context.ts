@@ -16,6 +16,9 @@ import {
   TokenBudget,
   ContextDiagnostics
 } from './token-estimation'
+import { VisionService } from './vision-service'
+import { ProviderRegistry } from './provider/provider-registry'
+import { ProviderManager } from './provider/provider-manager'
 
 export interface TokenAwareAssemblyOptions {
   attachedFiles: AlexFile[]
@@ -28,6 +31,9 @@ export interface TokenAwareAssemblyOptions {
   modelName: string
   reservedOutputTokens?: number
   safetyMargin?: number
+  providerCapabilities?: string[]
+  providerManager?: ProviderManager
+  providerRegistry?: ProviderRegistry
 }
 
 export interface TokenAwareAssemblyResult {
@@ -63,13 +69,44 @@ export async function assembleTokenAwareContext(
   })
 
   // Separate images from text files
-  const imageFiles = attachedFiles.filter(f => f.mime_type.startsWith('image/'))
+  let rawImageFiles = attachedFiles.filter(f => f.mime_type.startsWith('image/'))
   const textFiles = attachedFiles.filter(f => !f.mime_type.startsWith('image/'))
 
   console.log('[Token-Aware Context] File classification:', {
-    imageCount: imageFiles.length,
+    imageCount: rawImageFiles.length,
     textCount: textFiles.length
   })
+
+  // Vision preprocessing: if primary provider doesn't support vision, use vision-capable provider
+  let imageFiles = rawImageFiles
+  let visionContext = ''
+
+  if (rawImageFiles.length > 0 && options.providerManager && options.providerRegistry) {
+    console.log('[Token-Aware Context] Images detected with vision preprocessing available')
+    
+    try {
+      const visionResult = await VisionService.processImages({
+        imageFiles: rawImageFiles,
+        primaryProviderCapabilities: options.providerCapabilities || [],
+        providerManager: options.providerManager,
+        providerRegistry: options.providerRegistry,
+        maxAnalysisTokens: 2000 // Use fewer tokens for token-aware context
+      })
+
+      // If vision preprocessing was used, add the text context and clear image files
+      if (visionResult.textContext) {
+        console.log('[Token-Aware Context] Vision preprocessing generated text context:', visionResult.textContext.length)
+        visionContext = visionResult.textContext
+        imageFiles = visionResult.processedImages // Should be empty if preprocessing worked
+      } else {
+        // No vision preprocessing occurred (either primary supports vision or no vision provider available)
+        imageFiles = rawImageFiles
+      }
+    } catch (error) {
+      console.error('[Token-Aware Context] Vision preprocessing failed, falling back to direct image handling:', error)
+      imageFiles = rawImageFiles
+    }
+  }
 
   // Calculate token budget
   const modelContextLimit = getModelContextLimit(modelName)
@@ -112,13 +149,20 @@ export async function assembleTokenAwareContext(
     filesRepresented: fileContextResult.filesRepresentedInContext
   })
 
+  // Combine vision context with file context
+  let finalContext = fileContextResult.fullTextContent
+  if (visionContext) {
+    finalContext = visionContext + '\n' + finalContext
+    console.log('[Token-Aware Context] Added vision context to final context')
+  }
+
   // Calculate final diagnostics
   const diagnostics: ContextDiagnostics = {
     modelContextLimit,
     reservedOutputTokens,
     inputBudget: tokenBudget.inputBudget,
-    estimatedTokensBeforeCompression: systemPromptTokens + platformContextTokens + conversationHistoryTokens + estimateTokens(fileContextResult.fullTextContent),
-    estimatedTokensAfterCompression: systemPromptTokens + platformContextTokens + conversationHistoryTokens + fileContextResult.estimatedTokens,
+    estimatedTokensBeforeCompression: systemPromptTokens + platformContextTokens + conversationHistoryTokens + estimateTokens(fileContextResult.fullTextContent) + estimateTokens(visionContext),
+    estimatedTokensAfterCompression: systemPromptTokens + platformContextTokens + conversationHistoryTokens + fileContextResult.estimatedTokens + estimateTokens(visionContext),
     chunksRetrievedPerFile: fileContextResult.chunksRetrievedPerFile,
     filesRepresentedInContext: fileContextResult.filesRepresentedInContext,
     totalFilesAttached: textFiles.length,
@@ -134,7 +178,7 @@ export async function assembleTokenAwareContext(
   console.log('[Token-Aware Context] Final diagnostics:', diagnostics)
 
   return {
-    context: fileContextResult.context,
+    context: finalContext,
     imageFiles,
     diagnostics
   }

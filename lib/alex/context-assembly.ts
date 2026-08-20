@@ -4,6 +4,9 @@ import { formatPlatformContextForPrompt } from './context'
 import { generateFileSummary } from './file-extraction'
 import { retrieveChunks } from './retrieval'
 import { assembleTokenAwareContext, TokenAwareAssemblyOptions } from './token-aware-context'
+import { VisionService } from './vision-service'
+import { ProviderRegistry } from './provider/provider-registry'
+import { ProviderManager } from './provider/provider-manager'
 
 export interface ConversationMessage {
   role: string
@@ -21,6 +24,8 @@ export interface AssemblyOptions {
   modelName?: string // Model name for context limit calculation
   systemPrompt?: string // System prompt for token estimation
   providerCapabilities?: string[] // Provider capabilities for multimodal support
+  providerManager?: ProviderManager // Provider manager for vision preprocessing
+  providerRegistry?: ProviderRegistry // Provider registry for vision preprocessing
 }
 
 export interface AssemblyResult {
@@ -167,15 +172,46 @@ export async function assembleContext(
     console.log('[Context Assembly] File details:', options.attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text, mime_type: f.mime_type })))
 
     // Separate images from text files - images are handled as multimodal content, not text context
-    imageFiles = options.attachedFiles.filter(f => f.mime_type.startsWith('image/'))
+    let rawImageFiles = options.attachedFiles.filter(f => f.mime_type.startsWith('image/'))
     const textFiles = options.attachedFiles.filter(f => !f.mime_type.startsWith('image/'))
 
     console.log('[Context Assembly] File classification:', {
-      imageCount: imageFiles.length,
+      imageCount: rawImageFiles.length,
       textCount: textFiles.length,
-      imageFilenames: imageFiles.map(f => f.original_filename),
+      imageFilenames: rawImageFiles.map(f => f.original_filename),
       textFilenames: textFiles.map(f => f.original_filename)
     })
+
+    // Vision preprocessing: if primary provider doesn't support vision, use vision-capable provider
+    if (rawImageFiles.length > 0 && options.providerManager && options.providerRegistry) {
+      console.log('[Context Assembly] Images detected with vision preprocessing available')
+      
+      try {
+        const visionResult = await VisionService.processImages({
+          imageFiles: rawImageFiles,
+          primaryProviderCapabilities: options.providerCapabilities || [],
+          providerManager: options.providerManager,
+          providerRegistry: options.providerRegistry,
+          maxAnalysisTokens: 3000
+        })
+
+        // If vision preprocessing was used, add the text context and clear image files
+        if (visionResult.textContext) {
+          console.log('[Context Assembly] Vision preprocessing generated text context:', visionResult.textContext.length)
+          context += visionResult.textContext
+          imageFiles = visionResult.processedImages // Should be empty if preprocessing worked
+        } else {
+          // No vision preprocessing occurred (either primary supports vision or no vision provider available)
+          imageFiles = rawImageFiles
+        }
+      } catch (error) {
+        console.error('[Context Assembly] Vision preprocessing failed, falling back to direct image handling:', error)
+        imageFiles = rawImageFiles
+      }
+    } else {
+      // No vision preprocessing available, use original image handling
+      imageFiles = rawImageFiles
+    }
 
     // Only process text files for context assembly
     if (textFiles.length > 0) {
