@@ -39,6 +39,7 @@ function getDefaultBaseUrl(providerType: string): string {
     groq: 'https://api.groq.com/openai/v1',
     openrouter: 'https://openrouter.ai/api/v1',
     openai: 'https://api.openai.com/v1',
+    gemini: 'https://generativelanguage.googleapis.com/v1beta',
     openai_compatible: '',
     self_hosted: '',
   }
@@ -69,26 +70,77 @@ export async function POST(request: Request) {
     }
 
     try {
-      // For Gemini, use default models list (no public API)
+      // For Gemini, fetch from Google's official API
       if (provider.provider_type === 'gemini') {
-        const defaultModels = [
-          'gemini-1.5-pro',
-          'gemini-1.5-flash',
-          'gemini-1.0-pro',
-          'gemini-pro',
-          'gemini-pro-vision',
-        ]
+        // Decrypt API key
+        let apiKey: string | null = null
+        if (provider.api_key_encrypted) {
+          try {
+            apiKey = decrypt(provider.api_key_encrypted)
+          } catch (error) {
+            console.error('Failed to decrypt Gemini API key:', error)
+            return NextResponse.json({ 
+              error: 'Failed to decrypt API key',
+              details: 'Please re-enter your API key in the admin panel using the Replace Key option'
+            }, { status: 500 })
+          }
+        } else {
+          return NextResponse.json({ 
+            error: 'No API key configured for Gemini',
+            details: 'Please add an API key in the admin panel before fetching models'
+          }, { status: 400 })
+        }
+
+        if (!apiKey) {
+          return NextResponse.json({ 
+            error: 'No API key available',
+            details: 'Please configure an API key for this provider'
+          }, { status: 400 })
+        }
+
+        const baseUrl = provider.base_url || getDefaultBaseUrl(provider.provider_type)
+        const response = await fetch(`${baseUrl}/models?key=${apiKey}`, {
+          signal: AbortSignal.timeout(30000),
+        })
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          let errorMessage = `Failed to fetch Gemini models: ${response.status}`
+          try {
+            const errorJson = JSON.parse(errorText)
+            if (errorJson.error?.message) {
+              errorMessage = errorJson.error.message
+            }
+          } catch {
+            // Keep original error text if not JSON
+          }
+          throw new Error(errorMessage)
+        }
+
+        const data = await response.json()
+        
+        // Normalize Gemini model names: remove 'models/' prefix if present
+        const models = data.models
+          ?.filter((m: any) => m.name) // Filter for models with names
+          .map((m: any) => {
+            let modelName = m.name
+            // Remove 'models/' prefix to match internal format
+            if (modelName.startsWith('models/')) {
+              modelName = modelName.replace('models/', '')
+            }
+            return modelName
+          }) || []
 
         await supabaseAdmin
           .from('alex_provider_config')
           .update({
-            models: { available: defaultModels },
+            models: { available: models },
             model_list_metadata: { lastRefreshed: new Date().toISOString() },
             updated_at: new Date().toISOString(),
           })
           .eq('id', id)
 
-        return NextResponse.json({ models: defaultModels })
+        return NextResponse.json({ models })
       }
 
       // For OpenAI-compatible providers, fetch from /models endpoint

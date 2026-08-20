@@ -33,6 +33,7 @@ export class AIEngine {
     enableRetrieval?: boolean;
     modelName?: string;
     enableTokenAwareAssembly?: boolean;
+    providerCapabilities?: string[];
   }): Promise<{
     orchestratorResponse: OrchestratorResponse;
     platformContext?: PlatformContext;
@@ -69,6 +70,7 @@ export class AIEngine {
       ...request,
       platformContext,
       attachedFiles: request.attachedFiles,
+      providerCapabilities: request.providerCapabilities,
     });
 
     return {
@@ -91,6 +93,7 @@ export class AIEngine {
     enableRetrieval?: boolean;
     modelName?: string;
     enableTokenAwareAssembly?: boolean;
+    providerCapabilities?: string[];
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -125,15 +128,21 @@ export class AIEngine {
         type: p.type
       })))
       
+      // Check if providers are available
+      if (!allProviders || allProviders.length === 0) {
+        throw new Error('No AI providers configured. Please configure at least one provider in the admin panel.')
+      }
+      
       // Process through orchestrator first
+      const firstProvider = allProviders[0]
       const { orchestratorResponse, platformContext } = await this.processChat({
         ...request,
         attachedFiles: request.attachedFiles,
         conversationId: request.conversationId,
         enableRetrieval: request.enableRetrieval,
-        modelName: allProviders[0]?.model || 'openai/gpt-oss-120b', // Use active provider's model
+        modelName: firstProvider?.model || 'openai/gpt-oss-120b', // Use active provider's model
         enableTokenAwareAssembly: (request.attachedFiles?.length || 0) > 1, // Auto-enable for multi-file
-        providerCapabilities: allProviders[0]?.capabilities || [], // Pass provider capabilities
+        providerCapabilities: request.providerCapabilities || firstProvider?.capabilities || [], // Pass provider capabilities
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

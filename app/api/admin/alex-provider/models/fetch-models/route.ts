@@ -50,7 +50,7 @@ const PROVIDER_CONFIGS: Record<string, { baseUrl: string; modelsEndpoint: string
   },
   gemini: {
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-    modelsEndpoint: null,
+    modelsEndpoint: 'https://generativelanguage.googleapis.com/v1beta/models',
   },
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
@@ -74,16 +74,53 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Provider type is required' }, { status: 400 })
     }
 
-    // For Gemini, use default models list (no public API)
+    // For Gemini, fetch from Google's official API
     if (provider_type === 'gemini') {
-      const defaultModels = [
-        'gemini-1.5-pro',
-        'gemini-1.5-flash',
-        'gemini-1.0-pro',
-        'gemini-pro',
-        'gemini-pro-vision',
-      ]
-      return NextResponse.json({ models: defaultModels })
+      if (!api_key) {
+        return NextResponse.json({ error: 'API key is required for Gemini' }, { status: 400 })
+      }
+
+      try {
+        const response = await fetch(`${config.baseUrl}/models?key=${api_key}`, {
+          signal: AbortSignal.timeout(30000),
+        })
+
+        if (!response.ok) {
+          const error = await response.text()
+          let errorMessage = `Failed to fetch Gemini models: ${response.status}`
+          try {
+            const errorJson = JSON.parse(error)
+            if (errorJson.error?.message) {
+              errorMessage = errorJson.error.message
+            }
+          } catch {
+            // Keep original error text if not JSON
+          }
+          return NextResponse.json({ error: errorMessage }, { status: response.status })
+        }
+
+        const data = await response.json()
+        
+        // Normalize Gemini model names: remove 'models/' prefix if present
+        const models = data.models
+          ?.filter((m: any) => m.name) // Filter for models with names
+          .map((m: any) => {
+            let modelName = m.name
+            // Remove 'models/' prefix to match internal format
+            if (modelName.startsWith('models/')) {
+              modelName = modelName.replace('models/', '')
+            }
+            return modelName
+          }) || []
+
+        return NextResponse.json({ models })
+      } catch (error: any) {
+        console.error('Error fetching Gemini models:', error)
+        if (error.name === 'AbortError') {
+          return NextResponse.json({ error: 'Request timeout: Failed to fetch Gemini models' }, { status: 504 })
+        }
+        return NextResponse.json({ error: error.message || 'Failed to fetch Gemini models' }, { status: 500 })
+      }
     }
 
     // Get provider config

@@ -620,7 +620,7 @@ export default function AlexProviderPage() {
                         placeholder="llama3-70b-8192"
                         required
                       />
-                      {newProvider.provider_type !== 'self_hosted' && newProvider.provider_type !== 'gemini' && (
+                      {newProvider.provider_type !== 'self_hosted' && (
                         <button
                           type="button"
                           onClick={handleFetchModelsForNewProvider}
@@ -634,7 +634,7 @@ export default function AlexProviderPage() {
                     <p className="font-mono text-xs text-[#5d5f63] mt-1">
                       {newProvider.provider_type === 'groq' && 'Common models: llama3-70b-8192, mixtral-8x7b-32768, gemma-7b-it'}
                       {newProvider.provider_type === 'openai' && 'Common models: gpt-4o-mini, gpt-4o, gpt-3.5-turbo'}
-                      {newProvider.provider_type === 'gemini' && 'Common models: gemini-1.5-pro, gemini-1.5-flash, gemini-pro'}
+                      {newProvider.provider_type === 'gemini' && 'Use Fetch button to load available Gemini models'}
                       {newProvider.provider_type === 'openrouter' && 'Enter any OpenRouter model ID'}
                       {newProvider.provider_type === 'self_hosted' && 'Enter your self-hosted model name'}
                       {newProvider.provider_type === 'openai_compatible' && 'Enter your custom model name'}

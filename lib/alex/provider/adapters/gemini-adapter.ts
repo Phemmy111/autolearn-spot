@@ -39,8 +39,11 @@ export class GeminiAdapter implements AIProvider {
       throw new Error('No model specified')
     }
 
+    // Ensure model doesn't have 'models/' prefix (Google API returns with prefix, but we normalize it)
+    const normalizedModel = model.startsWith('models/') ? model.replace('models/', '') : model
+
     const requestBody = this.formatRequest(request)
-    const url = `${this.baseUrl}/models/${model}:generateContent?key=${this.apiKey}`
+    const url = `${this.baseUrl}/models/${normalizedModel}:generateContent?key=${this.apiKey}`
 
     const response = await fetch(url, {
       method: 'POST',
@@ -73,7 +76,7 @@ export class GeminiAdapter implements AIProvider {
 
     return {
       content: candidate?.content?.parts?.[0]?.text || '',
-      model: data.model || model,
+      model: normalizedModel,
       usage: data.usageMetadata ? {
         promptTokens: data.usageMetadata.promptTokenCount,
         completionTokens: data.usageMetadata.candidatesTokenCount,
@@ -93,11 +96,14 @@ export class GeminiAdapter implements AIProvider {
       throw new Error('No model specified')
     }
 
-    yield { type: 'start', data: { model } }
+    // Ensure model doesn't have 'models/' prefix (Google API returns with prefix, but we normalize it)
+    const normalizedModel = model.startsWith('models/') ? model.replace('models/', '') : model
+
+    yield { type: 'start', data: { model: normalizedModel } }
 
     try {
       const requestBody = this.formatRequest(request)
-      const url = `${this.baseUrl}/models/${model}:streamGenerateContent?key=${this.apiKey}`
+      const url = `${this.baseUrl}/models/${normalizedModel}:streamGenerateContent?key=${this.apiKey}`
 
       const response = await fetch(url, {
         method: 'POST',
