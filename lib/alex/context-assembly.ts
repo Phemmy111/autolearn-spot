@@ -82,12 +82,18 @@ export async function assembleContext(
       if (lastUserMessage && lastUserMessage.content) {
         console.log('[Context Assembly] Performing web research for query:', lastUserMessage.content.substring(0, 100))
 
+        // Check if we have platform context or file context to inform research decision
+        const hasPlatformContext = !!options?.platformContext && Object.keys(options.platformContext).length > 0;
+        const hasFileContext = !!options?.attachedFiles && options.attachedFiles.length > 0;
+
         const researchResult = await options.webResearchService.performResearch(lastUserMessage.content, {
           maxResults: 5,
           maxQueries: 2,
           maxContentLength: 8000,
           timeout: 30000,
-          enableMultiQuery: true
+          enableMultiQuery: true,
+          hasPlatformContext,
+          hasFileContext
         })
 
         if (researchResult.success && researchResult.results.length > 0) {

@@ -23,6 +23,8 @@ export interface ResearchOptions {
   maxContentLength?: number;
   timeout?: number;
   enableMultiQuery?: boolean;
+  hasPlatformContext?: boolean; // Whether platform context is available
+  hasFileContext?: boolean; // Whether file context is available
 }
 
 export interface ResearchResult {
@@ -60,8 +62,9 @@ export class WebResearchService {
 
   /**
    * Determine if web research is appropriate for the given query
+   * Enhanced detection based on question type + entity + context
    */
-  detectResearchIntent(content: string): ResearchIntent {
+  detectResearchIntent(content: string, hasPlatformContext: boolean = false, hasFileContext: boolean = false): ResearchIntent {
     const lowerContent = content.toLowerCase();
 
     // Keywords that indicate research is needed
@@ -75,11 +78,26 @@ export class WebResearchService {
       'what changed', 'new in', 'status of', 'state of'
     ];
 
-    // Keywords that indicate research is NOT needed
+    // Keywords that indicate research is NOT needed (conceptual explanations)
     const nonResearchKeywords = [
       'explain', 'teach', 'how to', 'tutorial', 'learn',
-      'what is', 'help me understand', 'example', 'analogy',
-      'code', 'debug', 'error', 'fix', 'implement'
+      'help me understand', 'example', 'analogy',
+      'code', 'debug', 'error', 'fix', 'implement',
+      'write a', 'create a', 'build a', 'define', 'describe'
+    ];
+
+    // Platform context keywords - should use platform context instead of web
+    const platformContextKeywords = [
+      'my progress', 'my course', 'my lessons', 'my learning',
+      'completed', 'enrolled', 'my account', 'my profile',
+      'my dashboard', 'my subscription', 'my payment'
+    ];
+
+    // File context keywords - should use uploaded files instead of web
+    const fileContextKeywords = [
+      'this document', 'this file', 'this pdf', 'the uploaded',
+      'in the document', 'in the file', 'the attachment',
+      'summarize this', 'analyze this'
     ];
 
     let researchScore = 0;
@@ -97,37 +115,128 @@ export class WebResearchService {
       }
     }
 
-    // If explicitly asking for research, high confidence
+    // Priority 1: Platform context available and question is about platform data
+    if (hasPlatformContext) {
+      for (const keyword of platformContextKeywords) {
+        if (lowerContent.includes(keyword)) {
+          return {
+            requiresResearch: false,
+            confidence: 0.9,
+            reason: 'Platform context available for platform-specific question'
+          };
+        }
+      }
+    }
+
+    // Priority 2: File context available and question is about the file
+    if (hasFileContext) {
+      for (const keyword of fileContextKeywords) {
+        if (lowerContent.includes(keyword)) {
+          // Exception: if explicitly asking to compare with current info or research
+          if (lowerContent.includes('compare with current') || 
+              lowerContent.includes('verify online') ||
+              lowerContent.includes('check online') ||
+              lowerContent.includes('current information online') ||
+              lowerContent.includes('online information')) {
+            return {
+              requiresResearch: true,
+              confidence: 0.8,
+              reason: 'Explicit request to compare file content with current online information',
+              suggestedQueries: this.extractSearchQueries(content)
+            };
+          }
+          return {
+            requiresResearch: false,
+            confidence: 0.85,
+            reason: 'File context available for document-specific question'
+          };
+        }
+      }
+    }
+
+    // Priority 3: Explicit research request - highest confidence
     if (lowerContent.includes('research') || lowerContent.includes('search') || lowerContent.includes('find')) {
       return {
         requiresResearch: true,
-        confidence: 0.9,
+        confidence: 0.95,
         reason: 'Explicit research request detected',
         suggestedQueries: this.extractSearchQueries(content)
       };
     }
 
-    // If asking for current/latest information, high confidence
-    if (lowerContent.includes('latest') || lowerContent.includes('current') || lowerContent.includes('recent')) {
+    // Priority 4: Current/timely information request
+    if (lowerContent.includes('latest') || lowerContent.includes('current') || lowerContent.includes('recent') ||
+        lowerContent.includes('news') || lowerContent.includes('breaking') || lowerContent.includes('update')) {
       return {
         requiresResearch: true,
-        confidence: 0.85,
+        confidence: 0.9,
         reason: 'Request for current/timely information',
         suggestedQueries: this.extractSearchQueries(content)
       };
     }
 
-    // If comparing things, medium confidence
+    // Priority 5: Entity-based factual questions (who/when about real-world entities)
+    const entityPatterns = [
+      { pattern: /who (is|was|founded|founds|created|started|leads|led|owns|owned)/i, reason: 'Entity-based person/organization question' },
+      { pattern: /when (was|were|did|is)/i, reason: 'Time-based factual question' },
+      { pattern: /where (is|was|are|were)/i, reason: 'Location-based factual question' },
+      { pattern: /what (is|are) the (current|latest|new)/i, reason: 'Current status question' },
+      { pattern: /is (this|that|it) still (operating|active|available|valid)/i, reason: 'Status verification question' },
+      { pattern: /compare (this|that|the|autolearn spot|openai|n8n|coursera|github)/i, reason: 'Comparison question' },
+      { pattern: /what (do|are) people (say|think) about/i, reason: 'Public opinion question' },
+      { pattern: /what are the (latest|recent) developments/i, reason: 'Developments/trends question' }
+    ];
+
+    for (const { pattern, reason } of entityPatterns) {
+      if (pattern.test(content)) {
+        // Check if it's a conceptual question (should not trigger research)
+        if (this.isConceptualQuestion(content)) {
+          return {
+            requiresResearch: false,
+            confidence: 0.7,
+            reason: 'Conceptual/educational question - does not require web research'
+          };
+        }
+        return {
+          requiresResearch: true,
+          confidence: 0.75,
+          reason: reason,
+          suggestedQueries: this.extractSearchQueries(content)
+        };
+      }
+    }
+
+    // Priority 6: Comparison questions
     if (lowerContent.includes('compare') || lowerContent.includes('difference') || lowerContent.includes('versus')) {
       return {
         requiresResearch: true,
-        confidence: 0.75,
+        confidence: 0.8,
         reason: 'Comparison request detected',
         suggestedQueries: this.extractSearchQueries(content)
       };
     }
 
-    // If research keywords outweigh non-research keywords
+    // Priority 7: Pricing/availability questions
+    if (lowerContent.includes('pricing') || lowerContent.includes('cost') || lowerContent.includes('price') ||
+        lowerContent.includes('available') || lowerContent.includes('support')) {
+      return {
+        requiresResearch: true,
+        confidence: 0.8,
+        reason: 'Pricing/availability question detected',
+        suggestedQueries: this.extractSearchQueries(content)
+      };
+    }
+
+    // Priority 8: Conceptual/educational questions - NO research
+    if (this.isConceptualQuestion(content)) {
+      return {
+        requiresResearch: false,
+        confidence: 0.8,
+        reason: 'Conceptual/educational question - does not require web research'
+      };
+    }
+
+    // Priority 9: Keyword-based scoring
     if (researchScore > nonResearchScore) {
       return {
         requiresResearch: true,
@@ -137,12 +246,39 @@ export class WebResearchService {
       };
     }
 
-    // Otherwise, no research needed
+    // Default: no research needed
     return {
       requiresResearch: false,
       confidence: 0.8,
       reason: 'Query does not require web research'
     };
+  }
+
+  /**
+   * Check if a question is conceptual/educational (not factual)
+   */
+  private isConceptualQuestion(content: string): boolean {
+    const lowerContent = content.toLowerCase();
+    
+    const conceptualPatterns = [
+      'explain', 'how does', 'how do', 'how to', 'what is', 'help me understand',
+      'teach me', 'learn about', 'tutorial', 'example', 'analogy',
+      'define', 'describe', 'how would you', 'how can i',
+      'write a', 'create a', 'build a', 'implement', 'debug', 'fix'
+    ];
+
+    // Check for conceptual patterns
+    for (const pattern of conceptualPatterns) {
+      if (lowerContent.includes(pattern)) {
+        // But make sure it's not asking about current info
+        if (!lowerContent.includes('latest') && !lowerContent.includes('current') && 
+            !lowerContent.includes('recent') && !lowerContent.includes('version')) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -197,7 +333,7 @@ export class WebResearchService {
     }
 
     const opts = { ...this.defaultOptions, ...options };
-    const intent = this.detectResearchIntent(content);
+    const intent = this.detectResearchIntent(content, opts.hasPlatformContext, opts.hasFileContext);
 
     if (!intent.requiresResearch) {
       return {
