@@ -63,8 +63,8 @@ export class AlexOrchestrator {
     // Generate system prompt for token estimation
     const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext)
 
-    // Enable web research for research mode or when intent suggests research
-    const enableWebResearch = mode === 'research' || suggestedMode === 'research'
+    // Enable web research for research mode, when intent suggests research, or when explicitly requested
+    const enableWebResearch = mode === 'research' || suggestedMode === 'research' || request.enableWebResearch
 
     // Assemble context with platform context, files, retrieval, and web research if available
     const assemblyResult = await assembleContext(mode, conversationHistory, {
