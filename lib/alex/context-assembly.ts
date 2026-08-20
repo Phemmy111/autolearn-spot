@@ -55,8 +55,12 @@ export async function assembleContext(
   let context = ''
   let imageFiles: AlexFile[] = []
 
+  // Determine if token-aware assembly will be used
+  const willUseTokenAware = options?.enableTokenAwareAssembly && options?.attachedFiles && options.userId && options.conversationId
+
   // Add platform context if available (only once)
-  if (options?.platformContext && !context.includes('=== AUTOLEARN SPOT PLATFORM CONTEXT ===')) {
+  // Skip if token-aware assembly will handle it
+  if (options?.platformContext && !context.includes('=== AUTOLEARN SPOT PLATFORM CONTEXT ===') && !willUseTokenAware) {
     const platformContextStr = formatPlatformContextForPrompt(options.platformContext)
     if (platformContextStr) {
       context += platformContextStr + '\n'
@@ -170,7 +174,7 @@ export async function assembleContext(
   // Use token-aware assembly if enabled (preferred for multi-file scenarios)
   if (options?.enableTokenAwareAssembly && options?.attachedFiles && options.userId && options.conversationId) {
     console.log('[Context Assembly] Using token-aware assembly for multi-file context')
-    
+
     try {
       const lastUserMessage = conversationHistory
         .filter(m => m.role === 'user')
@@ -199,9 +203,8 @@ export async function assembleContext(
 
       console.log('[Context Assembly] Token-aware assembly complete:', tokenAwareResult.diagnostics)
 
-      // Combine platform context with token-aware file context
-      const platformContextOnly = formatPlatformContextForPrompt(options.platformContext || {})
-      context = platformContextOnly + '\n' + tokenAwareResult.context
+      // Token-aware assembly already includes platform context, so use its result directly
+      context = tokenAwareResult.context
 
       // Add conversation history
       context += '\nConversation History:\n'
@@ -278,7 +281,8 @@ export async function assembleContext(
   }
 
   // Add file context if available (Phase 3A)
-  if (options?.attachedFiles && options.attachedFiles.length > 0) {
+  // Skip if token-aware assembly will handle it (multi-file scenarios)
+  if (options?.attachedFiles && options.attachedFiles.length > 0 && !willUseTokenAware) {
     console.log('[DIAGNOSTIC] CONTEXT ASSEMBLY START', {
       filesCount: options.attachedFiles.length,
       fileIds: options.attachedFiles.map(f => f.id),

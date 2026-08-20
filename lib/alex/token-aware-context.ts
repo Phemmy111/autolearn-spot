@@ -186,24 +186,42 @@ export async function assembleTokenAwareContext(
     filesRepresented: fileContextResult.filesRepresentedInContext
   })
 
-  // Combine vision, research, and file context
-  let finalContext = fileContextResult.fullTextContent
+  // Combine vision, research, and file context with strict budget enforcement
+  let finalContext = fileContextResult.context // Use budgeted context, not full text
+  let currentTokens = systemPromptTokens + platformContextTokens + conversationHistoryTokens + fileContextResult.estimatedTokens
+
+  // Add vision context if it fits in budget
   if (visionContext) {
-    finalContext = visionContext + '\n' + finalContext
-    console.log('[Token-Aware Context] Added vision context to final context')
-  }
-  if (researchContext) {
-    finalContext = researchContext + '\n' + finalContext
-    console.log('[Token-Aware Context] Added research context to final context')
+    const visionTokens = estimateTokens(visionContext)
+    if (currentTokens + visionTokens <= tokenBudget.inputBudget) {
+      finalContext = visionContext + '\n' + finalContext
+      currentTokens += visionTokens
+      console.log('[Token-Aware Context] Added vision context to final context')
+    } else {
+      console.log('[Token-Aware Context] Skipped vision context - would exceed budget')
+    }
   }
 
-  // Calculate final diagnostics
+  // Add research context if it fits in budget
+  if (researchContext) {
+    const researchTokens = estimateTokens(researchContext)
+    if (currentTokens + researchTokens <= tokenBudget.inputBudget) {
+      finalContext = researchContext + '\n' + finalContext
+      currentTokens += researchTokens
+      console.log('[Token-Aware Context] Added research context to final context')
+    } else {
+      console.log('[Token-Aware Context] Skipped research context - would exceed budget')
+    }
+  }
+
+  // Calculate final diagnostics based on actual final context
+  const finalEstimatedTokens = currentTokens
   const diagnostics: ContextDiagnostics = {
     modelContextLimit,
     reservedOutputTokens,
     inputBudget: tokenBudget.inputBudget,
     estimatedTokensBeforeCompression: systemPromptTokens + platformContextTokens + conversationHistoryTokens + estimateTokens(fileContextResult.fullTextContent) + estimateTokens(visionContext) + estimateTokens(researchContext),
-    estimatedTokensAfterCompression: systemPromptTokens + platformContextTokens + conversationHistoryTokens + fileContextResult.estimatedTokens + estimateTokens(visionContext) + estimateTokens(researchContext),
+    estimatedTokensAfterCompression: finalEstimatedTokens,
     chunksRetrievedPerFile: fileContextResult.chunksRetrievedPerFile,
     filesRepresentedInContext: fileContextResult.filesRepresentedInContext,
     totalFilesAttached: textFiles.length,
@@ -211,7 +229,7 @@ export async function assembleTokenAwareContext(
     platformContextTokens,
     conversationHistoryTokens,
     fileContextTokens: fileContextResult.estimatedTokens,
-    compressionRatio: fileContextResult.fullTextContent.length > 0 
+    compressionRatio: fileContextResult.fullTextContent.length > 0
       ? fileContextResult.estimatedTokens / estimateTokens(fileContextResult.fullTextContent)
       : 1
   }
