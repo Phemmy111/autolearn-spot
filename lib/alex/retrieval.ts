@@ -205,21 +205,61 @@ async function performSimilaritySearch(
   limit: number,
   minSimilarity: number
 ): Promise<any[]> {
-  // Call the match_document_chunks RPC function
-  const { data, error } = await getSupabaseClient().rpc('match_document_chunks', {
+  // Build the RPC call parameters
+  const rpcParams: any = {
     p_query_embedding: queryEmbedding,
     p_user_id: userId,
     p_conversation_id: conversationId || null,
-    p_file_ids: fileIds || null, // Pass specific file IDs if provided
     p_limit: limit,
     p_min_similarity: minSimilarity
-  })
-
-  if (error) {
-    throw new Error(`Similarity search failed: ${error.message}`)
   }
 
-  return data || []
+  // Only add p_file_ids if the database function supports it
+  // Try with p_file_ids first, if it fails, fall back to without it
+  try {
+    const { data, error } = await getSupabaseClient().rpc('match_document_chunks', {
+      ...rpcParams,
+      p_file_ids: fileIds || null
+    })
+
+    if (error) {
+      // If error mentions p_file_ids, try without it
+      if (error.message?.includes('p_file_ids') || error.code === 'PGRST202') {
+        console.log('[Retrieval] Database function does not support p_file_ids, filtering results client-side')
+        const { data: allData, error: allError } = await getSupabaseClient().rpc('match_document_chunks', rpcParams)
+        
+        if (allError) {
+          throw new Error(`Similarity search failed: ${allError.message}`)
+        }
+
+        // Filter results to only include specified file IDs
+        const filteredData = fileIds 
+          ? (allData || []).filter((chunk: any) => fileIds.includes(chunk.file_id))
+          : allData
+
+        return filteredData
+      }
+      throw new Error(`Similarity search failed: ${error.message}`)
+    }
+
+    return data || []
+  } catch (error) {
+    // If the RPC call fails completely, try without p_file_ids
+    if (fileIds && fileIds.length > 0) {
+      console.log('[Retrieval] Falling back to client-side file filtering')
+      const { data, error: fallbackError } = await getSupabaseClient().rpc('match_document_chunks', rpcParams)
+      
+      if (fallbackError) {
+        throw new Error(`Similarity search failed: ${fallbackError.message}`)
+      }
+
+      // Filter results to only include specified file IDs
+      const filteredData = (data || []).filter((chunk: any) => fileIds.includes(chunk.file_id))
+      return filteredData
+    }
+    
+    throw error
+  }
 }
 
 /**
