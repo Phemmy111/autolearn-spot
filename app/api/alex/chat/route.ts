@@ -95,17 +95,22 @@ export async function POST(request: NextRequest) {
         persistedConversationFileIds = conversationFiles.map(f => f.id)
       }
 
-      // Combine and deduplicate file IDs
-      const allFileIds = new Set([...currentMessageFileIds, ...persistedConversationFileIds])
-      effectiveFileIds = Array.from(allFileIds)
+      // If current message has file IDs, use only those (new files for this message)
+      // Otherwise, use persisted conversation files (continuing from previous messages)
+      if (currentMessageFileIds.length > 0) {
+        effectiveFileIds = currentMessageFileIds
+      } else {
+        effectiveFileIds = persistedConversationFileIds
+      }
 
       console.log('[FILE RESOLUTION DIAGNOSTICS]', {
         currentMessageFileIds,
         currentMessageFileCount: currentMessageFileIds.length,
         persistedConversationFileIds,
-        persistedConversationFileCount: persistedConversationFileIds.length,
+        persistedFileCount: persistedConversationFileIds.length,
         effectiveFileIds,
-        deduplicatedFileCount: effectiveFileIds.length
+        using: currentMessageFileIds.length > 0 ? 'current message files' : 'persisted conversation files',
+        effectiveFileCount: effectiveFileIds.length
       })
     } catch (error) {
       console.error('[FILE RESOLUTION ERROR]', error)
