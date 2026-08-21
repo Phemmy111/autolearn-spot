@@ -154,35 +154,28 @@ export async function assembleTokenAwareContext(
   const visionContextTokens = estimateTokens(visionContext)
   const researchContextTokens = estimateTokens(researchContext)
 
-  const tokenBudget = calculateTokenBudget(
-    providerInputBudget, // Use provider-safe budget instead of model context limit
-    systemPromptTokens,
-    platformContextTokens,
-    0, // No conversation history tokens in context - handled as structured messages
-    visionContextTokens + researchContextTokens, // Add vision and research context to overhead
-    reservedOutputTokens,
-    1.0 // Use 1.0 margin since providerInputBudget already includes safety margin
-  )
+  // Calculate available budget for file context after accounting for overhead
+  const overheadTokens = systemPromptTokens + platformContextTokens + visionContextTokens + researchContextTokens
+  const safeFileContextBudget = Math.max(0, providerInputBudget - reservedOutputTokens - overheadTokens)
 
-  console.log('[Token-Aware Context] Token budget calculated:', {
+  console.log('[ATTACHMENT TRACE] Budget calculation:', {
     providerInputBudget,
-    modelContextLimitForReference: getModelContextLimit(modelName), // For reference only
     reservedOutputTokens,
-    inputBudget: tokenBudget.inputBudget,
     systemPromptTokens,
     platformContextTokens,
-    conversationHistoryTokens: 0, // Not included in context string - handled as structured messages
-    fileContextTokens: tokenBudget.fileContextTokens,
-    safetyMargin
+    visionContextTokens,
+    researchContextTokens,
+    overheadTokens,
+    safeFileContextBudget
   })
 
-  // Build file context using RAG retrieval
+  // Build file context using calculated budget
   const fileContextResult = await buildTokenAwareFileContext(
     textFiles,
     userQuery,
     userId,
     conversationId,
-    tokenBudget.fileContextTokens
+    safeFileContextBudget
   )
 
   console.log('[Token-Aware Context] File context built:', {
@@ -199,7 +192,7 @@ export async function assembleTokenAwareContext(
   // Add vision context if it fits in budget
   if (visionContext) {
     const visionTokens = estimateTokens(visionContext)
-    if (currentTokens + visionTokens <= tokenBudget.inputBudget) {
+    if (currentTokens + visionTokens <= providerInputBudget) {
       finalContext = visionContext + '\n' + finalContext
       currentTokens += visionTokens
       console.log('[Token-Aware Context] Added vision context to final context')
@@ -211,7 +204,7 @@ export async function assembleTokenAwareContext(
   // Add research context if it fits in budget
   if (researchContext) {
     const researchTokens = estimateTokens(researchContext)
-    if (currentTokens + researchTokens <= tokenBudget.inputBudget) {
+    if (currentTokens + researchTokens <= providerInputBudget) {
       finalContext = researchContext + '\n' + finalContext
       currentTokens += researchTokens
       console.log('[Token-Aware Context] Added research context to final context')
@@ -226,7 +219,7 @@ export async function assembleTokenAwareContext(
   const diagnostics: ContextDiagnostics = {
     modelContextLimit: modelContextLimitForReference,
     reservedOutputTokens,
-    inputBudget: tokenBudget.inputBudget,
+    inputBudget: providerInputBudget,
     estimatedTokensBeforeCompression: systemPromptTokens + platformContextTokens + estimateTokens(fileContextResult.fullTextContent) + estimateTokens(visionContext) + estimateTokens(researchContext),
     estimatedTokensAfterCompression: finalEstimatedTokens,
     chunksRetrievedPerFile: fileContextResult.chunksRetrievedPerFile,
