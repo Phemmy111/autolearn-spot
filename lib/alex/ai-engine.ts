@@ -18,6 +18,7 @@ import { PlatformContext } from './context/context-types';
 import { loadPlatformContext } from './context';
 import { AlexFile } from './types';
 import { WebResearchService } from './web-research/web-research-service';
+import { estimateTokens } from './token-estimation';
 import { MockSearchProvider } from './web-research/mock-search-provider';
 import { TavilySearchProvider } from './web-research/tavily-search-provider';
 import { ToolRegistry, ToolExecutionService, calculatorToolDefinition, calculatorToolExecutor, currentTimeToolDefinition, currentTimeToolExecutor, webSearchToolDefinition, createWebSearchToolExecutor } from './tools';
@@ -402,6 +403,29 @@ export class AIEngine {
 
       console.log('[ToolDebug] tool_result_sent_to_model')
       console.log('[ToolDebug] starting_final_response')
+
+      // TPM check for tool follow-up request
+      const toolFollowUpTokens = estimateTokens(JSON.stringify(updatedMessages))
+      console.log('[TPM Gate] Tool follow-up request tokens:', toolFollowUpTokens)
+
+      // If tool result is very large, truncate it to fit TPM
+      if (toolFollowUpTokens > 6000) { // Conservative threshold
+        console.log('[TPM Gate] Tool result too large, truncating')
+        // Truncate the tool result in the last message
+        const lastAssistantMessage = updatedMessages[updatedMessages.length - 1]
+        if (lastAssistantMessage && typeof lastAssistantMessage.content === 'string') {
+          const content = lastAssistantMessage.content
+          const maxChars = Math.floor(content.length * (6000 / toolFollowUpTokens))
+          updatedMessages[updatedMessages.length.length - 1] = {
+            ...lastAssistantMessage,
+            content: content.substring(0, maxChars) + '... [truncated for TPM limit]'
+          }
+          console.log('[TPM Gate] Truncated tool result:', {
+            originalLength: content.length,
+            newLength: maxChars
+          })
+        }
+      }
 
       // Stream final response with tool result
       for await (const event of providerManager.executeStreamingWithFallback({

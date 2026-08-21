@@ -7,7 +7,8 @@
 
 import { ProviderConfig, ProviderHealthCheck, ProviderRequestResult, FallbackAttempt, classifyError, isRetryableError } from './provider-manager-types'
 import { ProviderRegistry } from './provider-registry'
-import { AIProvider, AIStreamEvent } from './provider-interface'
+import { AIProvider, AIStreamEvent, AIMessage } from './provider-interface'
+import { estimateTokens, estimateMessageTokens, getTPMLimit } from '../token-estimation'
 import { ProviderFactory } from './provider-factory'
 import crypto from 'crypto'
 import { currentUser } from '@clerk/nextjs/server'
@@ -478,6 +479,142 @@ export class ProviderManager {
   }
 
   /**
+   * Estimate tokens for complete provider request including messages and tools
+   */
+  private estimateRequestTokens(request: any): number {
+    let totalTokens = 0
+
+    // Estimate tokens for messages
+    if (request.messages && Array.isArray(request.messages)) {
+      for (const message of request.messages) {
+        // Handle both string and array content
+        if (typeof message.content === 'string') {
+          totalTokens += estimateTokens(message.content)
+        } else if (Array.isArray(message.content)) {
+          // Multimodal content (text + images)
+          for (const contentItem of message.content) {
+            if (contentItem.type === 'text') {
+              totalTokens += estimateTokens(contentItem.text)
+            } else if (contentItem.type === 'image_url') {
+              // Images are encoded as base64, estimate roughly
+              totalTokens += 85 // Base image token cost
+            }
+          }
+        }
+        // Add small overhead per message
+        totalTokens += 4
+      }
+    }
+
+    // Estimate tokens for tool definitions
+    if (request.tools && Array.isArray(request.tools)) {
+      for (const tool of request.tools) {
+        // Tool definition tokens
+        totalTokens += estimateTokens(tool.name)
+        totalTokens += estimateTokens(tool.description)
+        totalTokens += estimateTokens(JSON.stringify(tool.inputSchema))
+        totalTokens += 10 // Overhead per tool
+      }
+    }
+
+    return totalTokens
+  }
+
+  /**
+   * Reduce request context to fit within TPM limit
+   * Prioritizes system prompt and user message, reduces conversation history first
+   */
+  private reduceRequestForTPM(request: any, tpmLimit: number): any {
+    const estimatedTokens = this.estimateRequestTokens(request)
+    const safetyMargin = 0.8 // Use 80% of TPM limit
+    const maxTokens = Math.floor(tpmLimit * safetyMargin)
+
+    if (estimatedTokens <= maxTokens) {
+      return request // No reduction needed
+    }
+
+    console.log('[TPM Gate] Request exceeds TPM limit, reducing context:', {
+      estimatedTokens,
+      maxTokens,
+      tpmLimit,
+      messageCount: request.messages?.length || 0,
+      toolCount: request.tools?.length || 0
+    })
+
+    // Create a copy to avoid modifying original
+    const reducedRequest = { ...request }
+    reducedRequest.messages = [...(request.messages || [])]
+
+    // Priority-based reduction:
+    // 1. Never remove system message (first message)
+    // 2. Never remove current user message (last message if role is 'user')
+    // 3. Reduce conversation history (middle messages) first
+    // 4. Remove tools if still too large
+
+    const systemMessage = reducedRequest.messages[0]
+    const lastMessage = reducedRequest.messages[reducedRequest.messages.length - 1]
+    const isLastUserMessage = lastMessage?.role === 'user'
+
+    // Keep system message and current user message, reduce history
+    if (reducedRequest.messages.length > 2) {
+      // Remove older conversation history first
+      while (reducedRequest.messages.length > 2) {
+        // Remove second message (oldest after system)
+        reducedRequest.messages.splice(1, 1)
+        
+        const newEstimate = this.estimateRequestTokens(reducedRequest)
+        if (newEstimate <= maxTokens) {
+          console.log('[TPM Gate] Reduced to fit TPM limit by removing conversation history:', {
+            newEstimate,
+            maxTokens,
+            messageCount: reducedRequest.messages.length
+          })
+          return reducedRequest
+        }
+      }
+    }
+
+    // If still too large, reduce tool definitions
+    if (reducedRequest.tools && reducedRequest.tools.length > 0) {
+      console.log('[TPM Gate] Removing tools to fit TPM limit')
+      reducedRequest.tools = []
+      
+      const newEstimate = this.estimateRequestTokens(reducedRequest)
+      if (newEstimate <= maxTokens) {
+        console.log('[TPM Gate] Reduced to fit TPM limit by removing tools:', {
+          newEstimate,
+          maxTokens
+        })
+        return reducedRequest
+      }
+    }
+
+    // If still too large, truncate user message content (last resort)
+    if (isLastUserMessage && typeof lastMessage.content === 'string') {
+      const currentLength = lastMessage.content.length
+      const reductionRatio = maxTokens / estimatedTokens
+      const newLength = Math.floor(currentLength * reductionRatio)
+      
+      reducedRequest.messages[reducedRequest.messages.length - 1] = {
+        ...lastMessage,
+        content: lastMessage.content.substring(0, newLength) + '... [truncated for TPM limit]'
+      }
+      
+      const newEstimate = this.estimateRequestTokens(reducedRequest)
+      console.log('[TPM Gate] Reduced user message to fit TPM limit:', {
+        newEstimate,
+        maxTokens,
+        originalLength: currentLength,
+        newLength
+      })
+      return reducedRequest
+    }
+
+    console.warn('[TPM Gate] Could not reduce request to fit TPM limit, may still fail')
+    return reducedRequest
+  }
+
+  /**
    * Execute streaming request with fallback (returns generator)
    * This is called from AIEngine when no content has been emitted yet
    */
@@ -533,9 +670,30 @@ export class ProviderManager {
       console.log('[ToolDebug] request_has_tools:', !!enhancedRequest.tools)
       console.log('[ToolDebug] request_disableTools:', enhancedRequest.disableTools)
 
+      // FINAL TPM SAFETY GATE - Check actual request before sending to provider
+      const model = enhancedRequest.model || provider.config?.currentModel || 'default'
+      const tpmLimit = getTPMLimit(model)
+      const estimatedTokens = this.estimateRequestTokens(enhancedRequest)
+      const safetyMargin = 0.8
+      const maxTokens = Math.floor(tpmLimit * safetyMargin)
+
+      console.log('[TPM Gate] Final request check:', {
+        provider: provider.name,
+        model,
+        tpmLimit,
+        maxTokens,
+        estimatedTokens,
+        messageCount: enhancedRequest.messages?.length || 0,
+        toolCount: enhancedRequest.tools?.length || 0,
+        willExceed: estimatedTokens > maxTokens
+      })
+
+      // Apply TPM reduction if needed
+      const finalRequest = this.reduceRequestForTPM(enhancedRequest, tpmLimit)
+
       try {
         let firstEvent = true
-        for await (const event of provider.stream(enhancedRequest)) {
+        for await (const event of provider.stream(finalRequest)) {
           if (event.type === 'tool_call') {
             console.log('[ToolDebug] tool_call_received from provider:', event.data.toolCall.toolName)
           }
