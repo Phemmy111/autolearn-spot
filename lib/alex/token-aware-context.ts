@@ -155,9 +155,9 @@ export async function assembleTokenAwareContext(
   const researchContextTokens = estimateTokens(researchContext)
 
   // Calculate available budget for file context after accounting for overhead
-  // Leave additional headroom for conversation history messages and tools
+  // Reserve headroom for conversation history (structured messages) and tools
   const overheadTokens = systemPromptTokens + platformContextTokens + visionContextTokens + researchContextTokens
-  const historyAndToolsHeadroom = 1000 // Reserve additional space for conversation history and tools
+  const historyAndToolsHeadroom = 1800 // Reserve space for conversation history messages and tool definitions
   const safeFileContextBudget = Math.max(0, providerInputBudget - reservedOutputTokens - overheadTokens - historyAndToolsHeadroom)
 
   console.log('[ATTACHMENT TRACE] Budget calculation:', {
