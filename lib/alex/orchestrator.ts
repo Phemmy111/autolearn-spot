@@ -284,7 +284,9 @@ export class AlexOrchestrator {
     // Add current user message with multimodal content if images are present
     // Only use multimodal content if provider supports vision/multimodal capabilities
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
-    const supportsVision = capabilities.includes('vision') || capabilities.includes('multimodal')
+    // Assume vision support for OpenAI-compatible providers when capabilities are empty or only contain 'streaming'
+    const supportsVision = capabilities.includes('vision') || capabilities.includes('multimodal') ||
+      (capabilities.length === 0 || (capabilities.length === 1 && capabilities[0] === 'streaming'))
     
     if (imageFiles && imageFiles.length > 0 && supportsVision) {
       // Build multimodal content: text + images
