@@ -160,6 +160,10 @@ export async function assembleTokenAwareContext(
   const historyAndToolsHeadroom = 1800 // Reserve space for conversation history messages and tool definitions
   const safeFileContextBudget = Math.max(0, providerInputBudget - reservedOutputTokens - overheadTokens - historyAndToolsHeadroom)
 
+  // Also enforce a hard character limit to prevent large files from overwhelming the budget
+  // Even with token estimation, very large files can exceed provider limits
+  const maxFileContextChars = safeFileContextBudget * 3 // Conservative: 3 chars per token average
+
   console.log('[ATTACHMENT TRACE] Budget calculation:', {
     providerInputBudget,
     reservedOutputTokens,
@@ -169,7 +173,8 @@ export async function assembleTokenAwareContext(
     researchContextTokens,
     overheadTokens,
     historyAndToolsHeadroom,
-    safeFileContextBudget
+    safeFileContextBudget,
+    maxFileContextChars
   })
 
   // Build file context using calculated budget
@@ -178,7 +183,8 @@ export async function assembleTokenAwareContext(
     userQuery,
     userId,
     conversationId,
-    safeFileContextBudget
+    safeFileContextBudget,
+    maxFileContextChars
   )
 
   console.log('[Token-Aware Context] File context built:', {
@@ -268,7 +274,8 @@ async function buildTokenAwareFileContext(
   userQuery: string,
   userId: string,
   conversationId: string,
-  tokenBudget: number
+  tokenBudget: number,
+  maxChars: number = Infinity
 ): Promise<FileContextResult> {
   let context = ''
   let estimatedTokens = 0
@@ -370,13 +377,14 @@ async function buildTokenAwareFileContext(
         // Build context from selected chunks
         for (const chunk of selectedChunks) {
           const chunkTokens = estimateTokens(chunk.content)
-          if (estimatedTokens + chunkTokens <= remainingBudget) {
+          const chunkChars = chunk.content.length
+          if (estimatedTokens + chunkTokens <= remainingBudget && context.length + chunkChars <= maxChars) {
             const filename = chunk.filename || 'Unknown file'
             context += `--- ${filename} (similarity: ${chunk.similarity.toFixed(2)}) ---\n`
             context += chunk.content + '\n\n'
             estimatedTokens += chunkTokens
             fullTextContent += chunk.content
-            
+
             // Track chunks per file
             const currentCount = chunksRetrievedPerFile.get(chunk.fileId) || 0
             chunksRetrievedPerFile.set(chunk.fileId, currentCount + 1)
@@ -388,11 +396,11 @@ async function buildTokenAwareFileContext(
     } catch (error) {
       console.error('[Token-Aware Context] RAG retrieval failed, falling back to direct content:', error)
       // Fall back to direct content if RAG fails
-      return buildDirectFileContext(textFiles, remainingBudget, context, metadataTokens)
+      return buildDirectFileContext(textFiles, remainingBudget, context, metadataTokens, maxChars)
     }
   } else {
     console.log('[ATTACHMENT TRACE] No extracted files for RAG, using direct content')
-    return buildDirectFileContext(textFiles, remainingBudget, context, metadataTokens)
+    return buildDirectFileContext(textFiles, remainingBudget, context, metadataTokens, maxChars)
   }
 
   context += '[End of retrieved context]\n'
@@ -421,7 +429,8 @@ function buildDirectFileContext(
   textFiles: AlexFile[],
   remainingBudget: number,
   existingContext: string,
-  existingTokens: number
+  existingTokens: number,
+  maxChars: number = Infinity
 ): FileContextResult {
   let context = existingContext
   let estimatedTokens = existingTokens
@@ -430,19 +439,20 @@ function buildDirectFileContext(
   let filesRepresentedInContext = 0
 
   const budgetPerFile = Math.floor(remainingBudget / textFiles.length)
+  const maxCharsPerFile = Math.min(budgetPerFile * 4, maxChars / textFiles.length) // Convert tokens to chars, respect global max
 
   console.log('[ATTACHMENT TRACE] Using direct content fallback')
   console.log('[ATTACHMENT TRACE] Budget per file:', budgetPerFile, 'tokens')
+  console.log('[ATTACHMENT TRACE] Max chars per file:', maxCharsPerFile)
   console.log('[ATTACHMENT TRACE] Text files for direct content:', textFiles.length)
   console.log('[ATTACHMENT TRACE] File details:', textFiles.map(f => ({ id: f.id, name: f.original_filename, hasText: !!f.extracted_text, textSize: f.extracted_text?.length || 0 })))
 
   for (const file of textFiles) {
     if (file.extracted_text) {
-      const maxChars = budgetPerFile * 4 // Convert tokens back to characters (approximate)
-      const content = file.extracted_text.substring(0, maxChars)
+      const content = file.extracted_text.substring(0, maxCharsPerFile)
       const contentTokens = estimateTokens(content)
 
-      if (estimatedTokens + contentTokens <= remainingBudget) {
+      if (estimatedTokens + contentTokens <= remainingBudget && context.length + content.length <= maxChars) {
         context += `--- ${file.original_filename} ---\n`
         context += content + '\n\n'
         estimatedTokens += contentTokens
