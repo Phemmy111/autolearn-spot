@@ -521,8 +521,22 @@ export class ProviderManager {
   }
 
   /**
+   * Check if a message contains attached file context
+   * File context messages contain markers like "Attached Documents:" and reference material language
+   */
+  private isFileContextMessage(message: any): boolean {
+    if (!message || typeof message.content !== 'string') {
+      return false
+    }
+    const content = message.content
+    return content.includes('Attached Documents:') && 
+           content.includes('REFERENCE MATERIAL') &&
+           content.includes('System instructions and user requests take priority')
+  }
+
+  /**
    * Reduce request context to fit within TPM limit
-   * Prioritizes system prompt and user message, reduces conversation history first
+   * Prioritizes system prompt, file context, and user message over conversation history
    */
   private reduceRequestForTPM(request: any, tpmLimit: number): any {
     const estimatedTokens = this.estimateRequestTokens(request)
@@ -546,31 +560,61 @@ export class ProviderManager {
     reducedRequest.messages = [...(request.messages || [])]
 
     // Priority-based reduction:
-    // 1. Never remove system message (first message)
-    // 2. Never remove current user message (last message if role is 'user')
-    // 3. Reduce conversation history (middle messages) first
-    // 4. Remove tools if still too large
+    // 1. Never remove primary system prompt (first message without file context)
+    // 2. Never remove file context system messages
+    // 3. Never remove current user message (last message if role is 'user')
+    // 4. Reduce conversation history first
+    // 5. Remove tools if still too large
+    // 6. Truncate user message content as last resort
 
-    const systemMessage = reducedRequest.messages[0]
     const lastMessage = reducedRequest.messages[reducedRequest.messages.length - 1]
     const isLastUserMessage = lastMessage?.role === 'user'
 
-    // Keep system message and current user message, reduce history
-    if (reducedRequest.messages.length > 2) {
-      // Remove older conversation history first
-      while (reducedRequest.messages.length > 2) {
-        // Remove second message (oldest after system)
-        reducedRequest.messages.splice(1, 1)
-        
-        const newEstimate = this.estimateRequestTokens(reducedRequest)
-        if (newEstimate <= maxTokens) {
-          console.log('[TPM Gate] Reduced to fit TPM limit by removing conversation history:', {
-            newEstimate,
-            maxTokens,
-            messageCount: reducedRequest.messages.length
-          })
-          return reducedRequest
-        }
+    // Identify protected vs removable messages
+    const removableIndexes: number[] = []
+    for (let i = 0; i < reducedRequest.messages.length; i++) {
+      const message = reducedRequest.messages[i]
+      
+      // Skip last message (current user request)
+      if (i === reducedRequest.messages.length - 1 && isLastUserMessage) {
+        continue
+      }
+      
+      // Skip file context messages
+      if (this.isFileContextMessage(message)) {
+        continue
+      }
+      
+      // Skip primary system prompt (first message that's not file context)
+      if (i === 0 && !this.isFileContextMessage(message)) {
+        continue
+      }
+      
+      // This message is removable (conversation history or other context)
+      removableIndexes.push(i)
+    }
+
+    console.log('[TPM Gate] Removable message indexes:', removableIndexes)
+    console.log('[TPM Gate] Protected file-context messages count:', 
+      reducedRequest.messages.filter((m, i) => this.isFileContextMessage(m)).length
+    )
+
+    // Remove removable messages from oldest to newest
+    for (const index of removableIndexes) {
+      // Remove message at index (adjust for previous removals)
+      const adjustedIndex = index - removableIndexes.indexOf(index)
+      reducedRequest.messages.splice(adjustedIndex, 1)
+      
+      const newEstimate = this.estimateRequestTokens(reducedRequest)
+      if (newEstimate <= maxTokens) {
+        console.log('[TPM Gate] Reduced to fit TPM limit by removing removable context:', {
+          newEstimate,
+          maxTokens,
+          removedIndex: index,
+          messageCount: reducedRequest.messages.length,
+          fileContextCount: reducedRequest.messages.filter((m, i) => this.isFileContextMessage(m)).length
+        })
+        return reducedRequest
       }
     }
 
