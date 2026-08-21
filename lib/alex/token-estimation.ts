@@ -174,6 +174,16 @@ export function getTPMLimit(modelName: string): number {
 }
 
 /**
+ * Get provider-safe input budget based on TPM limit
+ * This is the maximum safe request size for the provider, accounting for TPM constraints
+ * Separate from model context limit which represents theoretical capability
+ */
+export function getProviderInputBudget(modelName: string, safetyMargin: number = 0.8): number {
+  const tpmLimit = getTPMLimit(modelName)
+  return Math.floor(tpmLimit * safetyMargin)
+}
+
+/**
  * Context assembly diagnostics
  */
 export interface ContextDiagnostics {

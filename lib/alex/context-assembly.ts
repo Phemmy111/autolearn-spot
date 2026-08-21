@@ -171,9 +171,10 @@ export async function assembleContext(
     }
   }
 
-  // Use token-aware assembly if enabled (preferred for multi-file scenarios)
+  // Use token-aware assembly if enabled (preferred for all file scenarios)
+  // This ensures consistent, TPM-aware file context handling for both single and multiple files
   if (options?.enableTokenAwareAssembly && options?.attachedFiles && options.userId && options.conversationId) {
-    console.log('[Context Assembly] Using token-aware assembly for multi-file context')
+    console.log('[Context Assembly] Using token-aware assembly for file context')
 
     try {
       const lastUserMessage = conversationHistory

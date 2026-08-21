@@ -274,7 +274,7 @@ export class AIEngine {
         conversationId: request.conversationId,
         enableRetrieval: request.enableRetrieval,
         modelName: firstProvider?.model || 'openai/gpt-oss-120b', // Use active provider's model
-        enableTokenAwareAssembly: (request.attachedFiles?.length || 0) > 1, // Auto-enable for multi-file
+        enableTokenAwareAssembly: (request.attachedFiles?.length || 0) > 0, // Auto-enable for all file attachments
         providerCapabilities: request.providerCapabilities || firstProvider?.capabilities || [], // Pass provider capabilities
         providerManager: providerManager, // Pass provider manager for vision preprocessing
         providerRegistry: registry, // Pass provider registry for vision preprocessing
@@ -323,7 +323,7 @@ export class AIEngine {
         conversationId: request.conversationId,
         mode: request.mode,
         disableTools: !request.enableTools, // Pass through tool enable/disable
-        tools: request.enableTools && this.toolRegistry ? this.toolRegistry.listEnabledTools() : undefined,
+        tools: orchestratorResponse.aiRequest.tools, // Use tools from orchestrator to avoid duplication
       })) {
         // Check for error events and convert to thrown errors for proper fallback handling
         if (event.type === 'error') {

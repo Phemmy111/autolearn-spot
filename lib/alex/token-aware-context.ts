@@ -13,6 +13,7 @@ import {
   estimateMessageTokens, 
   calculateTokenBudget, 
   getModelContextLimit,
+  getProviderInputBudget,
   TokenBudget,
   ContextDiagnostics
 } from './token-estimation'
@@ -142,8 +143,9 @@ export async function assembleTokenAwareContext(
     }
   }
 
-  // Calculate token budget
-  const modelContextLimit = getModelContextLimit(modelName)
+  // Calculate token budget using provider-safe input budget (TPM-aware)
+  // This ensures context assembly respects actual provider rate limits
+  const providerInputBudget = getProviderInputBudget(modelName, safetyMargin)
   const systemPromptTokens = estimateTokens(systemPrompt)
   const platformContextTokens = estimateTokens(platformContext)
   // Note: conversationHistoryTokens is not included here because conversation history
@@ -153,7 +155,7 @@ export async function assembleTokenAwareContext(
   const researchContextTokens = estimateTokens(researchContext)
 
   const tokenBudget = calculateTokenBudget(
-    modelContextLimit,
+    providerInputBudget, // Use provider-safe budget instead of model context limit
     systemPromptTokens,
     platformContextTokens,
     0, // No conversation history tokens in context - handled as structured messages
@@ -163,7 +165,8 @@ export async function assembleTokenAwareContext(
   )
 
   console.log('[Token-Aware Context] Token budget calculated:', {
-    modelContextLimit,
+    providerInputBudget,
+    modelContextLimit: getModelContextLimit(modelName), // For reference
     reservedOutputTokens,
     inputBudget: tokenBudget.inputBudget,
     systemPromptTokens,

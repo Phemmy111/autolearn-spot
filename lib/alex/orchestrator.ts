@@ -150,7 +150,7 @@ export class AlexOrchestrator {
       userId,
       conversationId,
       enableRetrieval,
-      enableTokenAwareAssembly: enableTokenAwareAssembly || (attachedFiles && attachedFiles.length > 1), // Auto-enable for multi-file
+      enableTokenAwareAssembly: enableTokenAwareAssembly || (attachedFiles && attachedFiles.length > 0), // Auto-enable for all file attachments
       modelName: modelName || 'openai/gpt-oss-120b',
       systemPrompt,
       providerCapabilities: capabilities, // Pass capabilities to context assembly
@@ -166,15 +166,17 @@ export class AlexOrchestrator {
     // Build AI request for provider-agnostic interface
     // Note: context already includes platform context, files, web research, memory, etc.
     // So we pass undefined for platformContext to avoid duplication
+    const toolDefinitions = enableTools && toolRegistry ? toolRegistry.listEnabledTools().map(t => ({
+      name: t.name,
+      description: t.description,
+      inputSchema: t.inputSchema
+    })) : undefined
+    
     const aiRequest: AIRequest = {
       messages: this.buildMessages(content, systemPrompt, conversationHistory, undefined, context, imageFiles, capabilities),
       stream: true, // Default to streaming
       disableTools: !enableTools, // Disable model's built-in function calling unless Phase 5 tools are enabled
-      tools: enableTools && toolRegistry ? toolRegistry.listEnabledTools().map(t => ({
-        name: t.name,
-        description: t.description,
-        inputSchema: t.inputSchema
-      })) : undefined
+      tools: toolDefinitions // Include tools once to avoid duplication
     }
 
     console.log('[DIAGNOSTIC] ORCHESTRATOR OUTPUT', {

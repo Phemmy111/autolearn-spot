@@ -773,6 +773,56 @@ export class ProviderManager {
       // Apply TPM reduction if needed
       const finalRequest = this.reduceRequestForTPM(enhancedRequest, tpmLimit)
 
+      // Final hard TPM validation - ensure request cannot exceed provider-safe budget
+      const finalEstimatedTokens = this.estimateRequestTokens(finalRequest)
+      const finalMaxTokens = Math.floor(tpmLimit * safetyMargin)
+      
+      if (finalEstimatedTokens > finalMaxTokens) {
+        console.error('[TPM Gate] FINAL VALIDATION FAILED - Request still exceeds safe provider budget:', {
+          provider: provider.name,
+          model,
+          tpmLimit,
+          finalMaxTokens,
+          finalEstimatedTokens,
+          excessTokens: finalEstimatedTokens - finalMaxTokens
+        })
+        
+        // Perform emergency truncation as last resort - truncate user message
+        const lastMessage = finalRequest.messages[finalRequest.messages.length - 1]
+        if (lastMessage?.role === 'user' && typeof lastMessage.content === 'string') {
+          const reductionRatio = finalMaxTokens / finalEstimatedTokens
+          const newLength = Math.floor(lastMessage.content.length * reductionRatio)
+          finalRequest.messages[finalRequest.messages.length - 1] = {
+            ...lastMessage,
+            content: lastMessage.content.substring(0, newLength) + '... [truncated to meet TPM limit]'
+          }
+          
+          const retriedEstimate = this.estimateRequestTokens(finalRequest)
+          console.log('[TPM Gate] Emergency user message truncation applied:', {
+            originalLength: lastMessage.content.length,
+            newLength,
+            originalTokens: finalEstimatedTokens,
+            retriedTokens: retriedEstimate,
+            finalMaxTokens
+          })
+          
+          if (retriedEstimate > finalMaxTokens) {
+            console.error('[TPM Gate] EMERGENCY TRUNCATION FAILED - Request still exceeds limit, blocking provider call')
+            throw new Error(`Request cannot be reduced to meet provider TPM limit of ${tpmLimit}. Request size: ${retriedEstimate} tokens, safe limit: ${finalMaxTokens} tokens.`)
+          }
+        } else {
+          console.error('[TPM Gate] Cannot perform emergency truncation - blocking provider call')
+          throw new Error(`Request cannot be reduced to meet provider TPM limit of ${tpmLimit}. Request size: ${finalEstimatedTokens} tokens, safe limit: ${finalMaxTokens} tokens.`)
+        }
+      } else {
+        console.log('[TPM Gate] Final validation passed - request within safe provider budget:', {
+          provider: provider.name,
+          finalEstimatedTokens,
+          finalMaxTokens,
+          withinBudget: true
+        })
+      }
+
       try {
         let firstEvent = true
         for await (const event of provider.stream(finalRequest)) {
