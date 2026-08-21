@@ -231,9 +231,21 @@ export class VisionService {
 
   /**
    * Check if provider capabilities include vision
+   * OpenAI-compatible providers (like Groq) typically support vision/multimodal
+   * unless explicitly configured otherwise
    */
   private static checkVisionCapability(capabilities: string[]): boolean {
-    return capabilities.includes('vision') || capabilities.includes('multimodal')
+    // If capabilities explicitly include vision or multimodal, return true
+    if (capabilities.includes('vision') || capabilities.includes('multimodal')) {
+      return true
+    }
+    // If capabilities is empty or only has 'streaming', assume vision support for OpenAI-compatible providers
+    // This ensures Groq and similar providers work without manual configuration
+    if (capabilities.length === 0 || (capabilities.length === 1 && capabilities[0] === 'streaming')) {
+      console.log('[Vision Service] Assuming vision support for OpenAI-compatible provider (capabilities:', capabilities, ')')
+      return true
+    }
+    return false
   }
 
   /**
