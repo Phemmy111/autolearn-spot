@@ -139,18 +139,21 @@ export class VisionService {
 
     console.log('[Vision Service] Selected vision provider:', visionProvider.name)
 
+    console.log('[Vision Service] Selected vision provider:', visionProvider.name)
+
     // Analyze each image
     const analysisResults: VisionAnalysisResult[] = []
     let combinedTextContext = ''
+    let visionProviderFailed = false
 
     for (const imageFile of imageFiles) {
       try {
         console.log('[Vision Service] Analyzing image:', imageFile.original_filename)
-        
+
         // Handle SVG files specially
         if (imageFile.mime_type === 'image/svg+xml') {
           const svgAnalysis = await this.analyzeSVG(imageFile, visionProvider, maxAnalysisTokens)
-          
+
           if (svgAnalysis.success) {
             // Convert SVG analysis to vision analysis result format
             const visionResult: VisionAnalysisResult = {
@@ -163,7 +166,7 @@ export class VisionService {
               technicalDetails: svgAnalysis.structuralData?.metadata ? JSON.stringify(svgAnalysis.structuralData.metadata) : undefined
             }
             analysisResults.push(visionResult)
-            
+
             if (visionResult.visualDescription) {
               combinedTextContext += this.formatAnalysisAsContext(visionResult)
             }
@@ -186,12 +189,24 @@ export class VisionService {
         }
       } catch (error) {
         console.error('[Vision Service] Failed to analyze image:', imageFile.original_filename, error)
+        visionProviderFailed = true
         analysisResults.push({
           success: false,
           filename: imageFile.original_filename,
           mimeType: imageFile.mime_type,
           error: error instanceof Error ? error.message : 'Unknown error'
         })
+      }
+    }
+
+    // If vision provider failed for all images, fall back to metadata analysis
+    if (visionProviderFailed && combinedTextContext.length === 0) {
+      console.warn('[Vision Service] Vision provider failed for all images, falling back to metadata analysis')
+      const metadataAnalysis = this.performMetadataAnalysis(imageFiles)
+      return {
+        textContext: metadataAnalysis,
+        processedImages: [],
+        analysisResults
       }
     }
 
