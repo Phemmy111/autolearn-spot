@@ -166,7 +166,7 @@ export async function assembleTokenAwareContext(
 
   console.log('[Token-Aware Context] Token budget calculated:', {
     providerInputBudget,
-    modelContextLimit: getModelContextLimit(modelName), // For reference
+    modelContextLimitForReference: getModelContextLimit(modelName), // For reference only
     reservedOutputTokens,
     inputBudget: tokenBudget.inputBudget,
     systemPromptTokens,
@@ -222,8 +222,9 @@ export async function assembleTokenAwareContext(
 
   // Calculate final diagnostics based on actual final context
   const finalEstimatedTokens = currentTokens
+  const modelContextLimitForReference = getModelContextLimit(modelName) // For reference only
   const diagnostics: ContextDiagnostics = {
-    modelContextLimit,
+    modelContextLimit: modelContextLimitForReference,
     reservedOutputTokens,
     inputBudget: tokenBudget.inputBudget,
     estimatedTokensBeforeCompression: systemPromptTokens + platformContextTokens + estimateTokens(fileContextResult.fullTextContent) + estimateTokens(visionContext) + estimateTokens(researchContext),
