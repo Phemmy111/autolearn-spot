@@ -378,10 +378,11 @@ export async function POST(request: NextRequest) {
       })
       alexLogger.debug('CHAT', 'Attached files validated', { effectiveFileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
 
-      // For image files, fetch the actual image data and convert to base64
+      // For image files, fetch the actual image data and convert to base64 BEFORE orchestrator
+      // This ensures TPM gate evaluates the actual request size with real image data
       const imageFiles = attachedFiles.filter(f => f.mime_type.startsWith('image/'))
       if (imageFiles.length > 0) {
-        console.log('[DIAGNOSTIC] FETCHING IMAGE DATA', {
+        console.log('[DIAGNOSTIC] FETCHING IMAGE DATA FOR TPM ACCURACY', {
           imageCount: imageFiles.length,
           imageFilenames: imageFiles.map(f => f.original_filename)
         })
@@ -404,10 +405,10 @@ export async function POST(request: NextRequest) {
             const mimeType = imageFile.mime_type
             const dataUrl = `data:${mimeType};base64,${base64}`
 
-            // Store the data URL in the file object for later use
+            // Store the data URL in the file object so orchestrator can use it
             imageFile.imageDataUrl = dataUrl
 
-            console.log('[DIAGNOSTIC] IMAGE DATA FETCHED', {
+            console.log('[DIAGNOSTIC] IMAGE DATA FETCHED FOR TPM ACCURACY', {
               fileId: imageFile.id,
               filename: imageFile.original_filename,
               dataSize: base64.length,
@@ -458,27 +459,6 @@ export async function POST(request: NextRequest) {
               // Store image files and AI request for later processing
               imageFiles = chunk.imageFiles || []
               aiRequest = chunk.data?.aiRequest
-
-              // Replace placeholder URLs with actual image data URLs
-              if (imageFiles.length > 0 && aiRequest?.messages) {
-                for (const message of aiRequest.messages) {
-                  if (message.role === 'user' && Array.isArray(message.content)) {
-                    for (const contentItem of message.content) {
-                      if (contentItem.type === 'image_url' && contentItem.image_url?.url?.startsWith('placeholder://')) {
-                        const fileId = contentItem.image_url.url.replace('placeholder://', '')
-                        const imageFile = imageFiles.find(f => f.id === fileId)
-                        if (imageFile?.imageDataUrl) {
-                          contentItem.image_url.url = imageFile.imageDataUrl
-                          console.log('[DIAGNOSTIC] REPLACED IMAGE PLACEHOLDER', {
-                            fileId,
-                            filename: imageFile.original_filename
-                          })
-                        }
-                      }
-                    }
-                  }
-                }
-              }
 
               // Send orchestrator metadata
               controller.enqueue(

@@ -496,8 +496,19 @@ export class ProviderManager {
             if (contentItem.type === 'text') {
               totalTokens += estimateTokens(contentItem.text)
             } else if (contentItem.type === 'image_url') {
-              // Images are encoded as base64, estimate roughly
-              totalTokens += 85 // Base image token cost
+              // Images are encoded as base64, estimate based on actual data size
+              const imageUrl = contentItem.image_url?.url || ''
+              if (imageUrl.startsWith('data:')) {
+                // Estimate base64 image tokens: ~1 token per 4 characters of base64
+                const base64Data = imageUrl.split(',')[1] || ''
+                totalTokens += Math.ceil(base64Data.length / 4)
+              } else if (imageUrl.startsWith('placeholder://')) {
+                // Placeholder fallback - should be rare after the fix
+                totalTokens += 85 // Conservative placeholder estimate
+              } else {
+                // URL-based image - use conservative estimate
+                totalTokens += 85
+              }
             }
           }
         }

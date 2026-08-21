@@ -258,15 +258,16 @@ export class AlexOrchestrator {
 
       // Add images to the content
       for (const imageFile of imageFiles) {
-        // For now, we'll use a placeholder - the actual image data will be added in the chat route
-        // The chat route will replace this with the actual base64 data
+        // Use actual image data (now fetched before orchestrator for TPM accuracy)
+        // Fall back to placeholder if image data fetch failed
+        const imageUrl = imageFile.imageDataUrl || `placeholder://${imageFile.id}`;
         multimodalContent.push({
           type: 'image_url',
           image_url: {
-            url: `placeholder://${imageFile.id}`,
+            url: imageUrl,
             detail: 'auto'
           }
-        })
+        });
       }
 
       messages.push({
