@@ -241,6 +241,12 @@ export async function assembleTokenAwareContext(
   }
 
   console.log('[Token-Aware Context] Final diagnostics:', diagnostics)
+  console.log('[ATTACHMENT TRACE] Final context assembly complete:', {
+    finalContextLength: finalContext.length,
+    imageFilesCount: imageFiles.length,
+    imageFileNames: imageFiles.map(f => f.original_filename),
+    contextPreview: finalContext.substring(0, 300)
+  })
 
   return {
     context: finalContext,
@@ -273,9 +279,14 @@ async function buildTokenAwareFileContext(
   const chunksRetrievedPerFile = new Map<string, number>()
   let filesRepresentedInContext = 0
 
-  console.log('[Token-Aware Context] Building file context with budget:', tokenBudget)
+  console.log('[ATTACHMENT TRACE] Building file context with budget:', tokenBudget)
+  console.log('[ATTACHMENT TRACE] Text files count:', textFiles.length)
+  console.log('[ATTACHMENT TRACE] Text file IDs:', textFiles.map(f => f.id))
+  console.log('[ATTACHMENT TRACE] Text file names:', textFiles.map(f => f.original_filename))
+  console.log('[ATTACHMENT TRACE] Extraction statuses:', textFiles.map(f => ({ id: f.id, name: f.original_filename, status: f.extraction_status, hasText: !!f.extracted_text, textSize: f.extracted_text?.length || 0 })))
 
   if (textFiles.length === 0) {
+    console.log('[ATTACHMENT TRACE] No text files to process')
     return {
       context: '',
       estimatedTokens: 0,
@@ -322,10 +333,14 @@ async function buildTokenAwareFileContext(
   // Try RAG retrieval first if we have extracted files
   const extractedFiles = textFiles.filter(f => f.extraction_status === 'completed' && f.extracted_text)
   
+  console.log('[ATTACHMENT TRACE] Extracted files for RAG:', extractedFiles.length)
+  console.log('[ATTACHMENT TRACE] Extracted file IDs:', extractedFiles.map(f => f.id))
+  
   if (extractedFiles.length > 0) {
     try {
       const fileIds = extractedFiles.map(f => f.id)
-      console.log('[Token-Aware Context] Attempting RAG retrieval for files:', fileIds.length)
+      console.log('[ATTACHMENT TRACE] Attempting RAG retrieval for files:', fileIds.length)
+      console.log('[ATTACHMENT TRACE] User query for RAG:', userQuery.substring(0, 100))
 
       const retrievalResult = await retrieveChunks(
         userQuery,
@@ -338,7 +353,8 @@ async function buildTokenAwareFileContext(
         }
       )
 
-      console.log('[Token-Aware Context] RAG retrieved chunks:', retrievalResult.chunks.length)
+      console.log('[ATTACHMENT TRACE] RAG retrieved chunks:', retrievalResult.chunks.length)
+      console.log('[ATTACHMENT TRACE] RAG chunk details:', retrievalResult.chunks.map(c => ({ fileId: c.fileId, filename: c.filename, similarity: c.similarity.toFixed(2), contentLength: c.content.length })))
 
       if (retrievalResult.chunks.length > 0) {
         // Group chunks by file and select best ones
@@ -351,7 +367,8 @@ async function buildTokenAwareFileContext(
           extractedFiles.length
         )
 
-        console.log('[Token-Aware Context] Selected chunks:', selectedChunks.length)
+        console.log('[ATTACHMENT TRACE] Selected chunks:', selectedChunks.length)
+        console.log('[ATTACHMENT TRACE] Selected chunk details:', selectedChunks.map(c => ({ fileId: c.fileId, filename: c.filename, similarity: c.similarity.toFixed(2), contentLength: c.content.length })))
 
         // Build context from selected chunks
         for (const chunk of selectedChunks) {
@@ -377,11 +394,19 @@ async function buildTokenAwareFileContext(
       return buildDirectFileContext(textFiles, remainingBudget, context, metadataTokens)
     }
   } else {
-    console.log('[Token-Aware Context] No extracted files for RAG, using direct content')
+    console.log('[ATTACHMENT TRACE] No extracted files for RAG, using direct content')
     return buildDirectFileContext(textFiles, remainingBudget, context, metadataTokens)
   }
 
   context += '[End of retrieved context]\n'
+
+  console.log('[ATTACHMENT TRACE] File context built:', {
+    contextLength: context.length,
+    estimatedTokens: metadataTokens + estimatedTokens,
+    chunksRetrieved: chunksRetrievedPerFile,
+    filesRepresented: filesRepresentedInContext,
+    contextPreview: context.substring(0, 200)
+  })
 
   return {
     context,
@@ -409,7 +434,10 @@ function buildDirectFileContext(
 
   const budgetPerFile = Math.floor(remainingBudget / textFiles.length)
 
-  console.log('[Token-Aware Context] Using direct content with budget per file:', budgetPerFile)
+  console.log('[ATTACHMENT TRACE] Using direct content fallback')
+  console.log('[ATTACHMENT TRACE] Budget per file:', budgetPerFile, 'tokens')
+  console.log('[ATTACHMENT TRACE] Text files for direct content:', textFiles.length)
+  console.log('[ATTACHMENT TRACE] File details:', textFiles.map(f => ({ id: f.id, name: f.original_filename, hasText: !!f.extracted_text, textSize: f.extracted_text?.length || 0 })))
 
   for (const file of textFiles) {
     if (file.extracted_text) {
@@ -429,6 +457,13 @@ function buildDirectFileContext(
   }
 
   context += '[End of attached documents]\n'
+
+  console.log('[ATTACHMENT TRACE] Direct file context built:', {
+    contextLength: context.length,
+    estimatedTokens,
+    filesRepresented: filesRepresentedInContext,
+    contextPreview: context.substring(0, 200)
+  })
 
   return {
     context,

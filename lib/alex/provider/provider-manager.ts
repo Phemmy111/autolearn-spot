@@ -757,7 +757,7 @@ export class ProviderManager {
       const safetyMargin = hasImages ? 0.7 : 0.8 // 70% for images, 80% for text-only
       const maxTokens = Math.floor(tpmLimit * safetyMargin)
 
-      console.log('[TPM Gate] Final request check:', {
+      console.log('[ATTACHMENT TRACE] TPM Gate Final request check:', {
         provider: provider.name,
         model,
         tpmLimit,
@@ -768,6 +768,16 @@ export class ProviderManager {
         hasImages,
         safetyMargin,
         willExceed: estimatedTokens > maxTokens
+      })
+
+      console.log('[ATTACHMENT TRACE] Message details:', {
+        messages: enhancedRequest.messages?.map(m => ({
+          role: m.role,
+          contentLength: typeof m.content === 'string' ? m.content.length : 'multimodal',
+          hasFileContext: typeof m.content === 'string' && m.content.includes('Attached Documents'),
+          hasImage: Array.isArray(m.content) && m.content.some(c => c.type === 'image_url'),
+          contentPreview: typeof m.content === 'string' ? m.content.substring(0, 150) : 'multimodal'
+        }))
       })
 
       // Apply TPM reduction if needed

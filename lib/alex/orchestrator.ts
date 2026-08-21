@@ -163,6 +163,15 @@ export class AlexOrchestrator {
 
     const { context, imageFiles } = assemblyResult
 
+    console.log('[ATTACHMENT TRACE] Orchestrator received assembly result:', {
+      contextLength: context.length,
+      hasFileContext: context.includes('Attached Documents'),
+      hasImageFiles: imageFiles.length > 0,
+      imageFileCount: imageFiles.length,
+      imageFileNames: imageFiles.map(f => f.original_filename),
+      contextPreview: context.substring(0, 300)
+    })
+
     // Build AI request for provider-agnostic interface
     // Note: context already includes platform context, files, web research, memory, etc.
     // So we pass undefined for platformContext to avoid duplication
@@ -178,6 +187,18 @@ export class AlexOrchestrator {
       disableTools: !enableTools, // Disable model's built-in function calling unless Phase 5 tools are enabled
       tools: toolDefinitions // Include tools once to avoid duplication
     }
+
+    console.log('[ATTACHMENT TRACE] Orchestrator built AI request:', {
+      messagesCount: aiRequest.messages.length,
+      hasTools: !!aiRequest.tools,
+      toolsCount: aiRequest.tools?.length || 0,
+      messagesSummary: aiRequest.messages.map(m => ({
+        role: m.role,
+        contentLength: typeof m.content === 'string' ? m.content.length : 'multimodal',
+        hasFileContext: typeof m.content === 'string' && m.content.includes('Attached Documents'),
+        hasImage: Array.isArray(m.content) && m.content.some(c => c.type === 'image_url')
+      }))
+    })
 
     console.log('[DIAGNOSTIC] ORCHESTRATOR OUTPUT', {
       messagesCount: aiRequest.messages.length,
@@ -220,6 +241,14 @@ export class AlexOrchestrator {
     imageFiles?: AlexFile[],
     providerCapabilities?: string[]
   ): AIMessage[] {
+    console.log('[ATTACHMENT TRACE] buildMessages called with:', {
+      hasFileContext: !!fileContext,
+      fileContextLength: fileContext?.length || 0,
+      hasImageFiles: !!imageFiles,
+      imageFilesCount: imageFiles?.length || 0,
+      conversationHistoryLength: conversationHistory.length
+    })
+
     const messages: AIMessage[] = [
       {
         role: 'system',
@@ -232,10 +261,14 @@ export class AlexOrchestrator {
 
     // Add file context as a system message if available (Phase 3A)
     if (fileContext && fileContext.trim().length > 0) {
+      console.log('[ATTACHMENT TRACE] Adding file context message, length:', fileContext.length)
+      console.log('[ATTACHMENT TRACE] File context preview:', fileContext.substring(0, 200))
       messages.push({
         role: 'system',
         content: fileContext,
       })
+    } else {
+      console.log('[ATTACHMENT TRACE] No file context to add to messages')
     }
 
     // Add conversation history with token-aware limiting
