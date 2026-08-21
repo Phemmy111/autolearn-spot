@@ -546,12 +546,32 @@ export class ProviderManager {
   }
 
   /**
+   * Check if request contains image content
+   */
+  private requestContainsImages(request: any): boolean {
+    if (!request.messages || !Array.isArray(request.messages)) {
+      return false
+    }
+    for (const message of request.messages) {
+      if (Array.isArray(message.content)) {
+        for (const contentItem of message.content) {
+          if (contentItem.type === 'image_url') {
+            return true
+          }
+        }
+      }
+    }
+    return false
+  }
+
+  /**
    * Reduce request context to fit within TPM limit
    * Prioritizes system prompt, file context, and user message over conversation history
    */
   private reduceRequestForTPM(request: any, tpmLimit: number): any {
     const estimatedTokens = this.estimateRequestTokens(request)
-    const safetyMargin = 0.8 // Use 80% of TPM limit
+    const hasImages = this.requestContainsImages(request)
+    const safetyMargin = hasImages ? 0.7 : 0.8 // 70% for images, 80% for text-only
     const maxTokens = Math.floor(tpmLimit * safetyMargin)
 
     if (estimatedTokens <= maxTokens) {
@@ -562,6 +582,8 @@ export class ProviderManager {
       estimatedTokens,
       maxTokens,
       tpmLimit,
+      hasImages,
+      safetyMargin,
       messageCount: request.messages?.length || 0,
       toolCount: request.tools?.length || 0
     })
@@ -729,7 +751,10 @@ export class ProviderManager {
       const model = enhancedRequest.model || provider.config?.currentModel || 'default'
       const tpmLimit = getTPMLimit(model)
       const estimatedTokens = this.estimateRequestTokens(enhancedRequest)
-      const safetyMargin = 0.8
+      
+      // Use more conservative safety margin for image requests due to provider tokenization variance
+      const hasImages = this.requestContainsImages(enhancedRequest)
+      const safetyMargin = hasImages ? 0.7 : 0.8 // 70% for images, 80% for text-only
       const maxTokens = Math.floor(tpmLimit * safetyMargin)
 
       console.log('[TPM Gate] Final request check:', {
@@ -740,6 +765,8 @@ export class ProviderManager {
         estimatedTokens,
         messageCount: enhancedRequest.messages?.length || 0,
         toolCount: enhancedRequest.tools?.length || 0,
+        hasImages,
+        safetyMargin,
         willExceed: estimatedTokens > maxTokens
       })
 
