@@ -96,7 +96,7 @@ export class VisionService {
       primaryProviderCapabilities,
       providerManager,
       providerRegistry,
-      maxAnalysisTokens = 3000,
+      maxAnalysisTokens = 500, // Reduced from 3000 to prevent TPM limit issues
       analysisTimeout = 60000 // Default 60 seconds for vision analysis
     } = options
 
@@ -433,25 +433,16 @@ export class VisionService {
 
   /**
    * Build analysis prompt for vision provider
+   * Simplified to reduce token usage
    */
   private static buildAnalysisPrompt(filename: string): string {
-    return `Analyze this image thoroughly and provide a structured analysis including:
+    return `Briefly analyze this image:
+1. What does it show? (1-2 sentences)
+2. Any visible text? (extract if present)
+3. Key elements or UI components? (list main items)
+4. Purpose? (what is this image for?)
 
-1. Visual Description: What does this image show? Describe the main elements, layout, and overall composition.
-
-2. Detected Text: If there's any text visible in the image, extract it exactly as shown. Include labels, buttons, headings, and any other text content.
-
-3. Structure/Layout: Describe the spatial organization. How are elements arranged? What's the flow or hierarchy?
-
-4. UI Elements (if applicable): Identify any interface elements like buttons, menus, forms, navigation, etc.
-
-5. Important Labels: Highlight any significant labels, titles, warnings, or key information.
-
-6. Technical Details: If this appears to be technical content (code, diagrams, workflows, schemas), describe the technical components and their relationships.
-
-7. Confidence: If any elements are unclear or ambiguous, note them.
-
-Format your response as structured text that can be easily parsed and used as context for a text-only AI model. Be specific and detailed, but concise.`
+Be concise. Max 200 words total.`
   }
 
   /**
@@ -556,40 +547,21 @@ Format your response as structured text that can be easily parsed and used as co
 
   /**
    * Format analysis result as context text
+   * Simplified to reduce token usage
    */
   private static formatAnalysisAsContext(analysis: VisionAnalysisResult): string {
-    let context = `\n=== IMAGE ANALYSIS: ${analysis.filename} ===\n`
-    
+    let context = `\n=== IMAGE: ${analysis.filename} ===\n`
+
     if (analysis.visualDescription) {
-      context += `Visual Description: ${analysis.visualDescription}\n`
+      context += `${analysis.visualDescription}\n`
     }
-    
+
     if (analysis.detectedText) {
-      context += `Detected Text: ${analysis.detectedText}\n`
+      context += `Text: ${analysis.detectedText}\n`
     }
-    
-    if (analysis.structure) {
-      context += `Structure: ${analysis.structure}\n`
-    }
-    
-    if (analysis.uiElements && analysis.uiElements.length > 0) {
-      context += `UI Elements: ${analysis.uiElements.join(', ')}\n`
-    }
-    
-    if (analysis.importantLabels && analysis.importantLabels.length > 0) {
-      context += `Important Labels: ${analysis.importantLabels.join(', ')}\n`
-    }
-    
-    if (analysis.technicalDetails) {
-      context += `Technical Details: ${analysis.technicalDetails}\n`
-    }
-    
-    if (analysis.confidence !== undefined) {
-      context += `Analysis Confidence: ${analysis.confidence}\n`
-    }
-    
-    context += '=== END IMAGE ANALYSIS ===\n'
-    
+
+    context += '=== END ===\n'
+
     return context
   }
 
