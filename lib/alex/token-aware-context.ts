@@ -161,7 +161,7 @@ export async function assembleTokenAwareContext(
     0, // No conversation history tokens in context - handled as structured messages
     visionContextTokens + researchContextTokens, // Add vision and research context to overhead
     reservedOutputTokens,
-    safetyMargin
+    1.0 // Use 1.0 margin since providerInputBudget already includes safety margin
   )
 
   console.log('[Token-Aware Context] Token budget calculated:', {

@@ -64,7 +64,12 @@ export function calculateTokenBudget(
   reservedOutputTokens: number = 2000, // Reserve space for model response
   safetyMargin: number = 0.8 // Use 80% of context limit for safety
 ): TokenBudget {
-  const effectiveContextLimit = Math.floor(modelContextLimit * safetyMargin)
+  // When this function is called with providerInputBudget, use it directly as the effective limit
+  // Otherwise apply safety margin to model context limit
+  const effectiveContextLimit = safetyMargin < 1.0 
+    ? Math.floor(modelContextLimit * safetyMargin)
+    : modelContextLimit
+    
   const inputBudget = effectiveContextLimit - reservedOutputTokens
   
   const usedTokens = systemPromptTokens + platformContextTokens + conversationHistoryTokens
