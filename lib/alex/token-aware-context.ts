@@ -146,7 +146,9 @@ export async function assembleTokenAwareContext(
   const modelContextLimit = getModelContextLimit(modelName)
   const systemPromptTokens = estimateTokens(systemPrompt)
   const platformContextTokens = estimateTokens(platformContext)
-  const conversationHistoryTokens = estimateMessageTokens(conversationHistory)
+  // Note: conversationHistoryTokens is not included here because conversation history
+  // is added as structured messages in orchestrator.ts, not embedded in context string
+  // This prevents duplication and keeps token usage predictable
   const visionContextTokens = estimateTokens(visionContext)
   const researchContextTokens = estimateTokens(researchContext)
 
@@ -154,7 +156,7 @@ export async function assembleTokenAwareContext(
     modelContextLimit,
     systemPromptTokens,
     platformContextTokens,
-    conversationHistoryTokens,
+    0, // No conversation history tokens in context - handled as structured messages
     visionContextTokens + researchContextTokens, // Add vision and research context to overhead
     reservedOutputTokens,
     safetyMargin
@@ -166,7 +168,7 @@ export async function assembleTokenAwareContext(
     inputBudget: tokenBudget.inputBudget,
     systemPromptTokens,
     platformContextTokens,
-    conversationHistoryTokens,
+    conversationHistoryTokens: 0, // Not included in context string - handled as structured messages
     fileContextTokens: tokenBudget.fileContextTokens,
     safetyMargin
   })
@@ -188,7 +190,8 @@ export async function assembleTokenAwareContext(
 
   // Combine vision, research, and file context with strict budget enforcement
   let finalContext = fileContextResult.context // Use budgeted context, not full text
-  let currentTokens = systemPromptTokens + platformContextTokens + conversationHistoryTokens + fileContextResult.estimatedTokens
+  // Note: conversationHistoryTokens not included - conversation history is handled as structured messages
+  let currentTokens = systemPromptTokens + platformContextTokens + fileContextResult.estimatedTokens
 
   // Add vision context if it fits in budget
   if (visionContext) {
@@ -220,14 +223,14 @@ export async function assembleTokenAwareContext(
     modelContextLimit,
     reservedOutputTokens,
     inputBudget: tokenBudget.inputBudget,
-    estimatedTokensBeforeCompression: systemPromptTokens + platformContextTokens + conversationHistoryTokens + estimateTokens(fileContextResult.fullTextContent) + estimateTokens(visionContext) + estimateTokens(researchContext),
+    estimatedTokensBeforeCompression: systemPromptTokens + platformContextTokens + estimateTokens(fileContextResult.fullTextContent) + estimateTokens(visionContext) + estimateTokens(researchContext),
     estimatedTokensAfterCompression: finalEstimatedTokens,
     chunksRetrievedPerFile: fileContextResult.chunksRetrievedPerFile,
     filesRepresentedInContext: fileContextResult.filesRepresentedInContext,
     totalFilesAttached: textFiles.length,
     systemPromptTokens,
     platformContextTokens,
-    conversationHistoryTokens,
+    conversationHistoryTokens: 0, // Not included in context string - handled as structured messages
     fileContextTokens: fileContextResult.estimatedTokens,
     compressionRatio: fileContextResult.fullTextContent.length > 0
       ? fileContextResult.estimatedTokens / estimateTokens(fileContextResult.fullTextContent)

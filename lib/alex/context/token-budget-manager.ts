@@ -37,7 +37,7 @@ export interface TokenBudgetOptions {
   webResearchContext?: string
   ragContext?: string
   fileContext?: string
-  conversationHistory?: Array<{ role: string; content: string }>
+  // Note: conversationHistory removed - handled as structured messages in orchestrator.ts
   toolResults?: string
   modelName?: string
   reservedOutputTokens?: number
@@ -98,6 +98,8 @@ export class TokenBudgetManager {
     })
 
     // Define context sections with priorities
+    // Note: conversation_history is not included here because it's handled as structured messages
+    // in orchestrator.ts, not embedded in the context string
     const contextSections: ContextSection[] = [
       {
         name: 'system_prompt',
@@ -153,14 +155,6 @@ export class TokenBudgetManager {
         priority: 5, // Medium priority (same as web research)
         originalTokens: estimateTokens(toolResults),
         truncatedTokens: estimateTokens(toolResults),
-        isTruncated: false
-      },
-      {
-        name: 'conversation_history',
-        content: this.formatConversationHistory(conversationHistory),
-        priority: 6, // Lower priority
-        originalTokens: estimateMessageTokens(conversationHistory),
-        truncatedTokens: estimateMessageTokens(conversationHistory),
         isTruncated: false
       }
     ]
@@ -300,13 +294,6 @@ export class TokenBudgetManager {
   }
 
   /**
-   * Format conversation history for token estimation
-   */
-  private static formatConversationHistory(history: Array<{ role: string; content: string }>): string {
-    return history.map(msg => `${msg.role}: ${msg.content}`).join('\n')
-  }
-
-  /**
    * Get truncated context from budget plan
    */
   static getTruncatedContext(plan: TokenBudgetPlan): {
@@ -316,7 +303,6 @@ export class TokenBudgetManager {
     webResearchContext: string
     ragContext: string
     fileContext: string
-    conversationHistory: string
     toolResults: string
   } {
     const getSection = (name: string) => plan.contextSections.find(s => s.name === name)?.content || ''
@@ -328,7 +314,6 @@ export class TokenBudgetManager {
       webResearchContext: getSection('web_research_context'),
       ragContext: getSection('rag_context'),
       fileContext: getSection('file_context'),
-      conversationHistory: getSection('conversation_history'),
       toolResults: getSection('tool_results')
     }
   }

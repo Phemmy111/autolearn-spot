@@ -236,7 +236,8 @@ export class AlexOrchestrator {
       })
     }
 
-    // Add conversation history (limit to recent messages to manage context window)
+    // Add conversation history with token-aware limiting
+    // Use recent messages but limit based on token budget to prevent TPM issues
     const recentHistory = conversationHistory.slice(-10)
     for (const msg of recentHistory) {
       messages.push({

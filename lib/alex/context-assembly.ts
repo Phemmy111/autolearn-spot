@@ -206,18 +206,8 @@ export async function assembleContext(
       // Token-aware assembly already includes platform context, so use its result directly
       context = tokenAwareResult.context
 
-      // Add conversation history
-      context += '\nConversation History:\n'
-      
-      if (conversationHistory.length === 0) {
-        context += 'This is the beginning of the conversation.\n'
-      } else {
-        const recentMessages = conversationHistory.slice(-10)
-        for (const msg of recentMessages) {
-          const role = msg.role === 'user' ? 'User' : 'ALEX'
-          context += `${role}: ${msg.content}\n`
-        }
-      }
+      // Note: Conversation history is added as structured messages in orchestrator.ts, not here
+      // This prevents duplication and keeps token usage predictable
 
       // Add mode-specific context
       const modeContext = getModeContext(mode)
@@ -419,20 +409,8 @@ export async function assembleContext(
     console.log('[Context Assembly] No attached files provided')
   }
 
-  // Build context from conversation history
-  context += '\nConversation History:\n'
-  
-  if (conversationHistory.length === 0) {
-    context += 'This is the beginning of the conversation.\n'
-  } else {
-    // Include recent messages for context (last 10 messages)
-    const recentMessages = conversationHistory.slice(-10)
-    
-    for (const msg of recentMessages) {
-      const role = msg.role === 'user' ? 'User' : 'ALEX'
-      context += `${role}: ${msg.content}\n`
-    }
-  }
+  // Note: Conversation history is added as structured messages in orchestrator.ts, not here
+  // This prevents duplication and keeps token usage predictable
 
   // Add mode-specific context
   const modeContext = getModeContext(mode)
@@ -451,7 +429,7 @@ export async function assembleContext(
       webResearchContext: context.includes('=== WEB RESEARCH CONTEXT ===') ? context.substring(context.indexOf('=== WEB RESEARCH CONTEXT ==='), context.indexOf('=== END WEB RESEARCH CONTEXT ===') + '=== END WEB RESEARCH CONTEXT ===\n'.length) : '',
       ragContext: context.includes('Retrieved Document Context:') ? context.substring(context.indexOf('Retrieved Document Context:'), context.indexOf('[End of retrieved context]') + '[End of retrieved context]\n'.length) : '',
       fileContext: context.includes('Attached Documents:') ? context.substring(context.indexOf('Attached Documents:'), context.indexOf('[End of attached documents]') + '[End of attached documents]\n'.length) : '',
-      conversationHistory,
+      // Note: conversationHistory not included - handled as structured messages in orchestrator.ts
       modelName: options.modelName,
       reservedOutputTokens: 2000,
       safetyMargin: 0.8
@@ -565,11 +543,7 @@ function rebuildContextFromBudget(budgetPlan: any, originalContext: string, mode
     newContext += truncated.memoryContext + '\n'
   }
 
-  // Add conversation history if present
-  if (truncated.conversationHistory) {
-    newContext += '\nConversation History:\n'
-    newContext += truncated.conversationHistory + '\n'
-  }
+  // Note: Conversation history is not included here - it's handled as structured messages in orchestrator.ts
 
   // Add mode-specific context
   const modeContext = getModeContext(mode)
