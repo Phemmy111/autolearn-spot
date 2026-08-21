@@ -461,7 +461,9 @@ export async function assembleContext(
       console.log('[Context Assembly] Context truncated to fit budget:', {
         originalTokens: budgetPlan.totalEstimatedTokens,
         budget: budgetPlan.availableInputBudget,
-        truncatedSections: budgetPlan.contextSections.filter(s => s.isTruncated).map(s => s.name)
+        truncatedSections: budgetPlan.contextSections.filter(s => s.isTruncated).map(s => s.name),
+        limitingFactor: budgetPlan.limitingFactor,
+        tpmLimit: budgetPlan.tpmLimit
       })
 
       // Rebuild context with truncated sections

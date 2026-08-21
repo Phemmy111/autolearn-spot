@@ -128,6 +128,52 @@ export function getModelContextLimit(modelName: string): number {
 }
 
 /**
+ * Get TPM (Tokens Per Minute) limit from model name
+ * Returns safe defaults for known providers
+ * TPM limits are provider rate limits, not context window limits
+ */
+export function getTPMLimit(modelName: string): number {
+  const tpmLimits: Record<string, number> = {
+    // Groq models - typically 8000 TPM for free tier
+    'openai/gpt-oss-120b': 8000,
+    'meta-llama/llama-prompt-guard-2-22m': 8000,
+    'openai/gpt-oss-safeguard-20b': 8000,
+    
+    // OpenRouter models - conservative default
+    'openrouter/free': 8000,
+    'openrouter/': 8000,
+    
+    // OpenAI models - higher limits, use conservative default
+    'gpt-4': 150000,
+    'gpt-4-turbo': 150000,
+    'gpt-4o': 150000,
+    'gpt-3.5-turbo': 90000,
+    
+    // Gemini models - conservative default
+    'gemini-pro': 60000,
+    'gemini-1.5-pro': 60000,
+    
+    // Default safe limit - assume 8000 TPM for unknown providers
+    'default': 8000
+  }
+  
+  // Check for exact match first
+  if (tpmLimits[modelName]) {
+    return tpmLimits[modelName]
+  }
+  
+  // Check for prefix match
+  for (const [prefix, limit] of Object.entries(tpmLimits)) {
+    if (prefix !== 'default' && modelName.startsWith(prefix)) {
+      return limit
+    }
+  }
+  
+  // Return default if no match
+  return tpmLimits.default
+}
+
+/**
  * Context assembly diagnostics
  */
 export interface ContextDiagnostics {

@@ -5,7 +5,7 @@
  * Manages context priorities and dynamic truncation.
  */
 
-import { estimateTokens, estimateMessageTokens, getModelContextLimit } from '../token-estimation'
+import { estimateTokens, estimateMessageTokens, getModelContextLimit, getTPMLimit } from '../token-estimation'
 
 export interface ContextSection {
   name: string
@@ -26,6 +26,8 @@ export interface TokenBudgetPlan {
   totalEstimatedTokens: number
   fitsInBudget: boolean
   requiredTruncation: boolean
+  tpmLimit?: number // TPM limit used for budget calculation
+  limitingFactor?: 'context_window' | 'tpm_limit' // Which limit was more restrictive
 }
 
 export interface TokenBudgetOptions {
@@ -40,6 +42,7 @@ export interface TokenBudgetOptions {
   modelName?: string
   reservedOutputTokens?: number
   safetyMargin?: number
+  tpmLimit?: number // Optional TPM limit override
 }
 
 /**
@@ -64,21 +67,34 @@ export class TokenBudgetManager {
       toolResults = '',
       modelName = 'default',
       reservedOutputTokens = this.DEFAULT_RESERVED_OUTPUT,
-      safetyMargin = this.DEFAULT_SAFETY_MARGIN
+      safetyMargin = this.DEFAULT_SAFETY_MARGIN,
+      tpmLimit
     } = options
 
     // Get model context limit
     const modelContextLimit = getModelContextLimit(modelName)
     const effectiveContextLimit = Math.floor(modelContextLimit * safetyMargin)
-    const availableInputBudget = effectiveContextLimit - reservedOutputTokens
+    const contextWindowBudget = effectiveContextLimit - reservedOutputTokens
 
-    console.log('[TokenBudget] Model budget:', {
+    // Get TPM limit (if not provided, use model-specific default)
+    const providerTPMLimit = tpmLimit || getTPMLimit(modelName)
+    // Use conservative TPM budget: 80% of TPM limit
+    const tpmBudget = Math.floor(providerTPMLimit * 0.8)
+
+    // Use the more restrictive limit (context window vs TPM)
+    const availableInputBudget = Math.min(contextWindowBudget, tpmBudget)
+
+    console.log('[TokenBudget] Budget calculation:', {
       modelName,
       modelContextLimit,
       safetyMargin,
       effectiveContextLimit,
+      providerTPMLimit,
+      tpmBudget,
+      contextWindowBudget,
       reservedOutputTokens,
-      availableInputBudget
+      availableInputBudget,
+      limitingFactor: contextWindowBudget < tpmBudget ? 'context_window' : 'tpm_limit'
     })
 
     // Define context sections with priorities
@@ -176,13 +192,15 @@ export class TokenBudgetManager {
         contextSections,
         totalEstimatedTokens,
         fitsInBudget: true,
-        requiredTruncation: false
+        requiredTruncation: false,
+        tpmLimit: providerTPMLimit,
+        limitingFactor: contextWindowBudget < tpmBudget ? 'context_window' : 'tpm_limit'
       }
     }
 
     // Need to truncate - perform dynamic reduction
     console.log('[TokenBudget] Context exceeds budget - performing truncation')
-    return this.truncateContextToBudget(contextSections, availableInputBudget, modelContextLimit, reservedOutputTokens, safetyMargin)
+    return this.truncateContextToBudget(contextSections, availableInputBudget, modelContextLimit, reservedOutputTokens, safetyMargin, tpmLimit, contextWindowBudget, tpmBudget)
   }
 
   /**
@@ -193,7 +211,10 @@ export class TokenBudgetManager {
     budget: number,
     modelContextLimit: number,
     reservedOutputTokens: number,
-    safetyMargin: number
+    safetyMargin: number,
+    tpmLimit: number,
+    contextWindowBudget: number,
+    tpmBudget: number
   ): TokenBudgetPlan {
     // Sort by priority (higher priority = lower number, processed last)
     const sortedSections = [...sections].sort((a, b) => b.priority - a.priority)
@@ -261,7 +282,9 @@ export class TokenBudgetManager {
       contextSections: sections,
       totalEstimatedTokens,
       fitsInBudget,
-      requiredTruncation
+      requiredTruncation,
+      tpmLimit: tpmLimit,
+      limitingFactor: contextWindowBudget < tpmBudget ? 'context_window' : 'tpm_limit'
     }
   }
 
