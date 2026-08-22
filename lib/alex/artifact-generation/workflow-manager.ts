@@ -866,122 +866,172 @@ Just return the JSON. No explanations needed.`
       const botNameMatch = primaryArtifact.filename.match(/(.+)-config\.json/)
       const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
 
-      const guideContent = `# ${botName} Configuration Guide
+      const guideContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="Generator" content="ALEX - AutoLearn Express">
+<style>
+body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+h2 { color: #34495e; margin-top: 30px; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; }
+h3 { color: #16a085; margin-top: 20px; }
+ul, ol { margin: 10px 0; padding-left: 30px; }
+li { margin: 5px 0; }
+code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+pre code { background: none; padding: 0; color: inherit; }
+strong { color: #e74c3c; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+th { background: #3498db; color: white; }
+.note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
+.footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #bdc3c7; color: #7f8c8d; font-size: 12px; }
+</style>
+</head>
+<body>
 
-## Overview
-This configuration file contains the complete setup for ${botName}, a conversational AI assistant designed to help users with common queries and tasks.
+<h1>${botName} Configuration Guide</h1>
 
-## File Contents
-The configuration includes:
-- **Bot Identity**: Name, description, and language settings
-- **Intent Definitions**: Pre-built conversation flows for common user requests
-- **Response Templates**: Structured responses for each intent
-- **Entity Recognition**: Built-in pattern matching for key information
-- **Settings**: Session management and behavior controls
+<h2>Overview</h2>
+<p>This configuration file contains the complete setup for <strong>${botName}</strong>, a conversational AI assistant designed to help users with common queries and tasks.</p>
 
-## Setup Instructions
+<h2>File Contents</h2>
+<p>The configuration includes:</p>
+<ul>
+<li><strong>Bot Identity</strong>: Name, description, and language settings</li>
+<li><strong>Intent Definitions</strong>: Pre-built conversation flows for common user requests</li>
+<li><strong>Response Templates</strong>: Structured responses for each intent</li>
+<li><strong>Entity Recognition</strong>: Built-in pattern matching for key information</li>
+<li><strong>Settings</strong>: Session management and behavior controls</li>
+</ul>
 
-### 1. Installation
-1. Download the configuration file: \`${primaryArtifact.filename}\`
-2. Place it in your chatbot's configuration directory
-3. Update your bot initialization to load this file
+<h2>Setup Instructions</h2>
 
-### 2. Quick Start
-\`\`\`javascript
-// Example implementation
+<h3>1. Installation</h3>
+<ol>
+<li>Download the configuration file: <code>${primaryArtifact.filename}</code></li>
+<li>Place it in your chatbot's configuration directory</li>
+<li>Update your bot initialization to load this file</li>
+</ol>
+
+<h3>2. Quick Start</h3>
+<pre><code>// Example implementation
 const config = require('./${primaryArtifact.filename}');
 
 // Initialize your bot with the configuration
 const bot = new ChatBot({
   config: config,
   apiEndpoint: 'your-api-endpoint'
-});
-\`\`\`
+});</code></pre>
 
-## Configuration Sections
+<h2>Configuration Sections</h2>
 
-### Bot Identity
-- **Name**: ${botName}
-- **Language**: English
-- **Default Response**: Fallback message for unrecognized intents
+<h3>Bot Identity</h3>
+<ul>
+<li><strong>Name</strong>: ${botName}</li>
+<li><strong>Language</strong>: English</li>
+<li><strong>Default Response</strong>: Fallback message for unrecognized intents</li>
+</ul>
 
-### Intents
-The configuration includes these pre-built intents:
+<h3>Intents</h3>
+<p>The configuration includes these pre-built intents:</p>
 
-#### Greeting
-- **Purpose**: Welcome users and start conversations
-- **Sample phrases**: "hi", "hello", "hey", "good morning"
-- **Response**: Friendly greeting with help offer
+<h4>Greeting</h4>
+<ul>
+<li><strong>Purpose</strong>: Welcome users and start conversations</li>
+<li><strong>Sample phrases</strong>: "hi", "hello", "hey", "good morning"</li>
+<li><strong>Response</strong>: Friendly greeting with help offer</li>
+</ul>
 
-#### Goodbye
-- **Purpose**: Handle conversation endings
-- **Sample phrases**: "bye", "goodbye", "see you later"
-- **Response**: Professional closing message
+<h4>Goodbye</h4>
+<ul>
+<li><strong>Purpose</strong>: Handle conversation endings</li>
+<li><strong>Sample phrases</strong>: "bye", "goodbye", "see you later"</li>
+<li><strong>Response</strong>: Professional closing message</li>
+</ul>
 
-#### Account Help
-- **Purpose**: Assist with account-related questions
-- **Sample phrases**: "reset password", "change email", "login issues"
-- **Response**: Step-by-step account management guidance
+<h4>Account Help</h4>
+<ul>
+<li><strong>Purpose</strong>: Assist with account-related questions</li>
+<li><strong>Sample phrases</strong>: "reset password", "change email", "login issues"</li>
+<li><strong>Response</strong>: Step-by-step account management guidance</li>
+</ul>
 
-#### Billing Inquiries
-- **Purpose**: Handle payment and billing questions
-- **Sample phrases**: "payment methods", "invoice", "refund"
-- **Response**: Payment processing and billing information
+<h4>Billing Inquiries</h4>
+<ul>
+<li><strong>Purpose</strong>: Handle payment and billing questions</li>
+<li><strong>Sample phrases</strong>: "payment methods", "invoice", "refund"</li>
+<li><strong>Response</strong>: Payment processing and billing information</li>
+</ul>
 
-#### Technical Support
-- **Purpose**: Troubleshoot technical issues
-- **Sample phrases**: "app crashing", "error codes", "loading issues"
-- **Response**: Technical problem-solving steps
+<h4>Technical Support</h4>
+<ul>
+<li><strong>Purpose</strong>: Troubleshoot technical issues</li>
+<li><strong>Sample phrases</strong>: "app crashing", "error codes", "loading issues"</li>
+<li><strong>Response</strong>: Technical problem-solving steps</li>
+</ul>
 
-#### Contact Human
-- **Purpose**: Escalate to human support
-- **Sample phrases**: "speak to human", "live chat", "call support"
-- **Response**: Human support contact information
+<h4>Contact Human</h4>
+<ul>
+<li><strong>Purpose</strong>: Escalate to human support</li>
+<li><strong>Sample phrases</strong>: "speak to human", "live chat", "call support"</li>
+<li><strong>Response</strong>: Human support contact information</li>
+</ul>
 
-## Customization
+<h2>Customization</h2>
 
-### Adding New Intents
-1. Add to the \`intents\` array in the configuration
-2. Define sample utterances in \`utterances\` array
-3. Create response templates in \`responses\` array
+<h3>Adding New Intents</h3>
+<ol>
+<li>Add to the <code>intents</code> array in the configuration</li>
+<li>Define sample utterances in <code>utterances</code> array</li>
+<li>Create response templates in <code>responses</code> array</li>
+</ol>
 
-### Modifying Responses
-Update the \`content\` field in any intent's response array to change bot behavior.
+<h3>Modifying Responses</h3>
+<p>Update the <code>content</code> field in any intent's response array to change bot behavior.</p>
 
-### Adding Entities
-Include entity definitions in the \`entities\` array for pattern matching and data extraction.
+<h3>Adding Entities</h3>
+<p>Include entity definitions in the <code>entities</code> array for pattern matching and data extraction.</p>
 
-## Important Notes
+<h2>Important Notes</h2>
+<div class="note">
+<ul>
+<li>All intent names should be unique</li>
+<li>Utterances should cover common variations</li>
+<li>Responses can include dynamic placeholders</li>
+<li>Session timeout is set to 30 minutes by default</li>
+</ul>
+</div>
 
-- All intent names should be unique
-- Utterances should cover common variations
-- Responses can include dynamic placeholders
-- Session timeout is set to 30 minutes by default
+<h2>Next Steps</h2>
+<ol>
+<li>Test each intent with sample utterances</li>
+<li>Customize responses for your specific use case</li>
+<li>Add additional intents as needed</li>
+<li>Configure your API endpoints</li>
+<li>Deploy and monitor conversation quality</li>
+</ol>
 
-## Next Steps
+<h2>Support</h2>
+<p>For issues or questions about this configuration, refer to your chatbot platform documentation or contact support.</p>
 
-1. Test each intent with sample utterances
-2. Customize responses for your specific use case
-3. Add additional intents as needed
-4. Configure your API endpoints
-5. Deploy and monitor conversation quality
+<div class="footer">
+<p><strong>Generated by ALEX - AutoLearn Express</strong></p>
+<p>Configuration Date: ${new Date().toISOString().split('T')[0]}</p>
+</div>
 
-## Support
+</body>
+</html>`
 
-For issues or questions about this configuration, refer to your chatbot platform documentation or contact support.
-
----
-*Generated by ALEX - AutoLearn Express*
-*Configuration Date: ${new Date().toISOString().split('T')[0]}*`
-
-      const guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.md')
+      const guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.doc')
       
       const guideArtifact = await ArtifactService.saveArtifact(
         build.id,
         request.userId,
         guideFilename,
-        'md',
-        'text/markdown',
+        'doc',
+        'application/msword',
         guideContent,
         false
       )
