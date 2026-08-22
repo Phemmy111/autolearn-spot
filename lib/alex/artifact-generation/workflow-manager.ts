@@ -200,9 +200,9 @@ If this looks like they're providing workflow specifications, acknowledge it and
 
 Response format:
 STATUS: [continue_asking|enough_info]
-QUESTION: [focused question if needed, or "Ready to generate workflow"]`
+QUESTION: [focused question if needed, or "Ready to generate workflow"]
 ANALYSIS: [brief expert analysis of what they provided]`
-          
+
           try {
             const aiResponse = await this.getAIResponse(n8nExpertPrompt, request)
             const analysis = this.parseAIResponse(aiResponse)
