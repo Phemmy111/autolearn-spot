@@ -321,21 +321,27 @@ Your task:
 3. Use placeholders for secrets (e.g., YOUR_API_KEY_HERE)
 4. Generate usage guides where appropriate
 
-IMPORTANT: Respond ONLY in the exact format below. Do not add any other text, explanations, or conversational filler.
+IMPORTANT: Respond ONLY in one of these two formats (JSON is preferred):
 
+OPTION 1 - JSON Format (preferred):
+[
+  {
+    "FILENAME": "filename.ext",
+    "FILE_TYPE": "json",
+    "MIME_TYPE": "application/json",
+    "CONTENT": "{...}",
+    "IS_PRIMARY": true
+  }
+]
+
+OPTION 2 - Text Format:
 FILENAME: [filename]
 FILE_TYPE: [file_type]
 MIME_TYPE: [mime_type]
 CONTENT: [file content - may span multiple lines]
 IS_PRIMARY: [true/false]
 
-FILENAME: [next filename]
-FILE_TYPE: [file_type]
-MIME_TYPE: [mime_type]
-CONTENT: [file content - may span multiple lines]
-IS_PRIMARY: [true/false]
-
-Repeat for each file.
+Do not add any other text, explanations, or conversational filler.
 `
   }
 
@@ -373,6 +379,36 @@ Repeat for each file.
    * Parse artifact manifest from AI response
    */
   private static parseArtifactManifest(response: string, buildType: BuildType): ArtifactManifest | null {
+    const trimmed = response.trim()
+
+    // Try JSON format first
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        // Handle array of files
+        const filesArray = Array.isArray(parsed) ? parsed : [parsed]
+
+        const files = filesArray.map((file: any) => ({
+          filename: file.FILENAME || file.filename || 'unnamed.txt',
+          file_type: file.FILE_TYPE || file.file_type || 'txt',
+          mime_type: file.MIME_TYPE || file.mime_type || 'text/plain',
+          content: file.CONTENT || file.content || '',
+          is_primary: file.IS_PRIMARY === true || file.is_primary === true
+        }))
+
+        if (files.length > 0) {
+          return {
+            build_type: buildType,
+            specification: {},
+            files
+          }
+        }
+      } catch (e) {
+        console.log('[Artifact Workflow] JSON parsing failed, trying text format:', e)
+      }
+    }
+
+    // Fall back to text format
     const lines = response.split('\n')
     const files: any[] = []
     let currentFile: any = null
