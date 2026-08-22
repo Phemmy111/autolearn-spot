@@ -141,6 +141,24 @@ export class ArtifactWorkflowManager {
   private static async gatherRequirements(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Gathering requirements for:', build.id)
 
+    // Check if user wants to skip to generation
+    if (this.detectSkipToGeneration(request.content)) {
+      console.log('[Artifact Workflow] User wants to skip to generation, filling defaults')
+      const currentSpec = build.final_specification || {}
+      const updatedSpec = this.fillN8nDefaults(currentSpec)
+      
+      // Auto-generate filename if not provided
+      if (!updatedSpec.filename) {
+        const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
+        updatedSpec.filename = autoFilename
+        updatedSpec.auto_generated = true
+      }
+      
+      await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+      await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+      return this.confirmSpecification(build, request)
+    }
+
     // Check if user is providing a direct answer (simple response without AI analysis)
     const isDirectAnswer = request.content.length < 100 && 
                            (request.content.includes('.') || request.content.includes('json') || request.content.length < 20)
@@ -234,12 +252,28 @@ If this looks like they're providing workflow specifications, acknowledge it and
 
 Response format:
 STATUS: [continue_asking|enough_info]
-QUESTION: [focused question if needed, or "Ready to generate workflow"]
-ANALYSIS: [brief expert analysis of what they provided]`
+QUESTION: [focused question if needed, or "Ready to generate workflow"]`
 
           try {
             const aiResponse = await this.getAIResponse(n8nExpertPrompt, request)
             const analysis = this.parseAIResponse(aiResponse)
+            
+            // Check if user wants to skip to generation
+            if (this.detectSkipToGeneration(request.content)) {
+              console.log('[Artifact Workflow] User wants to skip to generation, filling defaults')
+              const updatedSpec = this.fillN8nDefaults(currentSpec)
+              
+              // Auto-generate filename if not provided
+              if (!updatedSpec.filename) {
+                const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
+                updatedSpec.filename = autoFilename
+                updatedSpec.auto_generated = true
+              }
+              
+              await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+              await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+              return this.confirmSpecification(build, request)
+            }
             
             if (analysis.status === 'enough_info') {
               // Extract specifications from user input
@@ -264,9 +298,10 @@ ANALYSIS: [brief expert analysis of what they provided]`
               await ArtifactService.addQuestion(build.id, analysis.question, 'missing_requirement')
               await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
               
+              // Only show the question to user, hide the analysis
               return {
                 status: 'collecting_requirements',
-                message: analysis.analysis + ' ' + analysis.question,
+                message: analysis.question,
                 needsInput: true,
                 questions: [analysis.question]
               }
@@ -650,6 +685,33 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
   }
 
   /**
+   * Detect if user wants to skip to generation with defaults
+   */
+  private static detectSkipToGeneration(input: string): boolean {
+    const skipPhrases = [
+      'just create', 'skip', 'i will configure', 'i\'ll configure',
+      'i will set', 'i\'ll set', 'use defaults', 'proceed anyway',
+      'do as you recommend', 'whatever you think', 'your choice',
+      'generate now', 'create now', 'build now'
+    ]
+    const lower = input.toLowerCase()
+    return skipPhrases.some(phrase => lower.includes(phrase))
+  }
+
+  /**
+   * Fill in reasonable defaults for n8n workflow
+   */
+  private static fillN8nDefaults(currentSpec: any): any {
+    return {
+      ...currentSpec,
+      trigger: currentSpec.trigger || 'Webhook (POST)',
+      functionality: currentSpec.functionality || 'Chatbot with FAQ lookup and AI fallback',
+      integrations: currentSpec.integrations || 'Google Sheets, OpenAI GPT-4',
+      platform: currentSpec.platform || 'n8n'
+    }
+  }
+
+  /**
    * Parse n8n expert recommendations
    */
   private static parseN8nRecommendations(response: string): { trigger: string; functionality: string; integrations: string; nextQuestion: string } {
@@ -677,7 +739,7 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
     return {
       status: statusMatch ? statusMatch[1].trim() : 'continue_asking',
       question: questionMatch ? questionMatch[1].trim() : 'Please provide more details',
-      analysis: analysisMatch ? analysisMatch[1].trim() : ''
+      analysis: analysisMatch ? analysisMatch[1].trim() : '' // Analysis is optional now
     }
   }
 
@@ -1726,10 +1788,32 @@ Please provide the JSON configuration. Make it complete and ready to use.`
    */
   private static buildConfirmationMessage(build: ArtifactBuild): string {
     const spec = build.final_specification || {}
+    
+    // Build a user-friendly summary instead of showing raw spec
+    const summary = []
+    
+    if (spec.platform) {
+      summary.push(`Platform: ${spec.platform}`)
+    }
+    if (spec.trigger) {
+      summary.push(`Trigger: ${spec.trigger}`)
+    }
+    if (spec.functionality) {
+      summary.push(`Functionality: ${spec.functionality}`)
+    }
+    if (spec.integrations) {
+      summary.push(`Integrations: ${spec.integrations}`)
+    }
+    if (spec.filename) {
+      summary.push(`Filename: ${spec.filename}`)
+    }
+    
+    const summaryText = summary.length > 0 ? summary.join('\n') : 'A configuration based on your request'
+    
     return `I'm ready to build this ${build.build_type}.
 
 Here's what I'll create:
-${Object.entries(spec).map(([key, value]) => `- ${key}: ${value}`).join('\n')}
+${summaryText}
 
 Shall I proceed? (yes/no)`
   }
