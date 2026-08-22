@@ -9,6 +9,7 @@ import { WebResearchService } from './web-research/web-research-service'
 import { ToolRegistry, ToolExecutionService } from './tools'
 import { AgentService, AgentExecutionResult } from './agents'
 import { AIEngine } from './ai-engine'
+import { ArtifactWorkflowManager, WorkflowRequest } from './artifact-generation/workflow-manager'
 
 export interface OrchestratorRequest {
   content: string
@@ -48,6 +49,7 @@ export interface OrchestratorResponse {
   aiRequest: AIRequest
   imageFiles?: AlexFile[]
   agentResult?: AgentExecutionResult // Phase 6: Agent execution result
+  artifactWorkflow?: any // Phase 7: Artifact workflow response
 }
 
 /**
@@ -129,11 +131,51 @@ export class AlexOrchestrator {
     // Detect intent if in Auto mode
     let detectedIntent: string | undefined
     let suggestedMode: AlexMode | undefined
+    let isArtifactGeneration = false
 
     if (mode === 'auto') {
       const intentResult = await detectIntent(content)
       detectedIntent = intentResult.intent
       suggestedMode = intentResult.suggestedMode
+      isArtifactGeneration = intentResult.isArtifactGeneration || false
+    }
+
+    // Phase 7: Route to artifact workflow if build intent detected
+    if (isArtifactGeneration && userId && conversationId) {
+      console.log('[Orchestrator] Artifact generation intent detected, routing to workflow manager')
+      
+      try {
+        const workflowRequest: WorkflowRequest = {
+          conversationId,
+          userId,
+          content,
+          attachedFiles,
+          conversationHistory
+        }
+
+        const workflowResponse = await ArtifactWorkflowManager.processRequest(workflowRequest)
+
+        // Return a special response indicating artifact workflow
+        return {
+          systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+          context: '',
+          detectedIntent,
+          suggestedMode,
+          aiRequest: {
+            messages: [
+              { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+              { role: 'user', content: content }
+            ],
+            stream: false,
+            disableTools: true
+          },
+          imageFiles: [],
+          artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+        }
+      } catch (error) {
+        console.error('[Orchestrator] Artifact workflow failed, falling back to normal chat:', error)
+        // Fall back to normal chat if artifact workflow fails
+      }
     }
 
     // Generate system prompt for token estimation

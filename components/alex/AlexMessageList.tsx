@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Message, AlexFile } from '@/lib/alex/types'
-import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown, Edit2, X, FileText } from 'lucide-react'
+import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown, Edit2, X, FileText, Download, Package, CheckCircle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -15,9 +15,10 @@ interface AlexMessageListProps {
   isMobile?: boolean
   onEditMessage?: (messageId: string, newContent: string) => void
   onRegenerateResponse?: (messageId: string) => void
+  conversationId?: string // Phase 7: For artifact downloads
 }
 
-export function AlexMessageList({ messages, isLoading, isGenerating = false, isMobile = false, onEditMessage, onRegenerateResponse }: AlexMessageListProps) {
+export function AlexMessageList({ messages, isLoading, isGenerating = false, isMobile = false, onEditMessage, onRegenerateResponse, conversationId }: AlexMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -87,6 +88,101 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
     if (bytes < 1024) return bytes + ' B'
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
+
+  // Phase 7: Handle artifact download
+  const handleDownloadArtifact = async (artifactId: string, filename: string) => {
+    try {
+      const response = await fetch(`/api/alex/artifacts/${artifactId}/download`)
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }
+    } catch (error) {
+      console.error('Failed to download artifact:', error)
+    }
+  }
+
+  // Phase 7: Render artifact workflow response
+  const renderArtifactWorkflow = (workflowData: any) => {
+    if (!workflowData) return null
+
+    return (
+      <div className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+        <div className="flex items-center gap-2 mb-3">
+          <Package className="h-5 w-5 text-purple-400" />
+          <span className="font-semibold text-purple-300">Artifact Generation</span>
+          <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
+            workflowData.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+            workflowData.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+            'bg-yellow-500/20 text-yellow-400'
+          }`}>
+            {workflowData.status}
+          </span>
+        </div>
+
+        {workflowData.message && (
+          <p className="text-sm text-slate-300 mb-3">{workflowData.message}</p>
+        )}
+
+        {workflowData.questions && workflowData.questions.length > 0 && (
+          <div className="mb-3">
+            <p className="text-sm text-slate-400 mb-2">I need more information:</p>
+            <ul className="list-disc list-inside text-sm text-slate-300 space-y-1">
+              {workflowData.questions.map((q: string, i: number) => (
+                <li key={i}>{q}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {workflowData.specification && (
+          <div className="mb-3">
+            <p className="text-sm text-slate-400 mb-2">Specification:</p>
+            <pre className="bg-slate-900/50 rounded-lg p-3 text-xs text-slate-300 overflow-x-auto">
+              {JSON.stringify(workflowData.specification, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {workflowData.artifacts && workflowData.artifacts.length > 0 && (
+          <div>
+            <p className="text-sm text-slate-400 mb-2">Generated files:</p>
+            <div className="space-y-2">
+              {workflowData.artifacts.map((artifact: any) => (
+                <div
+                  key={artifact.id}
+                  className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3 hover:bg-slate-800/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-cyan-400" />
+                    <span className="text-sm text-slate-300">{artifact.filename}</span>
+                    <span className="text-xs text-slate-500">({artifact.file_type})</span>
+                    {artifact.validation_status === 'valid' && (
+                      <CheckCircle className="h-4 w-4 text-green-400" />
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDownloadArtifact(artifact.id, artifact.filename)}
+                    className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm flex items-center gap-1 transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )
   }
 
   // Custom markdown components
@@ -343,14 +439,21 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                 )}
                 <div className="flex-1 min-w-0">
                   {message.role === 'assistant' ? (
-                    <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={MarkdownComponents}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
+                    <>
+                      {/* Phase 7: Check for artifact workflow response */}
+                      {message.content.startsWith('{') && message.content.includes('artifact_workflow') ? (
+                        renderArtifactWorkflow(JSON.parse(message.content))
+                      ) : (
+                        <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={MarkdownComponents}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      )}
+                    </>
                   ) : editingMessageId === message.id ? (
                     <textarea
                       value={editContent}

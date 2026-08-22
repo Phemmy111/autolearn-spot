@@ -4,6 +4,7 @@ export interface IntentDetectionResult {
   intent: string
   suggestedMode: AlexMode
   confidence: number
+  isArtifactGeneration?: boolean // Phase 7: Artifact generation intent
 }
 
 /**
@@ -14,7 +15,48 @@ export interface IntentDetectionResult {
 export async function detectIntent(content: string): Promise<IntentDetectionResult> {
   const lowerContent = content.toLowerCase()
 
-  // Check for current-time requests first (priority over research)
+  // Phase 7: Check for artifact/build generation intent first (highest priority)
+  const buildPatterns = [
+    'build me', 'create a', 'generate a', 'build an', 'create an', 'generate an',
+    'make me', 'create the', 'generate the', 'build the',
+    'create json', 'generate json', 'build json',
+    'create workflow', 'generate workflow', 'build workflow',
+    'create chatbot', 'generate chatbot', 'build chatbot',
+    'create agent', 'generate agent', 'build agent',
+    'create website', 'generate website', 'build website',
+    'create automation', 'generate automation', 'build automation',
+    'create api', 'generate api', 'build api',
+    'create script', 'generate script', 'build script',
+    'create configuration', 'generate configuration', 'build configuration',
+    'create complete', 'generate complete', 'build complete',
+    'package for me', 'artifacts for me', 'files for me'
+  ]
+
+  // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
+  const isBuildRequest = buildPatterns.some(pattern => lowerContent.startsWith(pattern) || 
+    (lowerContent.includes(pattern) && lowerContent.length < 50))
+
+  // Secondary check: even if not at start, check for strong build indicators
+  const strongBuildIndicators = [
+    'generate the json', 'create the json', 'build the json',
+    'generate the workflow', 'create the workflow', 'build the workflow',
+    'generate the chatbot', 'create the chatbot', 'build the chatbot',
+    'setup guide', 'configuration file', 'downloadable files',
+    'package and deliver', 'zip file', 'source code'
+  ]
+  
+  const hasStrongBuildIndicator = strongBuildIndicators.some(indicator => lowerContent.includes(indicator))
+
+  if (isBuildRequest || hasStrongBuildIndicator) {
+    return {
+      intent: 'Artifact generation',
+      suggestedMode: 'agent_builder',
+      confidence: 0.85,
+      isArtifactGeneration: true
+    }
+  }
+
+  // Check for current-time requests (priority over research)
   const currentTimePatterns = [
     'what time is it', 'current time', 'right now time', 'time in', 'what\'s the time'
   ]

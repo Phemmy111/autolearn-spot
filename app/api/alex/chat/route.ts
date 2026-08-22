@@ -462,6 +462,38 @@ export async function POST(request: NextRequest) {
             enableTokenAwareAssembly: (attachedFiles || []).length > 0, // Enable token-aware assembly when files are attached
           })) {
             if (chunk.type === 'orchestrator') {
+              // Phase 7: Check for artifact workflow response
+              if (chunk.data?.artifactWorkflow) {
+                // Send artifact workflow response directly
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({
+                    type: 'artifact_workflow',
+                    data: chunk.data.artifactWorkflow
+                  })}\n\n`)
+                )
+                
+                // Save the artifact workflow response as the assistant message
+                const artifactMessage = JSON.stringify(chunk.data.artifactWorkflow, null, 2)
+                const { data: assistantMessage, error: assistantMsgError } = await supabase
+                  .from('alex_messages')
+                  .insert({
+                    conversation_id: conversationId,
+                    role: 'assistant',
+                    content: artifactMessage,
+                    model_used: 'artifact_workflow',
+                    tokens: 0
+                  })
+                  .select()
+                  .single()
+
+                if (assistantMsgError) {
+                  console.error('[Chat Route] Failed to save artifact message:', assistantMsgError)
+                }
+
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
+                return
+              }
+
               // Store image files and AI request for later processing
               imageFiles = chunk.imageFiles || []
               aiRequest = chunk.data?.aiRequest

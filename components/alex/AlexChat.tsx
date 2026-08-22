@@ -240,6 +240,19 @@ export function AlexChat({ userId }: AlexChatProps) {
                         ]
                       }
                     })
+                  } else if (parsed.type === 'artifact_workflow') {
+                    // Phase 7: Handle artifact workflow response
+                    console.log('[AlexChat] Artifact workflow response:', parsed.data)
+                    
+                    const artifactMessage = {
+                      id: crypto.randomUUID(),
+                      conversation_id: conversationToUse.id,
+                      role: 'assistant',
+                      content: JSON.stringify(parsed.data),
+                      created_at: new Date().toISOString(),
+                    }
+                    
+                    setMessages(prev => [...prev, artifactMessage])
                   } else if (parsed.type === 'error') {
                     console.error('Stream error:', parsed.error)
                     // Handle error in UI
@@ -471,6 +484,7 @@ export function AlexChat({ userId }: AlexChatProps) {
             isMobile={isMobile}
             onEditMessage={handleEditMessage}
             onRegenerateResponse={handleRegenerateResponse}
+            conversationId={currentConversation?.id}
           />
         </div>
 
