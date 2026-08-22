@@ -177,6 +177,19 @@ export class ArtifactWorkflowManager {
           }
         }
         
+        // If platform is n8n, ask workflow-specific questions
+        if (currentSpec.platform === 'n8n' && !currentSpec.trigger) {
+          await ArtifactService.addQuestion(build.id, 'What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)', 'missing_requirement')
+          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+          
+          return {
+            status: 'collecting_requirements',
+            message: `Filename set to ${request.content}. What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)`,
+            needsInput: true,
+            questions: ['What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)']
+          }
+        }
+        
         await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
         return this.confirmSpecification(build, request)
       } else {
@@ -184,9 +197,121 @@ export class ArtifactWorkflowManager {
         const platformMatch = request.content.match(/n8n|wordpress|custom/i)
         if (platformMatch) {
           const currentSpec = build.final_specification || {}
+          const platform = platformMatch[0].toLowerCase()
           const updatedSpec = {
             ...currentSpec,
-            platform: platformMatch[0].toLowerCase()
+            platform: platform
+          }
+          
+          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          
+          // If n8n, ask specific n8n workflow questions
+          if (platform === 'n8n') {
+            // Check if we already have trigger info
+            if (!currentSpec.trigger) {
+              await ArtifactService.addQuestion(build.id, 'What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)', 'missing_requirement')
+              await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+              
+              return {
+                status: 'collecting_requirements',
+                message: `Platform set to n8n. What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)`,
+                needsInput: true,
+                questions: ['What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)']
+              }
+            }
+            
+            // Check if we have functionality info
+            if (!currentSpec.functionality) {
+              await ArtifactService.addQuestion(build.id, 'What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)', 'missing_requirement')
+              await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+              
+              return {
+                status: 'collecting_requirements',
+                message: `Trigger set to ${currentSpec.trigger}. What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)`,
+                needsInput: true,
+                questions: ['What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)']
+              }
+            }
+            
+            // Check if we have integrations info
+            if (!currentSpec.integrations) {
+              await ArtifactService.addQuestion(build.id, 'What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)', 'missing_requirement')
+              await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+              
+              return {
+                status: 'collecting_requirements',
+                message: `Functionality set. What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)`,
+                needsInput: true,
+                questions: ['What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)']
+              }
+            }
+          }
+          
+          // Auto-generate filename if not provided
+          if (!currentSpec.filename) {
+            const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
+            updatedSpec.filename = autoFilename
+            updatedSpec.auto_generated = true
+            await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          }
+          
+          await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+          return this.confirmSpecification(build, request)
+        }
+        
+        // Check if answer looks like trigger type (for n8n)
+        const triggerMatch = request.content.match(/webhook|schedule|manual|email/i)
+        if (triggerMatch && build.final_specification?.platform === 'n8n') {
+          const currentSpec = build.final_specification || {}
+          const updatedSpec = {
+            ...currentSpec,
+            trigger: triggerMatch[0].toLowerCase()
+          }
+          
+          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          
+          // Ask for functionality
+          await ArtifactService.addQuestion(build.id, 'What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)', 'missing_requirement')
+          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+          
+          return {
+            status: 'collecting_requirements',
+            message: `Trigger set to ${triggerMatch[0]}. What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)`,
+            needsInput: true,
+            questions: ['What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)']
+          }
+        }
+        
+        // Check if answer looks like functionality description
+        const functionalityMatch = request.content.match(/email|google sheets|slack|database|process|notification|api/i)
+        if (functionalityMatch && build.final_specification?.platform === 'n8n' && build.final_specification?.trigger) {
+          const currentSpec = build.final_specification || {}
+          const updatedSpec = {
+            ...currentSpec,
+            functionality: request.content
+          }
+          
+          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          
+          // Ask for integrations
+          await ArtifactService.addQuestion(build.id, 'What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)', 'missing_requirement')
+          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+          
+          return {
+            status: 'collecting_requirements',
+            message: `Functionality set. What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)`,
+            needsInput: true,
+            questions: ['What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)']
+          }
+        }
+        
+        // Check if answer looks like integrations
+        const integrationMatch = request.content.match(/gmail|google sheets|slack|database|http/i)
+        if (integrationMatch && build.final_specification?.platform === 'n8n' && build.final_specification?.functionality) {
+          const currentSpec = build.final_specification || {}
+          const updatedSpec = {
+            ...currentSpec,
+            integrations: request.content
           }
           
           await ArtifactService.updateSpecification(build.id, updatedSpec, [])
@@ -441,71 +566,205 @@ export class ArtifactWorkflowManager {
       const platform = build.final_specification?.platform || 'custom'
       console.log('[Artifact Workflow] Platform:', platform)
       
+      const trigger = build.final_specification?.trigger || 'manual'
+      const functionality = build.final_specification?.functionality || 'basic processing'
+      const integrations = build.final_specification?.integrations || 'none'
+      
+      console.log('[Artifact Workflow] Workflow specs:', { trigger, functionality, integrations })
+      
       let templateContent: any
       let fileType: string
       let mimeType: string
       
       if (platform === 'n8n') {
-        // Generate n8n workflow template
+        // Generate n8n workflow template based on specifications
         const botNameMatch = filename.match(/(.+)-config\.json/)
         const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'My Workflow'
         
-        templateContent = {
-          name: botName,
-          nodes: [
-            {
-              parameters: {
-                rule: {
-                  interval: [
-                    {
-                      field: "cronExpression",
-                      triggerAtHour: 0
-                    }
-                  ]
-                }
-              },
-              id: this.generateUUID(),
-              name: "Schedule Trigger",
-              type: "n8n-nodes-base.scheduleTrigger",
-              typeVersion: 1,
-              position: [0, 0]
+        // Build nodes based on specifications
+        const nodes = []
+        const connections = {}
+        
+        // Add trigger node
+        let triggerNode
+        if (trigger === 'webhook') {
+          triggerNode = {
+            parameters: {
+              httpMethod: 'POST',
+              path: 'webhook',
+              responseMode: 'onReceived'
             },
-            {
-              parameters: {
-                assignments: {
-                  assignments: [
-                    {
-                      id: this.generateUUID(),
-                      name: "message",
-                      value: "Hello from " + botName,
-                      type: "string"
-                    }
-                  ]
-                }
-              },
-              id: this.generateUUID(),
-              name: "Set Message",
-              type: "n8n-nodes-base.set",
-              typeVersion: 3.4,
-              position: [240, 0]
-            }
-          ],
-          connections: {
-            "Schedule Trigger": {
-              main: [
-                [
+            id: this.generateUUID(),
+            name: 'Webhook',
+            type: 'n8n-nodes-base.webhook',
+            typeVersion: 1,
+            position: [0, 0]
+          }
+        } else if (trigger === 'schedule') {
+          triggerNode = {
+            parameters: {
+              rule: {
+                interval: [
                   {
-                    node: "Set Message",
-                    type: "main",
-                    index: 0
+                    field: 'cronExpression',
+                    triggerAtHour: 0
                   }
                 ]
-              ]
+              }
+            },
+            id: this.generateUUID(),
+            name: 'Schedule Trigger',
+            type: 'n8n-nodes-base.scheduleTrigger',
+            typeVersion: 1,
+            position: [0, 0]
+          }
+        } else if (trigger === 'email') {
+          triggerNode = {
+            parameters: {
+              pollTimes: {
+                item: []
+              }
+            },
+            id: this.generateUUID(),
+            name: 'Email Trigger',
+            type: 'n8n-nodes-base.emailReadImap',
+            typeVersion: 1,
+            position: [0, 0]
+          }
+        } else {
+          triggerNode = {
+            parameters: {},
+            id: this.generateUUID(),
+            name: 'Manual Trigger',
+            type: 'n8n-nodes-base.manualTrigger',
+            typeVersion: 1,
+            position: [0, 0]
+          }
+        }
+        
+        nodes.push(triggerNode)
+        
+        // Add integration nodes based on specifications
+        let lastNode = triggerNode
+        let positionX = 240
+        
+        if (integrations.toLowerCase().includes('gmail')) {
+          const emailNode = {
+            parameters: {
+              subject: `Update from ${botName}`,
+              body: '={{ $json.message }}',
+              to: 'recipient@example.com'
+            },
+            id: this.generateUUID(),
+            name: 'Send Email',
+            type: 'n8n-nodes-base.emailSend',
+            typeVersion: 2,
+            position: [positionX, 0],
+            credentials: {
+              email: {
+                id: 'email_credential_id',
+                name: 'Gmail account'
+              }
             }
+          }
+          nodes.push(emailNode)
+          connections[lastNode.name] = {
+            main: [[{ node: emailNode.name, type: 'main', index: 0 }]]
+          }
+          lastNode = emailNode
+          positionX += 240
+        }
+        
+        if (integrations.toLowerCase().includes('google sheets')) {
+          const sheetsNode = {
+            parameters: {
+              operation: 'append',
+              documentId: {
+                __rl: true,
+                value: 'your_google_sheet_id',
+                mode: 'url'
+              },
+              sheetName: {
+                __rl: true,
+                value: 'Sheet1',
+                mode: 'name'
+              }
+            },
+            id: this.generateUUID(),
+            name: 'Update Google Sheets',
+            type: 'n8n-nodes-base.googleSheets',
+            typeVersion: 4,
+            position: [positionX, 0],
+            credentials: {
+              googleSheetsOAuth2Api: {
+                id: 'google_sheets_credential_id',
+                name: 'Google Sheets account'
+              }
+            }
+          }
+          nodes.push(sheetsNode)
+          connections[lastNode.name] = {
+            main: [[{ node: sheetsNode.name, type: 'main', index: 0 }]]
+          }
+          lastNode = sheetsNode
+          positionX += 240
+        }
+        
+        if (integrations.toLowerCase().includes('slack')) {
+          const slackNode = {
+            parameters: {
+              channel: '#general',
+              text: `{{ $json.message }}`
+            },
+            id: this.generateUUID(),
+            name: 'Send to Slack',
+            type: 'n8n-nodes-base.slack',
+            typeVersion: 1,
+            position: [positionX, 0],
+            credentials: {
+              slackApi: {
+                id: 'slack_credential_id',
+                name: 'Slack account'
+              }
+            }
+          }
+          nodes.push(slackNode)
+          connections[lastNode.name] = {
+            main: [[{ node: slackNode.name, type: 'main', index: 0 }]]
+          }
+          lastNode = slackNode
+          positionX += 240
+        }
+        
+        // Add code node for data processing
+        const codeNode = {
+          parameters: {
+            jsCode: `// Process data for ${functionality}\nconst inputData = $input.all();\nconst processedData = inputData.map(item => ({\n  ...item.json,\n  processedAt: new Date().toISOString(),\n  functionality: '${functionality}'\n}));\nreturn processedData.map(item => ({ json: item }));`
           },
+          id: this.generateUUID(),
+          name: 'Process Data',
+          type: 'n8n-nodes-base.code',
+          typeVersion: 2,
+          position: [positionX, 0]
+        }
+        nodes.push(codeNode)
+        connections[lastNode.name] = {
+          main: [[{ node: codeNode.name, type: 'main', index: 0 }]]
+        }
+        
+        templateContent = {
+          name: botName,
+          nodes: nodes,
+          connections: connections,
           active: true,
           settings: {
-            executionOrder: "v1"
+            executionOrder: 'v1',
+            binaryMode: 'separate',
+            timeSavedMode: 'fixed',
+            saveDataSuccessExecution: 'none',
+            saveManualExecutions: false,
+            callerPolicy: 'workflowsFromSameOwner',
+            availableInMCP: false
           },
           id: this.generateUUID(),
           tags: []
