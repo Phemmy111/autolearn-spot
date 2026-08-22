@@ -140,7 +140,53 @@ export class AlexOrchestrator {
       isArtifactGeneration = intentResult.isArtifactGeneration || false
     }
 
-    // Phase 7: Route to artifact workflow if build intent detected
+    // Phase 7: Check for existing artifact build first (highest priority)
+    // This ensures workflow continuity even if current message doesn't match artifact patterns
+    if (userId && conversationId) {
+      try {
+        const { ArtifactService } = await import('./artifact-generation/artifact-service')
+        const existingBuild = await ArtifactService.getActiveBuild(conversationId, userId)
+        
+        if (existingBuild) {
+          console.log('[Orchestrator] Existing artifact build found, routing to workflow manager')
+          
+          const workflowRequest: WorkflowRequest = {
+            conversationId,
+            userId,
+            content,
+            attachedFiles,
+            conversationHistory
+          }
+
+          const workflowResponse = await ArtifactWorkflowManager.processRequest(workflowRequest)
+
+          console.log('[Orchestrator] Artifact workflow response:', workflowResponse.status)
+
+          // Return a special response indicating artifact workflow
+          return {
+            systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+            context: '',
+            detectedIntent,
+            suggestedMode,
+            aiRequest: {
+              messages: [
+                { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                { role: 'user', content: content }
+              ],
+              stream: false,
+              disableTools: true
+            },
+            imageFiles: [],
+            artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+          }
+        }
+      } catch (error) {
+        console.error('[Orchestrator] Failed to check for existing artifact build:', error)
+        // Continue with normal flow if check fails
+      }
+    }
+
+    // Phase 7: Route to artifact workflow if build intent detected for new requests
     // RE-ENABLED: Now with proper fallback and graceful failure handling
     if (isArtifactGeneration && userId && conversationId) {
       console.log('[Orchestrator] Artifact generation intent detected, routing to workflow manager')
