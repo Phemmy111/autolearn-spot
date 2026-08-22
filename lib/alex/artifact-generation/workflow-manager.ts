@@ -148,18 +148,33 @@ export class ArtifactWorkflowManager {
     if (isDirectAnswer) {
       console.log('[Artifact Workflow] Direct answer detected, processing user input')
       
-      // Update specification with user's answer
-      const currentSpec = build.final_specification || {}
-      const updatedSpec = {
-        ...currentSpec,
-        filename: request.content,
-        user_provided_filename: true
+      // Check if the answer looks like a filename (contains .json or other extension)
+      const looksLikeFilename = request.content.includes('.') && 
+                                request.content.length > 5 && 
+                                request.content.length < 100
+      
+      if (looksLikeFilename) {
+        // Valid filename provided
+        const currentSpec = build.final_specification || {}
+        const updatedSpec = {
+          ...currentSpec,
+          filename: request.content,
+          user_provided_filename: true
+        }
+        
+        await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+        await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+        
+        return this.confirmSpecification(build, request)
+      } else {
+        // Not a valid filename, ask again
+        return {
+          status: 'collecting_requirements',
+          message: `That doesn't look like a valid filename. Please provide a filename with an extension (e.g., supportbot.json).`,
+          needsInput: true,
+          questions: ['Please provide a valid filename with extension (e.g., supportbot.json)']
+        }
       }
-      
-      await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-      await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
-      
-      return this.confirmSpecification(build, request)
     }
 
     // For simple JSON/configuration requests, just ask for filename and proceed
