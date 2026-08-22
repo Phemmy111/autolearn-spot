@@ -486,17 +486,12 @@ export async function POST(request: NextRequest) {
               // Convert artifact workflow to a regular message for frontend compatibility
               const artifactWorkflowMessage = chunk.data.message || JSON.stringify(chunk.data, null, 2)
               
-              // Stream the artifact message as regular content
-              controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`)
-              )
-              
-              controller.enqueue(
-                encoder.encode(`data: ${JSON.stringify({
-                  type: 'delta',
-                  content: artifactWorkflowMessage
-                })}\n\n`)
-              )
+              // Send the message as a complete stream response
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`))
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: artifactWorkflowMessage })}\n\n`))
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+              controller.close()
               
               // Save the artifact workflow response as the assistant message
               const { data: artifactAssistantMessage, error: artifactAssistantMsgError } = await supabase
@@ -515,7 +510,6 @@ export async function POST(request: NextRequest) {
                 console.error('[Chat Route] Failed to save artifact message:', artifactAssistantMsgError)
               }
 
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
               return
             } else if (chunk.type === 'orchestrator') {
               // Store image files and AI request for later processing
