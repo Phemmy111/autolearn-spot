@@ -439,8 +439,8 @@ export function AlexInputArea({
 
   /**
    * Optimize image for TPM constraints using canvas API
-   * Resizes to max 512x512 and compresses to JPEG quality 0.7
-   * More aggressive to ensure TPM compliance
+   * Resizes to max 320x320 and compresses to JPEG quality 0.5
+   * Very aggressive to ensure TPM compliance
    */
   const optimizeImage = async (file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
@@ -465,8 +465,8 @@ export function AlexInputArea({
           return
         }
 
-        // Calculate target dimensions (max 512x512, maintain aspect ratio) - more aggressive
-        const maxDimension = 512
+        // Calculate target dimensions (max 320x320, maintain aspect ratio) - very aggressive
+        const maxDimension = 320
         let width = img.width
         let height = img.height
 
@@ -485,7 +485,7 @@ export function AlexInputArea({
 
         console.log('[AlexInputArea] Canvas dimensions:', width, 'x', height)
 
-        // Draw and compress to JPEG with lower quality
+        // Draw and compress to JPEG with very low quality
         ctx.drawImage(img, 0, 0, width, height)
 
         canvas.toBlob(
@@ -498,8 +498,8 @@ export function AlexInputArea({
             console.log('[AlexInputArea] Blob created, size:', blob.size)
 
             // Post-optimization size validation
-            // Safe limit for single image in base64 is approximately 1-2MB to stay within TPM constraints
-            const MAX_IMAGE_BYTES = 2 * 1024 * 1024 // 2MB - more aggressive limit
+            // Safe limit for single image in base64 is approximately 500KB-1MB to stay within TPM constraints
+            const MAX_IMAGE_BYTES = 1 * 1024 * 1024 // 1MB - very aggressive limit
             if (blob.size > MAX_IMAGE_BYTES) {
               console.warn('[AlexInputArea] Optimized image still too large, attempting further compression:', {
                 optimizedSize: blob.size,
@@ -532,7 +532,7 @@ export function AlexInputArea({
                   resolve(optimizedFile)
                 },
                 'image/jpeg',
-                0.5 // Quality 50%
+                0.3 // Quality 30%
               )
             } else {
               console.log('[AlexInputArea] Image optimized:', {
@@ -551,7 +551,7 @@ export function AlexInputArea({
             }
           },
           'image/jpeg',
-          0.7 // Quality 70% - more aggressive
+          0.5 // Quality 50% - very aggressive
         )
       }
 
