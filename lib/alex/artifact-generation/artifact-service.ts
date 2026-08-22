@@ -200,6 +200,8 @@ export class ArtifactService {
     content: string,
     isPrimary: boolean = false
   ): Promise<GeneratedArtifact> {
+    console.log('[Artifact Service] Saving artifact:', { buildId, userId, filename, fileType, contentLength: content.length })
+    
     const { data, error } = await getSupabaseClient()
       .from('alex_artifacts')
       .insert({
@@ -218,10 +220,11 @@ export class ArtifactService {
 
     if (error) {
       console.error('[Artifact Service] Failed to save artifact:', error)
+      console.error('[Artifact Service] Error details:', JSON.stringify(error, null, 2))
       throw new Error(`Failed to save artifact: ${error.message}`)
     }
 
-    console.log('[Artifact Service] Artifact saved:', data.id)
+    console.log('[Artifact Service] Artifact saved successfully:', data.id, 'for user:', data.user_id)
     return data
   }
 
