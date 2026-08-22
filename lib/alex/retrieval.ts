@@ -361,7 +361,7 @@ async function applyFreshnessRanking(chunks: any[], userId: string): Promise<any
 
     // Apply time decay boost to similarity scores
     // More recent files get a boost, older files get a penalty
-    const TIME_DECAY_WEIGHT = 0.3 // 30% weight for freshness, 70% for similarity
+    const TIME_DECAY_WEIGHT = 0.5 // 50% weight for freshness, 50% for similarity (increased from 30% to prioritize latest sources)
     
     const rankedChunks = chunks.map(chunk => {
       const fileTimestamp = fileTimestamps.get(chunk.file_id)

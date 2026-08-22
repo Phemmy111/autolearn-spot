@@ -459,6 +459,7 @@ export async function POST(request: NextRequest) {
             enableTools: true, // Phase 5: Enable tool calling
             enableAgent: enableAgent || false, // Phase 6: Enable agent mode
             conversationId,
+            enableTokenAwareAssembly: (attachedFiles || []).length > 0, // Enable token-aware assembly when files are attached
           })) {
             if (chunk.type === 'orchestrator') {
               // Store image files and AI request for later processing

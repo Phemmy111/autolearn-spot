@@ -393,6 +393,10 @@ async function buildTokenAwareFileContext(
         }
 
         filesRepresentedInContext = new Set(selectedChunks.map(c => c.fileId)).size
+      } else {
+        // No chunks retrieved (file not indexed yet), fall back to direct content
+        console.log('[ATTACHMENT TRACE] No chunks retrieved from RAG, falling back to direct content')
+        return buildDirectFileContext(textFiles, remainingBudget, context, metadataTokens, maxChars)
       }
     } catch (error) {
       console.error('[Token-Aware Context] RAG retrieval failed, falling back to direct content:', error)
