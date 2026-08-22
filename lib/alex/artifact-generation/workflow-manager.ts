@@ -162,6 +162,21 @@ export class ArtifactWorkflowManager {
       return this.confirmSpecification(build, request)
     }
 
+    // For simple JSON/configuration requests, just ask for filename and proceed
+    if (build.build_type === 'configuration' || build.build_type === 'chatbot') {
+      console.log('[Artifact Workflow] Simple request detected, asking for filename only')
+      
+      await ArtifactService.addQuestion(build.id, 'What filename would you like for the downloadable file (including .json extension)?', 'missing_requirement')
+      await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+      
+      return {
+        status: 'collecting_requirements',
+        message: `I'll create a ${build.build_type} configuration for you. What filename would you like for the downloadable file (including .json extension)?`,
+        needsInput: true,
+        questions: ['What filename would you like for the downloadable file (including .json extension)?']
+      }
+    }
+
     // Use AI to determine if we need more information for complex requests
     const requirementsPrompt = this.buildRequirementsPrompt(build, request)
     
@@ -694,14 +709,13 @@ Your task:
 1. Analyze what the user wants to build
 2. Check attached files for relevant information
 3. Identify critical missing requirements that are essential for the artifact to be useful
-4. Ask ONLY necessary questions (max 3 questions)
+4. Ask ONLY 1-2 critical questions maximum - be focused and concise
 5. If requirements are complete or the request is simple enough to proceed, say "REQUIREMENTS_COMPLETE" and provide the final specification
 
 IMPORTANT: Respond ONLY in the exact format below. Do not add any other text, explanations, or conversational filler.
 
 If questions needed:
-QUESTION: [question 1]
-QUESTION: [question 2]
+QUESTION: [single focused question]
 
 If complete:
 REQUIREMENTS_COMPLETE

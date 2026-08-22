@@ -464,47 +464,78 @@ export async function POST(request: NextRequest) {
             if (chunk.type === 'orchestrator') {
               // Phase 7: Check for artifact workflow response
               if (chunk.data?.artifactWorkflow) {
-                // Send artifact workflow response directly
+                // Don't handle here - let the AI engine's artifact_workflow event handle it
+                console.log('[Chat Route] Artifact workflow detected in orchestrator, will be handled by AI engine event')
+              } else {
+                // Store image files and AI request for later processing
+                imageFiles = chunk.imageFiles || []
+                aiRequest = chunk.data?.aiRequest
+
+                // Send orchestrator metadata
                 controller.enqueue(
                   encoder.encode(`data: ${JSON.stringify({
-                    type: 'artifact_workflow',
-                    data: chunk.data.artifactWorkflow
+                    type: 'metadata',
+                    data: chunk.data
                   })}\n\n`)
                 )
-                
-                // Save the artifact workflow response as the assistant message
-                const artifactMessage = JSON.stringify(chunk.data.artifactWorkflow, null, 2)
-                const { data: assistantMessage, error: assistantMsgError } = await supabase
-                  .from('alex_messages')
-                  .insert({
-                    conversation_id: conversationId,
-                    role: 'assistant',
-                    content: artifactMessage,
-                    model_used: 'artifact_workflow',
-                    tokens: 0
-                  })
-                  .select()
-                  .single()
-
-                if (assistantMsgError) {
-                  console.error('[Chat Route] Failed to save artifact message:', assistantMsgError)
-                }
-
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
-                return
               }
             } else if (chunk.type === 'artifact_workflow') {
               // Handle artifact workflow event from AI engine
               console.log('[Chat Route] Artifact workflow event received from AI engine')
+              
+              // Convert artifact workflow to a regular message for frontend compatibility
+              const artifactMessage = chunk.data.message || JSON.stringify(chunk.data, null, 2)
+              
+              // Stream the artifact message as regular content
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`)
+              )
+              
               controller.enqueue(
                 encoder.encode(`data: ${JSON.stringify({
-                  type: 'artifact_workflow',
-                  data: chunk.data
+                  type: 'delta',
+                  content: artifactMessage
                 })}\n\n`)
               )
               
               // Save the artifact workflow response as the assistant message
-              const artifactMessage = JSON.stringify(chunk.data, null, 2)
+              const { data: assistantMessage, error: assistantMsgError } = await supabase
+                .from('alex_messages')
+                .insert({
+                  conversation_id: conversationId,
+                  role: 'assistant',
+                  content: artifactMessage,
+                  model_used: 'artifact_workflow',
+                  tokens: 0
+                })
+                .select()
+                .single()
+
+              if (assistantMsgError) {
+                console.error('[Chat Route] Failed to save artifact message:', assistantMsgError)
+              }
+
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
+              return
+              // Handle artifact workflow event from AI engine
+              console.log('[Chat Route] Artifact workflow event received from AI engine')
+              
+              // Convert artifact workflow to a regular message for frontend compatibility
+              const artifactMessage = chunk.data.message || JSON.stringify(chunk.data, null, 2)
+              
+              // Stream the artifact message as regular content
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`)
+              )
+              
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({
+                  type: 'delta',
+                  content: artifactMessage
+                })}\n\n`)
+              )
+              
+              // Save the artifact workflow response as the assistant message
               const { data: assistantMessage, error: assistantMsgError } = await supabase
                 .from('alex_messages')
                 .insert({
