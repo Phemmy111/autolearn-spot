@@ -11,6 +11,22 @@ import {
   BuildType,
   ArtifactManifest
 } from './types'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+function getSupabaseClient() {
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing Supabase environment variables for workflow manager')
+  }
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 export interface WorkflowRequest {
   conversationId: string
@@ -81,6 +97,20 @@ export class ArtifactWorkflowManager {
   private static async continueWorkflow(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Continuing workflow:', build.id, 'status:', build.status)
 
+    // Check for retry command on failed builds
+    if (build.status === 'failed' && 
+        (request.content.toLowerCase().includes('try again') || 
+         request.content.toLowerCase().includes('retry') ||
+         request.content.toLowerCase().includes('regenerate'))) {
+      console.log('[Artifact Workflow] Retry requested for failed build')
+      // Reset build status and retry generation
+      await ArtifactService.updateBuildStatus(build.id, 'confirmed', {
+        generationStartedAt: new Date().toISOString(),
+        retryCount: (build.generation_metadata?.retryCount || 0) + 1
+      })
+      return this.generateArtifacts(build, request)
+    }
+
     switch (build.status) {
       case 'collecting_requirements':
         return this.gatherRequirements(build, request)
@@ -95,7 +125,11 @@ export class ArtifactWorkflowManager {
       case 'completed':
         return this.getCompletedBuild(build)
       case 'failed':
-        return { status: 'failed', message: build.error_message || 'Build failed' }
+        return { 
+          status: 'failed', 
+          message: build.error_message || 'Build failed. Type "try again" to retry generation.',
+          needsInput: true
+        }
       default:
         return { status: 'failed', message: 'Unknown build status' }
     }
@@ -107,17 +141,59 @@ export class ArtifactWorkflowManager {
   private static async gatherRequirements(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Gathering requirements for:', build.id)
 
-    // Skip requirement gathering for all requests - go straight to generation
-    console.log('[Artifact Workflow] Skipping requirement gathering, going straight to generation')
-    // Create a basic specification from the request
-    const basicSpec = {
-      request: build.original_request,
-      build_type: build.build_type,
-      user_request: request.content
+    // Use AI to determine if we need more information
+    const requirementsPrompt = this.buildRequirementsPrompt(build, request)
+    
+    try {
+      const aiResponse = await this.getAIResponse(requirementsPrompt, request)
+      const { complete, questions, specification } = this.parseRequirementsResponse(aiResponse)
+
+      console.log('[Artifact Workflow] Requirements analysis:', { complete, questionCount: questions.length })
+
+      if (complete && specification) {
+        // Requirements are complete, move to confirmation
+        await ArtifactService.updateSpecification(build.id, specification, [])
+        await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+        return this.confirmSpecification(build, request)
+      }
+
+      if (questions.length > 0) {
+        // Ask the user questions
+        for (const question of questions) {
+          await ArtifactService.addQuestion(build.id, question, 'missing_requirement')
+        }
+        
+        await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+        
+        return {
+          status: 'collecting_requirements',
+          message: `I need some more information to build this ${build.build_type}:\n\n${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}`,
+          needsInput: true,
+          questions
+        }
+      }
+
+      // If no questions and not complete, proceed with basic spec
+      const basicSpec = {
+        request: build.original_request,
+        build_type: build.build_type,
+        user_request: request.content
+      }
+      await ArtifactService.updateSpecification(build.id, basicSpec, [])
+      await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+      return this.confirmSpecification(build, request)
+    } catch (error) {
+      console.error('[Artifact Workflow] Requirements gathering failed:', error)
+      // If requirements gathering fails, proceed with basic spec to avoid blocking
+      const basicSpec = {
+        request: build.original_request,
+        build_type: build.build_type,
+        user_request: request.content
+      }
+      await ArtifactService.updateSpecification(build.id, basicSpec, [])
+      await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+      return this.confirmSpecification(build, request)
     }
-    await ArtifactService.updateSpecification(build.id, basicSpec, [])
-    await ArtifactService.updateBuildStatus(build.id, 'confirmed')
-    return this.generateArtifacts(build, request)
   }
 
   /**
@@ -126,11 +202,26 @@ export class ArtifactWorkflowManager {
   private static async confirmSpecification(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Confirming specification for:', build.id)
 
+    // For simple requests with explicit specifications, skip confirmation
+    const spec = build.final_specification || {}
+    const isSimpleRequest = Object.keys(spec).length <= 3 && 
+                           !spec.requires_complexity &&
+                           request.content.length < 100
+
+    if (isSimpleRequest) {
+      console.log('[Artifact Workflow] Simple request, skipping confirmation')
+      await ArtifactService.updateBuildStatus(build.id, 'confirmed', {
+        generationStartedAt: new Date().toISOString()
+      })
+      return this.generateArtifacts(build, request)
+    }
+
     // Check if user confirmed
     const userConfirmed = request.content.toLowerCase().includes('yes') || 
                         request.content.toLowerCase().includes('proceed') ||
                         request.content.toLowerCase().includes('continue') ||
-                        request.content.toLowerCase().includes('generate')
+                        request.content.toLowerCase().includes('generate') ||
+                        request.content.toLowerCase().includes('go ahead')
 
     if (userConfirmed) {
       await ArtifactService.updateBuildStatus(build.id, 'confirmed', {
@@ -164,7 +255,53 @@ export class ArtifactWorkflowManager {
     await ArtifactService.updateBuildStatus(build.id, 'generating')
 
     try {
-      // Use AI to generate artifacts
+      // Try primary generation method
+      const primaryResult = await this.attemptArtifactGeneration(build, request, 1)
+      
+      if (primaryResult.success) {
+        return primaryResult.response
+      }
+
+      // If primary failed, try fallback method
+      console.log('[Artifact Workflow] Primary generation failed, trying fallback')
+      const fallbackResult = await this.attemptFallbackGeneration(build, request)
+      
+      if (fallbackResult.success) {
+        return fallbackResult.response
+      }
+
+      // Both methods failed
+      console.error('[Artifact Workflow] All generation methods failed')
+      await ArtifactService.markBuildFailed(build.id, 'All generation methods failed. Requirements preserved for retry.')
+      
+      return {
+        status: 'failed',
+        message: `I've captured your requirements, but the artifact generator couldn't produce a valid file this time. Your configuration is preserved. Type "try again" to retry generation.`,
+        needsInput: true
+      }
+    } catch (error) {
+      console.error('[Artifact Workflow] Artifact generation failed:', error)
+      await ArtifactService.markBuildFailed(build.id, (error as Error).message)
+      
+      return {
+        status: 'failed',
+        message: `I've captured your requirements, but the artifact generator encountered an error: ${(error as Error).message}. Your configuration is preserved. Type "try again" to retry generation.`,
+        needsInput: true
+      }
+    }
+  }
+
+  /**
+   * Attempt primary artifact generation with structured output
+   */
+  private static async attemptArtifactGeneration(
+    build: ArtifactBuild, 
+    request: WorkflowRequest,
+    attempt: number
+  ): Promise<{ success: boolean; response?: WorkflowResponse }> {
+    try {
+      console.log('[Artifact Workflow] Primary generation attempt:', attempt)
+      
       const generationPrompt = this.buildGenerationPrompt(build, request)
       const aiResponse = await this.getAIResponse(generationPrompt, request)
 
@@ -176,15 +313,22 @@ export class ArtifactWorkflowManager {
 
       if (!manifest || manifest.files.length === 0) {
         console.error('[Artifact Workflow] Parsing failed or no files in manifest')
-        throw new Error('No artifacts generated from AI response')
+        return { success: false }
       }
 
       console.log('[Artifact Workflow] Manifest parsed successfully, files:', manifest.files.length)
 
+      // Sanitize artifacts to remove secrets
+      const sanitizedFiles = manifest.files.map(file => ({
+        ...file,
+        content: this.sanitizeContent(file.content)
+      }))
+
       // Save artifacts
       const savedArtifacts = []
-      for (const file of manifest.files) {
+      for (const file of sanitizedFiles) {
         console.log('[Artifact Workflow] Saving artifact:', file.filename, 'type:', file.file_type)
+        
         const artifact = await ArtifactService.saveArtifact(
           build.id,
           request.userId,
@@ -206,10 +350,20 @@ export class ArtifactWorkflowManager {
 
         if (!validation.valid) {
           console.error('[Artifact Workflow] Artifact validation failed:', validation.errors)
-          throw new Error(`Artifact validation failed: ${validation.errors.join(', ')}`)
+          // Try to repair the artifact
+          const repaired = await this.attemptArtifactRepair(artifact, file.content, file.file_type)
+          if (!repaired) {
+            return { success: false }
+          }
         }
 
         savedArtifacts.push(artifact)
+      }
+
+      // Generate guide for the primary artifact
+      const guideResult = await this.generateGuide(savedArtifacts, build, request)
+      if (guideResult) {
+        savedArtifacts.push(guideResult)
       }
 
       await ArtifactService.updateBuildStatus(build.id, 'completed', {
@@ -220,14 +374,275 @@ export class ArtifactWorkflowManager {
       console.log('[Artifact Workflow] Generation completed successfully, artifacts:', savedArtifacts.length)
 
       return {
-        status: 'completed',
-        message: this.buildCompletionMessage(savedArtifacts),
-        artifacts: savedArtifacts
+        success: true,
+        response: {
+          status: 'completed',
+          message: this.buildCompletionMessage(savedArtifacts),
+          artifacts: savedArtifacts
+        }
       }
     } catch (error) {
-      console.error('[Artifact Workflow] Artifact generation failed:', error)
-      await ArtifactService.markBuildFailed(build.id, (error as Error).message)
-      return { status: 'failed', message: `Artifact generation failed: ${(error as Error).message}` }
+      console.error('[Artifact Workflow] Primary generation attempt failed:', error)
+      return { success: false }
+    }
+  }
+
+  /**
+   * Attempt fallback generation using text extraction
+   */
+  private static async attemptFallbackGeneration(
+    build: ArtifactBuild,
+    request: WorkflowRequest
+  ): Promise<{ success: boolean; response?: WorkflowResponse }> {
+    try {
+      console.log('[Artifact Workflow] Fallback generation attempt')
+      
+      const fallbackPrompt = `Generate a ${build.build_type} based on this request: ${build.original_request}
+
+Please provide the output as a simple code block with the file content. Do not include any explanatory text outside the code block.
+
+Format:
+\`\`\`json
+{
+  "filename": "config.json",
+  "content": {...}
+}
+\`\`\`
+
+If multiple files are needed, provide multiple code blocks.`
+
+      const aiResponse = await this.getAIResponse(fallbackPrompt, request)
+      
+      // Extract code blocks
+      const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
+      const matches = Array.from(aiResponse.matchAll(codeBlockRegex))
+      
+      if (matches.length === 0) {
+        console.error('[Artifact Workflow] No code blocks found in fallback response')
+        return { success: false }
+      }
+
+      const savedArtifacts = []
+      
+      for (const match of matches) {
+        const fileType = match[1] || 'json'
+        const content = match[2].trim()
+        
+        try {
+          // Parse the content to extract filename if it's JSON
+          let filename = `${build.build_type}-${Date.now()}.${fileType}`
+          let actualContent = content
+          
+          if (fileType === 'json') {
+            try {
+              const parsed = JSON.parse(content)
+              filename = parsed.filename || filename
+              actualContent = parsed.content || JSON.stringify(parsed, null, 2)
+            } catch (e) {
+              // Content is already the JSON
+              actualContent = content
+            }
+          }
+
+          // Sanitize content
+          actualContent = this.sanitizeContent(actualContent)
+
+          const artifact = await ArtifactService.saveArtifact(
+            build.id,
+            request.userId,
+            filename,
+            fileType,
+            this.getMimeType(fileType),
+            actualContent,
+            true
+          )
+
+          // Validate
+          const validation = await ArtifactService.validateArtifact(artifact.id, actualContent, fileType)
+          if (!validation.valid) {
+            console.error('[Artifact Workflow] Fallback validation failed:', validation.errors)
+            continue
+          }
+
+          savedArtifacts.push(artifact)
+        } catch (error) {
+          console.error('[Artifact Workflow] Failed to process fallback code block:', error)
+          continue
+        }
+      }
+
+      if (savedArtifacts.length === 0) {
+        return { success: false }
+      }
+
+      // Generate guide
+      const guideResult = await this.generateGuide(savedArtifacts, build, request)
+      if (guideResult) {
+        savedArtifacts.push(guideResult)
+      }
+
+      await ArtifactService.updateBuildStatus(build.id, 'completed', {
+        generationCompletedAt: new Date().toISOString(),
+        filesGenerated: savedArtifacts.length
+      })
+
+      return {
+        success: true,
+        response: {
+          status: 'completed',
+          message: this.buildCompletionMessage(savedArtifacts),
+          artifacts: savedArtifacts
+        }
+      }
+    } catch (error) {
+      console.error('[Artifact Workflow] Fallback generation failed:', error)
+      return { success: false }
+    }
+  }
+
+  /**
+   * Attempt to repair a failed artifact
+   */
+  private static async attemptArtifactRepair(
+    artifact: any,
+    content: string,
+    fileType: string
+  ): Promise<boolean> {
+    try {
+      console.log('[Artifact Workflow] Attempting artifact repair for:', artifact.id)
+      
+      let repairedContent = content
+
+      if (fileType === 'json') {
+        // Try to fix common JSON issues
+        repairedContent = content
+          .replace(/,\s*}/g, '}')  // Remove trailing commas
+          .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
+          .replace(/'/g, '"')      // Replace single quotes with double quotes
+          .trim()
+        
+        // Try parsing the repaired content
+        try {
+          JSON.parse(repairedContent)
+          
+          // Update the artifact with repaired content
+          const { error } = await getSupabaseClient()
+            .from('alex_artifacts')
+            .update({ content: repairedContent })
+            .eq('id', artifact.id)
+          
+          if (error) {
+            console.error('[Artifact Workflow] Failed to update repaired artifact:', error)
+            return false
+          }
+
+          // Re-validate
+          const validation = await ArtifactService.validateArtifact(artifact.id, repairedContent, fileType)
+          return validation.valid
+        } catch (e) {
+          console.error('[Artifact Workflow] Repair attempt failed:', e)
+          return false
+        }
+      }
+
+      return false
+    } catch (error) {
+      console.error('[Artifact Workflow] Artifact repair failed:', error)
+      return false
+    }
+  }
+
+  /**
+   * Sanitize content to remove secrets
+   */
+  private static sanitizeContent(content: string): string {
+    const secretPatterns = [
+      { pattern: /sk-[a-zA-Z0-9]{20,}/g, replacement: 'sk-YOUR_API_KEY_HERE' },
+      { pattern: /xox[bap]-[a-zA-Z0-9]{20,}/g, replacement: 'xoxb-YOUR_SLACK_TOKEN_HERE' },
+      { pattern: /AIza[a-zA-Z0-9_-]{35}/g, replacement: 'AIza-YOUR_GOOGLE_API_KEY_HERE' },
+      { pattern: /AKIA[a-zA-Z0-9]{16}/g, replacement: 'AKIA-YOUR_AWS_ACCESS_KEY_HERE' },
+      { pattern: /eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, replacement: 'eyJ.YOUR_JWT_TOKEN_HERE' },
+      { pattern: /service[_-]?role[_-]?key[:\s]*[a-zA-Z0-9_-]{20,}/gi, replacement: 'service_role_key: YOUR_SERVICE_ROLE_KEY_HERE' },
+      { pattern: /supabase[_-]?key[:\s]*[a-zA-Z0-9_-]{20,}/gi, replacement: 'supabase_key: YOUR_SUPABASE_KEY_HERE' },
+      { pattern: /clerk[_-]?secret[_-]?key[:\s]*[a-zA-Z0-9_-]{20,}/gi, replacement: 'clerk_secret_key: YOUR_CLERK_SECRET_KEY_HERE' }
+    ]
+
+    let sanitized = content
+    for (const { pattern, replacement } of secretPatterns) {
+      sanitized = sanitized.replace(pattern, replacement)
+    }
+
+    return sanitized
+  }
+
+  /**
+   * Get MIME type for file type
+   */
+  private static getMimeType(fileType: string): string {
+    const mimeTypes: Record<string, string> = {
+      'json': 'application/json',
+      'md': 'text/markdown',
+      'txt': 'text/plain',
+      'js': 'application/javascript',
+      'py': 'text/x-python',
+      'yaml': 'text/yaml',
+      'yml': 'text/yaml',
+      'xml': 'application/xml'
+    }
+    return mimeTypes[fileType] || 'text/plain'
+  }
+
+  /**
+   * Generate guide for artifacts
+   */
+  private static async generateGuide(
+    artifacts: any[],
+    build: ArtifactBuild,
+    request: WorkflowRequest
+  ): Promise<any | null> {
+    try {
+      console.log('[Artifact Workflow] Generating guide for artifacts')
+      
+      const primaryArtifact = artifacts.find(a => a.is_primary) || artifacts[0]
+      if (!primaryArtifact) return null
+
+      const guidePrompt = `Generate a concise guide for using this ${build.build_type} artifact.
+
+Original request: ${build.original_request}
+Artifact filename: ${primaryArtifact.filename}
+Artifact type: ${primaryArtifact.file_type}
+
+Generate a guide in markdown format that explains:
+1. What the file contains
+2. What the configuration does
+3. Required setup steps
+4. How to import/use it
+5. Important customization points
+6. Any assumptions made
+7. Next steps
+
+Keep it practical and actionable. Do not include the actual file content in the guide.`
+
+      const guideContent = await this.getAIResponse(guidePrompt, request)
+      
+      const guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.md')
+      
+      const guideArtifact = await ArtifactService.saveArtifact(
+        build.id,
+        request.userId,
+        guideFilename,
+        'md',
+        'text/markdown',
+        guideContent,
+        false
+      )
+
+      console.log('[Artifact Workflow] Guide generated:', guideArtifact.id)
+      return guideArtifact
+    } catch (error) {
+      console.error('[Artifact Workflow] Guide generation failed:', error)
+      // Guide generation is not critical, so return null on failure
+      return null
     }
   }
 
@@ -257,9 +672,9 @@ Attached files: ${request.attachedFiles?.map(f => f.original_filename).join(', '
 Your task:
 1. Analyze what the user wants to build
 2. Check attached files for relevant information
-3. Identify critical missing requirements
-4. Ask ONLY necessary questions (3-5 max if truly needed)
-5. If requirements are complete, say "REQUIREMENTS_COMPLETE" and provide the final specification
+3. Identify critical missing requirements that are essential for the artifact to be useful
+4. Ask ONLY necessary questions (max 3 questions)
+5. If requirements are complete or the request is simple enough to proceed, say "REQUIREMENTS_COMPLETE" and provide the final specification
 
 IMPORTANT: Respond ONLY in the exact format below. Do not add any other text, explanations, or conversational filler.
 
@@ -269,7 +684,7 @@ QUESTION: [question 2]
 
 If complete:
 REQUIREMENTS_COMPLETE
-SPECIFICATION: {"key": "value"}
+SPECIFICATION: {"name": "extracted_name", "purpose": "extracted_purpose", "requires_complexity": false}
 `
   }
 

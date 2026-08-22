@@ -141,45 +141,47 @@ export class AlexOrchestrator {
     }
 
     // Phase 7: Route to artifact workflow if build intent detected
-    // DISABLED: AI providers are timing out on structured JSON generation
-    // TODO: Re-enable when providers are more reliable or when using function calling
-    // if (isArtifactGeneration && userId && conversationId) {
-    //   console.log('[Orchestrator] Artifact generation intent detected, routing to workflow manager')
-    //
-    //   try {
-    //     const workflowRequest: WorkflowRequest = {
-    //       conversationId,
-    //       userId,
-    //       content,
-    //       attachedFiles,
-    //       conversationHistory
-    //     }
-    //
-    //     const workflowResponse = await ArtifactWorkflowManager.processRequest(workflowRequest)
-    //
-    //     // Return a special response indicating artifact workflow
-    //     return {
-    //       systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
-    //       context: '',
-    //       detectedIntent,
-    //       suggestedMode,
-    //       aiRequest: {
-    //         messages: [
-    //           { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
-    //           { role: 'user', content: content }
-    //         ],
-    //         stream: false,
-    //         disableTools: true
-    //       },
-    //       imageFiles: [],
-    //       artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
-    //     }
-    //   } catch (error) {
-    //     console.error('[Orchestrator] Artifact workflow failed, falling back to normal chat:', error)
-    //     // Fall back to normal chat if artifact workflow fails
-    //     // Don't return early - continue to normal chat flow
-    //   }
-    // }
+    // RE-ENABLED: Now with proper fallback and graceful failure handling
+    if (isArtifactGeneration && userId && conversationId) {
+      console.log('[Orchestrator] Artifact generation intent detected, routing to workflow manager')
+      
+      try {
+        const workflowRequest: WorkflowRequest = {
+          conversationId,
+          userId,
+          content,
+          attachedFiles,
+          conversationHistory
+        }
+
+        const workflowResponse = await ArtifactWorkflowManager.processRequest(workflowRequest)
+
+        console.log('[Orchestrator] Artifact workflow response:', workflowResponse.status)
+
+        // Return a special response indicating artifact workflow
+        return {
+          systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+          context: '',
+          detectedIntent,
+          suggestedMode,
+          aiRequest: {
+            messages: [
+              { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+              { role: 'user', content: content }
+            ],
+            stream: false,
+            disableTools: true
+          },
+          imageFiles: [],
+          artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+        }
+      } catch (error) {
+        console.error('[Orchestrator] Artifact workflow failed, falling back to normal chat:', error)
+        // Fall back to normal chat if artifact workflow fails
+        // Don't return early - continue to normal chat flow
+        // This ensures normal chat remains functional even if artifact generation fails
+      }
+    }
 
     // Generate system prompt for token estimation
     const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools)

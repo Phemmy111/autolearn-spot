@@ -16,43 +16,59 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
   const lowerContent = content.toLowerCase()
 
   // Phase 7: Check for artifact/build generation intent first (highest priority)
-  const buildPatterns = [
-    'build me', 'create a', 'generate a', 'build an', 'create an', 'generate an',
-    'make me', 'create the', 'generate the', 'build the',
-    'create json', 'generate json', 'build json',
-    'create workflow', 'generate workflow', 'build workflow',
-    'create chatbot', 'generate chatbot', 'build chatbot',
-    'create agent', 'generate agent', 'build agent',
-    'create website', 'generate website', 'build website',
-    'create automation', 'generate automation', 'build automation',
-    'create api', 'generate api', 'build api',
-    'create script', 'generate script', 'build script',
-    'create configuration', 'generate configuration', 'build configuration',
-    'create complete', 'generate complete', 'build complete',
-    'package for me', 'artifacts for me', 'files for me'
+  // Negative patterns - these should NOT trigger artifact generation
+  const negativePatterns = [
+    'explain json', 'what is json', 'how does json work', 'json meaning',
+    'understand json', 'parse json', 'read json', 'json format',
+    'json example', 'json syntax', 'what does this json mean',
+    'help me understand', 'tell me about', 'describe json'
   ]
 
-  // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
-  const isBuildRequest = buildPatterns.some(pattern => lowerContent.startsWith(pattern) || 
-    (lowerContent.includes(pattern) && lowerContent.length < 50))
+  const isNegativeRequest = negativePatterns.some(pattern => lowerContent.includes(pattern))
+  if (isNegativeRequest) {
+    // Continue to normal intent detection below
+  } else {
+    // Positive patterns - these SHOULD trigger artifact generation
+    const buildPatterns = [
+      'build me a', 'create a', 'generate a', 'build an', 'create an', 'generate an',
+      'make me a', 'create the', 'generate the', 'build the',
+      'create json configuration', 'generate json configuration', 'build json configuration',
+      'create workflow', 'generate workflow', 'build workflow',
+      'create chatbot', 'generate chatbot', 'build chatbot',
+      'create agent', 'generate agent', 'build agent',
+      'create website', 'generate website', 'build website',
+      'create automation', 'generate automation', 'build automation',
+      'create api', 'generate api', 'build api',
+      'create script', 'generate script', 'build script',
+      'create configuration', 'generate configuration', 'build configuration',
+      'create complete', 'generate complete', 'build complete',
+      'package for me', 'artifacts for me', 'files for me',
+      'downloadable', 'configuration file', 'setup guide'
+    ]
 
-  // Secondary check: even if not at start, check for strong build indicators
-  const strongBuildIndicators = [
-    'generate the json', 'create the json', 'build the json',
-    'generate the workflow', 'create the workflow', 'build the workflow',
-    'generate the chatbot', 'create the chatbot', 'build the chatbot',
-    'setup guide', 'configuration file', 'downloadable files',
-    'package and deliver', 'zip file', 'source code'
-  ]
-  
-  const hasStrongBuildIndicator = strongBuildIndicators.some(indicator => lowerContent.includes(indicator))
+    // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
+    const isBuildRequest = buildPatterns.some(pattern => lowerContent.startsWith(pattern) || 
+      (lowerContent.includes(pattern) && lowerContent.length < 50))
 
-  if (isBuildRequest || hasStrongBuildIndicator) {
-    return {
-      intent: 'Artifact generation',
-      suggestedMode: 'agent_builder',
-      confidence: 0.85,
-      isArtifactGeneration: true
+    // Secondary check: even if not at start, check for strong build indicators
+    const strongBuildIndicators = [
+      'generate the json', 'create the json', 'build the json',
+      'generate the workflow', 'create the workflow', 'build the workflow',
+      'generate the chatbot', 'create the chatbot', 'build the chatbot',
+      'setup guide', 'configuration file', 'downloadable files',
+      'package and deliver', 'zip file', 'source code',
+      'import into', 'deploy this', 'use this file'
+    ]
+    
+    const hasStrongBuildIndicator = strongBuildIndicators.some(indicator => lowerContent.includes(indicator))
+
+    if (isBuildRequest || hasStrongBuildIndicator) {
+      return {
+        intent: 'Artifact generation',
+        suggestedMode: 'agent_builder',
+        confidence: 0.85,
+        isArtifactGeneration: true
+      }
     }
   }
 
