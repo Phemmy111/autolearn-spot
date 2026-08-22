@@ -244,7 +244,8 @@ export async function assembleContext(
           {
             conversationId: options.conversationId,
             limit: 5,
-            minSimilarity: 0.7
+            minSimilarity: 0.7,
+            preferLatest: true // Enable freshness ranking for latest source preference
           }
         )
 

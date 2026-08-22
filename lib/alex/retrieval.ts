@@ -32,6 +32,7 @@ export interface RetrievalOptions {
   embeddingApiKey?: string
   fileIds?: string[] // Specific file IDs to retrieve from
   userId?: string // Required for file-specific retrieval
+  preferLatest?: boolean // Prefer newer chunks when multiple versions exist
 }
 
 export interface RetrievedChunk {
@@ -96,8 +97,21 @@ export async function retrieveChunks(
 
     console.log('[Retrieval] Retrieved chunks:', chunks.length)
 
+    // Step 3.5: Apply freshness ranking if enabled
+    const rankedChunks = options.preferLatest 
+      ? await applyFreshnessRanking(chunks, userId)
+      : chunks
+
+    if (options.preferLatest) {
+      console.log('[Retrieval] Applied freshness ranking:', {
+        originalCount: chunks.length,
+        rankedCount: rankedChunks.length,
+        preferLatest: true
+      })
+    }
+
     // Step 4: Format results with filenames
-    const formattedChunks = await formatRetrievedChunks(chunks)
+    const formattedChunks = await formatRetrievedChunks(rankedChunks)
 
     const processingTimeMs = Date.now() - startTime
 
@@ -300,6 +314,96 @@ async function formatRetrievedChunks(chunks: any[]): Promise<RetrievedChunk[]> {
     similarity: chunk.similarity,
     filename: filenameMap.get(chunk.file_id)
   }))
+}
+
+/**
+ * Apply freshness ranking to chunks
+ * Boosts scores for newer chunks to prefer latest source versions
+ */
+async function applyFreshnessRanking(chunks: any[], userId: string): Promise<any[]> {
+  if (chunks.length === 0) {
+    return chunks
+  }
+
+  try {
+    // Fetch file metadata including timestamps for all chunks
+    const fileIds = [...new Set(chunks.map(c => c.file_id))]
+    
+    const { data: files, error: filesError } = await getSupabaseClient()
+      .from('alex_files')
+      .select('id, original_filename, created_at, updated_at')
+      .in('id', fileIds)
+      .eq('user_id', userId)
+
+    if (filesError) {
+      console.error('[Retrieval] Failed to fetch file timestamps for freshness ranking:', filesError)
+      return chunks // Fall back to original ranking
+    }
+
+    // Create file timestamp lookup
+    const fileTimestamps = new Map<string, { created_at: string; updated_at: string }>()
+    if (files) {
+      for (const file of files) {
+        fileTimestamps.set(file.id, {
+          created_at: file.created_at,
+          updated_at: file.updated_at
+        })
+      }
+    }
+
+    // Find the most recent timestamp across all files for normalization
+    const allTimestamps = Array.from(fileTimestamps.values()).map(f => 
+      new Date(f.updated_at || f.created_at).getTime()
+    )
+    const maxTimestamp = Math.max(...allTimestamps)
+    const minTimestamp = Math.min(...allTimestamps)
+    const timeRange = maxTimestamp - minTimestamp || 1 // Avoid division by zero
+
+    // Apply time decay boost to similarity scores
+    // More recent files get a boost, older files get a penalty
+    const TIME_DECAY_WEIGHT = 0.3 // 30% weight for freshness, 70% for similarity
+    
+    const rankedChunks = chunks.map(chunk => {
+      const fileTimestamp = fileTimestamps.get(chunk.file_id)
+      if (!fileTimestamp) {
+        return chunk // No timestamp info, keep original score
+      }
+
+      const chunkTime = new Date(fileTimestamp.updated_at || fileTimestamp.created_at).getTime()
+      const timeNormalized = (chunkTime - minTimestamp) / timeRange // 0.0 (oldest) to 1.0 (newest)
+      
+      // Calculate freshness score (1.0 for newest, 0.0 for oldest)
+      const freshnessScore = timeNormalized
+      
+      // Combine similarity and freshness scores
+      const originalSimilarity = chunk.similarity || 0
+      const combinedScore = (originalSimilarity * (1 - TIME_DECAY_WEIGHT)) + (freshnessScore * TIME_DECAY_WEIGHT)
+      
+      console.log('[Retrieval] Freshness ranking for chunk:', {
+        chunkId: chunk.chunk_id,
+        fileId: chunk.file_id,
+        originalSimilarity: originalSimilarity.toFixed(3),
+        freshnessScore: freshnessScore.toFixed(3),
+        combinedScore: combinedScore.toFixed(3),
+        timestamp: new Date(chunkTime).toISOString()
+      })
+
+      return {
+        ...chunk,
+        similarity: combinedScore, // Replace similarity with combined score
+        originalSimilarity, // Keep original for debugging
+        freshnessScore
+      }
+    })
+
+    // Sort by combined score (descending)
+    rankedChunks.sort((a, b) => (b.similarity || 0) - (a.similarity || 0))
+
+    return rankedChunks
+  } catch (error) {
+    console.error('[Retrieval] Freshness ranking failed, using original order:', error)
+    return chunks // Fall back to original ranking
+  }
 }
 
 /**

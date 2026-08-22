@@ -353,7 +353,8 @@ async function buildTokenAwareFileContext(
           conversationId,
           fileIds,
           limit: 20, // Retrieve more chunks to have options
-          minSimilarity: 0.6 // Lower threshold for broader coverage
+          minSimilarity: 0.6, // Lower threshold for broader coverage
+          preferLatest: true // Enable freshness ranking for latest source preference
         }
       )
 

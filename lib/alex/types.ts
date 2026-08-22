@@ -83,6 +83,7 @@ export interface AlexFile {
   created_at: string
   updated_at: string
   imageDataUrl?: string // Added for image support - base64 data URL
+  optimizationDiagnostics?: any // Image optimization metrics for TPM compliance
 }
 
 export interface FileUploadRequest {
