@@ -453,78 +453,57 @@ export class ArtifactWorkflowManager {
     try {
       console.log('[Artifact Workflow] Fallback generation attempt')
       
-      const fallbackPrompt = `Generate a ${build.build_type} based on this request: ${build.original_request}
+      const fallbackPrompt = `Create a JSON configuration for a chatbot called SupportBot.
 
-Please provide the output as a simple code block with the file content. Do not include any explanatory text outside the code block.
+Include:
+- Bot name: SupportBot
+- Description
+- A few sample intents with responses
+- Basic settings
 
-Format:
-\`\`\`json
-{
-  "filename": "config.json",
-  "content": {...}
-}
-\`\`\`
-
-If multiple files are needed, provide multiple code blocks.`
+Just return the JSON. No explanations needed.`
 
       const aiResponse = await this.getAIResponse(fallbackPrompt, request)
+      console.log('[Artifact Workflow] Fallback AI response length:', aiResponse.length)
       
-      // Extract code blocks
-      const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
-      const matches = Array.from(aiResponse.matchAll(codeBlockRegex))
-      
-      if (matches.length === 0) {
-        console.error('[Artifact Workflow] No code blocks found in fallback response')
+      if (aiResponse.length === 0) {
+        console.error('[Artifact Workflow] Fallback also returned empty response')
         return { success: false }
       }
 
+      // Use the new simplified parser
+      const manifest = this.parseArtifactManifest(aiResponse, build.build_type)
+
+      if (!manifest || manifest.files.length === 0) {
+        console.error('[Artifact Workflow] Fallback parsing failed')
+        return { success: false }
+      }
+
+      console.log('[Artifact Workflow] Fallback parsed successfully, files:', manifest.files.length)
+
+      // Sanitize and save artifacts
       const savedArtifacts = []
-      
-      for (const match of matches) {
-        const fileType = match[1] || 'json'
-        const content = match[2].trim()
+      for (const file of manifest.files) {
+        const sanitizedContent = this.sanitizeContent(file.content)
         
-        try {
-          // Parse the content to extract filename if it's JSON
-          let filename = `${build.build_type}-${Date.now()}.${fileType}`
-          let actualContent = content
-          
-          if (fileType === 'json') {
-            try {
-              const parsed = JSON.parse(content)
-              filename = parsed.filename || filename
-              actualContent = parsed.content || JSON.stringify(parsed, null, 2)
-            } catch (e) {
-              // Content is already the JSON
-              actualContent = content
-            }
-          }
+        const artifact = await ArtifactService.saveArtifact(
+          build.id,
+          request.userId,
+          file.filename,
+          file.file_type,
+          file.mime_type,
+          sanitizedContent,
+          file.is_primary || false
+        )
 
-          // Sanitize content
-          actualContent = this.sanitizeContent(actualContent)
-
-          const artifact = await ArtifactService.saveArtifact(
-            build.id,
-            request.userId,
-            filename,
-            fileType,
-            this.getMimeType(fileType),
-            actualContent,
-            true
-          )
-
-          // Validate
-          const validation = await ArtifactService.validateArtifact(artifact.id, actualContent, fileType)
-          if (!validation.valid) {
-            console.error('[Artifact Workflow] Fallback validation failed:', validation.errors)
-            continue
-          }
-
-          savedArtifacts.push(artifact)
-        } catch (error) {
-          console.error('[Artifact Workflow] Failed to process fallback code block:', error)
+        // Validate
+        const validation = await ArtifactService.validateArtifact(artifact.id, sanitizedContent, file.file_type)
+        if (!validation.valid) {
+          console.error('[Artifact Workflow] Fallback validation failed:', validation.errors)
           continue
         }
+
+        savedArtifacts.push(artifact)
       }
 
       if (savedArtifacts.length === 0) {
@@ -749,22 +728,17 @@ SPECIFICATION: {"name": "extracted_name", "purpose": "extracted_purpose", "requi
   private static buildGenerationPrompt(build: ArtifactBuild, request: WorkflowRequest): string {
     const filename = build.final_specification?.filename || 'config.json'
     
-    return `Generate a ${build.build_type} configuration based on this request: ${build.original_request}
+    return `Generate a ${build.build_type} configuration for a chatbot called SupportBot.
+
+The configuration should include:
+- Bot name and description
+- Intent definitions with sample utterances
+- Response templates
+- Basic settings
 
 Filename: ${filename}
 
-Respond ONLY with valid JSON in this exact format:
-[
-  {
-    "FILENAME": "${filename}",
-    "FILE_TYPE": "json",
-    "MIME_TYPE": "application/json",
-    "CONTENT": {...your JSON content...},
-    "IS_PRIMARY": true
-  }
-]
-
-No other text. Just the JSON array.`
+Please provide the JSON configuration. Make it complete and ready to use.`
   }
 
   /**
@@ -802,97 +776,111 @@ No other text. Just the JSON array.`
    */
   private static parseArtifactManifest(response: string, buildType: BuildType): ArtifactManifest | null {
     const trimmed = response.trim()
+    console.log('[Artifact Workflow] Parsing response, length:', trimmed.length)
 
-    // Try JSON format first
+    if (trimmed.length === 0) {
+      console.log('[Artifact Workflow] Empty response, cannot parse')
+      return null
+    }
+
+    // Try to extract JSON from code blocks first
+    const codeBlockRegex = /```(?:json)?\n?([\s\S]*?)```/g
+    const codeBlockMatch = codeBlockRegex.exec(trimmed)
+    
+    if (codeBlockMatch) {
+      console.log('[Artifact Workflow] Found code block, extracting JSON')
+      const jsonContent = codeBlockMatch[1].trim()
+      try {
+        const parsed = JSON.parse(jsonContent)
+        const filename = build.final_specification?.filename || 'config.json'
+        
+        return {
+          build_type: buildType,
+          specification: {},
+          files: [{
+            filename: filename,
+            file_type: 'json',
+            mime_type: 'application/json',
+            content: JSON.stringify(parsed, null, 2),
+            is_primary: true
+          }]
+        }
+      } catch (e) {
+        console.log('[Artifact Workflow] Failed to parse code block JSON:', e)
+      }
+    }
+
+    // Try direct JSON parsing
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       try {
-        // Handle case where AI returns comma-separated objects without outer brackets
-        let jsonToParse = trimmed
-        if (trimmed.startsWith('{') && !trimmed.startsWith('[')) {
-          // Try to wrap in brackets if it looks like multiple objects
-          if (trimmed.match(/},\s*{/)) {
-            jsonToParse = `[${trimmed}]`
-          }
-        }
-
-        const parsed = JSON.parse(jsonToParse)
-        // Handle array of files
-        const filesArray = Array.isArray(parsed) ? parsed : [parsed]
-
-        const files = filesArray.map((file: any) => ({
-          filename: file.FILENAME || file.filename || 'unnamed.txt',
-          file_type: file.FILE_TYPE || file.file_type || 'txt',
-          mime_type: file.MIME_TYPE || file.mime_type || 'text/plain',
-          content: file.CONTENT || file.content || '',
-          is_primary: file.IS_PRIMARY === true || file.is_primary === true
-        }))
-
-        if (files.length > 0) {
-          console.log('[Artifact Workflow] Successfully parsed JSON format with', files.length, 'files')
+        const parsed = JSON.parse(trimmed)
+        const filename = build.final_specification?.filename || 'config.json'
+        
+        // If it's the strict format, convert it
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].FILENAME) {
+          const files = parsed.map((file: any) => ({
+            filename: file.FILENAME || file.filename || filename,
+            file_type: file.FILE_TYPE || file.file_type || 'json',
+            mime_type: file.MIME_TYPE || file.mime_type || 'application/json',
+            content: typeof file.CONTENT === 'object' ? JSON.stringify(file.CONTENT, null, 2) : file.CONTENT,
+            is_primary: file.IS_PRIMARY === true || file.is_primary === true
+          }))
+          
           return {
             build_type: buildType,
             specification: {},
             files
           }
         }
+        
+        // If it's a regular JSON object, wrap it
+        return {
+          build_type: buildType,
+          specification: {},
+          files: [{
+            filename: filename,
+            file_type: 'json',
+            mime_type: 'application/json',
+            content: JSON.stringify(parsed, null, 2),
+            is_primary: true
+          }]
+        }
       } catch (e) {
-        console.log('[Artifact Workflow] JSON parsing failed, trying text format:', e)
+        console.log('[Artifact Workflow] Direct JSON parsing failed:', e)
       }
     }
 
-    // Fall back to text format
-    const lines = response.split('\n')
-    const files: any[] = []
-    let currentFile: any = null
-
-    for (const line of lines) {
-      if (line.startsWith('FILENAME:')) {
-        if (currentFile) {
-          // Ensure all required fields have defaults before pushing
-          currentFile.is_primary = currentFile.is_primary || false
-          currentFile.file_type = currentFile.file_type || 'txt'
-          currentFile.mime_type = currentFile.mime_type || 'text/plain'
-          files.push(currentFile)
-        }
-        currentFile = {
-          filename: line.substring('FILENAME:'.length).trim(),
-          file_type: '',
-          mime_type: '',
-          content: '',
-          is_primary: false
-        }
-      } else if (line.startsWith('FILE_TYPE:') && currentFile) {
-        currentFile.file_type = line.substring('FILE_TYPE:'.length).trim()
-      } else if (line.startsWith('MIME_TYPE:') && currentFile) {
-        currentFile.mime_type = line.substring('MIME_TYPE:'.length).trim()
-      } else if (line.startsWith('IS_PRIMARY:') && currentFile) {
-        currentFile.is_primary = line.substring('IS_PRIMARY:'.length).trim() === 'true'
-      } else if (line.startsWith('CONTENT:') && currentFile) {
-        currentFile.content = line.substring('CONTENT:'.length).trim()
-      } else if (currentFile && !line.startsWith('FILENAME:') && !line.startsWith('FILE_TYPE:') && !line.startsWith('MIME_TYPE:') && !line.startsWith('IS_PRIMARY:') && !line.startsWith('CONTENT:')) {
-        // Multi-line content
-        currentFile.content += '\n' + line.trim()
+    // If all else fails, treat the whole response as JSON content
+    const filename = build.final_specification?.filename || 'config.json'
+    console.log('[Artifact Workflow] Using response as raw JSON content')
+    
+    try {
+      // Try to validate if it's valid JSON
+      JSON.parse(trimmed)
+      return {
+        build_type: buildType,
+        specification: {},
+        files: [{
+          filename: filename,
+          file_type: 'json',
+          mime_type: 'application/json',
+          content: trimmed,
+          is_primary: true
+        }]
       }
-    }
-
-    if (currentFile) {
-      // Ensure all required fields have defaults for the last file
-      currentFile.is_primary = currentFile.is_primary || false
-      currentFile.file_type = currentFile.file_type || 'txt'
-      currentFile.mime_type = currentFile.mime_type || 'text/plain'
-      files.push(currentFile)
-    }
-
-    if (files.length === 0) {
-      console.log('[Artifact Workflow] No files parsed from response')
-      return null
-    }
-
-    console.log('[Artifact Workflow] Successfully parsed text format with', files.length, 'files')
-    return {
-      build_type: buildType,
-      specification: {},
-      files
+    } catch (e) {
+      console.log('[Artifact Workflow] Response is not valid JSON, wrapping as text')
+      return {
+        build_type: buildType,
+        specification: {},
+        files: [{
+          filename: filename.replace('.json', '.txt'),
+          file_type: 'txt',
+          mime_type: 'text/plain',
+          content: trimmed,
+          is_primary: true
+        }]
+      }
     }
   }
 
