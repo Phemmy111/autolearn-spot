@@ -485,10 +485,24 @@ export async function POST(request: NextRequest) {
               
               // Convert artifact workflow to a regular message for frontend compatibility
               const artifactWorkflowMessage = chunk.data.message || JSON.stringify(chunk.data, null, 2)
+              const artifacts = chunk.data.artifacts || []
               
-              // Send the message as a complete stream response
+              // Create a response with artifacts information
+              const responseWithArtifacts = {
+                message: artifactWorkflowMessage,
+                artifacts: artifacts.map((a: any) => ({
+                  id: a.id,
+                  filename: a.filename,
+                  file_type: a.file_type,
+                  mime_type: a.mime_type,
+                  download_url: `/api/alex/artifacts/${a.id}/download`
+                }))
+              }
+              
+              // Send the message as a complete stream response with artifacts
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`))
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: artifactWorkflowMessage })}\n\n`))
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifacts', data: responseWithArtifacts.artifacts })}\n\n`))
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
               controller.enqueue(encoder.encode('data: [DONE]\n\n'))
               controller.close()
