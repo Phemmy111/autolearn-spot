@@ -141,7 +141,28 @@ export class ArtifactWorkflowManager {
   private static async gatherRequirements(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Gathering requirements for:', build.id)
 
-    // Use AI to determine if we need more information
+    // Check if user is providing a direct answer (simple response without AI analysis)
+    const isDirectAnswer = request.content.length < 100 && 
+                           (request.content.includes('.') || request.content.includes('json') || request.content.length < 20)
+
+    if (isDirectAnswer) {
+      console.log('[Artifact Workflow] Direct answer detected, processing user input')
+      
+      // Update specification with user's answer
+      const currentSpec = build.final_specification || {}
+      const updatedSpec = {
+        ...currentSpec,
+        filename: request.content,
+        user_provided_filename: true
+      }
+      
+      await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+      await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+      
+      return this.confirmSpecification(build, request)
+    }
+
+    // Use AI to determine if we need more information for complex requests
     const requirementsPrompt = this.buildRequirementsPrompt(build, request)
     
     try {
@@ -875,10 +896,11 @@ Shall I proceed? (yes/no)`
       attachedFiles: request.attachedFiles || [],
       conversationId: request.conversationId,
       enableRetrieval: false,
-      enableWebResearch: false,
-      enableMemory: false,
-      enableTools: false,
-      enableAgent: false
+      enableWebResearch: false, // Disable web research to save TPM
+      enableMemory: false,      // Disable memory to save TPM
+      enableTools: false,      // Disable tools to save TPM
+      enableAgent: false,      // Disable agent mode to save TPM
+      enableTokenAwareAssembly: false // Disable token-aware assembly for simpler requests
     })
 
     // Collect the stream response
