@@ -164,204 +164,236 @@ export class ArtifactWorkflowManager {
         
         await ArtifactService.updateSpecification(build.id, updatedSpec, [])
         
-        // Ask for platform if not already specified
-        if (!currentSpec.platform) {
-          await ArtifactService.addQuestion(build.id, 'What platform should this be for? (e.g., n8n, WordPress, custom)', 'missing_requirement')
-          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
-          
-          return {
-            status: 'collecting_requirements',
-            message: `Filename set to ${request.content}. What platform should this be for? (e.g., n8n, WordPress, custom)`,
-            needsInput: true,
-            questions: ['What platform should this be for? (e.g., n8n, WordPress, custom)']
-          }
+        // Check if we have all the required specifications for generation
+        if (currentSpec.platform && (currentSpec.platform !== 'n8n' || (currentSpec.trigger && currentSpec.functionality && currentSpec.integrations))) {
+          await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+          return this.confirmSpecification(build, request)
         }
         
-        // If platform is n8n, ask workflow-specific questions
-        if (currentSpec.platform === 'n8n' && !currentSpec.trigger) {
-          await ArtifactService.addQuestion(build.id, 'What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)', 'missing_requirement')
+        // If n8n platform but missing specs, let the AI handle the next question
+        if (currentSpec.platform === 'n8n') {
           await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
-          
           return {
             status: 'collecting_requirements',
-            message: `Filename set to ${request.content}. What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)`,
+            message: `Filename set to ${request.content}. Let me analyze your requirements and suggest the best n8n approach.`,
             needsInput: true,
-            questions: ['What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)']
+            questions: ['I will determine the optimal trigger, functionality, and integrations for your workflow.']
           }
         }
         
         await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
         return this.confirmSpecification(build, request)
       } else {
-        // Check if answer looks like platform name
-        const platformMatch = request.content.match(/n8n|wordpress|custom/i)
-        if (platformMatch) {
-          const currentSpec = build.final_specification || {}
-          const platform = platformMatch[0].toLowerCase()
-          const updatedSpec = {
-            ...currentSpec,
-            platform: platform
-          }
+        // For other inputs, let the AI expert handle the analysis
+        const currentSpec = build.final_specification || {}
+        
+        // If we're in n8n platform, let AI provide expert recommendations
+        if (currentSpec.platform === 'n8n') {
+          const n8nExpertPrompt = `You are an expert n8n workflow architect.
+
+User just said: "${request.content}"
+Current specifications: ${JSON.stringify(currentSpec)}
+
+As an expert, determine if this provides the necessary information for the workflow. If not, provide a focused question that will help gather the specific information needed.
+
+If this looks like they're providing workflow specifications, acknowledge it and indicate we have enough information.
+
+Response format:
+STATUS: [continue_asking|enough_info]
+QUESTION: [focused question if needed, or "Ready to generate workflow"]`
+ANALYSIS: [brief expert analysis of what they provided]`
           
-          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-          
-          // If n8n, ask specific n8n workflow questions
-          if (platform === 'n8n') {
-            // Check if we already have trigger info
-            if (!currentSpec.trigger) {
-              await ArtifactService.addQuestion(build.id, 'What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)', 'missing_requirement')
-              await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
-              
-              return {
-                status: 'collecting_requirements',
-                message: `Platform set to n8n. What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)`,
-                needsInput: true,
-                questions: ['What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)']
-              }
-            }
+          try {
+            const aiResponse = await this.getAIResponse(n8nExpertPrompt, request)
+            const analysis = this.parseAIResponse(aiResponse)
             
-            // Check if we have functionality info
-            if (!currentSpec.functionality) {
-              await ArtifactService.addQuestion(build.id, 'What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)', 'missing_requirement')
+            if (analysis.status === 'enough_info') {
+              // Extract specifications from user input
+              const updatedSpec = {
+                ...currentSpec,
+                ai_recommended: true
+              }
+              
+              await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+              
+              // Auto-generate filename if not provided
+              if (!currentSpec.filename) {
+                const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
+                updatedSpec.filename = autoFilename
+                updatedSpec.auto_generated = true
+                await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+              }
+              
+              await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+              return this.confirmSpecification(build, request)
+            } else {
+              await ArtifactService.addQuestion(build.id, analysis.question, 'missing_requirement')
               await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
               
               return {
                 status: 'collecting_requirements',
-                message: `Trigger set to ${currentSpec.trigger}. What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)`,
+                message: analysis.analysis + ' ' + analysis.question,
                 needsInput: true,
-                questions: ['What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)']
+                questions: [analysis.question]
               }
             }
-            
-            // Check if we have integrations info
-            if (!currentSpec.integrations) {
-              await ArtifactService.addQuestion(build.id, 'What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)', 'missing_requirement')
-              await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
-              
-              return {
-                status: 'collecting_requirements',
-                message: `Functionality set. What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)`,
-                needsInput: true,
-                questions: ['What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)']
-              }
-            }
+          } catch (error) {
+            console.error('[Artifact Workflow] AI expert analysis failed', error)
+            // Fallback to proceed
+            await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+            return this.confirmSpecification(build, request)
           }
-          
-          // Auto-generate filename if not provided
-          if (!currentSpec.filename) {
-            const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
-            updatedSpec.filename = autoFilename
-            updatedSpec.auto_generated = true
-            await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-          }
-          
-          await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
-          return this.confirmSpecification(build, request)
-        }
-        
-        // Check if answer looks like trigger type (for n8n)
-        const triggerMatch = request.content.match(/webhook|schedule|manual|email/i)
-        if (triggerMatch && build.final_specification?.platform === 'n8n') {
-          const currentSpec = build.final_specification || {}
-          const updatedSpec = {
-            ...currentSpec,
-            trigger: triggerMatch[0].toLowerCase()
-          }
-          
-          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-          
-          // Ask for functionality
-          await ArtifactService.addQuestion(build.id, 'What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)', 'missing_requirement')
-          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
-          
-          return {
-            status: 'collecting_requirements',
-            message: `Trigger set to ${triggerMatch[0]}. What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)`,
-            needsInput: true,
-            questions: ['What functionality should the workflow have? (e.g., send email, update Google Sheets, process data, send notifications)']
-          }
-        }
-        
-        // Check if answer looks like functionality description
-        const functionalityMatch = request.content.match(/email|google sheets|slack|database|process|notification|api/i)
-        if (functionalityMatch && build.final_specification?.platform === 'n8n' && build.final_specification?.trigger) {
-          const currentSpec = build.final_specification || {}
-          const updatedSpec = {
-            ...currentSpec,
-            functionality: request.content
-          }
-          
-          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-          
-          // Ask for integrations
-          await ArtifactService.addQuestion(build.id, 'What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)', 'missing_requirement')
-          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
-          
-          return {
-            status: 'collecting_requirements',
-            message: `Functionality set. What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)`,
-            needsInput: true,
-            questions: ['What integrations should be included? (e.g., Gmail, Google Sheets, Slack, Database, HTTP API)']
-          }
-        }
-        
-        // Check if answer looks like integrations
-        const integrationMatch = request.content.match(/gmail|google sheets|slack|database|http/i)
-        if (integrationMatch && build.final_specification?.platform === 'n8n' && build.final_specification?.functionality) {
-          const currentSpec = build.final_specification || {}
-          const updatedSpec = {
-            ...currentSpec,
-            integrations: request.content
-          }
-          
-          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-          
-          // Auto-generate filename if not provided
-          if (!currentSpec.filename) {
-            const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
-            updatedSpec.filename = autoFilename
-            updatedSpec.auto_generated = true
-            await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-          }
-          
-          await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
-          return this.confirmSpecification(build, request)
         }
         
         // Not a valid filename or platform, ask again
         return {
           status: 'collecting_requirements',
-          message: `Please provide either a filename (e.g., workflow.json) or specify the platform (e.g., n8n, WordPress, custom).`,
+          message: `Please provide either a filename (e.g., workflow.json) or let me analyze your requirements to suggest the best approach.`,
           needsInput: true,
-          questions: ['Please provide a filename or platform (e.g., workflow.json or n8n)']
+          questions: ['Please provide a filename or describe your requirements']
         }
       }
     }
 
-    // For simple JSON/configuration requests, check if platform is specified
+    // For simple JSON/configuration requests, use AI to analyze and suggest context-aware options
     if (build.build_type === 'configuration' || build.build_type === 'chatbot') {
       const currentSpec = build.final_specification || {}
       
       if (!currentSpec.platform) {
-        console.log('[Artifact Workflow] Platform not specified, asking for platform')
+        console.log('[Artifact Workflow] Platform not specified, using AI to analyze and suggest')
         
-        await ArtifactService.addQuestion(build.id, 'What platform should this be for? (e.g., n8n, WordPress, custom)', 'missing_requirement')
-        await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+        // Use AI to analyze the request and suggest appropriate platform and approach
+        const analysisPrompt = `You are an expert automation architect specializing in n8n workflows and various platforms.
+
+Analyze this user request: "${build.original_request}"
+
+As an expert, determine:
+1. What platform is most appropriate (n8n, WordPress, custom, etc.)
+2. What the user is trying to accomplish
+3. What automation approach would work best
+
+Provide your recommendation in this exact format:
+RECOMMENDATION: [platform]
+REASONING: [brief explanation of why this platform fits their needs]
+NEXT_QUESTION: [what question should we ask next to understand their specific requirements]
+
+Be concise and expert-level.`
         
-        return {
-          status: 'collecting_requirements',
-          message: `I'll create a ${build.build_type} configuration for you. What platform should this be for? (e.g., n8n, WordPress, custom)`,
-          needsInput: true,
-          questions: ['What platform should this be for? (e.g., n8n, WordPress, custom)']
+        try {
+          const aiAnalysis = await this.getAIResponse(analysisPrompt, request)
+          const analysis = this.parseAIAnalysis(aiAnalysis)
+          
+          await ArtifactService.updateSpecification(build.id, {
+            ...currentSpec,
+            platform: analysis.platform,
+            ai_recommended: true
+          }, [])
+          
+          await ArtifactService.addQuestion(build.id, analysis.nextQuestion, 'missing_requirement')
+          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+          
+          return {
+            status: 'collecting_requirements',
+            message: `Based on your request, I recommend using ${analysis.platform}. ${analysis.reasoning} ${analysis.nextQuestion}`,
+            needsInput: true,
+            questions: [analysis.nextQuestion]
+          }
+        } catch (error) {
+          console.error('[Artifact Workflow] AI analysis failed, falling back to basic question', error)
+          
+          // Fallback to basic question
+          await ArtifactService.addQuestion(build.id, 'What platform should this be for? (e.g., n8n, WordPress, custom)', 'missing_requirement')
+          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+          
+          return {
+            status: 'collecting_requirements',
+            message: `I'll create a ${build.build_type} configuration for you. What platform should this be for? (e.g., n8n, WordPress, custom)`,
+            needsInput: true,
+            questions: ['What platform should this be for? (e.g., n8n, WordPress, custom)']
+          }
         }
       }
       
-      // Platform is specified, auto-generate filename and proceed
-      console.log('[Artifact Workflow] Platform specified, auto-generating filename')
+      // Platform is specified, use AI to generate context-aware questions
+      if (currentSpec.platform === 'n8n') {
+        console.log('[Artifact Workflow] n8n platform, using AI to generate expert questions')
+        
+        const n8nExpertPrompt = `You are an expert n8n workflow architect with deep knowledge of all n8n capabilities, nodes, and best practices.
+
+User request: "${build.original_request}"
+Current specifications: ${JSON.stringify(currentSpec)}
+
+As an n8n expert, analyze what they need and suggest the most appropriate approach. Consider:
+- All available n8n triggers (webhook, schedule, manual, email, Cron, MQTT, Discord, etc.)
+- All available n8n integrations (Google Sheets, Gmail, Slack, HTTP, Database, AI/LLM, etc.)
+- Best practices for their specific use case
+- Scalability and performance considerations
+
+Provide your expert recommendation in this exact format:
+TRIGGER_RECOMMENDATION: [most appropriate trigger for their specific task with brief explanation]
+FUNCTIONALITY_SUGGESTION: [what the workflow should accomplish with their specific data]
+INTEGRATION_SUGGESTIONS: [2-3 most relevant integrations for their use case]
+NEXT_QUESTION: [expert question to gather the specific information needed]
+
+Be specific to their task. Don't give generic options. Be the expert who knows what they need.`
+        
+        try {
+          const n8nAnalysis = await this.getAIResponse(n8nExpertPrompt, request)
+          const n8nRecommendations = this.parseN8nRecommendations(n8nAnalysis)
+          
+          const updatedSpec = {
+            ...currentSpec,
+            trigger: n8nRecommendations.trigger,
+            functionality: n8nRecommendations.functionality,
+            integrations: n8nRecommendations.integrations,
+            ai_recommended: true
+          }
+          
+          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          
+          if (n8nRecommendations.nextQuestion) {
+            await ArtifactService.addQuestion(build.id, n8nRecommendations.nextQuestion, 'missing_requirement')
+            await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+            
+            return {
+              status: 'collecting_requirements',
+              message: `I recommend using ${n8nRecommendations.trigger} as the trigger for your workflow. ${n8nRecommendations.nextQuestion}`,
+              needsInput: true,
+              questions: [n8nRecommendations.nextQuestion]
+            }
+          }
+          
+          // Auto-generate filename if not provided
+          if (!currentSpec.filename) {
+            const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
+            updatedSpec.filename = autoFilename
+            updatedSpec.auto_generated = true
+            await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          }
+          
+          await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+          return this.confirmSpecification(build, request)
+          
+        } catch (error) {
+          console.error('[Artifact Workflow] n8n expert analysis failed, falling back to basic questions', error)
+          
+          // Fallback to basic trigger question
+          if (!currentSpec.trigger) {
+            await ArtifactService.addQuestion(build.id, 'What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)', 'missing_requirement')
+            await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+            
+            return {
+              status: 'collecting_requirements',
+              message: `Platform set to n8n. What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)`,
+              needsInput: true,
+              questions: ['What trigger should start the workflow? (e.g., webhook, schedule, manual, email received)']
+            }
+          }
+        }
+      }
       
+      // For other platforms, auto-generate filename and proceed
       const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
-      console.log('[Artifact Workflow] Auto-generated filename:', autoFilename)
-      
       const updatedSpec = {
         ...currentSpec,
         filename: autoFilename,
@@ -535,6 +567,53 @@ export class ArtifactWorkflowManager {
   }
 
   /**
+   * Parse AI analysis response
+   */
+  private static parseAIAnalysis(response: string): { platform: string; reasoning: string; nextQuestion: string } {
+    const platformMatch = response.match(/RECOMMENDATION:\s*(.+)/i)
+    const reasoningMatch = response.match(/REASONING:\s*(.+)/i)
+    const questionMatch = response.match(/NEXT_QUESTION:\s*(.+)/i)
+    
+    return {
+      platform: platformMatch ? platformMatch[1].trim() : 'custom',
+      reasoning: reasoningMatch ? reasoningMatch[1].trim() : 'Based on best practices',
+      nextQuestion: questionMatch ? questionMatch[1].trim() : 'What specific functionality do you need?'
+    }
+  }
+
+  /**
+   * Parse n8n expert recommendations
+   */
+  private static parseN8nRecommendations(response: string): { trigger: string; functionality: string; integrations: string; nextQuestion: string } {
+    const triggerMatch = response.match(/TRIGGER_RECOMMENDATION:\s*(.+)/i)
+    const functionalityMatch = response.match(/FUNCTIONALITY_SUGGESTION:\s*(.+)/i)
+    const integrationsMatch = response.match(/INTEGRATION_SUGGESTIONS:\s*(.+)/i)
+    const questionMatch = response.match(/NEXT_QUESTION:\s*(.+)/i)
+    
+    return {
+      trigger: triggerMatch ? triggerMatch[1].trim() : 'manual',
+      functionality: functionalityMatch ? functionalityMatch[1].trim() : 'basic processing',
+      integrations: integrationsMatch ? integrationsMatch[1].trim() : 'none',
+      nextQuestion: questionMatch ? questionMatch[1].trim() : ''
+    }
+  }
+
+  /**
+   * Parse AI response for general questions
+   */
+  private static parseAIResponse(response: string): { status: string; question: string; analysis: string } {
+    const statusMatch = response.match(/STATUS:\s*(.+)/i)
+    const questionMatch = response.match(/QUESTION:\s*(.+)/i)
+    const analysisMatch = response.match(/ANALYSIS:\s*(.+)/i)
+    
+    return {
+      status: statusMatch ? statusMatch[1].trim() : 'continue_asking',
+      question: questionMatch ? questionMatch[1].trim() : 'Please provide more details',
+      analysis: analysisMatch ? analysisMatch[1].trim() : ''
+    }
+  }
+
+  /**
    * Auto-generate filename from request
    */
   private static generateFilenameFromRequest(request: string, fileType: string = 'json'): string {
@@ -577,246 +656,164 @@ export class ArtifactWorkflowManager {
       let mimeType: string
       
       if (platform === 'n8n') {
-        // Generate n8n workflow template based on specifications
-        const botNameMatch = filename.match(/(.+)-config\.json/)
-        const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'My Workflow'
+        // Use AI to generate expert n8n workflow
+        console.log('[Artifact Workflow] Using AI to generate expert n8n workflow')
         
-        // Build nodes based on specifications
-        const nodes = []
-        const connections = {}
+        const n8nWorkflowPrompt = `You are an expert n8n workflow architect with deep knowledge of all n8n nodes, capabilities, and best practices.
+
+Generate a complete n8n workflow JSON for this request:
+Original request: "${build.original_request}"
+Workflow name: ${filename.replace('.json', '')}
+Trigger: ${trigger}
+Functionality: ${functionality}
+Integrations: ${integrations}
+
+Generate a production-ready n8n workflow that:
+1. Uses the most appropriate trigger node for this specific task
+2. Includes all necessary processing nodes for the specified functionality
+3. Integrates with the specified services (Google Sheets, Gmail, Slack, etc.)
+4. Follows n8n best practices for error handling and data flow
+5. Uses proper node types and versions
+6. Includes realistic placeholder data and configurations
+7. Has proper node connections and execution flow
+
+IMPORTANT: Return ONLY valid n8n workflow JSON in this exact format:
+{
+  "name": "Workflow Name",
+  "nodes": [...],
+  "connections": {...},
+  "active": true,
+  "settings": {...},
+  "id": "uuid"
+}
+
+No explanations, no markdown code blocks, just the raw JSON. Make it production-ready and importable into n8n.`
         
-        // Add trigger node
-        let triggerNode
-        if (trigger === 'webhook') {
-          triggerNode = {
-            parameters: {
-              httpMethod: 'POST',
-              path: 'webhook',
-              responseMode: 'onReceived'
-            },
-            id: this.generateUUID(),
-            name: 'Webhook',
-            type: 'n8n-nodes-base.webhook',
-            typeVersion: 1,
-            position: [0, 0]
-          }
-        } else if (trigger === 'schedule') {
-          triggerNode = {
-            parameters: {
-              rule: {
-                interval: [
-                  {
-                    field: 'cronExpression',
-                    triggerAtHour: 0
-                  }
-                ]
-              }
-            },
-            id: this.generateUUID(),
-            name: 'Schedule Trigger',
-            type: 'n8n-nodes-base.scheduleTrigger',
-            typeVersion: 1,
-            position: [0, 0]
-          }
-        } else if (trigger === 'email') {
-          triggerNode = {
-            parameters: {
-              pollTimes: {
-                item: []
-              }
-            },
-            id: this.generateUUID(),
-            name: 'Email Trigger',
-            type: 'n8n-nodes-base.emailReadImap',
-            typeVersion: 1,
-            position: [0, 0]
-          }
-        } else {
-          triggerNode = {
-            parameters: {},
-            id: this.generateUUID(),
-            name: 'Manual Trigger',
-            type: 'n8n-nodes-base.manualTrigger',
-            typeVersion: 1,
-            position: [0, 0]
-          }
-        }
-        
-        nodes.push(triggerNode)
-        
-        // Add integration nodes based on specifications
-        let lastNode = triggerNode
-        let positionX = 240
-        
-        if (integrations.toLowerCase().includes('gmail')) {
-          const emailNode = {
-            parameters: {
-              subject: `Update from ${botName}`,
-              body: '={{ $json.message }}',
-              to: 'recipient@example.com'
-            },
-            id: this.generateUUID(),
-            name: 'Send Email',
-            type: 'n8n-nodes-base.emailSend',
-            typeVersion: 2,
-            position: [positionX, 0],
-            credentials: {
-              email: {
-                id: 'email_credential_id',
-                name: 'Gmail account'
-              }
-            }
-          }
-          nodes.push(emailNode)
-          connections[lastNode.name] = {
-            main: [[{ node: emailNode.name, type: 'main', index: 0 }]]
-          }
-          lastNode = emailNode
-          positionX += 240
-        }
-        
-        if (integrations.toLowerCase().includes('google sheets')) {
-          const sheetsNode = {
-            parameters: {
-              operation: 'append',
-              documentId: {
-                __rl: true,
-                value: 'your_google_sheet_id',
-                mode: 'url'
+        try {
+          const aiWorkflow = await this.getAIResponse(n8nWorkflowPrompt, request)
+          console.log('[Artifact Workflow] AI generated workflow length:', aiWorkflow.length)
+          
+          // Clean the response to extract JSON
+          const cleanedJson = aiWorkflow.replace(/```json|```/g, '').trim()
+          templateContent = JSON.parse(cleanedJson)
+          
+          console.log('[Artifact Workflow] Successfully parsed AI-generated n8n workflow')
+        } catch (error) {
+          console.error('[Artifact Workflow] AI workflow generation failed, using fallback template', error)
+          
+          // Fallback to template-based generation
+          const botNameMatch = filename.match(/(.+)-config\.json/)
+          const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'My Workflow'
+          
+          templateContent = {
+            name: botName,
+            nodes: [
+              {
+                parameters: {},
+                id: this.generateUUID(),
+                name: 'Manual Trigger',
+                type: 'n8n-nodes-base.manualTrigger',
+                typeVersion: 1,
+                position: [0, 0]
               },
-              sheetName: {
-                __rl: true,
-                value: 'Sheet1',
-                mode: 'name'
+              {
+                parameters: {
+                  jsCode: `// ${functionality}\nconst inputData = $input.all();\nconst processedData = inputData.map(item => ({\n  ...item.json,\n  processedAt: new Date().toISOString()\n}));\nreturn processedData.map(item => ({ json: item }));`
+                },
+                id: this.generateUUID(),
+                name: 'Process Data',
+                type: 'n8n-nodes-base.code',
+                typeVersion: 2,
+                position: [240, 0]
+              }
+            ],
+            connections: {
+              'Manual Trigger': {
+                main: [[{ node: 'Process Data', type: 'main', index: 0 }]]
               }
             },
-            id: this.generateUUID(),
-            name: 'Update Google Sheets',
-            type: 'n8n-nodes-base.googleSheets',
-            typeVersion: 4,
-            position: [positionX, 0],
-            credentials: {
-              googleSheetsOAuth2Api: {
-                id: 'google_sheets_credential_id',
-                name: 'Google Sheets account'
-              }
-            }
-          }
-          nodes.push(sheetsNode)
-          connections[lastNode.name] = {
-            main: [[{ node: sheetsNode.name, type: 'main', index: 0 }]]
-          }
-          lastNode = sheetsNode
-          positionX += 240
-        }
-        
-        if (integrations.toLowerCase().includes('slack')) {
-          const slackNode = {
-            parameters: {
-              channel: '#general',
-              text: `{{ $json.message }}`
+            active: true,
+            settings: {
+              executionOrder: 'v1'
             },
             id: this.generateUUID(),
-            name: 'Send to Slack',
-            type: 'n8n-nodes-base.slack',
-            typeVersion: 1,
-            position: [positionX, 0],
-            credentials: {
-              slackApi: {
-                id: 'slack_credential_id',
-                name: 'Slack account'
-              }
-            }
+            tags: []
           }
-          nodes.push(slackNode)
-          connections[lastNode.name] = {
-            main: [[{ node: slackNode.name, type: 'main', index: 0 }]]
-          }
-          lastNode = slackNode
-          positionX += 240
-        }
-        
-        // Add code node for data processing
-        const codeNode = {
-          parameters: {
-            jsCode: `// Process data for ${functionality}\nconst inputData = $input.all();\nconst processedData = inputData.map(item => ({\n  ...item.json,\n  processedAt: new Date().toISOString(),\n  functionality: '${functionality}'\n}));\nreturn processedData.map(item => ({ json: item }));`
-          },
-          id: this.generateUUID(),
-          name: 'Process Data',
-          type: 'n8n-nodes-base.code',
-          typeVersion: 2,
-          position: [positionX, 0]
-        }
-        nodes.push(codeNode)
-        connections[lastNode.name] = {
-          main: [[{ node: codeNode.name, type: 'main', index: 0 }]]
-        }
-        
-        templateContent = {
-          name: botName,
-          nodes: nodes,
-          connections: connections,
-          active: true,
-          settings: {
-            executionOrder: 'v1',
-            binaryMode: 'separate',
-            timeSavedMode: 'fixed',
-            saveDataSuccessExecution: 'none',
-            saveManualExecutions: false,
-            callerPolicy: 'workflowsFromSameOwner',
-            availableInMCP: false
-          },
-          id: this.generateUUID(),
-          tags: []
         }
         
         fileType = 'json'
         mimeType = 'application/json'
       } else {
-        // Generate generic chatbot configuration for other platforms
-        const botNameMatch = filename.match(/(.+)-config\.json/)
-        const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
+        // For other platforms, use AI to generate appropriate configurations
+        console.log('[Artifact Workflow] Using AI to generate configuration for platform:', platform)
         
-        templateContent = {
-          botName: botName,
-          description: `A friendly assistant that helps users with common product and account questions.`,
-          language: "en",
-          defaultResponse: "I'm sorry, I didn't understand that. Could you please re-phrase or ask something else?",
-          fallbackIntent: {
-            name: "Fallback",
-            responses: [
-              {
-                type: "text",
-                content: "I'm not sure how to help with that. You can try asking about billing, technical issues, or contact information."
-              }
-            ]
-          },
-          intents: [
-            {
-              name: "Greeting",
-              utterances: ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"],
+        const platformPrompt = `You are an expert configuration architect specializing in ${platform}.
+
+Generate a complete configuration for this request:
+Original request: "${build.original_request}"
+Platform: ${platform}
+Filename: ${filename}
+
+Generate a production-ready configuration that:
+1. Is optimized for ${platform}
+2. Follows ${platform} best practices
+3. Includes all necessary settings and parameters
+4. Is ready to use immediately
+
+Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
+        
+        try {
+          const aiConfig = await this.getAIResponse(platformPrompt, request)
+          const cleanedJson = aiConfig.replace(/```json|```/g, '').trim()
+          templateContent = JSON.parse(cleanedJson)
+        } catch (error) {
+          console.error('[Artifact Workflow] AI config generation failed, using fallback', error)
+          
+          // Fallback to generic chatbot configuration
+          const botNameMatch = filename.match(/(.+)-config\.json/)
+          const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
+          
+          templateContent = {
+            botName: botName,
+            description: `A friendly assistant that helps users with common product and account questions.`,
+            language: "en",
+            defaultResponse: "I'm sorry, I didn't understand that. Could you please re-phrase or ask something else?",
+            fallbackIntent: {
+              name: "Fallback",
               responses: [
                 {
                   type: "text",
-                  content: `Hello! I'm ${botName}. How can I help you today?`
+                  content: "I'm not sure how to help with that. You can try asking about billing, technical issues, or contact information."
                 }
               ]
             },
-            {
-              name: "Goodbye",
-              utterances: ["bye", "goodbye", "see you later", "thanks, that's all"],
-              responses: [
-                {
-                  type: "text",
-                  content: "Goodbye! If you need anything else, just let me know."
-                }
-              ]
+            intents: [
+              {
+                name: "Greeting",
+                utterances: ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"],
+                responses: [
+                  {
+                    type: "text",
+                    content: `Hello! I'm ${botName}. How can I help you today?`
+                  }
+                ]
+              },
+              {
+                name: "Goodbye",
+                utterances: ["bye", "goodbye", "see you later", "thanks, that's all"],
+                responses: [
+                  {
+                    type: "text",
+                    content: "Goodbye! If you need anything else, just let me know."
+                  }
+                ]
+              }
+            ],
+            settings: {
+              sessionTimeoutSeconds: 1800,
+              allowRichResponses: true,
+              logUserMessages: true
             }
-          ],
-          settings: {
-            sessionTimeoutSeconds: 1800,
-            allowRichResponses: true,
-            logUserMessages: true
           }
         }
         
