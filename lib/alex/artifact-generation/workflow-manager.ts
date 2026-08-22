@@ -212,16 +212,23 @@ export class ArtifactWorkflowManager {
       const generationPrompt = this.buildGenerationPrompt(build, request)
       const aiResponse = await this.getAIResponse(generationPrompt, request)
 
+      console.log('[Artifact Workflow] AI response received, length:', aiResponse.length)
+      console.log('[Artifact Workflow] AI response preview:', aiResponse.substring(0, 500))
+
       // Parse and validate artifacts
       const manifest = this.parseArtifactManifest(aiResponse, build.build_type)
 
       if (!manifest || manifest.files.length === 0) {
-        throw new Error('No artifacts generated')
+        console.error('[Artifact Workflow] Parsing failed or no files in manifest')
+        throw new Error('No artifacts generated from AI response')
       }
+
+      console.log('[Artifact Workflow] Manifest parsed successfully, files:', manifest.files.length)
 
       // Save artifacts
       const savedArtifacts = []
       for (const file of manifest.files) {
+        console.log('[Artifact Workflow] Saving artifact:', file.filename, 'type:', file.file_type)
         const artifact = await ArtifactService.saveArtifact(
           build.id,
           request.userId,
@@ -231,6 +238,8 @@ export class ArtifactWorkflowManager {
           file.content,
           file.is_primary || false
         )
+
+        console.log('[Artifact Workflow] Artifact saved, ID:', artifact.id)
 
         // Validate artifact
         const validation = await ArtifactService.validateArtifact(
@@ -252,6 +261,8 @@ export class ArtifactWorkflowManager {
         filesGenerated: savedArtifacts.length
       })
 
+      console.log('[Artifact Workflow] Generation completed successfully, artifacts:', savedArtifacts.length)
+
       return {
         status: 'completed',
         message: this.buildCompletionMessage(savedArtifacts),
@@ -260,7 +271,7 @@ export class ArtifactWorkflowManager {
     } catch (error) {
       console.error('[Artifact Workflow] Artifact generation failed:', error)
       await ArtifactService.markBuildFailed(build.id, (error as Error).message)
-      return { status: 'failed', message: 'Artifact generation failed' }
+      return { status: 'failed', message: `Artifact generation failed: ${(error as Error).message}` }
     }
   }
 
@@ -384,7 +395,16 @@ Do not add any other text, explanations, or conversational filler.
     // Try JSON format first
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       try {
-        const parsed = JSON.parse(trimmed)
+        // Handle case where AI returns comma-separated objects without outer brackets
+        let jsonToParse = trimmed
+        if (trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+          // Try to wrap in brackets if it looks like multiple objects
+          if (trimmed.match(/},\s*{/)) {
+            jsonToParse = `[${trimmed}]`
+          }
+        }
+
+        const parsed = JSON.parse(jsonToParse)
         // Handle array of files
         const filesArray = Array.isArray(parsed) ? parsed : [parsed]
 
@@ -397,6 +417,7 @@ Do not add any other text, explanations, or conversational filler.
         }))
 
         if (files.length > 0) {
+          console.log('[Artifact Workflow] Successfully parsed JSON format with', files.length, 'files')
           return {
             build_type: buildType,
             specification: {},
@@ -452,9 +473,11 @@ Do not add any other text, explanations, or conversational filler.
     }
 
     if (files.length === 0) {
+      console.log('[Artifact Workflow] No files parsed from response')
       return null
     }
 
+    console.log('[Artifact Workflow] Successfully parsed text format with', files.length, 'files')
     return {
       build_type: buildType,
       specification: {},
