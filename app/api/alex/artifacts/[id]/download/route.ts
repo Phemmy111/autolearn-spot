@@ -11,7 +11,7 @@ export const fetchCache = 'force-no-store'
 // GET /api/alex/artifacts/[id]/download - Download generated artifact
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -20,7 +20,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log('[Artifact Download] Request:', { artifactId: params.id, userId })
+    const { id } = await params // Await params as required by Next.js 15+
+    console.log('[Artifact Download] Request:', { artifactId: id, userId })
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
       auth: {
@@ -32,7 +33,7 @@ export async function GET(
     const { data: artifact, error } = await supabase
       .from('alex_artifacts')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_id', userId)
       .single()
 
