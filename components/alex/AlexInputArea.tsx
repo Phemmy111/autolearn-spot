@@ -193,8 +193,25 @@ export function AlexInputArea({
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
 
+    // Optimize images before upload
+    const processedFiles = await Promise.all(
+      files.map(async (file) => {
+        if (file.type.startsWith('image/')) {
+          try {
+            console.log('[AlexInputArea] Optimizing image:', file.name)
+            const optimized = await optimizeImage(file)
+            return optimized
+          } catch (error) {
+            console.error('[AlexInputArea] Image optimization failed, using original:', error)
+            return file
+          }
+        }
+        return file
+      })
+    )
+
     // Add files to attached files list
-    const newFiles: AttachedFile[] = files.map(file => ({
+    const newFiles: AttachedFile[] = processedFiles.map(file => ({
       file,
       id: Math.random().toString(36).substring(7),
       status: 'uploading' as const
@@ -413,6 +430,100 @@ export function AlexInputArea({
     if (['txt', 'md', 'js', 'jsx', 'ts', 'tsx', 'json', 'css', 'html', 'py', 'java', 'c', 'cpp', 'cs'].includes(ext || '')) return <FileText className="h-4 w-4" />
     if (['png', 'jpg', 'jpeg', 'webp'].includes(ext || '')) return <ImageIcon className="h-4 w-4" />
     return <FileText className="h-4 w-4" />
+  }
+
+  /**
+   * Optimize image for TPM constraints using canvas API
+   * Resizes to max 1024x1024 and compresses to JPEG quality 0.8
+   */
+  const optimizeImage = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const reader = new FileReader()
+
+      reader.onload = (e) => {
+        img.src = e.target?.result as string
+      }
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'))
+          return
+        }
+
+        // Calculate target dimensions (max 1024x1024, maintain aspect ratio)
+        const maxDimension = 1024
+        let width = img.width
+        let height = img.height
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            width = maxDimension
+            height = Math.round((img.height * maxDimension) / img.width)
+          } else {
+            height = maxDimension
+            width = Math.round((img.width * maxDimension) / img.height)
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        // Draw and compress to JPEG
+        ctx.drawImage(img, 0, 0, width, height)
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Failed to compress image'))
+              return
+            }
+
+            // Post-optimization size validation
+            // Safe limit for single image in base64 is approximately 2-3MB to stay within TPM constraints
+            const MAX_IMAGE_BYTES = 3 * 1024 * 1024 // 3MB
+            if (blob.size > MAX_IMAGE_BYTES) {
+              console.warn('[AlexInputArea] Optimized image still too large, may exceed TPM:', {
+                optimizedSize: blob.size,
+                maxSize: MAX_IMAGE_BYTES,
+                filename: file.name
+              })
+              // Continue anyway - the server will validate
+            }
+
+            console.log('[AlexInputArea] Image optimized:', {
+              originalSize: file.size,
+              optimizedSize: blob.size,
+              reductionRatio: ((1 - blob.size / file.size) * 100).toFixed(2) + '%',
+              originalDimensions: { width: img.width, height: img.height },
+              optimizedDimensions: { width, height }
+            })
+
+            // Create new File with optimized blob
+            const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            })
+            resolve(optimizedFile)
+          },
+          'image/jpeg',
+          0.8 // Quality 80%
+        )
+      }
+
+      img.onerror = () => {
+        reject(new Error('Failed to load image'))
+      }
+
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'))
+      }
+
+      reader.readAsDataURL(file)
+    })
   }
 
   return (
