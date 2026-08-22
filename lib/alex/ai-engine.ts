@@ -302,9 +302,20 @@ export class AIEngine {
           detectedIntent: orchestratorResponse.detectedIntent,
           suggestedMode: orchestratorResponse.suggestedMode,
           aiRequest: orchestratorResponse.aiRequest,
+          artifactWorkflow: orchestratorResponse.artifactWorkflow, // Phase 7: Pass through artifact workflow response
         },
         imageFiles: orchestratorResponse.imageFiles,
       };
+
+      // Check for artifact workflow response and handle specially
+      if (orchestratorResponse.artifactWorkflow) {
+        console.log('[AI Engine] Artifact workflow response detected, yielding special event')
+        yield {
+          type: 'artifact_workflow',
+          data: orchestratorResponse.artifactWorkflow
+        }
+        return // Don't continue with normal streaming
+      }
 
       console.log('[FALLBACK] Starting streaming with fallback through ProviderManager')
       console.log('[ToolDebug] tools_enabled:', request.enableTools)
