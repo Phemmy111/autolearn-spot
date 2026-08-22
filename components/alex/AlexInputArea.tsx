@@ -193,13 +193,16 @@ export function AlexInputArea({
     const files = Array.from(e.target.files || [])
     if (files.length === 0) return
 
+    console.log('[AlexInputArea] Files selected:', files.map(f => ({ name: f.name, type: f.type, size: f.size })))
+
     // Optimize images before upload
     const processedFiles = await Promise.all(
       files.map(async (file) => {
         if (file.type.startsWith('image/')) {
           try {
-            console.log('[AlexInputArea] Optimizing image:', file.name)
+            console.log('[AlexInputArea] Optimizing image:', file.name, 'original size:', file.size)
             const optimized = await optimizeImage(file)
+            console.log('[AlexInputArea] Image optimization complete:', { original: file.name, optimized: optimized.name, originalSize: file.size, optimizedSize: optimized.size })
             return optimized
           } catch (error) {
             console.error('[AlexInputArea] Image optimization failed, using original:', error)
@@ -209,6 +212,8 @@ export function AlexInputArea({
         return file
       })
     )
+
+    console.log('[AlexInputArea] Processed files:', processedFiles.map(f => ({ name: f.name, type: f.type, size: f.size })))
 
     // Add files to attached files list
     const newFiles: AttachedFile[] = processedFiles.map(file => ({
@@ -434,18 +439,24 @@ export function AlexInputArea({
 
   /**
    * Optimize image for TPM constraints using canvas API
-   * Resizes to max 1024x1024 and compresses to JPEG quality 0.8
+   * Resizes to max 512x512 and compresses to JPEG quality 0.7
+   * More aggressive to ensure TPM compliance
    */
   const optimizeImage = async (file: File): Promise<File> => {
     return new Promise((resolve, reject) => {
+      console.log('[AlexInputArea] Starting image optimization for:', file.name, 'size:', file.size)
+      
       const img = new Image()
       const reader = new FileReader()
 
       reader.onload = (e) => {
+        console.log('[AlexInputArea] File read complete, loading image')
         img.src = e.target?.result as string
       }
 
       img.onload = () => {
+        console.log('[AlexInputArea] Image loaded, dimensions:', img.width, 'x', img.height)
+        
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
 
@@ -454,8 +465,8 @@ export function AlexInputArea({
           return
         }
 
-        // Calculate target dimensions (max 1024x1024, maintain aspect ratio)
-        const maxDimension = 1024
+        // Calculate target dimensions (max 512x512, maintain aspect ratio) - more aggressive
+        const maxDimension = 512
         let width = img.width
         let height = img.height
 
@@ -472,7 +483,9 @@ export function AlexInputArea({
         canvas.width = width
         canvas.height = height
 
-        // Draw and compress to JPEG
+        console.log('[AlexInputArea] Canvas dimensions:', width, 'x', height)
+
+        // Draw and compress to JPEG with lower quality
         ctx.drawImage(img, 0, 0, width, height)
 
         canvas.toBlob(
@@ -482,43 +495,73 @@ export function AlexInputArea({
               return
             }
 
+            console.log('[AlexInputArea] Blob created, size:', blob.size)
+
             // Post-optimization size validation
-            // Safe limit for single image in base64 is approximately 2-3MB to stay within TPM constraints
-            const MAX_IMAGE_BYTES = 3 * 1024 * 1024 // 3MB
+            // Safe limit for single image in base64 is approximately 1-2MB to stay within TPM constraints
+            const MAX_IMAGE_BYTES = 2 * 1024 * 1024 // 2MB - more aggressive limit
             if (blob.size > MAX_IMAGE_BYTES) {
-              console.warn('[AlexInputArea] Optimized image still too large, may exceed TPM:', {
+              console.warn('[AlexInputArea] Optimized image still too large, attempting further compression:', {
                 optimizedSize: blob.size,
                 maxSize: MAX_IMAGE_BYTES,
                 filename: file.name
               })
-              // Continue anyway - the server will validate
+              
+              // Try even lower quality
+              canvas.toBlob(
+                (blob2) => {
+                  if (!blob2) {
+                    reject(new Error('Failed to compress image further'))
+                    return
+                  }
+                  
+                  console.log('[AlexInputArea] Second compression attempt, size:', blob2.size)
+                  
+                  console.log('[AlexInputArea] Image optimized (2nd attempt):', {
+                    originalSize: file.size,
+                    optimizedSize: blob2.size,
+                    reductionRatio: ((1 - blob2.size / file.size) * 100).toFixed(2) + '%',
+                    originalDimensions: { width: img.width, height: img.height },
+                    optimizedDimensions: { width, height }
+                  })
+
+                  const optimizedFile = new File([blob2], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+                    type: 'image/jpeg',
+                    lastModified: Date.now()
+                  })
+                  resolve(optimizedFile)
+                },
+                'image/jpeg',
+                0.5 // Quality 50%
+              )
+            } else {
+              console.log('[AlexInputArea] Image optimized:', {
+                originalSize: file.size,
+                optimizedSize: blob.size,
+                reductionRatio: ((1 - blob.size / file.size) * 100).toFixed(2) + '%',
+                originalDimensions: { width: img.width, height: img.height },
+                optimizedDimensions: { width, height }
+              })
+
+              const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+              })
+              resolve(optimizedFile)
             }
-
-            console.log('[AlexInputArea] Image optimized:', {
-              originalSize: file.size,
-              optimizedSize: blob.size,
-              reductionRatio: ((1 - blob.size / file.size) * 100).toFixed(2) + '%',
-              originalDimensions: { width: img.width, height: img.height },
-              optimizedDimensions: { width, height }
-            })
-
-            // Create new File with optimized blob
-            const optimizedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
-              type: 'image/jpeg',
-              lastModified: Date.now()
-            })
-            resolve(optimizedFile)
           },
           'image/jpeg',
-          0.8 // Quality 80%
+          0.7 // Quality 70% - more aggressive
         )
       }
 
       img.onerror = () => {
+        console.error('[AlexInputArea] Failed to load image')
         reject(new Error('Failed to load image'))
       }
 
       reader.onerror = () => {
+        console.error('[AlexInputArea] Failed to read file')
         reject(new Error('Failed to read file'))
       }
 
