@@ -363,6 +363,7 @@ export class ArtifactWorkflowManager {
       console.log('[Artifact Workflow] Template generation attempt')
       
       const filename = build.final_specification?.filename || 'config.json'
+      console.log('[Artifact Workflow] Using filename:', filename)
       
       // Generate chatbot configuration template
       const chatbotConfig = {
