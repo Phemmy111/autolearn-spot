@@ -1,6 +1,19 @@
 -- ALEX Phase 7: Artifact Generation System
 -- This schema enables ALEX to generate, validate, and persist downloadable artifacts
 
+-- Enable required extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_alex_artifact_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Artifact Builds Table - Tracks build workflows
 CREATE TABLE IF NOT EXISTS alex_artifact_builds (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -18,6 +31,12 @@ CREATE TABLE IF NOT EXISTS alex_artifact_builds (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Create trigger for updated_at
+CREATE TRIGGER update_alex_artifact_builds_updated_at
+  BEFORE UPDATE ON alex_artifact_builds
+  FOR EACH ROW
+  EXECUTE FUNCTION update_alex_artifact_updated_at();
 
 -- Create indexes for build queries
 CREATE INDEX IF NOT EXISTS idx_alex_artifact_builds_conversation_id ON alex_artifact_builds(conversation_id);
@@ -42,6 +61,12 @@ CREATE TABLE IF NOT EXISTS alex_artifacts (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Create trigger for updated_at
+CREATE TRIGGER update_alex_artifacts_updated_at
+  BEFORE UPDATE ON alex_artifacts
+  FOR EACH ROW
+  EXECUTE FUNCTION update_alex_artifact_updated_at();
 
 -- Create indexes for artifact queries
 CREATE INDEX IF NOT EXISTS idx_alex_artifacts_build_id ON alex_artifacts(build_id);
@@ -114,23 +139,3 @@ CREATE POLICY "Users can update own artifact questions" ON alex_artifact_questio
       AND alex_artifact_builds.user_id = auth.jwt() ->> 'sub'
     )
   );
-
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_alex_artifact_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Triggers for updated_at
-CREATE TRIGGER update_alex_artifact_builds_updated_at
-  BEFORE UPDATE ON alex_artifact_builds
-  FOR EACH ROW
-  EXECUTE FUNCTION update_alex_artifact_updated_at();
-
-CREATE TRIGGER update_alex_artifacts_updated_at
-  BEFORE UPDATE ON alex_artifacts
-  FOR EACH ROW
-  EXECUTE FUNCTION update_alex_artifact_updated_at();
