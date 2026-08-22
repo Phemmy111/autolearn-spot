@@ -5,6 +5,11 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Clean up existing tables and policies (for re-running migration)
+DROP TABLE IF EXISTS alex_artifact_questions CASCADE;
+DROP TABLE IF EXISTS alex_artifacts CASCADE;
+DROP TABLE IF EXISTS alex_artifact_builds CASCADE;
+
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_alex_artifact_updated_at()
 RETURNS TRIGGER AS $$
@@ -33,7 +38,6 @@ CREATE TABLE IF NOT EXISTS alex_artifact_builds (
 );
 
 -- Create trigger for updated_at
-DROP TRIGGER IF EXISTS update_alex_artifact_builds_updated_at ON alex_artifact_builds;
 CREATE TRIGGER update_alex_artifact_builds_updated_at
   BEFORE UPDATE ON alex_artifact_builds
   FOR EACH ROW
@@ -64,7 +68,6 @@ CREATE TABLE IF NOT EXISTS alex_artifacts (
 );
 
 -- Create trigger for updated_at
-DROP TRIGGER IF EXISTS update_alex_artifacts_updated_at ON alex_artifacts;
 CREATE TRIGGER update_alex_artifacts_updated_at
   BEFORE UPDATE ON alex_artifacts
   FOR EACH ROW
@@ -98,29 +101,23 @@ ALTER TABLE alex_artifacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE alex_artifact_questions ENABLE ROW LEVEL SECURITY;
 
 -- Artifact Builds RLS
-DROP POLICY IF EXISTS "Users can view own artifact builds" ON alex_artifact_builds;
 CREATE POLICY "Users can view own artifact builds" ON alex_artifact_builds
   FOR SELECT USING (user_id = auth.jwt() ->> 'sub');
 
-DROP POLICY IF EXISTS "Users can create own artifact builds" ON alex_artifact_builds;
 CREATE POLICY "Users can create own artifact builds" ON alex_artifact_builds
   FOR INSERT WITH CHECK (user_id = auth.jwt() ->> 'sub');
 
-DROP POLICY IF EXISTS "Users can update own artifact builds" ON alex_artifact_builds;
 CREATE POLICY "Users can update own artifact builds" ON alex_artifact_builds
   FOR UPDATE USING (user_id = auth.jwt() ->> 'sub');
 
 -- Artifacts RLS
-DROP POLICY IF EXISTS "Users can view own artifacts" ON alex_artifacts;
 CREATE POLICY "Users can view own artifacts" ON alex_artifacts
   FOR SELECT USING (user_id = auth.jwt() ->> 'sub');
 
-DROP POLICY IF EXISTS "Users can create own artifacts" ON alex_artifacts;
 CREATE POLICY "Users can create own artifacts" ON alex_artifacts
   FOR INSERT WITH CHECK (user_id = auth.jwt() ->> 'sub');
 
 -- Questions RLS
-DROP POLICY IF EXISTS "Users can view own artifact questions" ON alex_artifact_questions;
 CREATE POLICY "Users can view own artifact questions" ON alex_artifact_questions
   FOR SELECT USING (
     EXISTS (
@@ -130,7 +127,6 @@ CREATE POLICY "Users can view own artifact questions" ON alex_artifact_questions
     )
   );
 
-DROP POLICY IF EXISTS "Users can create own artifact questions" ON alex_artifact_questions;
 CREATE POLICY "Users can create own artifact questions" ON alex_artifact_questions
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -140,7 +136,6 @@ CREATE POLICY "Users can create own artifact questions" ON alex_artifact_questio
     )
   );
 
-DROP POLICY IF EXISTS "Users can update own artifact questions" ON alex_artifact_questions;
 CREATE POLICY "Users can update own artifact questions" ON alex_artifact_questions
   FOR UPDATE USING (
     EXISTS (
