@@ -302,6 +302,7 @@ export class ArtifactWorkflowManager {
    */
   private static async generateArtifacts(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Generating artifacts for:', build.id)
+    console.log('[Artifact Workflow] Build specification:', build.final_specification)
 
     await ArtifactService.updateBuildStatus(build.id, 'generating')
 
@@ -332,6 +333,7 @@ export class ArtifactWorkflowManager {
       }
     } catch (error) {
       console.error('[Artifact Workflow] Artifact generation failed:', error)
+      console.error('[Artifact Workflow] Error stack:', (error as Error).stack)
       await ArtifactService.markBuildFailed(build.id, (error as Error).message)
       
       return {
@@ -354,6 +356,8 @@ export class ArtifactWorkflowManager {
       console.log('[Artifact Workflow] Primary generation attempt:', attempt)
       
       const generationPrompt = this.buildGenerationPrompt(build, request)
+      console.log('[Artifact Workflow] Generation prompt length:', generationPrompt.length)
+      
       const aiResponse = await this.getAIResponse(generationPrompt, request)
 
       console.log('[Artifact Workflow] AI response received, length:', aiResponse.length)
@@ -434,6 +438,7 @@ export class ArtifactWorkflowManager {
       }
     } catch (error) {
       console.error('[Artifact Workflow] Primary generation attempt failed:', error)
+      console.error('[Artifact Workflow] Error details:', (error as Error).message, (error as Error).stack)
       return { success: false }
     }
   }
@@ -742,15 +747,19 @@ SPECIFICATION: {"name": "extracted_name", "purpose": "extracted_purpose", "requi
    * Build generation prompt for AI
    */
   private static buildGenerationPrompt(build: ArtifactBuild, request: WorkflowRequest): string {
+    const filename = build.final_specification?.filename || 'config.json'
+    
     return `Generate a ${build.build_type} configuration based on this request: ${build.original_request}
+
+Filename: ${filename}
 
 Respond ONLY with valid JSON in this exact format:
 [
   {
-    "FILENAME": "config.json",
+    "FILENAME": "${filename}",
     "FILE_TYPE": "json",
     "MIME_TYPE": "application/json",
-    "CONTENT": "{...your JSON content...}",
+    "CONTENT": {...your JSON content...},
     "IS_PRIMARY": true
   }
 ]
