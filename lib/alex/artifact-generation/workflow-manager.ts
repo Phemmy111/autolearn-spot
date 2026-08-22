@@ -163,30 +163,80 @@ export class ArtifactWorkflowManager {
         }
         
         await ArtifactService.updateSpecification(build.id, updatedSpec, [])
-        await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
         
+        // Ask for platform if not already specified
+        if (!currentSpec.platform) {
+          await ArtifactService.addQuestion(build.id, 'What platform should this be for? (e.g., n8n, WordPress, custom)', 'missing_requirement')
+          await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+          
+          return {
+            status: 'collecting_requirements',
+            message: `Filename set to ${request.content}. What platform should this be for? (e.g., n8n, WordPress, custom)`,
+            needsInput: true,
+            questions: ['What platform should this be for? (e.g., n8n, WordPress, custom)']
+          }
+        }
+        
+        await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
         return this.confirmSpecification(build, request)
       } else {
-        // Not a valid filename, ask again
+        // Check if answer looks like platform name
+        const platformMatch = request.content.match(/n8n|wordpress|custom/i)
+        if (platformMatch) {
+          const currentSpec = build.final_specification || {}
+          const updatedSpec = {
+            ...currentSpec,
+            platform: platformMatch[0].toLowerCase()
+          }
+          
+          await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          
+          // Auto-generate filename if not provided
+          if (!currentSpec.filename) {
+            const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
+            updatedSpec.filename = autoFilename
+            updatedSpec.auto_generated = true
+            await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+          }
+          
+          await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+          return this.confirmSpecification(build, request)
+        }
+        
+        // Not a valid filename or platform, ask again
         return {
           status: 'collecting_requirements',
-          message: `That doesn't look like a valid filename. Please provide a filename with an extension (e.g., supportbot.json).`,
+          message: `Please provide either a filename (e.g., workflow.json) or specify the platform (e.g., n8n, WordPress, custom).`,
           needsInput: true,
-          questions: ['Please provide a valid filename with extension (e.g., supportbot.json)']
+          questions: ['Please provide a filename or platform (e.g., workflow.json or n8n)']
         }
       }
     }
 
-    // For simple JSON/configuration requests, auto-generate filename and proceed
+    // For simple JSON/configuration requests, check if platform is specified
     if (build.build_type === 'configuration' || build.build_type === 'chatbot') {
-      console.log('[Artifact Workflow] Simple request detected, auto-generating filename')
+      const currentSpec = build.final_specification || {}
       
-      // Auto-generate filename from request
+      if (!currentSpec.platform) {
+        console.log('[Artifact Workflow] Platform not specified, asking for platform')
+        
+        await ArtifactService.addQuestion(build.id, 'What platform should this be for? (e.g., n8n, WordPress, custom)', 'missing_requirement')
+        await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+        
+        return {
+          status: 'collecting_requirements',
+          message: `I'll create a ${build.build_type} configuration for you. What platform should this be for? (e.g., n8n, WordPress, custom)`,
+          needsInput: true,
+          questions: ['What platform should this be for? (e.g., n8n, WordPress, custom)']
+        }
+      }
+      
+      // Platform is specified, auto-generate filename and proceed
+      console.log('[Artifact Workflow] Platform specified, auto-generating filename')
+      
       const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
       console.log('[Artifact Workflow] Auto-generated filename:', autoFilename)
       
-      // Update specification with auto-generated filename
-      const currentSpec = build.final_specification || {}
       const updatedSpec = {
         ...currentSpec,
         filename: autoFilename,
@@ -388,153 +438,147 @@ export class ArtifactWorkflowManager {
       const filename = build.final_specification?.filename || this.generateFilenameFromRequest(build.original_request, 'json')
       console.log('[Artifact Workflow] Using filename:', filename)
       
-      // Extract bot name from filename or request
-      const botNameMatch = filename.match(/(.+)-config\.json/)
-      const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
+      const platform = build.final_specification?.platform || 'custom'
+      console.log('[Artifact Workflow] Platform:', platform)
       
-      // Generate chatbot configuration template
-      const chatbotConfig = {
-        botName: botName,
-        description: `A friendly assistant that helps users with common product and account questions.`,
-        language: "en",
-        defaultResponse: "I'm sorry, I didn't understand that. Could you please re-phrase or ask something else?",
-        fallbackIntent: {
-          name: "Fallback",
-          responses: [
+      let templateContent: any
+      let fileType: string
+      let mimeType: string
+      
+      if (platform === 'n8n') {
+        // Generate n8n workflow template
+        const botNameMatch = filename.match(/(.+)-config\.json/)
+        const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'My Workflow'
+        
+        templateContent = {
+          name: botName,
+          nodes: [
             {
-              type: "text",
-              content: "I'm not sure how to help with that. You can try asking about billing, technical issues, or contact information."
+              parameters: {
+                rule: {
+                  interval: [
+                    {
+                      field: "cronExpression",
+                      triggerAtHour: 0
+                    }
+                  ]
+                }
+              },
+              id: this.generateUUID(),
+              name: "Schedule Trigger",
+              type: "n8n-nodes-base.scheduleTrigger",
+              typeVersion: 1,
+              position: [0, 0]
+            },
+            {
+              parameters: {
+                assignments: {
+                  assignments: [
+                    {
+                      id: this.generateUUID(),
+                      name: "message",
+                      value: "Hello from " + botName,
+                      type: "string"
+                    }
+                  ]
+                }
+              },
+              id: this.generateUUID(),
+              name: "Set Message",
+              type: "n8n-nodes-base.set",
+              typeVersion: 3.4,
+              position: [240, 0]
             }
-          ]
-        },
-        intents: [
-          {
-            name: "Greeting",
-            utterances: [
-              "hi",
-              "hello",
-              "hey",
-              "good morning",
-              "good afternoon",
-              "good evening"
-            ],
-            responses: [
-              {
-                type: "text",
-                content: `Hello! I'm ${botName}. How can I help you today?`
-              }
-            ]
+          ],
+          connections: {
+            "Schedule Trigger": {
+              main: [
+                [
+                  {
+                    node: "Set Message",
+                    type: "main",
+                    index: 0
+                  }
+                ]
+              ]
+            }
           },
-          {
-            name: "Goodbye",
-            utterances: [
-              "bye",
-              "goodbye",
-              "see you later",
-              "thanks, that's all"
-            ],
-            responses: [
-              {
-                type: "text",
-                content: "Goodbye! If you need anything else, just let me know."
-              }
-            ]
+          active: true,
+          settings: {
+            executionOrder: "v1"
           },
-          {
-            name: "AccountHelp",
-            utterances: [
-              "I need help with my account",
-              "how do I reset my password?",
-              "can't log in",
-              "change my email address",
-              "update my profile"
-            ],
-            responses: [
-              {
-                type: "text",
-                content: "Sure! Here are some quick steps:\n1️⃣ Reset password – use the \"Forgot password?\" link on the login page.\n2️⃣ Change email – go to Settings → Account → Email.\n3️⃣ Update profile – edit your details under Settings → Profile.\nIf you still have trouble, let me know!"
-              }
-            ]
-          },
-          {
-            name: "BillingInquiry",
-            utterances: [
-              "What payment methods do you accept?",
-              "How can I view my invoice?",
-              "I was charged incorrectly",
-              "Where is my receipt?",
-              "Can I get a refund?"
-            ],
-            responses: [
-              {
-                type: "text",
-                content: "Here's what you need to know about billing:\n• Accepted cards: Visa, MasterCard, AmEx, and PayPal.\n• To view invoices, go to Dashboard → Billing → Invoices.\n• If you see an incorrect charge, please reply with the transaction ID and we'll investigate.\n• Refunds are processed within 5-7 business days after approval."
-              }
-            ]
-          },
-          {
-            name: "TechnicalSupport",
-            utterances: [
-              "My app is crashing",
-              "I get an error code 500",
-              "Why is the page loading forever?",
-              "How do I clear cache?",
-              "Browser compatibility issues"
-            ],
-            responses: [
-              {
-                type: "text",
-                content: "I'm sorry you're experiencing technical issues. Try these steps first:\n1️⃣ Refresh the page or restart the app.\n2️⃣ Clear your browser cache (Settings → Privacy → Clear browsing data).\n3️⃣ Ensure you're using the latest version of Chrome, Firefox, or Edge.\nIf the problem persists, please share the error message or a screenshot."
-              }
-            ]
-          },
-          {
-            name: "ContactHuman",
-            utterances: [
-              "I need to speak to a human",
-              "Can I talk to support?",
-              "Live chat",
-              "Call support"
-            ],
-            responses: [
-              {
-                type: "text",
-                content: "No problem! You can reach a live support agent by:\n• Email: support@example.com\n• Phone: +1-800-555-0123 (Mon-Fri, 9am-5pm PST)\n• Live chat: click the chat icon on the bottom-right of our website."
-              }
-            ]
-          }
-        ],
-        entities: [
-          {
-            name: "PaymentMethod",
-            values: ["visa", "mastercard", "amex", "paypal"]
-          },
-          {
-            name: "ErrorCode",
-            values: ["500", "404", "403", "502"]
-          }
-        ],
-        settings: {
-          sessionTimeoutSeconds: 1800,
-          allowRichResponses: true,
-          logUserMessages: true
+          id: this.generateUUID(),
+          tags: []
         }
+        
+        fileType = 'json'
+        mimeType = 'application/json'
+      } else {
+        // Generate generic chatbot configuration for other platforms
+        const botNameMatch = filename.match(/(.+)-config\.json/)
+        const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
+        
+        templateContent = {
+          botName: botName,
+          description: `A friendly assistant that helps users with common product and account questions.`,
+          language: "en",
+          defaultResponse: "I'm sorry, I didn't understand that. Could you please re-phrase or ask something else?",
+          fallbackIntent: {
+            name: "Fallback",
+            responses: [
+              {
+                type: "text",
+                content: "I'm not sure how to help with that. You can try asking about billing, technical issues, or contact information."
+              }
+            ]
+          },
+          intents: [
+            {
+              name: "Greeting",
+              utterances: ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"],
+              responses: [
+                {
+                  type: "text",
+                  content: `Hello! I'm ${botName}. How can I help you today?`
+                }
+              ]
+            },
+            {
+              name: "Goodbye",
+              utterances: ["bye", "goodbye", "see you later", "thanks, that's all"],
+              responses: [
+                {
+                  type: "text",
+                  content: "Goodbye! If you need anything else, just let me know."
+                }
+              ]
+            }
+          ],
+          settings: {
+            sessionTimeoutSeconds: 1800,
+            allowRichResponses: true,
+            logUserMessages: true
+          }
+        }
+        
+        fileType = 'json'
+        mimeType = 'application/json'
       }
 
       const artifact = await ArtifactService.saveArtifact(
         build.id,
         request.userId,
         filename,
-        'json',
-        'application/json',
-        JSON.stringify(chatbotConfig, null, 2),
+        fileType,
+        mimeType,
+        JSON.stringify(templateContent, null, 2),
         true
       )
 
       console.log('[Artifact Workflow] Template artifact saved, ID:', artifact.id)
 
       // Validate
-      const validation = await ArtifactService.validateArtifact(artifact.id, JSON.stringify(chatbotConfig, null, 2), 'json')
+      const validation = await ArtifactService.validateArtifact(artifact.id, JSON.stringify(templateContent, null, 2), fileType)
       if (!validation.valid) {
         console.error('[Artifact Workflow] Template validation failed:', validation.errors)
         return { success: false }
@@ -563,6 +607,17 @@ export class ArtifactWorkflowManager {
       console.error('[Artifact Workflow] Template generation failed:', error)
       return { success: false }
     }
+  }
+
+  /**
+   * Generate UUID for n8n nodes
+   */
+  private static generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0
+      const v = c === 'x' ? r : (r & 0x3 | 0x8)
+      return v.toString(16)
+    })
   }
 
   /**
@@ -862,11 +917,138 @@ Just return the JSON. No explanations needed.`
       const primaryArtifact = artifacts.find(a => a.is_primary) || artifacts[0]
       if (!primaryArtifact) return null
 
-      // Extract bot name from filename
+      const platform = build.final_specification?.platform || 'custom'
       const botNameMatch = primaryArtifact.filename.match(/(.+)-config\.json/)
-      const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
+      const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'My Workflow'
 
-      const guideContent = `<!DOCTYPE html>
+      let guideContent: string
+      let guideFilename: string
+
+      if (platform === 'n8n') {
+        // Generate n8n-specific guide
+        guideContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="Generator" content="ALEX - AutoLearn Express">
+<style>
+body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+h1 { color: #2c3e50; border-bottom: 3px solid #ff6d5a; padding-bottom: 10px; }
+h2 { color: #34495e; margin-top: 30px; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; }
+h3 { color: #ff6d5a; margin-top: 20px; }
+ul, ol { margin: 10px 0; padding-left: 30px; }
+li { margin: 5px 0; }
+code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }
+pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+pre code { background: none; padding: 0; color: inherit; }
+strong { color: #ff6d5a; }
+.note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
+.footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #bdc3c7; color: #7f8c8d; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<h1>${botName} - n8n Workflow Guide</h1>
+
+<h2>Overview</h2>
+<p>This n8n workflow JSON file contains a complete automation workflow for <strong>${botName}</strong>. It includes trigger nodes, processing nodes, and connections for n8n automation platform.</p>
+
+<h2>File Contents</h2>
+<p>The workflow includes:</p>
+<ul>
+<li><strong>Workflow Name</strong>: ${botName}</li>
+<li><strong>Trigger Nodes</strong>: Schedule or webhook triggers</li>
+<li><strong>Processing Nodes</strong>: Data transformation and processing</li>
+<li><strong>Connections</strong>: Node connections and data flow</li>
+<li><strong>Settings</strong>: Execution order and workflow configuration</li>
+</ul>
+
+<h2>Setup Instructions</h2>
+
+<h3>1. Installation</h3>
+<ol>
+<li>Download the workflow file: <code>${primaryArtifact.filename}</code></li>
+<li>Open your n8n instance (self-hosted or n8n.cloud)</li>
+<li>Go to Workflows → Import from File</li>
+<li>Select the downloaded JSON file</li>
+</ol>
+
+<h3>2. Configuration</h3>
+<p>After importing, you may need to:</p>
+<ul>
+<li>Configure credentials for external services</li>
+<li>Update API endpoints and authentication</li>
+<li> Set up webhook URLs if using web triggers</li>
+<li> Configure schedule triggers for your timezone</li>
+</ul>
+
+<h2>Workflow Structure</h2>
+
+<h3>Trigger Nodes</h3>
+<ul>
+<li><strong>Schedule Trigger</strong>: Runs on specified intervals</li>
+<li><strong>Webhook Trigger</strong>: Triggered by HTTP requests</li>
+<li><strong>Manual Trigger</strong>: Start workflow manually</li>
+</ul>
+
+<h3>Processing Nodes</h3>
+<ul>
+<li><strong>Set Node</strong>: Sets variables and data transformations</li>
+<li><strong>Code Node</strong>: Custom JavaScript processing</li>
+<li><strong>HTTP Request</strong>: External API calls</li>
+<li><strong>Database Operations</strong>: Read/write to databases</li>
+</ul>
+
+<h2>Customization</h2>
+
+<h3>Adding New Nodes</h3>
+<ol>
+<li>Click the "+" button between nodes</li>
+<li>Select the node type from the node library</li>
+<li>Configure node parameters</li>
+<li>Connect to previous and next nodes</li>
+</ol>
+
+<h3>Modifying Connections</h3>
+<p>Drag connections between nodes to change data flow. You can add multiple output connections for branching logic.</p>
+
+<h3>Updating Triggers</h3>
+<p>Modify trigger node settings to change when the workflow runs. For schedule triggers, use cron expressions for precise timing.</p>
+
+<h2>Important Notes</h2>
+<div class="note">
+<ul>
+<li>Ensure all required credentials are configured before activating</li>
+<li>Test workflow in manual mode before scheduling</li>
+<li>Monitor execution logs for errors and performance issues</li>
+<li>Use appropriate execution order for complex workflows</li>
+</ul>
+</div>
+
+<h2>Next Steps</h2>
+<ol>
+<li>Import the workflow into your n8n instance</li>
+<li>Configure required credentials and parameters</li>
+<li>Test the workflow with sample data</li>
+<li> Activate and monitor execution</li>
+<li> Set up error handling and notifications</li>
+</ol>
+
+<h2>Support</h2>
+<p>For n8n-specific issues, refer to the <a href="https://docs.n8n.io">n8n documentation</a> or community forums.</p>
+
+<div class="footer">
+<p><strong>Generated by ALEX - AutoLearn Express</strong></p>
+<p>Platform: n8n | Workflow Date: ${new Date().toISOString().split('T')[0]}</p>
+</div>
+
+</body>
+</html>`
+
+        guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.doc')
+      } else {
+        // Generate generic guide for other platforms
+        guideContent = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
@@ -882,9 +1064,6 @@ code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: '
 pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
 pre code { background: none; padding: 0; color: inherit; }
 strong { color: #e74c3c; }
-table { border-collapse: collapse; width: 100%; margin: 15px 0; }
-th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-th { background: #3498db; color: white; }
 .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
 .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #bdc3c7; color: #7f8c8d; font-size: 12px; }
 </style>
@@ -951,34 +1130,6 @@ const bot = new ChatBot({
 <li><strong>Response</strong>: Professional closing message</li>
 </ul>
 
-<h4>Account Help</h4>
-<ul>
-<li><strong>Purpose</strong>: Assist with account-related questions</li>
-<li><strong>Sample phrases</strong>: "reset password", "change email", "login issues"</li>
-<li><strong>Response</strong>: Step-by-step account management guidance</li>
-</ul>
-
-<h4>Billing Inquiries</h4>
-<ul>
-<li><strong>Purpose</strong>: Handle payment and billing questions</li>
-<li><strong>Sample phrases</strong>: "payment methods", "invoice", "refund"</li>
-<li><strong>Response</strong>: Payment processing and billing information</li>
-</ul>
-
-<h4>Technical Support</h4>
-<ul>
-<li><strong>Purpose</strong>: Troubleshoot technical issues</li>
-<li><strong>Sample phrases</strong>: "app crashing", "error codes", "loading issues"</li>
-<li><strong>Response</strong>: Technical problem-solving steps</li>
-</ul>
-
-<h4>Contact Human</h4>
-<ul>
-<li><strong>Purpose</strong>: Escalate to human support</li>
-<li><strong>Sample phrases</strong>: "speak to human", "live chat", "call support"</li>
-<li><strong>Response</strong>: Human support contact information</li>
-</ul>
-
 <h2>Customization</h2>
 
 <h3>Adding New Intents</h3>
@@ -990,9 +1141,6 @@ const bot = new ChatBot({
 
 <h3>Modifying Responses</h3>
 <p>Update the <code>content</code> field in any intent's response array to change bot behavior.</p>
-
-<h3>Adding Entities</h3>
-<p>Include entity definitions in the <code>entities</code> array for pattern matching and data extraction.</p>
 
 <h2>Important Notes</h2>
 <div class="note">
@@ -1024,7 +1172,8 @@ const bot = new ChatBot({
 </body>
 </html>`
 
-      const guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.doc')
+        guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.doc')
+      }
       
       const guideArtifact = await ArtifactService.saveArtifact(
         build.id,
