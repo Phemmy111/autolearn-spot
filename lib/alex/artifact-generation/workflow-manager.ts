@@ -177,19 +177,26 @@ export class ArtifactWorkflowManager {
       }
     }
 
-    // For simple JSON/configuration requests, just ask for filename and proceed
+    // For simple JSON/configuration requests, auto-generate filename and proceed
     if (build.build_type === 'configuration' || build.build_type === 'chatbot') {
-      console.log('[Artifact Workflow] Simple request detected, asking for filename only')
+      console.log('[Artifact Workflow] Simple request detected, auto-generating filename')
       
-      await ArtifactService.addQuestion(build.id, 'What filename would you like for the downloadable file (including .json extension)?', 'missing_requirement')
-      await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+      // Auto-generate filename from request
+      const autoFilename = this.generateFilenameFromRequest(build.original_request, 'json')
+      console.log('[Artifact Workflow] Auto-generated filename:', autoFilename)
       
-      return {
-        status: 'collecting_requirements',
-        message: `I'll create a ${build.build_type} configuration for you. What filename would you like for the downloadable file (including .json extension)?`,
-        needsInput: true,
-        questions: ['What filename would you like for the downloadable file (including .json extension)?']
+      // Update specification with auto-generated filename
+      const currentSpec = build.final_specification || {}
+      const updatedSpec = {
+        ...currentSpec,
+        filename: autoFilename,
+        auto_generated: true
       }
+      
+      await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+      await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+      
+      return this.confirmSpecification(build, request)
     }
 
     // Use AI to determine if we need more information for complex requests
@@ -353,6 +360,21 @@ export class ArtifactWorkflowManager {
   }
 
   /**
+   * Auto-generate filename from request
+   */
+  private static generateFilenameFromRequest(request: string, fileType: string = 'json'): string {
+    // Extract name from request like "Create a JSON file configuration for a chatbot called SupportBot"
+    const nameMatch = request.match(/(?:called|named|for)\s+([A-Za-z][A-Za-z0-9]*)/i)
+    if (nameMatch && nameMatch[1]) {
+      const name = nameMatch[1].toLowerCase()
+      return `${name}-config.${fileType}`
+    }
+    
+    // Fallback to generic name
+    return `artifact-${Date.now()}.${fileType}`
+  }
+
+  /**
    * Attempt template-based generation (most reliable)
    */
   private static async attemptTemplateGeneration(
@@ -362,13 +384,18 @@ export class ArtifactWorkflowManager {
     try {
       console.log('[Artifact Workflow] Template generation attempt')
       
-      const filename = build.final_specification?.filename || 'config.json'
+      // Auto-generate filename from request
+      const filename = build.final_specification?.filename || this.generateFilenameFromRequest(build.original_request, 'json')
       console.log('[Artifact Workflow] Using filename:', filename)
+      
+      // Extract bot name from filename or request
+      const botNameMatch = filename.match(/(.+)-config\.json/)
+      const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
       
       // Generate chatbot configuration template
       const chatbotConfig = {
-        botName: "SupportBot",
-        description: "A friendly assistant that helps users with common product and account questions.",
+        botName: botName,
+        description: `A friendly assistant that helps users with common product and account questions.`,
         language: "en",
         defaultResponse: "I'm sorry, I didn't understand that. Could you please re-phrase or ask something else?",
         fallbackIntent: {
@@ -394,7 +421,7 @@ export class ArtifactWorkflowManager {
             responses: [
               {
                 type: "text",
-                content: "Hello! I'm SupportBot. How can I help you today?"
+                content: `Hello! I'm ${botName}. How can I help you today?`
               }
             ]
           },
@@ -835,25 +862,118 @@ Just return the JSON. No explanations needed.`
       const primaryArtifact = artifacts.find(a => a.is_primary) || artifacts[0]
       if (!primaryArtifact) return null
 
-      const guidePrompt = `Generate a concise guide for using this ${build.build_type} artifact.
+      // Extract bot name from filename
+      const botNameMatch = primaryArtifact.filename.match(/(.+)-config\.json/)
+      const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'SupportBot'
 
-Original request: ${build.original_request}
-Artifact filename: ${primaryArtifact.filename}
-Artifact type: ${primaryArtifact.file_type}
+      const guideContent = `# ${botName} Configuration Guide
 
-Generate a guide in markdown format that explains:
-1. What the file contains
-2. What the configuration does
-3. Required setup steps
-4. How to import/use it
-5. Important customization points
-6. Any assumptions made
-7. Next steps
+## Overview
+This configuration file contains the complete setup for ${botName}, a conversational AI assistant designed to help users with common queries and tasks.
 
-Keep it practical and actionable. Do not include the actual file content in the guide.`
+## File Contents
+The configuration includes:
+- **Bot Identity**: Name, description, and language settings
+- **Intent Definitions**: Pre-built conversation flows for common user requests
+- **Response Templates**: Structured responses for each intent
+- **Entity Recognition**: Built-in pattern matching for key information
+- **Settings**: Session management and behavior controls
 
-      const guideContent = await this.getAIResponse(guidePrompt, request)
-      
+## Setup Instructions
+
+### 1. Installation
+1. Download the configuration file: \`${primaryArtifact.filename}\`
+2. Place it in your chatbot's configuration directory
+3. Update your bot initialization to load this file
+
+### 2. Quick Start
+\`\`\`javascript
+// Example implementation
+const config = require('./${primaryArtifact.filename}');
+
+// Initialize your bot with the configuration
+const bot = new ChatBot({
+  config: config,
+  apiEndpoint: 'your-api-endpoint'
+});
+\`\`\`
+
+## Configuration Sections
+
+### Bot Identity
+- **Name**: ${botName}
+- **Language**: English
+- **Default Response**: Fallback message for unrecognized intents
+
+### Intents
+The configuration includes these pre-built intents:
+
+#### Greeting
+- **Purpose**: Welcome users and start conversations
+- **Sample phrases**: "hi", "hello", "hey", "good morning"
+- **Response**: Friendly greeting with help offer
+
+#### Goodbye
+- **Purpose**: Handle conversation endings
+- **Sample phrases**: "bye", "goodbye", "see you later"
+- **Response**: Professional closing message
+
+#### Account Help
+- **Purpose**: Assist with account-related questions
+- **Sample phrases**: "reset password", "change email", "login issues"
+- **Response**: Step-by-step account management guidance
+
+#### Billing Inquiries
+- **Purpose**: Handle payment and billing questions
+- **Sample phrases**: "payment methods", "invoice", "refund"
+- **Response**: Payment processing and billing information
+
+#### Technical Support
+- **Purpose**: Troubleshoot technical issues
+- **Sample phrases**: "app crashing", "error codes", "loading issues"
+- **Response**: Technical problem-solving steps
+
+#### Contact Human
+- **Purpose**: Escalate to human support
+- **Sample phrases**: "speak to human", "live chat", "call support"
+- **Response**: Human support contact information
+
+## Customization
+
+### Adding New Intents
+1. Add to the \`intents\` array in the configuration
+2. Define sample utterances in \`utterances\` array
+3. Create response templates in \`responses\` array
+
+### Modifying Responses
+Update the \`content\` field in any intent's response array to change bot behavior.
+
+### Adding Entities
+Include entity definitions in the \`entities\` array for pattern matching and data extraction.
+
+## Important Notes
+
+- All intent names should be unique
+- Utterances should cover common variations
+- Responses can include dynamic placeholders
+- Session timeout is set to 30 minutes by default
+
+## Next Steps
+
+1. Test each intent with sample utterances
+2. Customize responses for your specific use case
+3. Add additional intents as needed
+4. Configure your API endpoints
+5. Deploy and monitor conversation quality
+
+## Support
+
+For issues or questions about this configuration, refer to your chatbot platform documentation or contact support.
+
+---
+*Generated by ALEX - AutoLearn Express*
+*Configuration Date: ${new Date().toISOString().split('T')[0]}*`
+
       const guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.md')
       
       const guideArtifact = await ArtifactService.saveArtifact(
