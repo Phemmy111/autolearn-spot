@@ -148,9 +148,9 @@ export class ArtifactWorkflowManager {
     if (isDirectAnswer) {
       console.log('[Artifact Workflow] Direct answer detected, processing user input')
       
-      // Check if the answer looks like a filename (contains .json or other extension)
-      const looksLikeFilename = request.content.includes('.') && 
-                                request.content.length > 5 && 
+      // Check if the answer looks like a filename (ends with file extension)
+      const looksLikeFilename = /\.(json|yaml|yml|xml|config|txt|md|js|ts|py|html|css)$/i.test(request.content) &&
+                                request.content.length > 5 &&
                                 request.content.length < 100
       
       if (looksLikeFilename) {
@@ -189,6 +189,40 @@ export class ArtifactWorkflowManager {
         
         // If we're in n8n platform, let AI provide expert recommendations
         if (currentSpec.platform === 'n8n') {
+          // First, try to extract n8n specs directly from user input
+          const extractedSpec = this.extractN8nSpecs(request.content, currentSpec)
+          
+          if (extractedSpec.hasInfo) {
+            // User provided useful information, update specs
+            const updatedSpec = {
+              ...currentSpec,
+              ...extractedSpec.specs
+            }
+            
+            await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+            
+            // Check if we have enough info to proceed
+            if (updatedSpec.trigger && updatedSpec.functionality && updatedSpec.integrations) {
+              await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+              return this.confirmSpecification(build, request)
+            }
+            
+            // Still missing some info, ask specific question
+            await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+            const missing = []
+            if (!updatedSpec.trigger) missing.push('trigger type')
+            if (!updatedSpec.functionality) missing.push('what the workflow should do')
+            if (!updatedSpec.integrations) missing.push('which services/integrations to connect')
+            
+            return {
+              status: 'collecting_requirements',
+              message: `Got it! I still need to know: ${missing.join(', ')}.`,
+              needsInput: true,
+              questions: [`Please provide: ${missing.join(', ')}`]
+            }
+          }
+          
+          // If no direct extraction worked, use AI expert analysis
           const n8nExpertPrompt = `You are an expert n8n workflow architect.
 
 User just said: "${request.content}"
@@ -579,6 +613,40 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       reasoning: reasoningMatch ? reasoningMatch[1].trim() : 'Based on best practices',
       nextQuestion: questionMatch ? questionMatch[1].trim() : 'What specific functionality do you need?'
     }
+  }
+
+  /**
+   * Extract n8n specifications directly from user input
+   */
+  private static extractN8nSpecs(input: string, currentSpec: any): { hasInfo: boolean; specs: any } {
+    const lower = input.toLowerCase()
+    const specs: any = {}
+    let hasInfo = false
+
+    // Extract trigger type
+    if (lower.includes('trigger') || lower.includes('when') || lower.includes('on')) {
+      if (lower.includes('chat message') || lower.includes('webhook') || lower.includes('http')) {
+        specs.trigger = input.match(/(?:trigger|on)\s+(.+)/i)?.[1]?.trim() || 'chat message'
+        hasInfo = true
+      }
+    }
+
+    // Extract AI model
+    if (lower.includes('gemini') || lower.includes('gpt') || lower.includes('openai') || lower.includes('claude') || lower.includes('model')) {
+      specs.integrations = currentSpec.integrations || ''
+      if (lower.includes('gemini')) specs.integrations += ' Google Gemini'
+      if (lower.includes('gpt') || lower.includes('openai')) specs.integrations += ' OpenAI GPT'
+      if (lower.includes('claude')) specs.integrations += ' Anthropic Claude'
+      hasInfo = true
+    }
+
+    // Extract functionality (what it should do)
+    if (lower.includes('chatbot') || lower.includes('support') || lower.includes('respond')) {
+      specs.functionality = currentSpec.functionality || input
+      hasInfo = true
+    }
+
+    return { hasInfo, specs }
   }
 
   /**
