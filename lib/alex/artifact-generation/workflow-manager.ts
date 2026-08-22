@@ -229,7 +229,7 @@ export class ArtifactWorkflowManager {
           file.file_type,
           file.mime_type,
           file.content,
-          file.is_primary
+          file.is_primary || false
         )
 
         // Validate artifact
@@ -380,6 +380,10 @@ Repeat for each file.
     for (const line of lines) {
       if (line.startsWith('FILENAME:')) {
         if (currentFile) {
+          // Ensure all required fields have defaults before pushing
+          currentFile.is_primary = currentFile.is_primary || false
+          currentFile.file_type = currentFile.file_type || 'txt'
+          currentFile.mime_type = currentFile.mime_type || 'text/plain'
           files.push(currentFile)
         }
         currentFile = {
@@ -404,6 +408,10 @@ Repeat for each file.
     }
 
     if (currentFile) {
+      // Ensure all required fields have defaults for the last file
+      currentFile.is_primary = currentFile.is_primary || false
+      currentFile.file_type = currentFile.file_type || 'txt'
+      currentFile.mime_type = currentFile.mime_type || 'text/plain'
       files.push(currentFile)
     }
 
