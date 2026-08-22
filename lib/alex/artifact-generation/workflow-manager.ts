@@ -107,61 +107,17 @@ export class ArtifactWorkflowManager {
   private static async gatherRequirements(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Gathering requirements for:', build.id)
 
-    // For simple requests, skip requirement gathering and go straight to generation
-    const isSimpleRequest = build.original_request.length < 200 ||
-                          build.original_request.toLowerCase().includes('create a json') ||
-                          build.original_request.toLowerCase().includes('generate a json')
-
-    if (isSimpleRequest) {
-      console.log('[Artifact Workflow] Simple request detected, skipping requirement gathering')
-      // Create a basic specification from the request
-      const basicSpec = {
-        request: build.original_request,
-        build_type: build.build_type,
-        user_request: request.content
-      }
-      await ArtifactService.updateSpecification(build.id, basicSpec, [])
-      await ArtifactService.updateBuildStatus(build.id, 'confirmed')
-      return this.generateArtifacts(build, request)
+    // Skip requirement gathering for all requests - go straight to generation
+    console.log('[Artifact Workflow] Skipping requirement gathering, going straight to generation')
+    // Create a basic specification from the request
+    const basicSpec = {
+      request: build.original_request,
+      build_type: build.build_type,
+      user_request: request.content
     }
-
-    // Use AI to analyze requirements
-    const requirementsPrompt = this.buildRequirementsPrompt(build, request)
-
-    try {
-      const aiResponse = await this.getAIResponse(requirementsPrompt, request)
-
-      // Parse AI response to determine if more questions are needed
-      const analysis = this.parseRequirementsResponse(aiResponse)
-
-      if (analysis.complete) {
-        // Requirements complete, move to confirmation
-        await ArtifactService.updateSpecification(build.id, analysis.specification, [])
-        await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
-
-        return {
-          status: 'ready_for_confirmation',
-          message: 'Requirements collected. Ready for confirmation.',
-          specification: analysis.specification
-        }
-      } else {
-        // Ask questions
-        for (const question of analysis.questions) {
-          await ArtifactService.addQuestion(build.id, question, 'missing_requirement')
-        }
-
-        return {
-          status: 'collecting_requirements',
-          message: 'I need more information to build this.',
-          needsInput: true,
-          questions: analysis.questions
-        }
-      }
-    } catch (error) {
-      console.error('[Artifact Workflow] Requirements gathering failed:', error)
-      await ArtifactService.markBuildFailed(build.id, 'Requirements gathering failed')
-      return { status: 'failed', message: 'Failed to gather requirements' }
-    }
+    await ArtifactService.updateSpecification(build.id, basicSpec, [])
+    await ArtifactService.updateBuildStatus(build.id, 'confirmed')
+    return this.generateArtifacts(build, request)
   }
 
   /**
@@ -321,39 +277,20 @@ SPECIFICATION: {"key": "value"}
    * Build generation prompt for AI
    */
   private static buildGenerationPrompt(build: ArtifactBuild, request: WorkflowRequest): string {
-    return `You are ALEX, an artifact generation assistant. Generate the requested artifacts.
+    return `Generate a ${build.build_type} configuration based on this request: ${build.original_request}
 
-Build type: ${build.build_type}
-Specification: ${JSON.stringify(build.final_specification, null, 2)}
-
-Your task:
-1. Generate the required files based on the specification
-2. Ensure files are internally consistent
-3. Use placeholders for secrets (e.g., YOUR_API_KEY_HERE)
-4. Generate usage guides where appropriate
-
-IMPORTANT: Respond ONLY in one of these two formats (JSON is preferred):
-
-OPTION 1 - JSON Format (preferred):
+Respond ONLY with valid JSON in this exact format:
 [
   {
-    "FILENAME": "filename.ext",
+    "FILENAME": "config.json",
     "FILE_TYPE": "json",
     "MIME_TYPE": "application/json",
-    "CONTENT": "{...}",
+    "CONTENT": "{...your JSON content...}",
     "IS_PRIMARY": true
   }
 ]
 
-OPTION 2 - Text Format:
-FILENAME: [filename]
-FILE_TYPE: [file_type]
-MIME_TYPE: [mime_type]
-CONTENT: [file content - may span multiple lines]
-IS_PRIMARY: [true/false]
-
-Do not add any other text, explanations, or conversational filler.
-`
+No other text. Just the JSON array.`
   }
 
   /**
