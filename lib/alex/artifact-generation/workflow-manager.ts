@@ -1695,7 +1695,8 @@ Shall I proceed? (yes/no)`
       enableMemory: false,      // Disable memory to save TPM
       enableTools: false,      // Disable tools to save TPM
       enableAgent: false,      // Disable agent mode to save TPM
-      enableTokenAwareAssembly: false // Disable token-aware assembly for simpler requests
+      enableTokenAwareAssembly: false, // Disable token-aware assembly for simpler requests
+      skipArtifactDetection: true // Prevent infinite loop by skipping artifact routing for internal requests
     })
 
     // Collect the stream response

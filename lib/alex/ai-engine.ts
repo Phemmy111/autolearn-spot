@@ -217,6 +217,7 @@ export class AIEngine {
     workflowJson?: string;
     workflowErrors?: string[];
     generateWorkflowArtifact?: boolean;
+    skipArtifactDetection?: boolean; // Skip artifact routing for internal AI requests
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -285,7 +286,8 @@ export class AIEngine {
         toolRegistry: this.toolRegistry, // Phase 5: Pass tool registry
         toolExecutionService: this.toolExecutionService, // Phase 5: Pass tool execution service
         enableAgent: request.enableAgent, // Phase 6: Enable agent mode
-        aiEngine: this // Phase 6: Pass AI engine instance for agent execution
+        aiEngine: this, // Phase 6: Pass AI engine instance for agent execution
+        skipArtifactDetection: request.skipArtifactDetection // Phase 7: Skip artifact routing for internal requests
       });
       
       console.log('[DIAGNOSTIC] AI ENGINE ORCHESTRATOR COMPLETE', {

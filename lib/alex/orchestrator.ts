@@ -39,6 +39,7 @@ export interface OrchestratorRequest {
   workflowJson?: string // Direct workflow JSON input
   workflowErrors?: string[] // Workflow error debugging
   generateWorkflowArtifact?: boolean // Generate downloadable workflow
+  skipArtifactDetection?: boolean // Skip artifact routing for internal AI requests
 }
 
 export interface OrchestratorResponse {
@@ -142,7 +143,8 @@ export class AlexOrchestrator {
 
     // Phase 7: Check for existing artifact build first (highest priority)
     // This ensures workflow continuity even if current message doesn't match artifact patterns
-    if (userId && conversationId) {
+    // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
+    if (userId && conversationId && !request.skipArtifactDetection) {
       try {
         const { ArtifactService } = await import('./artifact-generation/artifact-service')
         const existingBuild = await ArtifactService.getActiveBuild(conversationId, userId)
@@ -188,7 +190,8 @@ export class AlexOrchestrator {
 
     // Phase 7: Route to artifact workflow if build intent detected for new requests
     // RE-ENABLED: Now with proper fallback and graceful failure handling
-    if (isArtifactGeneration && userId && conversationId) {
+    // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
+    if (isArtifactGeneration && userId && conversationId && !request.skipArtifactDetection) {
       console.log('[Orchestrator] Artifact generation intent detected, routing to workflow manager')
       
       try {
