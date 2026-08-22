@@ -314,6 +314,10 @@ export class AIEngine {
           type: 'artifact_workflow',
           data: orchestratorResponse.artifactWorkflow
         }
+        yield {
+          type: 'finish',
+          data: { usage: null }
+        }
         return // Don't continue with normal streaming
       }
 
