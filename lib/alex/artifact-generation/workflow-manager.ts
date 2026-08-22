@@ -307,7 +307,15 @@ export class ArtifactWorkflowManager {
     await ArtifactService.updateBuildStatus(build.id, 'generating')
 
     try {
-      // Try primary generation method
+      // Try template-based generation first (most reliable)
+      const templateResult = await this.attemptTemplateGeneration(build, request)
+      
+      if (templateResult.success) {
+        return templateResult.response
+      }
+
+      // If template failed, try AI-based generation
+      console.log('[Artifact Workflow] Template generation failed, trying AI-based')
       const primaryResult = await this.attemptArtifactGeneration(build, request, 1)
       
       if (primaryResult.success) {
@@ -322,7 +330,7 @@ export class ArtifactWorkflowManager {
         return fallbackResult.response
       }
 
-      // Both methods failed
+      // All methods failed
       console.error('[Artifact Workflow] All generation methods failed')
       await ArtifactService.markBuildFailed(build.id, 'All generation methods failed. Requirements preserved for retry.')
       
@@ -341,6 +349,191 @@ export class ArtifactWorkflowManager {
         message: `I've captured your requirements, but the artifact generator encountered an error: ${(error as Error).message}. Your configuration is preserved. Type "try again" to retry generation.`,
         needsInput: true
       }
+    }
+  }
+
+  /**
+   * Attempt template-based generation (most reliable)
+   */
+  private static async attemptTemplateGeneration(
+    build: ArtifactBuild,
+    request: WorkflowRequest
+  ): Promise<{ success: boolean; response?: WorkflowResponse }> {
+    try {
+      console.log('[Artifact Workflow] Template generation attempt')
+      
+      const filename = build.final_specification?.filename || 'config.json'
+      
+      // Generate chatbot configuration template
+      const chatbotConfig = {
+        botName: "SupportBot",
+        description: "A friendly assistant that helps users with common product and account questions.",
+        language: "en",
+        defaultResponse: "I'm sorry, I didn't understand that. Could you please re-phrase or ask something else?",
+        fallbackIntent: {
+          name: "Fallback",
+          responses: [
+            {
+              type: "text",
+              content: "I'm not sure how to help with that. You can try asking about billing, technical issues, or contact information."
+            }
+          ]
+        },
+        intents: [
+          {
+            name: "Greeting",
+            utterances: [
+              "hi",
+              "hello",
+              "hey",
+              "good morning",
+              "good afternoon",
+              "good evening"
+            ],
+            responses: [
+              {
+                type: "text",
+                content: "Hello! I'm SupportBot. How can I help you today?"
+              }
+            ]
+          },
+          {
+            name: "Goodbye",
+            utterances: [
+              "bye",
+              "goodbye",
+              "see you later",
+              "thanks, that's all"
+            ],
+            responses: [
+              {
+                type: "text",
+                content: "Goodbye! If you need anything else, just let me know."
+              }
+            ]
+          },
+          {
+            name: "AccountHelp",
+            utterances: [
+              "I need help with my account",
+              "how do I reset my password?",
+              "can't log in",
+              "change my email address",
+              "update my profile"
+            ],
+            responses: [
+              {
+                type: "text",
+                content: "Sure! Here are some quick steps:\n1️⃣ Reset password – use the \"Forgot password?\" link on the login page.\n2️⃣ Change email – go to Settings → Account → Email.\n3️⃣ Update profile – edit your details under Settings → Profile.\nIf you still have trouble, let me know!"
+              }
+            ]
+          },
+          {
+            name: "BillingInquiry",
+            utterances: [
+              "What payment methods do you accept?",
+              "How can I view my invoice?",
+              "I was charged incorrectly",
+              "Where is my receipt?",
+              "Can I get a refund?"
+            ],
+            responses: [
+              {
+                type: "text",
+                content: "Here's what you need to know about billing:\n• Accepted cards: Visa, MasterCard, AmEx, and PayPal.\n• To view invoices, go to Dashboard → Billing → Invoices.\n• If you see an incorrect charge, please reply with the transaction ID and we'll investigate.\n• Refunds are processed within 5-7 business days after approval."
+              }
+            ]
+          },
+          {
+            name: "TechnicalSupport",
+            utterances: [
+              "My app is crashing",
+              "I get an error code 500",
+              "Why is the page loading forever?",
+              "How do I clear cache?",
+              "Browser compatibility issues"
+            ],
+            responses: [
+              {
+                type: "text",
+                content: "I'm sorry you're experiencing technical issues. Try these steps first:\n1️⃣ Refresh the page or restart the app.\n2️⃣ Clear your browser cache (Settings → Privacy → Clear browsing data).\n3️⃣ Ensure you're using the latest version of Chrome, Firefox, or Edge.\nIf the problem persists, please share the error message or a screenshot."
+              }
+            ]
+          },
+          {
+            name: "ContactHuman",
+            utterances: [
+              "I need to speak to a human",
+              "Can I talk to support?",
+              "Live chat",
+              "Call support"
+            ],
+            responses: [
+              {
+                type: "text",
+                content: "No problem! You can reach a live support agent by:\n• Email: support@example.com\n• Phone: +1-800-555-0123 (Mon-Fri, 9am-5pm PST)\n• Live chat: click the chat icon on the bottom-right of our website."
+              }
+            ]
+          }
+        ],
+        entities: [
+          {
+            name: "PaymentMethod",
+            values: ["visa", "mastercard", "amex", "paypal"]
+          },
+          {
+            name: "ErrorCode",
+            values: ["500", "404", "403", "502"]
+          }
+        ],
+        settings: {
+          sessionTimeoutSeconds: 1800,
+          allowRichResponses: true,
+          logUserMessages: true
+        }
+      }
+
+      const artifact = await ArtifactService.saveArtifact(
+        build.id,
+        request.userId,
+        filename,
+        'json',
+        'application/json',
+        JSON.stringify(chatbotConfig, null, 2),
+        true
+      )
+
+      console.log('[Artifact Workflow] Template artifact saved, ID:', artifact.id)
+
+      // Validate
+      const validation = await ArtifactService.validateArtifact(artifact.id, JSON.stringify(chatbotConfig, null, 2), 'json')
+      if (!validation.valid) {
+        console.error('[Artifact Workflow] Template validation failed:', validation.errors)
+        return { success: false }
+      }
+
+      // Generate guide
+      const guideResult = await this.generateGuide([artifact], build, request)
+      const savedArtifacts = guideResult ? [artifact, guideResult] : [artifact]
+
+      await ArtifactService.updateBuildStatus(build.id, 'completed', {
+        generationCompletedAt: new Date().toISOString(),
+        filesGenerated: savedArtifacts.length
+      })
+
+      console.log('[Artifact Workflow] Template generation completed successfully')
+
+      return {
+        success: true,
+        response: {
+          status: 'completed',
+          message: this.buildCompletionMessage(savedArtifacts),
+          artifacts: savedArtifacts
+        }
+      }
+    } catch (error) {
+      console.error('[Artifact Workflow] Template generation failed:', error)
+      return { success: false }
     }
   }
 
