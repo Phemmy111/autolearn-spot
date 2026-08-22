@@ -21,6 +21,15 @@ export interface Message {
   created_at: string
   file_ids?: string[] // File IDs attached to this message
   attached_files?: AlexFile[] // Full file objects (populated on load)
+  artifacts?: ArtifactInfo[] // Phase 7: Generated artifacts with download info
+}
+
+export interface ArtifactInfo {
+  id: string
+  filename: string
+  file_type: string
+  mime_type: string
+  download_url: string
 }
 
 export interface AlexProviderConfig {

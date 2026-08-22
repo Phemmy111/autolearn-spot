@@ -240,6 +240,21 @@ export function AlexChat({ userId }: AlexChatProps) {
                         ]
                       }
                     })
+                  } else if (parsed.type === 'artifacts') {
+                    // Phase 7: Handle artifacts array with download links
+                    console.log('[AlexChat] Artifacts received:', parsed.data)
+                    
+                    // Attach artifacts to the last assistant message
+                    setMessages(prev => {
+                      const lastMessage = prev[prev.length - 1]
+                      if (lastMessage && lastMessage.role === 'assistant') {
+                        return [
+                          ...prev.slice(0, -1),
+                          { ...lastMessage, artifacts: parsed.data }
+                        ]
+                      }
+                      return prev
+                    })
                   } else if (parsed.type === 'artifact_workflow') {
                     // Phase 7: Handle artifact workflow response
                     console.log('[AlexChat] Artifact workflow response:', parsed.data)

@@ -91,18 +91,19 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
   }
 
   // Phase 7: Handle artifact download
-  const handleDownloadArtifact = async (artifactId: string, filename: string) => {
+  const handleDownloadArtifact = async (artifactId: string, filename: string, downloadUrl?: string) => {
     try {
-      const response = await fetch(`/api/alex/artifacts/${artifactId}/download`)
+      const url = downloadUrl || `/api/alex/artifacts/${artifactId}/download`
+      const response = await fetch(url)
       if (response.ok) {
         const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
+        const blobUrl = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
-        a.href = url
+        a.href = blobUrl
         a.download = filename
         document.body.appendChild(a)
         a.click()
-        window.URL.revokeObjectURL(url)
+        window.URL.revokeObjectURL(blobUrl)
         document.body.removeChild(a)
       }
     } catch (error) {
@@ -170,7 +171,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     )}
                   </div>
                   <button
-                    onClick={() => handleDownloadArtifact(artifact.id, artifact.filename)}
+                    onClick={() => handleDownloadArtifact(artifact.id, artifact.filename, artifact.download_url)}
                     className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm flex items-center gap-1 transition-colors"
                   >
                     <Download className="h-4 w-4" />
@@ -444,14 +445,47 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                       {message.content.startsWith('{') && message.content.includes('artifact_workflow') ? (
                         renderArtifactWorkflow(JSON.parse(message.content))
                       ) : (
-                        <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            components={MarkdownComponents}
-                          >
-                            {message.content}
-                          </ReactMarkdown>
-                        </div>
+                        <>
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={MarkdownComponents}
+                            >
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
+                          
+                          {/* Phase 7: Render artifacts if present */}
+                          {message.artifacts && message.artifacts.length > 0 && (
+                            <div className="mt-4 p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                              <p className="text-sm text-slate-400 mb-3 flex items-center gap-2">
+                                <Package className="h-4 w-4 text-cyan-400" />
+                                Generated files ready for download:
+                              </p>
+                              <div className="space-y-2">
+                                {message.artifacts.map((artifact: any) => (
+                                  <div
+                                    key={artifact.id}
+                                    className="flex items-center justify-between bg-slate-800/50 rounded-lg p-3 hover:bg-slate-700/50 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <FileText className="h-4 w-4 text-cyan-400" />
+                                      <span className="text-sm text-slate-300">{artifact.filename}</span>
+                                      <span className="text-xs text-slate-500">({artifact.file_type})</span>
+                                    </div>
+                                    <button
+                                      onClick={() => handleDownloadArtifact(artifact.id, artifact.filename, artifact.download_url)}
+                                      className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm flex items-center gap-1 transition-colors"
+                                    >
+                                      <Download className="h-4 w-4" />
+                                      Download
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </>
                   ) : editingMessageId === message.id ? (
