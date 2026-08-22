@@ -107,6 +107,24 @@ export class ArtifactWorkflowManager {
   private static async gatherRequirements(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Gathering requirements for:', build.id)
 
+    // For simple requests, skip requirement gathering and go straight to generation
+    const isSimpleRequest = build.original_request.length < 200 ||
+                          build.original_request.toLowerCase().includes('create a json') ||
+                          build.original_request.toLowerCase().includes('generate a json')
+
+    if (isSimpleRequest) {
+      console.log('[Artifact Workflow] Simple request detected, skipping requirement gathering')
+      // Create a basic specification from the request
+      const basicSpec = {
+        request: build.original_request,
+        build_type: build.build_type,
+        user_request: request.content
+      }
+      await ArtifactService.updateSpecification(build.id, basicSpec, [])
+      await ArtifactService.updateBuildStatus(build.id, 'confirmed')
+      return this.generateArtifacts(build, request)
+    }
+
     // Use AI to analyze requirements
     const requirementsPrompt = this.buildRequirementsPrompt(build, request)
 
@@ -276,15 +294,15 @@ Your task:
 4. Ask ONLY necessary questions (3-5 max if truly needed)
 5. If requirements are complete, say "REQUIREMENTS_COMPLETE" and provide the final specification
 
-Respond in this format:
+IMPORTANT: Respond ONLY in the exact format below. Do not add any other text, explanations, or conversational filler.
+
 If questions needed:
 QUESTION: [question 1]
 QUESTION: [question 2]
-...
 
 If complete:
 REQUIREMENTS_COMPLETE
-SPECIFICATION: [JSON specification]
+SPECIFICATION: {"key": "value"}
 `
   }
 
@@ -303,12 +321,18 @@ Your task:
 3. Use placeholders for secrets (e.g., YOUR_API_KEY_HERE)
 4. Generate usage guides where appropriate
 
-Respond in this format:
-FILES:
+IMPORTANT: Respond ONLY in the exact format below. Do not add any other text, explanations, or conversational filler.
+
 FILENAME: [filename]
 FILE_TYPE: [file_type]
 MIME_TYPE: [mime_type]
-CONTENT: [file content]
+CONTENT: [file content - may span multiple lines]
+IS_PRIMARY: [true/false]
+
+FILENAME: [next filename]
+FILE_TYPE: [file_type]
+MIME_TYPE: [mime_type]
+CONTENT: [file content - may span multiple lines]
 IS_PRIMARY: [true/false]
 
 Repeat for each file.
@@ -419,18 +443,19 @@ Shall I proceed? (yes/no)`
    * Get AI response using existing AI engine
    */
   private static async getAIResponse(prompt: string, request: WorkflowRequest): Promise<string> {
-    // This is a simplified version - in production, use the full AI engine
-    // For now, we'll use a basic implementation
     const { AIEngine } = await import('../ai-engine')
-    
+
     const response = await AIEngine.streamChat({
       content: prompt,
       mode: 'agent_builder',
-      conversationHistory: request.conversationHistory || [],
+      conversationHistory: [
+        { role: 'system', content: 'You are a JSON and structured data generator. Always respond in the exact format requested. Never add conversational filler, explanations, or extra text outside the specified format.' },
+        ...(request.conversationHistory || [])
+      ],
       userId: request.userId,
       attachedFiles: request.attachedFiles || [],
       conversationId: request.conversationId,
-      enableRetrieval: true,
+      enableRetrieval: false,
       enableWebResearch: false,
       enableMemory: false,
       enableTools: false,
@@ -444,6 +469,9 @@ Shall I proceed? (yes/no)`
         fullResponse += chunk.data.data?.content || ''
       }
     }
+
+    console.log('[Artifact Workflow] AI Response length:', fullResponse.length)
+    console.log('[Artifact Workflow] AI Response preview:', fullResponse.substring(0, 500))
 
     return fullResponse
   }
