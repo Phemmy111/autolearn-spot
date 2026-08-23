@@ -187,8 +187,9 @@ export class IntelligenceAnalyzerV2 {
    * Handle a continuation (user answering a question)
    */
   private static handleContinuation(content: string, specState: SpecState): AnalysisResult {
-    console.log('[Intelligence Analyzer V2] Handling continuation')
-    console.log('[Intelligence Analyzer V2] Question context:', specState.questionContext)
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Handling continuation')
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Question context:', specState.questionContext)
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Content:', content)
     
     const lower = content.toLowerCase()
     
@@ -197,13 +198,15 @@ export class IntelligenceAnalyzerV2 {
     if (fieldMatch) {
       const field = fieldMatch[1].trim()
       const value = fieldMatch[2].trim()
-      console.log('[Intelligence Analyzer V2] Parsed field:value format:', { field, value })
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Parsed field:value format:', { field, value })
       this.mapAnswerToSpec(value, field, specState)
     } else if (specState.questionContext) {
       // Use database-restored question context
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Using question context for mapping:', specState.questionContext)
       this.mapAnswerToSpec(content, specState.questionContext, specState)
     } else {
       // No question context - try to infer what field this answers
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] No question context, trying to infer')
       this.inferAnswerMapping(content, specState)
     }
     
@@ -547,16 +550,18 @@ export class IntelligenceAnalyzerV2 {
   private static mapAnswerToSpec(answer: string, context: string, specState: SpecState): void {
     const lower = answer.toLowerCase()
     
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC START =====')
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapping answer to context:', { context, answer, lower })
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known before mapping:', Array.from(specState.known))
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers before mapping:', Array.from(specState.blockers))
     
     // Handle "Recommend for me" option
     if (lower.includes('recommend')) {
-      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Using recommendation for context:', context)
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] RECOMMENDATION DETECTED for context:', context)
       this.handleRecommendation(context, specState)
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after recommendation:', Array.from(specState.known))
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after recommendation:', Array.from(specState.blockers))
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
       return
     }
     
@@ -678,10 +683,14 @@ export class IntelligenceAnalyzerV2 {
    * Handle "Recommend for me" option
    */
   private static handleRecommendation(context: string, specState: SpecState): void {
-    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Handling recommendation for context:', context)
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== HANDLE RECOMMENDATION START =====')
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Context:', context)
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Current known:', Array.from(specState.known))
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Current blockers:', Array.from(specState.blockers))
     
     switch (context) {
       case 'integrations.emailProvider':
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Recommending Gmail for email provider')
         specState.spec.integrations = specState.spec.integrations || {}
         specState.spec.integrations.emailProvider = 'gmail'
         specState.known.add('integrations.emailProvider')
@@ -689,6 +698,7 @@ export class IntelligenceAnalyzerV2 {
         specState.recommended.add('integrations.emailProvider')
         specState.spec.assumptions = specState.spec.assumptions || []
         specState.spec.assumptions.push('I recommend Gmail as it has excellent IMAP support and is widely used')
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] After Gmail recommendation - known:', Array.from(specState.known), 'blockers:', Array.from(specState.blockers))
         break
         
       case 'integrations.aiProvider':
@@ -740,7 +750,8 @@ export class IntelligenceAnalyzerV2 {
         console.log('[DEBUG INTELLIGENCE ANALYZER V2] Unknown recommendation context:', context)
     }
     
-    console.log('[DEBUG INTELLIGENCE ANALYZER V2] After recommendation - known:', Array.from(specState.known), 'blockers:', Array.from(specState.blockers))
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final state after recommendation - known:', Array.from(specState.known), 'blockers:', Array.from(specState.blockers))
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== HANDLE RECOMMENDATION END =====')
   }
   
   /**
