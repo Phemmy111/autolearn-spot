@@ -48,26 +48,43 @@ export class WorkflowManagerV2 {
    * Process a workflow request with architecture-first approach
    */
   static async processRequest(request: WorkflowRequest): Promise<WorkflowResponse> {
-    console.log('[Workflow Manager V2] Processing request:', request.content.substring(0, 100))
+    console.log('[DEBUG WORKFLOW MANAGER V2] ===== PROCESS REQUEST START =====')
+    console.log('[DEBUG WORKFLOW MANAGER V2] Request details:', {
+      conversationId: request.conversationId,
+      userId: request.userId,
+      content: request.content.substring(0, 100),
+      hasAttachedFiles: !!request.attachedFiles,
+      attachedFilesCount: request.attachedFiles?.length || 0
+    })
     
     // Check for existing active build
     const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
+    console.log('[DEBUG WORKFLOW MANAGER V2] Existing build check:', {
+      found: !!existingBuild,
+      buildId: existingBuild?.id,
+      status: existingBuild?.status
+    })
     
     if (existingBuild) {
       return this.continueWorkflow(existingBuild, request)
     }
     
     // New request - use Intelligence Analyzer V2
+    console.log('[DEBUG WORKFLOW MANAGER V2] Calling IntelligenceAnalyzerV2.analyze')
     const analysis = await IntelligenceAnalyzerV2.analyze({
       content: request.content,
       conversationHistory: request.conversationHistory,
       attachedFiles: request.attachedFiles
     })
     
-    console.log('[Workflow Manager V2] Analysis result:', {
+    console.log('[DEBUG WORKFLOW MANAGER V2] IntelligenceAnalyzerV2 result:', {
       situation: analysis.situation,
       nextAction: analysis.nextAction,
-      hasQuestion: !!analysis.question
+      hasQuestion: !!analysis.question,
+      questionField: analysis.question?.field,
+      questionContext: analysis.question?.context,
+      hasArchitecture: !!analysis.architectureProposal,
+      explanationPreview: analysis.explanation?.substring(0, 100)
     })
     
     // Create new build
@@ -83,20 +100,26 @@ export class WorkflowManagerV2 {
     await ArtifactService.updateSpecification(build.id, analysis.specState.spec, [])
     
     // Handle the analysis result
+    console.log('[DEBUG WORKFLOW MANAGER V2] Switching on nextAction (new request):', analysis.nextAction)
     switch (analysis.nextAction) {
       case 'ask_question':
+        console.log('[DEBUG WORKFLOW MANAGER V2] Routing to handleAskQuestion')
         return this.handleAskQuestion(build, analysis)
         
       case 'design_architecture':
+        console.log('[DEBUG WORKFLOW MANAGER V2] Routing to handleDesignArchitecture')
         return this.handleDesignArchitecture(build, analysis)
         
       case 'generate_artifact':
+        console.log('[DEBUG WORKFLOW MANAGER V2] Routing to handleGenerateArtifact')
         return this.handleGenerateArtifact(build, analysis)
         
       case 'clarify_ambiguity':
+        console.log('[DEBUG WORKFLOW MANAGER V2] Routing to handleClarifyAmbiguity')
         return this.handleClarifyAmbiguity(build, analysis)
         
       default:
+        console.error('[DEBUG WORKFLOW MANAGER V2] Unknown next action:', analysis.nextAction)
         throw new Error(`Unknown next action: ${analysis.nextAction}`)
     }
   }

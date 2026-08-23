@@ -55,8 +55,10 @@ export class IntelligenceAnalyzerV2 {
   }): Promise<AnalysisResult> {
     const { content, conversationHistory, attachedFiles, existingSpecState } = request
     
-    console.log('[Intelligence Analyzer V2] Analyzing request:', content.substring(0, 100))
-    console.log('[Intelligence Analyzer V2] Existing spec state:', existingSpecState ? 'present' : 'none')
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== ANALYZE START =====')
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Content:', content.substring(0, 100))
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Existing spec state:', existingSpecState ? 'present' : 'none')
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Has attached files:', !!attachedFiles, attachedFiles?.length || 0)
     
     // Start with existing state or create new
     const specState = existingSpecState || createSpecState()
@@ -65,13 +67,15 @@ export class IntelligenceAnalyzerV2 {
     
     // Determine if this is a continuation
     const isContinuation = this.detectContinuation(content, conversationHistory, specState)
-    console.log('[Intelligence Analyzer V2] Is continuation:', isContinuation)
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Is continuation:', isContinuation)
     
     if (isContinuation) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Routing to handleContinuation')
       return this.handleContinuation(content, specState)
     }
     
     // New request - analyze from scratch
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Routing to handleNewRequest')
     return this.handleNewRequest(content, attachedFiles, specState)
   }
   
@@ -83,7 +87,8 @@ export class IntelligenceAnalyzerV2 {
     attachedFiles: AlexFile[] | undefined,
     specState: SpecState
   ): AnalysisResult {
-    console.log('[Intelligence Analyzer V2] Handling new request')
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== HANDLE NEW REQUEST =====')
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Content:', content.substring(0, 100))
     
     const lower = content.toLowerCase()
     
@@ -105,6 +110,7 @@ export class IntelligenceAnalyzerV2 {
     
     // Select platform if not specified
     if (!specState.spec.platform) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Selecting platform')
       const platformSelection = selectPlatform({
         needsEmail: domain === 'email',
         needsAI: specState.spec.aiConfig?.enabled,
@@ -115,6 +121,11 @@ export class IntelligenceAnalyzerV2 {
         needsRAG: !!specState.spec.integrations?.knowledgeBase,
         complexity: specState.spec.architecture?.complexity,
         explicitPlatform: specState.spec.platform
+      })
+      
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Platform selection result:', {
+        platform: platformSelection.platform,
+        reasoning: platformSelection.reasoning
       })
       
       specState.spec.platform = platformSelection.platform
@@ -131,18 +142,32 @@ export class IntelligenceAnalyzerV2 {
     this.makeRecommendations(specState)
     
     // Determine next action
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers check:', {
+      blockerCount: specState.blockers.size,
+      blockers: Array.from(specState.blockers)
+    })
+    
     if (specState.blockers.size > 0) {
       const blocker = Array.from(specState.blockers)[0]
+      const question = this.formulateQuestion(blocker, specState)
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Formulated question:', {
+        blocker,
+        questionText: question.text,
+        questionField: question.field,
+        questionContext: question.context,
+        hasOptions: !!question.options
+      })
       return {
         specState,
         situation: 'new_request',
         nextAction: 'ask_question',
-        question: this.formulateQuestion(blocker, specState),
+        question,
         explanation: this.buildExplanation(specState)
       }
     }
     
     // No blockers - ready to design architecture
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] No blockers, ready to design architecture')
     return {
       specState,
       situation: 'ready_to_design',

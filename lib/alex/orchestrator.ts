@@ -135,22 +135,32 @@ export class AlexOrchestrator {
     let isArtifactGeneration = false
 
     if (mode === 'auto') {
+      console.log('[DEBUG ORCHESTRATOR] Detecting intent for auto mode', { contentPreview: content.substring(0, 100) })
       const intentResult = await detectIntent(content)
       detectedIntent = intentResult.intent
       suggestedMode = intentResult.suggestedMode
       isArtifactGeneration = intentResult.isArtifactGeneration || false
+      console.log('[DEBUG ORCHESTRATOR] Intent detection result', {
+        detectedIntent,
+        suggestedMode,
+        isArtifactGeneration,
+        confidence: intentResult.confidence
+      })
     }
 
     // Phase 7: Check for existing artifact build first (highest priority)
     // This ensures workflow continuity even if current message doesn't match artifact patterns
     // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
     if (userId && conversationId && !request.skipArtifactDetection) {
+      console.log('[DEBUG ORCHESTRATOR] Checking for existing artifact build', { userId, conversationId, skipArtifactDetection: request.skipArtifactDetection })
       try {
         const { ArtifactService } = await import('./artifact-generation/artifact-service')
         const existingBuild = await ArtifactService.getActiveBuild(conversationId, userId)
         
+        console.log('[DEBUG ORCHESTRATOR] Existing build check result', { found: !!existingBuild, buildId: existingBuild?.id, status: existingBuild?.status })
+        
         if (existingBuild) {
-          console.log('[Orchestrator] Existing artifact build found, routing to workflow manager')
+          console.log('[DEBUG ORCHESTRATOR] Existing artifact build found, routing to WorkflowManagerV2')
           
           const workflowRequest: WorkflowRequest = {
             conversationId,
@@ -160,9 +170,16 @@ export class AlexOrchestrator {
             conversationHistory
           }
 
+          console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest')
           const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
 
-          console.log('[Orchestrator] Artifact workflow response:', workflowResponse.status)
+          console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response:', {
+            status: workflowResponse.status,
+            hasQuestion: !!workflowResponse.question,
+            hasArchitecture: !!workflowResponse.architectureProposal,
+            hasArtifacts: !!workflowResponse.artifacts,
+            messagePreview: workflowResponse.message?.substring(0, 100)
+          })
 
           // Return a special response indicating artifact workflow
           return {
@@ -192,7 +209,14 @@ export class AlexOrchestrator {
     // RE-ENABLED: Now with proper fallback and graceful failure handling
     // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
     if (isArtifactGeneration && userId && conversationId && !request.skipArtifactDetection) {
-      console.log('[Orchestrator] Artifact generation intent detected, routing to workflow manager')
+      console.log('[DEBUG ORCHESTRATOR] Artifact generation intent detected', {
+        isArtifactGeneration,
+        userId,
+        conversationId,
+        skipArtifactDetection: request.skipArtifactDetection,
+        intent: detectedIntent,
+        suggestedMode
+      })
       
       try {
         const workflowRequest: WorkflowRequest = {
@@ -203,9 +227,16 @@ export class AlexOrchestrator {
           conversationHistory
         }
 
+        console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest for new artifact')
         const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
 
-        console.log('[Orchestrator] Artifact workflow response:', workflowResponse.status)
+        console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response for new artifact:', {
+          status: workflowResponse.status,
+          hasQuestion: !!workflowResponse.question,
+          hasArchitecture: !!workflowResponse.architectureProposal,
+          hasArtifacts: !!workflowResponse.artifacts,
+          messagePreview: workflowResponse.message?.substring(0, 100)
+        })
 
         // Return a special response indicating artifact workflow
         return {

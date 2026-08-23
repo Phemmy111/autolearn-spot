@@ -66,6 +66,11 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
     const hasStrongBuildIndicator = strongBuildIndicators.some(indicator => lowerContent.includes(indicator))
 
     if (isBuildRequest || hasStrongBuildIndicator) {
+      console.log('[DEBUG INTENT DETECTOR] Artifact generation detected', {
+        isBuildRequest,
+        hasStrongBuildIndicator,
+        contentPreview: lowerContent.substring(0, 50)
+      })
       return {
         intent: 'Artifact generation',
         suggestedMode: 'agent_builder',
