@@ -72,7 +72,7 @@ export class ArtifactService {
       .select('*')
       .eq('conversation_id', conversationId)
       .eq('user_id', userId)
-      .in('status', ['collecting_requirements', 'ready_for_confirmation', 'confirmed', 'generating', 'validating', 'persisting'])
+      .in('status', ['collecting_requirements', 'awaiting_architecture_verification', 'ready_for_confirmation', 'confirmed', 'generating', 'validating', 'persisting'])
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
