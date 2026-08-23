@@ -45,7 +45,9 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'package for me', 'artifacts for me', 'files for me',
       'downloadable', 'configuration file', 'setup guide',
       'export as json', 'export this', 'generate json file',
-      'create json file', 'build json file', 'make json file'
+      'create json file', 'build json file', 'make json file',
+      'email responder', 'auto responder', 'email bot', 'email automation',
+      'ai email', 'intelligent email', 'smart email'
     ]
 
     // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
