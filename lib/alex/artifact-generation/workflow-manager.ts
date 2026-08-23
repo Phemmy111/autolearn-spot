@@ -120,7 +120,7 @@ export class ArtifactWorkflowManager {
       await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
       
       // Build an intelligent response
-      const message = this.buildIntelligentResponse(analysis, request.content)
+      const message = await this.buildIntelligentResponse(analysis, request.content)
       
       return {
         status: 'collecting_requirements',
@@ -174,7 +174,42 @@ export class ArtifactWorkflowManager {
   /**
    * Build an intelligent response based on analysis
    */
-  private static buildIntelligentResponse(analysis: AnalysisResult, userContent: string): string {
+  private static async buildIntelligentResponse(analysis: AnalysisResult, userContent: string): Promise<string> {
+    // Use AI to generate a natural, contextual response
+    const prompt = `You are ALEX, an expert automation architect for AutoLearn Spot. You help users build n8n workflows and automations.
+
+User request: "${userContent}"
+
+My analysis:
+- Intent: ${analysis.intent}
+- Artifact type: ${analysis.artifactType}
+- Known requirements: ${JSON.stringify(analysis.known)}
+- Inferred: ${JSON.stringify(analysis.inferred)}
+- Assumptions: ${analysis.assumptions.join(', ')}
+- Blockers: ${analysis.blockers.join(', ')}
+
+Generate a natural, expert-level response that:
+1. Acknowledges what they want to build
+2. Explains your architectural understanding in conversational terms
+3. Mentions reasonable assumptions you're making
+4. Asks the primary question(s) needed to proceed
+
+Be conversational and helpful, not robotic. Use your expertise to guide them. Keep it under 150 words.`
+
+    try {
+      const aiResponse = await this.getAIResponse(prompt, { content: userContent, conversationHistory: [] })
+      return aiResponse.trim()
+    } catch (error) {
+      console.error('[Artifact Workflow] AI response generation failed, using fallback:', error)
+      // Fallback to template-based response
+      return this.buildTemplateResponse(analysis, userContent)
+    }
+  }
+
+  /**
+   * Fallback template-based response
+   */
+  private static buildTemplateResponse(analysis: AnalysisResult, userContent: string): string {
     const parts: string[] = []
     
     // Start with architectural understanding
@@ -191,12 +226,6 @@ export class ArtifactWorkflowManager {
     if (analysis.inferred.integrations || analysis.recommendations.integrations) {
       const integrations = analysis.inferred.integrations || analysis.recommendations.integrations
       parts.push(`Integrating with ${integrations}.`)
-    }
-    
-    // If we have a reference file, acknowledge it
-    if (analysis.referenceFile) {
-      parts.push(`I can see the reference workflow. It uses this architecture: ${analysis.referenceFile.architecture}.`)
-      parts.push(`I'll preserve that pattern and adapt it to your requirement.`)
     }
     
     // Show assumptions
