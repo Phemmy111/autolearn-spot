@@ -412,6 +412,18 @@ export class IntelligenceAnalyzer {
       }
     }
     
+    // For AI customer support with knowledge base, the key blocker is: knowledge base system
+    if ((lower.includes('customer support') || lower.includes('ai support') || lower.includes('support automation')) &&
+        (lower.includes('knowledge base') || lower.includes('knowledge-base') || lower.includes('search'))) {
+      
+      // Check if knowledge base system is specified
+      if (!lower.includes('pinecone') && !lower.includes('notion') && !lower.includes('confluence') && 
+          !lower.includes('vector') && !lower.includes('database') && !lower.includes('api') &&
+          !lower.includes('google drive') && !lower.includes('sheets')) {
+        result.blockers.push('Knowledge base system - Pinecone/vector DB, Notion, Confluence, Google Drive, custom API, or other?')
+      }
+    }
+    
     // For chatbot, the key blocker is: which platform?
     if (result.artifactType === 'chatbot' && !result.known.integrations) {
       result.blockers.push('Chat platform - WhatsApp, Slack, Discord, or website widget?')

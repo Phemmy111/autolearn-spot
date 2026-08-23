@@ -8,7 +8,7 @@
 import { ArtifactService } from './artifact-service'
 import { AIEngine } from '../ai-engine'
 import { IntelligenceAnalyzer, AnalysisResult } from './intelligence-analyzer'
-import { ArchitecturePlanner, WorkflowArchitecture } from './architecture-planner'
+import { ArchitecturePlanner, WorkflowArchitecture, NodeDesign, ConnectionDesign } from './architecture-planner'
 import { 
   ArtifactBuild, 
   BuildStatus, 
@@ -19,6 +19,14 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+interface RequirementCoverage {
+  requirement: string
+  nodeId: string
+  nodeName: string
+  nodeType: string
+  covered: boolean
+}
 
 function getSupabaseClient() {
   if (!supabaseUrl || !supabaseServiceRoleKey) {
@@ -950,6 +958,23 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
           reasoning: architecture.reasoning
         })
         
+        // Map requirements to nodes for coverage validation
+        const requirementCoverage = this.mapRequirementsToNodes(build.original_request, architecture)
+        console.log('[Artifact Workflow] Requirement coverage:', {
+          total: requirementCoverage.length,
+          covered: requirementCoverage.filter(r => r.covered).length,
+          uncovered: requirementCoverage.filter(r => !r.covered).map(r => r.requirement)
+        })
+        
+        // Check if critical requirements are uncovered
+        const uncoveredCritical = requirementCoverage.filter(r => !r.covered && 
+          (r.requirement.includes('knowledge base') || r.requirement.includes('AI') || r.requirement.includes('trigger')))
+        
+        if (uncoveredCritical.length > 0) {
+          console.error('[Artifact Workflow] Critical requirements uncovered:', uncoveredCritical)
+          // Still proceed but log warning - architecture planner should handle this
+        }
+        
         // Build n8n workflow from architecture
         templateContent = {
           name: architecture.name,
@@ -966,6 +991,15 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
         }
         
         console.log('[Artifact Workflow] Successfully built workflow from architecture')
+        
+        // Validate n8n schema (not just JSON)
+        const schemaValidation = this.validateN8nSchema(templateContent)
+        if (!schemaValidation.valid) {
+          console.error('[Artifact Workflow] n8n schema validation failed:', schemaValidation.errors)
+          // Still save but log errors - user can see in guide
+        } else {
+          console.log('[Artifact Workflow] n8n schema validation passed')
+        }
         
         fileType = 'json'
         mimeType = 'application/json'
@@ -1067,7 +1101,11 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
       }
 
       // Generate guide
-      const guideResult = await this.generateGuide([artifact], build, request)
+      const guideResult = await this.generateGuide([artifact], build, request, {
+        architecture,
+        requirementCoverage,
+        schemaValidation
+      })
       const savedArtifacts = guideResult ? [artifact, guideResult] : [artifact]
 
       await ArtifactService.updateBuildStatus(build.id, 'completed', {
@@ -1106,6 +1144,12 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
       nameToId[node.name] = node.id
     }
     
+    console.log('[Artifact Workflow] Building connections from design:', {
+      connectionCount: connectionDesigns.length,
+      nodeCount: nodes.length,
+      sampleConnections: connectionDesigns.slice(0, 2)
+    })
+    
     // Build connections using node IDs
     for (const conn of connectionDesigns) {
       const fromId = nameToId[conn.from]
@@ -1121,10 +1165,222 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
           type: conn.type,
           index: conn.index
         })
+      } else {
+        console.error('[Artifact Workflow] Connection failed - node not found:', {
+          from: conn.from,
+          to: conn.to,
+          fromId: fromId ? 'found' : 'missing',
+          toId: toId ? 'found' : 'missing'
+        })
       }
     }
     
+    console.log('[Artifact Workflow] Connections built successfully:', Object.keys(connections).length, 'source nodes')
     return connections
+  }
+  
+  /**
+   * Map user requirements to workflow nodes for coverage validation
+   */
+  private static mapRequirementsToNodes(
+    originalRequest: string,
+    architecture: WorkflowArchitecture
+  ): RequirementCoverage[] {
+    const coverage: RequirementCoverage[] = []
+    const lowerRequest = originalRequest.toLowerCase()
+    
+    // Define requirement patterns and their expected node types
+    const requirementPatterns: Array<{
+      pattern: string
+      expectedTypes: string[]
+      description: string
+    }> = [
+      {
+        pattern: 'email|gmail|outlook',
+        expectedTypes: ['gmailTrigger', 'microsoftOutlookTrigger', 'imapEmailTrigger', 'webhook'],
+        description: 'Email trigger/reception'
+      },
+      {
+        pattern: 'chatbot|chat|bot',
+        expectedTypes: ['webhook'],
+        description: 'Chat message reception'
+      },
+      {
+        pattern: 'schedule|daily|reminder|cron',
+        expectedTypes: ['scheduleTrigger'],
+        description: 'Scheduled trigger'
+      },
+      {
+        pattern: 'ai|gpt|openai|language model',
+        expectedTypes: ['openAi', 'anthropic', 'cohere'],
+        description: 'AI processing'
+      },
+      {
+        pattern: 'knowledge base|search|retrieve|pinecone|vector',
+        expectedTypes: ['httpRequest', 'pinecone'],
+        description: 'Knowledge base search'
+      },
+      {
+        pattern: 'classify|categorize|intent',
+        expectedTypes: ['openAi', 'code'],
+        description: 'Classification/intent analysis'
+      },
+      {
+        pattern: 'confidence|evaluate|score',
+        expectedTypes: ['code', 'if'],
+        description: 'Confidence evaluation'
+      },
+      {
+        pattern: 'escalate|human|review',
+        expectedTypes: ['httpRequest', 'slack', 'email'],
+        description: 'Human escalation'
+      },
+      {
+        pattern: 'reply|respond|send',
+        expectedTypes: ['gmail', 'slack', 'httpRequest'],
+        description: 'Response sending'
+      },
+      {
+        pattern: 'log|audit|track',
+        expectedTypes: ['code', 'googleSheets', 'postgres'],
+        description: 'Logging/audit'
+      }
+    ]
+    
+    // Check each requirement pattern
+    for (const req of requirementPatterns) {
+      const regex = new RegExp(req.pattern, 'i')
+      if (regex.test(lowerRequest)) {
+        // Find nodes that match expected types
+        const matchingNodes = architecture.nodes.filter(node => 
+          req.expectedTypes.some(type => node.type.toLowerCase().includes(type.toLowerCase()))
+        )
+        
+        if (matchingNodes.length > 0) {
+          coverage.push({
+            requirement: req.description,
+            nodeId: matchingNodes[0].id,
+            nodeName: matchingNodes[0].name,
+            nodeType: matchingNodes[0].type,
+            covered: true
+          })
+        } else {
+          coverage.push({
+            requirement: req.description,
+            nodeId: '',
+            nodeName: '',
+            nodeType: '',
+            covered: false
+          })
+        }
+      }
+    }
+    
+    return coverage
+  }
+  
+  /**
+   * Validate n8n workflow schema (not just JSON validity)
+   */
+  private static validateN8nSchema(workflow: any): { valid: boolean; errors: string[] } {
+    const errors: string[] = []
+    
+    // Check required top-level fields
+    if (!workflow.name || typeof workflow.name !== 'string') {
+      errors.push('Missing or invalid workflow name')
+    }
+    
+    if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
+      errors.push('Missing or invalid nodes array')
+    } else {
+      // Check nodes
+      const nodeIds = new Set<string>()
+      const nodeNames = new Set<string>()
+      
+      for (const node of workflow.nodes) {
+        if (!node.id || typeof node.id !== 'string') {
+          errors.push(`Node missing ID: ${node.name || 'unnamed'}`)
+        } else if (nodeIds.has(node.id)) {
+          errors.push(`Duplicate node ID: ${node.id}`)
+        } else {
+          nodeIds.add(node.id)
+        }
+        
+        if (!node.name || typeof node.name !== 'string') {
+          errors.push(`Node missing name: ${node.id}`)
+        } else if (nodeNames.has(node.name)) {
+          errors.push(`Duplicate node name: ${node.name}`)
+        } else {
+          nodeNames.add(node.name)
+        }
+        
+        if (!node.type || typeof node.type !== 'string') {
+          errors.push(`Node missing type: ${node.name}`)
+        }
+        
+        if (!node.position || !Array.isArray(node.position) || node.position.length !== 2) {
+          errors.push(`Node missing valid position: ${node.name}`)
+        }
+        
+        if (!node.parameters || typeof node.parameters !== 'object') {
+          errors.push(`Node missing parameters: ${node.name}`)
+        }
+      }
+      
+      if (workflow.nodes.length === 0) {
+        errors.push('Workflow has no nodes')
+      }
+    }
+    
+    // Check connections
+    if (!workflow.connections || typeof workflow.connections !== 'object') {
+      errors.push('Missing or invalid connections object')
+    } else {
+      const connectionNodeIds = Object.keys(workflow.connections)
+      
+      for (const sourceId of connectionNodeIds) {
+        if (!nodeIds.has(sourceId)) {
+          errors.push(`Connection references non-existent source node: ${sourceId}`)
+        }
+        
+        const sourceConnections = workflow.connections[sourceId]
+        if (!sourceConnections.main || !Array.isArray(sourceConnections.main)) {
+          errors.push(`Invalid connection structure for node: ${sourceId}`)
+        } else {
+          for (const conn of sourceConnections.main) {
+            if (!conn.node || !nodeIds.has(conn.node)) {
+              errors.push(`Connection references non-existent target node: ${conn.node}`)
+            }
+          }
+        }
+      }
+      
+      // Check that all nodes except triggers have incoming connections
+      const triggerTypes = ['trigger', 'webhook', 'scheduleTrigger', 'gmailTrigger', 'microsoftOutlookTrigger', 'imapEmailTrigger']
+      const nonTriggerNodes = workflow.nodes.filter(node => 
+        !triggerTypes.some(type => node.type.toLowerCase().includes(type.toLowerCase()))
+      )
+      
+      for (const node of nonTriggerNodes) {
+        const hasIncomingConnection = Object.values(workflow.connections).some(source => 
+          source.main?.some((conn: any) => conn.node === node.id)
+        )
+        
+        if (!hasIncomingConnection) {
+          errors.push(`Non-trigger node has no incoming connection: ${node.name}`)
+        }
+      }
+    }
+    
+    // Check settings
+    if (!workflow.settings || typeof workflow.settings !== 'object') {
+      errors.push('Missing or invalid settings object')
+    }
+    
+    return {
+      valid: errors.length === 0,
+      errors
+    }
   }
 
   /**
@@ -1459,7 +1715,12 @@ Just return the JSON. No explanations needed.`
   private static async generateGuide(
     artifacts: any[],
     build: ArtifactBuild,
-    request: WorkflowRequest
+    request: WorkflowRequest,
+    metadata?: {
+      architecture?: WorkflowArchitecture
+      requirementCoverage?: RequirementCoverage[]
+      schemaValidation?: { valid: boolean; errors: string[] }
+    }
   ): Promise<any | null> {
     try {
       console.log('[Artifact Workflow] Generating guide for artifacts')
@@ -1474,20 +1735,42 @@ Just return the JSON. No explanations needed.`
       let guideContent: string
       let guideFilename: string
 
-      if (platform === 'n8n') {
+        if (platform === 'n8n') {
         // Parse the workflow to get actual node information
         let nodeDescriptions: string[] = []
         let architectureOverview = ''
+        let validationInfo = ''
         
         try {
           const workflowJson = JSON.parse(primaryArtifact.content)
           const nodes = workflowJson.nodes || []
           
-          architectureOverview = `This workflow has ${nodes.length} nodes arranged in a logical sequence.`
+          // Use architecture from metadata if available
+          if (metadata?.architecture) {
+            architectureOverview = `${metadata.architecture.reasoning}\n\nComplexity: ${metadata.architecture.complexity}\nNode count: ${nodes.length}`
+          } else {
+            architectureOverview = `This workflow has ${nodes.length} nodes arranged in a logical sequence.`
+          }
           
           nodeDescriptions = nodes.map((node: any) => {
             return `<li><strong>${node.name}</strong> (${node.type}): ${this.getNodePurpose(node)}</li>`
           })
+          
+          // Add validation information
+          if (metadata?.schemaValidation) {
+            if (metadata.schemaValidation.valid) {
+              validationInfo = '<p><strong>✓ Schema Validation:</strong> Passed - workflow is structurally valid for n8n import.</p>'
+            } else {
+              validationInfo = `<p><strong>⚠ Schema Validation:</strong> Found issues: ${metadata.schemaValidation.errors.join(', ')}</p>`
+            }
+          }
+          
+          // Add requirement coverage
+          if (metadata?.requirementCoverage && metadata.requirementCoverage.length > 0) {
+            const covered = metadata.requirementCoverage.filter(r => r.covered).length
+            const total = metadata.requirementCoverage.length
+            validationInfo += `<p><strong>Requirement Coverage:</strong> ${covered}/${total} requirements mapped to workflow nodes.</p>`
+          }
         } catch (error) {
           console.error('[Artifact Workflow] Failed to parse workflow for guide:', error)
           architectureOverview = 'This workflow provides automation for your requested task.'
@@ -1521,6 +1804,8 @@ strong { color: #ff6d5a; }
 
 <h2>Overview</h2>
 <p>This n8n workflow automates <strong>${build.final_specification?.functionality || 'your requested task'}</strong>. ${architectureOverview}</p>
+
+${validationInfo}
 
 <h2>What This Workflow Does</h2>
 <p>Based on your request for "${build.original_request}", this workflow:</p>
