@@ -363,12 +363,16 @@ export class ArtifactWorkflowManager {
           // First, try to extract n8n specs directly from user input
           const extractedSpec = this.extractN8nSpecs(request.content, currentSpec)
           
+          console.log('[Artifact Workflow] Extracted n8n specs:', extractedSpec)
+          
           if (extractedSpec.hasInfo) {
             // User provided useful information, update specs
             const updatedSpec = {
               ...currentSpec,
               ...extractedSpec.specs
             }
+            
+            console.log('[Artifact Workflow] Updated spec with extracted info:', updatedSpec)
             
             await ArtifactService.updateSpecification(build.id, updatedSpec, [])
             
@@ -811,6 +815,15 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
     const specs: any = {}
     let hasInfo = false
 
+    // Extract email provider
+    if (lower.includes('gmail') || lower.includes('outlook') || lower.includes('exchange') || 
+        lower.includes('smtp') || lower.includes('imap')) {
+      if (lower.includes('gmail')) specs.integrations = 'Gmail'
+      else if (lower.includes('outlook') || lower.includes('exchange')) specs.integrations = 'Outlook'
+      else if (lower.includes('smtp') || lower.includes('imap')) specs.integrations = 'IMAP/SMTP'
+      hasInfo = true
+    }
+
     // Extract trigger type
     if (lower.includes('trigger') || lower.includes('when') || lower.includes('on')) {
       if (lower.includes('chat message') || lower.includes('webhook') || lower.includes('http')) {
@@ -825,6 +838,31 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       if (lower.includes('gemini')) specs.integrations += ' Google Gemini'
       if (lower.includes('gpt') || lower.includes('openai')) specs.integrations += ' OpenAI GPT'
       if (lower.includes('claude')) specs.integrations += ' Anthropic Claude'
+      hasInfo = true
+    }
+
+    // Extract reply scope for email responders
+    if (lower.includes('every') || lower.includes('all') || lower.includes('support') || lower.includes('customer')) {
+      if (lower.includes('every') || lower.includes('all')) {
+        specs.functionality = 'Auto-responder - reply to all emails'
+        hasInfo = true
+      } else if (lower.includes('support') || lower.includes('customer')) {
+        specs.functionality = 'Auto-responder - support inquiries only'
+        hasInfo = true
+      }
+    }
+
+    // Extract trigger from simple mentions
+    if (lower.includes('webhook') && !lower.includes('trigger')) {
+      specs.trigger = 'Webhook'
+      hasInfo = true
+    }
+    if (lower.includes('schedule') && !lower.includes('trigger')) {
+      specs.trigger = 'Schedule'
+      hasInfo = true
+    }
+    if ((lower.includes('email') || lower.includes('gmail')) && !lower.includes('trigger')) {
+      specs.trigger = 'Email Trigger (IMAP)'
       hasInfo = true
     }
 

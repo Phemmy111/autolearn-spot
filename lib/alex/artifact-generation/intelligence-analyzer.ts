@@ -348,10 +348,19 @@ export class IntelligenceAnalyzer {
     if (lower.includes('webhook')) specs.trigger = 'Webhook'
     if (lower.includes('email') && lower.includes('trigger')) specs.trigger = 'Email Trigger'
     if (lower.includes('schedule') || lower.includes('cron')) specs.trigger = 'Schedule'
+    if ((lower.includes('email') || lower.includes('gmail')) && !lower.includes('trigger')) {
+      specs.trigger = 'Email Trigger (IMAP)'
+    }
     
     // Extract functionality
     if (lower.includes('auto responder') || lower.includes('auto-responder')) {
       specs.functionality = 'Auto-responder'
+    }
+    if (lower.includes('every') || lower.includes('all')) {
+      specs.functionality = (specs.functionality || 'Auto-responder') + ' - reply to all emails'
+    }
+    if (lower.includes('support') || lower.includes('customer')) {
+      specs.functionality = (specs.functionality || 'Auto-responder') + ' - support inquiries only'
     }
     if (lower.includes('chatbot') || lower.includes('chat bot')) {
       specs.functionality = 'Chatbot'
