@@ -229,16 +229,88 @@ export class WorkflowManagerV2 {
       recommendations: logicalArchitecture.recommendations
     }
     
+    // Generate build summary
+    const buildSummary = this.generateBuildSummary(analysis.specState.spec, logicalArchitecture, proposal)
+    
     // Store the architecture in the build for later use
     await ArtifactService.updateSpecification(build.id, analysis.specState.spec, [])
     await ArtifactService.updateBuildStatus(build.id, 'awaiting_architecture_verification')
     
     return {
       status: 'awaiting_architecture_verification',
-      message: `I've designed the architecture for your automation.\n\n${architectureDescription}\n\nDoes this architecture match what you want? If yes, I'll generate the workflow and guide.`,
+      message: `${buildSummary}\n\n${architectureDescription}\n\nDoes this architecture match what you want? If yes, I'll generate the workflow and guide.`,
       needsInput: true,
       architectureProposal: proposal
     }
+  }
+  
+  /**
+   * Generate build summary before generation
+   */
+  private static generateBuildSummary(spec: AutomationSpec, architecture: LogicalArchitecture, proposal: any): string {
+    let summary = '**Build Plan**\n\n'
+    
+    summary += `**Platform:** ${proposal.platform}\n`
+    if (proposal.platformReasoning) {
+      summary += `Reason: ${proposal.platformReasoning}\n`
+    }
+    
+    if (spec.trigger?.type) {
+      summary += `**Trigger:** ${spec.trigger.type}\n`
+    }
+    
+    if (spec.integrations?.emailProvider) {
+      summary += `**Email Provider:** ${spec.integrations.emailProvider}\n`
+    }
+    
+    if (spec.integrations?.aiProvider) {
+      summary += `**AI Provider:** ${spec.integrations.aiProvider}\n`
+      if (spec.integrations?.aiModel) {
+        summary += `**AI Model:** ${spec.integrations.aiModel}\n`
+      }
+    }
+    
+    if (spec.integrations?.knowledgeBase) {
+      summary += `**Knowledge Base:** ${spec.integrations.knowledgeBase}\n`
+    }
+    
+    if (spec.businessRules?.routing?.length > 0) {
+      summary += `**Reply Scope:** ${spec.businessRules.routing.join(', ')}\n`
+    }
+    
+    if (spec.humanApproval?.required) {
+      summary += `**Human Escalation:** Enabled\n`
+    }
+    
+    if (spec.persistence?.enabled) {
+      summary += `**Logging:** Enabled\n`
+    }
+    
+    summary += `\n**Workflow Stages:**\n`
+    architecture.stages.forEach((stage, index) => {
+      summary += `${index + 1}. ${stage.name}\n`
+    })
+    
+    // Check for potential issues
+    const issues: string[] = []
+    if (spec.integrations?.emailProvider) {
+      issues.push(`${spec.integrations.emailProvider} credentials must be configured after import`)
+    }
+    if (spec.integrations?.aiProvider) {
+      issues.push(`AI API credentials must be configured after import`)
+    }
+    if (spec.integrations?.knowledgeBase) {
+      issues.push(`Knowledge base connection must be configured after import`)
+    }
+    
+    if (issues.length > 0) {
+      summary += `\n**Configuration Required:**\n`
+      issues.forEach(issue => {
+        summary += `- ${issue}\n`
+      })
+    }
+    
+    return summary
   }
   
   /**
@@ -250,6 +322,10 @@ export class WorkflowManagerV2 {
     const spec = analysis.specState.spec
     const platform = spec.platform || 'n8n'
     
+    // Determine requested file format from spec or default to JSON
+    const requestedFormat = this.detectRequestedFormat(build.original_request)
+    console.log('[Workflow Manager V2] Requested format:', requestedFormat)
+    
     // Design the logical architecture
     const logicalArchitecture = ArchitectureDesigner.design(spec)
     
@@ -257,6 +333,7 @@ export class WorkflowManagerV2 {
     let artifactContent: any
     let fileType: string
     let mimeType: string
+    let filename: string
     
     if (platform === 'n8n') {
       // Use existing ArchitecturePlanner for n8n translation
@@ -284,8 +361,10 @@ export class WorkflowManagerV2 {
         tags: []
       }
       
+      // Force JSON format for n8n workflows
       fileType = 'json'
       mimeType = 'application/json'
+      filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.json`, 'json')
       
       // Validate n8n schema
       const validation = this.validateN8nSchema(artifactContent)
@@ -293,23 +372,72 @@ export class WorkflowManagerV2 {
         console.error('[Workflow Manager V2] n8n schema validation failed:', validation.errors)
         // Try to repair
         artifactContent = this.repairN8nWorkflow(artifactContent, validation.errors)
+        // Re-validate after repair
+        const repairedValidation = this.validateN8nSchema(artifactContent)
+        if (!repairedValidation.valid) {
+          console.error('[Workflow Manager V2] Repaired workflow still invalid:', repairedValidation.errors)
+        }
       }
+      
+      // Final artifact format validation
+      const formatValidation = this.validateArtifactFormat(artifactContent, filename, fileType, mimeType, requestedFormat)
+      if (!formatValidation.valid) {
+        console.error('[Workflow Manager V2] Artifact format validation failed:', formatValidation.errors)
+        throw new Error(`Artifact format validation failed: ${formatValidation.errors.join(', ')}`)
+      }
+      
     } else {
       // For other platforms, generate appropriate format
       artifactContent = this.generateGenericArtifact(spec, logicalArchitecture, platform)
-      fileType = 'json'
-      mimeType = 'application/json'
+      
+      // Determine format based on requested format
+      switch (requestedFormat) {
+        case 'json':
+          fileType = 'json'
+          mimeType = 'application/json'
+          filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.json`, 'json')
+          break
+        case 'yaml':
+          fileType = 'yaml'
+          mimeType = 'application/x-yaml'
+          filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.yaml`, 'yaml')
+          break
+        case 'python':
+          fileType = 'py'
+          mimeType = 'text/x-python'
+          filename = this.ensureExtension(spec.filename || `${spec.automationType}.py`, 'py')
+          break
+        case 'javascript':
+          fileType = 'js'
+          mimeType = 'application/javascript'
+          filename = this.ensureExtension(spec.filename || `${spec.automationType}.js`, 'js')
+          break
+        default:
+          fileType = 'json'
+          mimeType = 'application/json'
+          filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.json`, 'json')
+      }
+    }
+    
+    // Serialize content
+    const serializedContent = JSON.stringify(artifactContent, null, 2)
+    
+    // Parse it back to verify it's valid
+    try {
+      JSON.parse(serializedContent)
+    } catch (e) {
+      console.error('[Workflow Manager V2] Generated content is not valid JSON:', e)
+      throw new Error('Generated artifact is not valid JSON')
     }
     
     // Save the artifact
-    const filename = spec.filename || `${spec.automationType}-${platform}.json`
     const artifact = await ArtifactService.saveArtifact(
       build.id,
       build.user_id,
       filename,
       fileType,
       mimeType,
-      JSON.stringify(artifactContent, null, 2),
+      serializedContent,
       true
     )
     
@@ -317,7 +445,7 @@ export class WorkflowManagerV2 {
     const guide = this.generateGuide(spec, logicalArchitecture, artifactContent, platform)
     
     // Save guide as secondary artifact
-    const guideFilename = filename.replace('.json', '-guide.md')
+    const guideFilename = filename.replace(/\.(json|yaml|py|js)$/i, '-guide.md')
     await ArtifactService.saveArtifact(
       build.id,
       build.user_id,
@@ -346,6 +474,91 @@ export class WorkflowManagerV2 {
         }
       ],
       specification: spec
+    }
+  }
+  
+  /**
+   * Detect requested file format from user request
+   */
+  private static detectRequestedFormat(request: string): string {
+    const lower = request.toLowerCase()
+    
+    if (lower.includes('json file') || lower.includes('.json')) return 'json'
+    if (lower.includes('yaml') || lower.includes('.yaml')) return 'yaml'
+    if (lower.includes('python') || lower.includes('.py')) return 'python'
+    if (lower.includes('javascript') || lower.includes('.js')) return 'javascript'
+    if (lower.includes('markdown') || lower.includes('.md')) return 'markdown'
+    
+    // Default to JSON for automation workflows
+    return 'json'
+  }
+  
+  /**
+   * Ensure filename has the correct extension
+   */
+  private static ensureExtension(filename: string, extension: string): string {
+    const base = filename.replace(/\.(json|yaml|py|js|md|txt)$/i, '')
+    return `${base}.${extension}`
+  }
+  
+  /**
+   * Validate artifact format matches requirements
+   */
+  private static validateArtifactFormat(
+    content: any,
+    filename: string,
+    fileType: string,
+    mimeType: string,
+    requestedFormat: string
+  ): { valid: boolean; errors: string[] } {
+    const errors: string[] = []
+    
+    // Check filename extension matches file type
+    const expectedExtensions: Record<string, string> = {
+      'json': 'json',
+      'yaml': 'yaml',
+      'py': 'py',
+      'js': 'js',
+      'markdown': 'md'
+    }
+    
+    const expectedExt = expectedExtensions[fileType] || 'json'
+    if (!filename.endsWith(`.${expectedExt}`)) {
+      errors.push(`Filename ${filename} does not match file type ${fileType} (expected .${expectedExt})`)
+    }
+    
+    // Check MIME type matches file type
+    const expectedMimeTypes: Record<string, string> = {
+      'json': 'application/json',
+      'yaml': 'application/x-yaml',
+      'py': 'text/x-python',
+      'js': 'application/javascript',
+      'markdown': 'text/markdown'
+    }
+    
+    const expectedMime = expectedMimeTypes[fileType]
+    if (mimeType !== expectedMime) {
+      errors.push(`MIME type ${mimeType} does not match file type ${fileType} (expected ${expectedMime})`)
+    }
+    
+    // Check requested format matches actual format
+    if (requestedFormat === 'json' && fileType !== 'json') {
+      errors.push(`User requested JSON but generated ${fileType}`)
+    }
+    
+    // For JSON, verify content is actually JSON
+    if (fileType === 'json') {
+      try {
+        const contentStr = typeof content === 'string' ? content : JSON.stringify(content)
+        JSON.parse(contentStr)
+      } catch (e) {
+        errors.push('Content is not valid JSON')
+      }
+    }
+    
+    return {
+      valid: errors.length === 0,
+      errors
     }
   }
   

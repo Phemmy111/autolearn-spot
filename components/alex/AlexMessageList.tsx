@@ -7,6 +7,8 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { AlexInteractiveQuestion } from './AlexInteractiveQuestion'
+import { AlexArchitectureApproval } from './AlexArchitectureApproval'
 
 interface AlexMessageListProps {
   messages: Message[]
@@ -133,7 +135,41 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
           <p className="text-sm text-slate-300 mb-3">{workflowData.message}</p>
         )}
 
-        {workflowData.questions && workflowData.questions.length > 0 && (
+        {/* Interactive Question UI */}
+        {workflowData.question && (
+          <AlexInteractiveQuestion
+            question={workflowData.question}
+            onSelect={(value) => {
+              // Send the selected value as a user message
+              // This will be handled by the parent component
+              const event = new CustomEvent('alexQuestionAnswer', { detail: { field: workflowData.question.field, value } })
+              window.dispatchEvent(event)
+            }}
+            disabled={isLoading}
+          />
+        )}
+
+        {/* Architecture Approval UI */}
+        {workflowData.architectureProposal && (
+          <AlexArchitectureApproval
+            architecture={workflowData.architectureProposal}
+            onApprove={() => {
+              const event = new CustomEvent('alexArchitectureApprove', { detail: {} })
+              window.dispatchEvent(event)
+            }}
+            onModify={() => {
+              const event = new CustomEvent('alexArchitectureModify', { detail: {} })
+              window.dispatchEvent(event)
+            }}
+            onImprove={() => {
+              const event = new CustomEvent('alexArchitectureImprove', { detail: {} })
+              window.dispatchEvent(event)
+            }}
+            disabled={isLoading}
+          />
+        )}
+
+        {workflowData.questions && workflowData.questions.length > 0 && !workflowData.question && (
           <div className="mb-3">
             <p className="text-sm text-slate-400 mb-2">I need more information:</p>
             <ul className="list-disc list-inside text-sm text-slate-300 space-y-1">

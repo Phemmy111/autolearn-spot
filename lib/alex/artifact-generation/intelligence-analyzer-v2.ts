@@ -510,6 +510,12 @@ export class IntelligenceAnalyzerV2 {
     
     console.log('[Intelligence Analyzer V2] Mapping answer to context:', context, 'Answer:', answer)
     
+    // Handle "Recommend for me" option
+    if (lower.includes('recommend')) {
+      this.handleRecommendation(context, specState)
+      return
+    }
+    
     switch (context) {
       case 'integrations.emailProvider':
         if (lower.includes('gmail')) {
@@ -519,6 +525,10 @@ export class IntelligenceAnalyzerV2 {
         } else if (lower.includes('outlook') || lower.includes('exchange')) {
           specState.spec.integrations = specState.spec.integrations || {}
           specState.spec.integrations.emailProvider = 'outlook'
+          specState.known.add('integrations.emailProvider')
+        } else if (lower.includes('smtp') || lower.includes('imap')) {
+          specState.spec.integrations = specState.spec.integrations || {}
+          specState.spec.integrations.emailProvider = 'imap/smtp'
           specState.known.add('integrations.emailProvider')
         }
         break
@@ -547,7 +557,11 @@ export class IntelligenceAnalyzerV2 {
         break
         
       case 'integrations.knowledgeBase':
-        if (lower.includes('pinecone')) {
+        if (lower.includes('none') || lower.includes('no')) {
+          specState.spec.integrations = specState.spec.integrations || {}
+          specState.spec.integrations.knowledgeBase = 'none'
+          specState.known.add('integrations.knowledgeBase')
+        } else if (lower.includes('pinecone') || lower.includes('vector')) {
           specState.spec.integrations = specState.spec.integrations || {}
           specState.spec.integrations.knowledgeBase = 'pinecone'
           specState.known.add('integrations.knowledgeBase')
@@ -558,6 +572,10 @@ export class IntelligenceAnalyzerV2 {
         } else if (lower.includes('confluence')) {
           specState.spec.integrations = specState.spec.integrations || {}
           specState.spec.integrations.knowledgeBase = 'confluence'
+          specState.known.add('integrations.knowledgeBase')
+        } else if (lower.includes('google drive') || lower.includes('drive')) {
+          specState.spec.integrations = specState.spec.integrations || {}
+          specState.spec.integrations.knowledgeBase = 'google-drive'
           specState.known.add('integrations.knowledgeBase')
         }
         break
@@ -594,6 +612,59 @@ export class IntelligenceAnalyzerV2 {
         
       default:
         console.log('[Intelligence Analyzer V2] Unknown question context:', context)
+    }
+  }
+  
+  /**
+   * Handle "Recommend for me" option
+   */
+  private static handleRecommendation(context: string, specState: SpecState): void {
+    switch (context) {
+      case 'integrations.emailProvider':
+        specState.spec.integrations = specState.spec.integrations || {}
+        specState.spec.integrations.emailProvider = 'gmail'
+        specState.recommended.add('integrations.emailProvider')
+        specState.spec.assumptions = specState.spec.assumptions || []
+        specState.spec.assumptions.push('I recommend Gmail as it has excellent IMAP support and is widely used')
+        break
+        
+      case 'integrations.aiProvider':
+      case 'integrations.aiModel':
+        specState.spec.integrations = specState.spec.integrations || {}
+        specState.spec.integrations.aiProvider = 'openai'
+        specState.spec.integrations.aiModel = 'gpt-4'
+        specState.recommended.add('integrations.aiModel')
+        specState.spec.assumptions = specState.spec.assumptions || []
+        specState.spec.assumptions.push('I recommend GPT-4 for its strong reasoning and wide compatibility')
+        break
+        
+      case 'integrations.knowledgeBase':
+        specState.spec.integrations = specState.spec.integrations || {}
+        specState.spec.integrations.knowledgeBase = 'notion'
+        specState.recommended.add('integrations.knowledgeBase')
+        specState.spec.assumptions = specState.spec.assumptions || []
+        specState.spec.assumptions.push('I recommend Notion as it\'s easy to set up and integrates well with many tools')
+        break
+        
+      case 'businessRules.routing':
+        specState.spec.businessRules = specState.spec.businessRules || {}
+        specState.spec.businessRules.routing = specState.spec.businessRules.routing || []
+        specState.spec.businessRules.routing.push('reply to all emails')
+        specState.recommended.add('businessRules.routing')
+        specState.spec.assumptions = specState.spec.assumptions || []
+        specState.spec.assumptions.push('I recommend replying to all emails for maximum automation')
+        break
+        
+      case 'outputs.destinations':
+        specState.spec.outputs = specState.spec.outputs || {}
+        specState.spec.outputs.destinations = ['email']
+        specState.recommended.add('outputs.destinations')
+        specState.spec.assumptions = specState.spec.assumptions || []
+        specState.spec.assumptions.push('I recommend email as it\'s universal and reliable')
+        break
+        
+      default:
+        console.log('[Intelligence Analyzer V2] Unknown recommendation context:', context)
     }
   }
   
@@ -653,27 +724,27 @@ export class IntelligenceAnalyzerV2 {
     switch (blocker) {
       case 'integrations.emailProvider':
         return {
-          text: 'Which email provider should receive the emails? (Gmail, Outlook, or another IMAP/SMTP provider)',
+          text: 'Which email provider should receive the emails?',
           field: 'integrations.emailProvider',
           context: 'integrations.emailProvider',
-          options: ['Gmail', 'Outlook', 'IMAP/SMTP']
+          options: ['Gmail', 'Outlook', 'IMAP/SMTP', 'Recommend for me']
         }
         
       case 'integrations.aiProvider':
       case 'integrations.aiModel':
         return {
-          text: 'Which AI provider/model should generate responses? (OpenAI GPT, Anthropic Claude, Google Gemini, or other)',
+          text: 'Which AI provider/model should generate responses?',
           field: 'integrations.aiModel',
           context: 'integrations.aiProvider',
-          options: ['OpenAI GPT-4', 'Anthropic Claude-3', 'Google Gemini']
+          options: ['Recommend for me', 'OpenAI GPT-4', 'Anthropic Claude-3', 'Google Gemini']
         }
         
       case 'integrations.knowledgeBase':
         return {
-          text: 'Which knowledge base system should I query? (Pinecone/vector DB, Notion, Confluence, Google Drive, custom API, or other)',
+          text: 'Which knowledge base system should I query?',
           field: 'integrations.knowledgeBase',
           context: 'integrations.knowledgeBase',
-          options: ['Pinecone', 'Notion', 'Confluence', 'Google Drive', 'Custom API']
+          options: ['None', 'Notion', 'Confluence', 'Google Drive', 'Pinecone/Vector DB', 'Custom API']
         }
         
       case 'businessRules.routing':
@@ -681,15 +752,15 @@ export class IntelligenceAnalyzerV2 {
           text: 'Should it reply to every incoming email, or only support/customer inquiries?',
           field: 'businessRules.routing',
           context: 'businessRules.routing',
-          options: ['Every email', 'Support inquiries only']
+          options: ['Every email', 'Support inquiries only', 'Custom rules']
         }
         
       case 'outputs.destinations':
         return {
-          text: 'Where should the reminder/notification be sent? (Email, Slack, Telegram, WhatsApp, or other)',
+          text: 'Where should the reminder/notification be sent?',
           field: 'outputs.destinations',
           context: 'outputs.destinations',
-          options: ['Email', 'Slack', 'Telegram', 'WhatsApp']
+          options: ['Email', 'Slack', 'Telegram', 'WhatsApp', 'Recommend for me']
         }
         
       default:

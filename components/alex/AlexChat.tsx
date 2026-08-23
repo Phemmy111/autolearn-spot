@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { AlexMessageList } from './AlexMessageList'
 import { AlexInputArea } from './AlexInputArea'
 import { AlexSidebar } from './AlexSidebar'
@@ -37,6 +37,46 @@ export function AlexChat({ userId }: AlexChatProps) {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Handle interactive question answers
+  useEffect(() => {
+    const handleQuestionAnswer = (event: CustomEvent) => {
+      const { field, value } = event.detail
+      console.log('[AlexChat] Question answered:', { field, value })
+      // Send the answer as a message
+      sendMessage(value)
+    }
+
+    const handleArchitectureApprove = (event: CustomEvent) => {
+      console.log('[AlexChat] Architecture approved')
+      // Send approval message
+      sendMessage('yes')
+    }
+
+    const handleArchitectureModify = (event: CustomEvent) => {
+      console.log('[AlexChat] Architecture modification requested')
+      // Send modification request
+      sendMessage('I want to modify the architecture')
+    }
+
+    const handleArchitectureImprove = (event: CustomEvent) => {
+      console.log('[AlexChat] Architecture improvement requested')
+      // Send improvement request
+      sendMessage('Can you improve this architecture?')
+    }
+
+    window.addEventListener('alexQuestionAnswer', handleQuestionAnswer as EventListener)
+    window.addEventListener('alexArchitectureApprove', handleArchitectureApprove as EventListener)
+    window.addEventListener('alexArchitectureModify', handleArchitectureModify as EventListener)
+    window.addEventListener('alexArchitectureImprove', handleArchitectureImprove as EventListener)
+
+    return () => {
+      window.removeEventListener('alexQuestionAnswer', handleQuestionAnswer as EventListener)
+      window.removeEventListener('alexArchitectureApprove', handleArchitectureApprove as EventListener)
+      window.removeEventListener('alexArchitectureModify', handleArchitectureModify as EventListener)
+      window.removeEventListener('alexArchitectureImprove', handleArchitectureImprove as EventListener)
+    }
+  }, [currentConversation])
 
   // Load conversations on mount
   useEffect(() => {
@@ -127,7 +167,7 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
   }
 
-  const sendMessage = async (content: string, fileIds?: string[]) => {
+  const sendMessage = useCallback(async (content: string, fileIds?: string[]) => {
     let conversationToUse = currentConversation
 
     if (!conversationToUse) {
