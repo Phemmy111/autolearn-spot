@@ -845,9 +845,11 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
     if (lower.includes('every') || lower.includes('all') || lower.includes('support') || lower.includes('customer')) {
       if (lower.includes('every') || lower.includes('all')) {
         specs.functionality = 'Auto-responder - reply to all emails'
+        specs.replyScope = 'all'
         hasInfo = true
       } else if (lower.includes('support') || lower.includes('customer')) {
         specs.functionality = 'Auto-responder - support inquiries only'
+        specs.replyScope = 'support'
         hasInfo = true
       }
     }
@@ -986,7 +988,8 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
           trigger,
           functionality,
           integrations,
-          filename
+          filename,
+          replyScope: build.final_specification?.replyScope
         })
         
         console.log('[Artifact Workflow] Architecture designed:', {

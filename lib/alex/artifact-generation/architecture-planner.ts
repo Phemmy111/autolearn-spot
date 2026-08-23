@@ -53,6 +53,7 @@ export class ArchitecturePlanner {
     functionality: string
     integrations: string
     filename?: string
+    replyScope?: string
   }): WorkflowArchitecture {
     console.log('[Architecture Planner] Designing workflow for:', spec.functionality)
     
@@ -96,6 +97,7 @@ export class ArchitecturePlanner {
   private static designEmailAutoResponder(spec: any): WorkflowArchitecture {
     const baseName = spec.filename?.replace('.json', '') || 'email-responder'
     const triggerType = this.determineEmailTrigger(spec.trigger)
+    const replyScope = spec.replyScope || 'all' // 'all' or 'support'
     
     const nodes: NodeDesign[] = []
     const connections: ConnectionDesign[] = []
@@ -138,7 +140,34 @@ export class ArchitecturePlanner {
     connections.push({ from: triggerNode.name, to: normalizeNode.name, type: 'main', index: 0 })
     positionY += 150
     
-    // 3. Duplicate/thread check
+    // 3. IF node to filter by reply scope (if support-only)
+    let nextNodeIndex = 2
+    if (replyScope === 'support') {
+      const filterNode = {
+        id: generateUUID(),
+        name: 'Is Support Inquiry?',
+        type: 'n8n-nodes-base.if',
+        typeVersion: 2,
+        position: [positionX, positionY],
+        parameters: {
+          conditions: {
+            string: [
+              { value1: '={{ $json.subject.toLowerCase() }}', operation: 'contains', value2: 'support' },
+              { value1: '={{ $json.subject.toLowerCase() }}', operation: 'contains', value2: 'help' },
+              { value1: '={{ $json.subject.toLowerCase() }}', operation: 'contains', value2: 'question' }
+            ]
+          },
+          combineOperation: 'any'
+        },
+        purpose: 'Filter for support-related inquiries only'
+      }
+      nodes.push(filterNode)
+      connections.push({ from: normalizeNode.name, to: filterNode.name, type: 'main', index: 0 })
+      positionY += 150
+      nextNodeIndex = 3
+    }
+    
+    // 3 or 4. Duplicate/thread check (after filter if present)
     const duplicateNode = {
       id: generateUUID(),
       name: 'Check Duplicate / Thread',
@@ -166,10 +195,15 @@ return [{
       purpose: 'Prevent processing duplicates and replies to our own messages'
     }
     nodes.push(duplicateNode)
-    connections.push({ from: normalizeNode.name, to: duplicateNode.name, type: 'main', index: 0 })
+    // Connect from filter node if it exists, otherwise from normalize node
+    if (replyScope === 'support') {
+      connections.push({ from: nodes[2].name, to: duplicateNode.name, type: 'main', index: 0 })
+    } else {
+      connections.push({ from: normalizeNode.name, to: duplicateNode.name, type: 'main', index: 0 })
+    }
     positionY += 150
     
-    // 4. IF node to filter duplicates
+    // 4 or 5. IF node to filter duplicates
     const ifNode = {
       id: generateUUID(),
       name: 'Should Process?',
@@ -189,7 +223,7 @@ return [{
     connections.push({ from: duplicateNode.name, to: ifNode.name, type: 'main', index: 0 })
     positionY += 150
     
-    // 5. Generate AI response
+    // 5 or 6. Generate AI response
     const aiNode = {
       id: generateUUID(),
       name: 'Generate AI Response',
@@ -204,7 +238,7 @@ return [{
           values: [
             {
               role: 'system',
-              content: 'You are a helpful customer service assistant for AutoLearn Spot. Generate a professional, friendly email response. Keep it concise but helpful.'
+              content: `You are a helpful customer service assistant for AutoLearn Spot. Generate a professional, friendly email response. ${replyScope === 'support' ? 'Focus on support-related inquiries.' : 'Reply to all incoming emails professionally.'} Keep it concise but helpful.`
             },
             {
               role: 'user',
@@ -295,11 +329,11 @@ return [{ json: { ...$input.item.json, logged: true, logEntry } }];`
     
     return {
       name: baseName,
-      description: 'Automated email responder with AI-generated responses, duplicate protection, and audit logging',
+      description: `Automated email responder with AI-generated responses${replyScope === 'support' ? ' for support inquiries only' : ' for all emails'}, duplicate protection, and audit logging`,
       nodes,
       connections,
       complexity: 'moderate',
-      reasoning: 'Email auto-responder requires: trigger, normalization, duplicate prevention, AI response generation, reply formatting, sending, and logging. This architecture ensures reliable, professional automated responses while preventing infinite loops and maintaining audit trails.'
+      reasoning: `Email auto-responder requires: trigger, normalization${replyScope === 'support' ? ', support inquiry filtering' : ''}, duplicate prevention, AI response generation, reply formatting, sending, and logging. This architecture ensures reliable, professional automated responses while preventing infinite loops and maintaining audit trails.`
     }
   }
   
