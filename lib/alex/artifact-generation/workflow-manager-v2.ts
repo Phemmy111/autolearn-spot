@@ -182,6 +182,8 @@ export class WorkflowManagerV2 {
         context: specState.questionContext,
         question: specState.currentQuestion
       })
+    } else {
+      console.log('[DEBUG WORKFLOW MANAGER V2] No questions in build to restore context from')
     }
     
     // Analyze the continuation

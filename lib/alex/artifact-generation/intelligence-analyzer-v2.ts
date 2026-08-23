@@ -210,7 +210,8 @@ export class IntelligenceAnalyzerV2 {
       this.inferAnswerMapping(content, specState)
     }
     
-    // Clear the question context
+    // Clear the question context only after successful mapping
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Clearing question context')
     specState.questionContext = undefined
     specState.currentQuestion = undefined
     
@@ -249,9 +250,26 @@ export class IntelligenceAnalyzerV2 {
     history: Array<{ role: string; content: string }> | undefined,
     specState: SpecState
   ): boolean {
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Detecting continuation', {
+      hasQuestionContext: !!specState.questionContext,
+      knownCount: specState.known.size,
+      blockersCount: specState.blockers.size,
+      contentLength: content.length
+    })
+    
     // If we have an existing spec with a pending question, it's a continuation
     if (specState.questionContext) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Continuation detected: has question context')
       return true
+    }
+    
+    // If we have an active workflow (known fields exist), field:value format is a continuation
+    if (specState.known.size > 0) {
+      const fieldMatch = content.match(/^([^:]+):\s*(.+)$/i)
+      if (fieldMatch) {
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Continuation detected: field:value format with active workflow')
+        return true
+      }
     }
     
     // Short, direct answers are likely continuations
@@ -259,11 +277,15 @@ export class IntelligenceAnalyzerV2 {
       const lower = content.toLowerCase()
       if (lower.includes('yes') || lower.includes('no') || lower.includes('gmail') || 
           lower.includes('outlook') || lower.includes('gemini') || lower.includes('gpt') ||
-          lower.includes('every') || lower.includes('all') || lower.includes('support')) {
+          lower.includes('every') || lower.includes('all') || lower.includes('support') ||
+          lower.includes('email') || lower.includes('slack') || lower.includes('telegram') ||
+          lower.includes('whatsapp') || lower.includes('recommend')) {
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Continuation detected: matches continuation keywords')
         return true
       }
     }
     
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Not a continuation')
     return false
   }
   
