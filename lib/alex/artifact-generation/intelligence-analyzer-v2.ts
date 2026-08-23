@@ -643,22 +643,28 @@ export class IntelligenceAnalyzerV2 {
           specState.spec.outputs.destinations = ['email']
           specState.known.add('outputs.destinations')
           specState.blockers.delete('outputs.destinations')
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapped Email destinations, known:', Array.from(specState.known))
         } else if (lower.includes('slack')) {
           specState.spec.outputs = specState.spec.outputs || {}
           specState.spec.outputs.destinations = ['slack']
           specState.known.add('outputs.destinations')
           specState.blockers.delete('outputs.destinations')
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapped Slack destinations, known:', Array.from(specState.known))
         } else if (lower.includes('telegram') || lower.includes('whatsapp')) {
           specState.spec.outputs = specState.spec.outputs || {}
           specState.spec.outputs.destinations = [lower.includes('telegram') ? 'telegram' : 'whatsapp']
           specState.known.add('outputs.destinations')
           specState.blockers.delete('outputs.destinations')
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapped Telegram/WhatsApp destinations, known:', Array.from(specState.known))
         }
         break
         
       default:
-        console.log('[Intelligence Analyzer V2] Unknown question context:', context)
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Unknown question context:', context)
     }
+    
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final known after mapping:', Array.from(specState.known))
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final blockers after mapping:', Array.from(specState.blockers))
   }
   
   /**
@@ -728,14 +734,6 @@ export class IntelligenceAnalyzerV2 {
     }
     
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] After recommendation - known:', Array.from(specState.known), 'blockers:', Array.from(specState.blockers))
-  }
-        
-      default:
-        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Unknown recommendation context:', context)
-    }
-    
-    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final known after mapping:', Array.from(specState.known))
-    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final blockers after mapping:', Array.from(specState.blockers))
   }
   
   /**
