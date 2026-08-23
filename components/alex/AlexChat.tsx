@@ -349,7 +349,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         .then(data => setAttachedFiles(data.files || []))
         .catch(err => console.error('Failed to reload files:', err))
     }
-  }
+  }, [currentConversation, attachedFiles, mode])
 
   const stopGeneration = () => {
     if (abortController) {
