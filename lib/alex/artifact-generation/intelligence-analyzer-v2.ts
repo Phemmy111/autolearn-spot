@@ -275,11 +275,16 @@ export class IntelligenceAnalyzerV2 {
     // Short, direct answers are likely continuations
     if (content.length < 100) {
       const lower = content.toLowerCase()
-      if (lower.includes('yes') || lower.includes('no') || lower.includes('gmail') || 
-          lower.includes('outlook') || lower.includes('gemini') || lower.includes('gpt') ||
-          lower.includes('every') || lower.includes('all') || lower.includes('support') ||
-          lower.includes('email') || lower.includes('slack') || lower.includes('telegram') ||
-          lower.includes('whatsapp') || lower.includes('recommend')) {
+      // Only match these as continuation keywords when they're the primary content
+      // Don't match if they're part of a longer request like "create an email..."
+      const continuationKeywords = ['yes', 'no', 'recommend', 'every', 'all', 'support']
+      const hasContinuationKeyword = continuationKeywords.some(keyword => lower === keyword || lower.startsWith(keyword + ' '))
+      
+      // Platform names are only continuations if they're simple answers (not part of "create email for gmail")
+      const platformNames = ['gmail', 'outlook', 'gemini', 'gpt', 'slack', 'telegram', 'whatsapp']
+      const isSimplePlatformAnswer = platformNames.some(name => lower === name || lower === name + ' ')
+      
+      if (hasContinuationKeyword || isSimplePlatformAnswer) {
         console.log('[DEBUG INTELLIGENCE ANALYZER V2] Continuation detected: matches continuation keywords')
         return true
       }
