@@ -392,7 +392,12 @@ Be conversational and helpful, not robotic. Use your expertise to guide them. Ke
           // First, try to extract n8n specs directly from user input
           const extractedSpec = this.extractN8nSpecs(request.content, currentSpec)
           
-          console.log('[Artifact Workflow] Extracted n8n specs:', extractedSpec)
+          console.log('[Artifact Workflow] DEBUG: Extracted n8n specs:', {
+            input: request.content,
+            extractedSpec,
+            hasInfo: extractedSpec.hasInfo,
+            currentSpec
+          })
           
           if (extractedSpec.hasInfo) {
             // User provided useful information, update specs
@@ -410,11 +415,12 @@ Be conversational and helpful, not robotic. Use your expertise to guide them. Ke
             const hasRequiredSpecs = updatedSpec.trigger && updatedSpec.functionality && updatedSpec.integrations
             const hasReplyScope = !needsReplyScope || updatedSpec.replyScope
             
-            console.log('[Artifact Workflow] Spec completeness check:', {
+            console.log('[Artifact Workflow] DEBUG: Spec completeness check:', {
               needsReplyScope,
               hasRequiredSpecs,
               hasReplyScope,
-              replyScope: updatedSpec.replyScope
+              replyScope: updatedSpec.replyScope,
+              updatedSpec
             })
             
             if (hasRequiredSpecs && hasReplyScope) {
@@ -877,6 +883,12 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
     const specs: any = {}
     let hasInfo = false
 
+    console.log('[Artifact Workflow] DEBUG: extractN8nSpecs called with:', {
+      input,
+      lower,
+      currentSpec
+    })
+
     // Extract email provider
     if (lower.includes('gmail') || lower.includes('outlook') || lower.includes('exchange') || 
         lower.includes('smtp') || lower.includes('imap')) {
@@ -884,6 +896,7 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       else if (lower.includes('outlook') || lower.includes('exchange')) specs.integrations = 'Outlook'
       else if (lower.includes('smtp') || lower.includes('imap')) specs.integrations = 'IMAP/SMTP'
       hasInfo = true
+      console.log('[Artifact Workflow] DEBUG: Extracted email provider:', specs.integrations)
     }
 
     // Extract trigger type
@@ -891,6 +904,7 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       if (lower.includes('chat message') || lower.includes('webhook') || lower.includes('http')) {
         specs.trigger = input.match(/(?:trigger|on)\s+(.+)/i)?.[1]?.trim() || 'chat message'
         hasInfo = true
+        console.log('[Artifact Workflow] DEBUG: Extracted trigger from explicit mention:', specs.trigger)
       }
     }
 
@@ -901,39 +915,53 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       if (lower.includes('gpt') || lower.includes('openai')) specs.integrations += ' OpenAI GPT'
       if (lower.includes('claude')) specs.integrations += ' Anthropic Claude'
       hasInfo = true
+      console.log('[Artifact Workflow] DEBUG: Extracted AI model:', specs.integrations)
     }
 
-            // Check if reply scope was provided
-            if (!updatedSpec.replyScope && (lower.includes('every') || lower.includes('all') || lower.includes('support') || lower.includes('customer'))) {
-              if (lower.includes('every') || lower.includes('all')) {
-                updatedSpec.replyScope = 'all'
-                updatedSpec.functionality = 'Auto-responder - reply to all emails'
-              } else if (lower.includes('support') || lower.includes('customer')) {
-                updatedSpec.replyScope = 'support'
-                updatedSpec.functionality = 'Auto-responder - support inquiries only'
-              }
-              hasInfo = true
-            }
+    // Check if reply scope was provided
+    if (!specs.replyScope && (lower.includes('every') || lower.includes('all') || lower.includes('support') || lower.includes('customer'))) {
+      if (lower.includes('every') || lower.includes('all')) {
+        specs.functionality = 'Auto-responder - reply to all emails'
+        specs.replyScope = 'all'
+        hasInfo = true
+        console.log('[Artifact Workflow] DEBUG: Extracted reply scope - all')
+      } else if (lower.includes('support') || lower.includes('customer')) {
+        specs.functionality = 'Auto-responder - support inquiries only'
+        specs.replyScope = 'support'
+        hasInfo = true
+        console.log('[Artifact Workflow] DEBUG: Extracted reply scope - support')
+      }
+    }
 
     // Extract trigger from simple mentions
     if (lower.includes('webhook') && !lower.includes('trigger')) {
       specs.trigger = 'Webhook'
       hasInfo = true
+      console.log('[Artifact Workflow] DEBUG: Extracted webhook trigger from simple mention')
     }
     if (lower.includes('schedule') && !lower.includes('trigger')) {
       specs.trigger = 'Schedule'
       hasInfo = true
+      console.log('[Artifact Workflow] DEBUG: Extracted schedule trigger from simple mention')
     }
     if ((lower.includes('email') || lower.includes('gmail')) && !lower.includes('trigger')) {
       specs.trigger = 'Email Trigger (IMAP)'
       hasInfo = true
+      console.log('[Artifact Workflow] DEBUG: Extracted email trigger from simple mention')
     }
 
     // Extract functionality (what it should do)
     if (lower.includes('chatbot') || lower.includes('support') || lower.includes('respond')) {
       specs.functionality = currentSpec.functionality || input
       hasInfo = true
+      console.log('[Artifact Workflow] DEBUG: Extracted functionality:', specs.functionality)
     }
+
+    console.log('[Artifact Workflow] DEBUG: extractN8nSpecs result:', {
+      hasInfo,
+      specs,
+      specsKeys: Object.keys(specs)
+    })
 
     return { hasInfo, specs }
   }
@@ -1019,6 +1047,12 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
     build: ArtifactBuild,
     request: WorkflowRequest
   ): Promise<{ success: boolean; response?: WorkflowResponse }> {
+    console.log('[Artifact Workflow] DEBUG: attemptTemplateGeneration called with:', {
+      buildId: build.id,
+      originalRequest: build.original_request,
+      finalSpec: build.final_specification
+    })
+    
     try {
       console.log('[Artifact Workflow] Template generation attempt')
       
@@ -1044,6 +1078,16 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
         console.log('[Artifact Workflow] Using Architecture Planner to design workflow')
         
         const architecture = ArchitecturePlanner.design({
+          originalRequest: build.original_request,
+          platform,
+          trigger,
+          functionality,
+          integrations,
+          filename,
+          replyScope: build.final_specification?.replyScope
+        })
+        
+        console.log('[Artifact Workflow] DEBUG: Architecture planner called with:', {
           originalRequest: build.original_request,
           platform,
           trigger,
