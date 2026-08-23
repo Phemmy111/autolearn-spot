@@ -810,27 +810,35 @@ export class IntelligenceAnalyzerV2 {
   private static buildExplanation(specState: SpecState): string {
     const parts: string[] = []
     
-    // Explain platform choice
+    // Start with conversational opening
+    parts.push("I can help you build this automation.")
+    
+    // Explain platform choice conversationally
     if (specState.spec.platform && specState.spec.platformReasoning) {
-      parts.push(`Platform: ${specState.spec.platform}`)
-      parts.push(`Reason: ${specState.spec.platformReasoning}`)
+      parts.push(`\n\nI recommend **${specState.spec.platform}** because ${specState.spec.platformReasoning.toLowerCase()}.`)
     }
     
-    // Explain what we know
-    if (specState.known.size > 0) {
-      parts.push(`I understand you want: ${specState.spec.description || specState.spec.automationType}`)
+    // Explain what we understand conversationally
+    if (specState.spec.description || specState.spec.automationType) {
+      parts.push(`\n\nI understand you want to build a **${specState.spec.description || specState.spec.automationType}**.`)
     }
     
-    // Explain assumptions
+    // Explain what we need to know
+    if (specState.blockers.size > 0) {
+      const blockerList = Array.from(specState.blockers).join(', ')
+      parts.push(`\n\nBefore I finalize the architecture, I need to know: ${blockerList}.`)
+    }
+    
+    // Explain assumptions conversationally
     if (specState.spec.assumptions && specState.spec.assumptions.length > 0) {
-      parts.push(`Assumptions: ${specState.spec.assumptions.join(', ')}`)
+      parts.push(`\n\nI'm assuming: ${specState.spec.assumptions.join(', ')}.`)
     }
     
-    // Explain recommendations
+    // Explain recommendations conversationally
     if (specState.spec.recommendations && specState.spec.recommendations.length > 0) {
-      parts.push(`Recommendations: ${specState.spec.recommendations.join(', ')}`)
+      parts.push(`\n\nI recommend: ${specState.spec.recommendations.join(', ')}.`)
     }
     
-    return parts.join('\n')
+    return parts.join('')
   }
 }

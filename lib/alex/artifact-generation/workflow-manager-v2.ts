@@ -200,7 +200,7 @@ export class WorkflowManagerV2 {
    * Handle asking a question
    */
   private static async handleAskQuestion(build: ArtifactBuild, analysis: AnalysisResultV2): Promise<WorkflowResponse> {
-    console.log('[Workflow Manager V2] Asking question:', analysis.question?.text)
+    console.log('[DEBUG WORKFLOW MANAGER V2] Asking question:', analysis.question?.text)
     
     if (!analysis.question) {
       throw new Error('Question action specified but no question provided')
@@ -216,9 +216,19 @@ export class WorkflowManagerV2 {
     specState.currentQuestion = analysis.question.text
     await ArtifactService.updateSpecification(build.id, specState.spec, [])
     
+    // Build a conversational message
+    let message = analysis.explanation || 'I need to clarify something before proceeding.'
+    
+    // Add the question text clearly
+    if (analysis.question.text) {
+      message += `\n\n**${analysis.question.text}**`
+    }
+    
+    console.log('[DEBUG WORKFLOW MANAGER V2] Returning question response with message')
+    
     return {
       status: 'collecting_requirements',
-      message: analysis.explanation || 'I need to clarify something before proceeding.',
+      message,
       needsInput: true,
       question: analysis.question
     }
