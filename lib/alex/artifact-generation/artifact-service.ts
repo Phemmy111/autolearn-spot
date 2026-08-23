@@ -134,6 +134,24 @@ export class ArtifactService {
   }
 
   /**
+   * Get questions for a build
+   */
+  static async getQuestions(buildId: string): Promise<ArtifactQuestion[]> {
+    const { data, error } = await getSupabaseClient()
+      .from('alex_artifact_questions')
+      .select('*')
+      .eq('build_id', buildId)
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      console.error('[Artifact Service] Failed to get questions:', error)
+      throw new Error(`Failed to get questions: ${error.message}`)
+    }
+
+    return data || []
+  }
+
+  /**
    * Update build specification
    */
   static async updateSpecification(

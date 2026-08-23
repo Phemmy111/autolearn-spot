@@ -376,14 +376,47 @@ export class ArtifactWorkflowManager {
             
             await ArtifactService.updateSpecification(build.id, updatedSpec, [])
             
-            // Check if we have enough info to proceed
-            if (updatedSpec.trigger && updatedSpec.functionality && updatedSpec.integrations) {
+            // Check if we have enough info to proceed (including reply scope for email responders)
+            const needsReplyScope = lower.includes('email') && lower.includes('responder')
+            const hasRequiredSpecs = updatedSpec.trigger && updatedSpec.functionality && updatedSpec.integrations
+            const hasReplyScope = !needsReplyScope || updatedSpec.replyScope
+            
+            console.log('[Artifact Workflow] Spec completeness check:', {
+              needsReplyScope,
+              hasRequiredSpecs,
+              hasReplyScope,
+              replyScope: updatedSpec.replyScope
+            })
+            
+            if (hasRequiredSpecs && hasReplyScope) {
               await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
               return this.confirmSpecification(build, request)
             }
             
-            // Still missing some info, ask specific question
+            // If missing reply scope specifically, ask for it
+            if (needsReplyScope && !updatedSpec.replyScope) {
+              await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+              return {
+                status: 'collecting_requirements',
+                message: `Got it! You chose ${updatedSpec.integrations || 'an email provider'}. Should it reply to every email or only support/customer inquiries?`,
+                needsInput: true,
+                questions: ['Should it reply to every email or only support/customer inquiries?']
+              }
+            }
+            
+            // Still missing some info, ask remaining questions
             await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+            
+            if (remainingQuestions.length > 0) {
+              return {
+                status: 'collecting_requirements',
+                message: `Got it! I still need to know: ${remainingQuestions.map(q => q.question).join(', ')}.`,
+                needsInput: true,
+                questions: remainingQuestions.map(q => q.question)
+              }
+            }
+            
+            // Fallback to generic missing info check
             const missing = []
             if (!updatedSpec.trigger) missing.push('trigger type')
             if (!updatedSpec.functionality) missing.push('what the workflow should do')
@@ -841,18 +874,17 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       hasInfo = true
     }
 
-    // Extract reply scope for email responders
-    if (lower.includes('every') || lower.includes('all') || lower.includes('support') || lower.includes('customer')) {
-      if (lower.includes('every') || lower.includes('all')) {
-        specs.functionality = 'Auto-responder - reply to all emails'
-        specs.replyScope = 'all'
-        hasInfo = true
-      } else if (lower.includes('support') || lower.includes('customer')) {
-        specs.functionality = 'Auto-responder - support inquiries only'
-        specs.replyScope = 'support'
-        hasInfo = true
-      }
-    }
+            // Check if reply scope was provided
+            if (!updatedSpec.replyScope && (lower.includes('every') || lower.includes('all') || lower.includes('support') || lower.includes('customer'))) {
+              if (lower.includes('every') || lower.includes('all')) {
+                updatedSpec.replyScope = 'all'
+                updatedSpec.functionality = 'Auto-responder - reply to all emails'
+              } else if (lower.includes('support') || lower.includes('customer')) {
+                updatedSpec.replyScope = 'support'
+                updatedSpec.functionality = 'Auto-responder - support inquiries only'
+              }
+              hasInfo = true
+            }
 
     // Extract trigger from simple mentions
     if (lower.includes('webhook') && !lower.includes('trigger')) {
