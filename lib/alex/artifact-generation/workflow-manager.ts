@@ -1,14 +1,19 @@
 /**
  * ALEX Phase 7: Artifact Workflow Manager
  * Orchestrates the build workflow state machine
- * Enhanced with Intelligence Analyzer for expert-level reasoning
- * Enhanced with Architecture Planner for meaningful workflow design
+ * Enhanced with Intelligence Analyzer V2 for semantic conversation state
+ * Enhanced with Architecture Designer for platform-agnostic design
+ * Enhanced with Platform Capabilities for intelligent platform selection
  */
 
 import { ArtifactService } from './artifact-service'
 import { AIEngine } from '../ai-engine'
 import { IntelligenceAnalyzer, AnalysisResult } from './intelligence-analyzer'
+import { IntelligenceAnalyzerV2, AnalysisResult as AnalysisResultV2 } from './intelligence-analyzer-v2'
 import { ArchitecturePlanner, WorkflowArchitecture, NodeDesign, ConnectionDesign } from './architecture-planner'
+import { ArchitectureDesigner, LogicalArchitecture } from './architecture-designer'
+import { AutomationSpec, SpecState, createSpecState, mergeSpec } from './automation-spec'
+import { selectPlatform } from './platform-capabilities'
 import { 
   ArtifactBuild, 
   BuildStatus, 
