@@ -1,10 +1,12 @@
 /**
  * ALEX Phase 7: Artifact Workflow Manager
  * Orchestrates the build workflow state machine
+ * Enhanced with Intelligence Analyzer for expert-level reasoning
  */
 
 import { ArtifactService } from './artifact-service'
 import { AIEngine } from '../ai-engine'
+import { IntelligenceAnalyzer, AnalysisResult } from './intelligence-analyzer'
 import { 
   ArtifactBuild, 
   BuildStatus, 
@@ -59,10 +61,25 @@ export class ArtifactWorkflowManager {
       return this.continueWorkflow(existingBuild, request)
     }
 
-    // Determine build type from request
-    const buildType = this.detectBuildType(request.content)
+    // Use Intelligence Analyzer to understand the request before proceeding
+    const analysis = await IntelligenceAnalyzer.analyze({
+      content: request.content,
+      conversationHistory: request.conversationHistory,
+      attachedFiles: request.attachedFiles,
+      existingSpec: null
+    })
 
-    // Create new build
+    console.log('[Artifact Workflow] Intelligence analysis:', {
+      canProceed: analysis.canProceed,
+      blockers: analysis.blockers,
+      hasReference: !!analysis.referenceFile,
+      inferredArchitecture: analysis.inferred.architecture
+    })
+
+    // Determine build type from analysis
+    const buildType = this.detectBuildTypeFromAnalysis(analysis, request.content)
+
+    // Create new build with intelligent initial specification
     const build = await ArtifactService.createBuild(
       request.conversationId,
       request.userId,
@@ -70,7 +87,40 @@ export class ArtifactWorkflowManager {
       buildType
     )
 
-    // Start requirement gathering
+    // Set initial specification from analysis
+    const initialSpec = {
+      ...analysis.known,
+      ...analysis.inferred,
+      ...analysis.recommendations,
+      filename: analysis.known.filename || this.generateFilenameFromRequest(request.content, 'json')
+    }
+    
+    await ArtifactService.updateSpecification(build.id, initialSpec, [])
+
+    // If we can proceed directly, skip requirement gathering
+    if (analysis.canProceed) {
+      console.log('[Artifact Workflow] Can proceed directly with generation')
+      await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+      return this.confirmSpecification(build, request)
+    }
+
+    // If we have a primary question, ask it
+    if (analysis.primaryQuestion) {
+      await ArtifactService.addQuestion(build.id, analysis.primaryQuestion, 'missing_requirement')
+      await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
+      
+      // Build an intelligent response
+      const message = this.buildIntelligentResponse(analysis, request.content)
+      
+      return {
+        status: 'collecting_requirements',
+        message,
+        needsInput: true,
+        questions: [analysis.primaryQuestion]
+      }
+    }
+
+    // Fallback to traditional requirement gathering
     return this.gatherRequirements(build, request)
   }
 
@@ -92,10 +142,90 @@ export class ArtifactWorkflowManager {
   }
 
   /**
+   * Detect build type from intelligence analysis
+   */
+  private static detectBuildTypeFromAnalysis(analysis: AnalysisResult, content: string): BuildType {
+    // Use the artifact type from analysis if available
+    const typeMap: Record<string, BuildType> = {
+      'workflow': 'workflow',
+      'chatbot': 'chatbot',
+      'agent': 'agent',
+      'configuration': 'configuration'
+    }
+    
+    if (typeMap[analysis.artifactType]) {
+      return typeMap[analysis.artifactType]
+    }
+    
+    // Fallback to content-based detection
+    return this.detectBuildType(content)
+  }
+
+  /**
+   * Build an intelligent response based on analysis
+   */
+  private static buildIntelligentResponse(analysis: AnalysisResult, userContent: string): string {
+    const parts: string[] = []
+    
+    // If we have a reference file, acknowledge it
+    if (analysis.referenceFile) {
+      parts.push(`I can see the reference workflow. It uses this architecture: ${analysis.referenceFile.architecture}.`)
+      parts.push(`I'll preserve that pattern and adapt it to your requirement.`)
+    }
+    
+    // Show what we're inferring/recommending
+    if (analysis.inferred.platform || analysis.recommendations.platform) {
+      const platform = analysis.inferred.platform || analysis.recommendations.platform
+      parts.push(`I'll build this as a ${platform} workflow.`)
+    }
+    
+    if (analysis.inferred.trigger || analysis.recommendations.trigger) {
+      const trigger = analysis.inferred.trigger || analysis.recommendations.trigger
+      parts.push(`Using ${trigger} as the trigger.`)
+    }
+    
+    // Show assumptions
+    if (analysis.assumptions.length > 0) {
+      parts.push(`I'm making these reasonable assumptions: ${analysis.assumptions.join(', ')}.`)
+    }
+    
+    // Add the primary question
+    if (analysis.primaryQuestion) {
+      parts.push(`\nBefore I generate it, I need to know: ${analysis.primaryQuestion}`)
+    }
+    
+    return parts.join('\n\n')
+  }
+
+  /**
    * Continue existing workflow
    */
   private static async continueWorkflow(build: ArtifactBuild, request: WorkflowRequest): Promise<WorkflowResponse> {
     console.log('[Artifact Workflow] Continuing workflow:', build.id, 'status:', build.status)
+
+    // Use Intelligence Analyzer for continued conversations
+    const analysis = await IntelligenceAnalyzer.analyze({
+      content: request.content,
+      conversationHistory: request.conversationHistory,
+      attachedFiles: request.attachedFiles,
+      existingSpec: build.final_specification
+    })
+
+    console.log('[Artifact Workflow] Continuation analysis:', {
+      canProceed: analysis.canProceed,
+      blockers: analysis.blockers,
+      newSpecs: Object.keys(analysis.known)
+    })
+
+    // Update specification with new information from analysis
+    if (Object.keys(analysis.known).length > 0) {
+      const updatedSpec = {
+        ...build.final_specification,
+        ...analysis.known,
+        ...analysis.inferred
+      }
+      await ArtifactService.updateSpecification(build.id, updatedSpec, [])
+    }
 
     // Check for retry command on failed builds
     if (build.status === 'failed' && 
@@ -113,6 +243,11 @@ export class ArtifactWorkflowManager {
 
     switch (build.status) {
       case 'collecting_requirements':
+        // If analysis says we can proceed, move to confirmation
+        if (analysis.canProceed) {
+          await ArtifactService.updateBuildStatus(build.id, 'ready_for_confirmation')
+          return this.confirmSpecification(build, request)
+        }
         return this.gatherRequirements(build, request)
       case 'ready_for_confirmation':
         return this.confirmSpecification(build, request)

@@ -43,7 +43,9 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'create configuration', 'generate configuration', 'build configuration',
       'create complete', 'generate complete', 'build complete',
       'package for me', 'artifacts for me', 'files for me',
-      'downloadable', 'configuration file', 'setup guide'
+      'downloadable', 'configuration file', 'setup guide',
+      'export as json', 'export this', 'generate json file',
+      'create json file', 'build json file', 'make json file'
     ]
 
     // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
@@ -57,7 +59,8 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'generate the chatbot', 'create the chatbot', 'build the chatbot',
       'setup guide', 'configuration file', 'downloadable files',
       'package and deliver', 'zip file', 'source code',
-      'import into', 'deploy this', 'use this file'
+      'import into', 'deploy this', 'use this file',
+      'like this file', 'based on this', 'use this as reference'
     ]
     
     const hasStrongBuildIndicator = strongBuildIndicators.some(indicator => lowerContent.includes(indicator))
