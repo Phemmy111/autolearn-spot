@@ -426,7 +426,9 @@ export class IntelligenceAnalyzerV2 {
     
     // AI enablement
     if (lower.includes('ai') || lower.includes('artificial intelligence') || lower.includes('understand') || 
-        lower.includes('classify') || lower.includes('generate') || lower.includes('draft')) {
+        lower.includes('classify') || lower.includes('generate') || lower.includes('draft') ||
+        lower.includes('auto responder') || lower.includes('auto-responder') || lower.includes('intelligent') ||
+        lower.includes('smart') || lower.includes('automated response')) {
       specState.spec.aiConfig = specState.spec.aiConfig || { enabled: false }
       specState.spec.aiConfig.enabled = true
       specState.known.add('aiConfig.enabled')

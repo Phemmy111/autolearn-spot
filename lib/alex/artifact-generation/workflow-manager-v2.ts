@@ -516,7 +516,7 @@ export class WorkflowManagerV2 {
     
     // Save guide as secondary artifact
     const guideFilename = filename.replace(/\.(json|yaml|py|js)$/i, '-guide.md')
-    await ArtifactService.saveArtifact(
+    const guideArtifact = await ArtifactService.saveArtifact(
       build.id,
       build.user_id,
       guideFilename,
@@ -533,14 +533,18 @@ export class WorkflowManagerV2 {
       message: `I've generated the ${platform} workflow and implementation guide.\n\n${guide.substring(0, 500)}...`,
       artifacts: [
         {
+          id: artifact.id,
           filename: filename,
           fileType: fileType,
-          mimeType: mimeType
+          mimeType: mimeType,
+          download_url: `/api/alex/artifacts/${artifact.id}/download`
         },
         {
+          id: guideArtifact.id,
           filename: guideFilename,
           fileType: 'markdown',
-          mimeType: 'text/markdown'
+          mimeType: 'text/markdown',
+          download_url: `/api/alex/artifacts/${guideArtifact.id}/download`
         }
       ],
       specification: spec
