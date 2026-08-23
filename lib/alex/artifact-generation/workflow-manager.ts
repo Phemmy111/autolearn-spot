@@ -1651,8 +1651,6 @@ h2 { color: #34495e; margin-top: 30px; border-bottom: 1px solid #bdc3c7; padding
 </html>`
         
         guideFilename = primaryArtifact.filename.replace('.json', '-guide.doc')
-      }
-        guideFilename = primaryArtifact.filename.replace(/\.[^.]+$/, '-guide.doc')
       } else {
         // Generate generic guide for other platforms
         guideContent = `<!DOCTYPE html>
