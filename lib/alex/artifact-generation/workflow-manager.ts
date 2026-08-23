@@ -2150,15 +2150,51 @@ SPECIFICATION: {"name": "extracted_name", "purpose": "extracted_purpose", "requi
    */
   private static buildGenerationPrompt(build: ArtifactBuild, request: WorkflowRequest): string {
     const filename = build.final_specification?.filename || 'config.json'
+    const platform = build.final_specification?.platform || 'custom'
+    const trigger = build.final_specification?.trigger || 'manual'
+    const functionality = build.final_specification?.functionality || 'basic processing'
+    const integrations = build.final_specification?.integrations || 'none'
     
-    return `Generate a ${build.build_type} configuration for a chatbot called SupportBot.
+    console.log('[Artifact Workflow] DEBUG: buildGenerationPrompt called with:', {
+      buildType: build.build_type,
+      platform,
+      trigger,
+      functionality,
+      integrations,
+      filename
+    })
+    
+    // Generate prompt based on build type and platform
+    if (build.build_type === 'workflow' && platform === 'n8n') {
+      return `Generate a complete n8n workflow JSON configuration for: ${functionality}
 
-The configuration should include:
-- Bot name and description
-- Intent definitions with sample utterances
-- Response templates
-- Basic settings
+Platform: n8n
+Trigger: ${trigger}
+Integrations: ${integrations}
+Filename: ${filename}
 
+Requirements:
+1. Create a valid n8n workflow JSON with all required fields (name, nodes, connections, settings)
+2. Include all necessary nodes for the workflow to function
+3. Configure proper connections between nodes
+4. Set realistic parameters for each node
+5. Include proper node positions for visual layout
+6. Ensure the workflow is ready to import into n8n
+
+The workflow must:
+- Have a ${trigger} node as the starting point
+- Include ${integrations} integration nodes
+- Process data through logical steps
+- Handle errors appropriately
+- Be production-ready
+
+Return ONLY valid JSON. No markdown code blocks, no explanations, no extra text.`
+    }
+    
+    // Fallback for other types
+    return `Generate a ${build.build_type} configuration for: ${functionality}
+
+Platform: ${platform}
 Filename: ${filename}
 
 Please provide the JSON configuration. Make it complete and ready to use.`
@@ -2206,6 +2242,20 @@ Please provide the JSON configuration. Make it complete and ready to use.`
       return null
     }
 
+    // Determine filename and ensure correct extension
+    let filename = build?.final_specification?.filename || 'config.json'
+    const platform = build?.final_specification?.platform || 'custom'
+    
+    // Force JSON extension for n8n workflows
+    if (platform === 'n8n' && buildType === 'workflow') {
+      if (!filename.endsWith('.json')) {
+        filename = filename.replace(/\.(txt|json|doc)$/i, '') + '.json'
+        console.log('[Artifact Workflow] Fixed filename extension to .json:', filename)
+      }
+    }
+    
+    console.log('[Artifact Workflow] Using filename:', filename)
+
     // Try to extract JSON from code blocks first
     const codeBlockRegex = /```(?:json)?\n?([\s\S]*?)```/g
     const codeBlockMatch = codeBlockRegex.exec(trimmed)
@@ -2215,7 +2265,6 @@ Please provide the JSON configuration. Make it complete and ready to use.`
       const jsonContent = codeBlockMatch[1].trim()
       try {
         const parsed = JSON.parse(jsonContent)
-        const filename = build?.final_specification?.filename || 'config.json'
         
         return {
           build_type: buildType,
@@ -2237,7 +2286,6 @@ Please provide the JSON configuration. Make it complete and ready to use.`
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       try {
         const parsed = JSON.parse(trimmed)
-        const filename = build?.final_specification?.filename || 'config.json'
         
         // If it's the strict format, convert it
         if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].FILENAME) {
