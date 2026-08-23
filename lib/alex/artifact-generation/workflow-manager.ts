@@ -1832,12 +1832,18 @@ Shall I proceed? (yes/no)`
   private static async getAIResponse(prompt: string, request: WorkflowRequest): Promise<string> {
     const { AIEngine } = await import('../ai-engine')
 
+    // For artifact generation, use minimal conversation history to avoid TPM limits
+    // Only include the last few messages or the original request
+    const minimalHistory = request.conversationHistory && request.conversationHistory.length > 0
+      ? request.conversationHistory.slice(-4) // Keep only last 4 messages
+      : []
+
     const response = await AIEngine.streamChat({
       content: prompt,
       mode: 'agent_builder',
       conversationHistory: [
         { role: 'system', content: 'You are a JSON and structured data generator. Always respond in the exact format requested. Never add conversational filler, explanations, or extra text outside the specified format.' },
-        ...(request.conversationHistory || [])
+        ...minimalHistory
       ],
       userId: request.userId,
       attachedFiles: request.attachedFiles || [],
