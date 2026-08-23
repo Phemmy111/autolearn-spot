@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { ArtifactWorkflowManager, WorkflowRequest } from '@/lib/alex/artifact-generation/workflow-manager'
+import { WorkflowManagerV2, WorkflowRequest } from '@/lib/alex/artifact-generation/workflow-manager-v2'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       conversationHistory
     }
 
-    const response = await ArtifactWorkflowManager.processRequest(workflowRequest)
+    const response = await WorkflowManagerV2.processRequest(workflowRequest)
 
     console.log('[Artifact API] Workflow response:', response.status)
 
