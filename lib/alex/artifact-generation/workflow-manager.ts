@@ -2322,7 +2322,6 @@ Please provide the JSON configuration. Make it complete and ready to use.`
     }
 
     // If all else fails, treat the whole response as JSON content
-    const filename = build.final_specification?.filename || 'config.json'
     console.log('[Artifact Workflow] Using response as raw JSON content')
     
     try {
