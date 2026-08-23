@@ -2,11 +2,13 @@
  * ALEX Phase 7: Artifact Workflow Manager
  * Orchestrates the build workflow state machine
  * Enhanced with Intelligence Analyzer for expert-level reasoning
+ * Enhanced with Architecture Planner for meaningful workflow design
  */
 
 import { ArtifactService } from './artifact-service'
 import { AIEngine } from '../ai-engine'
 import { IntelligenceAnalyzer, AnalysisResult } from './intelligence-analyzer'
+import { ArchitecturePlanner, WorkflowArchitecture } from './architecture-planner'
 import { 
   ArtifactBuild, 
   BuildStatus, 
@@ -929,90 +931,41 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       let mimeType: string
       
       if (platform === 'n8n') {
-        // Use AI to generate expert n8n workflow
-        console.log('[Artifact Workflow] Using AI to generate expert n8n workflow')
+        // Use Architecture Planner to design the workflow first
+        console.log('[Artifact Workflow] Using Architecture Planner to design workflow')
         
-        const n8nWorkflowPrompt = `You are an expert n8n workflow architect with deep knowledge of all n8n nodes, capabilities, and best practices.
-
-Generate a complete n8n workflow JSON for this request:
-Original request: "${build.original_request}"
-Workflow name: ${filename.replace('.json', '')}
-Trigger: ${trigger}
-Functionality: ${functionality}
-Integrations: ${integrations}
-
-Generate a production-ready n8n workflow that:
-1. Uses the most appropriate trigger node for this specific task
-2. Includes all necessary processing nodes for the specified functionality
-3. Integrates with the specified services (Google Sheets, Gmail, Slack, etc.)
-4. Follows n8n best practices for error handling and data flow
-5. Uses proper node types and versions
-6. Includes realistic placeholder data and configurations
-7. Has proper node connections and execution flow
-
-IMPORTANT: Return ONLY valid n8n workflow JSON in this exact format:
-{
-  "name": "Workflow Name",
-  "nodes": [...],
-  "connections": {...},
-  "active": true,
-  "settings": {...},
-  "id": "uuid"
-}
-
-No explanations, no markdown code blocks, just the raw JSON. Make it production-ready and importable into n8n.`
+        const architecture = ArchitecturePlanner.design({
+          originalRequest: build.original_request,
+          platform,
+          trigger,
+          functionality,
+          integrations,
+          filename
+        })
         
-        try {
-          const aiWorkflow = await this.getAIResponse(n8nWorkflowPrompt, request)
-          console.log('[Artifact Workflow] AI generated workflow length:', aiWorkflow.length)
-          
-          // Clean the response to extract JSON
-          const cleanedJson = aiWorkflow.replace(/```json|```/g, '').trim()
-          templateContent = JSON.parse(cleanedJson)
-          
-          console.log('[Artifact Workflow] Successfully parsed AI-generated n8n workflow')
-        } catch (error) {
-          console.error('[Artifact Workflow] AI workflow generation failed, using fallback template', error)
-          
-          // Fallback to template-based generation
-          const botNameMatch = filename.match(/(.+)-config\.json/)
-          const botName = botNameMatch ? botNameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'My Workflow'
-          
-          templateContent = {
-            name: botName,
-            nodes: [
-              {
-                parameters: {},
-                id: this.generateUUID(),
-                name: 'Manual Trigger',
-                type: 'n8n-nodes-base.manualTrigger',
-                typeVersion: 1,
-                position: [0, 0]
-              },
-              {
-                parameters: {
-                  jsCode: `// ${functionality}\nconst inputData = $input.all();\nconst processedData = inputData.map(item => ({\n  ...item.json,\n  processedAt: new Date().toISOString()\n}));\nreturn processedData.map(item => ({ json: item }));`
-                },
-                id: this.generateUUID(),
-                name: 'Process Data',
-                type: 'n8n-nodes-base.code',
-                typeVersion: 2,
-                position: [240, 0]
-              }
-            ],
-            connections: {
-              'Manual Trigger': {
-                main: [[{ node: 'Process Data', type: 'main', index: 0 }]]
-              }
-            },
-            active: true,
-            settings: {
-              executionOrder: 'v1'
-            },
-            id: this.generateUUID(),
-            tags: []
-          }
+        console.log('[Artifact Workflow] Architecture designed:', {
+          name: architecture.name,
+          complexity: architecture.complexity,
+          nodeCount: architecture.nodes.length,
+          reasoning: architecture.reasoning
+        })
+        
+        // Build n8n workflow from architecture
+        templateContent = {
+          name: architecture.name,
+          nodes: architecture.nodes,
+          connections: this.buildConnectionsFromDesign(architecture.connections, architecture.nodes),
+          active: true,
+          settings: {
+            executionOrder: 'v1',
+            saveDataOnExecution: 'all',
+            saveManualExecutions: true
+          },
+          id: this.generateUUID(),
+          tags: []
         }
+        
+        console.log('[Artifact Workflow] Successfully built workflow from architecture')
         
         fileType = 'json'
         mimeType = 'application/json'
@@ -1139,6 +1092,42 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
   }
 
   /**
+   * Build n8n connections object from connection design
+   */
+  private static buildConnectionsFromDesign(
+    connectionDesigns: ConnectionDesign[],
+    nodes: NodeDesign[]
+  ): Record<string, any> {
+    const connections: Record<string, any> = {}
+    
+    // Create a mapping of node names to IDs
+    const nameToId: Record<string, string> = {}
+    for (const node of nodes) {
+      nameToId[node.name] = node.id
+    }
+    
+    // Build connections using node IDs
+    for (const conn of connectionDesigns) {
+      const fromId = nameToId[conn.from]
+      const toId = nameToId[conn.to]
+      
+      if (fromId && toId) {
+        if (!connections[fromId]) {
+          connections[fromId] = { main: [] }
+        }
+        
+        connections[fromId].main.push({
+          node: toId,
+          type: conn.type,
+          index: conn.index
+        })
+      }
+    }
+    
+    return connections
+  }
+
+  /**
    * Generate UUID for n8n nodes
    */
   private static generateUUID(): string {
@@ -1147,6 +1136,38 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
       const v = c === 'x' ? r : (r & 0x3 | 0x8)
       return v.toString(16)
     })
+  }
+
+  /**
+   * Get purpose description for a node based on its type
+   */
+  private static getNodePurpose(node: any): string {
+    const type = node.type?.toLowerCase() || ''
+    const name = node.name || 'Node'
+    
+    if (type.includes('trigger')) {
+      return 'Triggers the workflow automatically based on configured events'
+    }
+    if (type.includes('gmail') && !type.includes('trigger')) {
+      return 'Sends or processes emails via Gmail'
+    }
+    if (type.includes('openai') || type.includes('ai')) {
+      return 'Generates AI-powered responses using language models'
+    }
+    if (type.includes('set')) {
+      return 'Transforms and formats data for downstream processing'
+    }
+    if (type.includes('code')) {
+      return 'Executes custom JavaScript logic for data processing'
+    }
+    if (type.includes('if')) {
+      return 'Branches execution based on conditional logic'
+    }
+    if (type.includes('http')) {
+      return 'Makes HTTP requests to external APIs or webhooks'
+    }
+    
+    return 'Processes data as part of the workflow'
   }
 
   /**
@@ -1454,7 +1475,26 @@ Just return the JSON. No explanations needed.`
       let guideFilename: string
 
       if (platform === 'n8n') {
-        // Generate n8n-specific guide
+        // Parse the workflow to get actual node information
+        let nodeDescriptions: string[] = []
+        let architectureOverview = ''
+        
+        try {
+          const workflowJson = JSON.parse(primaryArtifact.content)
+          const nodes = workflowJson.nodes || []
+          
+          architectureOverview = `This workflow has ${nodes.length} nodes arranged in a logical sequence.`
+          
+          nodeDescriptions = nodes.map((node: any) => {
+            return `<li><strong>${node.name}</strong> (${node.type}): ${this.getNodePurpose(node)}</li>`
+          })
+        } catch (error) {
+          console.error('[Artifact Workflow] Failed to parse workflow for guide:', error)
+          architectureOverview = 'This workflow provides automation for your requested task.'
+          nodeDescriptions = ['<li>Trigger and processing nodes</li>', '<li>Data transformation nodes</li>', '<li>Action/output nodes</li>']
+        }
+
+        // Generate n8n-specific guide with actual workflow information
         guideContent = `<!DOCTYPE html>
 <html>
 <head>
@@ -1480,21 +1520,25 @@ strong { color: #ff6d5a; }
 <h1>${botName} - n8n Workflow Guide</h1>
 
 <h2>Overview</h2>
-<p>This n8n workflow JSON file contains a complete automation workflow for <strong>${botName}</strong>. It includes trigger nodes, processing nodes, and connections for n8n automation platform.</p>
+<p>This n8n workflow automates <strong>${build.final_specification?.functionality || 'your requested task'}</strong>. ${architectureOverview}</p>
 
-<h2>File Contents</h2>
-<p>The workflow includes:</p>
+<h2>What This Workflow Does</h2>
+<p>Based on your request for "${build.original_request}", this workflow:</p>
 <ul>
-<li><strong>Workflow Name</strong>: ${botName}</li>
-<li><strong>Trigger Nodes</strong>: Schedule or webhook triggers</li>
-<li><strong>Processing Nodes</strong>: Data transformation and processing</li>
-<li><strong>Connections</strong>: Node connections and data flow</li>
-<li><strong>Settings</strong>: Execution order and workflow configuration</li>
+<li>Trigger: ${build.final_specification?.trigger || 'Manual trigger'}</li>
+<li>Platform: ${build.final_specification?.platform || 'n8n'}</li>
+<li>Integrations: ${build.final_specification?.integrations || 'Configurable'}</li>
+</ul>
+
+<h2>Workflow Architecture</h2>
+<p>The workflow consists of the following nodes in sequence:</p>
+<ul>
+${nodeDescriptions.join('\n')}
 </ul>
 
 <h2>Setup Instructions</h2>
 
-<h3>1. Installation</h3>
+<h3>1. Import the Workflow</h3>
 <ol>
 <li>Download the workflow file: <code>${primaryArtifact.filename}</code></li>
 <li>Open your n8n instance (self-hosted or n8n.cloud)</li>
@@ -1502,64 +1546,112 @@ strong { color: #ff6d5a; }
 <li>Select the downloaded JSON file</li>
 </ol>
 
-<h3>2. Configuration</h3>
-<p>After importing, you may need to:</p>
+<h3>2. Configure Credentials</h3>
+<p>This workflow requires credentials for:</p>
 <ul>
-<li>Configure credentials for external services</li>
-<li>Update API endpoints and authentication</li>
-<li> Set up webhook URLs if using web triggers</li>
-<li> Configure schedule triggers for your timezone</li>
+<li><strong>Gmail</strong>: Configure Gmail credentials in n8n credentials panel</li>
+<li><strong>OpenAI</strong>: Configure OpenAI API key for AI response generation</li>
+<li><strong>Other Integrations</strong>: Configure any additional service credentials as needed</li>
 </ul>
 
-<h2>Workflow Structure</h2>
-
-<h3>Trigger Nodes</h3>
-<ul>
-<li><strong>Schedule Trigger</strong>: Runs on specified intervals</li>
-<li><strong>Webhook Trigger</strong>: Triggered by HTTP requests</li>
-<li><strong>Manual Trigger</strong>: Start workflow manually</li>
-</ul>
-
-<h3>Processing Nodes</h3>
-<ul>
-<li><strong>Set Node</strong>: Sets variables and data transformations</li>
-<li><strong>Code Node</strong>: Custom JavaScript processing</li>
-<li><strong>HTTP Request</strong>: External API calls</li>
-<li><strong>Database Operations</strong>: Read/write to databases</li>
-</ul>
-
-<h2>Customization</h2>
-
-<h3>Adding New Nodes</h3>
+<h3>3. Activate the Workflow</h3>
 <ol>
-<li>Click the "+" button between nodes</li>
-<li>Select the node type from the node library</li>
-<li>Configure node parameters</li>
-<li>Connect to previous and next nodes</li>
+<li>Review the workflow nodes and ensure all credentials are configured</li>
+<li>Test the workflow by clicking "Execute Workflow"</li>
+<li>Once satisfied, toggle the "Active" switch to enable the workflow</li>
 </ol>
 
-<h3>Modifying Connections</h3>
-<p>Drag connections between nodes to change data flow. You can add multiple output connections for branching logic.</p>
+<h2>Node-by-Node Explanation</h2>
+${nodeDescriptions.map(desc => `<p>${desc}</p>`).join('\n')}
 
-<h3>Updating Triggers</h3>
-<p>Modify trigger node settings to change when the workflow runs. For schedule triggers, use cron expressions for precise timing.</p>
+<h2>Testing the Workflow</h2>
+<ol>
+<li>Start with the workflow in inactive state</li>
+<li>Click "Execute Workflow" to trigger it manually</li>
+<li>Check the execution results in the node outputs</li>
+<li>Verify that data flows correctly through each node</li>
+<li>Test with real data by activating the workflow</li>
+</ol>
 
-<h2>Important Notes</h2>
-<div class="note">
+<h2>Expected Behavior</h2>
+<p>When active, this workflow will:</p>
 <ul>
-<li>Ensure all required credentials are configured before activating</li>
-<li>Test workflow in manual mode before scheduling</li>
-<li>Monitor execution logs for errors and performance issues</li>
-<li>Use appropriate execution order for complex workflows</li>
+<li>Trigger automatically based on the configured trigger (${build.final_specification?.trigger})</li>
+<li>Process incoming data according to the specified functionality</li>
+<li>Generate appropriate responses or actions</li>
+<li>Log results for audit and tracking</li>
 </ul>
+
+<h2>Common Issues and Solutions</h2>
+<ul>
+<li><strong>Credential errors</strong>: Ensure all service credentials are properly configured in n8n</li>
+<li><strong>Node failures</strong>: Check node logs for specific error messages</li>
+<li><strong>Data flow issues</strong>: Verify that node outputs match the next node's input expectations</li>
+</ul>
+
+<h2>Customization Tips</h2>
+<ul>
+<li>Add error handling nodes to catch and handle failures gracefully</li>
+<li>Add notification nodes (Slack, email) for workflow status updates</li>
+<li>Modify AI prompts in the OpenAI node to match your specific use case</li>
+<li>Add branching logic with IF/Switch nodes for more complex routing</li>
+</ul>
+
+<div class="note">
+<strong>Note:</strong> This workflow was generated by ALEX based on your requirements. You may need to adjust node parameters, credentials, and logic to match your specific environment and business rules.
 </div>
 
-<h2>Next Steps</h2>
+<div class="footer">
+Generated by ALEX - AutoLearn Express<br>
+Workflow: ${botName}<br>
+Generated: ${new Date().toISOString()}
+</div>
+
+</body>
+</html>`
+        
+        guideFilename = primaryArtifact.filename.replace('.json', '-guide.doc')
+      } else {
+        // For other platforms, generate a generic guide
+        guideContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="Generator" content="ALEX - AutoLearn Express">
+<style>
+body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+h1 { color: #2c3e50; border-bottom: 3px solid #ff6d5a; padding-bottom: 10px; }
+h2 { color: #34495e; margin-top: 30px; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; }
+.note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
+</style>
+</head>
+<body>
+
+<h1>${botName} - Configuration Guide</h1>
+
+<h2>Overview</h2>
+<p>This configuration file is for <strong>${platform}</strong>.</p>
+
+<h2>Setup Instructions</h2>
 <ol>
-<li>Import the workflow into your n8n instance</li>
-<li>Configure required credentials and parameters</li>
-<li>Test the workflow with sample data</li>
-<li> Activate and monitor execution</li>
+<li>Download the configuration file: <code>${primaryArtifact.filename}</code></li>
+<li>Import or load the configuration into your ${platform} system</li>
+<li>Update any placeholder values with your actual credentials or settings</li>
+<li>Test the configuration before deploying to production</li>
+</ol>
+
+<h2>Configuration Details</h2>
+<p>This configuration was generated based on your request: "${build.original_request}"</p>
+
+<div class="note">
+<strong>Note:</strong> Review all configuration values and update them according to your environment and security requirements.
+</div>
+
+</body>
+</html>`
+        
+        guideFilename = primaryArtifact.filename.replace('.json', '-guide.doc')
+      }
 <li> Set up error handling and notifications</li>
 </ol>
 
