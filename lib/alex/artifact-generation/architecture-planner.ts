@@ -585,13 +585,13 @@ return [{ json: { ...$input.item.json, logged: true, logEntry } }];`
         jsCode: `// Assemble customer question + retrieved knowledge
 const customerQuestion = $input.item.json.query;
 const knowledgeResults = $input.item.json.matches || [];
-const knowledgeText = knowledgeResults.map(m => m.metadata?.text || m.text).join('\n\n');
+const knowledgeText = knowledgeResults.map(m => m.metadata?.text || m.text).join('\\n\\n');
 
 return [{
   json: {
     customerQuestion,
     knowledgeText,
-    context: `Customer Question: ${customerQuestion}\n\nRelevant Knowledge:\n${knowledgeText}`
+    context: 'Customer Question: ' + customerQuestion + '\\n\\nRelevant Knowledge:\\n' + knowledgeText
   }
 }];`
       },
