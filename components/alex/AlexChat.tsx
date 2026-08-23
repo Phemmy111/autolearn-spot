@@ -299,16 +299,27 @@ export function AlexChat({ userId }: AlexChatProps) {
                   } else if (parsed.type === 'artifact_workflow') {
                     // Phase 7: Handle artifact workflow response
                     console.log('[AlexChat] Artifact workflow response:', parsed.data)
-                    
-                    const artifactMessage = {
-                      id: crypto.randomUUID(),
-                      conversation_id: conversationToUse.id,
-                      role: 'assistant',
-                      content: JSON.stringify(parsed.data),
-                      created_at: new Date().toISOString(),
-                    }
-                    
-                    setMessages(prev => [...prev, artifactMessage])
+
+                    // Merge the workflow data into the last assistant message
+                    setMessages(prev => {
+                      const lastMessage = prev[prev.length - 1]
+                      if (lastMessage && lastMessage.role === 'assistant') {
+                        // Create a merged message with workflow data
+                        const mergedMessage = {
+                          ...lastMessage,
+                          // Store workflow data as a structured object
+                          workflowData: {
+                            ...(lastMessage as any).workflowData,
+                            ...parsed.data
+                          }
+                        }
+                        return [
+                          ...prev.slice(0, -1),
+                          mergedMessage
+                        ]
+                      }
+                      return prev
+                    })
                   } else if (parsed.type === 'error') {
                     console.error('Stream error:', parsed.error)
                     // Handle error in UI

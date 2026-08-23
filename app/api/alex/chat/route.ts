@@ -486,6 +486,15 @@ export async function POST(request: NextRequest) {
               // Convert artifact workflow to a regular message for frontend compatibility
               const artifactWorkflowMessage = chunk.data.message || JSON.stringify(chunk.data, null, 2)
               const artifacts = chunk.data.artifacts || []
+              const question = chunk.data.question || null
+              const architectureProposal = chunk.data.architectureProposal || null
+
+              console.log('[Chat Route] Artifact workflow data:', {
+                hasMessage: !!artifactWorkflowMessage,
+                hasQuestion: !!question,
+                hasArchitecture: !!architectureProposal,
+                hasArtifacts: artifacts.length > 0
+              })
               
               // Create a response with artifacts information
               const responseWithArtifacts = {
@@ -502,18 +511,37 @@ export async function POST(request: NextRequest) {
               // Send the message as a complete stream response with artifacts
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`))
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: artifactWorkflowMessage })}\n\n`))
+              
+              // Send question data if present
+              if (question) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifact_workflow', data: { question } })}\n\n`))
+              }
+              
+              // Send architecture proposal if present
+              if (architectureProposal) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifact_workflow', data: { architectureProposal } })}\n\n`))
+              }
+              
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifacts', data: responseWithArtifacts.artifacts })}\n\n`))
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
               controller.enqueue(encoder.encode('data: [DONE]\n\n'))
               controller.close()
               
               // Save the artifact workflow response as the assistant message
+              // Include question/architecture data in the message content for persistence
+              const messageContent = JSON.stringify({
+                message: artifactWorkflowMessage,
+                question,
+                architectureProposal,
+                artifacts: responseWithArtifacts.artifacts
+              })
+
               const { data: artifactAssistantMessage, error: artifactAssistantMsgError } = await supabase
                 .from('alex_messages')
                 .insert({
                   conversation_id: conversationId,
                   role: 'assistant',
-                  content: artifactWorkflowMessage,
+                  content: messageContent,
                   model_used: 'artifact_workflow',
                   tokens: 0
                 })
