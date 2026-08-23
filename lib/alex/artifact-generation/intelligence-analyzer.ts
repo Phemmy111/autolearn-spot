@@ -88,11 +88,16 @@ export class IntelligenceAnalyzer {
       canProceed: false
     }
     
+    console.log('[Intelligence Analyzer] Detected artifact type:', result.artifactType)
+    console.log('[Intelligence Analyzer] Detected intent:', result.intent)
+    
     // Check for reference file indicators
     const hasReferenceFile = this.detectReferenceFileRequest(content)
+    console.log('[Intelligence Analyzer] Has reference file request:', hasReferenceFile)
     
     // Inspect attachments if present
     if (attachedFiles && attachedFiles.length > 0) {
+      console.log('[Intelligence Analyzer] Inspecting attachments...')
       const referenceAnalysis = await this.analyzeAttachments(attachedFiles, content)
       if (referenceAnalysis) {
         result.referenceFile = referenceAnalysis
@@ -104,6 +109,7 @@ export class IntelligenceAnalyzer {
             p.toLowerCase().includes('trigger') || p.toLowerCase().includes('webhook') || p.toLowerCase().includes('email')
           )
         }
+        console.log('[Intelligence Analyzer] Reference file analyzed:', referenceAnalysis.type)
       }
     }
     
@@ -116,23 +122,29 @@ export class IntelligenceAnalyzer {
     
     // Extract direct specifications from content
     const directSpecs = this.extractDirectSpecs(content)
+    console.log('[Intelligence Analyzer] Direct specs extracted:', Object.keys(directSpecs))
     Object.assign(result.known, directSpecs)
     
     // Make intelligent inferences
     this.makeInferences(result, content)
+    console.log('[Intelligence Analyzer] Inferences made:', Object.keys(result.inferred))
     
     // Determine what blocks implementation
     this.identifyBlockers(result, content)
+    console.log('[Intelligence Analyzer] Blockers identified:', result.blockers.length, result.blockers)
     
     // Make recommendations for missing but inferable info
     this.makeRecommendations(result)
+    console.log('[Intelligence Analyzer] Recommendations made:', Object.keys(result.recommendations))
     
     // Determine if we can proceed
     result.canProceed = result.blockers.length === 0
+    console.log('[Intelligence Analyzer] Can proceed:', result.canProceed)
     
     // If we need to ask, identify the primary question
     if (!result.canProceed && result.blockers.length > 0) {
       result.primaryQuestion = this.formulatePrimaryQuestion(result, content)
+      console.log('[Intelligence Analyzer] Primary question:', result.primaryQuestion)
     }
     
     console.log('[Intelligence Analyzer] Analysis complete:', {
@@ -172,10 +184,15 @@ export class IntelligenceAnalyzer {
   private static detectArtifactType(content: string): string {
     const lower = content.toLowerCase()
     
-    if (lower.includes('workflow') || lower.includes('n8n') || lower.includes('automation')) return 'workflow'
+    // Check for automation/workflow indicators first (higher priority)
+    if (lower.includes('workflow') || lower.includes('n8n') || lower.includes('automation') || 
+        lower.includes('auto responder') || lower.includes('auto-responder') || lower.includes('auto email')) {
+      return 'workflow'
+    }
+    
     if (lower.includes('chatbot') || lower.includes('bot')) return 'chatbot'
-    if (lower.includes('configuration') || lower.includes('config') || lower.includes('json')) return 'configuration'
     if (lower.includes('agent') || lower.includes('assistant')) return 'agent'
+    if (lower.includes('configuration') || lower.includes('config') || lower.includes('json')) return 'configuration'
     
     return 'workflow' // Default for automation context
   }
@@ -378,9 +395,19 @@ export class IntelligenceAnalyzer {
   private static identifyBlockers(result: AnalysisResult, content: string): void {
     const lower = content.toLowerCase()
     
-    // For email auto-responder, the key blocker is: reply to all or filtered?
-    if (lower.includes('auto responder') || lower.includes('auto-responder')) {
-      if (!lower.includes('every') && !lower.includes('all') && !lower.includes('filter')) {
+    // For email auto-responder, the key blockers are: email provider and reply scope
+    if (lower.includes('auto responder') || lower.includes('auto-responder') || 
+        lower.includes('auto email') || (lower.includes('email') && lower.includes('responder'))) {
+      
+      // Email provider blocker
+      if (!lower.includes('gmail') && !lower.includes('outlook') && !lower.includes('exchange') && 
+          !lower.includes('smtp') && !lower.includes('imap')) {
+        result.blockers.push('Email provider - Gmail, Outlook, or another IMAP/SMTP provider?')
+      }
+      
+      // Reply scope blocker
+      if (!lower.includes('every') && !lower.includes('all') && !lower.includes('filter') && 
+          !lower.includes('support') && !lower.includes('customer')) {
         result.blockers.push('Reply scope - should it reply to every email or only support/customer inquiries?')
       }
     }
@@ -422,10 +449,26 @@ export class IntelligenceAnalyzer {
   private static formulatePrimaryQuestion(result: AnalysisResult, content: string): string {
     if (result.blockers.length === 0) return ''
     
-    // Return the first (most important) blocker as a question
+    // If we have multiple blockers, combine them intelligently
+    if (result.blockers.length > 1) {
+      const hasEmailProvider = result.blockers.some(b => b.includes('Email provider'))
+      const hasReplyScope = result.blockers.some(b => b.includes('Reply scope'))
+      
+      if (hasEmailProvider && hasReplyScope) {
+        return 'I need to know two things: (1) Which email provider - Gmail, Outlook, or another IMAP/SMTP provider? (2) Should it reply to every email or only support/customer inquiries?'
+      }
+      
+      // Generic combination for other cases
+      return `I need to confirm: ${result.blockers.join(', and ')}`
+    }
+    
+    // Single blocker - convert to question
     const blocker = result.blockers[0]
     
-    // Convert blocker statement to question
+    if (blocker.includes('Email provider')) {
+      return 'Which email provider should I use - Gmail, Outlook, or another IMAP/SMTP provider?'
+    }
+    
     if (blocker.includes('Reply scope')) {
       return 'Should the auto-responder reply to every incoming email, or only messages matching support/help/customer-service criteria?'
     }

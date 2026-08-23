@@ -167,21 +167,26 @@ export class ArtifactWorkflowManager {
   private static buildIntelligentResponse(analysis: AnalysisResult, userContent: string): string {
     const parts: string[] = []
     
-    // If we have a reference file, acknowledge it
-    if (analysis.referenceFile) {
-      parts.push(`I can see the reference workflow. It uses this architecture: ${analysis.referenceFile.architecture}.`)
-      parts.push(`I'll preserve that pattern and adapt it to your requirement.`)
-    }
-    
-    // Show what we're inferring/recommending
+    // Start with architectural understanding
     if (analysis.inferred.platform || analysis.recommendations.platform) {
       const platform = analysis.inferred.platform || analysis.recommendations.platform
       parts.push(`I'll build this as a ${platform} workflow.`)
     }
     
-    if (analysis.inferred.trigger || analysis.recommendations.trigger) {
-      const trigger = analysis.inferred.trigger || analysis.recommendations.trigger
-      parts.push(`Using ${trigger} as the trigger.`)
+    // Describe the inferred architecture
+    if (analysis.inferred.trigger) {
+      parts.push(`Using ${analysis.inferred.trigger} as the trigger.`)
+    }
+    
+    if (analysis.inferred.integrations || analysis.recommendations.integrations) {
+      const integrations = analysis.inferred.integrations || analysis.recommendations.integrations
+      parts.push(`Integrating with ${integrations}.`)
+    }
+    
+    // If we have a reference file, acknowledge it
+    if (analysis.referenceFile) {
+      parts.push(`I can see the reference workflow. It uses this architecture: ${analysis.referenceFile.architecture}.`)
+      parts.push(`I'll preserve that pattern and adapt it to your requirement.`)
     }
     
     // Show assumptions
@@ -189,7 +194,10 @@ export class ArtifactWorkflowManager {
       parts.push(`I'm making these reasonable assumptions: ${analysis.assumptions.join(', ')}.`)
     }
     
-    // Add the primary question
+    // Add that credentials will be configurable
+    parts.push(`I'll keep provider credentials configurable so you can connect your actual services later.`)
+    
+    // Add the primary question(s)
     if (analysis.primaryQuestion) {
       parts.push(`\nBefore I generate it, I need to know: ${analysis.primaryQuestion}`)
     }
