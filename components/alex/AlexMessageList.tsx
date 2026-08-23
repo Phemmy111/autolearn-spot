@@ -137,16 +137,19 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
         {/* Interactive Question UI */}
         {workflowData.question && (
-          <AlexInteractiveQuestion
-            question={workflowData.question}
-            onSelect={(value) => {
-              // Send the selected value as a user message
-              // This will be handled by the parent component
-              const event = new CustomEvent('alexQuestionAnswer', { detail: { field: workflowData.question.field, value } })
-              window.dispatchEvent(event)
-            }}
-            disabled={isLoading}
-          />
+          <>
+            {workflowData.message && <div className="mb-2" />}
+            <AlexInteractiveQuestion
+              question={workflowData.question}
+              onSelect={(value) => {
+                // Send the selected value as a user message
+                // This will be handled by the parent component
+                const event = new CustomEvent('alexQuestionAnswer', { detail: { field: workflowData.question.field, value } })
+                window.dispatchEvent(event)
+              }}
+              disabled={isLoading}
+            />
+          </>
         )}
 
         {/* Architecture Approval UI */}

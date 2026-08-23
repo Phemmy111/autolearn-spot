@@ -154,24 +154,36 @@ export class WorkflowManagerV2 {
     const existingSpec = build.final_specification || {}
     const specState = createSpecState(existingSpec)
     
+    console.log('[DEBUG WORKFLOW MANAGER V2] Current spec state before analysis:', {
+      known: Array.from(specState.known),
+      blockers: Array.from(specState.blockers),
+      questionContext: specState.questionContext
+    })
+    
     // If we have a pending question context, restore it
     if (build.questions && build.questions.length > 0) {
       const lastQuestion = build.questions[build.questions.length - 1]
       specState.questionContext = lastQuestion.context || undefined
       specState.currentQuestion = lastQuestion.question
-      console.log('[Workflow Manager V2] Restored question context:', specState.questionContext)
+      console.log('[DEBUG WORKFLOW MANAGER V2] Restored question context:', {
+        context: specState.questionContext,
+        question: specState.currentQuestion
+      })
     }
     
     // Analyze the continuation
+    console.log('[DEBUG WORKFLOW MANAGER V2] Calling IntelligenceAnalyzerV2.analyze for continuation')
     const analysis = await IntelligenceAnalyzerV2.analyze({
       content: request.content,
       conversationHistory: request.conversationHistory,
       existingSpecState: specState
     })
     
-    console.log('[Workflow Manager V2] Continuation analysis:', {
+    console.log('[DEBUG WORKFLOW MANAGER V2] Continuation analysis:', {
       situation: analysis.situation,
-      nextAction: analysis.nextAction
+      nextAction: analysis.nextAction,
+      knownAfter: Array.from(analysis.specState.known),
+      blockersAfter: Array.from(analysis.specState.blockers)
     })
     
     // Update the specification
@@ -216,13 +228,8 @@ export class WorkflowManagerV2 {
     specState.currentQuestion = analysis.question.text
     await ArtifactService.updateSpecification(build.id, specState.spec, [])
     
-    // Build a conversational message
-    let message = analysis.explanation || 'I need to clarify something before proceeding.'
-    
-    // Add the question text clearly
-    if (analysis.question.text) {
-      message += `\n\n**${analysis.question.text}**`
-    }
+    // Message is just the explanation - the question will be rendered by the component
+    const message = analysis.explanation || ''
     
     console.log('[DEBUG WORKFLOW MANAGER V2] Returning question response with message')
     

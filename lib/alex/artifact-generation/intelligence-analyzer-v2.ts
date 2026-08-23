@@ -540,11 +540,16 @@ export class IntelligenceAnalyzerV2 {
   private static mapAnswerToSpec(answer: string, context: string, specState: SpecState): void {
     const lower = answer.toLowerCase()
     
-    console.log('[Intelligence Analyzer V2] Mapping answer to context:', context, 'Answer:', answer)
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapping answer to context:', { context, answer, lower })
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known before mapping:', Array.from(specState.known))
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers before mapping:', Array.from(specState.blockers))
     
     // Handle "Recommend for me" option
     if (lower.includes('recommend')) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Using recommendation for context:', context)
       this.handleRecommendation(context, specState)
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after recommendation:', Array.from(specState.known))
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after recommendation:', Array.from(specState.blockers))
       return
     }
     
@@ -554,14 +559,20 @@ export class IntelligenceAnalyzerV2 {
           specState.spec.integrations = specState.spec.integrations || {}
           specState.spec.integrations.emailProvider = 'gmail'
           specState.known.add('integrations.emailProvider')
+          specState.blockers.delete('integrations.emailProvider')
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapped Gmail, known:', Array.from(specState.known))
         } else if (lower.includes('outlook') || lower.includes('exchange')) {
           specState.spec.integrations = specState.spec.integrations || {}
           specState.spec.integrations.emailProvider = 'outlook'
           specState.known.add('integrations.emailProvider')
+          specState.blockers.delete('integrations.emailProvider')
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapped Outlook, known:', Array.from(specState.known))
         } else if (lower.includes('smtp') || lower.includes('imap')) {
           specState.spec.integrations = specState.spec.integrations || {}
           specState.spec.integrations.emailProvider = 'imap/smtp'
           specState.known.add('integrations.emailProvider')
+          specState.blockers.delete('integrations.emailProvider')
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Mapped IMAP/SMTP, known:', Array.from(specState.known))
         }
         break
         
@@ -631,14 +642,17 @@ export class IntelligenceAnalyzerV2 {
           specState.spec.outputs = specState.spec.outputs || {}
           specState.spec.outputs.destinations = ['email']
           specState.known.add('outputs.destinations')
+          specState.blockers.delete('outputs.destinations')
         } else if (lower.includes('slack')) {
           specState.spec.outputs = specState.spec.outputs || {}
           specState.spec.outputs.destinations = ['slack']
           specState.known.add('outputs.destinations')
+          specState.blockers.delete('outputs.destinations')
         } else if (lower.includes('telegram') || lower.includes('whatsapp')) {
           specState.spec.outputs = specState.spec.outputs || {}
           specState.spec.outputs.destinations = [lower.includes('telegram') ? 'telegram' : 'whatsapp']
           specState.known.add('outputs.destinations')
+          specState.blockers.delete('outputs.destinations')
         }
         break
         
@@ -651,10 +665,14 @@ export class IntelligenceAnalyzerV2 {
    * Handle "Recommend for me" option
    */
   private static handleRecommendation(context: string, specState: SpecState): void {
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Handling recommendation for context:', context)
+    
     switch (context) {
       case 'integrations.emailProvider':
         specState.spec.integrations = specState.spec.integrations || {}
         specState.spec.integrations.emailProvider = 'gmail'
+        specState.known.add('integrations.emailProvider')
+        specState.blockers.delete('integrations.emailProvider')
         specState.recommended.add('integrations.emailProvider')
         specState.spec.assumptions = specState.spec.assumptions || []
         specState.spec.assumptions.push('I recommend Gmail as it has excellent IMAP support and is widely used')
@@ -665,6 +683,9 @@ export class IntelligenceAnalyzerV2 {
         specState.spec.integrations = specState.spec.integrations || {}
         specState.spec.integrations.aiProvider = 'openai'
         specState.spec.integrations.aiModel = 'gpt-4'
+        specState.known.add('integrations.aiModel')
+        specState.blockers.delete('integrations.aiModel')
+        specState.blockers.delete('integrations.aiProvider')
         specState.recommended.add('integrations.aiModel')
         specState.spec.assumptions = specState.spec.assumptions || []
         specState.spec.assumptions.push('I recommend GPT-4 for its strong reasoning and wide compatibility')
@@ -673,6 +694,8 @@ export class IntelligenceAnalyzerV2 {
       case 'integrations.knowledgeBase':
         specState.spec.integrations = specState.spec.integrations || {}
         specState.spec.integrations.knowledgeBase = 'notion'
+        specState.known.add('integrations.knowledgeBase')
+        specState.blockers.delete('integrations.knowledgeBase')
         specState.recommended.add('integrations.knowledgeBase')
         specState.spec.assumptions = specState.spec.assumptions || []
         specState.spec.assumptions.push('I recommend Notion as it\'s easy to set up and integrates well with many tools')
@@ -682,6 +705,8 @@ export class IntelligenceAnalyzerV2 {
         specState.spec.businessRules = specState.spec.businessRules || {}
         specState.spec.businessRules.routing = specState.spec.businessRules.routing || []
         specState.spec.businessRules.routing.push('reply to all emails')
+        specState.known.add('businessRules.routing')
+        specState.blockers.delete('businessRules.routing')
         specState.recommended.add('businessRules.routing')
         specState.spec.assumptions = specState.spec.assumptions || []
         specState.spec.assumptions.push('I recommend replying to all emails for maximum automation')
@@ -690,14 +715,27 @@ export class IntelligenceAnalyzerV2 {
       case 'outputs.destinations':
         specState.spec.outputs = specState.spec.outputs || {}
         specState.spec.outputs.destinations = ['email']
+        specState.known.add('outputs.destinations')
+        specState.blockers.delete('outputs.destinations')
         specState.recommended.add('outputs.destinations')
         specState.spec.assumptions = specState.spec.assumptions || []
         specState.spec.assumptions.push('I recommend email as it\'s universal and reliable')
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Recommended email destinations, known:', Array.from(specState.known))
         break
+
+      default:
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Unknown recommendation context:', context)
+    }
+    
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] After recommendation - known:', Array.from(specState.known), 'blockers:', Array.from(specState.blockers))
+  }
         
       default:
-        console.log('[Intelligence Analyzer V2] Unknown recommendation context:', context)
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Unknown recommendation context:', context)
     }
+    
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final known after mapping:', Array.from(specState.known))
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final blockers after mapping:', Array.from(specState.blockers))
   }
   
   /**
@@ -810,35 +848,21 @@ export class IntelligenceAnalyzerV2 {
   private static buildExplanation(specState: SpecState): string {
     const parts: string[] = []
     
-    // Start with conversational opening
-    parts.push("I can help you build this automation.")
-    
-    // Explain platform choice conversationally
-    if (specState.spec.platform && specState.spec.platformReasoning) {
-      parts.push(`\n\nI recommend **${specState.spec.platform}** because ${specState.spec.platformReasoning.toLowerCase()}.`)
+    // Only show platform explanation on first question, not on every continuation
+    if (specState.known.size === 0 && specState.spec.platform && specState.spec.platformReasoning) {
+      parts.push(`I recommend **${specState.spec.platform}** because ${specState.spec.platformReasoning.toLowerCase()}.`)
     }
     
-    // Explain what we understand conversationally
-    if (specState.spec.description || specState.spec.automationType) {
-      parts.push(`\n\nI understand you want to build a **${specState.spec.description || specState.spec.automationType}**.`)
+    // Only show what we understand on first question
+    if (specState.known.size === 0 && (specState.spec.description || specState.spec.automationType)) {
+      parts.push(`I understand you want to build a **${specState.spec.description || specState.spec.automationType}**.`)
     }
     
-    // Explain what we need to know
-    if (specState.blockers.size > 0) {
-      const blockerList = Array.from(specState.blockers).join(', ')
-      parts.push(`\n\nBefore I finalize the architecture, I need to know: ${blockerList}.`)
+    // For continuations, keep it minimal - just the question context
+    if (specState.known.size > 0) {
+      parts.push(`Thanks for the information.`)
     }
     
-    // Explain assumptions conversationally
-    if (specState.spec.assumptions && specState.spec.assumptions.length > 0) {
-      parts.push(`\n\nI'm assuming: ${specState.spec.assumptions.join(', ')}.`)
-    }
-    
-    // Explain recommendations conversationally
-    if (specState.spec.recommendations && specState.spec.recommendations.length > 0) {
-      parts.push(`\n\nI recommend: ${specState.spec.recommendations.join(', ')}.`)
-    }
-    
-    return parts.join('')
+    return parts.join(' ')
   }
 }
