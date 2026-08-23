@@ -61,7 +61,14 @@ export class IntelligenceAnalyzerV2 {
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Has attached files:', !!attachedFiles, attachedFiles?.length || 0)
     
     // Start with existing state or create new
-    const specState = existingSpecState || createSpecState()
+    let specState: SpecState
+    if (existingSpecState) {
+      // Use existing state with its current Sets
+      specState = existingSpecState
+    } else {
+      // Create new state
+      specState = createSpecState()
+    }
     
     console.log('[Intelligence Analyzer V2] Current spec:', JSON.stringify(specState.spec, null, 2))
     

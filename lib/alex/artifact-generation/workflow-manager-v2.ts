@@ -96,8 +96,13 @@ export class WorkflowManagerV2 {
       buildType
     )
     
-    // Store the spec state in the build (we'll use final_specification for now)
-    await ArtifactService.updateSpecification(build.id, analysis.specState.spec, [])
+    // Store the spec state in the build with known/blockers tracking
+    const specWithState = {
+      ...analysis.specState.spec,
+      _knownFields: Array.from(analysis.specState.known),
+      _blockerFields: Array.from(analysis.specState.blockers)
+    }
+    await ArtifactService.updateSpecification(build.id, specWithState, [])
     
     // Handle the analysis result
     console.log('[DEBUG WORKFLOW MANAGER V2] Switching on nextAction (new request):', analysis.nextAction)
@@ -136,9 +141,13 @@ export class WorkflowManagerV2 {
         (lowerContent.includes('yes') || lowerContent.includes('go ahead') || lowerContent.includes('proceed'))) {
       console.log('[Workflow Manager V2] User approved architecture, proceeding to generation')
       
-      // Load existing spec
+      // Load existing spec with known/blockers restoration
       const existingSpec = build.final_specification || {}
-      const specState = createSpecState(existingSpec)
+      const specState = createSpecState(
+        existingSpec,
+        (existingSpec as any)._knownFields,
+        (existingSpec as any)._blockerFields
+      )
       
       // Move to generation
       const analysis: AnalysisResultV2 = {
@@ -150,9 +159,13 @@ export class WorkflowManagerV2 {
       return this.handleGenerateArtifact(build, analysis)
     }
     
-    // Load existing spec state
+    // Load existing spec state with known/blockers restoration
     const existingSpec = build.final_specification || {}
-    const specState = createSpecState(existingSpec)
+    const specState = createSpecState(
+      existingSpec,
+      (existingSpec as any)._knownFields,
+      (existingSpec as any)._blockerFields
+    )
     
     console.log('[DEBUG WORKFLOW MANAGER V2] Current spec state before analysis:', {
       known: Array.from(specState.known),
@@ -186,8 +199,13 @@ export class WorkflowManagerV2 {
       blockersAfter: Array.from(analysis.specState.blockers)
     })
     
-    // Update the specification
-    await ArtifactService.updateSpecification(build.id, analysis.specState.spec, [])
+    // Update the specification with current known/blockers state
+    const specWithState = {
+      ...analysis.specState.spec,
+      _knownFields: Array.from(analysis.specState.known),
+      _blockerFields: Array.from(analysis.specState.blockers)
+    }
+    await ArtifactService.updateSpecification(build.id, specWithState, [])
     
     // Handle the analysis result
     switch (analysis.nextAction) {
@@ -226,7 +244,12 @@ export class WorkflowManagerV2 {
     const specState = analysis.specState
     specState.questionContext = analysis.question.context
     specState.currentQuestion = analysis.question.text
-    await ArtifactService.updateSpecification(build.id, specState.spec, [])
+    const specWithState = {
+      ...specState.spec,
+      _knownFields: Array.from(specState.known),
+      _blockerFields: Array.from(specState.blockers)
+    }
+    await ArtifactService.updateSpecification(build.id, specWithState, [])
     
     // Message is just the explanation - the question will be rendered by the component
     const message = analysis.explanation || ''
@@ -273,8 +296,13 @@ export class WorkflowManagerV2 {
     // Generate build summary
     const buildSummary = this.generateBuildSummary(analysis.specState.spec, logicalArchitecture, proposal)
     
-    // Store the architecture in the build for later use
-    await ArtifactService.updateSpecification(build.id, analysis.specState.spec, [])
+    // Store the architecture in the build for later use with state preservation
+    const specWithState = {
+      ...analysis.specState.spec,
+      _knownFields: Array.from(analysis.specState.known),
+      _blockerFields: Array.from(analysis.specState.blockers)
+    }
+    await ArtifactService.updateSpecification(build.id, specWithState, [])
     await ArtifactService.updateBuildStatus(build.id, 'awaiting_architecture_verification')
     
     return {

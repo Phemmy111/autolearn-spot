@@ -135,6 +135,12 @@ export interface AutomationSpec {
   
   // Our recommendations
   recommendations?: string[]
+  
+  // Track known fields (for persistence)
+  _knownFields?: string[]
+  
+  // Track blocker fields (for persistence)
+  _blockerFields?: string[]
 }
 
 /**
@@ -175,13 +181,13 @@ export function createEmptySpec(): AutomationSpec {
 /**
  * Create a new spec state
  */
-export function createSpecState(spec?: AutomationSpec): SpecState {
+export function createSpecState(spec?: AutomationSpec, known?: string[], blockers?: string[]): SpecState {
   return {
     spec: spec || createEmptySpec(),
-    known: new Set(),
+    known: new Set(known || []),
     inferred: new Set(),
     recommended: new Set(),
-    blockers: new Set(),
+    blockers: new Set(blockers || []),
     assumptions: new Set()
   }
 }
