@@ -134,8 +134,9 @@ export class WorkflowManagerV2 {
     // If we have a pending question context, restore it
     if (build.questions && build.questions.length > 0) {
       const lastQuestion = build.questions[build.questions.length - 1]
-      specState.questionContext = lastQuestion.context || 'unknown'
+      specState.questionContext = lastQuestion.context || undefined
       specState.currentQuestion = lastQuestion.question
+      console.log('[Workflow Manager V2] Restored question context:', specState.questionContext)
     }
     
     // Analyze the continuation
@@ -183,7 +184,7 @@ export class WorkflowManagerV2 {
     }
     
     // Store the question context in the build
-    await ArtifactService.addQuestion(build.id, analysis.question.text, analysis.question.context)
+    await ArtifactService.addQuestion(build.id, analysis.question.text, 'missing_requirement', analysis.question.context)
     await ArtifactService.updateBuildStatus(build.id, 'collecting_requirements')
     
     // Update spec state with question context
@@ -1008,7 +1009,7 @@ export class WorkflowManagerV2 {
         type: 'n8n-nodes-base.slack',
         typeVersion: 1,
         parameters: {
-          channel: '#support-escalation',
+          channel: '={{ $escalationChannel || "#support-escalation" }}',
           text: '={{ $json.body }}'
         }
       },

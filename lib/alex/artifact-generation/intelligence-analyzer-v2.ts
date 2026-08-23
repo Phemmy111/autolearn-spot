@@ -160,8 +160,15 @@ export class IntelligenceAnalyzerV2 {
     
     const lower = content.toLowerCase()
     
-    // Map the answer to the correct specification field based on question context
-    if (specState.questionContext) {
+    // Check if the answer includes field context (format: "field: value")
+    const fieldMatch = content.match(/^([^:]+):\s*(.+)$/i)
+    if (fieldMatch) {
+      const field = fieldMatch[1].trim()
+      const value = fieldMatch[2].trim()
+      console.log('[Intelligence Analyzer V2] Parsed field:value format:', { field, value })
+      this.mapAnswerToSpec(value, field, specState)
+    } else if (specState.questionContext) {
+      // Use database-restored question context
       this.mapAnswerToSpec(content, specState.questionContext, specState)
     } else {
       // No question context - try to infer what field this answers

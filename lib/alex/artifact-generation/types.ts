@@ -77,6 +77,7 @@ export interface ArtifactQuestion {
   build_id: string
   question: string
   question_type: QuestionType
+  context?: string  // Field context for answer mapping
   answer?: string
   answered_at?: string
   is_answered: boolean

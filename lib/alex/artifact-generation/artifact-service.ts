@@ -90,7 +90,8 @@ export class ArtifactService {
   static async addQuestion(
     buildId: string,
     question: string,
-    questionType: 'missing_requirement' | 'clarification' | 'verification'
+    questionType: 'missing_requirement' | 'clarification' | 'verification',
+    context?: string
   ): Promise<ArtifactQuestion> {
     const { data, error } = await getSupabaseClient()
       .from('alex_artifact_questions')
@@ -98,6 +99,7 @@ export class ArtifactService {
         build_id: buildId,
         question,
         question_type: questionType,
+        context,
         is_answered: false
       })
       .select()
@@ -108,7 +110,7 @@ export class ArtifactService {
       throw new Error(`Failed to add question: ${error.message}`)
     }
 
-    console.log('[Artifact Service] Question added:', data.id)
+    console.log('[Artifact Service] Question added:', data.id, 'with context:', context)
     return data
   }
 
