@@ -7,7 +7,7 @@
 
 import { ArtifactService } from './artifact-service'
 import { IntelligenceAnalyzerV2, AnalysisResult as AnalysisResultV2 } from './intelligence-analyzer-v2'
-import { ArchitectureDesigner, LogicalArchitecture } from './architecture-designer'
+import { ArchitectureDesigner, LogicalArchitecture, LogicalStage } from './architecture-designer'
 import { ArchitecturePlanner, WorkflowArchitecture } from './architecture-planner'
 import { AutomationSpec, SpecState, createSpecState } from './automation-spec'
 import { ArtifactBuild, BuildStatus, BuildType } from './types'
@@ -336,21 +336,13 @@ export class WorkflowManagerV2 {
     let filename: string
     
     if (platform === 'n8n') {
-      // Use existing ArchitecturePlanner for n8n translation
-      const platformArchitecture = ArchitecturePlanner.design({
-        originalRequest: build.original_request,
-        platform: platform,
-        trigger: spec.trigger?.type || 'manual',
-        functionality: spec.description || 'automation',
-        integrations: spec.integrations?.emailProvider || 'none',
-        filename: spec.filename || 'workflow.json',
-        replyScope: spec.businessRules?.routing?.join(', ')
-      })
+      // Translate logical architecture to n8n-specific implementation
+      const n8nImplementation = this.translateLogicalToN8n(logicalArchitecture, spec, build.original_request)
       
       artifactContent = {
-        name: platformArchitecture.name,
-        nodes: platformArchitecture.nodes,
-        connections: this.buildConnectionsFromDesign(platformArchitecture.connections, platformArchitecture.nodes),
+        name: n8nImplementation.name,
+        nodes: n8nImplementation.nodes,
+        connections: n8nImplementation.connections,
         active: true,
         settings: {
           executionOrder: 'v1',
@@ -685,7 +677,7 @@ export class WorkflowManagerV2 {
    * Repair n8n workflow with common issues
    */
   private static repairN8nWorkflow(workflow: any, errors: string[]): any {
-    console.log('[Workflow Manager V2] Attempting to repair workflow')
+    console.log('[Workflow Manager V2] Attempting to repair workflow:', errors)
     
     // Add missing settings
     if (!workflow.settings) {
@@ -701,6 +693,42 @@ export class WorkflowManagerV2 {
       workflow.nodes.forEach((node: any, index: number) => {
         if (!node.position) {
           node.position = [index * 200, 100]
+        }
+        
+        // Ensure parameters is an object
+        if (!node.parameters || typeof node.parameters !== 'object') {
+          node.parameters = {}
+        }
+        
+        // Fix "f[m] is not iterable" - ensure array fields are arrays
+        if (node.parameters.conditions) {
+          if (node.parameters.conditions.string && !Array.isArray(node.parameters.conditions.string)) {
+            node.parameters.conditions.string = [node.parameters.conditions.string]
+          }
+          if (node.parameters.conditions.boolean && !Array.isArray(node.parameters.conditions.boolean)) {
+            node.parameters.conditions.boolean = [node.parameters.conditions.boolean]
+          }
+          if (node.parameters.conditions.number && !Array.isArray(node.parameters.conditions.number)) {
+            node.parameters.conditions.number = [node.parameters.conditions.number]
+          }
+        }
+        
+        // Fix bodyParameters - ensure parameters array exists
+        if (node.parameters.bodyParameters && !node.parameters.bodyParameters.parameters) {
+          node.parameters.bodyParameters.parameters = []
+        }
+      })
+    }
+    
+    // Fix connections - ensure all connection arrays exist
+    if (workflow.connections) {
+      Object.keys(workflow.connections).forEach(sourceId => {
+        const sourceConnections = workflow.connections[sourceId]
+        if (!sourceConnections.main) {
+          sourceConnections.main = []
+        }
+        if (!Array.isArray(sourceConnections.main)) {
+          sourceConnections.main = []
         }
       })
     }
@@ -803,6 +831,289 @@ export class WorkflowManagerV2 {
       const v = c === 'x' ? r : (r & 0x3 | 0x8)
       return v.toString(16)
     })
+  }
+  
+  /**
+   * Translate logical architecture to n8n-specific implementation
+   */
+  private static translateLogicalToN8n(
+    logicalArchitecture: LogicalArchitecture,
+    spec: AutomationSpec,
+    originalRequest: string
+  ): { name: string; nodes: any[]; connections: any } {
+    console.log('[Workflow Manager V2] Translating logical architecture to n8n')
+    
+    const nodes: any[] = []
+    const connections: any = {}
+    let nodeIndex = 0
+    const nodeMap = new Map<string, string>() // stage ID -> node ID
+    
+    // Build n8n nodes from logical stages
+    logicalArchitecture.stages.forEach((stage, index) => {
+      const nodeId = this.generateUUID()
+      nodeMap.set(stage.id, nodeId)
+      
+      const node = this.createN8nNodeFromStage(stage, nodeId, nodeIndex, spec)
+      nodes.push(node)
+      nodeIndex++
+    })
+    
+    // Build connections based on stage dependencies
+    // Connect FROM dependencies TO the stage
+    logicalArchitecture.stages.forEach(stage => {
+      stage.dependencies.forEach(depId => {
+        const sourceNodeId = nodeMap.get(depId)
+        const targetNodeId = nodeMap.get(stage.id)
+        
+        if (sourceNodeId && targetNodeId) {
+          if (!connections[sourceNodeId]) {
+            connections[sourceNodeId] = { main: [] }
+          }
+          connections[sourceNodeId].main.push({
+            node: targetNodeId,
+            type: 'main',
+            index: 0
+          })
+        }
+      })
+    })
+    
+    return {
+      name: logicalArchitecture.name,
+      nodes,
+      connections
+    }
+  }
+  
+  /**
+   * Create n8n node from logical stage
+   */
+  private static createN8nNodeFromStage(
+    stage: LogicalStage,
+    nodeId: string,
+    index: number,
+    spec: AutomationSpec
+  ): any {
+    const position: [number, number] = [index * 200, 100]
+    
+    // Map logical stages to n8n node types
+    const nodeTypeMap: Record<string, { type: string; typeVersion: number; parameters: any }> = {
+      'trigger': {
+        type: this.getN8nTriggerType(spec.trigger?.type || 'manual'),
+        typeVersion: 1,
+        parameters: this.getN8nTriggerParameters(spec)
+      },
+      'normalize': {
+        type: 'n8n-nodes-base.function',
+        typeVersion: 1,
+        parameters: {
+          functionCode: `// Normalize email data\nreturn {\n  sender: $json.from,\n  subject: $json.subject,\n  body: $json.text || $json.html,\n  threadId: $json.threadId || $json.id,\n  hasAttachments: $json.attachments && $json.attachments.length > 0\n}`
+        }
+      },
+      'deduplicate': {
+        type: 'n8n-nodes-base.if',
+        typeVersion: 1,
+        parameters: {
+          conditions: {
+            string: [
+              {
+                value1: '={{ $json.threadId }}',
+                operation: 'isEmpty'
+              }
+            ]
+          }
+        }
+      },
+      'classify': {
+        type: 'n8n-nodes-base.httpRequest',
+        typeVersion: 1,
+        parameters: {
+          url: '={{ $credentials.openaiApi.url }}/v1/chat/completions',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          bodyParameters: {
+            parameters: [
+              {
+                name: 'model',
+                value: '={{ $json.model || "gpt-4" }}'
+              },
+              {
+                name: 'messages',
+                value: '={{ JSON.stringify([{role: "system", content: "Classify this email as: urgent, support, sales, or other"}, {role: "user", content: $json.body}]) }}'
+              }
+            ]
+          }
+        }
+      },
+      'assemble-context': {
+        type: 'n8n-nodes-base.merge',
+        typeVersion: 2,
+        parameters: {
+          mode: 'combine',
+          combineOperation: 'merge'
+        }
+      },
+      'ai-process': {
+        type: 'n8n-nodes-base.httpRequest',
+        typeVersion: 1,
+        parameters: {
+          url: '={{ $credentials.openaiApi.url }}/v1/chat/completions',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          bodyParameters: {
+            parameters: [
+              {
+                name: 'model',
+                value: '={{ $credentials.openaiApi.model || "gpt-4" }}'
+              },
+              {
+                name: 'messages',
+                value: '={{ JSON.stringify([{role: "system", content: "Generate a helpful response"}, {role: "user", content: $json.body}]) }}'
+              }
+            ]
+          }
+        }
+      },
+      'confidence-check': {
+        type: 'n8n-nodes-base.function',
+        typeVersion: 1,
+        parameters: {
+          functionCode: `// Check confidence\nconst confidence = $json.confidence || 0.5;\nreturn {\n  ...$json,\n  isConfident: confidence >= 0.7,\n  confidence\n}`
+        }
+      },
+      'branch': {
+        type: 'n8n-nodes-base.if',
+        typeVersion: 1,
+        parameters: {
+          conditions: {
+            boolean: [
+              {
+                value1: '={{ $json.isConfident }}',
+                value2: true
+              }
+            ]
+          }
+        }
+      },
+      'auto-reply': {
+        type: this.getN8nEmailNodeType(spec.integrations?.emailProvider || 'gmail'),
+        typeVersion: 1,
+        parameters: this.getN8nEmailParameters(spec.integrations?.emailProvider || 'gmail')
+      },
+      'escalate': {
+        type: 'n8n-nodes-base.slack',
+        typeVersion: 1,
+        parameters: {
+          channel: '#support-escalation',
+          text: '={{ $json.body }}'
+        }
+      },
+      'log': {
+        type: 'n8n-nodes-base.function',
+        typeVersion: 1,
+        parameters: {
+          functionCode: `// Log interaction\nconsole.log('Interaction logged:', $json);\nreturn $json;`
+        }
+      },
+      'error-handler': {
+        type: 'n8n-nodes-base.errorTrigger',
+        typeVersion: 1,
+        parameters: {}
+      }
+    }
+    
+    const nodeConfig = nodeTypeMap[stage.id] || {
+      type: 'n8n-nodes-base.function',
+      typeVersion: 1,
+      parameters: {
+        functionCode: `// ${stage.purpose}\nreturn $json;`
+      }
+    }
+    
+    return {
+      id: nodeId,
+      name: stage.name,
+      type: nodeConfig.type,
+      typeVersion: nodeConfig.typeVersion,
+      position,
+      parameters: nodeConfig.parameters
+    }
+  }
+  
+  /**
+   * Get n8n trigger type based on trigger specification
+   */
+  private static getN8nTriggerType(triggerType: string): string {
+    switch (triggerType) {
+      case 'email':
+        return 'n8n-nodes-base.gmailTrigger'
+      case 'webhook':
+        return 'n8n-nodes-base.webhook'
+      case 'schedule':
+        return 'n8n-nodes-base.scheduleTrigger'
+      default:
+        return 'n8n-nodes-base.manualTrigger'
+    }
+  }
+  
+  /**
+   * Get n8n trigger parameters
+   */
+  private static getN8nTriggerParameters(spec: AutomationSpec): any {
+    const triggerType = spec.trigger?.type || 'manual'
+    
+    switch (triggerType) {
+      case 'email':
+        return {
+          event: 'messageReceived',
+          filters: {
+            from: '={{ $json.from }}'
+          }
+        }
+      case 'webhook':
+        return {
+          httpMethod: 'POST',
+          path: 'webhook'
+        }
+      case 'schedule':
+        return {
+          rule: {
+            interval: [{ field: 'hours', hoursInterval: 1 }]
+          }
+        }
+      default:
+        return {}
+    }
+  }
+  
+  /**
+   * Get n8n email node type
+   */
+  private static getN8nEmailNodeType(emailProvider: string): string {
+    switch (emailProvider.toLowerCase()) {
+      case 'gmail':
+        return 'n8n-nodes-base.gmail'
+      case 'outlook':
+        return 'n8n-nodes-base.microsoftOutlook'
+      default:
+        return 'n8n-nodes-base.emailSend'
+    }
+  }
+  
+  /**
+   * Get n8n email parameters
+   */
+  private static getN8nEmailParameters(emailProvider: string): any {
+    return {
+      to: '={{ $json.sender }}',
+      subject: '={{ $json.subject }}',
+      body: '={{ $json.body }}',
+      attachments: '={{ $json.attachments }}'
+    }
   }
   
   /**

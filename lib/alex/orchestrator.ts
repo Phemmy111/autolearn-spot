@@ -9,7 +9,7 @@ import { WebResearchService } from './web-research/web-research-service'
 import { ToolRegistry, ToolExecutionService } from './tools'
 import { AgentService, AgentExecutionResult } from './agents'
 import { AIEngine } from './ai-engine'
-import { ArtifactWorkflowManager, WorkflowRequest } from './artifact-generation/workflow-manager'
+import { WorkflowManagerV2, WorkflowRequest } from './artifact-generation/workflow-manager-v2'
 
 export interface OrchestratorRequest {
   content: string
@@ -160,7 +160,7 @@ export class AlexOrchestrator {
             conversationHistory
           }
 
-          const workflowResponse = await ArtifactWorkflowManager.processRequest(workflowRequest)
+          const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
 
           console.log('[Orchestrator] Artifact workflow response:', workflowResponse.status)
 
@@ -203,7 +203,7 @@ export class AlexOrchestrator {
           conversationHistory
         }
 
-        const workflowResponse = await ArtifactWorkflowManager.processRequest(workflowRequest)
+        const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
 
         console.log('[Orchestrator] Artifact workflow response:', workflowResponse.status)
 
