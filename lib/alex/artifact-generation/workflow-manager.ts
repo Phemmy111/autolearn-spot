@@ -1431,6 +1431,10 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
   private static validateN8nSchema(workflow: any): { valid: boolean; errors: string[] } {
     const errors: string[] = []
     
+    // Initialize node tracking sets
+    const nodeIds = new Set<string>()
+    const nodeNames = new Set<string>()
+    
     // Check required top-level fields
     if (!workflow.name || typeof workflow.name !== 'string') {
       errors.push('Missing or invalid workflow name')
@@ -1440,9 +1444,6 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
       errors.push('Missing or invalid nodes array')
     } else {
       // Check nodes
-      const nodeIds = new Set<string>()
-      const nodeNames = new Set<string>()
-      
       for (const node of workflow.nodes) {
         if (!node.id || typeof node.id !== 'string') {
           errors.push(`Node missing ID: ${node.name || 'unnamed'}`)
@@ -1592,7 +1593,7 @@ Return ONLY valid JSON configuration. No explanations, no markdown code blocks.`
       console.log('[Artifact Workflow] AI response preview:', aiResponse.substring(0, 500))
 
       // Parse and validate artifacts
-      const manifest = this.parseArtifactManifest(aiResponse, build.build_type)
+      const manifest = this.parseArtifactManifest(aiResponse, build.build_type, build)
 
       if (!manifest || manifest.files.length === 0) {
         console.error('[Artifact Workflow] Parsing failed or no files in manifest')
@@ -1700,7 +1701,7 @@ Just return the JSON. No explanations needed.`
       }
 
       // Use the new simplified parser
-      const manifest = this.parseArtifactManifest(aiResponse, build.build_type)
+      const manifest = this.parseArtifactManifest(aiResponse, build.build_type, build)
 
       if (!manifest || manifest.files.length === 0) {
         console.error('[Artifact Workflow] Fallback parsing failed')
@@ -2196,7 +2197,7 @@ Please provide the JSON configuration. Make it complete and ready to use.`
   /**
    * Parse artifact manifest from AI response
    */
-  private static parseArtifactManifest(response: string, buildType: BuildType): ArtifactManifest | null {
+  private static parseArtifactManifest(response: string, buildType: BuildType, build?: ArtifactBuild): ArtifactManifest | null {
     const trimmed = response.trim()
     console.log('[Artifact Workflow] Parsing response, length:', trimmed.length)
 
@@ -2214,7 +2215,7 @@ Please provide the JSON configuration. Make it complete and ready to use.`
       const jsonContent = codeBlockMatch[1].trim()
       try {
         const parsed = JSON.parse(jsonContent)
-        const filename = build.final_specification?.filename || 'config.json'
+        const filename = build?.final_specification?.filename || 'config.json'
         
         return {
           build_type: buildType,
@@ -2236,7 +2237,7 @@ Please provide the JSON configuration. Make it complete and ready to use.`
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       try {
         const parsed = JSON.parse(trimmed)
-        const filename = build.final_specification?.filename || 'config.json'
+        const filename = build?.final_specification?.filename || 'config.json'
         
         // If it's the strict format, convert it
         if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].FILENAME) {
