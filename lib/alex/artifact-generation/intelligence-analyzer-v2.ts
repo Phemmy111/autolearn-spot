@@ -111,10 +111,10 @@ export class IntelligenceAnalyzerV2 {
     
     // Extract explicit specifications
     this.extractExplicitSpecs(content, specState)
-    
+
     // Make intelligent inferences
     this.makeInferences(content, specState)
-    
+
     // Select platform if not specified
     if (!specState.spec.platform) {
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Selecting platform')
@@ -141,10 +141,10 @@ export class IntelligenceAnalyzerV2 {
       specState.spec.recommendations = specState.spec.recommendations || []
       specState.spec.recommendations.push(platformSelection.reasoning)
     }
-    
+
     // Identify genuine blockers
-    this.identifyBlockers(content, specState)
-    
+    await this.identifyBlockers(content, specState)
+
     // Make recommendations for missing but inferable info
     this.makeRecommendations(specState)
     
@@ -216,7 +216,7 @@ export class IntelligenceAnalyzerV2 {
     specState.currentQuestion = undefined
     
     // Re-evaluate blockers
-    this.identifyBlockers(content, specState)
+    await this.identifyBlockers(content, specState)
     
     // Make recommendations for any remaining gaps
     this.makeRecommendations(specState)
@@ -516,49 +516,67 @@ export class IntelligenceAnalyzerV2 {
   }
   
   /**
-   * Identify genuine blockers
+   * Identify genuine blockers using AI-based analysis
    */
-  private static identifyBlockers(content: string, specState: SpecState): void {
-    specState.blockers.clear()
-    
-    const domain = specState.spec.domain
-    const hasAI = specState.spec.aiConfig?.enabled
-    
-    // Email domain blockers
-    if (domain === 'email') {
-      // Email provider is a blocker
-      if (!specState.spec.integrations?.emailProvider) {
+  private static async identifyBlockers(content: string, specState: SpecState): Promise<void> {
+    const { AIEngine } = await import('../ai-engine')
+
+    const specJSON = JSON.stringify(specState.spec, null, 2)
+    const knownFields = Array.from(specState.known).join(', ')
+
+    const prompt = `You are an expert automation architect. Analyze the automation specification and identify critical missing information (blockers) that MUST be asked to the user before proceeding.
+
+Automation specification:
+${specJSON}
+
+Known fields: ${knownFields}
+
+Current request: ${content}
+
+Identify blockers - these are fields that:
+1. Are absolutely essential for the automation to function
+2. Cannot be reasonably inferred or defaulted
+3. Must be specified by the user
+
+Do NOT mark as blockers:
+- Fields that can be reasonably inferred from context
+- Fields that have standard defaults (like log levels, retry strategies)
+- Optional features that can be added later
+
+Return JSON in this exact format:
+{
+  "blockers": ["field.path.1", "field.path.2"] or []
+}
+
+Use dot notation for field paths (e.g., "integrations.emailProvider", "outputs.destinations").
+Return empty array if no blockers exist.`
+
+    try {
+      const response = await AIEngine.chat({
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+        disableTools: true
+      })
+
+      const content = response.text || ''
+      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const result = JSON.parse(jsonMatch[0])
+        specState.blockers.clear()
+        result.blockers.forEach((blocker: string) => specState.blockers.add(blocker))
+        console.log('[Intelligence Analyzer V2] AI-identified blockers:', Array.from(specState.blockers))
+        return
+      }
+
+      // Fallback if JSON parsing fails
+      throw new Error('Failed to parse AI blocker response')
+    } catch (error) {
+      console.error('[Intelligence Analyzer V2] AI blocker identification failed, using fallback:', error)
+      // Fallback to basic logic
+      specState.blockers.clear()
+      if (!specState.spec.integrations?.emailProvider && specState.spec.domain === 'email') {
         specState.blockers.add('integrations.emailProvider')
       }
-      
-      // For AI email, need delivery channel
-      if (hasAI && !specState.spec.outputs?.destinations?.length) {
-        specState.blockers.add('outputs.destinations')
-      }
-    }
-    
-    // AI customer support blockers
-    if (domain === 'support' && hasAI) {
-      // Knowledge base is a blocker if explicitly mentioned in request
-      const lower = content.toLowerCase()
-      if (lower.includes('knowledge base') && !specState.spec.integrations?.knowledgeBase) {
-        specState.blockers.add('integrations.knowledgeBase')
-      }
-      
-      // AI provider is a blocker
-      if (!specState.spec.integrations?.aiProvider) {
-        specState.blockers.add('integrations.aiProvider')
-      }
-    }
-    
-    // Scheduled automation blockers
-    if (specState.spec.schedule?.enabled && !specState.spec.outputs?.destinations?.length) {
-      specState.blockers.add('outputs.destinations')
-    }
-    
-    // Chatbot blockers
-    if (specState.spec.automationType === 'chatbot' && !specState.spec.outputs?.destinations?.length) {
-      specState.blockers.add('outputs.destinations')
     }
   }
   
