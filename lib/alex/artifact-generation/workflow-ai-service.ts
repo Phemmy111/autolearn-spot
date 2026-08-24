@@ -24,8 +24,13 @@ export class WorkflowAIService {
    * Generate a simple text response using a provider
    */
   async generateResponse(prompt: string): Promise<string> {
+    console.log('[Workflow AI Service] Starting AI generation with prompt length:', prompt.length)
+    console.log('[Workflow AI Service] Groq API key present:', !!process.env.GROQ_API_KEY)
+    console.log('[Workflow AI Service] OpenRouter API key present:', !!process.env.OPENROUTER_API_KEY)
+
     try {
       // Try Groq first (faster, cheaper)
+      console.log('[Workflow AI Service] Attempting Groq provider')
       const groqProvider = new OpenAICompatibleAdapter({
         providerType: 'groq',
         apiKey: process.env.GROQ_API_KEY || '',
@@ -58,13 +63,19 @@ export class WorkflowAIService {
           fullResponse += chunk.content
         }
       }
+      console.log('[Workflow AI Service] Groq provider succeeded with response length:', fullResponse.length)
       return fullResponse
     } catch (error) {
       console.error('[Workflow AI Service] Groq provider failed:', error)
+      console.error('[Workflow AI Service] Groq error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      })
     }
 
     try {
       // Fallback to OpenRouter
+      console.log('[Workflow AI Service] Attempting OpenRouter provider')
       const openRouterProvider = new OpenAICompatibleAdapter({
         providerType: 'openrouter',
         apiKey: process.env.OPENROUTER_API_KEY || '',
@@ -97,11 +108,17 @@ export class WorkflowAIService {
           fullResponse += chunk.content
         }
       }
+      console.log('[Workflow AI Service] OpenRouter provider succeeded with response length:', fullResponse.length)
       return fullResponse
     } catch (error) {
       console.error('[Workflow AI Service] OpenRouter provider failed:', error)
+      console.error('[Workflow AI Service] OpenRouter error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      })
     }
 
+    console.error('[Workflow AI Service] All AI providers failed')
     throw new Error('All AI providers failed')
   }
 
