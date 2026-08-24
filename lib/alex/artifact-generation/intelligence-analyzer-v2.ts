@@ -254,7 +254,8 @@ export class IntelligenceAnalyzerV2 {
       hasQuestionContext: !!specState.questionContext,
       knownCount: specState.known.size,
       blockersCount: specState.blockers.size,
-      contentLength: content.length
+      contentLength: content.length,
+      contentPreview: content.substring(0, 50)
     })
     
     // If we have an existing spec with a pending question, it's a continuation
@@ -272,22 +273,28 @@ export class IntelligenceAnalyzerV2 {
       }
     }
     
-    // Short, direct answers are likely continuations
-    if (content.length < 100) {
-      const lower = content.toLowerCase()
-      // Only match these as continuation keywords when they're the primary content
-      // Don't match if they're part of a longer request like "create an email..."
-      const continuationKeywords = ['yes', 'no', 'recommend', 'every', 'all', 'support']
-      const hasContinuationKeyword = continuationKeywords.some(keyword => lower === keyword || lower.startsWith(keyword + ' '))
-      
-      // Platform names are only continuations if they're simple answers (not part of "create email for gmail")
-      const platformNames = ['gmail', 'outlook', 'gemini', 'gpt', 'slack', 'telegram', 'whatsapp']
-      const isSimplePlatformAnswer = platformNames.some(name => lower === name || lower === name + ' ')
-      
-      if (hasContinuationKeyword || isSimplePlatformAnswer) {
-        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Continuation detected: matches continuation keywords')
-        return true
-      }
+    // Specific approval/rejection keywords are continuations (but only if short)
+    const lower = content.toLowerCase()
+    const approvalKeywords = ['yes', 'no', 'approve', 'reject', 'modify', 'improve', 'change']
+    if (content.length < 20 && approvalKeywords.some(keyword => lower.includes(keyword))) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Continuation detected: approval keyword')
+      return true
+    }
+    
+    // Platform names are only continuations if they're simple answers (not part of "create email for gmail")
+    const platformNames = ['gmail', 'outlook', 'slack', 'telegram', 'whatsapp', 'email']
+    if (content.length < 20 && platformNames.some(name => lower === name || lower === name + ' ')) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Continuation detected: simple platform answer')
+      return true
+    }
+    
+    // Check if this is a new automation request (contains create/build/generate keywords)
+    const automationKeywords = ['create', 'build', 'generate', 'make', 'design', 'setup']
+    const hasAutomationKeyword = automationKeywords.some(keyword => lower.includes(keyword))
+    
+    if (hasAutomationKeyword && content.length > 10) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] New automation request detected, not a continuation')
+      return false
     }
     
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Not a continuation')
