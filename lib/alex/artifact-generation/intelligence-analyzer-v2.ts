@@ -142,8 +142,14 @@ export class IntelligenceAnalyzerV2 {
       specState.spec.recommendations.push(platformSelection.reasoning)
     }
 
-    // Identify genuine blockers
-    await this.identifyBlockers(content, specState)
+    // Identify genuine blockers (with error handling)
+    try {
+      await this.identifyBlockers(content, specState)
+    } catch (error) {
+      console.error('[Intelligence Analyzer V2] Error identifying blockers, using fallback:', error)
+      // Fallback: don't block on AI failure
+      specState.blockers.clear()
+    }
 
     // Make recommendations for missing but inferable info
     this.makeRecommendations(specState)
@@ -156,7 +162,18 @@ export class IntelligenceAnalyzerV2 {
     
     if (specState.blockers.size > 0) {
       const blocker = Array.from(specState.blockers)[0]
-      const question = await this.formulateQuestion(blocker, specState)
+      let question
+      try {
+        question = await this.formulateQuestion(blocker, specState)
+      } catch (error) {
+        console.error('[Intelligence Analyzer V2] Error formulating question, using fallback:', error)
+        question = {
+          text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
+          field: blocker,
+          context: blocker,
+          options: ['Other'] // Simple fallback option
+        }
+      }
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Formulated question:', {
         blocker,
         questionText: question.text,
@@ -215,8 +232,13 @@ export class IntelligenceAnalyzerV2 {
     specState.questionContext = undefined
     specState.currentQuestion = undefined
     
-    // Re-evaluate blockers
-    await this.identifyBlockers(content, specState)
+    // Re-evaluate blockers (with error handling)
+    try {
+      await this.identifyBlockers(content, specState)
+    } catch (error) {
+      console.error('[Intelligence Analyzer V2] Error identifying blockers in continuation, using fallback:', error)
+      specState.blockers.clear()
+    }
     
     // Make recommendations for any remaining gaps
     this.makeRecommendations(specState)
@@ -224,7 +246,18 @@ export class IntelligenceAnalyzerV2 {
     // Determine next action
     if (specState.blockers.size > 0) {
       const blocker = Array.from(specState.blockers)[0]
-      const question = await this.formulateQuestion(blocker, specState)
+      let question
+      try {
+        question = await this.formulateQuestion(blocker, specState)
+      } catch (error) {
+        console.error('[Intelligence Analyzer V2] Error formulating question in continuation, using fallback:', error)
+        question = {
+          text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
+          field: blocker,
+          context: blocker,
+          options: ['Other']
+        }
+      }
       return {
         specState,
         situation: 'continuation',

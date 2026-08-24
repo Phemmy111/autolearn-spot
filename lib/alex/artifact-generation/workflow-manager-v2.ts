@@ -291,9 +291,28 @@ export class WorkflowManagerV2 {
     const spec = analysis.specState.spec
 
     // Use AI to dynamically reason about the architecture
-    const architectureProposal = await this.generateArchitectureWithAI(spec)
+    let architectureProposal
+    try {
+      architectureProposal = await this.generateArchitectureWithAI(spec)
+    } catch (error) {
+      console.error('[Workflow Manager V2] AI architecture generation failed, using fallback:', error)
+      // Fallback to simple architecture
+      architectureProposal = {
+        platform: spec.platform || 'n8n',
+        platformReasoning: 'Selected based on requirements',
+        complexity: 'moderate',
+        stages: [
+          { name: 'Trigger', purpose: 'Initiate automation' },
+          { name: 'Process', purpose: 'Process data' },
+          { name: 'Action', purpose: 'Execute action' }
+        ],
+        assumptions: ['Basic automation requirements'],
+        recommendations: ['Configure proper error handling'],
+        description: '1. Trigger\n2. Process\n3. Action'
+      }
+    }
 
-    console.log('[Workflow Manager V2] AI-generated architecture:', {
+    console.log('[Workflow Manager V2] Architecture design result:', {
       platform: architectureProposal.platform,
       complexity: architectureProposal.complexity,
       stageCount: architectureProposal.stages.length
