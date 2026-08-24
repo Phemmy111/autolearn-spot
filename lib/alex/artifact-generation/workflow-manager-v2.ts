@@ -310,7 +310,7 @@ export class WorkflowManagerV2 {
 
     return {
       status: 'awaiting_architecture_verification',
-      message: `I recommend the following architecture:\n\n${architectureProposal.description}\n\nDoes this architecture match what you want? If yes, I'll generate the workflow and guide.`,
+      message: `I recommend the following architecture:\n\n${architectureProposal.description}\n\nDoes this architecture match what you want? If yes, I'll generate the workflow JSON file for you to import into n8n.`,
       needsInput: true,
       architectureProposal
     }
@@ -482,104 +482,70 @@ Be specific and context-aware. Do not use generic templates.`
    * Handle generating the artifact
    */
   private static async handleGenerateArtifact(build: ArtifactBuild, analysis: AnalysisResultV2): Promise<WorkflowResponse> {
-    console.log('[Workflow Manager V2] Generating artifact')
-    
+    console.log('[Workflow Manager V2] Generating artifact with AI')
+
     const spec = analysis.specState.spec
     const platform = spec.platform || 'n8n'
-    
-    // Determine requested file format from spec or default to JSON
-    const requestedFormat = this.detectRequestedFormat(build.original_request)
-    console.log('[Workflow Manager V2] Requested format:', requestedFormat)
-    
-    // Design the logical architecture
-    const logicalArchitecture = ArchitectureDesigner.design(spec)
-    
-    // Translate to platform-specific implementation
-    let artifactContent: any
-    let fileType: string
-    let mimeType: string
-    let filename: string
-    
-    if (platform === 'n8n') {
-      // Translate logical architecture to n8n-specific implementation
-      const n8nImplementation = this.translateLogicalToN8n(logicalArchitecture, spec, build.original_request)
-      
-      artifactContent = {
-        name: n8nImplementation.name,
-        nodes: n8nImplementation.nodes,
-        connections: n8nImplementation.connections,
-        active: true,
-        settings: {
-          executionOrder: 'v1',
-          saveDataOnExecution: 'all',
-          saveManualExecutions: true
-        },
-        id: this.generateUUID(),
-        tags: []
-      }
-      
-      // Force JSON format for n8n workflows
-      fileType = 'json'
-      mimeType = 'application/json'
-      filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.json`, 'json')
-      
-      // Validate n8n schema (temporarily disabled due to runtime error)
-      console.log('[Workflow Manager V2] Skipping n8n schema validation temporarily')
-      // const validation = this.validateN8nSchema(artifactContent)
-      // if (!validation.valid) {
-      //   console.error('[Workflow Manager V2] n8n schema validation failed:', validation.errors)
-      //   // Try to repair
-      //   artifactContent = this.repairN8nWorkflow(artifactContent, validation.errors)
-      //   // Re-validate after repair
-      //   const repairedValidation = this.validateN8nSchema(artifactContent)
-      //   if (!repairedValidation.valid) {
-      //     console.error('[Workflow Manager V2] Repaired workflow still invalid:', repairedValidation.errors)
-      //   }
-      // }
-      
-      // Final artifact format validation
-      const formatValidation = this.validateArtifactFormat(artifactContent, filename, fileType, mimeType, requestedFormat)
-      if (!formatValidation.valid) {
-        console.error('[Workflow Manager V2] Artifact format validation failed:', formatValidation.errors)
-        throw new Error(`Artifact format validation failed: ${formatValidation.errors.join(', ')}`)
-      }
-      
-    } else {
-      // For other platforms, generate appropriate format
-      artifactContent = this.generateGenericArtifact(spec, logicalArchitecture, platform)
-      
-      // Determine format based on requested format
-      switch (requestedFormat) {
-        case 'json':
-          fileType = 'json'
-          mimeType = 'application/json'
-          filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.json`, 'json')
-          break
-        case 'yaml':
-          fileType = 'yaml'
-          mimeType = 'application/x-yaml'
-          filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.yaml`, 'yaml')
-          break
-        case 'python':
-          fileType = 'py'
-          mimeType = 'text/x-python'
-          filename = this.ensureExtension(spec.filename || `${spec.automationType}.py`, 'py')
-          break
-        case 'javascript':
-          fileType = 'js'
-          mimeType = 'application/javascript'
-          filename = this.ensureExtension(spec.filename || `${spec.automationType}.js`, 'js')
-          break
-        default:
-          fileType = 'json'
-          mimeType = 'application/json'
-          filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.json`, 'json')
-      }
+
+    // Use AI to generate the n8n workflow JSON directly
+    const { WorkflowAIService } = await import('./workflow-ai-service')
+    const aiService = WorkflowAIService.getInstance()
+
+    const prompt = `You are an expert n8n workflow architect. Generate a complete n8n workflow JSON for the following automation.
+
+Request: ${spec.description || spec.automationType || 'General automation'}
+Automation Type: ${spec.automationType || 'automation'}
+Domain: ${spec.domain || 'custom'}
+Platform: n8n
+
+Key Requirements:
+${spec.aiConfig?.enabled ? '- AI processing is enabled (use OpenAI node)' : '- No AI processing'}
+${spec.integrations?.emailProvider ? `- Email provider: ${spec.integrations.emailProvider} (use Email node)' : ''}
+${spec.integrations?.aiProvider ? `- AI provider: ${spec.integrations.aiProvider} (use OpenAI node)' : ''}
+${spec.trigger?.type ? `- Trigger type: ${spec.trigger.type}` : '- Default to Webhook trigger'}
+
+Generate a complete n8n workflow JSON with:
+1. Nodes array with properly configured nodes
+2. Connections object defining node connections
+3. name field for the workflow
+4. settings object with proper n8n settings
+5. active: true
+6. Valid node types (n8n-nodes-base.*)
+
+Return ONLY valid JSON in this exact format:
+{
+  "name": "workflow name",
+  "nodes": [
+    {
+      "parameters": {...},
+      "name": "node name",
+      "type": "n8n-nodes-base.nodeType",
+      "typeVersion": 1,
+      "position": [x, y]
     }
-    
+  ],
+  "connections": {
+    "node1": {
+      "main": [[{"node": "node2", "type": "main", "index": 0}]]
+    }
+  },
+  "active": true,
+  "settings": {}
+}
+
+Do not include any text before or after the JSON. The response must be pure JSON.`
+
+    const workflowJSON = await aiService.generateJSON(prompt)
+    console.log('[Workflow Manager V2] AI-generated workflow JSON')
+
+    const artifactContent = workflowJSON
+    const fileType = 'json'
+    const mimeType = 'application/json'
+    const filename = this.ensureExtension(spec.filename || `${spec.automationType}-${platform}.json`, 'json')
+
     // Serialize content
     const serializedContent = JSON.stringify(artifactContent, null, 2)
-    
+
     // Parse it back to verify it's valid
     try {
       JSON.parse(serializedContent)
@@ -587,7 +553,7 @@ Be specific and context-aware. Do not use generic templates.`
       console.error('[Workflow Manager V2] Generated content is not valid JSON:', e)
       throw new Error('Generated artifact is not valid JSON')
     }
-    
+
     // Save the artifact
     const artifact = await ArtifactService.saveArtifact(
       build.id,
@@ -598,10 +564,23 @@ Be specific and context-aware. Do not use generic templates.`
       serializedContent,
       true
     )
-    
-    // Generate guide from the actual artifact
-    const guide = this.generateGuide(spec, logicalArchitecture, artifactContent, platform)
-    
+
+    // Generate guide using AI
+    const guidePrompt = `Generate a brief implementation guide for this n8n workflow.
+
+Workflow: ${spec.description || spec.automationType}
+Platform: n8n
+
+Provide a simple guide with:
+1. How to import the JSON into n8n
+2. What credentials are needed
+3. How to test the workflow
+4. Any important configuration notes
+
+Keep it under 300 words.`
+
+    const guide = await aiService.generateResponse(guidePrompt)
+
     // Save guide as secondary artifact
     const guideFilename = filename.replace(/\.(json|yaml|py|js)$/i, '-guide.md')
     const guideArtifact = await ArtifactService.saveArtifact(
@@ -613,12 +592,12 @@ Be specific and context-aware. Do not use generic templates.`
       guide,
       false
     )
-    
+
     await ArtifactService.updateBuildStatus(build.id, 'completed')
-    
+
     return {
       status: 'completed',
-      message: `I've generated the ${platform} workflow and implementation guide.\n\n${guide.substring(0, 500)}...`,
+      message: `I've generated the n8n workflow JSON file for you to import.\n\n${guide.substring(0, 500)}...`,
       artifacts: [
         {
           id: artifact.id,
