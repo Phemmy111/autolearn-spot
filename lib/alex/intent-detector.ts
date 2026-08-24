@@ -47,12 +47,17 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'export as json', 'export this', 'generate json file',
       'create json file', 'build json file', 'make json file',
       'email responder', 'auto responder', 'email bot', 'email automation',
-      'ai email', 'intelligent email', 'smart email'
+      'ai email', 'intelligent email', 'smart email',
+      'create simple', 'create basic', 'create advanced',
+      'build simple', 'build basic', 'build advanced',
+      'generate simple', 'generate basic', 'generate advanced'
     ]
 
     // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
-    const isBuildRequest = buildPatterns.some(pattern => lowerContent.startsWith(pattern) || 
-      (lowerContent.includes(pattern) && lowerContent.length < 50))
+    const isBuildRequest = buildPatterns.some(pattern => lowerContent.startsWith(pattern) ||
+      (lowerContent.includes(pattern) && lowerContent.length < 50) ||
+      // Match "create" or "build" or "generate" at the start followed by any word
+      (lowerContent.startsWith('create ') || lowerContent.startsWith('build ') || lowerContent.startsWith('generate ')) && lowerContent.length < 60)
 
     // Secondary check: even if not at start, check for strong build indicators
     const strongBuildIndicators = [
@@ -62,7 +67,10 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'setup guide', 'configuration file', 'downloadable files',
       'package and deliver', 'zip file', 'source code',
       'import into', 'deploy this', 'use this file',
-      'like this file', 'based on this', 'use this as reference'
+      'like this file', 'based on this', 'use this as reference',
+      'notification system', 'email system', 'alert system',
+      'data pipeline', 'scheduled task', 'cron job',
+      'api integration', 'webhook receiver', 'form handler'
     ]
     
     const hasStrongBuildIndicator = strongBuildIndicators.some(indicator => lowerContent.includes(indicator))
