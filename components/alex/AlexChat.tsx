@@ -338,25 +338,40 @@ export function AlexChat({ userId }: AlexChatProps) {
                     // Phase 7: Handle artifact workflow response
                     console.log('[AlexChat] Artifact workflow response:', parsed.data)
 
-                    // Preserve conversation history - don't replace previous workflowData
+                    // Create a new assistant message for each workflow response to preserve conversation history
                     setMessages(prev => {
+                      // Check if the last message already has workflow data from this same response
                       const lastMessage = prev[prev.length - 1]
-                      if (lastMessage && lastMessage.role === 'assistant') {
-                        // Create a merged message with workflow data, preserving existing content
-                        const mergedMessage = {
-                          ...lastMessage,
-                          // Append new workflow data to existing workflowData
-                          workflowData: {
-                            ...(lastMessage as any).workflowData,
-                            ...parsed.data
-                          }
-                        }
+                      const isSameResponse = lastMessage && 
+                        (lastMessage as any).workflowData && 
+                        (lastMessage as any).workflowData.question?.field === parsed.data.question?.field
+
+                      if (isSameResponse) {
+                        // Update existing message with new data
                         return [
                           ...prev.slice(0, -1),
-                          mergedMessage
+                          {
+                            ...lastMessage,
+                            workflowData: {
+                              ...(lastMessage as any).workflowData,
+                              ...parsed.data
+                            }
+                          }
+                        ]
+                      } else {
+                        // Create new message to preserve conversation history
+                        return [
+                          ...prev,
+                          {
+                            id: crypto.randomUUID(),
+                            conversation_id: conversationToUse.id,
+                            role: 'assistant',
+                            content: parsed.data.message || '',
+                            created_at: new Date().toISOString(),
+                            workflowData: parsed.data
+                          }
                         ]
                       }
-                      return prev
                     })
                   } else if (parsed.type === 'error') {
                     console.error('Stream error:', parsed.error)

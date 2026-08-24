@@ -1230,6 +1230,8 @@ Do not include any text before or after the JSON. The response must be pure JSON
    * Set a default value for a field when user skips/chooses "Other"
    */
   private static setDefaultValue(context: string, specState: SpecState): void {
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Setting default value for context:', context)
+    
     if (context.includes('emailProvider')) {
       specState.spec.integrations = specState.spec.integrations || {}
       specState.spec.integrations.emailProvider = 'gmail'
@@ -1257,11 +1259,21 @@ Do not include any text before or after the JSON. The response must be pure JSON
       specState.spec.businessRules.routing = ['every message']
       specState.known.add('businessRules.routing')
       specState.blockers.delete('businessRules.routing')
+    } else if (context.includes('apiEndpoint')) {
+      specState.spec.inputs = specState.spec.inputs || {}
+      specState.spec.inputs.apiEndpoint = 'https://api.example.com/endpoint'
+      specState.known.add('inputs.apiEndpoint')
+      specState.blockers.delete('inputs.apiEndpoint')
     } else {
       // Generic fallback: just mark as known with a placeholder
       specState.known.add(context)
       specState.blockers.delete(context)
     }
+    
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] After setting default:', {
+      known: Array.from(specState.known),
+      blockers: Array.from(specState.blockers)
+    })
   }
   
   /**

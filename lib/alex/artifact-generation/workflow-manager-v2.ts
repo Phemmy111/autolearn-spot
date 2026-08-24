@@ -297,6 +297,12 @@ export class WorkflowManagerV2 {
     await ArtifactService.updateSpecification(build.id, specWithState, [])
     
     // Check if all blockers are resolved and transition to architecture generation
+    console.log('[Workflow Manager V2] Checking for completion:', {
+      blockersCount: analysis.specState.blockers.size,
+      buildStatus: build.status,
+      nextAction: analysis.nextAction
+    })
+    
     if (analysis.specState.blockers.size === 0 && build.status === 'collecting_requirements') {
       console.log('[Workflow Manager V2] Requirements complete, transitioning collecting_requirements → architecture_generation')
       await ArtifactService.updateBuildStatus(build.id, 'designing_architecture')
@@ -307,6 +313,10 @@ export class WorkflowManagerV2 {
         const overriddenAnalysis = { ...analysis, nextAction: 'design_architecture' as const }
         return this.handleDesignArchitecture(build, overriddenAnalysis)
       }
+    } else if (analysis.specState.blockers.size === 0 && analysis.nextAction === 'ask_question') {
+      console.log('[Workflow Manager V2] Blockers clear but still asking question - forcing architecture design')
+      const overriddenAnalysis = { ...analysis, nextAction: 'design_architecture' as const }
+      return this.handleDesignArchitecture(build, overriddenAnalysis)
     }
     
     // Handle the analysis result

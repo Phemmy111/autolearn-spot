@@ -1,9 +1,11 @@
 Fix workflow lifecycle: new request isolation, question persistence, field normalization, state transitions
 
 - Fix 1: Added detectWorkflowContinuation() to prevent new automation requests from reusing existing builds
-- Fix 2: Modified artifact workflow event handling to preserve conversation history and prevent question disappearance
+- Fix 2: Modified artifact workflow event handling to create new messages for each workflow response, preserving conversation history
 - Fix 3: Added normalizeFieldToCanonical() to handle singular/plural field mismatches (e.g., outputs.destinations → outputs.destination)
 - Fix 4: Added explicit state transition from collecting_requirements to designing_architecture when blockers are resolved
+- Fix 5: Added apiEndpoint handling in setDefaultValue() for skip options
+- Fix 6: Added enhanced logging for state machine debugging
 
 Files changed:
 - lib/alex/artifact-generation/workflow-manager-v2.ts
