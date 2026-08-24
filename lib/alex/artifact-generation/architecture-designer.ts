@@ -192,12 +192,16 @@ export class ArchitectureDesigner {
       return true
     })
     
+    // Generate dynamic reasoning based on actual stages
+    const stageNames = filteredStages.map(s => s.name).join(', ')
+    const hasEscalation = filteredStages.some(s => s.id === 'escalate')
+
     return {
       name: spec.filename?.replace('.json', '') || 'ai-email-automation',
       description: 'AI-powered email automation with intelligent response generation',
       stages: filteredStages,
       complexity: spec.humanApproval?.required ? 'complex' : 'moderate',
-      reasoning: 'AI email automation requires: trigger, normalization, duplicate prevention, context assembly, AI processing, response generation, logging, and error handling. Human escalation adds branching complexity.',
+      reasoning: `AI email automation includes: ${stageNames}. ${hasEscalation ? 'Human escalation is included for low-confidence responses.' : ''}`,
       assumptions: [
         'Email provider supports IMAP/webhook triggers',
         'AI model is accessible via API',
@@ -265,12 +269,15 @@ export class ArchitectureDesigner {
       }
     ]
     
+    // Generate dynamic reasoning based on actual stages
+    const stageNames = stages.map(s => s.name).join(', ')
+
     return {
       name: spec.filename?.replace('.json', '') || 'email-automation',
       description: 'Email automation with processing and action',
       stages: stages,
       complexity: 'simple',
-      reasoning: 'Simple email automation needs: trigger, normalization, processing, action, and optional logging.',
+      reasoning: `Simple email automation includes: ${stageNames}.`,
       assumptions: [
         'Email provider supports triggers',
         'Business rules are straightforward'
@@ -410,13 +417,16 @@ export class ArchitectureDesigner {
     
     // Remove knowledge retrieval if no KB specified
     const filteredStages = hasKnowledgeBase ? stages : stages.filter(s => s.id !== 'retrieve-knowledge')
-    
+
+    // Generate dynamic reasoning based on actual stages
+    const stageNames = filteredStages.map(s => s.name).join(', ')
+
     return {
       name: spec.filename?.replace('.json', '') || 'ai-customer-support',
       description: 'AI-powered customer support with knowledge base and human escalation',
       stages: filteredStages,
       complexity: 'complex',
-      reasoning: 'AI customer support requires: trigger, normalization, deduplication, classification, knowledge retrieval, context assembly, AI generation, confidence evaluation, branching, auto-reply, escalation, logging, and error handling.',
+      reasoning: `AI customer support includes: ${stageNames}. ${hasKnowledgeBase ? 'Knowledge base retrieval is enabled for improved accuracy.' : 'Knowledge base retrieval is not configured.'}`,
       assumptions: [
         hasKnowledgeBase ? 'Knowledge base system is accessible' : 'AI will generate responses without external knowledge base',
         'Email provider supports triggers',
