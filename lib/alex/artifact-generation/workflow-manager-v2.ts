@@ -79,7 +79,16 @@ export class WorkflowManagerV2 {
     })
     
     if (existingBuild) {
-      return this.continueWorkflow(existingBuild, request)
+      // Before continuing, check if this is actually a continuation or a new request
+      const isContinuation = this.detectWorkflowContinuation(request.content, existingBuild)
+      console.log('[Workflow Manager V2] Incoming request classified as:', isContinuation ? 'continuation' : 'NEW workflow')
+      
+      if (isContinuation) {
+        return this.continueWorkflow(existingBuild, request)
+      } else {
+        console.log('[Workflow Manager V2] New automation request detected, creating new build instead of continuing old build')
+        // Fall through to create new build below
+      }
     }
     
     // New request - use Intelligence Analyzer V2
@@ -145,6 +154,55 @@ export class WorkflowManagerV2 {
         console.error('[DEBUG WORKFLOW MANAGER V2] Unknown next action:', analysis.nextAction)
         throw new Error(`Unknown next action: ${analysis.nextAction}`)
     }
+  }
+  
+  /**
+   * Detect if incoming message is a continuation of existing workflow or a new request
+   */
+  private static detectWorkflowContinuation(content: string, existingBuild: ArtifactBuild): boolean {
+    const lower = content.toLowerCase()
+    
+    // Check if this is a new automation request (contains create/build/generate keywords)
+    const automationKeywords = ['create', 'build', 'generate', 'make', 'design', 'setup']
+    const hasAutomationKeyword = automationKeywords.some(keyword => lower.includes(keyword))
+    
+    if (hasAutomationKeyword && content.length > 10) {
+      console.log('[Workflow Manager V2] New automation request detected:', content.substring(0, 50))
+      return false
+    }
+    
+    // Check if it answers the current question context
+    const existingSpec = existingBuild.final_specification || {}
+    const questionContext = (existingSpec as any)._blockerFields?.[0]
+    
+    if (questionContext) {
+      // Field:value format is a continuation
+      const fieldMatch = content.match(/^([^:]+):\s*(.+)$/i)
+      if (fieldMatch) {
+        console.log('[Workflow Manager V2] Field:value format detected, treating as continuation')
+        return true
+      }
+      
+      // Simple platform/service names are continuations
+      const platformNames = ['gmail', 'outlook', 'slack', 'telegram', 'whatsapp', 'email']
+      if (content.length < 20 && platformNames.some(name => lower === name || lower === name + ' ')) {
+        console.log('[Workflow Manager V2] Simple platform answer detected, treating as continuation')
+        return true
+      }
+    }
+    
+    // Approval/rejection keywords are continuations (if build is awaiting verification)
+    if (existingBuild.status === 'awaiting_architecture_verification') {
+      const approvalKeywords = ['yes', 'no', 'approve', 'reject', 'modify', 'improve', 'change']
+      if (content.length < 20 && approvalKeywords.some(keyword => lower.includes(keyword))) {
+        console.log('[Workflow Manager V2] Approval keyword detected, treating as continuation')
+        return true
+      }
+    }
+    
+    // Default: treat as continuation if existing build exists and we can't clearly classify as new request
+    console.log('[Workflow Manager V2] Unable to classify as new request, treating as continuation')
+    return true
   }
   
   /**
@@ -237,6 +295,19 @@ export class WorkflowManagerV2 {
       _blockerFields: Array.from(analysis.specState.blockers)
     }
     await ArtifactService.updateSpecification(build.id, specWithState, [])
+    
+    // Check if all blockers are resolved and transition to architecture generation
+    if (analysis.specState.blockers.size === 0 && build.status === 'collecting_requirements') {
+      console.log('[Workflow Manager V2] Requirements complete, transitioning collecting_requirements → architecture_generation')
+      await ArtifactService.updateBuildStatus(build.id, 'designing_architecture')
+      
+      // Force design_architecture action if blockers are clear
+      if (analysis.nextAction === 'ask_question') {
+        console.log('[Workflow Manager V2] Overriding nextAction from ask_question to design_architecture (no blockers remain)')
+        const overriddenAnalysis = { ...analysis, nextAction: 'design_architecture' as const }
+        return this.handleDesignArchitecture(build, overriddenAnalysis)
+      }
+    }
     
     // Handle the analysis result
     switch (analysis.nextAction) {

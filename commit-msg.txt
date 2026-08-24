@@ -1,0 +1,15 @@
+Fix workflow lifecycle: new request isolation, question persistence, field normalization, state transitions
+
+- Fix 1: Added detectWorkflowContinuation() to prevent new automation requests from reusing existing builds
+- Fix 2: Modified artifact workflow event handling to preserve conversation history and prevent question disappearance
+- Fix 3: Added normalizeFieldToCanonical() to handle singular/plural field mismatches (e.g., outputs.destinations → outputs.destination)
+- Fix 4: Added explicit state transition from collecting_requirements to designing_architecture when blockers are resolved
+
+Files changed:
+- lib/alex/artifact-generation/workflow-manager-v2.ts
+- components/alex/AlexChat.tsx
+- lib/alex/artifact-generation/intelligence-analyzer-v2.ts
+
+Generated with [Devin](https://devin.ai)
+
+Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>

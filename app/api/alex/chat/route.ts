@@ -501,7 +501,7 @@ export async function POST(request: NextRequest) {
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: message })}\n\n`))
               }
 
-              // Send question data if present
+              // Send question data if present - append to workflowData
               if (question) {
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifact_workflow', data: { question } })}\n\n`))
               }

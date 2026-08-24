@@ -729,8 +729,16 @@ Return empty array if no blockers exist.`
         if (aiMapping.field && aiMapping.value !== null) {
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI semantic mapping succeeded:', aiMapping)
           
-          // Apply AI mapping to spec
-          this.applyMappingToSpec(aiMapping.field, aiMapping.value, specState)
+          // Normalize field to canonical blocker field
+          const canonicalField = this.normalizeFieldToCanonical(aiMapping.field, specState)
+          console.log('[Intelligence Analyzer V2] Field normalization:', {
+            aiField: aiMapping.field,
+            canonicalField: canonicalField,
+            normalizationApplied: canonicalField !== aiMapping.field
+          })
+          
+          // Apply AI mapping to spec with canonical field
+          this.applyMappingToSpec(canonicalField, aiMapping.value, specState)
           
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after AI mapping:', Array.from(specState.known))
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after AI mapping:', Array.from(specState.blockers))
@@ -867,6 +875,77 @@ Return empty array if no blockers exist.`
     
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final known after mapping:', Array.from(specState.known))
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final blockers after mapping:', Array.from(specState.blockers))
+  }
+  
+  /**
+   * Normalize AI-returned field to canonical blocker field
+   * This handles cases where AI returns "outputs.destinations" but blocker is "outputs.destination"
+   */
+  private static normalizeFieldToCanonical(aiField: string, specState: SpecState): string {
+    // Check if the AI field is already a blocker
+    if (specState.blockers.has(aiField)) {
+      return aiField
+    }
+    
+    // Common singular/plural mappings
+    const singularPluralMappings: Record<string, string> = {
+      'outputs.destinations': 'outputs.destination',
+      'outputs.recipients': 'outputs.recipient',
+      'outputs.messages': 'outputs.message',
+      'outputs.subjects': 'outputs.subject',
+      'inputs.sources': 'inputs.source',
+      'triggers.conditions': 'triggers.condition'
+    }
+    
+    // Check if AI field has a canonical mapping
+    if (singularPluralMappings[aiField]) {
+      const canonical = singularPluralMappings[aiField]
+      if (specState.blockers.has(canonical)) {
+        return canonical
+      }
+    }
+    
+    // Reverse mapping: check if AI field is canonical and we need to find blocker variant
+    const reverseMappings: Record<string, string> = Object.fromEntries(
+      Object.entries(singularPluralMappings).map(([k, v]) => [v, k])
+    )
+    
+    if (reverseMappings[aiField]) {
+      const blockerVariant = reverseMappings[aiField]
+      if (specState.blockers.has(blockerVariant)) {
+        return blockerVariant
+      }
+    }
+    
+    // Fuzzy matching: try to find a blocker that's a close match
+    for (const blocker of specState.blockers) {
+      const aiParts = aiField.split('.')
+      const blockerParts = blocker.split('.')
+      
+      // Compare part by part
+      let matchScore = 0
+      for (let i = 0; i < Math.min(aiParts.length, blockerParts.length); i++) {
+        if (aiParts[i] === blockerParts[i]) {
+          matchScore++
+        } else if (aiParts[i].replace(/s$/, '') === blockerParts[i].replace(/s$/, '')) {
+          // Singular/plural match
+          matchScore += 0.5
+        }
+      }
+      
+      // If high match score, use the blocker
+      if (matchScore >= aiParts.length - 0.5) {
+        console.log('[Intelligence Analyzer V2] Fuzzy matched AI field to blocker:', {
+          aiField,
+          matchedBlocker: blocker,
+          matchScore
+        })
+        return blocker
+      }
+    }
+    
+    // No canonical mapping found, return original
+    return aiField
   }
   
   /**

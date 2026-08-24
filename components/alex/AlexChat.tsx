@@ -338,14 +338,14 @@ export function AlexChat({ userId }: AlexChatProps) {
                     // Phase 7: Handle artifact workflow response
                     console.log('[AlexChat] Artifact workflow response:', parsed.data)
 
-                    // Merge the workflow data into the last assistant message
+                    // Preserve conversation history - don't replace previous workflowData
                     setMessages(prev => {
                       const lastMessage = prev[prev.length - 1]
                       if (lastMessage && lastMessage.role === 'assistant') {
-                        // Create a merged message with workflow data
+                        // Create a merged message with workflow data, preserving existing content
                         const mergedMessage = {
                           ...lastMessage,
-                          // Store workflow data as a structured object
+                          // Append new workflow data to existing workflowData
                           workflowData: {
                             ...(lastMessage as any).workflowData,
                             ...parsed.data
