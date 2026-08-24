@@ -165,7 +165,7 @@ export class IntelligenceAnalyzerV2 {
     if (!specState.spec.platform) {
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Selecting platform')
       const platformSelection = selectPlatform({
-        needsEmail: domain === 'email',
+        needsEmail: specState.spec.domain === 'email',
         needsAI: specState.spec.aiConfig?.enabled,
         needsDatabase: !!specState.spec.integrations?.databases?.length,
         needsComplexLogic: specState.spec.businessRules?.conditions ? specState.spec.businessRules.conditions.length > 3 : false,
