@@ -269,11 +269,14 @@ Return ONLY JSON.`
     console.log('[Architecture Designer] Calling AI for architecture generation with prompt length:', prompt.length)
 
     const response = await aiService.generateResponse(prompt)
-    console.log('[Architecture Designer] AI architecture response received:', response.substring(0, 500))
+    console.log('[Architecture Designer] AI architecture response received, length:', response.length)
+    console.log('[Architecture Designer] Full AI response:', response)
 
     // Try to extract JSON from response
     const jsonMatch = response.match(/\{[\s\S]*\}/)
+    console.log('[Architecture Designer] JSON match result:', jsonMatch ? 'found' : 'not found')
     if (jsonMatch) {
+      console.log('[Architecture Designer] Extracted JSON length:', jsonMatch[0].length)
       try {
         const architecture = JSON.parse(jsonMatch[0])
         console.log('[Architecture Designer] Successfully parsed AI architecture:', {
@@ -281,20 +284,22 @@ Return ONLY JSON.`
           complexity: architecture.complexity,
           hasDataFlow: !!architecture.dataFlow
         })
-        
+
         // Validate the architecture
         const validation = this.validateArchitecture(architecture)
         if (!validation.valid) {
           console.error('[Architecture Designer] Architecture validation failed:', validation.errors)
           throw new Error(`Invalid architecture: ${validation.errors.join(', ')}`)
         }
-        
+
         return architecture
       } catch (error) {
         console.error('[Architecture Designer] Failed to parse AI architecture JSON:', error)
+        console.error('[Architecture Designer] JSON parse error details:', error instanceof Error ? error.message : 'Unknown error')
       }
     }
 
+    console.error('[Architecture Designer] No valid JSON found in AI response')
     throw new Error('Failed to extract valid architecture from AI response')
   }
 
