@@ -556,8 +556,9 @@ export class IntelligenceAnalyzerV2 {
     console.log('[Intelligence Analyzer V2] ===== AI BLOCKER IDENTIFICATION START =====')
 
     try {
-      const { AIEngine } = await import('../ai-engine')
-      console.log('[Intelligence Analyzer V2] AIEngine imported successfully')
+      const { WorkflowAIService } = await import('./workflow-ai-service')
+      const aiService = WorkflowAIService.getInstance()
+      console.log('[Intelligence Analyzer V2] WorkflowAIService initialized')
 
       const specJSON = JSON.stringify(specState.spec, null, 2)
       const knownFields = Array.from(specState.known).join(', ')
@@ -589,21 +590,12 @@ Return JSON in this exact format:
 Use dot notation for field paths (e.g., "integrations.emailProvider", "outputs.destinations").
 Return empty array if no blockers exist.`
 
-      console.log('[Intelligence Analyzer V2] Calling AIEngine.streamChat for blocker identification')
+      console.log('[Intelligence Analyzer V2] Calling WorkflowAIService for blocker identification')
 
-      let fullResponse = ''
-      for await (const event of AIEngine.streamChat({
-        messages: [{ role: 'user', content: prompt }],
-        disableTools: true
-      })) {
-        if (event.type === 'delta' && event.content) {
-          fullResponse += event.content
-        }
-      }
+      const response = await aiService.generateResponse(prompt)
+      console.log('[Intelligence Analyzer V2] AI response received:', response.substring(0, 200))
 
-      console.log('[Intelligence Analyzer V2] AI response received:', fullResponse.substring(0, 200))
-
-      const jsonMatch = fullResponse.match(/\{[\s\S]*\}/)
+      const jsonMatch = response.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0])
         specState.blockers.clear()
@@ -921,7 +913,8 @@ Return empty array if no blockers exist.`
    * Formulate a question for a blocker using AI-based dynamic generation
    */
   private static async formulateQuestion(blocker: string, specState: SpecState): Promise<AnalysisResult['question']> {
-    const { AIEngine } = await import('../ai-engine')
+    const { WorkflowAIService } = await import('./workflow-ai-service')
+    const aiService = WorkflowAIService.getInstance()
 
     const prompt = `You are an expert automation consultant. Generate a natural, conversational question to ask the user about a missing specification.
 
@@ -957,18 +950,9 @@ Return ONLY valid JSON in this exact format:
 
 Do not include any text before or after the JSON. The response must be pure JSON.`
 
-    console.log('[Intelligence Analyzer V2] Calling AI for question generation, blocker:', blocker)
+    console.log('[Intelligence Analyzer V2] Calling WorkflowAIService for question generation, blocker:', blocker)
 
-    let fullResponse = ''
-    for await (const event of AIEngine.streamChat({
-      messages: [{ role: 'user', content: prompt }],
-      disableTools: true
-    })) {
-      if (event.type === 'delta' && event.content) {
-        fullResponse += event.content
-      }
-    }
-
+    const fullResponse = await aiService.generateResponse(prompt)
     console.log('[Intelligence Analyzer V2] AI question response:', fullResponse.substring(0, 200))
 
     // Try to extract JSON from response

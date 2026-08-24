@@ -291,26 +291,7 @@ export class WorkflowManagerV2 {
     const spec = analysis.specState.spec
 
     // Use AI to dynamically reason about the architecture
-    let architectureProposal
-    try {
-      architectureProposal = await this.generateArchitectureWithAI(spec)
-    } catch (error) {
-      console.error('[Workflow Manager V2] AI architecture generation failed, using fallback:', error)
-      // Fallback to simple architecture
-      architectureProposal = {
-        platform: spec.platform || 'n8n',
-        platformReasoning: 'Selected based on requirements',
-        complexity: 'moderate',
-        stages: [
-          { name: 'Trigger', purpose: 'Initiate automation' },
-          { name: 'Process', purpose: 'Process data' },
-          { name: 'Action', purpose: 'Execute action' }
-        ],
-        assumptions: ['Basic automation requirements'],
-        recommendations: ['Configure proper error handling'],
-        description: '1. Trigger\n2. Process\n3. Action'
-      }
-    }
+    const architectureProposal = await this.generateArchitectureWithAI(spec)
 
     console.log('[Workflow Manager V2] Architecture design result:', {
       platform: architectureProposal.platform,
@@ -339,7 +320,8 @@ export class WorkflowManagerV2 {
    * Generate architecture using AI-based dynamic reasoning
    */
   private static async generateArchitectureWithAI(spec: any): Promise<any> {
-    const { AIEngine } = await import('../ai-engine')
+    const { WorkflowAIService } = await import('./workflow-ai-service')
+    const aiService = WorkflowAIService.getInstance()
 
     const prompt = `You are an expert automation architect. Design a logical architecture for the following automation request.
 
@@ -383,18 +365,9 @@ Return ONLY JSON in this exact format:
 
 Be specific and context-aware. Do not use generic templates.`
 
-    console.log('[Workflow Manager V2] Calling AI for architecture generation with prompt length:', prompt.length)
+    console.log('[Workflow Manager V2] Calling WorkflowAIService for architecture generation with prompt length:', prompt.length)
 
-    let fullResponse = ''
-    for await (const event of AIEngine.streamChat({
-      messages: [{ role: 'user', content: prompt }],
-      disableTools: true
-    })) {
-      if (event.type === 'delta' && event.content) {
-        fullResponse += event.content
-      }
-    }
-
+    const fullResponse = await aiService.generateResponse(prompt)
     console.log('[Workflow Manager V2] AI architecture response received:', fullResponse.substring(0, 200))
 
     // Parse the AI response to extract JSON
