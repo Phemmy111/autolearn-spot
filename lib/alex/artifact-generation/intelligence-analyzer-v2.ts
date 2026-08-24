@@ -553,12 +553,16 @@ export class IntelligenceAnalyzerV2 {
    * Identify genuine blockers using AI-based analysis
    */
   private static async identifyBlockers(content: string, specState: SpecState): Promise<void> {
-    const { AIEngine } = await import('../ai-engine')
+    console.log('[Intelligence Analyzer V2] ===== AI BLOCKER IDENTIFICATION START =====')
 
-    const specJSON = JSON.stringify(specState.spec, null, 2)
-    const knownFields = Array.from(specState.known).join(', ')
+    try {
+      const { AIEngine } = await import('../ai-engine')
+      console.log('[Intelligence Analyzer V2] AIEngine imported successfully')
 
-    const prompt = `You are an expert automation architect. Analyze the automation specification and identify critical missing information (blockers) that MUST be asked to the user before proceeding.
+      const specJSON = JSON.stringify(specState.spec, null, 2)
+      const knownFields = Array.from(specState.known).join(', ')
+
+      const prompt = `You are an expert automation architect. Analyze the automation specification and identify critical missing information (blockers) that MUST be asked to the user before proceeding.
 
 Automation specification:
 ${specJSON}
@@ -585,12 +589,14 @@ Return JSON in this exact format:
 Use dot notation for field paths (e.g., "integrations.emailProvider", "outputs.destinations").
 Return empty array if no blockers exist.`
 
-    try {
+      console.log('[Intelligence Analyzer V2] Calling AIEngine.chat for blocker identification')
       const response = await AIEngine.chat({
         messages: [{ role: 'user', content: prompt }],
         stream: false,
         disableTools: true
       })
+
+      console.log('[Intelligence Analyzer V2] AI response received:', response.text?.substring(0, 200))
 
       const content = response.text || ''
       const jsonMatch = content.match(/\{[\s\S]*\}/)
@@ -599,18 +605,22 @@ Return empty array if no blockers exist.`
         specState.blockers.clear()
         result.blockers.forEach((blocker: string) => specState.blockers.add(blocker))
         console.log('[Intelligence Analyzer V2] AI-identified blockers:', Array.from(specState.blockers))
+        console.log('[Intelligence Analyzer V2] ===== AI BLOCKER IDENTIFICATION SUCCESS =====')
         return
       }
 
       // Fallback if JSON parsing fails
+      console.log('[Intelligence Analyzer V2] JSON parsing failed, attempting text extraction')
       throw new Error('Failed to parse AI blocker response')
     } catch (error) {
       console.error('[Intelligence Analyzer V2] AI blocker identification failed, using fallback:', error)
+      console.error('[Intelligence Analyzer V2] Error details:', JSON.stringify(error, null, 2))
       // Fallback to basic logic
       specState.blockers.clear()
       if (!specState.spec.integrations?.emailProvider && specState.spec.domain === 'email') {
         specState.blockers.add('integrations.emailProvider')
       }
+      console.log('[Intelligence Analyzer V2] ===== AI BLOCKER IDENTIFICATION FALLBACK =====')
     }
   }
   
@@ -943,6 +953,8 @@ Return ONLY valid JSON in this exact format:
 
 Do not include any text before or after the JSON. The response must be pure JSON.`
 
+    console.log('[Intelligence Analyzer V2] Calling AI for question generation, blocker:', blocker)
+
     const response = await AIEngine.chat({
       messages: [{ role: 'user', content: prompt }],
       stream: false,
@@ -950,22 +962,42 @@ Do not include any text before or after the JSON. The response must be pure JSON
     })
 
     const content = response.text || ''
-    console.log('[Intelligence Analyzer V2] AI question response:', content)
+    console.log('[Intelligence Analyzer V2] AI question response:', content.substring(0, 200))
 
     // Try to extract JSON from response
     const jsonMatch = content.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       const question = JSON.parse(jsonMatch[0])
+      console.log('[Intelligence Analyzer V2] Successfully parsed AI question:', {
+        hasOptions: !!question.options,
+        optionCount: question.options?.length
+      })
       return question
     }
 
-    // If AI fails, return simple question without options
-    console.error('[Intelligence Analyzer V2] Failed to parse AI question response, using simple fallback')
+    // If JSON parsing fails, try to extract question and options from text
+    console.log('[Intelligence Analyzer V2] JSON parsing failed, attempting text extraction')
+    const lines = content.split('\n').filter(line => line.trim())
+
+    // Find the question (first non-empty line that's not a header)
+    const questionText = lines.find(line => !line.includes(':') && line.length > 10) || `I need to know: ${blocker.replace(/_/g, ' ')}`
+
+    // Find options (lines with - or numbers)
+    const options = lines
+      .filter(line => line.match(/^- /) || line.match(/^\d+\./))
+      .map(line => line.replace(/^- /, '').replace(/^\d+\.\s*/, '').trim())
+      .filter(opt => opt.length > 0 && opt.length < 50)
+
+    console.log('[Intelligence Analyzer V2] Extracted from text:', {
+      questionText: questionText.substring(0, 50),
+      optionCount: options.length
+    })
+
     return {
-      text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
+      text: questionText,
       field: blocker,
       context: blocker,
-      options: null
+      options: options.length > 0 ? options : this.getFallbackOptions(blocker)
     }
   }
 

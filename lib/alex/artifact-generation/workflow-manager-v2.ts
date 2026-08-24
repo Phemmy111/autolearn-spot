@@ -365,7 +365,7 @@ Design the architecture by:
 6. List assumptions about the environment
 7. Provide implementation recommendations
 
-Return JSON in this exact format:
+Return ONLY JSON in this exact format:
 {
   "platform": "n8n",
   "platformReasoning": "brief explanation of platform choice",
@@ -381,42 +381,56 @@ Return JSON in this exact format:
   "description": "numbered list of stages with descriptions"
 }
 
-Be specific and context-aware. Don't use generic templates.`
+Be specific and context-aware. Do not use generic templates.`
 
-    try {
-      const response = await AIEngine.chat({
-        messages: [{ role: 'user', content: prompt }],
-        stream: false,
-        disableTools: true
+    console.log('[Workflow Manager V2] Calling AI for architecture generation with prompt length:', prompt.length)
+
+    const response = await AIEngine.chat({
+      messages: [{ role: 'user', content: prompt }],
+      stream: false,
+      disableTools: true
+    })
+
+    console.log('[Workflow Manager V2] AI architecture response received:', response.text?.substring(0, 200))
+
+    // Parse the AI response to extract JSON
+    const content = response.text || ''
+    const jsonMatch = content.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      const architecture = JSON.parse(jsonMatch[0])
+      console.log('[Workflow Manager V2] Successfully parsed AI architecture:', {
+        stageCount: architecture.stages?.length,
+        complexity: architecture.complexity
       })
+      return architecture
+    }
 
-      // Parse the AI response to extract JSON
-      const content = response.text || ''
-      const jsonMatch = content.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        const architecture = JSON.parse(jsonMatch[0])
-        return architecture
-      }
+    // If JSON parsing fails, try to extract stages from text
+    console.log('[Workflow Manager V2] JSON parsing failed, attempting text extraction')
+    const lines = content.split('\n').filter(line => line.trim())
+    const stages = lines
+      .filter(line => line.match(/^\d+\./) || line.match(/^- /))
+      .map(line => {
+        const name = line.replace(/^\d+\.\s*/, '').replace(/^- /, '').split(':')[0].trim()
+        const purpose = line.includes(':') ? line.split(':')[1].trim() : 'Process data'
+        return { name, purpose }
+      })
+      .filter(s => s.name.length > 0)
 
-      // Fallback if JSON parsing fails
-      throw new Error('Failed to parse AI architecture response')
-    } catch (error) {
-      console.error('[Workflow Manager V2] AI architecture generation failed, using fallback:', error)
-      // Fallback to basic architecture
+    if (stages.length > 0) {
+      console.log('[Workflow Manager V2] Extracted stages from text:', stages.length)
       return {
         platform: spec.platform || 'n8n',
         platformReasoning: 'Selected based on requirements',
-        complexity: 'moderate',
-        stages: [
-          { name: 'Trigger', purpose: 'Initiate automation' },
-          { name: 'Process', purpose: 'Process data' },
-          { name: 'Action', purpose: 'Execute action' }
-        ],
-        assumptions: ['Basic automation requirements'],
-        recommendations: ['Configure proper error handling'],
-        description: '1. Trigger\n2. Process\n3. Action'
+        complexity: stages.length > 5 ? 'complex' : stages.length > 3 ? 'moderate' : 'simple',
+        stages,
+        assumptions: ['AI-generated architecture from text'],
+        recommendations: ['Test thoroughly before deployment'],
+        description: stages.map((s, i) => `${i + 1}. ${s.name}\n   ${s.purpose}`).join('\n')
       }
     }
+
+    throw new Error('Failed to extract architecture from AI response')
   }
   
   /**
