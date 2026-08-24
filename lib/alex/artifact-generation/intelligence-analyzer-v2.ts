@@ -169,7 +169,7 @@ export class IntelligenceAnalyzerV2 {
         situation: 'new_request',
         nextAction: 'ask_question',
         question,
-        explanation: this.buildExplanation(specState)
+        explanation: this.buildExplanation(specState, false)
       }
     }
     
@@ -230,7 +230,7 @@ export class IntelligenceAnalyzerV2 {
         situation: 'continuation',
         nextAction: 'ask_question',
         question,
-        explanation: this.buildExplanation(specState)
+        explanation: this.buildExplanation(specState, true)
       }
     }
     
@@ -878,18 +878,20 @@ ${Array.from(specState.known).map(k => `- ${k}: ${JSON.stringify(this.getSpecVal
 Generate a question that:
 1. Is natural and conversational (not robotic)
 2. Explains why we need this information
-3. Provides relevant options if applicable
+3. Provides 3-5 relevant options if applicable (e.g., for email provider: ["Gmail", "Outlook", "IMAP/SMTP", "Recommend for me"])
 4. Keeps it concise (under 50 words)
 
-Return JSON in this exact format:
+IMPORTANT: Always provide options for common fields like email providers, AI models, notification channels, etc.
+
+Return ONLY valid JSON in this exact format:
 {
   "text": "your question text",
   "field": "${blocker}",
   "context": "${blocker}",
-  "options": ["option1", "option2", "option3"] or null if not applicable
+  "options": ["option1", "option2", "option3"]
 }
 
-Make the question context-aware based on the automation type and domain.`
+Do not include any text before or after the JSON. The response must be pure JSON.`
 
     try {
       const response = await AIEngine.chat({
@@ -899,9 +901,16 @@ Make the question context-aware based on the automation type and domain.`
       })
 
       const content = response.text || ''
-      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      console.log('[Intelligence Analyzer V2] AI question response:', content)
+
+      // Try to extract JSON from response
+      let jsonMatch = content.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         const question = JSON.parse(jsonMatch[0])
+        // Ensure options exist if appropriate
+        if (!question.options && this.shouldHaveOptions(blocker)) {
+          question.options = this.getDefaultOptions(blocker)
+        }
         return question
       }
 
@@ -909,13 +918,51 @@ Make the question context-aware based on the automation type and domain.`
       throw new Error('Failed to parse AI question response')
     } catch (error) {
       console.error('[Intelligence Analyzer V2] AI question generation failed, using fallback:', error)
-      // Fallback to simple question
+      // Fallback to question with default options
       return {
         text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
         field: blocker,
-        context: blocker
+        context: blocker,
+        options: this.shouldHaveOptions(blocker) ? this.getDefaultOptions(blocker) : null
       }
     }
+  }
+
+  /**
+   * Determine if a field should have options
+   */
+  private static shouldHaveOptions(blocker: string): boolean {
+    const optionFields = [
+      'integrations.emailProvider',
+      'integrations.aiProvider',
+      'integrations.aiModel',
+      'integrations.knowledgeBase',
+      'outputs.destinations',
+      'businessRules.routing'
+    ]
+    return optionFields.some(field => blocker.includes(field))
+  }
+
+  /**
+   * Get default options for a field
+   */
+  private static getDefaultOptions(blocker: string): string[] {
+    if (blocker.includes('emailProvider')) {
+      return ['Gmail', 'Outlook', 'IMAP/SMTP', 'Recommend for me']
+    }
+    if (blocker.includes('aiProvider') || blocker.includes('aiModel')) {
+      return ['Recommend for me', 'OpenAI GPT-4', 'Anthropic Claude-3', 'Google Gemini']
+    }
+    if (blocker.includes('knowledgeBase')) {
+      return ['None', 'Notion', 'Confluence', 'Google Drive', 'Pinecone/Vector DB']
+    }
+    if (blocker.includes('destinations')) {
+      return ['Email', 'Slack', 'Telegram', 'WhatsApp', 'Recommend for me']
+    }
+    if (blocker.includes('routing')) {
+      return ['Every email', 'Support inquiries only', 'Custom rules']
+    }
+    return null
   }
 
   /**
@@ -933,21 +980,21 @@ Make the question context-aware based on the automation type and domain.`
   /**
    * Build an explanation for the user
    */
-  private static buildExplanation(specState: SpecState): string {
+  private static buildExplanation(specState: SpecState, isContinuation: boolean = false): string {
     const parts: string[] = []
 
     // Only show platform explanation on first question, not on every continuation
-    if (specState.known.size === 0 && specState.spec.platform && specState.spec.platformReasoning) {
+    if (!isContinuation && specState.spec.platform && specState.spec.platformReasoning) {
       parts.push(`I recommend **${specState.spec.platform}** because ${specState.spec.platformReasoning.toLowerCase()}.`)
     }
 
     // Only show what we understand on first question
-    if (specState.known.size === 0 && (specState.spec.description || specState.spec.automationType)) {
+    if (!isContinuation && (specState.spec.description || specState.spec.automationType)) {
       parts.push(`I understand you want to build a **${specState.spec.description || specState.spec.automationType}**.`)
     }
 
     // For continuations, keep it minimal - just the question context
-    if (specState.known.size > 0) {
+    if (isContinuation) {
       parts.push(`Thanks for the information.`)
     }
 
