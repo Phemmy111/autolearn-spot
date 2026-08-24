@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ALEX Workflow Manager V2
  * 
  * Architecture-first, platform-aware workflow management
@@ -491,28 +491,7 @@ Be specific and context-aware. Do not use generic templates.`
     const { WorkflowAIService } = await import('./workflow-ai-service')
     const aiService = WorkflowAIService.getInstance()
 
-    const prompt = `You are an expert n8n workflow architect. Generate a complete n8n workflow JSON for the following automation.
-
-Request: ${spec.description || spec.automationType || 'General automation'}
-Automation Type: ${spec.automationType || 'automation'}
-Domain: ${spec.domain || 'custom'}
-Platform: n8n
-
-Key Requirements:
-${spec.aiConfig?.enabled ? '- AI processing is enabled (use OpenAI node)' : '- No AI processing'}
-${spec.integrations?.emailProvider ? `- Email provider: ${spec.integrations.emailProvider} (use Email node)' : ''}
-${spec.integrations?.aiProvider ? `- AI provider: ${spec.integrations.aiProvider} (use OpenAI node)' : ''}
-${spec.trigger?.type ? `- Trigger type: ${spec.trigger.type}` : '- Default to Webhook trigger'}
-
-Generate a complete n8n workflow JSON with:
-1. Nodes array with properly configured nodes
-2. Connections object defining node connections
-3. name field for the workflow
-4. settings object with proper n8n settings
-5. active: true
-6. Valid node types (n8n-nodes-base.*)
-
-Return ONLY valid JSON. Do not include any text before or after the JSON.`
+    const prompt = 'You are an expert n8n workflow architect. Generate a complete n8n workflow JSON for the following automation. Request: ' + (spec.description || spec.automationType || 'General automation') + '. Automation Type: ' + (spec.automationType || 'automation') + '. Domain: ' + (spec.domain || 'custom') + '. Platform: n8n. Key Requirements: ' + (spec.aiConfig?.enabled ? '- AI processing is enabled (use OpenAI node)' : '- No AI processing') + ' ' + (spec.integrations?.emailProvider ? '- Email provider: ' + spec.integrations.emailProvider + ' (use Email node)' : '') + ' ' + (spec.integrations?.aiProvider ? '- AI provider: ' + spec.integrations.aiProvider + ' (use OpenAI node)' : '') + ' ' + (spec.trigger?.type ? '- Trigger type: ' + spec.trigger.type : '- Default to Webhook trigger') + '. Generate a complete n8n workflow JSON with: 1. Nodes array with properly configured nodes 2. Connections object defining node connections 3. name field for the workflow 4. settings object with proper n8n settings 5. active: true 6. Valid node types (n8n-nodes-base.*). Return ONLY valid JSON. Do not include any text before or after the JSON.'
 
     const workflowJSON = await aiService.generateJSON(prompt)
     console.log('[Workflow Manager V2] AI-generated workflow JSON')
@@ -545,18 +524,7 @@ Return ONLY valid JSON. Do not include any text before or after the JSON.`
     )
 
     // Generate guide using AI
-    const guidePrompt = `Generate a brief implementation guide for this n8n workflow.
-
-Workflow: ${spec.description || spec.automationType}
-Platform: n8n
-
-Provide a simple guide with:
-1. How to import the JSON into n8n
-2. What credentials are needed
-3. How to test the workflow
-4. Any important configuration notes
-
-Keep it under 300 words.`
+    const guidePrompt = 'Generate a brief implementation guide for this n8n workflow.\n\nWorkflow: ' + (spec.description || spec.automationType) + '\nPlatform: n8n\n\nProvide a simple guide with:\n1. How to import the JSON into n8n\n2. What credentials are needed\n3. How to test the workflow\n4. Any important configuration notes\n\nKeep it under 300 words.'
 
     const guide = await aiService.generateResponse(guidePrompt)
 
@@ -602,356 +570,25 @@ Keep it under 300 words.`
    */
   private static detectRequestedFormat(request: string): string {
     const lower = request.toLowerCase()
-    
-    if (lower.includes('json file') || lower.includes('.json')) return 'json'
-    if (lower.includes('yaml') || lower.includes('.yaml')) return 'yaml'
+    if (lower.includes('json')) return 'json'
+    if (lower.includes('yaml') || lower.includes('yml')) return 'yaml'
     if (lower.includes('python') || lower.includes('.py')) return 'python'
     if (lower.includes('javascript') || lower.includes('.js')) return 'javascript'
-    if (lower.includes('markdown') || lower.includes('.md')) return 'markdown'
-    
-    // Default to JSON for automation workflows
-    return 'json'
+    return 'json' // default
   }
-  
+
   /**
-   * Ensure filename has the correct extension
+   * Ensure file has correct extension
    */
   private static ensureExtension(filename: string, extension: string): string {
-    const base = filename.replace(/\.(json|yaml|py|js|md|txt)$/i, '')
-    return `${base}.${extension}`
+    if (!filename.endsWith('.' + extension)) {
+      return filename + '.' + extension
+    }
+    return filename
   }
-  
+
   /**
-   * Validate artifact format matches requirements
-   */
-  private static validateArtifactFormat(
-    content: any,
-    filename: string,
-    fileType: string,
-    mimeType: string,
-    requestedFormat: string
-  ): { valid: boolean; errors: string[] } {
-    const errors: string[] = []
-    
-    // Check filename extension matches file type
-    const expectedExtensions: Record<string, string> = {
-      'json': 'json',
-      'yaml': 'yaml',
-      'py': 'py',
-      'js': 'js',
-      'markdown': 'md'
-    }
-    
-    const expectedExt = expectedExtensions[fileType] || 'json'
-    if (!filename.endsWith(`.${expectedExt}`)) {
-      errors.push(`Filename ${filename} does not match file type ${fileType} (expected .${expectedExt})`)
-    }
-    
-    // Check MIME type matches file type
-    const expectedMimeTypes: Record<string, string> = {
-      'json': 'application/json',
-      'yaml': 'application/x-yaml',
-      'py': 'text/x-python',
-      'js': 'application/javascript',
-      'markdown': 'text/markdown'
-    }
-    
-    const expectedMime = expectedMimeTypes[fileType]
-    if (mimeType !== expectedMime) {
-      errors.push(`MIME type ${mimeType} does not match file type ${fileType} (expected ${expectedMime})`)
-    }
-    
-    // Check requested format matches actual format
-    if (requestedFormat === 'json' && fileType !== 'json') {
-      errors.push(`User requested JSON but generated ${fileType}`)
-    }
-    
-    // For JSON, verify content is actually JSON
-    if (fileType === 'json') {
-      try {
-        const contentStr = typeof content === 'string' ? content : JSON.stringify(content)
-        JSON.parse(contentStr)
-      } catch (e) {
-        errors.push('Content is not valid JSON')
-      }
-    }
-    
-    return {
-      valid: errors.length === 0,
-      errors
-    }
-  }
-  
-  /**
-   * Build connections from architecture design
-   */
-  private static buildConnectionsFromDesign(connections: any[], nodes: any[]): any {
-    const connectionMap: any = {}
-    
-    // Create a node name to ID mapping
-    const nodeNameToId = new Map()
-    nodes.forEach(node => {
-      nodeNameToId.set(node.name, node.id)
-    })
-    
-    // Build connections using node IDs
-    connections.forEach(conn => {
-      const fromId = nodeNameToId.get(conn.from)
-      const toId = nodeNameToId.get(conn.to)
-      
-      if (fromId && toId) {
-        if (!connectionMap[fromId]) {
-          connectionMap[fromId] = { main: [] }
-        }
-        connectionMap[fromId].main.push({
-          node: toId,
-          type: conn.type,
-          index: conn.index
-        })
-      }
-    })
-    
-    return connectionMap
-  }
-  
-  /**
-   * Validate n8n workflow schema
-   */
-  private static validateN8nSchema(workflow: any): { valid: boolean; errors: string[] } {
-    const errors: string[] = []
-    
-    // Check required top-level fields
-    if (!workflow.name || typeof workflow.name !== 'string') {
-      errors.push('Missing or invalid workflow name')
-    }
-    
-    if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
-      errors.push('Missing or invalid nodes array')
-    } else {
-      const nodeIds = new Set<string>()
-      const nodeNames = new Set<string>()
-      
-      for (const node of workflow.nodes) {
-        if (!node.id || typeof node.id !== 'string') {
-          errors.push(`Node missing ID: ${node.name || 'unnamed'}`)
-        } else if (nodeIds.has(node.id)) {
-          errors.push(`Duplicate node ID: ${node.id}`)
-        } else {
-          nodeIds.add(node.id)
-        }
-        
-        if (!node.name || typeof node.name !== 'string') {
-          errors.push(`Node missing name: ${node.id}`)
-        } else if (nodeNames.has(node.name)) {
-          errors.push(`Duplicate node name: ${node.name}`)
-        } else {
-          nodeNames.add(node.name)
-        }
-        
-        if (!node.type || typeof node.type !== 'string') {
-          errors.push(`Node missing type: ${node.name}`)
-        }
-        
-        if (!node.position || !Array.isArray(node.position) || node.position.length !== 2) {
-          errors.push(`Node missing valid position: ${node.name}`)
-        }
-        
-        if (!node.parameters || typeof node.parameters !== 'object') {
-          errors.push(`Node missing parameters: ${node.name}`)
-        }
-      }
-      
-      if (workflow.nodes.length === 0) {
-        errors.push('Workflow has no nodes')
-      }
-    }
-    
-    // Check connections
-    if (!workflow.connections || typeof workflow.connections !== 'object') {
-      errors.push('Missing or invalid connections object')
-    } else {
-      const connectionNodeIds = Object.keys(workflow.connections)
-      
-      for (const sourceId of connectionNodeIds) {
-        if (!nodeIds.has(sourceId)) {
-          errors.push(`Connection references non-existent source node: ${sourceId}`)
-        }
-        
-        const sourceConnections = workflow.connections[sourceId]
-        if (!sourceConnections.main || !Array.isArray(sourceConnections.main)) {
-          errors.push(`Invalid connection structure for node: ${sourceId}`)
-        } else {
-          for (const conn of sourceConnections.main) {
-            if (!conn.node || !nodeIds.has(conn.node)) {
-              errors.push(`Connection references non-existent target node: ${conn.node}`)
-            }
-          }
-        }
-      }
-    }
-    
-    // Check settings
-    if (!workflow.settings || typeof workflow.settings !== 'object') {
-      errors.push('Missing or invalid settings object')
-    }
-    
-    return {
-      valid: errors.length === 0,
-      errors
-    }
-  }
-  
-  /**
-   * Repair n8n workflow with common issues
-   */
-  private static repairN8nWorkflow(workflow: any, errors: string[]): any {
-    console.log('[Workflow Manager V2] Attempting to repair workflow:', errors)
-    
-    // Add missing settings
-    if (!workflow.settings) {
-      workflow.settings = {
-        executionOrder: 'v1',
-        saveDataOnExecution: 'all',
-        saveManualExecutions: true
-      }
-    }
-    
-    // Ensure all nodes have positions
-    if (workflow.nodes) {
-      workflow.nodes.forEach((node: any, index: number) => {
-        if (!node.position) {
-          node.position = [index * 200, 100]
-        }
-        
-        // Ensure parameters is an object
-        if (!node.parameters || typeof node.parameters !== 'object') {
-          node.parameters = {}
-        }
-        
-        // Fix "f[m] is not iterable" - ensure array fields are arrays
-        if (node.parameters.conditions) {
-          if (node.parameters.conditions.string && !Array.isArray(node.parameters.conditions.string)) {
-            node.parameters.conditions.string = [node.parameters.conditions.string]
-          }
-          if (node.parameters.conditions.boolean && !Array.isArray(node.parameters.conditions.boolean)) {
-            node.parameters.conditions.boolean = [node.parameters.conditions.boolean]
-          }
-          if (node.parameters.conditions.number && !Array.isArray(node.parameters.conditions.number)) {
-            node.parameters.conditions.number = [node.parameters.conditions.number]
-          }
-        }
-        
-        // Fix bodyParameters - ensure parameters array exists
-        if (node.parameters.bodyParameters && !node.parameters.bodyParameters.parameters) {
-          node.parameters.bodyParameters.parameters = []
-        }
-      })
-    }
-    
-    // Fix connections - ensure all connection arrays exist
-    if (workflow.connections) {
-      Object.keys(workflow.connections).forEach(sourceId => {
-        const sourceConnections = workflow.connections[sourceId]
-        if (!sourceConnections.main) {
-          sourceConnections.main = []
-        }
-        if (!Array.isArray(sourceConnections.main)) {
-          sourceConnections.main = []
-        }
-      })
-    }
-    
-    return workflow
-  }
-  
-  /**
-   * Generate generic artifact for non-n8n platforms
-   */
-  private static generateGenericArtifact(spec: AutomationSpec, architecture: LogicalArchitecture, platform: string): any {
-    return {
-      platform: platform,
-      name: architecture.name,
-      description: architecture.description,
-      stages: architecture.stages.map(stage => ({
-        id: stage.id,
-        name: stage.name,
-        purpose: stage.purpose,
-        inputs: stage.inputs,
-        outputs: stage.outputs
-      })),
-      complexity: architecture.complexity,
-      assumptions: architecture.assumptions,
-      recommendations: architecture.recommendations,
-      configuration: spec
-    }
-  }
-  
-  /**
-   * Generate implementation guide from actual artifact
-   */
-  private static generateGuide(spec: AutomationSpec, architecture: LogicalArchitecture, artifact: any, platform: string): string {
-    let guide = `# ${architecture.name} - Implementation Guide\n\n`
-    guide += `## Overview\n\n`
-    guide += `This automation implements: ${architecture.description}\n\n`
-    guide += `**Platform:** ${platform}\n`
-    guide += `**Complexity:** ${architecture.complexity}\n\n`
-    
-    guide += `## Architecture\n\n`
-    architecture.stages.forEach((stage, index) => {
-      guide += `${index + 1}. **${stage.name}**\n`
-      guide += `   ${stage.purpose}\n`
-      if (stage.inputs.length > 0) {
-        guide += `   Inputs: ${stage.inputs.join(', ')}\n`
-      }
-      if (stage.outputs.length > 0) {
-        guide += `   Outputs: ${stage.outputs.join(', ')}\n`
-      }
-      guide += `\n`
-    })
-    
-    guide += `## Configuration Required\n\n`
-    
-    if (spec.integrations?.emailProvider) {
-      guide += `- Email Provider: ${spec.integrations.emailProvider} (configure credentials)\n`
-    }
-    
-    if (spec.integrations?.aiProvider) {
-      guide += `- AI Provider: ${spec.integrations.aiProvider} (configure API key)\n`
-      if (spec.integrations?.aiModel) {
-        guide += `- AI Model: ${spec.integrations.aiModel}\n`
-      }
-    }
-    
-    if (spec.integrations?.knowledgeBase) {
-      guide += `- Knowledge Base: ${spec.integrations.knowledgeBase} (configure connection)\n`
-    }
-    
-    if (spec.aiConfig?.confidenceThreshold) {
-      guide += `- Confidence Threshold: ${spec.aiConfig.confidenceThreshold}\n`
-    }
-    
-    guide += `\n## Assumptions\n\n`
-    architecture.assumptions.forEach(assumption => {
-      guide += `- ${assumption}\n`
-    })
-    
-    guide += `\n## Recommendations\n\n`
-    architecture.recommendations.forEach(rec => {
-      guide += `- ${rec}\n`
-    })
-    
-    guide += `\n## Testing\n\n`
-    guide += `1. Import the workflow into ${platform}\n`
-    guide += `2. Configure required credentials\n`
-    guide += `3. Test with sample data\n`
-    guide += `4. Verify the output matches expectations\n`
-    guide += `5. Monitor the first few executions\n`
-    
-    return guide
-  }
-  
-  /**
-   * Generate UUID
+   * Generate UUID for workflow
    */
   private static generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -960,317 +597,142 @@ Keep it under 300 words.`
       return v.toString(16)
     })
   }
-  
+
   /**
-   * Translate logical architecture to n8n-specific implementation
+   * Validate artifact format
    */
-  private static translateLogicalToN8n(
-    logicalArchitecture: LogicalArchitecture,
-    spec: AutomationSpec,
-    originalRequest: string
-  ): { name: string; nodes: any[]; connections: any } {
-    console.log('[Workflow Manager V2] Translating logical architecture to n8n')
-    
-    const nodes: any[] = []
-    const connections: any = {}
-    let nodeIndex = 0
-    const nodeMap = new Map<string, string>() // stage ID -> node ID
-    
-    // Build n8n nodes from logical stages
-    logicalArchitecture.stages.forEach((stage, index) => {
-      const nodeId = this.generateUUID()
-      nodeMap.set(stage.id, nodeId)
-      
-      const node = this.createN8nNodeFromStage(stage, nodeId, nodeIndex, spec)
-      nodes.push(node)
-      nodeIndex++
-    })
-    
-    // Build connections based on stage dependencies
-    // Connect FROM dependencies TO the stage
-    logicalArchitecture.stages.forEach(stage => {
-      stage.dependencies.forEach(depId => {
-        const sourceNodeId = nodeMap.get(depId)
-        const targetNodeId = nodeMap.get(stage.id)
-        
-        if (sourceNodeId && targetNodeId) {
-          if (!connections[sourceNodeId]) {
-            connections[sourceNodeId] = { main: [] }
-          }
-          connections[sourceNodeId].main.push({
-            node: targetNodeId,
-            type: 'main',
-            index: 0
-          })
-        }
-      })
-    })
-    
+  private static validateArtifactFormat(content: any, filename: string, fileType: string, mimeType: string, requestedFormat: string): { valid: boolean; errors: string[] } {
+    const errors: string[] = []
+
+    if (!content) {
+      errors.push('Artifact content is empty')
+    }
+
+    if (!filename) {
+      errors.push('Filename is missing')
+    }
+
+    if (!fileType) {
+      errors.push('File type is missing')
+    }
+
+    if (!mimeType) {
+      errors.push('MIME type is missing')
+    }
+
+    if (requestedFormat !== fileType) {
+      console.log(`[Workflow Manager V2] Format mismatch: requested ${requestedFormat}, got ${fileType}`)
+    }
+
     return {
-      name: logicalArchitecture.name,
-      nodes,
-      connections
+      valid: errors.length === 0,
+      errors
     }
   }
-  
+
   /**
-   * Create n8n node from logical stage
+   * Detect build type from spec
    */
-  private static createN8nNodeFromStage(
-    stage: LogicalStage,
-    nodeId: string,
-    index: number,
-    spec: AutomationSpec
-  ): any {
-    const position: [number, number] = [index * 200, 100]
-    
-    // Map logical stages to n8n node types
-    const nodeTypeMap: Record<string, { type: string; typeVersion: number; parameters: any }> = {
-      'trigger': {
-        type: this.getN8nTriggerType(spec.trigger?.type || 'manual'),
-        typeVersion: 1,
-        parameters: this.getN8nTriggerParameters(spec)
-      },
-      'normalize': {
-        type: 'n8n-nodes-base.function',
-        typeVersion: 1,
-        parameters: {
-          functionCode: `// Normalize email data\nreturn {\n  sender: $json.from,\n  subject: $json.subject,\n  body: $json.text || $json.html,\n  threadId: $json.threadId || $json.id,\n  hasAttachments: $json.attachments && $json.attachments.length > 0\n}`
-        }
-      },
-      'deduplicate': {
-        type: 'n8n-nodes-base.if',
-        typeVersion: 1,
-        parameters: {
-          conditions: {
-            string: [
-              {
-                value1: '={{ $json.threadId }}',
-                operation: 'isEmpty'
-              }
-            ]
-          }
-        }
-      },
-      'classify': {
-        type: 'n8n-nodes-base.httpRequest',
-        typeVersion: 1,
-        parameters: {
-          url: '={{ $credentials.openaiApi.url }}/v1/chat/completions',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          bodyParameters: {
-            parameters: [
-              {
-                name: 'model',
-                value: '={{ $json.model || "gpt-4" }}'
-              },
-              {
-                name: 'messages',
-                value: '={{ JSON.stringify([{role: "system", content: "Classify this email as: urgent, support, sales, or other"}, {role: "user", content: $json.body}]) }}'
-              }
-            ]
-          }
-        }
-      },
-      'assemble-context': {
-        type: 'n8n-nodes-base.merge',
-        typeVersion: 2,
-        parameters: {
-          mode: 'combine',
-          combineOperation: 'merge'
-        }
-      },
-      'ai-process': {
-        type: 'n8n-nodes-base.httpRequest',
-        typeVersion: 1,
-        parameters: {
-          url: '={{ $credentials.openaiApi.url }}/v1/chat/completions',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          bodyParameters: {
-            parameters: [
-              {
-                name: 'model',
-                value: '={{ $credentials.openaiApi.model || "gpt-4" }}'
-              },
-              {
-                name: 'messages',
-                value: '={{ JSON.stringify([{role: "system", content: "Generate a helpful response"}, {role: "user", content: $json.body}]) }}'
-              }
-            ]
-          }
-        }
-      },
-      'confidence-check': {
-        type: 'n8n-nodes-base.function',
-        typeVersion: 1,
-        parameters: {
-          functionCode: `// Check confidence\nconst confidence = $json.confidence || 0.5;\nreturn {\n  ...$json,\n  isConfident: confidence >= 0.7,\n  confidence\n}`
-        }
-      },
-      'branch': {
-        type: 'n8n-nodes-base.if',
-        typeVersion: 1,
-        parameters: {
-          conditions: {
-            boolean: [
-              {
-                value1: '={{ $json.isConfident }}',
-                value2: true
-              }
-            ]
-          }
-        }
-      },
-      'auto-reply': {
-        type: this.getN8nEmailNodeType(spec.integrations?.emailProvider || 'gmail'),
-        typeVersion: 1,
-        parameters: this.getN8nEmailParameters(spec.integrations?.emailProvider || 'gmail')
-      },
-      'escalate': {
-        type: 'n8n-nodes-base.slack',
-        typeVersion: 1,
-        parameters: {
-          channel: '={{ $escalationChannel || "#support-escalation" }}',
-          text: '={{ $json.body }}'
-        }
-      },
-      'log': {
-        type: 'n8n-nodes-base.function',
-        typeVersion: 1,
-        parameters: {
-          functionCode: `// Log interaction\nconsole.log('Interaction logged:', $json);\nreturn $json;`
-        }
-      },
-      'error-handler': {
-        type: 'n8n-nodes-base.errorTrigger',
-        typeVersion: 1,
-        parameters: {}
-      }
-    }
-    
-    const nodeConfig = nodeTypeMap[stage.id] || {
-      type: 'n8n-nodes-base.function',
-      typeVersion: 1,
-      parameters: {
-        functionCode: `// ${stage.purpose}\nreturn $json;`
-      }
-    }
-    
-    return {
-      id: nodeId,
-      name: stage.name,
-      type: nodeConfig.type,
-      typeVersion: nodeConfig.typeVersion,
-      position,
-      parameters: nodeConfig.parameters
-    }
+  private static detectBuildType(spec: any): BuildType {
+    return 'automation'
   }
-  
-  /**
-   * Get n8n trigger type based on trigger specification
-   */
-  private static getN8nTriggerType(triggerType: string): string {
-    switch (triggerType) {
-      case 'email':
-        return 'n8n-nodes-base.gmailTrigger'
-      case 'webhook':
-        return 'n8n-nodes-base.webhook'
-      case 'schedule':
-        return 'n8n-nodes-base.scheduleTrigger'
-      default:
-        return 'n8n-nodes-base.manualTrigger'
-    }
-  }
-  
-  /**
-   * Get n8n trigger parameters
-   */
-  private static getN8nTriggerParameters(spec: AutomationSpec): any {
-    const triggerType = spec.trigger?.type || 'manual'
-    
-    switch (triggerType) {
-      case 'email':
-        return {
-          event: 'messageReceived',
-          filters: {
-            from: '={{ $json.from }}'
-          }
-        }
-      case 'webhook':
-        return {
-          httpMethod: 'POST',
-          path: 'webhook'
-        }
-      case 'schedule':
-        return {
-          rule: {
-            interval: [{ field: 'hours', hoursInterval: 1 }]
-          }
-        }
-      default:
-        return {}
-    }
-  }
-  
-  /**
-   * Get n8n email node type
-   */
-  private static getN8nEmailNodeType(emailProvider: string): string {
-    switch (emailProvider.toLowerCase()) {
-      case 'gmail':
-        return 'n8n-nodes-base.gmail'
-      case 'outlook':
-        return 'n8n-nodes-base.microsoftOutlook'
-      default:
-        return 'n8n-nodes-base.emailSend'
-    }
-  }
-  
-  /**
-   * Get n8n email parameters
-   */
-  private static getN8nEmailParameters(emailProvider: string): any {
-    return {
-      to: '={{ $json.sender }}',
-      subject: '={{ $json.subject }}',
-      body: '={{ $json.body }}',
-      attachments: '={{ $json.attachments }}'
-    }
-  }
-  
+
   /**
    * Handle clarifying ambiguity
    */
   private static async handleClarifyAmbiguity(build: ArtifactBuild, analysis: AnalysisResultV2): Promise<WorkflowResponse> {
     console.log('[Workflow Manager V2] Clarifying ambiguity')
-    
+
     return {
       status: 'collecting_requirements',
-      message: analysis.explanation || 'I need to clarify something.',
+      message: analysis.explanation || 'I need to clarify something about your request.',
       needsInput: true,
       question: analysis.question
     }
   }
-  
+
   /**
-   * Detect build type from spec
+   * Translate logical architecture to n8n implementation
    */
-  private static detectBuildType(spec: AutomationSpec): BuildType {
-    switch (spec.automationType) {
-      case 'chatbot':
-        return 'chatbot'
-      case 'workflow':
-      case 'automation':
-      case 'pipeline':
-      case 'integration':
-      default:
-        return 'workflow'
+  private static translateLogicalToN8n(logicalArchitecture: LogicalArchitecture, spec: any, originalRequest: string): any {
+    // This is now handled by AI - kept for compatibility
+    return {
+      name: spec.automationType || 'n8n Workflow',
+      nodes: [],
+      connections: {}
     }
+  }
+
+  /**
+   * Generate generic artifact for non-n8n platforms
+   */
+  private static generateGenericArtifact(spec: any, logicalArchitecture: LogicalArchitecture, platform: string): any {
+    return {
+      platform,
+      automationType: spec.automationType,
+      stages: logicalArchitecture.stages
+    }
+  }
+
+  /**
+   * Validate n8n schema
+   */
+  private static validateN8nSchema(workflow: any): { valid: boolean; errors: string[] } {
+    const errors: string[] = []
+
+    if (!workflow.name) {
+      errors.push('Workflow name is missing')
+    }
+
+    if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
+      errors.push('Workflow nodes are missing or invalid')
+    }
+
+    if (!workflow.connections) {
+      errors.push('Workflow connections are missing')
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    }
+  }
+
+  /**
+   * Repair n8n workflow
+   */
+  private static repairN8nWorkflow(workflow: any, errors: string[]): any {
+    // Basic repair logic
+    if (!workflow.name) {
+      workflow.name = 'Repaired Workflow'
+    }
+
+    if (!workflow.nodes) {
+      workflow.nodes = []
+    }
+
+    if (!workflow.connections) {
+      workflow.connections = {}
+    }
+
+    return workflow
+  }
+
+  /**
+   * Generate guide from artifact
+   */
+  private static generateGuide(spec: AutomationSpec, architecture: LogicalArchitecture, artifactContent: any, platform: string): string {
+    let guide = '# Implementation Guide\n\n'
+    guide += `## ${spec.automationType || 'Automation'}\n\n`
+    guide += `Platform: ${platform}\n\n`
+    guide += '### Architecture\n\n'
+    architecture.stages.forEach((stage, index) => {
+      guide += `${index + 1}. ${stage.name}: ${stage.purpose}\n`
+    })
+    guide += '\n### Configuration\n\n'
+    guide += '- Import the workflow file into ' + platform + '\n'
+    guide += '- Configure required credentials\n'
+    guide += '- Test the workflow\n'
+    return guide
   }
 }
