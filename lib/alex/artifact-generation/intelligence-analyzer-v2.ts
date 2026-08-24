@@ -9,6 +9,7 @@
 import { AutomationSpec, SpecState, createSpecState, updateSpec, mergeSpec } from './automation-spec'
 import { selectPlatform } from './platform-capabilities'
 import { AlexFile } from '../types'
+import { SemanticAnalyzer } from './semantic-analyzer'
 
 export interface AnalysisResult {
   // Structured specification
@@ -97,23 +98,68 @@ export class IntelligenceAnalyzerV2 {
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== HANDLE NEW REQUEST =====')
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Content:', content.substring(0, 100))
     
-    const lower = content.toLowerCase()
+    // Phase 1: Try AI semantic extraction first
+    let aiSpec: Partial<AutomationSpec> = {}
+    let aiExtractionSuccess = false
     
-    // Detect automation type and domain
-    const automationType = this.detectAutomationType(content)
-    const domain = this.detectDomain(content)
+    const useAIExtraction = process.env.USE_AI_SPEC_EXTRACTION !== 'false'
     
-    // Update spec
-    specState.spec.automationType = automationType
-    specState.spec.domain = domain
-    specState.known.add('automationType')
-    specState.known.add('domain')
+    if (useAIExtraction) {
+      try {
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Attempting AI semantic extraction')
+        aiSpec = await SemanticAnalyzer.extractSpecification({
+          content,
+          conversationHistory: undefined, // Not needed for new request
+          attachedFiles
+        })
+        
+        if (Object.keys(aiSpec).length > 0) {
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI semantic extraction succeeded:', {
+            fieldCount: Object.keys(aiSpec).length,
+            fields: Object.keys(aiSpec)
+          })
+          
+          // Merge AI-extracted spec into specState
+          specState.spec = { ...specState.spec, ...aiSpec }
+          
+          // Mark AI-extracted fields as known
+          Object.keys(aiSpec).forEach(key => {
+            specState.known.add(key)
+          })
+          
+          aiExtractionSuccess = true
+        } else {
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI extraction returned empty spec, using keyword fallback')
+        }
+      } catch (error) {
+        console.error('[DEBUG INTELLIGENCE ANALYZER V2] AI semantic extraction failed, using keyword fallback:', error)
+      }
+    } else {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI extraction disabled by feature flag, using keyword fallback')
+    }
     
-    // Extract explicit specifications
-    this.extractExplicitSpecs(content, specState)
+    // Phase 2: Fallback to keyword extraction if AI failed or returned empty
+    if (!aiExtractionSuccess) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Using keyword-based extraction as fallback')
+      
+      const lower = content.toLowerCase()
+      
+      // Detect automation type and domain
+      const automationType = this.detectAutomationType(content)
+      const domain = this.detectDomain(content)
+      
+      // Update spec
+      specState.spec.automationType = automationType
+      specState.spec.domain = domain
+      specState.known.add('automationType')
+      specState.known.add('domain')
+      
+      // Extract explicit specifications
+      this.extractExplicitSpecs(content, specState)
 
-    // Make intelligent inferences
-    this.makeInferences(content, specState)
+      // Make intelligent inferences
+      this.makeInferences(content, specState)
+    }
 
     // Select platform if not specified
     if (!specState.spec.platform) {
@@ -217,15 +263,15 @@ export class IntelligenceAnalyzerV2 {
       const field = fieldMatch[1].trim()
       const value = fieldMatch[2].trim()
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Parsed field:value format:', { field, value })
-      this.mapAnswerToSpec(value, field, specState)
+      await this.mapAnswerToSpec(value, field, specState)
     } else if (specState.questionContext) {
       // Use database-restored question context
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Using question context for mapping:', specState.questionContext)
-      this.mapAnswerToSpec(content, specState.questionContext, specState)
+      await this.mapAnswerToSpec(content, specState.questionContext, specState)
     } else {
       // No question context - try to infer what field this answers
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] No question context, trying to infer')
-      this.inferAnswerMapping(content, specState)
+      await this.inferAnswerMapping(content, specState)
     }
     
     // Clear the question context only after successful mapping
@@ -641,8 +687,9 @@ Return empty array if no blockers exist.`
   
   /**
    * Map user answer to specification field based on question context
+   * Phase 2: Enhanced with AI semantic mapping
    */
-  private static mapAnswerToSpec(answer: string, context: string, specState: SpecState): void {
+  private static async mapAnswerToSpec(answer: string, context: string, specState: SpecState): Promise<void> {
     const lower = answer.toLowerCase()
     
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC START =====')
@@ -670,6 +717,43 @@ Return empty array if no blockers exist.`
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
       return
     }
+    
+    // Phase 2: Try AI semantic mapping first
+    const useAIMapping = process.env.USE_AI_ANSWER_MAPPING !== 'false'
+    
+    if (useAIMapping) {
+      try {
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Attempting AI semantic answer mapping')
+        const aiMapping = await SemanticAnalyzer.mapAnswer(answer, context, specState.spec)
+        
+        if (aiMapping.field && aiMapping.value !== null) {
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI semantic mapping succeeded:', aiMapping)
+          
+          // Apply AI mapping to spec
+          this.applyMappingToSpec(aiMapping.field, aiMapping.value, specState)
+          
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after AI mapping:', Array.from(specState.known))
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after AI mapping:', Array.from(specState.blockers))
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
+          return
+        } else if (aiMapping.field === 'recommendation') {
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI returned recommendation, applying:', aiMapping.value)
+          this.applyMappingToSpec(context, aiMapping.value, specState)
+          specState.recommended.add(context)
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
+          return
+        } else {
+          console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI mapping returned null, using keyword fallback')
+        }
+      } catch (error) {
+        console.error('[DEBUG INTELLIGENCE ANALYZER V2] AI semantic mapping failed, using keyword fallback:', error)
+      }
+    } else {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI mapping disabled by feature flag, using keyword fallback')
+    }
+    
+    // Fallback to keyword-based mapping
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Using keyword-based answer mapping as fallback')
     
     switch (context) {
       case 'integrations.emailProvider':
@@ -786,6 +870,42 @@ Return empty array if no blockers exist.`
   }
   
   /**
+   * Apply AI mapping result to specification
+   * Phase 2: Helper method to apply structured AI mapping results
+   */
+  private static applyMappingToSpec(field: string, value: any, specState: SpecState): void {
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Applying AI mapping:', { field, value })
+    
+    // Navigate to the correct nested property
+    const parts = field.split('.')
+    let current: any = specState.spec
+    
+    // Build the nested structure if it doesn't exist
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i]
+      if (!current[part]) {
+        current[part] = {}
+      }
+      current = current[part]
+    }
+    
+    // Set the final value
+    const lastPart = parts[parts.length - 1]
+    current[lastPart] = value
+    
+    // Mark as known and remove from blockers
+    specState.known.add(field)
+    specState.blockers.delete(field)
+    
+    console.log('[DEBUG INTELLIGENCE ANALYZER V2] Applied mapping successfully:', {
+      field,
+      value,
+      known: Array.from(specState.known),
+      blockers: Array.from(specState.blockers)
+    })
+  }
+  
+  /**
    * Handle "Recommend for me" option
    */
   private static handleRecommendation(context: string, specState: SpecState): void {
@@ -862,14 +982,15 @@ Return empty array if no blockers exist.`
   
   /**
    * Infer which field an answer is for when there's no question context
+   * Phase 2: Updated to handle async mapAnswerToSpec
    */
-  private static inferAnswerMapping(answer: string, specState: SpecState): void {
+  private static async inferAnswerMapping(answer: string, specState: SpecState): Promise<void> {
     const lower = answer.toLowerCase()
     
     // Check if this answers an email provider question
     if (specState.blockers.has('integrations.emailProvider')) {
       if (lower.includes('gmail') || lower.includes('outlook') || lower.includes('exchange')) {
-        this.mapAnswerToSpec(answer, 'integrations.emailProvider', specState)
+        await this.mapAnswerToSpec(answer, 'integrations.emailProvider', specState)
         return
       }
     }
@@ -877,7 +998,7 @@ Return empty array if no blockers exist.`
     // Check if this answers an AI provider question
     if (specState.blockers.has('integrations.aiProvider') || specState.blockers.has('integrations.aiModel')) {
       if (lower.includes('gemini') || lower.includes('gpt') || lower.includes('claude')) {
-        this.mapAnswerToSpec(answer, 'integrations.aiProvider', specState)
+        await this.mapAnswerToSpec(answer, 'integrations.aiProvider', specState)
         return
       }
     }
@@ -885,7 +1006,7 @@ Return empty array if no blockers exist.`
     // Check if this answers a knowledge base question
     if (specState.blockers.has('integrations.knowledgeBase')) {
       if (lower.includes('pinecone') || lower.includes('notion') || lower.includes('confluence')) {
-        this.mapAnswerToSpec(answer, 'integrations.knowledgeBase', specState)
+        await this.mapAnswerToSpec(answer, 'integrations.knowledgeBase', specState)
         return
       }
     }
@@ -893,7 +1014,7 @@ Return empty array if no blockers exist.`
     // Check if this answers a routing/reply scope question
     if (specState.blockers.has('businessRules.routing')) {
       if (lower.includes('every') || lower.includes('all') || lower.includes('support')) {
-        this.mapAnswerToSpec(answer, 'businessRules.routing', specState)
+        await this.mapAnswerToSpec(answer, 'businessRules.routing', specState)
         return
       }
     }
@@ -901,7 +1022,7 @@ Return empty array if no blockers exist.`
     // Check if this answers an output destination question
     if (specState.blockers.has('outputs.destinations')) {
       if (lower.includes('email') || lower.includes('slack') || lower.includes('telegram') || lower.includes('whatsapp')) {
-        this.mapAnswerToSpec(answer, 'outputs.destinations', specState)
+        await this.mapAnswerToSpec(answer, 'outputs.destinations', specState)
         return
       }
     }
