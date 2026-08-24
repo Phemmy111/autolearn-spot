@@ -167,11 +167,12 @@ export class IntelligenceAnalyzerV2 {
         question = await this.formulateQuestion(blocker, specState)
       } catch (error) {
         console.error('[Intelligence Analyzer V2] Error formulating question, using fallback:', error)
+        // Fallback with better options based on field type
         question = {
           text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
           field: blocker,
           context: blocker,
-          options: ['Other'] // Simple fallback option
+          options: this.getFallbackOptions(blocker)
         }
       }
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Formulated question:', {
@@ -255,7 +256,7 @@ export class IntelligenceAnalyzerV2 {
           text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
           field: blocker,
           context: blocker,
-          options: ['Other']
+          options: this.getFallbackOptions(blocker)
         }
       }
       return {
@@ -652,6 +653,17 @@ Return empty array if no blockers exist.`
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
       return
     }
+
+    // Handle "Other" or "Skip" options - mark as known with a default value
+    if (lower.includes('other') || lower.includes('skip')) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] SKIP/OTHER DETECTED for context:', context)
+      // Set a reasonable default based on the field
+      this.setDefaultValue(context, specState)
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after skip:', Array.from(specState.known))
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after skip:', Array.from(specState.blockers))
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
+      return
+    }
     
     switch (context) {
       case 'integrations.emailProvider':
@@ -967,6 +979,66 @@ Do not include any text before or after the JSON. The response must be pure JSON
       value = value?.[part]
     }
     return value
+  }
+
+  /**
+   * Get fallback options for a field when AI generation fails
+   */
+  private static getFallbackOptions(blocker: string): string[] {
+    if (blocker.includes('emailProvider')) {
+      return ['Gmail', 'Outlook', 'IMAP/SMTP', 'SendGrid', 'Mailgun']
+    }
+    if (blocker.includes('aiProvider') || blocker.includes('aiModel')) {
+      return ['OpenAI GPT-4', 'Anthropic Claude-3', 'Google Gemini', 'Local LLM']
+    }
+    if (blocker.includes('knowledgeBase')) {
+      return ['None', 'Notion', 'Confluence', 'Google Drive', 'Pinecone']
+    }
+    if (blocker.includes('destinations')) {
+      return ['Email', 'Slack', 'Telegram', 'WhatsApp', 'Discord']
+    }
+    if (blocker.includes('routing')) {
+      return ['Every message', 'Support inquiries only', 'Sales inquiries only', 'Custom rules']
+    }
+    return ['Skip this field'] // Default fallback
+  }
+
+  /**
+   * Set a default value for a field when user skips/chooses "Other"
+   */
+  private static setDefaultValue(context: string, specState: SpecState): void {
+    if (context.includes('emailProvider')) {
+      specState.spec.integrations = specState.spec.integrations || {}
+      specState.spec.integrations.emailProvider = 'gmail'
+      specState.known.add('integrations.emailProvider')
+      specState.blockers.delete('integrations.emailProvider')
+    } else if (context.includes('aiProvider') || context.includes('aiModel')) {
+      specState.spec.integrations = specState.spec.integrations || {}
+      specState.spec.integrations.aiProvider = 'openai'
+      specState.spec.integrations.aiModel = 'gpt-4'
+      specState.known.add('integrations.aiProvider')
+      specState.known.add('integrations.aiModel')
+      specState.blockers.delete('integrations.aiProvider')
+    } else if (context.includes('knowledgeBase')) {
+      specState.spec.integrations = specState.spec.integrations || {}
+      specState.spec.integrations.knowledgeBase = 'none'
+      specState.known.add('integrations.knowledgeBase')
+      specState.blockers.delete('integrations.knowledgeBase')
+    } else if (context.includes('destinations')) {
+      specState.spec.outputs = specState.spec.outputs || {}
+      specState.spec.outputs.destinations = ['email']
+      specState.known.add('outputs.destinations')
+      specState.blockers.delete('outputs.destinations')
+    } else if (context.includes('routing')) {
+      specState.spec.businessRules = specState.spec.businessRules || {}
+      specState.spec.businessRules.routing = ['every message']
+      specState.known.add('businessRules.routing')
+      specState.blockers.delete('businessRules.routing')
+    } else {
+      // Generic fallback: just mark as known with a placeholder
+      specState.known.add(context)
+      specState.blockers.delete(context)
+    }
   }
   
   /**
