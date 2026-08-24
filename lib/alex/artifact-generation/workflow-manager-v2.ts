@@ -385,17 +385,20 @@ Be specific and context-aware. Do not use generic templates.`
 
     console.log('[Workflow Manager V2] Calling AI for architecture generation with prompt length:', prompt.length)
 
-    const response = await AIEngine.chat({
+    let fullResponse = ''
+    for await (const event of AIEngine.streamChat({
       messages: [{ role: 'user', content: prompt }],
-      stream: false,
       disableTools: true
-    })
+    })) {
+      if (event.type === 'delta' && event.content) {
+        fullResponse += event.content
+      }
+    }
 
-    console.log('[Workflow Manager V2] AI architecture response received:', response.text?.substring(0, 200))
+    console.log('[Workflow Manager V2] AI architecture response received:', fullResponse.substring(0, 200))
 
     // Parse the AI response to extract JSON
-    const content = response.text || ''
-    const jsonMatch = content.match(/\{[\s\S]*\}/)
+    const jsonMatch = fullResponse.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       const architecture = JSON.parse(jsonMatch[0])
       console.log('[Workflow Manager V2] Successfully parsed AI architecture:', {
@@ -407,7 +410,7 @@ Be specific and context-aware. Do not use generic templates.`
 
     // If JSON parsing fails, try to extract stages from text
     console.log('[Workflow Manager V2] JSON parsing failed, attempting text extraction')
-    const lines = content.split('\n').filter(line => line.trim())
+    const lines = fullResponse.split('\n').filter(line => line.trim())
     const stages = lines
       .filter(line => line.match(/^\d+\./) || line.match(/^- /))
       .map(line => {

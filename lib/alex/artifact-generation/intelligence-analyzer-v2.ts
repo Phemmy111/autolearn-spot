@@ -589,17 +589,21 @@ Return JSON in this exact format:
 Use dot notation for field paths (e.g., "integrations.emailProvider", "outputs.destinations").
 Return empty array if no blockers exist.`
 
-      console.log('[Intelligence Analyzer V2] Calling AIEngine.chat for blocker identification')
-      const response = await AIEngine.chat({
+      console.log('[Intelligence Analyzer V2] Calling AIEngine.streamChat for blocker identification')
+
+      let fullResponse = ''
+      for await (const event of AIEngine.streamChat({
         messages: [{ role: 'user', content: prompt }],
-        stream: false,
         disableTools: true
-      })
+      })) {
+        if (event.type === 'delta' && event.content) {
+          fullResponse += event.content
+        }
+      }
 
-      console.log('[Intelligence Analyzer V2] AI response received:', response.text?.substring(0, 200))
+      console.log('[Intelligence Analyzer V2] AI response received:', fullResponse.substring(0, 200))
 
-      const content = response.text || ''
-      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      const jsonMatch = fullResponse.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0])
         specState.blockers.clear()
@@ -955,17 +959,20 @@ Do not include any text before or after the JSON. The response must be pure JSON
 
     console.log('[Intelligence Analyzer V2] Calling AI for question generation, blocker:', blocker)
 
-    const response = await AIEngine.chat({
+    let fullResponse = ''
+    for await (const event of AIEngine.streamChat({
       messages: [{ role: 'user', content: prompt }],
-      stream: false,
       disableTools: true
-    })
+    })) {
+      if (event.type === 'delta' && event.content) {
+        fullResponse += event.content
+      }
+    }
 
-    const content = response.text || ''
-    console.log('[Intelligence Analyzer V2] AI question response:', content.substring(0, 200))
+    console.log('[Intelligence Analyzer V2] AI question response:', fullResponse.substring(0, 200))
 
     // Try to extract JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/)
+    const jsonMatch = fullResponse.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       const question = JSON.parse(jsonMatch[0])
       console.log('[Intelligence Analyzer V2] Successfully parsed AI question:', {
@@ -977,7 +984,7 @@ Do not include any text before or after the JSON. The response must be pure JSON
 
     // If JSON parsing fails, try to extract question and options from text
     console.log('[Intelligence Analyzer V2] JSON parsing failed, attempting text extraction')
-    const lines = content.split('\n').filter(line => line.trim())
+    const lines = fullResponse.split('\n').filter(line => line.trim())
 
     // Find the question (first non-empty line that's not a header)
     const questionText = lines.find(line => !line.includes(':') && line.length > 10) || `I need to know: ${blocker.replace(/_/g, ' ')}`
