@@ -50,14 +50,15 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'ai email', 'intelligent email', 'smart email',
       'create simple', 'create basic', 'create advanced',
       'build simple', 'build basic', 'build advanced',
-      'generate simple', 'generate basic', 'generate advanced'
+      'generate simple', 'generate basic', 'generate advanced',
+      'email notification system', 'notification system', 'alert system'
     ]
 
     // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
     const isBuildRequest = buildPatterns.some(pattern => lowerContent.startsWith(pattern) ||
       (lowerContent.includes(pattern) && lowerContent.length < 50) ||
       // Match "create" or "build" or "generate" at the start followed by any word
-      (lowerContent.startsWith('create ') || lowerContent.startsWith('build ') || lowerContent.startsWith('generate ')) && lowerContent.length < 60)
+      (lowerContent.startsWith('create ') || lowerContent.startsWith('build ') || lowerContent.startsWith('generate ')) && lowerContent.length < 100)
 
     // Secondary check: even if not at start, check for strong build indicators
     const strongBuildIndicators = [
