@@ -8,700 +8,418 @@
 import { AutomationSpec } from './automation-spec'
 
 export interface LogicalStage {
+  // Core identification
   id: string
   name: string
   purpose: string
-  inputs: string[]
-  outputs: string[]
+  
+  // Stage categorization
+  category: 'trigger' | 'input' | 'processing' | 'decision' | 'output' | 'error_handling' | 'state_management' | 'human_interaction' | 'observability'
+  
+  // Data flow
+  inputs: string[]  // Data inputs this stage consumes
+  outputs: string[]  // Data outputs this stage produces
+  dataFlow?: {
+    from?: string[]  // Stage IDs this stage consumes from
+    to?: string[]  // Stage IDs this stage produces for
+  }
+  
+  // Execution control
   optional: boolean
   dependencies: string[]  // IDs of stages this depends on
+  
+  // Configuration
+  configuration?: Record<string, any>  // Stage-specific configuration
+  
+  // Branching and conditions
+  conditions?: {
+    expression?: string  // Semantic condition expression
+    truePath?: string[]  // Stage IDs to execute if condition is true
+    falsePath?: string[]  // Stage IDs to execute if condition is false
+  }
+  
+  // Failure behavior
+  failureBehavior?: {
+    retryPolicy?: 'none' | 'fixed' | 'exponential-backoff'
+    maxRetries?: number
+    fallbackPath?: string[]  // Stage IDs to execute on failure
+    escalationPath?: string[]  // Stage IDs to escalate to on repeated failure
+  }
+  
+  // State requirements
+  stateRequirements?: {
+    required: boolean
+    purpose?: string  // Why state is needed
+    data?: string[]  // What state data to maintain
+  }
+  
+  // Security considerations
+  security?: {
+    credentials?: string[]  // What credentials are needed
+    pii?: boolean  // Whether this stage handles PII
+    encryption?: boolean  // Whether encryption is required
+    accessControl?: string[]  // Required access permissions
+  }
+  
+  // Observability
+  observability?: {
+    logging?: boolean
+    metrics?: string[]  // What metrics to collect
+    alerts?: string[]  // What conditions trigger alerts
+  }
+  
+  // Human interaction
+  humanInteraction?: {
+    required: boolean
+    purpose?: string  // Why human interaction is needed
+    escalationPath?: string  // Where to escalate
+  }
 }
 
 export interface LogicalArchitecture {
+  // Core identification
+  id: string
   name: string
   description: string
-  stages: LogicalStage[]
+  goal: string  // Business objective
+  
+  // Metadata
+  domain: string
   complexity: 'simple' | 'moderate' | 'complex'
-  reasoning: string
+  reasoning: string  // Why this architecture was designed
+  
+  // Execution stages
+  stages: LogicalStage[]
+  
+  // Data flow representation
+  dataFlow?: {
+    connections: Array<{
+      from: string  // Stage ID
+      to: string  // Stage ID
+      data: string[]  // What data flows between them
+    }>
+  }
+  
+  // Architecture-level considerations
   assumptions: string[]
   recommendations: string[]
+  unresolvedDecisions?: string[]  // Decisions that require user input
+  
+  // Platform independence
+  platformAgnostic: boolean  // Should always be true for logical architecture
 }
 
 export class ArchitectureDesigner {
   /**
    * Design logical architecture based on automation specification
+   * Phase 3A: Now uses AI-based dynamic generation instead of hardcoded templates
    */
-  static design(spec: AutomationSpec): LogicalArchitecture {
-    console.log('[Architecture Designer] Designing logical architecture for:', spec.automationType)
+  static async design(spec: AutomationSpec): Promise<LogicalArchitecture> {
+    console.log('[Architecture Designer] Designing logical architecture using AI for:', spec.automationType)
     
-    const lowerDesc = (spec.description || '').toLowerCase()
-    const domain = spec.domain || 'custom'
-    
-    // Design based on automation type and domain
-    if (domain === 'email' && spec.aiConfig?.enabled) {
-      return this.designAIEmailAutomation(spec)
+    const { WorkflowAIService } = await import('./workflow-ai-service')
+    const aiService = WorkflowAIService.getInstance()
+
+    const prompt = `You are an expert automation architect. Design a rich, platform-independent logical architecture for the following automation request.
+
+Request: ${spec.description || spec.automationType || 'General automation'}
+Automation Type: ${spec.automationType || 'automation'}
+Domain: ${spec.domain || 'custom'}
+
+Key Requirements:
+${spec.aiConfig?.enabled ? '- AI processing is enabled' : '- No AI processing'}
+${spec.integrations?.emailProvider ? `- Email provider: ${spec.integrations.emailProvider}` : ''}
+${spec.integrations?.aiProvider ? `- AI provider: ${spec.integrations.aiProvider}` : ''}
+${spec.integrations?.aiModel ? `- AI model: ${spec.integrations.aiModel}` : ''}
+${spec.integrations?.knowledgeBase ? `- Knowledge base: ${spec.integrations.knowledgeBase}` : ''}
+${spec.humanApproval?.required ? '- Human approval/escalation is required' : ''}
+${spec.schedule?.enabled ? '- Scheduled/triggered automation' : ''}
+${spec.persistence?.enabled ? '- Logging and persistence is enabled' : ''}
+${spec.security?.credentials ? '- Credentials needed: ${spec.security.credentials.join(', ')}` : ''}
+
+Design the architecture by reasoning through:
+1. Business objective and goal
+2. Inputs and data sources
+3. Outputs and destinations
+4. Trigger mechanism
+5. Core processing stages (be specific to the use case)
+6. Data flow between stages (what data moves where)
+7. Dependencies between stages
+8. Branching logic (if decisions need to be made)
+9. State requirements (if duplicate detection, conversation history, etc. is needed)
+10. Failure handling and retry behavior (where it materially matters)
+11. Human-in-the-loop requirements (when human judgment is needed)
+12. Security considerations (credentials, PII, encryption if relevant)
+13. Observability (logging, metrics, alerts if meaningful)
+
+IMPORTANT ARCHITECTURE RULES:
+- Design stages specifically for THIS use case, not generic templates
+- Simple requests should have simple architectures (don't over-engineer)
+- Complex requests should have appropriately rich architectures
+- Only include failure handling where it materially matters
+- Only include state when actually needed
+- Only include human interaction when genuinely required
+- Only include security considerations when relevant
+
+Stage categories to use:
+- trigger: Initiates the automation
+- input: Receives external data
+- processing: Transforms or analyzes data
+- decision: Makes branching decisions
+- output: Sends results or notifications
+- error_handling: Handles failures and retries
+- state_management: Maintains state across executions
+- human_interaction: Requires human input
+- observability: Logs, metrics, monitoring
+
+Return ONLY JSON in this exact format:
+{
+  "id": "unique-architecture-id",
+  "name": "descriptive architecture name",
+  "description": "what this automation accomplishes",
+  "goal": "business objective",
+  "domain": "domain",
+  "complexity": "simple|moderate|complex",
+  "reasoning": "why this architecture was designed this way",
+  "stages": [
+    {
+      "id": "unique-stage-id",
+      "name": "descriptive stage name",
+      "purpose": "what this stage does",
+      "category": "trigger|input|processing|decision|output|error_handling|state_management|human_interaction|observability",
+      "inputs": ["data inputs"],
+      "outputs": ["data outputs"],
+      "dataFlow": {
+        "from": ["source stage ids"],
+        "to": ["destination stage ids"]
+      },
+      "optional": false,
+      "dependencies": ["stage ids this depends on"],
+      "conditions": {
+        "expression": "semantic condition if this is a decision stage",
+        "truePath": ["stage ids if condition is true"],
+        "falsePath": ["stage ids if condition is false"]
+      },
+      "failureBehavior": {
+        "retryPolicy": "none|fixed|exponential-backoff",
+        "maxRetries": 3,
+        "fallbackPath": ["stage ids on failure"]
+      },
+      "stateRequirements": {
+        "required": true,
+        "purpose": "why state is needed",
+        "data": ["what state to maintain"]
+      },
+      "security": {
+        "credentials": ["what credentials are needed"],
+        "pii": true,
+        "encryption": true
+      },
+      "observability": {
+        "logging": true,
+        "metrics": ["what metrics to track"],
+        "alerts": ["what conditions trigger alerts"]
+      },
+      "humanInteraction": {
+        "required": true,
+        "purpose": "why human interaction is needed",
+        "escalationPath": "where to escalate"
+      }
     }
-    
-    if (domain === 'email') {
-      return this.designEmailAutomation(spec)
-    }
-    
-    if (domain === 'support' && spec.aiConfig?.enabled) {
-      return this.designAICustomerSupport(spec)
-    }
-    
-    if (domain === 'support') {
-      return this.designCustomerSupport(spec)
-    }
-    
-    if (spec.aiConfig?.enabled) {
-      return this.designAIAutomation(spec)
-    }
-    
-    if (spec.schedule?.enabled) {
-      return this.designScheduledAutomation(spec)
-    }
-    
-    // Default architecture
-    return this.designGenericAutomation(spec)
-  }
-  
-  /**
-   * Design AI-powered email automation (auto-responder, etc.)
-   */
-  private static designAIEmailAutomation(spec: AutomationSpec): LogicalArchitecture {
-    const stages: LogicalStage[] = [
+  ],
+  "dataFlow": {
+    "connections": [
       {
-        id: 'trigger',
-        name: 'Email Trigger',
-        purpose: 'Receive incoming email messages',
-        inputs: ['incoming email'],
-        outputs: ['email data'],
-        optional: false,
-        dependencies: []
-      },
-      {
-        id: 'normalize',
-        name: 'Normalize Email',
-        purpose: 'Extract and standardize email fields (sender, subject, body, thread ID, attachments)',
-        inputs: ['email data'],
-        outputs: ['normalized email'],
-        optional: false,
-        dependencies: ['trigger']
-      },
-      {
-        id: 'deduplicate',
-        name: 'Duplicate/Thread Check',
-        purpose: 'Prevent duplicate responses and preserve conversation context',
-        inputs: ['normalized email'],
-        outputs: ['email with thread context'],
-        optional: false,
-        dependencies: ['normalize']
-      },
-      {
-        id: 'classify',
-        name: 'Classify Request',
-        purpose: 'Determine intent, urgency, and category of the email',
-        inputs: ['email with thread context'],
-        outputs: ['classification result'],
-        optional: true,
-        dependencies: ['deduplicate']
-      },
-      {
-        id: 'assemble-context',
-        name: 'Assemble Context',
-        purpose: 'Gather relevant context for AI processing (thread history, sender info, classification)',
-        inputs: ['email with thread context', 'classification result'],
-        outputs: ['assembled context'],
-        optional: false,
-        dependencies: ['deduplicate', 'classify']
-      },
-      {
-        id: 'ai-process',
-        name: 'AI Processing',
-        purpose: 'Generate contextual response using AI model',
-        inputs: ['assembled context'],
-        outputs: ['draft response'],
-        optional: false,
-        dependencies: ['assemble-context']
-      },
-      {
-        id: 'confidence-check',
-        name: 'Confidence Evaluation',
-        purpose: 'Evaluate AI response confidence and quality',
-        inputs: ['draft response'],
-        outputs: ['confidence score', 'decision'],
-        optional: spec.humanApproval?.required || false,
-        dependencies: ['ai-process']
-      },
-      {
-        id: 'branch',
-        name: 'Confidence Branch',
-        purpose: 'Route to auto-reply or human escalation based on confidence',
-        inputs: ['confidence score', 'decision'],
-        outputs: ['routing decision'],
-        optional: spec.humanApproval?.required || false,
-        dependencies: ['confidence-check']
-      },
-      {
-        id: 'auto-reply',
-        name: 'Send Auto Reply',
-        purpose: 'Send AI-generated reply preserving thread context',
-        inputs: ['draft response', 'email with thread context'],
-        outputs: ['sent confirmation'],
-        optional: false,
-        dependencies: ['ai-process', 'branch']
-      },
-      {
-        id: 'escalate',
-        name: 'Human Escalation',
-        purpose: 'Route to human for review and response',
-        inputs: ['draft response', 'email with thread context'],
-        outputs: ['escalation confirmation'],
-        optional: spec.humanApproval?.required || false,
-        dependencies: ['branch']
-      },
-      {
-        id: 'log',
-        name: 'Log Interaction',
-        purpose: 'Record input, classification, response, confidence, and outcome',
-        inputs: ['email data', 'classification result', 'draft response', 'confidence score', 'sent confirmation'],
-        outputs: ['log entry'],
-        optional: false,
-        dependencies: ['auto-reply', 'escalate']
-      },
-      {
-        id: 'error-handler',
-        name: 'Error Handler',
-        purpose: 'Handle failed API calls and retry safely',
-        inputs: ['error'],
-        outputs: ['error recovery action'],
-        optional: false,
-        dependencies: ['auto-reply', 'escalate', 'log']
+        "from": "stage id",
+        "to": "stage id",
+        "data": ["what data flows"]
       }
     ]
-    
-    // Remove optional stages if not needed
-    const filteredStages = stages.filter(stage => {
-      if (stage.optional) {
-        if (stage.id === 'classify' && !spec.businessRules?.conditions) return false
-        if (stage.id === 'confidence-check' && !spec.humanApproval?.required) return false
-        if (stage.id === 'branch' && !spec.humanApproval?.required) return false
-        if (stage.id === 'escalate' && !spec.humanApproval?.required) return false
+  },
+  "assumptions": ["assumption 1", "assumption 2"],
+  "recommendations": ["recommendation 1", "recommendation 2"],
+  "unresolvedDecisions": ["decisions that need user input"],
+  "platformAgnostic": true
+}
+
+IMPORTANT:
+- Only include fields that are actually needed for this specific automation
+- Don't include failureBehavior if failure handling isn't needed
+- Don't include stateRequirements if state isn't needed
+- Don't include security if there are no security considerations
+- Don't include humanInteraction if no human interaction is required
+- dataFlow should explicitly represent connections between stages
+- Keep simple workflows genuinely simple`
+
+Return ONLY the JSON object, nothing else.`
+
+    console.log('[Architecture Designer] Calling AI for architecture generation with prompt length:', prompt.length)
+
+    const response = await aiService.generateResponse(prompt)
+    console.log('[Architecture Designer] AI architecture response received:', response.substring(0, 500))
+
+    // Try to extract JSON from response
+    const jsonMatch = response.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      try {
+        const architecture = JSON.parse(jsonMatch[0])
+        console.log('[Architecture Designer] Successfully parsed AI architecture:', {
+          stageCount: architecture.stages?.length,
+          complexity: architecture.complexity,
+          hasDataFlow: !!architecture.dataFlow
+        })
+        
+        // Validate the architecture
+        const validation = this.validateArchitecture(architecture)
+        if (!validation.valid) {
+          console.error('[Architecture Designer] Architecture validation failed:', validation.errors)
+          throw new Error(`Invalid architecture: ${validation.errors.join(', ')}`)
+        }
+        
+        return architecture
+      } catch (error) {
+        console.error('[Architecture Designer] Failed to parse AI architecture JSON:', error)
       }
-      return true
-    })
-    
-    // Generate dynamic reasoning based on actual stages
-    const stageNames = filteredStages.map(s => s.name).join(', ')
-    const hasEscalation = filteredStages.some(s => s.id === 'escalate')
+    }
+
+    throw new Error('Failed to extract valid architecture from AI response')
+  }
+
+  /**
+   * Validate architecture structure and semantics
+   */
+  private static validateArchitecture(architecture: any): { valid: boolean; errors: string[] } {
+    const errors: string[] = []
+
+    // Basic structure validation
+    if (!architecture.id) {
+      errors.push('Architecture is missing id')
+    }
+    if (!architecture.name) {
+      errors.push('Architecture is missing name')
+    }
+    if (!architecture.description) {
+      errors.push('Architecture is missing description')
+    }
+    if (!architecture.goal) {
+      errors.push('Architecture is missing goal')
+    }
+    if (!architecture.complexity) {
+      errors.push('Architecture is missing complexity')
+    }
+    if (!architecture.reasoning) {
+      errors.push('Architecture is missing reasoning')
+    }
+    if (!architecture.stages || !Array.isArray(architecture.stages)) {
+      errors.push('Architecture is missing stages array')
+    }
+    if (!architecture.platformAgnostic) {
+      errors.push('Architecture must be platform-agnostic')
+    }
+
+    // Stage validation
+    if (architecture.stages) {
+      const stageIds = new Set<string>()
+      
+      for (const stage of architecture.stages) {
+        if (!stage.id) {
+          errors.push(`Stage is missing id`)
+        } else if (stageIds.has(stage.id)) {
+          errors.push(`Duplicate stage id: ${stage.id}`)
+        } else {
+          stageIds.add(stage.id)
+        }
+        
+        if (!stage.name) {
+          errors.push(`Stage ${stage.id || 'unknown'} is missing name`)
+        }
+        if (!stage.purpose) {
+          errors.push(`Stage ${stage.id || 'unknown'} is missing purpose`)
+        }
+        if (!stage.category) {
+          errors.push(`Stage ${stage.id || 'unknown'} is missing category`)
+        }
+        
+        // Validate dependencies reference existing stages
+        if (stage.dependencies && Array.isArray(stage.dependencies)) {
+          for (const dep of stage.dependencies) {
+            if (!stageIds.has(dep)) {
+              errors.push(`Stage ${stage.id} has invalid dependency: ${dep}`)
+            }
+          }
+        }
+        
+        // Validate data flow references
+        if (stage.dataFlow) {
+          if (stage.dataFlow.from) {
+            for (const from of stage.dataFlow.from) {
+              if (!stageIds.has(from)) {
+                errors.push(`Stage ${stage.id} has invalid dataFlow.from: ${from}`)
+              }
+            }
+          }
+          if (stage.dataFlow.to) {
+            for (const to of stage.dataFlow.to) {
+              if (!stageIds.has(to)) {
+                errors.push(`Stage ${stage.id} has invalid dataFlow.to: ${to}`)
+              }
+            }
+          }
+        }
+        
+        // Validate conditions paths
+        if (stage.conditions) {
+          if (stage.conditions.truePath) {
+            for (const path of stage.conditions.truePath) {
+              if (!stageIds.has(path)) {
+                errors.push(`Stage ${stage.id} has invalid conditions.truePath: ${path}`)
+              }
+            }
+          }
+          if (stage.conditions.falsePath) {
+            for (const path of stage.conditions.falsePath) {
+              if (!stageIds.has(path)) {
+                errors.push(`Stage ${stage.id} has invalid conditions.falsePath: ${path}`)
+              }
+            }
+          }
+        }
+        
+        // Validate failure paths
+        if (stage.failureBehavior) {
+          if (stage.failureBehavior.fallbackPath) {
+            for (const path of stage.failureBehavior.fallbackPath) {
+              if (!stageIds.has(path)) {
+                errors.push(`Stage ${stage.id} has invalid failureBehavior.fallbackPath: ${path}`)
+              }
+            }
+          }
+          if (stage.failureBehavior.escalationPath) {
+            for (const path of stage.failureBehavior.escalationPath) {
+              if (!stageIds.has(path)) {
+                errors.push(`Stage ${stage.id} has invalid failureBehavior.escalationPath: ${path}`)
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Validate data flow connections
+    if (architecture.dataFlow && architecture.dataFlow.connections) {
+      for (const connection of architecture.dataFlow.connections) {
+        if (!stageIds.has(connection.from)) {
+          errors.push(`Data flow has invalid from: ${connection.from}`)
+        }
+        if (!stageIds.has(connection.to)) {
+          errors.push(`Data flow has invalid to: ${connection.to}`)
+        }
+      }
+    }
 
     return {
-      name: spec.filename?.replace('.json', '') || 'ai-email-automation',
-      description: 'AI-powered email automation with intelligent response generation',
-      stages: filteredStages,
-      complexity: spec.humanApproval?.required ? 'complex' : 'moderate',
-      reasoning: `AI email automation includes: ${stageNames}. ${hasEscalation ? 'Human escalation is included for low-confidence responses.' : ''}`,
-      assumptions: [
-        'Email provider supports IMAP/webhook triggers',
-        'AI model is accessible via API',
-        'Thread preservation is important for conversation context',
-        'Duplicate prevention prevents infinite loops'
-      ],
-      recommendations: [
-        'Preserve original email thread for conversation continuity',
-        'Use confidence thresholds to determine when to escalate',
-        'Log all interactions for audit and improvement',
-        'Implement retry logic for external API failures'
-      ]
-    }
-  }
-  
-  /**
-   * Design simple email automation (non-AI)
-   */
-  private static designEmailAutomation(spec: AutomationSpec): LogicalArchitecture {
-    const stages: LogicalStage[] = [
-      {
-        id: 'trigger',
-        name: 'Email Trigger',
-        purpose: 'Receive incoming email messages',
-        inputs: ['incoming email'],
-        outputs: ['email data'],
-        optional: false,
-        dependencies: []
-      },
-      {
-        id: 'normalize',
-        name: 'Normalize Email',
-        purpose: 'Extract and standardize email fields',
-        inputs: ['email data'],
-        outputs: ['normalized email'],
-        optional: false,
-        dependencies: ['trigger']
-      },
-      {
-        id: 'process',
-        name: 'Process Email',
-        purpose: 'Apply business rules and transformations',
-        inputs: ['normalized email'],
-        outputs: ['processed email'],
-        optional: false,
-        dependencies: ['normalize']
-      },
-      {
-        id: 'action',
-        name: 'Take Action',
-        purpose: 'Send notification, update database, or trigger downstream process',
-        inputs: ['processed email'],
-        outputs: ['action result'],
-        optional: false,
-        dependencies: ['process']
-      },
-      {
-        id: 'log',
-        name: 'Log Interaction',
-        purpose: 'Record the interaction for audit',
-        inputs: ['email data', 'action result'],
-        outputs: ['log entry'],
-        optional: true,
-        dependencies: ['action']
-      }
-    ]
-    
-    // Generate dynamic reasoning based on actual stages
-    const stageNames = stages.map(s => s.name).join(', ')
-
-    return {
-      name: spec.filename?.replace('.json', '') || 'email-automation',
-      description: 'Email automation with processing and action',
-      stages: stages,
-      complexity: 'simple',
-      reasoning: `Simple email automation includes: ${stageNames}.`,
-      assumptions: [
-        'Email provider supports triggers',
-        'Business rules are straightforward'
-      ],
-      recommendations: [
-        'Add logging for production use',
-        'Consider error handling for external actions'
-      ]
-    }
-  }
-  
-  /**
-   * Design AI customer support automation
-   */
-  private static designAICustomerSupport(spec: AutomationSpec): LogicalArchitecture {
-    const hasKnowledgeBase = !!spec.integrations?.knowledgeBase
-    
-    const stages: LogicalStage[] = [
-      {
-        id: 'trigger',
-        name: 'Email Trigger',
-        purpose: 'Receive customer support emails',
-        inputs: ['incoming email'],
-        outputs: ['email data'],
-        optional: false,
-        dependencies: []
-      },
-      {
-        id: 'normalize',
-        name: 'Normalize Email',
-        purpose: 'Extract sender, subject, body, thread ID, attachments',
-        inputs: ['email data'],
-        outputs: ['normalized email'],
-        optional: false,
-        dependencies: ['trigger']
-      },
-      {
-        id: 'deduplicate',
-        name: 'Duplicate/Thread Check',
-        purpose: 'Prevent duplicate responses and preserve conversation context',
-        inputs: ['normalized email'],
-        outputs: ['email with thread context'],
-        optional: false,
-        dependencies: ['normalize']
-      },
-      {
-        id: 'classify',
-        name: 'Classify Intent & Urgency',
-        purpose: 'Determine customer intent, support category, and urgency level',
-        inputs: ['email with thread context'],
-        outputs: ['classification result'],
-        optional: false,
-        dependencies: ['deduplicate']
-      },
-      {
-        id: 'retrieve-knowledge',
-        name: 'Knowledge Base Retrieval',
-        purpose: 'Search knowledge base for relevant documentation and answers',
-        inputs: ['classification result', 'email with thread context'],
-        outputs: ['knowledge context'],
-        optional: !hasKnowledgeBase,
-        dependencies: ['classify']
-      },
-      {
-        id: 'assemble-context',
-        name: 'Assemble Context',
-        purpose: 'Combine email, thread history, classification, and knowledge base context',
-        inputs: ['email with thread context', 'classification result', 'knowledge context'],
-        outputs: ['assembled context'],
-        optional: false,
-        dependencies: ['classify', 'retrieve-knowledge']
-      },
-      {
-        id: 'ai-draft',
-        name: 'AI Response Draft',
-        purpose: 'Generate grounded response using AI with retrieved context',
-        inputs: ['assembled context'],
-        outputs: ['draft response'],
-        optional: false,
-        dependencies: ['assemble-context']
-      },
-      {
-        id: 'confidence-eval',
-        name: 'Confidence & Evidence Evaluation',
-        purpose: 'Evaluate response confidence and evidence quality',
-        inputs: ['draft response', 'knowledge context'],
-        outputs: ['confidence score', 'evidence score'],
-        optional: false,
-        dependencies: ['ai-draft']
-      },
-      {
-        id: 'branch',
-        name: 'Confidence Branch',
-        purpose: 'Route to auto-reply if confident, escalate if uncertain',
-        inputs: ['confidence score', 'evidence score'],
-        outputs: ['routing decision'],
-        optional: false,
-        dependencies: ['confidence-eval']
-      },
-      {
-        id: 'auto-reply',
-        name: 'Send Auto Reply',
-        purpose: 'Send confident response to customer',
-        inputs: ['draft response', 'email with thread context'],
-        outputs: ['sent confirmation'],
-        optional: false,
-        dependencies: ['branch']
-      },
-      {
-        id: 'escalate',
-        name: 'Human Escalation',
-        purpose: 'Route uncertain cases to human support agent',
-        inputs: ['draft response', 'email with thread context', 'confidence score'],
-        outputs: ['escalation ticket'],
-        optional: false,
-        dependencies: ['branch']
-      },
-      {
-        id: 'log',
-        name: 'Log Interaction',
-        purpose: 'Record input, classification, retrieval, response, confidence, and outcome',
-        inputs: ['email data', 'classification result', 'knowledge context', 'draft response', 'confidence score', 'sent confirmation'],
-        outputs: ['log entry'],
-        optional: false,
-        dependencies: ['auto-reply', 'escalate']
-      },
-      {
-        id: 'error-handler',
-        name: 'Error Handler',
-        purpose: 'Handle failed API calls, knowledge base errors, and retry safely',
-        inputs: ['error'],
-        outputs: ['error recovery action'],
-        optional: false,
-        dependencies: ['retrieve-knowledge', 'auto-reply', 'escalate', 'log']
-      }
-    ]
-    
-    // Remove knowledge retrieval if no KB specified
-    const filteredStages = hasKnowledgeBase ? stages : stages.filter(s => s.id !== 'retrieve-knowledge')
-
-    // Generate dynamic reasoning based on actual stages
-    const stageNames = filteredStages.map(s => s.name).join(', ')
-
-    return {
-      name: spec.filename?.replace('.json', '') || 'ai-customer-support',
-      description: 'AI-powered customer support with knowledge base and human escalation',
-      stages: filteredStages,
-      complexity: 'complex',
-      reasoning: `AI customer support includes: ${stageNames}. ${hasKnowledgeBase ? 'Knowledge base retrieval is enabled for improved accuracy.' : 'Knowledge base retrieval is not configured.'}`,
-      assumptions: [
-        hasKnowledgeBase ? 'Knowledge base system is accessible' : 'AI will generate responses without external knowledge base',
-        'Email provider supports triggers',
-        'AI model is accessible via API',
-        'Human escalation path is configured'
-      ],
-      recommendations: [
-        'Use confidence thresholds to balance automation vs human touch',
-        'Log all interactions for continuous improvement',
-        'Monitor escalation rates to optimize AI responses',
-        'Regularly update knowledge base for better grounding'
-      ]
-    }
-  }
-  
-  /**
-   * Design simple customer support (non-AI)
-   */
-  private static designCustomerSupport(spec: AutomationSpec): LogicalArchitecture {
-    const stages: LogicalStage[] = [
-      {
-        id: 'trigger',
-        name: 'Email Trigger',
-        purpose: 'Receive customer support emails',
-        inputs: ['incoming email'],
-        outputs: ['email data'],
-        optional: false,
-        dependencies: []
-      },
-      {
-        id: 'normalize',
-        name: 'Normalize Email',
-        purpose: 'Extract and standardize email fields',
-        inputs: ['email data'],
-        outputs: ['normalized email'],
-        optional: false,
-        dependencies: ['trigger']
-      },
-      {
-        id: 'route',
-        name: 'Route Request',
-        purpose: 'Route to appropriate team or queue based on rules',
-        inputs: ['normalized email'],
-        outputs: ['routing decision'],
-        optional: false,
-        dependencies: ['normalize']
-      },
-      {
-        id: 'notify',
-        name: 'Notify Team',
-        purpose: 'Send notification to support team',
-        inputs: ['routing decision', 'normalized email'],
-        outputs: ['notification sent'],
-        optional: false,
-        dependencies: ['route']
-      },
-      {
-        id: 'log',
-        name: 'Log Interaction',
-        purpose: 'Record the support request',
-        inputs: ['email data', 'routing decision'],
-        outputs: ['log entry'],
-        optional: true,
-        dependencies: ['route']
-      }
-    ]
-    
-    return {
-      name: spec.filename?.replace('.json', '') || 'customer-support',
-      description: 'Customer support request routing',
-      stages: stages,
-      complexity: 'simple',
-      reasoning: 'Simple customer support needs: trigger, normalization, routing, notification, and optional logging.',
-      assumptions: [
-        'Support team notification method is configured'
-      ],
-      recommendations: [
-        'Add logging for ticket tracking',
-        'Consider auto-response to acknowledge receipt'
-      ]
-    }
-  }
-  
-  /**
-   * Design general AI automation
-   */
-  private static designAIAutomation(spec: AutomationSpec): LogicalArchitecture {
-    const stages: LogicalStage[] = [
-      {
-        id: 'trigger',
-        name: 'Trigger',
-        purpose: 'Initiate automation based on event or schedule',
-        inputs: ['trigger event'],
-        outputs: ['trigger data'],
-        optional: false,
-        dependencies: []
-      },
-      {
-        id: 'prepare-input',
-        name: 'Prepare Input',
-        purpose: 'Normalize and prepare data for AI processing',
-        inputs: ['trigger data'],
-        outputs: ['prepared input'],
-        optional: false,
-        dependencies: ['trigger']
-      },
-      {
-        id: 'ai-process',
-        name: 'AI Processing',
-        purpose: 'Process data with AI model',
-        inputs: ['prepared input'],
-        outputs: ['AI output'],
-        optional: false,
-        dependencies: ['prepare-input']
-      },
-      {
-        id: 'validate-output',
-        name: 'Validate Output',
-        purpose: 'Validate AI output quality and structure',
-        inputs: ['AI output'],
-        outputs: ['validated output'],
-        optional: true,
-        dependencies: ['ai-process']
-      },
-      {
-        id: 'action',
-        name: 'Take Action',
-        purpose: 'Execute downstream action based on AI output',
-        inputs: ['validated output'],
-        outputs: ['action result'],
-        optional: false,
-        dependencies: ['ai-process', 'validate-output']
-      },
-      {
-        id: 'log',
-        name: 'Log Interaction',
-        purpose: 'Record input, output, and result',
-        inputs: ['prepared input', 'AI output', 'action result'],
-        outputs: ['log entry'],
-        optional: true,
-        dependencies: ['action']
-      }
-    ]
-    
-    return {
-      name: spec.filename?.replace('.json', '') || 'ai-automation',
-      description: 'General AI automation',
-      stages: stages,
-      complexity: 'moderate',
-      reasoning: 'AI automation needs: trigger, input preparation, AI processing, output validation, action, and optional logging.',
-      assumptions: [
-        'AI model is accessible via API',
-        'Input data is compatible with AI model'
-      ],
-      recommendations: [
-        'Add output validation for production use',
-        'Implement error handling for AI API failures'
-      ]
-    }
-  }
-  
-  /**
-   * Design scheduled automation
-   */
-  private static designScheduledAutomation(spec: AutomationSpec): LogicalArchitecture {
-    const stages: LogicalStage[] = [
-      {
-        id: 'schedule-trigger',
-        name: 'Schedule Trigger',
-        purpose: 'Trigger at specified time/frequency',
-        inputs: ['schedule'],
-        outputs: ['trigger event'],
-        optional: false,
-        dependencies: []
-      },
-      {
-        id: 'fetch-data',
-        name: 'Fetch Data',
-        purpose: 'Retrieve data needed for the automation',
-        inputs: ['trigger event'],
-        outputs: ['fetched data'],
-        optional: false,
-        dependencies: ['schedule-trigger']
-      },
-      {
-        id: 'process',
-        name: 'Process Data',
-        purpose: 'Apply transformations and business logic',
-        inputs: ['fetched data'],
-        outputs: ['processed data'],
-        optional: false,
-        dependencies: ['fetch-data']
-      },
-      {
-        id: 'action',
-        name: 'Take Action',
-        purpose: 'Send notification, update records, or trigger downstream process',
-        inputs: ['processed data'],
-        outputs: ['action result'],
-        optional: false,
-        dependencies: ['process']
-      },
-      {
-        id: 'log',
-        name: 'Log Execution',
-        purpose: 'Record the automation execution',
-        inputs: ['trigger event', 'action result'],
-        outputs: ['log entry'],
-        optional: true,
-        dependencies: ['action']
-      }
-    ]
-    
-    return {
-      name: spec.filename?.replace('.json', '') || 'scheduled-automation',
-      description: 'Scheduled automation',
-      stages: stages,
-      complexity: 'simple',
-      reasoning: 'Scheduled automation needs: schedule trigger, data fetch, processing, action, and optional logging.',
-      assumptions: [
-        'Data source is accessible at scheduled time',
-        'Action destination is available'
-      ],
-      recommendations: [
-        'Add error handling for data fetch failures',
-        'Consider timezone handling for distributed teams'
-      ]
-    }
-  }
-  
-  /**
-   * Design generic automation
-   */
-  private static designGenericAutomation(spec: AutomationSpec): LogicalArchitecture {
-    const stages: LogicalStage[] = [
-      {
-        id: 'trigger',
-        name: 'Trigger',
-        purpose: 'Initiate the automation',
-        inputs: ['trigger event'],
-        outputs: ['trigger data'],
-        optional: false,
-        dependencies: []
-      },
-      {
-        id: 'process',
-        name: 'Process',
-        purpose: 'Process data according to business rules',
-        inputs: ['trigger data'],
-        outputs: ['processed data'],
-        optional: false,
-        dependencies: ['trigger']
-      },
-      {
-        id: 'action',
-        name: 'Action',
-        purpose: 'Execute the intended action',
-        inputs: ['processed data'],
-        outputs: ['action result'],
-        optional: false,
-        dependencies: ['process']
-      }
-    ]
-    
-    return {
-      name: spec.filename?.replace('.json', '') || 'automation',
-      description: 'Generic automation',
-      stages: stages,
-      complexity: 'simple',
-      reasoning: 'Generic automation needs: trigger, processing, and action.',
-      assumptions: [],
-      recommendations: [
-        'Add logging for production use',
-        'Consider error handling'
-      ]
+      valid: errors.length === 0,
+      errors
     }
   }
   
@@ -711,16 +429,38 @@ export class ArchitectureDesigner {
   static describeArchitecture(architecture: LogicalArchitecture): string {
     let description = `I recommend the following architecture:\n\n`
     
+    description += `**Goal:** ${architecture.goal}\n\n`
+    
+    description += `**Stages:**\n`
     architecture.stages.forEach((stage, index) => {
-      description += `${index + 1}. ${stage.name}\n`
-      description += `   ${stage.purpose}\n\n`
+      description += `${index + 1}. **${stage.name}** (${stage.category})\n`
+      description += `   ${stage.purpose}\n`
+      
+      if (stage.inputs && stage.inputs.length > 0) {
+        description += `   *Inputs: ${stage.inputs.join(', ')}\n`
+      }
+      if (stage.outputs && stage.outputs.length > 0) {
+        description += `   *Outputs: ${stage.outputs.join(', ')}\n`
+      }
+      if (stage.dependencies && stage.dependencies.length > 0) {
+        description += `   *Depends on: ${stage.dependencies.join(', ')}\n`
+      }
+      description += `\n`
     })
     
-    description += `\nComplexity: ${architecture.complexity}\n\n`
-    description += `Reasoning: ${architecture.reasoning}\n\n`
+    if (architecture.dataFlow && architecture.dataFlow.connections.length > 0) {
+      description += `**Data Flow:**\n`
+      architecture.dataFlow.connections.forEach(conn => {
+        description += `* ${conn.from} → ${conn.to}: ${conn.data.join(', ')}\n`
+      })
+      description += `\n`
+    }
+    
+    description += `**Complexity:** ${architecture.complexity}\n\n`
+    description += `**Reasoning:** ${architecture.reasoning}\n\n`
     
     if (architecture.assumptions.length > 0) {
-      description += `Assumptions:\n`
+      description += `**Assumptions:**\n`
       architecture.assumptions.forEach(assumption => {
         description += `- ${assumption}\n`
       })
@@ -728,10 +468,19 @@ export class ArchitectureDesigner {
     }
     
     if (architecture.recommendations.length > 0) {
-      description += `Recommendations:\n`
+      description += `**Recommendations:**\n`
       architecture.recommendations.forEach(rec => {
         description += `- ${rec}\n`
       })
+      description += `\n`
+    }
+    
+    if (architecture.unresolvedDecisions && architecture.unresolvedDecisions.length > 0) {
+      description += `**Decisions needed:**\n`
+      architecture.unresolvedDecisions.forEach(decision => {
+        description += `- ${decision}\n`
+      })
+      description += `\n`
     }
     
     return description

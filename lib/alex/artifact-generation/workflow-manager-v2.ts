@@ -286,129 +286,124 @@ export class WorkflowManagerV2 {
    * Handle designing the architecture using AI-based dynamic reasoning
    */
   private static async handleDesignArchitecture(build: ArtifactBuild, analysis: AnalysisResultV2): Promise<WorkflowResponse> {
-    console.log('[Workflow Manager V2] Designing architecture with AI-based reasoning')
+    console.log('[Workflow Manager V2] Designing architecture with AI-based dynamic reasoning')
 
     const spec = analysis.specState.spec
 
     // Use AI to dynamically reason about the architecture
-    const architectureProposal = await this.generateArchitectureWithAI(spec)
+    const logicalArchitecture = await ArchitectureDesigner.design(spec)
 
     console.log('[Workflow Manager V2] Architecture design result:', {
-      platform: architectureProposal.platform,
-      complexity: architectureProposal.complexity,
-      stageCount: architectureProposal.stages.length
+      architectureId: logicalArchitecture.id,
+      complexity: logicalArchitecture.complexity,
+      stageCount: logicalArchitecture.stages.length,
+      hasDataFlow: !!logicalArchitecture.dataFlow
     })
+
+    // Convert to proposal format for user
+    const architectureProposal = {
+      id: logicalArchitecture.id,
+      description: logicalArchitecture.description,
+      platform: spec.platform || 'n8n',
+      platformReasoning: spec.platformReasoning || 'Selected based on requirements',
+      complexity: logicalArchitecture.complexity,
+      stages: logicalArchitecture.stages.map(s => ({
+        id: s.id,
+        name: s.name,
+        purpose: s.purpose,
+        category: s.category
+      })),
+      reasoning: logicalArchitecture.reasoning,
+      assumptions: logicalArchitecture.assumptions,
+      recommendations: logicalArchitecture.recommendations,
+      unresolvedDecisions: logicalArchitecture.unresolvedDecisions,
+      logicalArchitecture: logicalArchitecture  // Store full architecture for later use
+    }
 
     // Store the architecture in the build for later use with state preservation
     const specWithState = {
       ...spec,
       _knownFields: Array.from(analysis.specState.known),
-      _blockerFields: Array.from(analysis.specState.blockers)
+      _blockerFields: Array.from(analysis.specState.blockers),
+      logicalArchitecture: logicalArchitecture  // Store full architecture
     }
     await ArtifactService.updateSpecification(build.id, specWithState, [])
     await ArtifactService.updateBuildStatus(build.id, 'awaiting_architecture_verification')
 
+    // Generate human-readable description
+    const description = this.generateArchitectureDescription(logicalArchitecture)
+
     return {
       status: 'awaiting_architecture_verification',
-      message: `I recommend the following architecture:\n\n${architectureProposal.description}\n\nDoes this architecture match what you want? If yes, I'll generate the workflow JSON file for you to import into n8n.`,
+      message: `${description}\n\nDoes this architecture look right? If yes, I'll generate the workflow JSON file for you to import into n8n.`,
       needsInput: true,
       architectureProposal
     }
   }
 
   /**
-   * Generate architecture using AI-based dynamic reasoning
+   * Generate human-readable architecture description from rich logical architecture
    */
-  private static async generateArchitectureWithAI(spec: any): Promise<any> {
-    const { WorkflowAIService } = await import('./workflow-ai-service')
-    const aiService = WorkflowAIService.getInstance()
-
-    const prompt = `You are an expert automation architect. Design a logical architecture for the following automation request.
-
-Request: ${spec.description || spec.automationType || 'General automation'}
-Automation Type: ${spec.automationType || 'automation'}
-Domain: ${spec.domain || 'custom'}
-Platform: ${spec.platform || 'n8n'}
-
-Key Requirements:
-${spec.aiConfig?.enabled ? '- AI processing is enabled' : '- No AI processing'}
-${spec.integrations?.emailProvider ? `- Email provider: ${spec.integrations.emailProvider}` : ''}
-${spec.integrations?.aiProvider ? `- AI provider: ${spec.integrations.aiProvider}` : ''}
-${spec.humanApproval?.required ? '- Human approval/escalation is required' : ''}
-${spec.schedule?.enabled ? '- Scheduled/triggered automation' : ''}
-${spec.persistence?.enabled ? '- Logging and persistence is enabled' : ''}
-
-Design the architecture by:
-1. Identify the core stages needed for this automation
-2. Ensure stages are contextually relevant to the specific use case
-3. Name stages descriptively (e.g., "Email Trigger" not just "Trigger")
-4. Define the purpose of each stage
-5. Determine complexity based on stage count and dependencies
-6. List assumptions about the environment
-7. Provide implementation recommendations
-
-Return ONLY JSON in this exact format:
-{
-  "platform": "n8n",
-  "platformReasoning": "brief explanation of platform choice",
-  "complexity": "simple|moderate|complex",
-  "stages": [
-    {
-      "name": "descriptive stage name",
-      "purpose": "what this stage does"
-    }
-  ],
-  "assumptions": ["assumption 1", "assumption 2"],
-  "recommendations": ["recommendation 1", "recommendation 2"],
-  "description": "numbered list of stages with descriptions"
-}
-
-Be specific and context-aware. Do not use generic templates.`
-
-    console.log('[Workflow Manager V2] Calling WorkflowAIService for architecture generation with prompt length:', prompt.length)
-
-    const fullResponse = await aiService.generateResponse(prompt)
-    console.log('[Workflow Manager V2] AI architecture response received:', fullResponse.substring(0, 200))
-
-    // Parse the AI response to extract JSON
-    const jsonMatch = fullResponse.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      const architecture = JSON.parse(jsonMatch[0])
-      console.log('[Workflow Manager V2] Successfully parsed AI architecture:', {
-        stageCount: architecture.stages?.length,
-        complexity: architecture.complexity
-      })
-      return architecture
-    }
-
-    // If JSON parsing fails, try to extract stages from text
-    console.log('[Workflow Manager V2] JSON parsing failed, attempting text extraction')
-    const lines = fullResponse.split('\n').filter(line => line.trim())
-    const stages = lines
-      .filter(line => line.match(/^\d+\./) || line.match(/^- /))
-      .map(line => {
-        const name = line.replace(/^\d+\.\s*/, '').replace(/^- /, '').split(':')[0].trim()
-        const purpose = line.includes(':') ? line.split(':')[1].trim() : 'Process data'
-        return { name, purpose }
-      })
-      .filter(s => s.name.length > 0)
-
-    if (stages.length > 0) {
-      console.log('[Workflow Manager V2] Extracted stages from text:', stages.length)
-      return {
-        platform: spec.platform || 'n8n',
-        platformReasoning: 'Selected based on requirements',
-        complexity: stages.length > 5 ? 'complex' : stages.length > 3 ? 'moderate' : 'simple',
-        stages,
-        assumptions: ['AI-generated architecture from text'],
-        recommendations: ['Test thoroughly before deployment'],
-        description: stages.map((s, i) => `${i + 1}. ${s.name}\n   ${s.purpose}`).join('\n')
+  private static generateArchitectureDescription(architecture: LogicalArchitecture): string {
+    let description = `I recommend the following architecture:\n\n`
+    
+    description += `**Goal:** ${architecture.goal}\n\n`
+    
+    description += `**Stages:**\n`
+    architecture.stages.forEach((stage, index) => {
+      description += `${index + 1}. **${stage.name}** (${stage.category})\n`
+      description += `   ${stage.purpose}\n`
+      
+      if (stage.inputs && stage.inputs.length > 0) {
+        description += `   *Inputs: ${stage.inputs.join(', ')}\n`
       }
+      if (stage.outputs && stage.outputs.length > 0) {
+        description += `   *Outputs: ${stage.outputs.join(', ')}\n`
+      }
+      if (stage.dependencies && stage.dependencies.length > 0) {
+        description += `   *Depends on: ${stage.dependencies.join(', ')}\n`
+      }
+      description += `\n`
+    })
+    
+    if (architecture.dataFlow && architecture.dataFlow.connections.length > 0) {
+      description += `**Data Flow:**\n`
+      architecture.dataFlow.connections.forEach(conn => {
+        description += `* ${conn.from} → ${conn.to}: ${conn.data.join(', ')}\n`
+      })
+      description += `\n`
     }
-
-    throw new Error('Failed to extract architecture from AI response')
+    
+    description += `**Complexity:** ${architecture.complexity}\n\n`
+    description += `**Reasoning:** ${architecture.reasoning}\n\n`
+    
+    if (architecture.assumptions.length > 0) {
+      description += `**Assumptions:**\n`
+      architecture.assumptions.forEach(assumption => {
+        description += `- ${assumption}\n`
+      })
+      description += `\n`
+    }
+    
+    if (architecture.recommendations.length > 0) {
+      description += `**Recommendations:**\n`
+      architecture.recommendations.forEach(rec => {
+        description += `- ${rec}\n`
+      })
+      description += `\n`
+    }
+    
+    if (architecture.unresolvedDecisions && architecture.unresolvedDecisions.length > 0) {
+      description += `**Decisions needed:**\n`
+      architecture.unresolvedDecisions.forEach(decision => {
+        description += `- ${decision}\n`
+      })
+      description += `\n`
+    }
+    
+    return description
   }
-  
+
   /**
    * Generate build summary before generation
    */
