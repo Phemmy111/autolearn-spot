@@ -1,24 +1,17 @@
 /**
  * Dedicated AI Service for Workflow Generation
- * 
+ *
  * This service bypasses AIEngine to avoid circular dependencies
  * when generating workflow-specific content (questions, architecture, blockers).
- * It calls provider implementations directly.
+ * It uses the OpenAI-compatible adapter directly for Groq and OpenRouter.
  */
 
-import { OpenRouterProvider } from '../provider/openrouter-provider'
-import { GroqProvider } from '../provider/groq-provider'
+import { OpenAICompatibleAdapter } from '../provider/adapters/openai-compatible-adapter'
 
 export class WorkflowAIService {
   private static instance: WorkflowAIService | null = null
-  private openRouterProvider: OpenRouterProvider | null = null
-  private groqProvider: GroqProvider | null = null
 
-  private constructor() {
-    // Initialize providers
-    this.openRouterProvider = new OpenRouterProvider()
-    this.groqProvider = new GroqProvider()
-  }
+  private constructor() {}
 
   static getInstance(): WorkflowAIService {
     if (!this.instance) {
@@ -33,40 +26,78 @@ export class WorkflowAIService {
   async generateResponse(prompt: string): Promise<string> {
     try {
       // Try Groq first (faster, cheaper)
-      if (this.groqProvider) {
-        const response = await this.groqProvider.streamChat({
-          messages: [{ role: 'user', content: prompt }],
-          model: 'llama-3.3-70b-versatile'
-        })
+      const groqProvider = new OpenAICompatibleAdapter({
+        providerType: 'groq',
+        apiKey: process.env.GROQ_API_KEY || '',
+        baseUrl: 'https://api.groq.com/openai/v1',
+        currentModel: 'llama-3.3-70b-versatile',
+        isActive: true,
+        priority: 1,
+        capabilities: ['chat', 'streaming'],
+        requestTimeout: 30000,
+        modelListMetadata: {},
+        providerName: 'Groq',
+        displayName: 'Groq',
+        id: 'groq-workflow-ai',
+        apiKeyEncrypted: '',
+        healthStatus: 'unknown',
+        fallbackEnabled: false,
+        authType: 'api_key',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
 
-        let fullResponse = ''
-        for await (const chunk of response) {
-          if (chunk.content) {
-            fullResponse += chunk.content
-          }
+      const response = await groqProvider.streamChat({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'llama-3.3-70b-versatile'
+      })
+
+      let fullResponse = ''
+      for await (const chunk of response) {
+        if (chunk.content) {
+          fullResponse += chunk.content
         }
-        return fullResponse
       }
+      return fullResponse
     } catch (error) {
       console.error('[Workflow AI Service] Groq provider failed:', error)
     }
 
     try {
       // Fallback to OpenRouter
-      if (this.openRouterProvider) {
-        const response = await this.openRouterProvider.streamChat({
-          messages: [{ role: 'user', content: prompt }],
-          model: 'meta-llama/llama-3.1-8b-instruct:free'
-        })
+      const openRouterProvider = new OpenAICompatibleAdapter({
+        providerType: 'openrouter',
+        apiKey: process.env.OPENROUTER_API_KEY || '',
+        baseUrl: 'https://openrouter.ai/api/v1',
+        currentModel: 'meta-llama/llama-3.1-8b-instruct:free',
+        isActive: true,
+        priority: 2,
+        capabilities: ['chat', 'streaming'],
+        requestTimeout: 30000,
+        modelListMetadata: {},
+        providerName: 'OpenRouter',
+        displayName: 'OpenRouter',
+        id: 'openrouter-workflow-ai',
+        apiKeyEncrypted: '',
+        healthStatus: 'unknown',
+        fallbackEnabled: false,
+        authType: 'api_key',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
 
-        let fullResponse = ''
-        for await (const chunk of response) {
-          if (chunk.content) {
-            fullResponse += chunk.content
-          }
+      const response = await openRouterProvider.streamChat({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'meta-llama/llama-3.1-8b-instruct:free'
+      })
+
+      let fullResponse = ''
+      for await (const chunk of response) {
+        if (chunk.content) {
+          fullResponse += chunk.content
         }
-        return fullResponse
       }
+      return fullResponse
     } catch (error) {
       console.error('[Workflow AI Service] OpenRouter provider failed:', error)
     }
