@@ -52,7 +52,7 @@ export class WorkflowAIService {
         updatedAt: new Date().toISOString()
       })
 
-      const response = await groqProvider.streamChat({
+      const response = await groqProvider.stream({
         messages: [{ role: 'user', content: prompt }],
         model: 'llama-3.3-70b-versatile'
       })
@@ -97,7 +97,7 @@ export class WorkflowAIService {
         updatedAt: new Date().toISOString()
       })
 
-      const response = await openRouterProvider.streamChat({
+      const response = await openRouterProvider.stream({
         messages: [{ role: 'user', content: prompt }],
         model: 'meta-llama/llama-3.1-8b-instruct:free'
       })
