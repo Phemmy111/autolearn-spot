@@ -135,7 +135,7 @@ ${spec.integrations?.knowledgeBase ? `- Knowledge base: ${spec.integrations.know
 ${spec.humanApproval?.required ? '- Human approval/escalation is required' : ''}
 ${spec.schedule?.enabled ? '- Scheduled/triggered automation' : ''}
 ${spec.persistence?.enabled ? '- Logging and persistence is enabled' : ''}
-${spec.security?.credentials ? '- Credentials needed: ${spec.security.credentials.join(', ')}` : ''}
+${spec.security?.credentials && spec.security.credentials.length > 0 ? `- Credentials needed: ${spec.security.credentials.join(', ')}` : ''}
 
 Design the architecture by reasoning through:
 1. Business objective and goal
