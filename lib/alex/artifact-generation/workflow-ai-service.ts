@@ -43,17 +43,36 @@ export class WorkflowAIService {
       }
 
       let fullResponse = ''
+      let chunkCount = 0
 
       // Use ProviderManager's executeStreamingWithFallback method
       const response = this.providerManager.executeStreamingWithFallback(request)
 
       for await (const chunk of response) {
-        if (chunk.content) {
-          fullResponse += chunk.content
+        chunkCount++
+        console.log('[Workflow AI Service] Chunk received:', chunk.type, chunk.data)
+
+        // Handle different stream event types
+        if (chunk.type === 'delta' && chunk.data?.content) {
+          fullResponse += chunk.data.content
+        } else if (chunk.type === 'finish') {
+          console.log('[Workflow AI Service] Stream finished')
+        } else if (chunk.type === 'error') {
+          console.error('[Workflow AI Service] Stream error:', chunk.data)
+          throw new Error(chunk.data?.message || 'Stream error')
         }
       }
 
-      console.log('[Workflow AI Service] Provider succeeded with response length:', fullResponse.length)
+      console.log('[Workflow AI Service] Stream completed. Total chunks:', chunkCount, 'Response length:', fullResponse.length)
+
+      if (chunkCount === 0) {
+        throw new Error('No chunks received from provider')
+      }
+
+      if (fullResponse.length === 0) {
+        throw new Error('Provider returned empty response')
+      }
+
       return fullResponse
     } catch (error) {
       console.error('[Workflow AI Service] AI generation failed:', error)
