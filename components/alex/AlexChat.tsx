@@ -84,6 +84,44 @@ export function AlexChat({ userId }: AlexChatProps) {
     loadConversations()
   }, [userId])
 
+  // Fallback: fetch architecture proposal if missing when awaiting verification
+  useEffect(() => {
+    const fetchArchitectureProposal = async () => {
+      if (currentConversation?.status === 'awaiting_architecture_verification') {
+        try {
+          const res = await fetch(`/api/alex/artifacts?conversationId=${currentConversation.id}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data.builds && data.builds.length > 0) {
+              const build = data.builds[0]
+              if (build.specification && build.specification.architectureProposal) {
+                console.log('[AlexChat] Fetched architecture proposal from build')
+                // Update the last assistant message to include the architecture proposal
+                setMessages(prev => {
+                  const updated = [...prev]
+                  const lastAssistantMsg = updated.reverse().find(m => m.role === 'assistant')
+                  if (lastAssistantMsg) {
+                    lastAssistantMsg.artifact_workflow = {
+                      architectureProposal: build.specification.architectureProposal,
+                      message: lastAssistantMsg.content
+                    }
+                  }
+                  return updated.reverse()
+                })
+              }
+            }
+          }
+        } catch (error) {
+          console.error('[AlexChat] Failed to fetch architecture proposal:', error)
+        }
+      }
+    }
+
+    // Small delay to ensure the build is updated
+    const timeoutId = setTimeout(fetchArchitectureProposal, 1500)
+    return () => clearTimeout(timeoutId)
+  }, [currentConversation?.status, currentConversation?.id])
+
   // Close sidebar on mobile when conversation is selected
   useEffect(() => {
     if (isMobile && currentConversation) {
