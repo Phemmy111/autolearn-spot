@@ -483,15 +483,23 @@ export async function POST(request: NextRequest) {
               // Handle artifact workflow event from AI engine
               console.log('[Chat Route] Artifact workflow event received from AI engine')
 
+              const message = chunk.data.message || ''
               const artifacts = chunk.data.artifacts || []
               const question = chunk.data.question || null
               const architectureProposal = chunk.data.architectureProposal || null
 
               console.log('[Chat Route] Artifact workflow data:', {
+                hasMessage: !!message,
                 hasQuestion: !!question,
                 hasArchitecture: !!architectureProposal,
                 hasArtifacts: artifacts.length > 0
               })
+
+              // Send the message as delta content first
+              if (message) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`))
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: message })}\n\n`))
+              }
 
               // Send question data if present
               if (question) {

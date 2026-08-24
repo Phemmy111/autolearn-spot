@@ -270,10 +270,10 @@ export class WorkflowManagerV2 {
     await ArtifactService.updateSpecification(build.id, specWithState, [])
     
     // Message is just the explanation - the question will be rendered by the component
-    const message = analysis.explanation || ''
-    
-    console.log('[DEBUG WORKFLOW MANAGER V2] Returning question response with message')
-    
+    const message = analysis.explanation || 'I need to gather some information to design your automation.'
+
+    console.log('[DEBUG WORKFLOW MANAGER V2] Returning question response with message:', message)
+
     return {
       status: 'collecting_requirements',
       message,

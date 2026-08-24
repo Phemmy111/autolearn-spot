@@ -78,22 +78,22 @@ export class IntelligenceAnalyzerV2 {
     
     if (isContinuation) {
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Routing to handleContinuation')
-      return this.handleContinuation(content, specState)
+      return await this.handleContinuation(content, specState)
     }
-    
+
     // New request - analyze from scratch
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Routing to handleNewRequest')
-    return this.handleNewRequest(content, attachedFiles, specState)
+    return await this.handleNewRequest(content, attachedFiles, specState)
   }
   
   /**
    * Handle a new automation request
    */
-  private static handleNewRequest(
+  private static async handleNewRequest(
     content: string,
     attachedFiles: AlexFile[] | undefined,
     specState: SpecState
-  ): AnalysisResult {
+  ): Promise<AnalysisResult> {
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== HANDLE NEW REQUEST =====')
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Content:', content.substring(0, 100))
     
@@ -156,7 +156,7 @@ export class IntelligenceAnalyzerV2 {
     
     if (specState.blockers.size > 0) {
       const blocker = Array.from(specState.blockers)[0]
-      const question = this.formulateQuestion(blocker, specState)
+      const question = await this.formulateQuestion(blocker, specState)
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Formulated question:', {
         blocker,
         questionText: question.text,
@@ -186,7 +186,7 @@ export class IntelligenceAnalyzerV2 {
   /**
    * Handle a continuation (user answering a question)
    */
-  private static handleContinuation(content: string, specState: SpecState): AnalysisResult {
+  private static async handleContinuation(content: string, specState: SpecState): Promise<AnalysisResult> {
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Handling continuation')
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Question context:', specState.questionContext)
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Content:', content)
@@ -224,11 +224,12 @@ export class IntelligenceAnalyzerV2 {
     // Determine next action
     if (specState.blockers.size > 0) {
       const blocker = Array.from(specState.blockers)[0]
+      const question = await this.formulateQuestion(blocker, specState)
       return {
         specState,
         situation: 'continuation',
         nextAction: 'ask_question',
-        question: this.formulateQuestion(blocker, specState),
+        question,
         explanation: this.buildExplanation(specState)
       }
     }
@@ -840,58 +841,75 @@ export class IntelligenceAnalyzerV2 {
   }
   
   /**
-   * Formulate a question for a blocker
+   * Formulate a question for a blocker using AI-based dynamic generation
    */
-  private static formulateQuestion(blocker: string, specState: SpecState): AnalysisResult['question'] {
-    switch (blocker) {
-      case 'integrations.emailProvider':
-        return {
-          text: 'Which email provider should receive the emails?',
-          field: 'integrations.emailProvider',
-          context: 'integrations.emailProvider',
-          options: ['Gmail', 'Outlook', 'IMAP/SMTP', 'Recommend for me']
-        }
-        
-      case 'integrations.aiProvider':
-      case 'integrations.aiModel':
-        return {
-          text: 'Which AI provider/model should generate responses?',
-          field: 'integrations.aiModel',
-          context: 'integrations.aiProvider',
-          options: ['Recommend for me', 'OpenAI GPT-4', 'Anthropic Claude-3', 'Google Gemini']
-        }
-        
-      case 'integrations.knowledgeBase':
-        return {
-          text: 'Which knowledge base system should I query?',
-          field: 'integrations.knowledgeBase',
-          context: 'integrations.knowledgeBase',
-          options: ['None', 'Notion', 'Confluence', 'Google Drive', 'Pinecone/Vector DB', 'Custom API']
-        }
-        
-      case 'businessRules.routing':
-        return {
-          text: 'Should it reply to every incoming email, or only support/customer inquiries?',
-          field: 'businessRules.routing',
-          context: 'businessRules.routing',
-          options: ['Every email', 'Support inquiries only', 'Custom rules']
-        }
-        
-      case 'outputs.destinations':
-        return {
-          text: 'Where should the reminder/notification be sent?',
-          field: 'outputs.destinations',
-          context: 'outputs.destinations',
-          options: ['Email', 'Slack', 'Telegram', 'WhatsApp', 'Recommend for me']
-        }
-        
-      default:
-        return {
-          text: `I need to know: ${blocker}`,
-          field: blocker,
-          context: blocker
-        }
+  private static async formulateQuestion(blocker: string, specState: SpecState): Promise<AnalysisResult['question']> {
+    const { AIEngine } = await import('../ai-engine')
+
+    const prompt = `You are an expert automation consultant. Generate a natural, conversational question to ask the user about a missing specification.
+
+Missing field: ${blocker}
+Automation type: ${specState.spec.automationType || 'automation'}
+Description: ${specState.spec.description || 'General automation'}
+Domain: ${specState.spec.domain || 'custom'}
+Platform: ${specState.spec.platform || 'n8n'}
+
+Context about what we know:
+${Array.from(specState.known).map(k => `- ${k}: ${JSON.stringify(this.getSpecValue(specState.spec, k))}`).join('\n')}
+
+Generate a question that:
+1. Is natural and conversational (not robotic)
+2. Explains why we need this information
+3. Provides relevant options if applicable
+4. Keeps it concise (under 50 words)
+
+Return JSON in this exact format:
+{
+  "text": "your question text",
+  "field": "${blocker}",
+  "context": "${blocker}",
+  "options": ["option1", "option2", "option3"] or null if not applicable
+}
+
+Make the question context-aware based on the automation type and domain.`
+
+    try {
+      const response = await AIEngine.chat({
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+        disableTools: true
+      })
+
+      const content = response.text || ''
+      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const question = JSON.parse(jsonMatch[0])
+        return question
+      }
+
+      // Fallback if JSON parsing fails
+      throw new Error('Failed to parse AI question response')
+    } catch (error) {
+      console.error('[Intelligence Analyzer V2] AI question generation failed, using fallback:', error)
+      // Fallback to simple question
+      return {
+        text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
+        field: blocker,
+        context: blocker
+      }
     }
+  }
+
+  /**
+   * Helper to get spec value by path
+   */
+  private static getSpecValue(spec: any, path: string): any {
+    const parts = path.split('.')
+    let value = spec
+    for (const part of parts) {
+      value = value?.[part]
+    }
+    return value
   }
   
   /**
@@ -899,22 +917,27 @@ export class IntelligenceAnalyzerV2 {
    */
   private static buildExplanation(specState: SpecState): string {
     const parts: string[] = []
-    
+
     // Only show platform explanation on first question, not on every continuation
     if (specState.known.size === 0 && specState.spec.platform && specState.spec.platformReasoning) {
       parts.push(`I recommend **${specState.spec.platform}** because ${specState.spec.platformReasoning.toLowerCase()}.`)
     }
-    
+
     // Only show what we understand on first question
     if (specState.known.size === 0 && (specState.spec.description || specState.spec.automationType)) {
       parts.push(`I understand you want to build a **${specState.spec.description || specState.spec.automationType}**.`)
     }
-    
+
     // For continuations, keep it minimal - just the question context
     if (specState.known.size > 0) {
       parts.push(`Thanks for the information.`)
     }
-    
+
+    // Ensure we always have something to say
+    if (parts.length === 0) {
+      parts.push(`I'm gathering information to design your automation.`)
+    }
+
     return parts.join(' ')
   }
 }
