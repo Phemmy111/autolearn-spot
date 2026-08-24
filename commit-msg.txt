@@ -1,15 +1,14 @@
-Fix workflow lifecycle: new request isolation, question persistence, field normalization, state transitions
+Fix workflow lifecycle: remove auto-platform selection, enhance fallback options
 
-- Fix 1: Added detectWorkflowContinuation() to prevent new automation requests from reusing existing builds
-- Fix 2: Modified artifact workflow event handling to create new messages for each workflow response, preserving conversation history
-- Fix 3: Added normalizeFieldToCanonical() to handle singular/plural field mismatches (e.g., outputs.destinations → outputs.destination)
-- Fix 4: Added explicit state transition from collecting_requirements to designing_architecture when blockers are resolved
-- Fix 5: Added apiEndpoint handling in setDefaultValue() for skip options
-- Fix 6: Added enhanced logging for state machine debugging
+- Fix 1: Removed automatic platform selection - platform is now added as blocker to ask user for choice
+- Fix 2: Enhanced getFallbackOptions() with comprehensive options for timezone, platform, schedule, recipient, subject, message, trigger fields
+- Fix 3: Enhanced setDefaultValue() to handle all new field types with proper defaults
+- Fix 4: Modified buildExplanation() to only show platform recommendation if explicitly set by user, not auto-selected
+- Fix 5: Added "Recommend for me" option to platform and schedule choices
+
+This eliminates auto-recommending n8n and provides meaningful options instead of just "Skip this field"
 
 Files changed:
-- lib/alex/artifact-generation/workflow-manager-v2.ts
-- components/alex/AlexChat.tsx
 - lib/alex/artifact-generation/intelligence-analyzer-v2.ts
 
 Generated with [Devin](https://devin.ai)

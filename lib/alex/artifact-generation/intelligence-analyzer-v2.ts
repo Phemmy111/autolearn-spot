@@ -161,31 +161,10 @@ export class IntelligenceAnalyzerV2 {
       this.makeInferences(content, specState)
     }
 
-    // Select platform if not specified
+    // Select platform if not specified - make it a blocker to ask user instead of auto-selecting
     if (!specState.spec.platform) {
-      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Selecting platform')
-      const platformSelection = selectPlatform({
-        needsEmail: specState.spec.domain === 'email',
-        needsAI: specState.spec.aiConfig?.enabled,
-        needsDatabase: !!specState.spec.integrations?.databases?.length,
-        needsComplexLogic: specState.spec.businessRules?.conditions ? specState.spec.businessRules.conditions.length > 3 : false,
-        needsLoops: false,
-        needsHumanApproval: specState.spec.humanApproval?.required,
-        needsRAG: !!specState.spec.integrations?.knowledgeBase,
-        complexity: specState.spec.architecture?.complexity,
-        explicitPlatform: specState.spec.platform
-      })
-      
-      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Platform selection result:', {
-        platform: platformSelection.platform,
-        reasoning: platformSelection.reasoning
-      })
-      
-      specState.spec.platform = platformSelection.platform
-      specState.spec.platformReasoning = platformSelection.reasoning
-      specState.recommended.add('platform')
-      specState.spec.recommendations = specState.spec.recommendations || []
-      specState.spec.recommendations.push(platformSelection.reasoning)
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Platform not specified, adding as blocker to ask user')
+      specState.blockers.add('platform')
     }
 
     // Identify genuine blockers (with error handling)
@@ -1223,6 +1202,27 @@ Do not include any text before or after the JSON. The response must be pure JSON
     if (blocker.includes('routing')) {
       return ['Every message', 'Support inquiries only', 'Sales inquiries only', 'Custom rules']
     }
+    if (blocker.includes('timezone')) {
+      return ['UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London', 'Asia/Tokyo', 'Recommend for me']
+    }
+    if (blocker.includes('platform')) {
+      return ['n8n', 'Zapier', 'Make', 'Airflow', 'Prefect', 'Recommend for me']
+    }
+    if (blocker.includes('schedule') || blocker.includes('cron')) {
+      return ['Daily at 8 AM', 'Weekly on Monday', 'Monthly on 1st', 'Custom schedule', 'Recommend for me']
+    }
+    if (blocker.includes('recipient') || blocker.includes('email')) {
+      return ['Enter email address', 'my-email@example.com', 'Recommend for me']
+    }
+    if (blocker.includes('subject')) {
+      return ['Daily Reminder', 'Automation Update', 'Custom subject', 'Recommend for me']
+    }
+    if (blocker.includes('message') || blocker.includes('content')) {
+      return ['Enter your message', 'This is an automated reminder', 'Recommend for me']
+    }
+    if (blocker.includes('trigger') || blocker.includes('event')) {
+      return ['Time-based', 'Webhook', 'Email received', 'Form submitted', 'Recommend for me']
+    }
     return ['Skip this field'] // Default fallback
   }
 
@@ -1264,6 +1264,32 @@ Do not include any text before or after the JSON. The response must be pure JSON
       specState.spec.inputs.apiEndpoint = 'https://api.example.com/endpoint'
       specState.known.add('inputs.apiEndpoint')
       specState.blockers.delete('inputs.apiEndpoint')
+    } else if (context.includes('timezone')) {
+      specState.spec.schedule = specState.spec.schedule || {}
+      specState.spec.schedule.timezone = 'UTC'
+      specState.known.add('schedule.timezone')
+      specState.blockers.delete('schedule.timezone')
+    } else if (context.includes('platform')) {
+      specState.spec.platform = 'n8n'
+      specState.spec.platformReasoning = 'Versatile workflow automation platform'
+      specState.known.add('platform')
+      specState.blockers.delete('platform')
+    } else if (context.includes('recipient') || context.includes('email')) {
+      specState.spec.outputs = specState.spec.outputs || {}
+      specState.spec.outputs.destinations = specState.spec.outputs.destinations || []
+      specState.spec.outputs.destinations.push({ email: 'user@example.com' })
+      specState.known.add('outputs.destinations')
+      specState.blockers.delete('outputs.destinations')
+    } else if (context.includes('subject')) {
+      specState.spec.outputs = specState.spec.outputs || {}
+      specState.spec.outputs.subject = 'Automation Notification'
+      specState.known.add('outputs.subject')
+      specState.blockers.delete('outputs.subject')
+    } else if (context.includes('message') || context.includes('content')) {
+      specState.spec.outputs = specState.spec.outputs || {}
+      specState.spec.outputs.message = 'This is an automated message'
+      specState.known.add('outputs.message')
+      specState.blockers.delete('outputs.message')
     } else {
       // Generic fallback: just mark as known with a placeholder
       specState.known.add(context)
@@ -1282,8 +1308,8 @@ Do not include any text before or after the JSON. The response must be pure JSON
   private static buildExplanation(specState: SpecState, isContinuation: boolean = false): string {
     const parts: string[] = []
 
-    // Only show platform explanation on first question, not on every continuation
-    if (!isContinuation && specState.spec.platform && specState.spec.platformReasoning) {
+    // Only show platform explanation if platform is explicitly set by user (not auto-selected)
+    if (!isContinuation && specState.spec.platform && specState.spec.platformReasoning && !specState.recommended.has('platform')) {
       parts.push(`I recommend **${specState.spec.platform}** because ${specState.spec.platformReasoning.toLowerCase()}.`)
     }
 
