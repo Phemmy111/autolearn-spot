@@ -273,17 +273,17 @@ export class ArtifactValidator {
   } {
     const json = this.validateJSON(content)
     const structure = json.valid ? this.validateN8nStructure(content) : { valid: false, errors: ['JSON invalid, skipping structure validation'], warnings: [] }
-    const architecture = structure.valid && architecture ? this.validateArchitectureCoverage(content, architecture) : { valid: true, errors: [], warnings: ['Architecture validation skipped'] }
-    const requirements = structure.valid && requirements ? this.validateRequirementCoverage(content, requirements) : { valid: true, errors: [], warnings: ['Requirement validation skipped'] }
+    const architectureValidation = structure.valid && architecture ? this.validateArchitectureCoverage(content, architecture) : { valid: true, errors: [], warnings: ['Architecture validation skipped'] }
+    const requirementsValidation = structure.valid && requirements ? this.validateRequirementCoverage(content, requirements) : { valid: true, errors: [], warnings: ['Requirement validation skipped'] }
 
-    const allErrors = [...json.errors, ...structure.errors, ...architecture.errors, ...requirements.errors]
-    const allWarnings = [...json.warnings, ...structure.warnings, ...architecture.warnings, ...requirements.warnings]
+    const allErrors = [...json.errors, ...structure.errors, ...architectureValidation.errors, ...requirementsValidation.errors]
+    const allWarnings = [...json.warnings, ...structure.warnings, ...architectureValidation.warnings, ...requirementsValidation.warnings]
 
     return {
       json,
       structure,
-      architecture,
-      requirements,
+      architecture: architectureValidation,
+      requirements: requirementsValidation,
       overall: {
         valid: allErrors.length === 0,
         errors: allErrors,
