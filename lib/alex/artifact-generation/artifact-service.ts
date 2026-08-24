@@ -210,6 +210,7 @@ export class ArtifactService {
 
   /**
    * Save generated artifact
+   * Phase 3A: Enhanced with traceability metadata
    */
   static async saveArtifact(
     buildId: string,
@@ -218,7 +219,17 @@ export class ArtifactService {
     fileType: string,
     mimeType: string,
     content: string,
-    isPrimary: boolean = false
+    isPrimary: boolean = false,
+    traceability?: {
+      architecture_id?: string
+      architecture_name?: string
+      specification_hash?: string
+      platform?: string
+      generation_stage?: string
+      architecture_approved?: boolean
+      validation_passed?: boolean
+      repair_attempts?: number
+    }
   ): Promise<GeneratedArtifact> {
     console.log('[Artifact Service] Saving artifact:', { buildId, userId, filename, fileType, contentLength: content.length })
     
@@ -233,7 +244,8 @@ export class ArtifactService {
         content,
         file_size: content.length,
         validation_status: 'pending',
-        is_primary: isPrimary
+        is_primary: isPrimary,
+        traceability: traceability || {}
       })
       .select()
       .single()

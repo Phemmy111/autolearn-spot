@@ -1,10 +1,24 @@
 /**
  * ALEX Phase 7: Artifact Generation Types
+ * Phase 3A Runtime Stabilization: Enhanced workflow stages
  */
+
+export type WorkflowBuildStage =
+  | 'understanding'
+  | 'requirements'
+  | 'recommendation'
+  | 'architecture'
+  | 'awaiting_approval'
+  | 'compiling'
+  | 'validating'
+  | 'repairing'
+  | 'completed'
+  | 'failed'
 
 export type BuildStatus = 
   | 'collecting_requirements'
   | 'ready_for_confirmation'
+  | 'awaiting_architecture_verification'
   | 'confirmed'
   | 'generating'
   | 'validating'
@@ -39,6 +53,7 @@ export interface ArtifactBuild {
   user_id: string
   build_type: BuildType
   status: BuildStatus
+  workflow_stage?: WorkflowBuildStage  // Phase 3A: Track current workflow stage
   original_request: string
   final_specification?: Record<string, any>
   requirements_collected?: Record<string, any>
@@ -70,6 +85,17 @@ export interface GeneratedArtifact {
   is_primary: boolean
   created_at: string
   updated_at: string
+  // Phase 3A: Artifact traceability
+  traceability?: {
+    architecture_id?: string
+    architecture_name?: string
+    specification_hash?: string
+    platform?: string
+    generation_stage?: string
+    architecture_approved?: boolean
+    validation_passed?: boolean
+    repair_attempts?: number
+  }
 }
 
 export interface ArtifactQuestion {

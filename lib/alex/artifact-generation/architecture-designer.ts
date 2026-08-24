@@ -3,9 +3,11 @@
  * 
  * Platform-agnostic automation architecture design
  * Designs logical flow first, then translates to platform-specific implementation
+ * Phase 3A Runtime Stabilization: Token-efficient context building
  */
 
 import { AutomationSpec } from './automation-spec'
+import { ContextBudgeter, ContextSection } from './context-budget'
 
 export interface LogicalStage {
   // Core identification
@@ -111,8 +113,78 @@ export interface LogicalArchitecture {
 
 export class ArchitectureDesigner {
   /**
+   * Build compact structured context for architecture generation
+   * Phase 3A Runtime Stabilization: Uses context budgeting to prevent token limit errors
+   */
+  private static buildCompactContext(spec: AutomationSpec): string {
+    const sections: ContextSection[] = []
+
+    // Requirements (critical)
+    const requirements: string[] = []
+    if (spec.description) requirements.push(`Goal: ${spec.description}`)
+    if (spec.automationType) requirements.push(`Type: ${spec.automationType}`)
+    if (spec.domain) requirements.push(`Domain: ${spec.domain}`)
+    if (requirements.length > 0) {
+      sections.push({
+        name: 'requirements',
+        content: requirements.join('\n'),
+        priority: 'critical',
+        estimatedTokens: ContextBudgeter.estimateTokens(requirements.join('\n'))
+      })
+    }
+
+    // Known values (high priority)
+    const known: string[] = []
+    if (spec.trigger?.type) known.push(`Trigger: ${spec.trigger.type}`)
+    if (spec.trigger?.source) known.push(`Source: ${spec.trigger.source}`)
+    if (spec.aiConfig?.enabled) known.push(`AI: enabled`)
+    if (spec.integrations?.emailProvider) known.push(`Email: ${spec.integrations.emailProvider}`)
+    if (spec.integrations?.aiProvider) known.push(`AI Provider: ${spec.integrations.aiProvider}`)
+    if (spec.integrations?.knowledgeBase) known.push(`Knowledge Base: ${spec.integrations.knowledgeBase}`)
+    if (spec.schedule?.enabled) known.push(`Schedule: ${spec.schedule.frequency}`)
+    if (spec.humanApproval?.required) known.push(`Human Escalation: required`)
+    if (known.length > 0) {
+      sections.push({
+        name: 'known',
+        content: known.join('\n'),
+        priority: 'high',
+        estimatedTokens: ContextBudgeter.estimateTokens(known.join('\n'))
+      })
+    }
+
+    // Inferred values (medium priority)
+    const inferred: string[] = []
+    if (spec.businessRules?.conditions?.length > 0) inferred.push(`Branching: ${spec.businessRules.conditions.length} conditions`)
+    if (spec.persistence?.enabled) inferred.push(`Logging: enabled`)
+    if (spec.security?.credentials?.length > 0) inferred.push(`Credentials: ${spec.security.credentials.length} needed`)
+    if (inferred.length > 0) {
+      sections.push({
+        name: 'inferred',
+        content: inferred.join('\n'),
+        priority: 'medium',
+        estimatedTokens: ContextBudgeter.estimateTokens(inferred.join('\n'))
+      })
+    }
+
+    // Unresolved decisions (high priority if present)
+    if (spec.unresolvedBlockers?.length > 0) {
+      const decisions = `Blockers: ${spec.unresolvedBlockers.join(', ')}`
+      sections.push({
+        name: 'decisions',
+        content: decisions,
+        priority: 'high',
+        estimatedTokens: ContextBudgeter.estimateTokens(decisions)
+      })
+    }
+
+    // Build context with budgeting
+    const { context } = ContextBudgeter.buildContext(sections)
+    return context
+  }
+
+  /**
    * Design logical architecture based on automation specification
-   * Phase 3A: Now uses AI-based dynamic generation instead of hardcoded templates
+   * Phase 3A: Token-efficient AI-based dynamic generation
    */
   static async design(spec: AutomationSpec): Promise<LogicalArchitecture> {
     console.log('[Architecture Designer] Designing logical architecture using AI for:', spec.automationType)
@@ -120,49 +192,29 @@ export class ArchitectureDesigner {
     const { WorkflowAIService } = await import('./workflow-ai-service')
     const aiService = WorkflowAIService.getInstance()
 
-    const prompt = `You are an expert automation architect. Design a rich, platform-independent logical architecture for the following automation request.
+    // Build compact structured context with budgeting
+    const context = this.buildCompactContext(spec)
 
-Request: ${spec.description || spec.automationType || 'General automation'}
-Automation Type: ${spec.automationType || 'automation'}
-Domain: ${spec.domain || 'custom'}
+    const prompt = `You are ALEX's automation architecture designer.
 
-Key Requirements:
-${spec.aiConfig?.enabled ? '- AI processing is enabled' : '- No AI processing'}
-${spec.integrations?.emailProvider ? `- Email provider: ${spec.integrations.emailProvider}` : ''}
-${spec.integrations?.aiProvider ? `- AI provider: ${spec.integrations.aiProvider}` : ''}
-${spec.integrations?.aiModel ? `- AI model: ${spec.integrations.aiModel}` : ''}
-${spec.integrations?.knowledgeBase ? `- Knowledge base: ${spec.integrations.knowledgeBase}` : ''}
-${spec.humanApproval?.required ? '- Human approval/escalation is required' : ''}
-${spec.schedule?.enabled ? '- Scheduled/triggered automation' : ''}
-${spec.persistence?.enabled ? '- Logging and persistence is enabled' : ''}
-${spec.security?.credentials && spec.security.credentials.length > 0 ? `- Credentials needed: ${spec.security.credentials.join(', ')}` : ''}
+TASK: Design a platform-independent logical automation architecture.
 
-Design the architecture by reasoning through:
-1. Business objective and goal
-2. Inputs and data sources
-3. Outputs and destinations
-4. Trigger mechanism
-5. Core processing stages (be specific to the use case)
-6. Data flow between stages (what data moves where)
-7. Dependencies between stages
-8. Branching logic (if decisions need to be made)
-9. State requirements (if duplicate detection, conversation history, etc. is needed)
-10. Failure handling and retry behavior (where it materially matters)
-11. Human-in-the-loop requirements (when human judgment is needed)
-12. Security considerations (credentials, PII, encryption if relevant)
-13. Observability (logging, metrics, alerts if meaningful)
+${context}
 
-IMPORTANT ARCHITECTURE RULES:
-- Design stages specifically for THIS use case, not generic templates
-- Simple requests should have simple architectures (don't over-engineer)
-- Complex requests should have appropriately rich architectures
+CONSTRAINTS:
+- Platform-agnostic design (describe WHAT, not HOW)
+- Simple requests → simple architectures
+- Complex requests → rich architectures
+- Only include branching if decisions are needed
 - Only include failure handling where it materially matters
 - Only include state when actually needed
 - Only include human interaction when genuinely required
-- Only include security considerations when relevant
+- Only include security if relevant
+- NEVER invent credentials, email addresses, API keys, or user-specific configuration
+- If a value is required but unavailable, represent it as a configurable credential or placeholder
 
-Stage categories to use:
-- trigger: Initiates the automation
+STAGE CATEGORIES:
+- trigger: Initiates automation
 - input: Receives external data
 - processing: Transforms or analyzes data
 - decision: Makes branching decisions
@@ -172,86 +224,47 @@ Stage categories to use:
 - human_interaction: Requires human input
 - observability: Logs, metrics, monitoring
 
-Return ONLY JSON in this exact format:
+OUTPUT:
+Return ONLY JSON:
 {
-  "id": "unique-architecture-id",
-  "name": "descriptive architecture name",
-  "description": "what this automation accomplishes",
+  "id": "unique-id",
+  "name": "architecture-name",
+  "description": "what it does",
   "goal": "business objective",
   "domain": "domain",
   "complexity": "simple|moderate|complex",
-  "reasoning": "why this architecture was designed this way",
+  "reasoning": "why designed this way",
   "stages": [
     {
-      "id": "unique-stage-id",
-      "name": "descriptive stage name",
-      "purpose": "what this stage does",
-      "category": "trigger|input|processing|decision|output|error_handling|state_management|human_interaction|observability",
-      "inputs": ["data inputs"],
-      "outputs": ["data outputs"],
-      "dataFlow": {
-        "from": ["source stage ids"],
-        "to": ["destination stage ids"]
-      },
+      "id": "stage-id",
+      "name": "stage-name",
+      "purpose": "what it does",
+      "category": "category",
+      "inputs": ["inputs"],
+      "outputs": ["outputs"],
       "optional": false,
-      "dependencies": ["stage ids this depends on"],
-      "conditions": {
-        "expression": "semantic condition if this is a decision stage",
-        "truePath": ["stage ids if condition is true"],
-        "falsePath": ["stage ids if condition is false"]
-      },
-      "failureBehavior": {
-        "retryPolicy": "none|fixed|exponential-backoff",
-        "maxRetries": 3,
-        "fallbackPath": ["stage ids on failure"]
-      },
-      "stateRequirements": {
-        "required": true,
-        "purpose": "why state is needed",
-        "data": ["what state to maintain"]
-      },
-      "security": {
-        "credentials": ["what credentials are needed"],
-        "pii": true,
-        "encryption": true
-      },
-      "observability": {
-        "logging": true,
-        "metrics": ["what metrics to track"],
-        "alerts": ["what conditions trigger alerts"]
-      },
-      "humanInteraction": {
-        "required": true,
-        "purpose": "why human interaction is needed",
-        "escalationPath": "where to escalate"
-      }
+      "dependencies": ["dep-ids"],
+      "conditions": {"expression": "condition", "truePath": ["paths"], "falsePath": ["paths"]},
+      "failureBehavior": {"retryPolicy": "policy", "maxRetries": 3, "fallbackPath": ["paths"]},
+      "stateRequirements": {"required": true, "purpose": "why", "data": ["fields"]},
+      "security": {"credentials": ["needed"], "pii": false, "encryption": false},
+      "observability": {"logging": true, "metrics": ["metrics"], "alerts": ["alerts"]},
+      "humanInteraction": {"required": false, "purpose": "why", "escalationPath": "where"}
     }
   ],
-  "dataFlow": {
-    "connections": [
-      {
-        "from": "stage id",
-        "to": "stage id",
-        "data": ["what data flows"]
-      }
-    ]
-  },
-  "assumptions": ["assumption 1", "assumption 2"],
-  "recommendations": ["recommendation 1", "recommendation 2"],
-  "unresolvedDecisions": ["decisions that need user input"],
+  "dataFlow": {"connections": [{"from": "id", "to": "id", "data": ["data"]}]},
+  "assumptions": ["assumptions"],
+  "recommendations": ["recommendations"],
+  "unresolvedDecisions": ["decisions"],
   "platformAgnostic": true
 }
 
-IMPORTANT:
-- Only include fields that are actually needed for this specific automation
-- Don't include failureBehavior if failure handling isn't needed
-- Don't include stateRequirements if state isn't needed
-- Don't include security if there are no security considerations
-- Don't include humanInteraction if no human interaction is required
-- dataFlow should explicitly represent connections between stages
+RULES:
+- Only include fields that are actually needed
+- dataFlow must represent explicit connections
 - Keep simple workflows genuinely simple
 
-Return ONLY the JSON object, nothing else.`
+Return ONLY JSON.`
 
     console.log('[Architecture Designer] Calling AI for architecture generation with prompt length:', prompt.length)
 

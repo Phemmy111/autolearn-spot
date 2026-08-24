@@ -256,10 +256,30 @@ export class AlexOrchestrator {
           artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
         }
       } catch (error) {
-        console.error('[Orchestrator] Artifact workflow failed, falling back to normal chat:', error)
-        // Fall back to normal chat if artifact workflow fails
-        // Don't return early - continue to normal chat flow
-        // This ensures normal chat remains functional even if artifact generation fails
+        console.error('[Orchestrator] Artifact workflow failed:', error)
+        
+        // Return a controlled failure response instead of falling back to normal chat
+        // This ensures artifact requests cannot silently bypass the architecture pipeline
+        return {
+          systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+          context: '',
+          detectedIntent,
+          suggestedMode,
+          aiRequest: {
+            messages: [
+              { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+              { role: 'user', content: content }
+            ],
+            stream: false,
+            disableTools: true
+          },
+          imageFiles: [],
+          artifactWorkflow: {
+            status: 'failed',
+            message: `I understood your request as a workflow automation, but encountered an error during the architecture design phase: ${error instanceof Error ? error.message : 'Unknown error'}. No artifact was generated. Please try again or provide more details.`,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          }
+        }
       }
     }
 

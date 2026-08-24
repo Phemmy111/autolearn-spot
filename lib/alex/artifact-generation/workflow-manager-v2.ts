@@ -11,6 +11,8 @@ import { ArchitectureDesigner, LogicalArchitecture, LogicalStage } from './archi
 import { ArchitecturePlanner, WorkflowArchitecture } from './architecture-planner'
 import { AutomationSpec, SpecState, createSpecState } from './automation-spec'
 import { ArtifactBuild, BuildStatus, BuildType } from './types'
+import { ArtifactValidator } from './artifact-validator'
+import { WorkflowLogger } from './workflow-logger'
 
 export interface WorkflowRequest {
   conversationId: string
@@ -48,6 +50,7 @@ export class WorkflowManagerV2 {
    * Process a workflow request with architecture-first approach
    */
   static async processRequest(request: WorkflowRequest): Promise<WorkflowResponse> {
+    const workflowRequestId = `wf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     console.log('[DEBUG WORKFLOW MANAGER V2] ===== PROCESS REQUEST START =====')
     console.log('[DEBUG WORKFLOW MANAGER V2] Request details:', {
       conversationId: request.conversationId,
@@ -55,6 +58,16 @@ export class WorkflowManagerV2 {
       content: request.content.substring(0, 100),
       hasAttachedFiles: !!request.attachedFiles,
       attachedFilesCount: request.attachedFiles?.length || 0
+    })
+
+    WorkflowLogger.log({
+      workflow_request_id: workflowRequestId,
+      conversation_id: request.conversationId,
+      user_id: request.userId,
+      stage: 'request_received',
+      operation: 'process_request',
+      duration_ms: 0,
+      success: true
     })
     
     // Check for existing active build
@@ -475,18 +488,33 @@ export class WorkflowManagerV2 {
   
   /**
    * Handle generating the artifact
+   * Phase 3A: Uses approved architecture as source of truth
    */
   private static async handleGenerateArtifact(build: ArtifactBuild, analysis: AnalysisResultV2): Promise<WorkflowResponse> {
-    console.log('[Workflow Manager V2] Generating artifact with AI')
+    console.log('[Workflow Manager V2] Generating artifact from approved architecture')
 
     const spec = analysis.specState.spec
     const platform = spec.platform || 'n8n'
 
-    // Use AI to generate the n8n workflow JSON directly
+    // Retrieve the approved architecture from the build specification
+    const approvedArchitecture = (spec as any).logicalArchitecture as LogicalArchitecture
+    if (!approvedArchitecture) {
+      throw new Error('No approved architecture found in specification. Cannot generate artifact.')
+    }
+
+    console.log('[Workflow Manager V2] Using approved architecture:', {
+      architectureId: approvedArchitecture.id,
+      stageCount: approvedArchitecture.stages.length,
+      complexity: approvedArchitecture.complexity
+    })
+
+    // Use AI to generate the n8n workflow JSON from the approved architecture
     const { WorkflowAIService } = await import('./workflow-ai-service')
     const aiService = WorkflowAIService.getInstance()
 
-    const prompt = 'You are an expert n8n workflow architect. Generate a complete n8n workflow JSON for the following automation. Request: ' + (spec.description || spec.automationType || 'General automation') + '. Automation Type: ' + (spec.automationType || 'automation') + '. Domain: ' + (spec.domain || 'custom') + '. Platform: n8n. Key Requirements: ' + (spec.aiConfig?.enabled ? '- AI processing is enabled (use OpenAI node)' : '- No AI processing') + ' ' + (spec.integrations?.emailProvider ? '- Email provider: ' + spec.integrations.emailProvider + ' (use Email node)' : '') + ' ' + (spec.integrations?.aiProvider ? '- AI provider: ' + spec.integrations.aiProvider + ' (use OpenAI node)' : '') + ' ' + (spec.trigger?.type ? '- Trigger type: ' + spec.trigger.type : '- Default to Webhook trigger') + '. Generate a complete n8n workflow JSON with: 1. Nodes array with properly configured nodes 2. Connections object defining node connections 3. name field for the workflow 4. settings object with proper n8n settings 5. active: true 6. Valid node types (n8n-nodes-base.*). Return ONLY valid JSON. Do not include any text before or after the JSON.'
+    const architectureSummary = this.summarizeArchitectureForCompiler(approvedArchitecture)
+
+    const prompt = 'You are an expert n8n workflow compiler. Translate the following logical architecture into n8n workflow JSON.\n\nAPPROVED ARCHITECTURE:\n' + architectureSummary + '\n\nPlatform: n8n\n\nYour task is to implement this exact architecture in n8n. Each logical stage should become an n8n node or node group. Data flow connections should become n8n node connections. Branching conditions should become n8n IF nodes. IMPORTANT SECURITY CONSTRAINTS: NEVER invent email addresses, API keys, credentials, or user-specific configuration. If a value is required but unavailable, represent it as a configurable credential or placeholder (e.g., "user@example.com" or placeholder: true). Generate a complete n8n workflow JSON with: 1. Nodes array with properly configured nodes 2. Connections object defining node connections 3. name field for the workflow 4. settings object with proper n8n settings 5. active: true 6. Valid node types (n8n-nodes-base.*). Return ONLY valid JSON. Do not include any text before or after the JSON.'
 
     const workflowJSON = await aiService.generateJSON(prompt)
     console.log('[Workflow Manager V2] AI-generated workflow JSON')
@@ -507,7 +535,10 @@ export class WorkflowManagerV2 {
       throw new Error('Generated artifact is not valid JSON')
     }
 
-    // Save the artifact
+    // Calculate specification hash for traceability
+    const specHash = this.calculateSpecificationHash(spec)
+
+    // Save the artifact with traceability metadata
     const artifact = await ArtifactService.saveArtifact(
       build.id,
       build.user_id,
@@ -515,11 +546,85 @@ export class WorkflowManagerV2 {
       fileType,
       mimeType,
       serializedContent,
-      true
+      true,
+      {
+        architecture_id: approvedArchitecture.id,
+        architecture_name: approvedArchitecture.name,
+        specification_hash: specHash,
+        platform: platform,
+        generation_stage: 'compiling',
+        architecture_approved: true,
+        validation_passed: false, // Will be updated after validation
+        repair_attempts: 0
+      }
     )
 
+    // Validate the artifact
+    console.log('[Workflow Manager V2] Validating generated artifact')
+    const validationResults = ArtifactValidator.validateAll(
+      serializedContent,
+      approvedArchitecture,
+      [spec.description || spec.automationType || 'General automation']
+    )
+
+    console.log('[Workflow Manager V2] Validation results:', {
+      jsonValid: validationResults.json.valid,
+      structureValid: validationResults.structure.valid,
+      architectureValid: validationResults.architecture.valid,
+      overallValid: validationResults.overall.valid,
+      errors: validationResults.overall.errors,
+      warnings: validationResults.overall.warnings
+    })
+
+    // Controlled repair loop
+    const MAX_REPAIR_ATTEMPTS = 3
+    let repairAttempts = 0
+    let repairedContent = serializedContent
+
+    while (!validationResults.overall.valid && repairAttempts < MAX_REPAIR_ATTEMPTS) {
+      repairAttempts++
+      console.log(`[Workflow Manager V2] Attempting repair ${repairAttempts}/${MAX_REPAIR_ATTEMPTS}`)
+
+      try {
+        repairedContent = await this.attemptRepair(
+          repairedContent,
+          validationResults.overall.errors,
+          approvedArchitecture,
+          spec
+        )
+
+        // Re-validate
+        const revalidationResults = ArtifactValidator.validateAll(
+          repairedContent,
+          approvedArchitecture,
+          [spec.description || spec.automationType || 'General automation']
+        )
+
+        if (revalidationResults.overall.valid) {
+          console.log('[Workflow Manager V2] Repair successful')
+          validationResults.json = revalidationResults.json
+          validationResults.structure = revalidationResults.structure
+          validationResults.architecture = revalidationResults.architecture
+          validationResults.overall = revalidationResults.overall
+          break
+        } else {
+          console.log(`[Workflow Manager V2] Repair attempt ${repairAttempts} failed, retrying...`)
+        }
+      } catch (error) {
+        console.error(`[Workflow Manager V2] Repair attempt ${repairAttempts} threw error:`, error)
+      }
+    }
+
+    // Update artifact with validation results
+    if (!validationResults.overall.valid) {
+      console.error('[Workflow Manager V2] Artifact validation failed after repair attempts:', validationResults.overall.errors)
+      throw new Error(`Artifact validation failed after ${repairAttempts} repair attempts: ${validationResults.overall.errors.join(', ')}`)
+    } else {
+      console.log('[Workflow Manager V2] Artifact validation passed with warnings:', validationResults.overall.warnings)
+    }
+
     // Generate guide using AI
-    const guidePrompt = 'Generate a brief implementation guide for this n8n workflow.\n\nWorkflow: ' + (spec.description || spec.automationType) + '\nPlatform: n8n\n\nProvide a simple guide with:\n1. How to import the JSON into n8n\n2. What credentials are needed\n3. How to test the workflow\n4. Any important configuration notes\n\nKeep it under 300 words.'
+    const guidePrompt = 'Generate a brief implementation guide for this n8n workflow.\n\nWorkflow: ' + (spec.description || spec.automationType) + '\nPlatform: n8n\n\nProvide a simple guide with:\n1. How to import the JSON into n8n\n2. What credentials are needed (use placeholder names, not real values)\n3. How to test the workflow\n4. Any important configuration notes\n\nIMPORTANT: Do not include real email addresses, API keys, or credentials. Use placeholder names only.\n\nKeep it under 300 words.'
 
     const guide = await aiService.generateResponse(guidePrompt)
 
@@ -580,6 +685,92 @@ export class WorkflowManagerV2 {
       return filename + '.' + extension
     }
     return filename
+  }
+
+  /**
+   * Summarize approved architecture for platform compiler
+   * Phase 3A: Ensures architecture is source of truth for compilation
+   */
+  private static summarizeArchitectureForCompiler(architecture: LogicalArchitecture): string {
+    let summary = `Architecture: ${architecture.name}\n`
+    summary += `Goal: ${architecture.goal}\n`
+    summary += `Complexity: ${architecture.complexity}\n\n`
+    
+    summary += `Stages:\n`
+    architecture.stages.forEach((stage, index) => {
+      summary += `${index + 1}. ${stage.name} (${stage.category})\n`
+      summary += `   Purpose: ${stage.purpose}\n`
+      if (stage.inputs?.length > 0) summary += `   Inputs: ${stage.inputs.join(', ')}\n`
+      if (stage.outputs?.length > 0) summary += `   Outputs: ${stage.outputs.join(', ')}\n`
+      if (stage.dependencies?.length > 0) summary += `   Dependencies: ${stage.dependencies.join(', ')}\n`
+      if (stage.conditions?.expression) summary += `   Condition: ${stage.conditions.expression}\n`
+      if (stage.failureBehavior?.retryPolicy) summary += `   Retry: ${stage.failureBehavior.retryPolicy}\n`
+      summary += `\n`
+    })
+    
+    if (architecture.dataFlow?.connections?.length > 0) {
+      summary += `Data Flow:\n`
+      architecture.dataFlow.connections.forEach(conn => {
+        summary += `  ${conn.from} → ${conn.to}: ${conn.data.join(', ')}\n`
+      })
+    }
+    
+    return summary
+  }
+
+  /**
+   * Calculate specification hash for traceability
+   * Phase 3A: Enables artifact-to-specification traceability
+   */
+  private static calculateSpecificationHash(spec: AutomationSpec): string {
+    const specString = JSON.stringify(spec, Object.keys(spec).sort())
+    // Simple hash function for traceability (not cryptographic)
+    let hash = 0
+    for (let i = 0; i < specString.length; i++) {
+      const char = specString.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash // Convert to 32bit integer
+    }
+    return Math.abs(hash).toString(16)
+  }
+
+  /**
+   * Attempt to repair invalid artifact
+   * Phase 3A: Controlled repair loop with AI assistance
+   */
+  private static async attemptRepair(
+    content: string,
+    errors: string[],
+    architecture: LogicalArchitecture,
+    spec: AutomationSpec
+  ): Promise<string> {
+    const { WorkflowAIService } = await import('./workflow-ai-service')
+    const aiService = WorkflowAIService.getInstance()
+
+    const repairPrompt = `You are an expert n8n workflow repair specialist. Fix the following validation errors in an n8n workflow JSON.
+
+VALIDATION ERRORS:
+${errors.join('\n')}
+
+ARCHITECTURE CONTEXT:
+${this.summarizeArchitectureForCompiler(architecture)}
+
+ORIGINAL WORKFLOW JSON:
+${content}
+
+TASK: Repair the workflow JSON to fix the validation errors while preserving the architecture and functionality. Focus on structural issues, missing required fields, and connection problems. Do not change the overall logic or purpose of the workflow.
+
+Return ONLY the repaired JSON. Do not include any text before or after the JSON.`
+
+    const repairedJSON = await aiService.generateResponse(repairPrompt)
+    
+    // Extract JSON from response
+    const jsonMatch = repairedJSON.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      return jsonMatch[0]
+    }
+
+    throw new Error('Failed to extract valid JSON from repair response')
   }
 
   /**
