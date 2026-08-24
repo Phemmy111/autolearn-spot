@@ -55,10 +55,16 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
     ]
 
     // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
-    const isBuildRequest = buildPatterns.some(pattern => lowerContent.startsWith(pattern) ||
-      (lowerContent.includes(pattern) && lowerContent.length < 50) ||
-      // Match "create" or "build" or "generate" at the start followed by any word
-      (lowerContent.startsWith('create ') || lowerContent.startsWith('build ') || lowerContent.startsWith('generate ')) && lowerContent.length < 100)
+    // More aggressive: if it starts with create/build/generate, always treat as artifact generation
+    const startsWithBuildVerb = lowerContent.startsWith('create ') || lowerContent.startsWith('build ') || lowerContent.startsWith('generate ')
+    const isBuildRequest = startsWithBuildVerb || buildPatterns.some(pattern => lowerContent.startsWith(pattern) ||
+      (lowerContent.includes(pattern) && lowerContent.length < 50))
+
+    console.log('[DEBUG INTENT DETECTOR] Build request check:', {
+      isBuildRequest,
+      contentStart: lowerContent.substring(0, 50),
+      contentLength: lowerContent.length
+    })
 
     // Secondary check: even if not at start, check for strong build indicators
     const strongBuildIndicators = [
@@ -73,8 +79,13 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'data pipeline', 'scheduled task', 'cron job',
       'api integration', 'webhook receiver', 'form handler'
     ]
-    
+
     const hasStrongBuildIndicator = strongBuildIndicators.some(indicator => lowerContent.includes(indicator))
+
+    console.log('[DEBUG INTENT DETECTOR] Strong build indicator check:', {
+      hasStrongBuildIndicator,
+      contentPreview: lowerContent.substring(0, 100)
+    })
 
     if (isBuildRequest || hasStrongBuildIndicator) {
       console.log('[DEBUG INTENT DETECTOR] Artifact generation detected', {
