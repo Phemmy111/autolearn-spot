@@ -249,7 +249,7 @@ IMPORTANT:
 - Don't include security if there are no security considerations
 - Don't include humanInteraction if no human interaction is required
 - dataFlow should explicitly represent connections between stages
-- Keep simple workflows genuinely simple`
+- Keep simple workflows genuinely simple
 
 Return ONLY the JSON object, nothing else.`
 
