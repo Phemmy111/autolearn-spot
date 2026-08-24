@@ -512,28 +512,7 @@ Generate a complete n8n workflow JSON with:
 5. active: true
 6. Valid node types (n8n-nodes-base.*)
 
-Return ONLY valid JSON in this exact format:
-{
-  "name": "workflow name",
-  "nodes": [
-    {
-      "parameters": {...},
-      "name": "node name",
-      "type": "n8n-nodes-base.nodeType",
-      "typeVersion": 1,
-      "position": [x, y]
-    }
-  ],
-  "connections": {
-    "node1": {
-      "main": [[{"node": "node2", "type": "main", "index": 0}]]
-    }
-  },
-  "active": true,
-  "settings": {}
-}
-
-Do not include any text before or after the JSON. The response must be pure JSON.`
+Return ONLY valid JSON. Do not include any text before or after the JSON.`
 
     const workflowJSON = await aiService.generateJSON(prompt)
     console.log('[Workflow Manager V2] AI-generated workflow JSON')
