@@ -70,10 +70,15 @@ export class WorkflowManagerV2 {
     }
     
     // New request - use Intelligence Analyzer V2
-    console.log('[DEBUG WORKFLOW MANAGER V2] Calling IntelligenceAnalyzerV2.analyze')
+    // Limit conversation history to prevent token limit issues
+    const limitedHistory = request.conversationHistory?.slice(-3) || []
+    console.log('[DEBUG WORKFLOW MANAGER V2] Calling IntelligenceAnalyzerV2.analyze with limited history:', {
+      originalHistoryLength: request.conversationHistory?.length || 0,
+      limitedHistoryLength: limitedHistory.length
+    })
     const analysis = await IntelligenceAnalyzerV2.analyze({
       content: request.content,
-      conversationHistory: request.conversationHistory,
+      conversationHistory: limitedHistory,
       attachedFiles: request.attachedFiles
     })
     
@@ -193,10 +198,15 @@ export class WorkflowManagerV2 {
     }
     
     // Analyze the continuation
-    console.log('[DEBUG WORKFLOW MANAGER V2] Calling IntelligenceAnalyzerV2.analyze for continuation')
+    // Limit conversation history to prevent token limit issues
+    const limitedHistory = request.conversationHistory?.slice(-3) || []
+    console.log('[DEBUG WORKFLOW MANAGER V2] Calling IntelligenceAnalyzerV2.analyze for continuation with limited history:', {
+      originalHistoryLength: request.conversationHistory?.length || 0,
+      limitedHistoryLength: limitedHistory.length
+    })
     const analysis = await IntelligenceAnalyzerV2.analyze({
       content: request.content,
-      conversationHistory: request.conversationHistory,
+      conversationHistory: limitedHistory,
       existingSpecState: specState
     })
     
@@ -273,51 +283,120 @@ export class WorkflowManagerV2 {
   }
   
   /**
-   * Handle designing the architecture
+   * Handle designing the architecture using AI-based dynamic reasoning
    */
   private static async handleDesignArchitecture(build: ArtifactBuild, analysis: AnalysisResultV2): Promise<WorkflowResponse> {
-    console.log('[Workflow Manager V2] Designing architecture')
-    
-    // Design the logical architecture
-    const logicalArchitecture = ArchitectureDesigner.design(analysis.specState.spec)
-    
-    console.log('[Workflow Manager V2] Logical architecture designed:', {
-      name: logicalArchitecture.name,
-      complexity: logicalArchitecture.complexity,
-      stageCount: logicalArchitecture.stages.length
+    console.log('[Workflow Manager V2] Designing architecture with AI-based reasoning')
+
+    const spec = analysis.specState.spec
+
+    // Use AI to dynamically reason about the architecture
+    const architectureProposal = await this.generateArchitectureWithAI(spec)
+
+    console.log('[Workflow Manager V2] AI-generated architecture:', {
+      platform: architectureProposal.platform,
+      complexity: architectureProposal.complexity,
+      stageCount: architectureProposal.stages.length
     })
-    
-    // Generate human-readable description
-    const architectureDescription = ArchitectureDesigner.describeArchitecture(logicalArchitecture)
-    
-    // Build the architecture proposal
-    const proposal = {
-      description: architectureDescription,
-      platform: analysis.specState.spec.platform || 'n8n',
-      platformReasoning: analysis.specState.spec.platformReasoning || 'Recommended based on requirements',
-      complexity: logicalArchitecture.complexity,
-      stages: logicalArchitecture.stages.map(s => s.name),
-      assumptions: logicalArchitecture.assumptions,
-      recommendations: logicalArchitecture.recommendations
-    }
-    
-    // Generate build summary
-    const buildSummary = this.generateBuildSummary(analysis.specState.spec, logicalArchitecture, proposal)
-    
+
     // Store the architecture in the build for later use with state preservation
     const specWithState = {
-      ...analysis.specState.spec,
+      ...spec,
       _knownFields: Array.from(analysis.specState.known),
       _blockerFields: Array.from(analysis.specState.blockers)
     }
     await ArtifactService.updateSpecification(build.id, specWithState, [])
     await ArtifactService.updateBuildStatus(build.id, 'awaiting_architecture_verification')
-    
+
     return {
       status: 'awaiting_architecture_verification',
-      message: `${buildSummary}\n\n${architectureDescription}\n\nDoes this architecture match what you want? If yes, I'll generate the workflow and guide.`,
+      message: `I recommend the following architecture:\n\n${architectureProposal.description}\n\nDoes this architecture match what you want? If yes, I'll generate the workflow and guide.`,
       needsInput: true,
-      architectureProposal: proposal
+      architectureProposal
+    }
+  }
+
+  /**
+   * Generate architecture using AI-based dynamic reasoning
+   */
+  private static async generateArchitectureWithAI(spec: any): Promise<any> {
+    const { AIEngine } = await import('../ai-engine')
+
+    const prompt = `You are an expert automation architect. Design a logical architecture for the following automation request.
+
+Request: ${spec.description || spec.automationType || 'General automation'}
+Automation Type: ${spec.automationType || 'automation'}
+Domain: ${spec.domain || 'custom'}
+Platform: ${spec.platform || 'n8n'}
+
+Key Requirements:
+${spec.aiConfig?.enabled ? '- AI processing is enabled' : '- No AI processing'}
+${spec.integrations?.emailProvider ? `- Email provider: ${spec.integrations.emailProvider}` : ''}
+${spec.integrations?.aiProvider ? `- AI provider: ${spec.integrations.aiProvider}` : ''}
+${spec.humanApproval?.required ? '- Human approval/escalation is required' : ''}
+${spec.schedule?.enabled ? '- Scheduled/triggered automation' : ''}
+${spec.persistence?.enabled ? '- Logging and persistence is enabled' : ''}
+
+Design the architecture by:
+1. Identify the core stages needed for this automation
+2. Ensure stages are contextually relevant to the specific use case
+3. Name stages descriptively (e.g., "Email Trigger" not just "Trigger")
+4. Define the purpose of each stage
+5. Determine complexity based on stage count and dependencies
+6. List assumptions about the environment
+7. Provide implementation recommendations
+
+Return JSON in this exact format:
+{
+  "platform": "n8n",
+  "platformReasoning": "brief explanation of platform choice",
+  "complexity": "simple|moderate|complex",
+  "stages": [
+    {
+      "name": "descriptive stage name",
+      "purpose": "what this stage does"
+    }
+  ],
+  "assumptions": ["assumption 1", "assumption 2"],
+  "recommendations": ["recommendation 1", "recommendation 2"],
+  "description": "numbered list of stages with descriptions"
+}
+
+Be specific and context-aware. Don't use generic templates.`
+
+    try {
+      const response = await AIEngine.chat({
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+        disableTools: true
+      })
+
+      // Parse the AI response to extract JSON
+      const content = response.text || ''
+      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const architecture = JSON.parse(jsonMatch[0])
+        return architecture
+      }
+
+      // Fallback if JSON parsing fails
+      throw new Error('Failed to parse AI architecture response')
+    } catch (error) {
+      console.error('[Workflow Manager V2] AI architecture generation failed, using fallback:', error)
+      // Fallback to basic architecture
+      return {
+        platform: spec.platform || 'n8n',
+        platformReasoning: 'Selected based on requirements',
+        complexity: 'moderate',
+        stages: [
+          { name: 'Trigger', purpose: 'Initiate automation' },
+          { name: 'Process', purpose: 'Process data' },
+          { name: 'Action', purpose: 'Execute action' }
+        ],
+        assumptions: ['Basic automation requirements'],
+        recommendations: ['Configure proper error handling'],
+        description: '1. Trigger\n2. Process\n3. Action'
+      }
     }
   }
   
