@@ -878,91 +878,50 @@ ${Array.from(specState.known).map(k => `- ${k}: ${JSON.stringify(this.getSpecVal
 Generate a question that:
 1. Is natural and conversational (not robotic)
 2. Explains why we need this information
-3. Provides 3-5 relevant options if applicable (e.g., for email provider: ["Gmail", "Outlook", "IMAP/SMTP", "Recommend for me"])
-4. Keeps it concise (under 50 words)
+3. Provides 3-5 relevant options if this is a choice field (email provider, AI model, notification channel, etc.)
+4. Returns null for options if this is an open-ended question (like a custom rule description)
+5. Keeps it concise (under 50 words)
 
-IMPORTANT: Always provide options for common fields like email providers, AI models, notification channels, etc.
+Examples:
+- For email provider: options should be ["Gmail", "Outlook", "IMAP/SMTP", "Recommend for me"]
+- For AI model: options should be ["Recommend for me", "OpenAI GPT-4", "Anthropic Claude-3", "Google Gemini"]
+- For destinations: options should be ["Email", "Slack", "Telegram", "WhatsApp", "Recommend for me"]
+- For custom description: options should be null
 
 Return ONLY valid JSON in this exact format:
 {
   "text": "your question text",
   "field": "${blocker}",
   "context": "${blocker}",
-  "options": ["option1", "option2", "option3"]
+  "options": ["option1", "option2", "option3"] or null
 }
 
 Do not include any text before or after the JSON. The response must be pure JSON.`
 
-    try {
-      const response = await AIEngine.chat({
-        messages: [{ role: 'user', content: prompt }],
-        stream: false,
-        disableTools: true
-      })
+    const response = await AIEngine.chat({
+      messages: [{ role: 'user', content: prompt }],
+      stream: false,
+      disableTools: true
+    })
 
-      const content = response.text || ''
-      console.log('[Intelligence Analyzer V2] AI question response:', content)
+    const content = response.text || ''
+    console.log('[Intelligence Analyzer V2] AI question response:', content)
 
-      // Try to extract JSON from response
-      let jsonMatch = content.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        const question = JSON.parse(jsonMatch[0])
-        // Ensure options exist if appropriate
-        if (!question.options && this.shouldHaveOptions(blocker)) {
-          question.options = this.getDefaultOptions(blocker)
-        }
-        return question
-      }
+    // Try to extract JSON from response
+    const jsonMatch = content.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      const question = JSON.parse(jsonMatch[0])
+      return question
+    }
 
-      // Fallback if JSON parsing fails
-      throw new Error('Failed to parse AI question response')
-    } catch (error) {
-      console.error('[Intelligence Analyzer V2] AI question generation failed, using fallback:', error)
-      // Fallback to question with default options
-      return {
-        text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
-        field: blocker,
-        context: blocker,
-        options: this.shouldHaveOptions(blocker) ? this.getDefaultOptions(blocker) : null
-      }
+    // If AI fails, return simple question without options
+    console.error('[Intelligence Analyzer V2] Failed to parse AI question response, using simple fallback')
+    return {
+      text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
+      field: blocker,
+      context: blocker,
+      options: null
     }
-  }
-
-  /**
-   * Determine if a field should have options
-   */
-  private static shouldHaveOptions(blocker: string): boolean {
-    const optionFields = [
-      'integrations.emailProvider',
-      'integrations.aiProvider',
-      'integrations.aiModel',
-      'integrations.knowledgeBase',
-      'outputs.destinations',
-      'businessRules.routing'
-    ]
-    return optionFields.some(field => blocker.includes(field))
-  }
-
-  /**
-   * Get default options for a field
-   */
-  private static getDefaultOptions(blocker: string): string[] {
-    if (blocker.includes('emailProvider')) {
-      return ['Gmail', 'Outlook', 'IMAP/SMTP', 'Recommend for me']
-    }
-    if (blocker.includes('aiProvider') || blocker.includes('aiModel')) {
-      return ['Recommend for me', 'OpenAI GPT-4', 'Anthropic Claude-3', 'Google Gemini']
-    }
-    if (blocker.includes('knowledgeBase')) {
-      return ['None', 'Notion', 'Confluence', 'Google Drive', 'Pinecone/Vector DB']
-    }
-    if (blocker.includes('destinations')) {
-      return ['Email', 'Slack', 'Telegram', 'WhatsApp', 'Recommend for me']
-    }
-    if (blocker.includes('routing')) {
-      return ['Every email', 'Support inquiries only', 'Custom rules']
-    }
-    return null
   }
 
   /**
