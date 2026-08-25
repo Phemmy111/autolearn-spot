@@ -1,11 +1,12 @@
-Fix deterministic option generator null reference error
+Fix array index path handling in field:value answers
 
-- Fixed null reference error in RequirementOptionGenerator by ensuring all methods return null instead of undefined
-- Fixed null checking logic in generateOptions() to properly handle null results
-- Ensured consistent return types across all option generation methods
+- Fixed issue where outputs.destinations[0].address: Telegram was incorrectly mapped to outputs.destinations: ["telegram"]
+- Added logic to bypass AI mapping when field contains array indices or nested paths
+- Enhanced applyMappingToSpec to properly handle array index notation (e.g., [0], [1])
+- Preserves exact user-specified structure for nested and array fields
 
 Files changed:
-- lib/alex/artifact-generation/requirement-option-generator.ts
+- lib/alex/artifact-generation/intelligence-analyzer-v2.ts
 
 Generated with [Devin](https://devin.ai)
 

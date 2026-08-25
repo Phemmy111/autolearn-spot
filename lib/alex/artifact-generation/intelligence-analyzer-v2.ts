@@ -709,6 +709,20 @@ Return empty array if no blockers exist.`
       return
     }
     
+    // NEW: If context contains array indices or nested paths, bypass AI mapping and apply directly
+    // This preserves the exact structure the user specified (e.g., outputs.destinations[0].address)
+    const hasArrayIndex = context.includes('[') && context.includes(']')
+    const hasNestedSubfield = context.split('.').length > 2 // e.g., outputs.destinations.address
+    
+    if (hasArrayIndex || hasNestedSubfield) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Bypassing AI mapping for array/nested path, applying directly:', context)
+      this.applyMappingToSpec(context, answer, specState)
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after direct mapping:', Array.from(specState.known))
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after direct mapping:', Array.from(specState.blockers))
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
+      return
+    }
+    
     // Phase 2: Try AI semantic mapping first
     const useAIMapping = process.env.USE_AI_ANSWER_MAPPING !== 'false'
     
@@ -942,26 +956,60 @@ Return empty array if no blockers exist.`
   /**
    * Apply AI mapping result to specification
    * Phase 2: Helper method to apply structured AI mapping results
+   * Enhanced to handle array indices (e.g., outputs.destinations[0].address)
    */
   private static applyMappingToSpec(field: string, value: any, specState: SpecState): void {
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Applying AI mapping:', { field, value })
     
-    // Navigate to the correct nested property
+    // Navigate to the correct nested property, handling array indices
     const parts = field.split('.')
     let current: any = specState.spec
     
     // Build the nested structure if it doesn't exist
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i]
-      if (!current[part]) {
-        current[part] = {}
+      
+      // Check if this part contains an array index (e.g., "destinations[0]")
+      const arrayMatch = part.match(/^(.+)\[(\d+)\]$/)
+      if (arrayMatch) {
+        const arrayName = arrayMatch[1]
+        const arrayIndex = parseInt(arrayMatch[2], 10)
+        
+        // Ensure the array exists
+        if (!current[arrayName]) {
+          current[arrayName] = []
+        }
+        // Ensure the array has enough elements
+        while (current[arrayName].length <= arrayIndex) {
+          current[arrayName].push({})
+        }
+        current = current[arrayName][arrayIndex]
+      } else {
+        // Regular nested object
+        if (!current[part]) {
+          current[part] = {}
+        }
+        current = current[part]
       }
-      current = current[part]
     }
     
-    // Set the final value
+    // Set the final value (handle array index in the last part too)
     const lastPart = parts[parts.length - 1]
-    current[lastPart] = value
+    const lastArrayMatch = lastPart.match(/^(.+)\[(\d+)\]$/)
+    if (lastArrayMatch) {
+      const arrayName = lastArrayMatch[1]
+      const arrayIndex = parseInt(lastArrayMatch[2], 10)
+      
+      if (!current[arrayName]) {
+        current[arrayName] = []
+      }
+      while (current[arrayName].length <= arrayIndex) {
+        current[arrayName].push({})
+      }
+      current[arrayName][arrayIndex] = value
+    } else {
+      current[lastPart] = value
+    }
     
     // Mark as known and remove from blockers
     specState.known.add(field)
