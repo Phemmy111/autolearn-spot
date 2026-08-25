@@ -299,12 +299,8 @@ export async function POST(request: NextRequest) {
               .insert({
                 conversation_id: conversationId,
                 role: 'assistant',
-                content: generateResponse.message,
-                orchestration_data: {
-                  action: { type: 'execute', message: generateResponse.message },
-                  architectureProposal: generateResponse.architectureProposal,
-                  plan: currentPlan
-                }
+                content: generateResponse.message
+                // orchestration_data removed - no migration exists for this column
               })
           }
         })
@@ -583,15 +579,6 @@ export async function POST(request: NextRequest) {
                 hasPlan: !!plan
               })
 
-              // Store orchestration data for persistence
-              const orchestrationData = {
-                action,
-                message,
-                architectureProposal,
-                plan,
-                artifacts: artifacts.length > 0 ? artifacts : undefined
-              }
-
               // Send single native orchestration event with all data included
               // Do NOT send separate delta to prevent duplicate messages
               // The frontend will create a single message from the orchestration event
@@ -630,14 +617,14 @@ export async function POST(request: NextRequest) {
                     role: 'assistant',
                     content: message || fullContent,
                     model_used: modelUsed,
-                    tokens: tokensUsed,
-                    orchestration_data: orchestrationData, // P0.1: Persist orchestration data
+                    tokens: tokensUsed
+                    // orchestration_data removed - no migration exists for this column
                   })
                   .select()
                   .single()
 
                 if (assistantMsgError) {
-                  console.error('[P0.1] Error saving assistant message with orchestration data:', assistantMsgError)
+                  console.error('[Chat Route] Error saving assistant message:', assistantMsgError)
                 }
 
                 // Track usage
@@ -649,10 +636,8 @@ export async function POST(request: NextRequest) {
                   mode: mode as AlexMode,
                 })
               } catch (persistError) {
-                console.error('[P0.1] Failed to persist orchestration data:', persistError)
+                console.error('[Chat Route] Failed to persist message:', persistError)
               }
-
-              return
 
               return
             } else if (chunk.type === 'orchestrator') {

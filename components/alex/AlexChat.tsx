@@ -200,12 +200,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         const messagesRes = await fetch(`/api/alex/conversations/${conversationId}/messages`)
         if (messagesRes.ok) {
           const messagesData = await messagesRes.json()
-          // P0.1: Parse orchestration_data from JSON if present
-          const messagesWithOrchestration = (messagesData.messages || []).map((msg: any) => ({
-            ...msg,
-            orchestrationData: msg.orchestration_data ? JSON.parse(msg.orchestration_data) : undefined
-          }))
-          setMessages(messagesWithOrchestration)
+          setMessages(messagesData.messages || [])
         }
 
         // Load files
