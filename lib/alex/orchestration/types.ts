@@ -102,11 +102,20 @@ export interface AutomationPlan {
   // Constraints
   constraints?: string[];
   
-  // Assumptions
-  assumptions?: string[];
+  // P2-A: Enhanced assumptions with metadata to distinguish from requirements
+  assumptions?: Array<{
+    statement: string;
+    basis?: string;
+    confidence?: number;
+    category?: 'platform' | 'integration' | 'data' | 'timing' | 'other';
+  }>;
   
-  // Recommendations
-  recommendations?: string[];
+  // P2-A: Enhanced recommendations with metadata to distinguish from requirements
+  recommendations?: Array<{
+    statement: string;
+    reasoning?: string;
+    priority?: 'high' | 'medium' | 'low';
+  }>;
   
   // Unresolved questions
   unresolvedQuestions?: Array<{

@@ -1,75 +1,66 @@
-Make AI-driven orchestration the only production path, eliminate legacy routing bypass
+Implement P2 assumption handling and AutomationSpec fidelity
 
-P1.5 IMPLEMENTATION SUMMARY:
+P2 IMPLEMENTATION SUMMARY:
 
-Eliminated the configuration-controlled routing bypass that could return ALEX to the
-legacy wizard architecture. AI-driven orchestration is now the single authoritative
-production orchestration path for normal ALEX conversations.
+Implemented assumption handling to explicitly distinguish requirements, recommendations, assumptions,
+and unresolved items, and enhanced AutomationSpec fidelity to preserve operationally relevant
+planning information during plan-to-spec conversion.
 
-BACKEND CHANGES:
-1. lib/alex/orchestrator.ts
-   - Removed USE_AI_DRIVEN_ORCHESTRATION feature flag check from existing build routing (lines 164-208)
-   - Removed USE_AI_DRIVEN_ORCHESTRATION feature flag check from new request routing (lines 227-281)
-   - Removed legacy else branch that routed to WorkflowManagerV2
-   - Added deprecation comments for the environment variable
-   - AI-driven WorkflowOrchestrator is now the only path in both locations
-   - Updated logging to indicate single production path
-   - Updated intent detector logging to emphasize advisory metadata only
+P2-A — ASSUMPTION HANDLING:
+1. lib/alex/orchestration/types.ts
+   - Enhanced assumptions from string[] to Array<{statement, basis, confidence, category}>
+   - Enhanced recommendations from string[] to Array<{statement, reasoning, priority}>
+   - Maintains backward compatibility with existing consumers
+
+2. lib/alex/orchestration/ai-orchestrator.ts
+   - Added explicit P2-A guidelines to AI prompt for assumption/recommendation distinction
+   - Instructs AI to avoid silently converting assumptions to confirmed requirements
+   - Instructs AI to surface important assumptions when they materially affect execution
+   - Instructs AI to ask clarification when assumptions create significant execution risk
+
+P2-B — AUTOMATIONSPEC FIDELITY:
+3. lib/alex/artifact-generation/automation-spec.ts
+   - Added users field to preserve user information
+   - Added workflowSteps field to preserve workflow structure
+   - Added constraints field to preserve business constraints
+   - Enhanced unresolvedBlockers to structured array with category
+   - Enhanced assumptions to match P2-A structure
+   - Enhanced recommendations to match P2-A structure
+
+4. lib/alex/orchestration/workflow-orchestrator.ts
+   - Enhanced planToSpec() with explicit field mapping and loss audit logging
+   - Preserved: users, workflowSteps, constraints, enhanced assumptions/recommendations
+   - Added conversion audit logging for intentionally excluded fields
+   - Enhanced specToPlan() with backward compatibility for legacy string arrays
+   - Preserved all P2-A enhanced fields in reverse conversion
 
 KEY ARCHITECTURAL CHANGES:
-- Configuration-controlled routing bypass eliminated
-- AI-driven orchestration structurally authoritative
-- Legacy path removed from primary production routing
-- Single orchestration brain for normal chat: ALEX AI ORCHESTRATOR
-- USE_AI_DRIVEN_ORCHESTRATION environment variable deprecated (no longer controls routing)
+- Assumptions now have metadata (statement, basis, confidence, category)
+- Recommendations now have metadata (statement, reasoning, priority)
+- AI explicitly instructed to distinguish requirements vs recommendations vs assumptions vs unresolved
+- Operationally relevant fields (users, workflowSteps, constraints) now preserved in conversion
+- Conversion is loss-aware with audit logging
+- Backward compatibility maintained for legacy string arrays
 
-FEATURE FLAG BEHAVIOR:
-- USE_AI_DRIVEN_ORCHESTRATION=true → AI path (unchanged)
-- USE_AI_DRIVEN_ORCHESTRATION=false → AI path (FIXED - no longer routes to legacy)
-- Variable absent → AI path (unchanged)
-
-LEGACY PATH STATUS:
-- WorkflowManagerV2: NOT production-reachable for normal chat (preserved for artifact API and tests)
-- IntelligenceAnalyzerV2: NOT production-reachable for normal chat (preserved for compatibility)
-- Intent detector: ADVISORY METADATA ONLY (does not control routing)
-- artifact_workflow: COMPATIBILITY-ONLY (primary contract is orchestration event)
-- field:value parsing: NOT production-reachable for normal chat (legacy path only)
-
-P0 REGRESSION CHECK:
+REGRESSION VERIFICATION:
+- P0 native orchestration preserved (no changes to orchestration events)
+- P1 AI authority preserved (QuestionTracker remains advisory only)
+- P1.5 single production path preserved (no legacy routing reintroduced)
+- artifact_workflow remains compatibility-only (no changes to event handlers)
 - All 8 native actions preserved (respond/clarify/recommend/brainstorm/plan/generate/execute/revise)
-- Native orchestration events preserved
-- Frontend NativeOrchestrationAction preserved
 
-P1 REGRESSION CHECK:
-- QuestionTracker advisory only (preserved)
-- No synthetic wizard answers (preserved)
-- Natural-language persistence (preserved)
-- Confirmation/revision behavior preserved (preserved)
+FIELD MAPPING AUDIT:
+- PRESERVED: objective, users, trigger, inputs/outputs destinations, platform, assumptions, recommendations, unresolvedQuestions, architecture
+- PRESERVED (NEW): users, workflowSteps, constraints
+- INTENTIONALLY EXCLUDED: inputs.description, outputs.description, integrations.services, integrations.description, status, confidence, lastUpdated
+- TRANSFORMED: trigger.description → trigger.config, unresolvedQuestions → unresolvedBlockers
 
-REMAINING DETERMINISTIC GATES:
-- Intent detector: ADVISORY METADATA ONLY (does not override AI)
-- Existing build detection: ROUTING DECISION ONLY (AI still decides)
-- QuestionTracker: ADVISORY ONLY (does not override AI)
-- NO CRITICAL GATES remaining
+REMAINING RISKS:
+- AI model compliance with enhanced structures (requires production testing)
+- Backward compatibility with legacy string arrays in database (requires production testing)
+- Performance impact from enhanced structures (requires production testing)
+- ArchitectureDesigner/ArtifactService may not utilize new preserved fields (future enhancement)
 
-ARCHITECTURE LEVEL:
-- Before P1.5: LEVEL 2 (CONDITIONAL - could be LEVEL 3 or LEVEL 1 based on config)
-- After P1.5: LEVEL 3 (Genuine conversational AI orchestration - structurally guaranteed)
+GENERATED WITH [DEVIN](https://devin.ai)
 
-CRITICAL PRODUCTION ISSUES RESOLVED:
-- Feature flag dependency: RESOLVED (no longer controls routing)
-- Legacy path still active: RESOLVED (removed from primary routing)
-- Field value parsing in legacy path: RESOLVED (not reachable for normal chat)
-
-VALIDATION:
-- Static verification: PASS (correct architectural changes)
-- Runtime verification: NOT EXECUTED (requires production deployment)
-- Recommendation: Deploy with monitoring to confirm AI-driven path is active
-
-DEPRECATION NOTES:
-- USE_AI_DRIVEN_ORCHESTRATION: DEPRECATED (remove from production config after verification)
-- Legacy orchestrator classes: PRESERVED for compatibility (consider removal after no dependencies confirmed)
-
-Generated with [Devin](https://devin.ai)
-
-Co-Authored-By: Devin <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+CO-AUTHORED-BY: DEVIN <158243242+devin-ai-integration[bot]@users.noreply.github.com>

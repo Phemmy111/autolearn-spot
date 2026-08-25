@@ -250,9 +250,12 @@ export class WorkflowOrchestrator {
   }
   
   /**
-   * Convert AutomationPlan to AutomationSpec (legacy compatibility)
+   * Convert AutomationPlan to AutomationSpec (P2-B: Enhanced fidelity)
+   * Explicit mapping with loss awareness and audit trail
    */
   private planToSpec(plan: AutomationPlan): AutomationSpec {
+    console.log('[P2-B] Starting planToSpec conversion with enhanced fidelity')
+    
     const spec: AutomationSpec = {
       automationType: 'workflow',
       description: plan.objective,
@@ -264,7 +267,8 @@ export class WorkflowOrchestrator {
       architecture: { complexity: plan.architecture?.complexity || 'moderate' }
     }
     
-    // Map plan fields to spec fields
+    // P2-B: Explicit field mapping with loss awareness
+    // PRESERVED: Core fields
     if (plan.trigger) {
       spec.trigger = {
         type: plan.trigger.type || 'manual',
@@ -298,22 +302,68 @@ export class WorkflowOrchestrator {
       spec.platformReasoning = plan.platform.reasoning
     }
     
-    if (plan.assumptions) {
+    // P2-B: PRESERVED: P2-A enhanced fields
+    if (plan.assumptions && plan.assumptions.length > 0) {
       spec.assumptions = plan.assumptions
+      console.log('[P2-B] Preserved assumptions:', plan.assumptions.length)
     }
     
-    if (plan.recommendations) {
+    if (plan.recommendations && plan.recommendations.length > 0) {
       spec.recommendations = plan.recommendations
+      console.log('[P2-B] Preserved recommendations:', plan.recommendations.length)
     }
+    
+    // P2-B: PRESERVED: Structured unresolved questions with category
+    if (plan.unresolvedQuestions && plan.unresolvedQuestions.length > 0) {
+      spec.unresolvedBlockers = plan.unresolvedQuestions.map(q => ({
+        question: q.question,
+        reason: q.reason,
+        priority: q.priority,
+        category: 'requirement' // Default category for unresolved questions
+      }))
+      console.log('[P2-B] Preserved unresolved questions:', plan.unresolvedQuestions.length)
+    }
+    
+    // P2-B: PRESERVED: Users (new field to spec)
+    if (plan.users && plan.users.length > 0) {
+      spec.users = plan.users
+      console.log('[P2-B] Preserved users:', plan.users.length)
+    }
+    
+    // P2-B: PRESERVED: Workflow steps (new field to spec)
+    if (plan.workflow && plan.workflow.length > 0) {
+      spec.workflowSteps = plan.workflow
+      console.log('[P2-B] Preserved workflow steps:', plan.workflow.length)
+    }
+    
+    // P2-B: PRESERVED: Constraints (new field to spec)
+    if (plan.constraints && plan.constraints.length > 0) {
+      spec.constraints = plan.constraints
+      console.log('[P2-B] Preserved constraints:', plan.constraints.length)
+    }
+    
+    // P2-B: LOG: Intentionally excluded fields (for audit trail)
+    const intentionallyExcluded = [
+      'inputs.description (semantic info)',
+      'outputs.description (semantic info)',
+      'integrations.services (specific services)',
+      'integrations.description (integration context)',
+      'status (runtime state)',
+      'confidence (AI confidence)',
+      'lastUpdated (timestamp)'
+    ]
+    console.log('[P2-B] Intentionally excluded fields:', intentionallyExcluded)
     
     return spec
   }
   
   /**
    * Convert AutomationSpec to AutomationPlan (reverse conversion for persistence)
-   * This is the legacy compatibility bridge - converts rigid spec to evolving plan
+   * P2-B: Enhanced to preserve new fields and handle enhanced structures
    */
   private specToPlan(spec: AutomationSpec): AutomationPlan {
+    console.log('[P2-B] Starting specToPlan reverse conversion with enhanced fidelity')
+    
     const plan: AutomationPlan = {
       objective: spec.description || 'Unknown automation',
       status: 'draft'
@@ -355,12 +405,67 @@ export class WorkflowOrchestrator {
       }
     }
     
-    if (spec.assumptions) {
-      plan.assumptions = spec.assumptions
+    // P2-B: PRESERVED: Enhanced assumptions (with legacy compatibility)
+    if (spec.assumptions && spec.assumptions.length > 0) {
+      // Handle both new enhanced structure and legacy string array
+      const isEnhanced = spec.assumptions.some(a => typeof a === 'object' && a !== null)
+      if (isEnhanced) {
+        plan.assumptions = spec.assumptions as any
+      } else {
+        // Convert legacy string array to enhanced structure
+        plan.assumptions = (spec.assumptions as string[]).map(statement => ({
+          statement,
+          basis: 'Legacy spec conversion',
+          confidence: 0.8,
+          category: 'other' as const
+        }))
+      }
+      console.log('[P2-B] Preserved assumptions in reverse conversion:', spec.assumptions.length)
     }
     
-    if (spec.recommendations) {
-      plan.recommendations = spec.recommendations
+    // P2-B: PRESERVED: Enhanced recommendations (with legacy compatibility)
+    if (spec.recommendations && spec.recommendations.length > 0) {
+      // Handle both new enhanced structure and legacy string array
+      const isEnhanced = spec.recommendations.some(r => typeof r === 'object' && r !== null)
+      if (isEnhanced) {
+        plan.recommendations = spec.recommendations as any
+      } else {
+        // Convert legacy string array to enhanced structure
+        plan.recommendations = (spec.recommendations as string[]).map(statement => ({
+          statement,
+          reasoning: 'Legacy spec conversion',
+          priority: 'medium' as const
+        }))
+      }
+      console.log('[P2-B] Preserved recommendations in reverse conversion:', spec.recommendations.length)
+    }
+    
+    // P2-B: PRESERVED: Structured unresolved blockers
+    if (spec.unresolvedBlockers && spec.unresolvedBlockers.length > 0) {
+      plan.unresolvedQuestions = spec.unresolvedBlockers.map(b => ({
+        question: b.question,
+        reason: b.reason,
+        priority: b.priority
+      }))
+      console.log('[P2-B] Preserved unresolved questions in reverse conversion:', spec.unresolvedBlockers.length)
+    }
+    
+    // P2-B: PRESERVED: Users
+    if (spec.users && spec.users.length > 0) {
+      plan.users = spec.users
+      console.log('[P2-B] Preserved users in reverse conversion:', spec.users.length)
+    }
+    
+    // P2-B: PRESERVED: Workflow steps
+    if (spec.workflowSteps && spec.workflowSteps.length > 0) {
+      plan.workflow = spec.workflowSteps
+      console.log('[P2-B] Preserved workflow steps in reverse conversion:', spec.workflowSteps.length)
+    }
+    
+    // P2-B: PRESERVED: Constraints
+    if (spec.constraints && spec.constraints.length > 0) {
+      plan.constraints = spec.constraints
+      console.log('[P2-B] Preserved constraints in reverse conversion:', spec.constraints.length)
     }
     
     if (spec.architecture) {
@@ -371,8 +476,15 @@ export class WorkflowOrchestrator {
     
     // Extract known fields from spec metadata if available
     if (spec._knownFields) {
+      // Convert legacy string to enhanced assumption structure
+      const legacyAssumption = {
+        statement: `Known fields: ${spec._knownFields.join(', ')}`,
+        basis: 'Legacy spec metadata',
+        confidence: 1.0,
+        category: 'other' as const
+      }
       plan.assumptions = plan.assumptions || []
-      plan.assumptions.push(`Known fields: ${spec._knownFields.join(', ')}`)
+      plan.assumptions.push(legacyAssumption)
     }
     
     return plan

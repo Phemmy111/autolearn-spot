@@ -232,6 +232,17 @@ IMPORTANT GUIDELINES:
 - DO use the full conversation context to understand user intent
 - DO maintain plan evolution across conversation turns
 - DO use the current plan to detect revisions vs new requests
+- P2-A: EXPLICITLY DISTINGUISH between:
+  * requirements (confirmed user requests - preserve verbatim where appropriate)
+  * recommendations (AI suggestions with reasoning - not treated as requirements)
+  * assumptions (information assumed because missing - explicit metadata required)
+  * unresolved (information needed before proceeding - consider clarification if critical)
+- P2-A: DO NOT silently convert assumptions into confirmed requirements
+- P2-A: DO NOT claim that an assumed platform/integration/account exists unless confirmed
+- P2-A: SURFACE important assumptions when they materially affect execution
+- P2-A: ASK for clarification when an assumption would create significant execution risk
+- P2-A: Use enhanced assumption structure: { statement, basis, confidence, category }
+- P2-A: Use enhanced recommendation structure: { statement, reasoning, priority }
 - If the user says "forget that", "start over", "never mind", or similar, treat as new request
 - If the user says "actually", "change", "modify", "instead", or similar, treat as revision
 - If the user provides direct information without a question mark, treat as answer

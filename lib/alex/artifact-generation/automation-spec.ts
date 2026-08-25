@@ -127,14 +127,33 @@ export interface AutomationSpec {
   filename?: string
   description?: string
   
-  // What's still unresolved
-  unresolvedBlockers?: string[]
+  // P2-B: Enhanced to preserve more planning information
+  users?: string[]  // Who are the users
+  workflowSteps?: Array<{step: string; description?: string}>  // Workflow structure
+  constraints?: string[]  // Business constraints
   
-  // What we're assuming
-  assumptions?: string[]
+  // What's still unresolved (structured for better tracking)
+  unresolvedBlockers?: Array<{
+    question: string;
+    reason: string;
+    priority: 'high' | 'medium' | 'low';
+    category?: 'requirement' | 'assumption' | 'recommendation';
+  }>;
   
-  // Our recommendations
-  recommendations?: string[]
+  // P2-A: Enhanced assumptions with metadata
+  assumptions?: Array<{
+    statement: string;
+    basis?: string;
+    confidence?: number;
+    category?: 'platform' | 'integration' | 'data' | 'timing' | 'other';
+  }>;
+  
+  // P2-A: Enhanced recommendations with metadata
+  recommendations?: Array<{
+    statement: string;
+    reasoning?: string;
+    priority?: 'high' | 'medium' | 'low';
+  }>;
   
   // Track known fields (for persistence)
   _knownFields?: string[]
