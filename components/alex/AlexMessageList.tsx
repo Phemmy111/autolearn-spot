@@ -92,11 +92,67 @@ function NativeOrchestrationAction({ action, onSelect, disabled }: { action: any
             <Workflow className="h-5 w-5 text-blue-400" />
             <span className="font-semibold text-blue-300">Automation Plan</span>
           </div>
-          <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          {action.message && (
+            <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          )}
           {action.plan && (
-            <pre className="bg-slate-900/50 rounded-lg p-3 text-xs text-slate-300 overflow-x-auto">
-              {JSON.stringify(action.plan, null, 2)}
-            </pre>
+            <div className="space-y-3">
+              {action.plan.objective && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Objective:</p>
+                  <p className="text-sm text-slate-300">{action.plan.objective}</p>
+                </div>
+              )}
+              {action.plan.platform && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Platform:</p>
+                  <p className="text-sm text-slate-300">{action.plan.platform.name}</p>
+                  {action.plan.platform.reasoning && (
+                    <p className="text-xs text-slate-400 mt-1">{action.plan.platform.reasoning}</p>
+                  )}
+                </div>
+              )}
+              {action.plan.trigger && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Trigger:</p>
+                  <p className="text-sm text-slate-300">{action.plan.trigger.type} - {action.plan.trigger.description}</p>
+                </div>
+              )}
+              {action.plan.workflow && action.plan.workflow.length > 0 && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-2">Workflow Steps:</p>
+                  <ol className="list-decimal list-inside text-sm text-slate-300 space-y-1">
+                    {action.plan.workflow.map((step: any, i: number) => (
+                      <li key={i}>{step.description || step}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+              {action.plan.assumptions && action.plan.assumptions.length > 0 && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-2">Assumptions:</p>
+                  <ul className="list-disc list-inside text-sm text-slate-300 space-y-1">
+                    {action.plan.assumptions.map((assumption: any, i: number) => (
+                      <li key={i}>
+                        {typeof assumption === 'string' ? assumption : assumption.statement}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {action.plan.recommendations && action.plan.recommendations.length > 0 && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-2">Recommendations:</p>
+                  <ul className="list-disc list-inside text-sm text-slate-300 space-y-1">
+                    {action.plan.recommendations.map((rec: any, i: number) => (
+                      <li key={i}>
+                        {typeof rec === 'string' ? rec : rec.statement}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )
@@ -137,11 +193,37 @@ function NativeOrchestrationAction({ action, onSelect, disabled }: { action: any
             <Edit2 className="h-5 w-5 text-yellow-400" />
             <span className="font-semibold text-yellow-300">Revision</span>
           </div>
-          <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          {action.message && (
+            <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          )}
           {action.plan && (
-            <pre className="bg-slate-900/50 rounded-lg p-3 text-xs text-slate-300 overflow-x-auto">
-              {JSON.stringify(action.plan, null, 2)}
-            </pre>
+            <div className="space-y-3">
+              {action.plan.objective && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Objective:</p>
+                  <p className="text-sm text-slate-300">{action.plan.objective}</p>
+                </div>
+              )}
+              {action.plan.platform && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-1">Platform:</p>
+                  <p className="text-sm text-slate-300">{action.plan.platform.name}</p>
+                  {action.plan.platform.reasoning && (
+                    <p className="text-xs text-slate-400 mt-1">{action.plan.platform.reasoning}</p>
+                  )}
+                </div>
+              )}
+              {action.plan.workflow && action.plan.workflow.length > 0 && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-2">Workflow Steps:</p>
+                  <ol className="list-decimal list-inside text-sm text-slate-300 space-y-1">
+                    {action.plan.workflow.map((step: any, i: number) => (
+                      <li key={i}>{step.description || step}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )
@@ -646,7 +728,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                       {(message as any).orchestrationData ? (
                         <>
                           {/* Render orchestration message content if present */}
-                          {(message as any).orchestrationData.message && (
+                          {(message as any).orchestrationData.message && (message as any).orchestrationData.message.trim().length > 0 && (
                             <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900 mb-3">
                               <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}

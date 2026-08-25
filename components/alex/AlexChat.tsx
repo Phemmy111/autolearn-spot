@@ -344,28 +344,35 @@ export function AlexChat({ userId }: AlexChatProps) {
                     console.log('[P0] Native orchestration response:', parsed.data)
                     console.log('[P0] AI action type:', parsed.data.action?.type)
 
-                    // P0.1: Store full orchestration data including action, plan, architectureProposal, artifacts
+                    // P0.1: Store full orchestration data including action, plan, architectureProposal, artifacts, message
                     const orchestrationData = {
                       action: parsed.data.action,
+                      message: parsed.data.message,
                       architectureProposal: parsed.data.architectureProposal,
                       plan: parsed.data.plan,
                       artifacts: parsed.data.artifacts
                     }
 
-                    // Create a new assistant message for the orchestration response
-                    setMessages(prev => {
-                      return [
-                        ...prev,
-                        {
-                          id: crypto.randomUUID(),
-                          conversation_id: conversationToUse.id,
-                          role: 'assistant',
-                          content: parsed.data.message || '',
-                          created_at: new Date().toISOString(),
-                          orchestrationData // P0.1: Full orchestration data
-                        }
-                      ]
-                    })
+                    // Only create a message if there's actual content (message or orchestration data)
+                    // This prevents empty assistant messages from being created
+                    const hasContent = parsed.data.message && parsed.data.message.trim().length > 0
+                    const hasOrchestrationData = parsed.data.action || parsed.data.plan || parsed.data.architectureProposal
+
+                    if (hasContent || hasOrchestrationData) {
+                      setMessages(prev => {
+                        return [
+                          ...prev,
+                          {
+                            id: crypto.randomUUID(),
+                            conversation_id: conversationToUse.id,
+                            role: 'assistant',
+                            content: parsed.data.message || '',
+                            created_at: new Date().toISOString(),
+                            orchestrationData // P0.1: Full orchestration data
+                          }
+                        ]
+                      })
+                    }
                   } else if (parsed.type === 'artifact_workflow') {
                     // Legacy artifact workflow response (keep for backward compatibility)
                     console.log('[AlexChat] Legacy artifact workflow response:', parsed.data)

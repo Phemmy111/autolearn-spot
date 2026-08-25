@@ -173,7 +173,7 @@ export class WorkflowOrchestrator {
       case 'plan':
         return {
           status: 'planning',
-          message: `Here's my plan for your automation:\n${JSON.stringify(action.plan, null, 2)}`,
+          message: 'Here\'s my plan for your automation:',
           plan: action.plan,
           action: action
         }
@@ -181,7 +181,7 @@ export class WorkflowOrchestrator {
       case 'revise':
         return {
           status: 'revising',
-          message: action.message,
+          message: action.message || 'Here\'s the revised plan:',
           plan: action.plan,
           action: action
         }

@@ -501,33 +501,24 @@ export async function POST(request: NextRequest) {
               // Store orchestration data for persistence
               const orchestrationData = {
                 action,
+                message,
                 architectureProposal,
                 plan,
                 artifacts: artifacts.length > 0 ? artifacts : undefined
               }
 
-              // Send the message as delta content first
-              if (message) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`))
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: message })}\n\n`))
-              }
+              // Send single native orchestration event with all data included
+              // Do NOT send separate delta to prevent duplicate messages
+              // The frontend will create a single message from the orchestration event
+              const orchestrationPayload: any = { action }
+              if (message) orchestrationPayload.message = message
+              if (architectureProposal) orchestrationPayload.architectureProposal = architectureProposal
+              if (plan) orchestrationPayload.plan = plan
+              if (artifacts.length > 0) orchestrationPayload.artifacts = artifacts
 
-              // Send native orchestration action to frontend
-              if (action) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'orchestration', data: { action } })}\n\n`))
-              }
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'orchestration', data: orchestrationPayload })}\n\n`))
 
-              // Send architecture proposal if present (for generate action)
-              if (architectureProposal) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'orchestration', data: { architectureProposal } })}\n\n`))
-              }
-
-              // Send plan if present (for plan/revise actions)
-              if (plan) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'orchestration', data: { plan } })}\n\n`))
-              }
-
-              // Send artifacts if present (for generate action)
+              // Send artifacts separately if present (for generate action - keeps artifact handling separate)
               if (artifacts.length > 0) {
                 const responseWithArtifacts = {
                   artifacts: artifacts.map((a: any) => ({
