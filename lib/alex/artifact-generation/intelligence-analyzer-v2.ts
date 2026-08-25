@@ -636,7 +636,11 @@ Return empty array if no blockers exist.`
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0])
         specState.blockers.clear()
-        result.blockers.forEach((blocker: string) => specState.blockers.add(blocker))
+        result.blockers.forEach((blocker: string) => {
+          // Normalize to plural form for consistency
+          const normalizedBlocker = this.normalizeToPlural(blocker)
+          specState.blockers.add(normalizedBlocker)
+        })
         console.log('[Intelligence Analyzer V2] AI-identified blockers:', Array.from(specState.blockers))
         console.log('[Intelligence Analyzer V2] ===== AI BLOCKER IDENTIFICATION SUCCESS =====')
         return
@@ -716,11 +720,25 @@ Return empty array if no blockers exist.`
     
     if (hasArrayIndex || hasNestedSubfield) {
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Bypassing AI mapping for array/nested path, applying directly:', context)
-      this.applyMappingToSpec(context, answer, specState)
+      // Normalize the field before applying to handle singular/plural mismatches
+      const normalizedField = this.normalizeFieldToCanonical(context, specState)
+      if (normalizedField !== context) {
+        console.log('[DEBUG INTELLIGENCE ANALYZER V2] Normalized field for direct mapping:', { from: context, to: normalizedField })
+      }
+      this.applyMappingToSpec(normalizedField, answer, specState)
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after direct mapping:', Array.from(specState.known))
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after direct mapping:', Array.from(specState.blockers))
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
       return
+    }
+    
+    // Normalize field for all paths to handle singular/plural mismatches
+    // This prevents loops where user answers "outputs.destination" but blocker is "outputs.destinations"
+    const normalizedField = this.normalizeFieldToCanonical(context, specState)
+    const effectiveContext = normalizedField !== context ? normalizedField : context
+    
+    if (normalizedField !== context) {
+      console.log('[DEBUG INTELLIGENCE ANALYZER V2] Normalized field for mapping:', { from: context, to: normalizedField })
     }
     
     // Phase 2: Try AI semantic mapping first
@@ -729,7 +747,7 @@ Return empty array if no blockers exist.`
     if (useAIMapping) {
       try {
         console.log('[DEBUG INTELLIGENCE ANALYZER V2] Attempting AI semantic answer mapping')
-        const aiMapping = await SemanticAnalyzer.mapAnswer(answer, context, specState.spec)
+        const aiMapping = await SemanticAnalyzer.mapAnswer(answer, effectiveContext, specState.spec)
         
         if (aiMapping.field && aiMapping.value !== null) {
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI semantic mapping succeeded:', aiMapping)
@@ -745,14 +763,21 @@ Return empty array if no blockers exist.`
           // Apply AI mapping to spec with canonical field
           this.applyMappingToSpec(canonicalField, aiMapping.value, specState)
           
+          // Also mark the effective context as known if it's a blocker
+          if (specState.blockers.has(effectiveContext)) {
+            specState.known.add(effectiveContext)
+            specState.blockers.delete(effectiveContext)
+            console.log('[DEBUG INTELLIGENCE ANALYZER V2] Also marked effective context as known:', effectiveContext)
+          }
+          
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] Known after AI mapping:', Array.from(specState.known))
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] Blockers after AI mapping:', Array.from(specState.blockers))
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
           return
         } else if (aiMapping.field === 'recommendation') {
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] AI returned recommendation, applying:', aiMapping.value)
-          this.applyMappingToSpec(context, aiMapping.value, specState)
-          specState.recommended.add(context)
+          this.applyMappingToSpec(effectiveContext, aiMapping.value, specState)
+          specState.recommended.add(effectiveContext)
           console.log('[DEBUG INTELLIGENCE ANALYZER V2] ===== MAP ANSWER TO SPEC END =====')
           return
         } else {
@@ -768,7 +793,7 @@ Return empty array if no blockers exist.`
     // Fallback to keyword-based mapping
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Using keyword-based answer mapping as fallback')
     
-    switch (context) {
+    switch (effectiveContext) {
       case 'integrations.emailProvider':
         if (lower.includes('gmail')) {
           specState.spec.integrations = specState.spec.integrations || {}
@@ -853,6 +878,7 @@ Return empty array if no blockers exist.`
         break
         
       case 'outputs.destinations':
+      case 'outputs.destination': // Handle both forms
         if (lower.includes('email') || lower.includes('gmail')) {
           specState.spec.outputs = specState.spec.outputs || {}
           specState.spec.outputs.destinations = ['email']
@@ -880,6 +906,23 @@ Return empty array if no blockers exist.`
     
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final known after mapping:', Array.from(specState.known))
     console.log('[DEBUG INTELLIGENCE ANALYZER V2] Final blockers after mapping:', Array.from(specState.blockers))
+  }
+  
+  /**
+   * Normalize field to plural form for consistency
+   * This ensures blockers always use plural forms (e.g., outputs.destinations not outputs.destination)
+   */
+  private static normalizeToPlural(field: string): string {
+    const singularToPlural: Record<string, string> = {
+      'outputs.destination': 'outputs.destinations',
+      'outputs.recipient': 'outputs.recipients',
+      'outputs.message': 'outputs.messages',
+      'outputs.subject': 'outputs.subjects',
+      'inputs.source': 'inputs.sources',
+      'triggers.condition': 'triggers.conditions'
+    }
+    
+    return singularToPlural[field] || field
   }
   
   /**
@@ -1080,6 +1123,7 @@ Return empty array if no blockers exist.`
         break
         
       case 'outputs.destinations':
+      case 'outputs.destination':
         specState.spec.outputs = specState.spec.outputs || {}
         specState.spec.outputs.destinations = ['email']
         specState.known.add('outputs.destinations')
@@ -1138,7 +1182,7 @@ Return empty array if no blockers exist.`
     }
     
     // Check if this answers an output destination question
-    if (specState.blockers.has('outputs.destinations')) {
+    if (specState.blockers.has('outputs.destinations') || specState.blockers.has('outputs.destination')) {
       if (lower.includes('email') || lower.includes('slack') || lower.includes('telegram') || lower.includes('whatsapp')) {
         await this.mapAnswerToSpec(answer, 'outputs.destinations', specState)
         return
@@ -1233,7 +1277,7 @@ Return empty array if no blockers exist.`
       specState.spec.integrations.knowledgeBase = 'none'
       specState.known.add('integrations.knowledgeBase')
       specState.blockers.delete('integrations.knowledgeBase')
-    } else if (context.includes('destinations')) {
+    } else if (context.includes('destinations') || context.includes('destination')) {
       specState.spec.outputs = specState.spec.outputs || {}
       specState.spec.outputs.destinations = ['email']
       specState.known.add('outputs.destinations')
@@ -1262,6 +1306,11 @@ Return empty array if no blockers exist.`
       specState.spec.outputs = specState.spec.outputs || {}
       specState.spec.outputs.destinations = specState.spec.outputs.destinations || []
       specState.spec.outputs.destinations.push({ email: 'user@example.com' })
+      specState.known.add('outputs.destinations')
+      specState.blockers.delete('outputs.destinations')
+    } else if (context.includes('destination')) {
+      specState.spec.outputs = specState.spec.outputs || {}
+      specState.spec.outputs.destinations = ['email']
       specState.known.add('outputs.destinations')
       specState.blockers.delete('outputs.destinations')
     } else if (context.includes('subject')) {

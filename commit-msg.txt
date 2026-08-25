@@ -1,9 +1,10 @@
-Fix array index path handling in field:value answers
+Fix singular/plural field mismatch causing infinite loops
 
-- Fixed issue where outputs.destinations[0].address: Telegram was incorrectly mapped to outputs.destinations: ["telegram"]
-- Added logic to bypass AI mapping when field contains array indices or nested paths
-- Enhanced applyMappingToSpec to properly handle array index notation (e.g., [0], [1])
-- Preserves exact user-specified structure for nested and array fields
+- Added normalizeToPlural to ensure blockers always use plural forms
+- Enhanced keyword mapping to handle both singular and plural forms
+- Fixed field normalization to handle bidirectional singular/plural mapping
+- Added normalization to direct field:value answer mapping
+- Prevents loops where user answers "outputs.destination" but blocker is "outputs.destinations"
 
 Files changed:
 - lib/alex/artifact-generation/intelligence-analyzer-v2.ts
