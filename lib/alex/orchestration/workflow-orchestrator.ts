@@ -94,25 +94,10 @@ export class WorkflowOrchestrator {
       hasUpdatedPlan: !!orchestrationResult.updatedPlan
     })
     
-    // Special handling for looping failure prevention
-    // If AI wants to ask a question that was just answered, prevent it
-    if (orchestrationResult.action.type === 'clarify' && request.userId && request.conversationId) {
-      const question = orchestrationResult.action.question
-      const wasRecentlyAnswered = await this.checkRecentlyAnswered(
-        request.conversationId,
-        request.userId,
-        question
-      )
-      
-      if (wasRecentlyAnswered) {
-        console.log('[Workflow Orchestrator] Preventing repeated question:', question.substring(0, 50))
-        // Change to respond action
-        orchestrationResult.action = {
-          type: 'respond',
-          message: "I think we've already covered that. Let me proceed with the information we have."
-        }
-      }
-    }
+    // P1: Removed QuestionTracker override to preserve AI authority
+    // QuestionTracker is now advisory only, not authoritative
+    // The AI decides what to do next, not the tracker
+    console.log('[P1] QuestionTracker status: advisory (does not override AI decisions)')
     
     // Handle the AI's decision
     return await this.handleOrchestrationResult(
@@ -515,27 +500,5 @@ export class WorkflowOrchestrator {
         persistSession: false
       }
     })
-  }
-  
-  /**
-   * Check if a question was recently answered (to prevent looping)
-   */
-  private async checkRecentlyAnswered(
-    conversationId: string,
-    userId: string,
-    question: string
-  ): Promise<boolean> {
-    try {
-      const recentlyAnswered = await OrchestrationQuestionService.checkAlreadyAnswered({
-        conversationId,
-        userId,
-        question
-      })
-      
-      return recentlyAnswered
-    } catch (error) {
-      console.error('[Workflow Orchestrator] Failed to check recently answered:', error)
-      return false
-    }
   }
 }

@@ -51,6 +51,12 @@ export class AIOrchestrator {
     console.log('[AI Orchestrator] Current plan:', currentPlan ? 'present' : 'none')
     console.log('[AI Orchestrator] Conversation mode:', context.mode)
     
+    // P1: Log AI decision for confirmation handling
+    console.log('[P1 ORCHESTRATION] Orchestration starting', {
+      userMessage: userMessage.substring(0, 50),
+      hasCurrentPlan: !!currentPlan
+    })
+    
     // Clear old questions periodically
     if (context.userId && context.conversationId) {
       await OrchestrationQuestionService.clearOldQuestions({
@@ -67,6 +73,27 @@ export class AIOrchestrator {
       actionType: aiDecision.action.type,
       confidence: aiDecision.confidence
     })
+    
+    // P1: Log confirmation-related actions
+    if (aiDecision.action.type === 'execute' || aiDecision.action.type === 'generate') {
+      console.log('[P1 CONFIRMATION] AI selected generation/execute action', {
+        actionType: aiDecision.action.type,
+        confirmationRequired: aiDecision.action.confirmationRequired
+      })
+    }
+    
+    if (aiDecision.intent === 'answer_question') {
+      console.log('[P1 CONFIRMATION] AI detected answer_question intent', {
+        userMessage: userMessage.substring(0, 50)
+      })
+    }
+    
+    // P1: Log revision detection
+    if (aiDecision.intent === 'revise_automation') {
+      console.log('[P1 REVISION] AI detected revision intent', {
+        userMessage: userMessage.substring(0, 50)
+      })
+    }
     
     // Update plan if provided
     let updatedPlan = currentPlan
@@ -96,13 +123,13 @@ export class AIOrchestrator {
           questionType: 'clarify',
           orchestrationAction: aiDecision.action.type
         })
+        console.log('[P1] QuestionTracker: Question allowed to proceed (not duplicate)')
       } else {
-        console.log('[AI Orchestrator] Question prevented by persistent tracker:', question.substring(0, 50))
-        // Fallback to respond instead
-        aiDecision.action = {
-          type: 'respond',
-          message: "I think we've already discussed that. Let me proceed with what we have."
-        }
+        console.log('[P1] QuestionTracker: Question appears duplicate, but AI decision preserved')
+        console.log('[P1] QuestionTracker: AI may choose to reformulate or proceed regardless')
+        // P1: Do NOT override AI decision
+        // Let the AI decide whether to reformulate or proceed
+        // The tracker is advisory, not authoritative
       }
     }
     

@@ -139,13 +139,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message with file IDs (Phase 3A)
-    console.log('[DIAGNOSTIC] MESSAGE PERSISTENCE START', {
+    console.log('[P1 MESSAGE] Persisting natural user message', {
       conversationId,
       userId,
-      content,
-      fileIdsPresent: !!fileIds,
-      fileIdsCount: fileIds?.length || 0,
-      fileIds: fileIds || []
+      contentLength: content.length,
+      contentPreview: content.substring(0, 100),
+      syntheticField: 'none', // P1: No field dependency
+      syntheticValue: 'none' // P1: No value dependency
     })
 
     const { data: userMessage, error: userMsgError } = await supabase
@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    console.log('[DIAGNOSTIC] MESSAGE PERSISTENCE RESULT', {
+    console.log('[P1 MESSAGE] Message persistence result', {
       insertSuccess: !userMsgError,
       insertError: userMsgError?.message,
       messageId: userMessage?.id,
