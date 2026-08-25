@@ -128,9 +128,15 @@ export class WorkflowOrchestrator {
     // For generate action, invoke artifact generation machinery
     if (action.type === 'generate' || action.type === 'execute') {
       console.log('[P0] Invoking artifact generation machinery for action:', action.type)
+      console.log('[FORENSIC] Generate action detected')
+      console.log('[FORENSIC] updatedPlan exists:', !!updatedPlan)
+      console.log('[FORENSIC] action.plan exists:', !!action.plan)
+      console.log('[FORENSIC] updatedPlan platform:', updatedPlan?.platform?.name)
+      console.log('[FORENSIC] action.plan platform:', action.plan?.platform?.name)
       // CRITICAL FIX: Use updatedPlan if available, otherwise fall back to action.plan
       // This ensures platform updates (like "n8n") are preserved for architecture generation
       const planForGeneration = updatedPlan || action.plan
+      console.log('[FORENSIC] planForGeneration platform:', planForGeneration.platform?.name || 'no platform')
       console.log('[Workflow Orchestrator] Using plan for generation:', planForGeneration.platform?.name || 'no platform')
       const generateResponse = await this.handleGenerate(planForGeneration, request)
       

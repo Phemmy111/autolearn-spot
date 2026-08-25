@@ -241,10 +241,18 @@ Return ONLY JSON.`
 
     const response = await aiService.generateResponse(prompt)
     console.log('[Architecture Designer] AI architecture response received, length:', response.length)
+    console.log('[FORENSIC] Raw AI response from architecture generation:')
+    console.log('[FORENSIC]', response)
+    console.log('[FORENSIC] Response preview (first 1000 chars):', response.substring(0, 1000))
 
     // Try to extract JSON from response
     const jsonMatch = response.match(/\{[\s\S]*\}/)
     console.log('[Architecture Designer] JSON match result:', jsonMatch ? 'found' : 'not found')
+    console.log('[FORENSIC] JSON extraction result:', jsonMatch ? 'SUCCESS' : 'FAILED')
+    if (jsonMatch) {
+      console.log('[FORENSIC] Extracted JSON length:', jsonMatch[0].length)
+      console.log('[FORENSIC] Extracted JSON preview:', jsonMatch[0].substring(0, 500))
+    }
     if (jsonMatch) {
       console.log('[Architecture Designer] Extracted JSON length:', jsonMatch[0].length)
       try {

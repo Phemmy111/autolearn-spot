@@ -73,6 +73,16 @@ export class AIOrchestrator {
       actionType: aiDecision.action.type,
       confidence: aiDecision.confidence
     })
+    console.log('[FORENSIC] AI decision for user message:', userMessage)
+    console.log('[FORENSIC] AI action type:', aiDecision.action.type)
+    console.log('[FORENSIC] AI action has plan:', !!aiDecision.action.plan)
+    console.log('[FORENSIC] AI has updatedPlan:', !!aiDecision.updatedPlan)
+    if (aiDecision.action.plan) {
+      console.log('[FORENSIC] AI action.plan platform:', aiDecision.action.plan.platform?.name)
+    }
+    if (aiDecision.updatedPlan) {
+      console.log('[FORENSIC] AI updatedPlan platform:', aiDecision.updatedPlan.platform?.name)
+    }
     
     // P1: Log confirmation-related actions
     if (aiDecision.action.type === 'execute' || aiDecision.action.type === 'generate') {
