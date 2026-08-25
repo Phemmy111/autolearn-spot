@@ -22,6 +22,7 @@ export interface Message {
   file_ids?: string[] // File IDs attached to this message
   attached_files?: AlexFile[] // Full file objects (populated on load)
   artifacts?: ArtifactInfo[] // Phase 7: Generated artifacts with download info
+  orchestrationData?: any // P0: Native orchestration action data (action, plan, etc.)
 }
 
 export interface ArtifactInfo {

@@ -642,8 +642,32 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                 <div className="flex-1 min-w-0">
                   {message.role === 'assistant' ? (
                     <>
-                      {/* Phase 7: Check for artifact workflow response in workflowData */}
-                      {(message as any).workflowData ? (
+                      {/* P0: Check for native orchestration response in orchestrationData */}
+                      {(message as any).orchestrationData ? (
+                        <>
+                          {/* Render orchestration message content if present */}
+                          {(message as any).orchestrationData.message && (
+                            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900 mb-3">
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={MarkdownComponents}
+                              >
+                                {(message as any).orchestrationData.message}
+                              </ReactMarkdown>
+                            </div>
+                          )}
+                          {/* Render native orchestration action */}
+                          <NativeOrchestrationAction
+                            action={(message as any).orchestrationData.action}
+                            onSelect={(value) => {
+                              // Send natural language answer without field
+                              const event = new CustomEvent('alexQuestionAnswer', { detail: { value } })
+                              window.dispatchEvent(event)
+                            }}
+                            disabled={isLoading}
+                          />
+                        </>
+                      ) : (message as any).workflowData ? (
                         <>
                           {renderArtifactWorkflow((message as any).workflowData)}
                           {/* Also render any text content */}

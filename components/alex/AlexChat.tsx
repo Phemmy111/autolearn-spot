@@ -191,7 +191,12 @@ export function AlexChat({ userId }: AlexChatProps) {
         const messagesRes = await fetch(`/api/alex/conversations/${conversationId}/messages`)
         if (messagesRes.ok) {
           const messagesData = await messagesRes.json()
-          setMessages(messagesData.messages || [])
+          // P0.1: Parse orchestration_data from JSON if present
+          const messagesWithOrchestration = (messagesData.messages || []).map((msg: any) => ({
+            ...msg,
+            orchestrationData: msg.orchestration_data ? JSON.parse(msg.orchestration_data) : undefined
+          }))
+          setMessages(messagesWithOrchestration)
         }
 
         // Load files
@@ -339,6 +344,14 @@ export function AlexChat({ userId }: AlexChatProps) {
                     console.log('[P0] Native orchestration response:', parsed.data)
                     console.log('[P0] AI action type:', parsed.data.action?.type)
 
+                    // P0.1: Store full orchestration data including action, plan, architectureProposal, artifacts
+                    const orchestrationData = {
+                      action: parsed.data.action,
+                      architectureProposal: parsed.data.architectureProposal,
+                      plan: parsed.data.plan,
+                      artifacts: parsed.data.artifacts
+                    }
+
                     // Create a new assistant message for the orchestration response
                     setMessages(prev => {
                       return [
@@ -349,7 +362,7 @@ export function AlexChat({ userId }: AlexChatProps) {
                           role: 'assistant',
                           content: parsed.data.message || '',
                           created_at: new Date().toISOString(),
-                          orchestrationData: parsed.data // Native orchestration data with action
+                          orchestrationData // P0.1: Full orchestration data
                         }
                       ]
                     })

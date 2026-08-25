@@ -498,6 +498,14 @@ export async function POST(request: NextRequest) {
                 hasPlan: !!plan
               })
 
+              // Store orchestration data for persistence
+              const orchestrationData = {
+                action,
+                architectureProposal,
+                plan,
+                artifacts: artifacts.length > 0 ? artifacts : undefined
+              }
+
               // Send the message as delta content first
               if (message) {
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`))
@@ -536,6 +544,39 @@ export async function POST(request: NextRequest) {
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
               controller.enqueue(encoder.encode('data: [DONE]\n\n'))
               controller.close()
+
+              // P0.1: Persist orchestration data to database
+              try {
+                const { data: assistantMessage, error: assistantMsgError } = await supabase
+                  .from('alex_messages')
+                  .insert({
+                    conversation_id: conversationId,
+                    role: 'assistant',
+                    content: message || fullContent,
+                    model_used: modelUsed,
+                    tokens: tokensUsed,
+                    orchestration_data: orchestrationData, // P0.1: Persist orchestration data
+                  })
+                  .select()
+                  .single()
+
+                if (assistantMsgError) {
+                  console.error('[P0.1] Error saving assistant message with orchestration data:', assistantMsgError)
+                }
+
+                // Track usage
+                await AlexCostTracker.trackUsage({
+                  userId,
+                  conversationId,
+                  model: modelUsed,
+                  tokensUsed,
+                  mode: mode as AlexMode,
+                })
+              } catch (persistError) {
+                console.error('[P0.1] Failed to persist orchestration data:', persistError)
+              }
+
+              return
 
               return
             } else if (chunk.type === 'orchestrator') {
