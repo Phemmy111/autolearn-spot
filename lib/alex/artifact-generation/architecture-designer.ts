@@ -137,6 +137,7 @@ export class ArchitectureDesigner {
     const known: string[] = []
     if (spec.trigger?.type) known.push(`Trigger: ${spec.trigger.type}`)
     if (spec.trigger?.source) known.push(`Source: ${spec.trigger.source}`)
+    if (spec.platform) known.push(`Platform: ${spec.platform}`)
     if (spec.aiConfig?.enabled) known.push(`AI: enabled`)
     if (spec.integrations?.emailProvider) known.push(`Email: ${spec.integrations.emailProvider}`)
     if (spec.integrations?.aiProvider) known.push(`AI Provider: ${spec.integrations.aiProvider}`)
@@ -201,68 +202,37 @@ TASK: Design a platform-independent logical automation architecture.
 
 ${context}
 
-CONSTRAINTS:
-- Platform-agnostic design (describe WHAT, not HOW)
-- Simple requests → simple architectures
-- Complex requests → rich architectures
-- Only include branching if decisions are needed
-- Only include failure handling where it materially matters
-- Only include state when actually needed
-- Only include human interaction when genuinely required
-- Only include security if relevant
-- NEVER invent credentials, email addresses, API keys, or user-specific configuration
-- If a value is required but unavailable, represent it as a configurable credential or placeholder
+REQUIREMENTS:
+You MUST return a JSON object with these exact fields:
+- id: unique string (e.g., "arch-123")
+- name: architecture name
+- description: what it does
+- goal: business objective
+- domain: domain (e.g., "custom")
+- complexity: "simple" or "moderate" or "complex"
+- reasoning: why designed this way
+- stages: array of stage objects (minimum 1 stage)
+- platformAgnostic: true
 
-STAGE CATEGORIES:
-- trigger: Initiates automation
-- input: Receives external data
-- processing: Transforms or analyzes data
-- decision: Makes branching decisions
-- output: Sends results or notifications
-- error_handling: Handles failures and retries
-- state_management: Maintains state across executions
-- human_interaction: Requires human input
-- observability: Logs, metrics, monitoring
+Each stage MUST have:
+- id: unique string
+- name: stage name
+- purpose: what it does
+- category: one of: trigger, input, processing, output, error_handling
+- inputs: array of strings (what this stage consumes)
+- outputs: array of strings (what this stage produces)
 
-OUTPUT:
-Return ONLY JSON:
-{
-  "id": "unique-id",
-  "name": "architecture-name",
-  "description": "what it does",
-  "goal": "business objective",
-  "domain": "domain",
-  "complexity": "simple|moderate|complex",
-  "reasoning": "why designed this way",
-  "stages": [
-    {
-      "id": "stage-id",
-      "name": "stage-name",
-      "purpose": "what it does",
-      "category": "category",
-      "inputs": ["inputs"],
-      "outputs": ["outputs"],
-      "optional": false,
-      "dependencies": ["dep-ids"],
-      "conditions": {"expression": "condition", "truePath": ["paths"], "falsePath": ["paths"]},
-      "failureBehavior": {"retryPolicy": "policy", "maxRetries": 3, "fallbackPath": ["paths"]},
-      "stateRequirements": {"required": true, "purpose": "why", "data": ["fields"]},
-      "security": {"credentials": ["needed"], "pii": false, "encryption": false},
-      "observability": {"logging": true, "metrics": ["metrics"], "alerts": ["alerts"]},
-      "humanInteraction": {"required": false, "purpose": "why", "escalationPath": "where"}
-    }
-  ],
-  "dataFlow": {"connections": [{"from": "id", "to": "id", "data": ["data"]}]},
-  "assumptions": ["assumptions"],
-  "recommendations": ["recommendations"],
-  "unresolvedDecisions": ["decisions"],
-  "platformAgnostic": true
-}
+OPTIONAL fields (include only if needed):
+- dataFlow: { connections: [{from: "id", to: "id", data: ["data"]}] }
+- assumptions: array of strings
+- recommendations: array of strings
+- unresolvedDecisions: array of strings
 
-RULES:
-- Only include fields that are actually needed
-- dataFlow must represent explicit connections
-- Keep simple workflows genuinely simple
+IMPORTANT:
+- Return ONLY the JSON object, no other text
+- Ensure all required fields are present
+- Keep it simple for simple requests
+- Use placeholder values for unknown fields if needed
 
 Return ONLY JSON.`
 
@@ -289,6 +259,15 @@ Return ONLY JSON.`
         const validation = this.validateArchitecture(architecture)
         if (!validation.valid) {
           console.error('[Architecture Designer] Architecture validation failed:', validation.errors)
+          console.error('[Architecture Designer] AI response that failed validation:', response.substring(0, 500))
+          
+          // Try to recover by patching missing fields
+          const recovered = this.recoverArchitecture(architecture, validation.errors)
+          if (recovered) {
+            console.log('[Architecture Designer] Successfully recovered architecture')
+            return recovered
+          }
+          
           throw new Error(`Invalid architecture: ${validation.errors.join(', ')}`)
         }
 
@@ -296,11 +275,72 @@ Return ONLY JSON.`
       } catch (error) {
         console.error('[Architecture Designer] Failed to parse AI architecture JSON:', error)
         console.error('[Architecture Designer] JSON parse error details:', error instanceof Error ? error.message : 'Unknown error')
+        console.error('[Architecture Designer] AI response that failed to parse:', response.substring(0, 500))
       }
     }
 
     console.error('[Architecture Designer] No valid JSON found in AI response')
+    console.error('[Architecture Designer] Full AI response:', response.substring(0, 500))
     throw new Error('Failed to extract valid architecture from AI response')
+  }
+
+  /**
+   * Recover architecture by patching missing fields with sensible defaults
+   */
+  private static recoverArchitecture(architecture: any, errors: string[]): LogicalArchitecture | null {
+    console.log('[Architecture Designer] Attempting to recover architecture from errors:', errors)
+    
+    // Generate UUID for missing id
+    if (!architecture.id) {
+      architecture.id = `arch-${Date.now()}-${Math.random().toString(36).substring(7)}`
+      console.log('[Architecture Designer] Recovered: generated id')
+    }
+    
+    // Use description for missing name
+    if (!architecture.name && architecture.description) {
+      architecture.name = architecture.description.substring(0, 50)
+      console.log('[Architecture Designer] Recovered: name from description')
+    }
+    
+    // Use description for missing goal
+    if (!architecture.goal && architecture.description) {
+      architecture.goal = architecture.description
+      console.log('[Architecture Designer] Recovered: goal from description')
+    }
+    
+    // Default complexity
+    if (!architecture.complexity) {
+      architecture.complexity = 'moderate'
+      console.log('[Architecture Designer] Recovered: default complexity')
+    }
+    
+    // Default reasoning
+    if (!architecture.reasoning) {
+      architecture.reasoning = 'Architecture designed based on automation requirements'
+      console.log('[Architecture Designer] Recovered: default reasoning')
+    }
+    
+    // Ensure stages array exists
+    if (!architecture.stages || !Array.isArray(architecture.stages)) {
+      architecture.stages = []
+      console.log('[Architecture Designer] Recovered: empty stages array')
+    }
+    
+    // Ensure platformAgnostic
+    if (!architecture.platformAgnostic) {
+      architecture.platformAgnostic = true
+      console.log('[Architecture Designer] Recovered: platformAgnostic')
+    }
+    
+    // Re-validate after recovery
+    const revalidation = this.validateArchitecture(architecture)
+    if (revalidation.valid) {
+      console.log('[Architecture Designer] Architecture recovery successful')
+      return architecture
+    }
+    
+    console.error('[Architecture Designer] Architecture recovery failed, remaining errors:', revalidation.errors)
+    return null
   }
 
   /**

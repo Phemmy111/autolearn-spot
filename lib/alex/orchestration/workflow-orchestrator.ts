@@ -149,7 +149,7 @@ export class WorkflowOrchestrator {
       case 'clarify':
         return {
           status: 'collecting_requirements',
-          message: action.message || 'I need some information to proceed.',
+          message: action.message || action.question || 'I need some information to proceed.',
           needsInput: true,
           action: action
         }
@@ -157,7 +157,7 @@ export class WorkflowOrchestrator {
       case 'recommend':
         return {
           status: 'collecting_requirements',
-          message: action.message,
+          message: action.message || 'Here are my recommendations:',
           needsInput: true,
           action: action
         }
@@ -165,7 +165,7 @@ export class WorkflowOrchestrator {
       case 'brainstorm':
         return {
           status: 'collecting_requirements',
-          message: action.message,
+          message: action.message || 'Here are some ideas to consider:',
           needsInput: true,
           action: action
         }
