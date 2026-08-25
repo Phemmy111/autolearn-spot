@@ -10,6 +10,7 @@ import { ToolRegistry, ToolExecutionService } from './tools'
 import { AgentService, AgentExecutionResult } from './agents'
 import { AIEngine } from './ai-engine'
 import { WorkflowManagerV2, WorkflowRequest } from './artifact-generation/workflow-manager-v2'
+import { WorkflowOrchestrator } from './orchestration/workflow-orchestrator'
 
 export interface OrchestratorRequest {
   content: string
@@ -160,43 +161,89 @@ export class AlexOrchestrator {
         console.log('[DEBUG ORCHESTRATOR] Existing build check result', { found: !!existingBuild, buildId: existingBuild?.id, status: existingBuild?.status })
         
         if (existingBuild) {
-          console.log('[DEBUG ORCHESTRATOR] Existing artifact build found, routing to WorkflowManagerV2')
+          console.log('[DEBUG ORCHESTRATOR] Existing artifact build found, routing to workflow system')
           
-          const workflowRequest: WorkflowRequest = {
-            conversationId,
-            userId,
-            content,
-            attachedFiles,
-            conversationHistory
-          }
+          // FEATURE FLAG: Use new AI-driven orchestration or legacy template-driven approach
+          const useAIDrivenOrchestration = process.env.USE_AI_DRIVEN_ORCHESTRATION !== 'false'
+          
+          if (useAIDrivenOrchestration) {
+            console.log('[DEBUG ORCHESTRATOR] Using new AI-driven WorkflowOrchestrator')
+            const workflowOrchestrator = WorkflowOrchestrator.getInstance()
+            const workflowRequest = {
+              conversationId,
+              userId,
+              userMessage: content,
+              conversationHistory,
+              mode,
+              attachedFiles
+            }
+            
+            const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
+            
+            console.log('[DEBUG ORCHESTRATOR] WorkflowOrchestrator response:', {
+              status: workflowResponse.status,
+              hasQuestion: !!workflowResponse.question,
+              hasArchitecture: !!workflowResponse.architectureProposal,
+              hasArtifacts: !!workflowResponse.artifacts,
+              hasPlan: !!workflowResponse.plan,
+              messagePreview: workflowResponse.message?.substring(0, 100)
+            })
+            
+            // Return a special response indicating artifact workflow
+            return {
+              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+              context: '',
+              detectedIntent,
+              suggestedMode,
+              aiRequest: {
+                messages: [
+                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                  { role: 'user', content: content }
+                ],
+                stream: false,
+                disableTools: true
+              },
+              imageFiles: [],
+              artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+            }
+          } else {
+            console.log('[DEBUG ORCHESTRATOR] Using legacy template-driven WorkflowManagerV2')
+            const workflowRequest: WorkflowRequest = {
+              conversationId,
+              userId,
+              content,
+              attachedFiles,
+              conversationHistory
+            }
 
-          console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest')
-          const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
+            console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest')
+            const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
 
-          console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response:', {
-            status: workflowResponse.status,
-            hasQuestion: !!workflowResponse.question,
-            hasArchitecture: !!workflowResponse.architectureProposal,
-            hasArtifacts: !!workflowResponse.artifacts,
-            messagePreview: workflowResponse.message?.substring(0, 100)
-          })
+            console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response:', {
+              status: workflowResponse.status,
+              hasQuestion: !!workflowResponse.question,
+              hasArchitecture: !!workflowResponse.architectureProposal,
+              hasArtifacts: !!workflowResponse.artifacts,
+              messagePreview: workflowResponse.message?.substring(0, 100)
+            })
 
-          // Return a special response indicating artifact workflow
-          return {
-            systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
-            context: '',
-            detectedIntent,
-            suggestedMode,
-            aiRequest: {
-              messages: [
-                { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
-                { role: 'user', content: content }
-              ],
-              stream: false,
-              disableTools: true
-            },
-            imageFiles: [],
-            artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+            // Return a special response indicating artifact workflow
+            return {
+              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+              context: '',
+              detectedIntent,
+              suggestedMode,
+              aiRequest: {
+                messages: [
+                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                  { role: 'user', content: content }
+                ],
+                stream: false,
+                disableTools: true
+              },
+              imageFiles: [],
+              artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+            }
           }
         }
       } catch (error) {

@@ -43,9 +43,9 @@ export function AlexChat({ userId }: AlexChatProps) {
     const handleQuestionAnswer = (event: CustomEvent) => {
       const { field, value } = event.detail
       console.log('[AlexChat] Question answered:', { field, value })
-      // Send the answer with field context to ensure correct mapping
-      // Format: "field: value" to preserve both pieces of information
-      sendMessage(`${field}: ${value}`)
+      // Send just the value as natural language - AI will handle mapping
+      // The field context is preserved in the backend conversation state
+      sendMessage(value)
     }
 
     const handleArchitectureApprove = (event: CustomEvent) => {

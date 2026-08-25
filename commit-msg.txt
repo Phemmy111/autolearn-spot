@@ -1,13 +1,22 @@
-Fix singular/plural field mismatch causing infinite loops
+Implement AI-driven orchestration layer to replace template-driven wizard
 
-- Added normalizeToPlural to ensure blockers always use plural forms
-- Enhanced keyword mapping to handle both singular and plural forms
-- Fixed field normalization to handle bidirectional singular/plural mapping
-- Added normalization to direct field:value answer mapping
-- Prevents loops where user answers "outputs.destination" but blocker is "outputs.destinations"
+- Created new orchestration types (AlexNextAction, AutomationPlan, ConversationContext)
+- Implemented AIOrchestrator for AI-driven decision-making
+- Implemented QuestionTracker to prevent repeated questions
+- Implemented WorkflowOrchestrator for integration with existing infrastructure
+- Removed field:value requirement from frontend (natural language interface)
+- Added feature flag USE_AI_DRIVEN_ORCHESTRATION for gradual rollout
+- Added comprehensive test scenarios (A-I) for AI-driven behavior
+- Maintained legacy compatibility with WorkflowManagerV2
 
 Files changed:
-- lib/alex/artifact-generation/intelligence-analyzer-v2.ts
+- lib/alex/orchestration/types.ts (new)
+- lib/alex/orchestration/question-tracker.ts (new)
+- lib/alex/orchestration/ai-orchestrator.ts (new)
+- lib/alex/orchestration/workflow-orchestrator.ts (new)
+- lib/alex/orchestrator.ts (modified)
+- components/alex/AlexChat.tsx (modified)
+- lib/alex/__tests__/ai-orchestrator.test.ts (new)
 
 Generated with [Devin](https://devin.ai)
 
