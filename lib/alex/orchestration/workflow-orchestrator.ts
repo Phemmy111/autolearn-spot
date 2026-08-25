@@ -148,6 +148,13 @@ export class WorkflowOrchestrator {
       }
     }
     
+    // CRITICAL FIX: For generate actions without plan, use currentPlan if available
+    // This ensures generation uses the existing plan instead of AI reconstruction
+    if ((action.type === 'generate' || action.type === 'execute') && !action.plan && currentPlan) {
+      console.log('[Workflow Orchestrator] Using currentPlan for generate action (AI did not return plan)')
+      action.plan = currentPlan
+    }
+    
     // For generate action, invoke artifact generation machinery
     if (action.type === 'generate' || action.type === 'execute') {
       console.log('[P0] Invoking artifact generation machinery for action:', action.type)

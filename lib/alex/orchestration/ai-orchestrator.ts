@@ -192,6 +192,12 @@ export class AIOrchestrator {
       ? `\nCurrent automation plan:\n${JSON.stringify(currentPlan, null, 2)}`
       : '\nNo current automation plan - this is a new request'
     
+    console.log('[FORENSIC] AI Orchestrator plan context length:', planContext.length)
+    console.log('[FORENSIC] AI Orchestrator currentPlan exists:', !!currentPlan)
+    if (currentPlan) {
+      console.log('[FORENSIC] AI Orchestrator currentPlan objective:', currentPlan.objective)
+    }
+    
     const prompt = `You are ALEX, an intelligent automation expert. Your job is to decide what to do next based on the user's message and conversation context.
 
 User's message: ${userMessage}
