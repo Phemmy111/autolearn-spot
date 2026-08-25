@@ -265,42 +265,94 @@ export class AlexOrchestrator {
         suggestedMode
       })
       
+      // FEATURE FLAG: Use new AI-driven orchestration or legacy template-driven approach
+      const useAIDrivenOrchestration = process.env.USE_AI_DRIVEN_ORCHESTRATION !== 'false'
+      
+      console.log('[DEBUG ORCHESTRATOR] New request routing decision', {
+        useAIDrivenOrchestration,
+        featureFlagValue: process.env.USE_AI_DRIVEN_ORCHESTRATION,
+        routingTo: useAIDrivenOrchestration ? 'AI-driven WorkflowOrchestrator' : 'Legacy WorkflowManagerV2'
+      })
+      
       try {
-        const workflowRequest: WorkflowRequest = {
-          conversationId,
-          userId,
-          content,
-          attachedFiles,
-          conversationHistory
-        }
+        if (useAIDrivenOrchestration) {
+          console.log('[AI-ORCHESTRATOR] PRIMARY PATH - New automation request using AI-driven orchestration')
+          const workflowOrchestrator = WorkflowOrchestrator.getInstance()
+          const workflowRequest = {
+            conversationId,
+            userId,
+            userMessage: content,
+            conversationHistory,
+            mode,
+            attachedFiles
+          }
+          
+          const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
+          
+          console.log('[AI-ORCHESTRATOR] AI-driven workflow response:', {
+            status: workflowResponse.status,
+            hasQuestion: !!workflowResponse.question,
+            hasArchitecture: !!workflowResponse.architectureProposal,
+            hasArtifacts: !!workflowResponse.artifacts,
+            hasPlan: !!workflowResponse.plan,
+            messagePreview: workflowResponse.message?.substring(0, 100)
+          })
+          
+          // Return a special response indicating artifact workflow
+          return {
+            systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+            context: '',
+            detectedIntent,
+            suggestedMode,
+            aiRequest: {
+              messages: [
+                { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                { role: 'user', content: content }
+              ],
+              stream: false,
+              disableTools: true
+            },
+            imageFiles: [],
+            artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+          }
+        } else {
+          console.log('[LEGACY ORCHESTRATOR] Using legacy template-driven WorkflowManagerV2 for new request')
+          const workflowRequest: WorkflowRequest = {
+            conversationId,
+            userId,
+            content,
+            attachedFiles,
+            conversationHistory
+          }
 
-        console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest for new artifact')
-        const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
+          console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest for new artifact')
+          const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
 
-        console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response for new artifact:', {
-          status: workflowResponse.status,
-          hasQuestion: !!workflowResponse.question,
-          hasArchitecture: !!workflowResponse.architectureProposal,
-          hasArtifacts: !!workflowResponse.artifacts,
-          messagePreview: workflowResponse.message?.substring(0, 100)
-        })
+          console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response for new artifact:', {
+            status: workflowResponse.status,
+            hasQuestion: !!workflowResponse.question,
+            hasArchitecture: !!workflowResponse.architectureProposal,
+            hasArtifacts: !!workflowResponse.artifacts,
+            messagePreview: workflowResponse.message?.substring(0, 100)
+          })
 
-        // Return a special response indicating artifact workflow
-        return {
-          systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
-          context: '',
-          detectedIntent,
-          suggestedMode,
-          aiRequest: {
-            messages: [
-              { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
-              { role: 'user', content: content }
-            ],
-            stream: false,
-            disableTools: true
-          },
-          imageFiles: [],
-          artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+          // Return a special response indicating artifact workflow
+          return {
+            systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+            context: '',
+            detectedIntent,
+            suggestedMode,
+            aiRequest: {
+              messages: [
+                { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                { role: 'user', content: content }
+              ],
+              stream: false,
+              disableTools: true
+            },
+            imageFiles: [],
+            artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
+          }
         }
       } catch (error) {
         console.error('[Orchestrator] Artifact workflow failed:', error)

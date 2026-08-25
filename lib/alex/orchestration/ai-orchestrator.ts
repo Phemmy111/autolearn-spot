@@ -13,14 +13,13 @@ import {
   UserIntent,
   OrchestrationResult 
 } from './types'
-import { QuestionTracker } from './question-tracker'
+import { OrchestrationQuestionService } from './orchestration-question-service'
 
 export class AIOrchestrator {
   private static instance: AIOrchestrator
-  private questionTracker: QuestionTracker
   
   private constructor() {
-    this.questionTracker = new QuestionTracker()
+    // No in-memory question tracker - using persistent service
   }
   
   static getInstance(): AIOrchestrator {
@@ -28,6 +27,14 @@ export class AIOrchestrator {
       AIOrchestrator.instance = new AIOrchestrator()
     }
     return AIOrchestrator.instance
+  }
+  
+  /**
+   * Get question tracker (for backward compatibility)
+   * Returns the persistent question service
+   */
+  static getQuestionTracker() {
+    return OrchestrationQuestionService
   }
   
   /**
@@ -45,7 +52,12 @@ export class AIOrchestrator {
     console.log('[AI Orchestrator] Conversation mode:', context.mode)
     
     // Clear old questions periodically
-    this.questionTracker.clearOldQuestions()
+    if (context.userId && context.conversationId) {
+      await OrchestrationQuestionService.clearOldQuestions({
+        conversationId: context.conversationId,
+        userId: context.userId
+      })
+    }
     
     // Use AI to determine intent and next action
     const aiDecision = await this.askAIDecision(userMessage, context, currentPlan)
@@ -64,14 +76,28 @@ export class AIOrchestrator {
     }
     
     // Track questions if clarification action
-    if (aiDecision.action.type === 'clarify') {
+    if (aiDecision.action.type === 'clarify' && context.userId && context.conversationId) {
       const question = aiDecision.action.question
       const contextStr = aiDecision.action.reason || 'general'
       
-      if (this.questionTracker.shouldAsk(question, contextStr)) {
-        this.questionTracker.recordQuestion(question, contextStr)
+      const shouldAsk = await OrchestrationQuestionService.shouldAsk({
+        conversationId: context.conversationId,
+        userId: context.userId,
+        question,
+        questionContext: contextStr
+      })
+      
+      if (shouldAsk) {
+        await OrchestrationQuestionService.recordQuestion({
+          conversationId: context.conversationId,
+          userId: context.userId,
+          question,
+          questionContext: contextStr,
+          questionType: 'clarify',
+          orchestrationAction: aiDecision.action.type
+        })
       } else {
-        console.log('[AI Orchestrator] Question prevented by tracker:', question.substring(0, 50))
+        console.log('[AI Orchestrator] Question prevented by persistent tracker:', question.substring(0, 50))
         // Fallback to respond instead
         aiDecision.action = {
           type: 'respond',
@@ -81,12 +107,21 @@ export class AIOrchestrator {
     }
     
     // Track answers if this looks like an answer to a previous question
-    if (aiDecision.intent === 'answer_question') {
-      const unanswered = this.questionTracker.getUnansweredQuestions()
+    if (aiDecision.intent === 'answer_question' && context.userId && context.conversationId) {
+      const unanswered = await OrchestrationQuestionService.getUnansweredQuestions({
+        conversationId: context.conversationId,
+        userId: context.userId
+      })
+      
       if (unanswered.length > 0) {
         // Try to match this answer to a recent question
-        const mostRecent = unanswered[unanswered.length - 1]
-        this.questionTracker.recordAnswer(mostRecent.question, userMessage)
+        const mostRecent = unanswered[0]
+        await OrchestrationQuestionService.recordAnswer({
+          conversationId: context.conversationId,
+          userId: context.userId,
+          question: mostRecent.question,
+          answer: userMessage
+        })
       }
     }
     
@@ -110,9 +145,9 @@ export class AIOrchestrator {
   ): Promise<OrchestrationResult> {
     const aiService = WorkflowAIService.getInstance()
     
-    // Build conversation context for AI
-    const recentMessages = context.messages.slice(-5).map(m => 
-      `${m.role}: ${m.content.substring(0, 200)}`
+    // Build comprehensive conversation context for AI
+    const recentMessages = context.messages.slice(-20).map(m => 
+      `${m.role}: ${m.content.substring(0, 500)}`
     ).join('\n')
     
     const planContext = currentPlan 
@@ -125,7 +160,7 @@ User's message: ${userMessage}
 
 Conversation context:
 Mode: ${context.mode}
-Recent messages:
+Recent messages (last 20):
 ${recentMessages}
 ${planContext}
 
@@ -134,6 +169,17 @@ Determine:
 2. What should ALEX do next? (respond, clarify, recommend, brainstorm, plan, generate, execute, revise)
 3. What is your confidence in this decision? (0-1)
 4. What is your reasoning?
+
+Intent Detection Guidelines:
+- new_automation: User wants to create a completely new automation (e.g., "Create a bot", "Build a workflow", "Make an automation")
+- revise_automation: User wants to change an existing plan (e.g., "Actually use Slack instead", "Change the trigger", "Modify the platform")
+- answer_question: User is providing information in response to a previous question
+- clarification: User is asking for clarification about something
+- brainstorm_request: User explicitly wants to brainstorm or explore options
+- recommendation_request: User is asking for recommendations or suggestions
+- unrelated_conversation: User is chatting about something unrelated to automation
+- confirmation: User is confirming or approving something
+- cancellation: User wants to cancel or abandon the current task
 
 For each action type:
 - respond: Provide a conversational response acknowledging the user
@@ -151,10 +197,19 @@ IMPORTANT GUIDELINES:
 - DO infer reasonable defaults when possible
 - DO recommend platforms with reasoning, don't just ask "which platform?"
 - DO detect if this is a new automation request vs a revision
+- DO detect if the user wants to abandon the current task and start fresh
 - DO prevent asking the same question twice
 - DO accept natural language answers, don't require field:value format
 - DO handle requirement changes gracefully (e.g., "actually use Slack instead")
 - DO detect when enough information is available to proceed
+- DO use the full conversation context to understand user intent
+- DO maintain plan evolution across conversation turns
+- DO use the current plan to detect revisions vs new requests
+- If the user says "forget that", "start over", "never mind", or similar, treat as new request
+- If the user says "actually", "change", "modify", "instead", or similar, treat as revision
+- If the user provides direct information without a question mark, treat as answer
+- If the user asks "what would you recommend", treat as recommendation request
+- If the user asks "brainstorm", "ideas", "options", treat as brainstorm request
 
 Return ONLY valid JSON in this exact format:
 {

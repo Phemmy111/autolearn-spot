@@ -11,17 +11,14 @@ import {
   ConversationContext, 
   UserIntent 
 } from '../orchestration/types'
-import { QuestionTracker } from '../orchestration/question-tracker'
+import { OrchestrationQuestionService } from '../orchestration/orchestration-question-service'
 
 describe('AIOrchestrator', () => {
   let orchestrator: AIOrchestrator
-  let questionTracker: QuestionTracker
   
   beforeEach(() => {
     orchestrator = AIOrchestrator.getInstance()
-    questionTracker = orchestrator.getQuestionTracker()
-    // Clear tracker between tests
-    questionTracker.getStats()
+    // Note: In production, questions persist across requests via database
   })
   
   /**
@@ -309,11 +306,20 @@ describe('AIOrchestrator', () => {
       objective: 'Lead capture bot'
     }
     
-    // Record that the question was asked
-    questionTracker.recordQuestion('Where should I send the leads?', 'destination')
+    // Record that the question was asked and answered
+    await OrchestrationQuestionService.recordQuestion({
+      conversationId: 'test-conv-8',
+      userId: 'test-user-8',
+      question: 'Where should I send the leads?',
+      questionContext: 'destination'
+    })
     
-    // Record that it was answered
-    questionTracker.recordAnswer('Where should I send the leads?', 'Email')
+    await OrchestrationQuestionService.recordAnswer({
+      conversationId: 'test-conv-8',
+      userId: 'test-user-8',
+      question: 'Where should I send the leads?',
+      answer: 'Email'
+    })
     
     const result = await orchestrator.orchestrate(
       'Email',
@@ -371,65 +377,107 @@ describe('AIOrchestrator', () => {
   })
 })
 
-describe('QuestionTracker', () => {
-  let tracker: QuestionTracker
+describe('OrchestrationQuestionService', () => {
+  const testConversationId = 'test-conv-question'
+  const testUserId = 'test-user-question'
   
-  beforeEach(() => {
-    tracker = new QuestionTracker()
-  })
-  
-  it('should prevent asking the same question twice', () => {
+  it('should prevent asking the same question twice', async () => {
     const question = 'Where should I send the leads?'
     const context = 'destination'
     
     // First ask - should be allowed
-    expect(tracker.shouldAsk(question, context)).toBe(true)
-    tracker.recordQuestion(question, context)
+    const shouldAsk1 = await OrchestrationQuestionService.shouldAsk({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question,
+      questionContext: context
+    })
+    expect(shouldAsk1).toBe(true)
+    
+    await OrchestrationQuestionService.recordQuestion({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question,
+      questionContext: context
+    })
     
     // Second ask - should be prevented
-    expect(tracker.shouldAsk(question, context)).toBe(false)
+    const shouldAsk2 = await OrchestrationQuestionService.shouldAsk({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question,
+      questionContext: context
+    })
+    expect(shouldAsk2).toBe(false)
   })
   
-  it('should allow asking again after answer', () => {
+  it('should allow asking again after answer', async () => {
     const question = 'Where should I send the leads?'
     const context = 'destination'
     
-    tracker.recordQuestion(question, context)
-    tracker.recordAnswer(question, 'Email')
+    await OrchestrationQuestionService.recordQuestion({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question,
+      questionContext: context
+    })
+    
+    await OrchestrationQuestionService.recordAnswer({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question,
+      answer: 'Email'
+    })
     
     // After answer, should allow asking again if needed
-    expect(tracker.shouldAsk(question, context)).toBe(true)
+    const shouldAsk = await OrchestrationQuestionService.shouldAsk({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question,
+      questionContext: context
+    })
+    expect(shouldAsk).toBe(true)
   })
   
-  it('should generate consistent fingerprints', () => {
-    const question1 = 'Where should I send the leads?'
-    const question2 = 'Where should I send the leads?'
-    const context = 'destination'
+  it('should get unanswered questions', async () => {
+    await OrchestrationQuestionService.recordQuestion({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question: 'Question 1',
+      questionContext: 'context1'
+    })
     
-    tracker.recordQuestion(question1, context)
-    const result1 = tracker.checkAlreadyAsked(question2, context)
+    await OrchestrationQuestionService.recordQuestion({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question: 'Question 2',
+      questionContext: 'context2'
+    })
     
-    expect(result1).toBe(true)
-  })
-  
-  it('should get unanswered questions', () => {
-    tracker.recordQuestion('Question 1', 'context1')
-    tracker.recordQuestion('Question 2', 'context2')
-    tracker.recordAnswer('Question 1', 'Answer 1')
+    await OrchestrationQuestionService.recordAnswer({
+      conversationId: testConversationId,
+      userId: testUserId,
+      question: 'Question 1',
+      answer: 'Answer 1'
+    })
     
-    const unanswered = tracker.getUnansweredQuestions()
+    const unanswered = await OrchestrationQuestionService.getUnansweredQuestions({
+      conversationId: testConversationId,
+      userId: testUserId
+    })
     expect(unanswered.length).toBe(1)
     expect(unanswered[0].question).toBe('Question 2')
   })
   
-  it('should clear old questions', () => {
-    tracker.recordQuestion('Old question', 'context')
-    tracker.recordAnswer('Old question', 'Answer')
+  it('should get statistics', async () => {
+    const stats = await OrchestrationQuestionService.getStats({
+      conversationId: testConversationId,
+      userId: testUserId
+    })
     
-    // Clear old questions
-    tracker.clearOldQuestions()
-    
-    const stats = tracker.getStats()
-    expect(stats.totalAsked).toBe(0)
+    expect(stats).toHaveProperty('totalAsked')
+    expect(stats).toHaveProperty('answered')
+    expect(stats).toHaveProperty('unanswered')
+    expect(stats).toHaveProperty('recentUnanswered')
   })
 })

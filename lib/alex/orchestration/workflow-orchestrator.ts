@@ -15,6 +15,7 @@ import {
 import { ArtifactService } from '../artifact-generation/artifact-service'
 import { ArchitectureDesigner } from '../artifact-generation/architecture-designer'
 import { AutomationSpec } from '../artifact-generation/automation-spec'
+import { OrchestrationQuestionService } from './orchestration-question-service'
 
 export interface WorkflowOrchestrationRequest {
   conversationId: string
@@ -93,8 +94,29 @@ export class WorkflowOrchestrator {
     console.log('[Workflow Orchestrator] Orchestration result:', {
       actionType: orchestrationResult.action.type,
       intent: orchestrationResult.intent,
-      confidence: orchestrationResult.confidence
+      confidence: orchestrationResult.confidence,
+      hasUpdatedPlan: !!orchestrationResult.updatedPlan
     })
+    
+    // Special handling for looping failure prevention
+    // If AI wants to ask a question that was just answered, prevent it
+    if (orchestrationResult.action.type === 'clarify' && request.userId && request.conversationId) {
+      const question = orchestrationResult.action.question
+      const wasRecentlyAnswered = await this.checkRecentlyAnswered(
+        request.conversationId,
+        request.userId,
+        question
+      )
+      
+      if (wasRecentlyAnswered) {
+        console.log('[Workflow Orchestrator] Preventing repeated question:', question.substring(0, 50))
+        // Change to respond action
+        orchestrationResult.action = {
+          type: 'respond',
+          message: "I think we've already covered that. Let me proceed with the information we have."
+        }
+      }
+    }
     
     // Handle the AI's decision
     return await this.handleOrchestrationResult(
@@ -116,7 +138,7 @@ export class WorkflowOrchestrator {
     
     // Save updated plan if provided
     if (updatedPlan) {
-      await this.savePlan(request.conversationId, request.userId, updatedPlan)
+      await this.savePlan(request.conversationId, request.userId, updatedPlan, action.type)
     }
     
     switch (action.type) {
@@ -318,6 +340,75 @@ export class WorkflowOrchestrator {
   }
   
   /**
+   * Convert AutomationSpec to AutomationPlan (reverse conversion for persistence)
+   * This is the legacy compatibility bridge - converts rigid spec to evolving plan
+   */
+  private specToPlan(spec: AutomationSpec): AutomationPlan {
+    const plan: AutomationPlan = {
+      objective: spec.description || 'Unknown automation',
+      status: 'draft'
+    }
+    
+    // Map spec fields to plan fields
+    if (spec.trigger) {
+      plan.trigger = {
+        type: spec.trigger.type,
+        source: spec.trigger.source,
+        description: spec.trigger.config
+      }
+    }
+    
+    if (spec.inputs) {
+      plan.inputs = {
+        sources: spec.inputs.sources || [],
+        description: 'Input sources'
+      }
+    }
+    
+    if (spec.outputs) {
+      plan.outputs = {
+        destinations: spec.outputs.destinations || [],
+        description: 'Output destinations'
+      }
+    }
+    
+    if (spec.integrations) {
+      plan.integrations = {
+        platform: spec.integrations.platform
+      }
+    }
+    
+    if (spec.platform) {
+      plan.platform = {
+        name: spec.platform,
+        reasoning: spec.platformReasoning || 'Platform selection'
+      }
+    }
+    
+    if (spec.assumptions) {
+      plan.assumptions = spec.assumptions
+    }
+    
+    if (spec.recommendations) {
+      plan.recommendations = spec.recommendations
+    }
+    
+    if (spec.architecture) {
+      plan.architecture = {
+        complexity: spec.architecture.complexity
+      }
+    }
+    
+    // Extract known fields from spec metadata if available
+    if (spec._knownFields) {
+      plan.assumptions = plan.assumptions || []
+      plan.assumptions.push(`Known fields: ${spec._knownFields.join(', ')}`)
+    }
+    
+    return plan
+  }
+  
+  /**
    * Load current automation plan from database
    */
   private async loadCurrentPlan(
@@ -326,11 +417,18 @@ export class WorkflowOrchestrator {
   ): Promise<AutomationPlan | null> {
     try {
       const build = await ArtifactService.getActiveBuild(conversationId, userId)
-      if (build && build.final_specification) {
-        // Try to extract plan from spec (reverse of planToSpec)
-        // For now, return null and let AI create new plan
-        // TODO: Implement specToPlan for persistence
-        return null
+      if (build) {
+        // First try to load from automation_plan column (new persistence)
+        if (build.automation_plan) {
+          console.log('[Workflow Orchestrator] Loading plan from automation_plan column')
+          return build.automation_plan as AutomationPlan
+        }
+        
+        // Fallback: try to extract plan from spec (reverse of planToSpec)
+        if (build.final_specification) {
+          console.log('[Workflow Orchestrator] Converting spec to plan (fallback)')
+          return this.specToPlan(build.final_specification)
+        }
       }
       return null
     } catch (error) {
@@ -345,15 +443,36 @@ export class WorkflowOrchestrator {
   private async savePlan(
     conversationId: string,
     userId: string,
-    plan: AutomationPlan
+    plan: AutomationPlan,
+    lastAction?: string
   ): Promise<void> {
     try {
       const build = await ArtifactService.getActiveBuild(conversationId, userId)
       if (build) {
-        // Convert plan to spec and save
-        const spec = this.planToSpec(plan)
-        await ArtifactService.updateSpecification(build.id, spec, [])
-        console.log('[Workflow Orchestrator] Plan saved via spec conversion')
+        // Save plan to automation_plan column (new persistence)
+        const supabase = await this.getSupabaseClient()
+        const { error } = await supabase
+          .from('alex_artifact_builds')
+          .update({
+            automation_plan: plan,
+            last_orchestration_action: lastAction,
+            orchestration_metadata: {
+              lastUpdated: new Date().toISOString(),
+              action: lastAction
+            },
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', build.id)
+        
+        if (error) {
+          console.error('[Workflow Orchestrator] Failed to save plan to automation_plan column:', error)
+          // Fallback: convert plan to spec and save
+          const spec = this.planToSpec(plan)
+          await ArtifactService.updateSpecification(build.id, spec, [])
+          console.log('[Workflow Orchestrator] Plan saved via spec conversion (fallback)')
+        } else {
+          console.log('[Workflow Orchestrator] Plan saved to automation_plan column')
+        }
       } else {
         // Create new build
         const newBuild = await ArtifactService.createBuild(
@@ -362,12 +481,76 @@ export class WorkflowOrchestrator {
           plan.objective,
           'workflow'
         )
-        const spec = this.planToSpec(plan)
-        await ArtifactService.updateSpecification(newBuild.id, spec, [])
-        console.log('[Workflow Orchestrator] Plan saved via new build')
+        
+        // Save plan to new build
+        const supabase = await this.getSupabaseClient()
+        const { error } = await supabase
+          .from('alex_artifact_builds')
+          .update({
+            automation_plan: plan,
+            last_orchestration_action: lastAction,
+            orchestration_metadata: {
+              lastUpdated: new Date().toISOString(),
+              action: lastAction
+            },
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', newBuild.id)
+        
+        if (error) {
+          console.error('[Workflow Orchestrator] Failed to save plan to new build:', error)
+          // Fallback: convert plan to spec and save
+          const spec = this.planToSpec(plan)
+          await ArtifactService.updateSpecification(newBuild.id, spec, [])
+          console.log('[Workflow Orchestrator] Plan saved via spec conversion (fallback)')
+        } else {
+          console.log('[Workflow Orchestrator] Plan saved to new build')
+        }
       }
     } catch (error) {
       console.error('[Workflow Orchestrator] Failed to save plan:', error)
+    }
+  }
+  
+  /**
+   * Get Supabase client for direct database access
+   */
+  private async getSupabaseClient() {
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!supabaseUrl || !supabaseServiceRoleKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+    
+    return createClient(supabaseUrl, supabaseServiceRoleKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  }
+  
+  /**
+   * Check if a question was recently answered (to prevent looping)
+   */
+  private async checkRecentlyAnswered(
+    conversationId: string,
+    userId: string,
+    question: string
+  ): Promise<boolean> {
+    try {
+      const recentlyAnswered = await OrchestrationQuestionService.checkAlreadyAnswered({
+        conversationId,
+        userId,
+        question
+      })
+      
+      return recentlyAnswered
+    } catch (error) {
+      console.error('[Workflow Orchestrator] Failed to check recently answered:', error)
+      return false
     }
   }
 }

@@ -68,6 +68,10 @@ export interface ArtifactBuild {
   error_message?: string
   created_at: string
   updated_at: string
+  // AI-driven orchestration fields
+  automation_plan?: Record<string, any>  // AI-driven AutomationPlan
+  orchestration_metadata?: Record<string, any>  // Orchestration metadata
+  last_orchestration_action?: string  // Last AI orchestration action
 }
 
 export interface GeneratedArtifact {

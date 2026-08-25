@@ -1,22 +1,29 @@
-Implement AI-driven orchestration layer to replace template-driven wizard
+Make AI-driven orchestration the primary brain for new automation requests
 
-- Created new orchestration types (AlexNextAction, AutomationPlan, ConversationContext)
-- Implemented AIOrchestrator for AI-driven decision-making
-- Implemented QuestionTracker to prevent repeated questions
-- Implemented WorkflowOrchestrator for integration with existing infrastructure
-- Removed field:value requirement from frontend (natural language interface)
-- Added feature flag USE_AI_DRIVEN_ORCHESTRATION for gradual rollout
-- Added comprehensive test scenarios (A-I) for AI-driven behavior
-- Maintained legacy compatibility with WorkflowManagerV2
+PHASE 1-10 IMPLEMENTATION SUMMARY:
+
+Phase 1: Traced real execution path - identified critical bug where new requests bypassed AI orchestrator
+Phase 2: Fixed primary routing - added feature flag check to new request path (orchestrator.ts lines 258-334)
+Phase 3: Implemented real AutomationPlan persistence - added database columns and specToPlan conversion
+Phase 4: Expanded conversation context - increased from 5 to 20 messages, 200 to 500 chars per message
+Phase 5: Implemented persistent question tracking - OrchestrationQuestionService with database backing
+Phase 6: AI decision-making - enhanced AI prompt with intent detection guidelines
+Phase 7: Natural language answers - already implemented in previous phase
+Phase 8: New request detection - added comprehensive intent detection guidelines
+Phase 9: Looping failure prevention - added checkRecentlyAnswered in workflow orchestrator
+Phase 10: Legacy compatibility - maintained AutomationSpec bridge for downstream compatibility
 
 Files changed:
-- lib/alex/orchestration/types.ts (new)
-- lib/alex/orchestration/question-tracker.ts (new)
-- lib/alex/orchestration/ai-orchestrator.ts (new)
-- lib/alex/orchestration/workflow-orchestrator.ts (new)
-- lib/alex/orchestrator.ts (modified)
-- components/alex/AlexChat.tsx (modified)
-- lib/alex/__tests__/ai-orchestrator.test.ts (new)
+- lib/alex/orchestrator.ts (primary routing fix)
+- lib/alex/orchestration/workflow-orchestrator.ts (plan persistence, loop prevention)
+- lib/alex/orchestration/ai-orchestrator.ts (context expansion, persistent questions)
+- lib/alex/orchestration/orchestration-question-service.ts (new - persistent question tracking)
+- lib/alex/orchestration/types.ts (no changes needed)
+- lib/alex/artifact-generation/types.ts (added orchestration fields)
+- migrations/alex-ai-orchestration-plan-persistence.sql (new - plan persistence)
+- migrations/alex-orchestration-question-persistence.sql (new - question persistence)
+- lib/alex/__tests__/ai-orchestrator.test.ts (updated for persistent questions)
+- MIGRATION_INSTRUCTIONS.md (new - database migration guide)
 
 Generated with [Devin](https://devin.ai)
 
