@@ -6,8 +6,8 @@
  * without using hardcoded templates.
  */
 
-import { ArchitectureDesigner, LogicalArchitecture, LogicalStage } from '../architecture-designer'
-import { AutomationSpec, createEmptySpec } from '../automation-spec'
+import { ArchitectureDesigner, LogicalArchitecture, LogicalStage } from '../artifact-generation/architecture-designer'
+import { AutomationSpec, createEmptySpec } from '../artifact-generation/automation-spec'
 
 describe('Phase 3A: Rich Logical Architecture', () => {
   

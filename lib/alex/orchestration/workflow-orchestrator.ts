@@ -128,7 +128,11 @@ export class WorkflowOrchestrator {
     // For generate action, invoke artifact generation machinery
     if (action.type === 'generate' || action.type === 'execute') {
       console.log('[P0] Invoking artifact generation machinery for action:', action.type)
-      const generateResponse = await this.handleGenerate(action.plan, request)
+      // CRITICAL FIX: Use updatedPlan if available, otherwise fall back to action.plan
+      // This ensures platform updates (like "n8n") are preserved for architecture generation
+      const planForGeneration = updatedPlan || action.plan
+      console.log('[Workflow Orchestrator] Using plan for generation:', planForGeneration.platform?.name || 'no platform')
+      const generateResponse = await this.handleGenerate(planForGeneration, request)
       
       // Return generate response with the AI action preserved
       return {
@@ -205,6 +209,7 @@ export class WorkflowOrchestrator {
     request: WorkflowOrchestrationRequest
   ): Promise<WorkflowOrchestrationResponse> {
     console.log('[Workflow Orchestrator] Generating artifact from plan')
+    console.log('[Workflow Orchestrator] Plan platform:', plan.platform?.name || 'no platform')
     
     // Convert plan to AutomationSpec (legacy compatibility)
     const spec = this.planToSpec(plan)

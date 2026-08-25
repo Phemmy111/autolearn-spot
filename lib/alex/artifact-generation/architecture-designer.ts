@@ -189,6 +189,7 @@ export class ArchitectureDesigner {
    */
   static async design(spec: AutomationSpec): Promise<LogicalArchitecture> {
     console.log('[Architecture Designer] Designing logical architecture using AI for:', spec.automationType)
+    console.log('[Architecture Designer] Input spec platform:', spec.platform)
     
     const { WorkflowAIService } = await import('./workflow-ai-service')
     const aiService = WorkflowAIService.getInstance()
@@ -240,7 +241,6 @@ Return ONLY JSON.`
 
     const response = await aiService.generateResponse(prompt)
     console.log('[Architecture Designer] AI architecture response received, length:', response.length)
-    console.log('[Architecture Designer] Full AI response:', response)
 
     // Try to extract JSON from response
     const jsonMatch = response.match(/\{[\s\S]*\}/)

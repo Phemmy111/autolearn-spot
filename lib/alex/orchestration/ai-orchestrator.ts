@@ -100,6 +100,7 @@ export class AIOrchestrator {
     if (aiDecision.updatedPlan) {
       updatedPlan = aiDecision.updatedPlan
       updatedPlan.lastUpdated = new Date().toISOString()
+      console.log('[AI Orchestrator] Plan updated by AI, platform:', updatedPlan.platform?.name || 'no platform')
     }
     
     // Track questions if clarification action
