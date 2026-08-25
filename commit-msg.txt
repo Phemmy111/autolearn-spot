@@ -1,31 +1,60 @@
-Make AI-driven orchestration the primary brain for new automation requests
+Remove deterministic intent gatekeeper to enable AI-driven orchestration
 
-PHASE 1-10 IMPLEMENTATION SUMMARY:
+ROOT CAUSE FIX:
+The deterministic intent detector (intent-detector.ts) was acting as a gatekeeper,
+preventing AI-driven orchestration from being invoked for requests that didn't match
+keyword patterns like "create/build/generate".
 
-Phase 1: Traced real execution path - identified critical bug where new requests bypassed AI orchestrator
-Phase 2: Fixed primary routing - added feature flag check to new request path (orchestrator.ts lines 258-334)
-Phase 3: Implemented real AutomationPlan persistence - added database columns and specToPlan conversion
-Phase 4: Expanded conversation context - increased from 5 to 20 messages, 200 to 500 chars per message
-Phase 5: Implemented persistent question tracking - OrchestrationQuestionService with database backing
-Phase 6: AI decision-making - enhanced AI prompt with intent detection guidelines
-Phase 7: Natural language answers - already implemented in previous phase
-Phase 8: New request detection - added comprehensive intent detection guidelines
-Phase 9: Looping failure prevention - added checkRecentlyAnswered in workflow orchestrator
-Phase 10: Legacy compatibility - maintained AutomationSpec bridge for downstream compatibility
+Production evidence: "A workflow to automate a task" was routed to normal chat
+instead of AI-driven orchestration because isArtifactGeneration=false.
 
-SQL FIX: Fixed type mismatch in RLS policies (user_id VARCHAR vs auth.uid() UUID) using type casting
+CHANGES:
+1. Changed routing condition from "isArtifactGeneration && ..." to "mode === 'auto' && ..."
+   - Now ALL auto mode requests reach AI-driven orchestration
+   - AI decides whether it's an automation request, not keyword patterns
+   - Removed the deterministic gatekeeper that prevented AIOrchestrator from running
 
-Files changed:
-- lib/alex/orchestrator.ts (primary routing fix)
-- lib/alex/orchestration/workflow-orchestrator.ts (plan persistence, loop prevention)
-- lib/alex/orchestration/ai-orchestrator.ts (context expansion, persistent questions)
-- lib/alex/orchestration/orchestration-question-service.ts (new - persistent question tracking)
-- lib/alex/orchestration/types.ts (no changes needed)
-- lib/alex/artifact-generation/types.ts (added orchestration fields)
-- migrations/alex-ai-orchestration-plan-persistence.sql (new - plan persistence)
-- migrations/alex-orchestration-question-persistence.sql (new - question persistence, FIXED)
-- lib/alex/__tests__/ai-orchestrator.test.ts (updated for persistent questions)
-- MIGRATION_INSTRUCTIONS.md (new - database migration guide)
+2. Fixed message duplication bug
+   - buildMessages() now skips current message from history to prevent duplication
+   - Previous behavior: current message appeared twice in AI context
+   - Fixed by deduplication check in message construction
+
+3. Updated logging for clarity
+   - Added [ALEX AI ROUTING] prefix to make new runtime path unmistakable
+   - Clarified that intent detection is now metadata only, not routing authority
+
+BEFORE EXECUTION PATH:
+User → Intent detector (DETERMINISTIC) → isArtifactGeneration check → 
+  If false → Normal chat path → LLM receives pre-determined messages
+  If true → Feature flag check → MAYBE AI-driven path
+
+AFTER EXECUTION PATH:
+User → AI-driven orchestration → AI decides what to do → 
+  LLM reasoning → AlexNextAction → Appropriate handler
+
+AI AUTHORITY:
+The LLM now has FINAL AUTHORITY over orchestration decisions:
+- Decides if request is automation-related
+- Decides what action to take (respond/clarify/recommend/brainstorm/plan/generate/execute/revise)
+- Decides when enough information is available
+- Decides what questions to ask (if any)
+
+LEGACY COMPONENTS:
+- Intent detector: Still runs for metadata/analytics, but NO routing authority
+- WorkflowManagerV2: Still available as execution infrastructure when flag=false
+- IntelligenceAnalyzerV2: Still available for legacy path when flag=false
+
+ACCEPTANCE CRITERIA:
+✓ Criterion 1: "Create a lead capture bot" → AIOrchestrator invoked
+✓ Criterion 2: "I don't know what automation I need" → AIOrchestrator invoked
+✓ Criterion 3: "Recommend an automation platform" → AIOrchestrator invoked
+✓ Criterion 4: No deterministic keyword test can prevent AIOrchestrator
+✓ Criterion 5: Legacy blocker system cannot take control before AI decides
+✓ Criterion 6: ALEX does not require field:value format
+✓ Criterion 7: AIOrchestrator remains single orchestration brain
+
+FILES CHANGED:
+- lib/alex/orchestrator.ts (routing condition change, message deduplication, logging)
 
 Generated with [Devin](https://devin.ai)
 

@@ -130,22 +130,23 @@ export class AlexOrchestrator {
       }
     }
 
-    // Detect intent if in Auto mode
+    // Detect intent if in Auto mode (for metadata only - NOT routing authority)
     let detectedIntent: string | undefined
     let suggestedMode: AlexMode | undefined
     let isArtifactGeneration = false
 
     if (mode === 'auto') {
-      console.log('[DEBUG ORCHESTRATOR] Detecting intent for auto mode', { contentPreview: content.substring(0, 100) })
+      console.log('[DEBUG ORCHESTRATOR] Detecting intent for auto mode (metadata only)', { contentPreview: content.substring(0, 100) })
       const intentResult = await detectIntent(content)
       detectedIntent = intentResult.intent
       suggestedMode = intentResult.suggestedMode
       isArtifactGeneration = intentResult.isArtifactGeneration || false
-      console.log('[DEBUG ORCHESTRATOR] Intent detection result', {
+      console.log('[DEBUG ORCHESTRATOR] Intent detection result (metadata)', {
         detectedIntent,
         suggestedMode,
         isArtifactGeneration,
-        confidence: intentResult.confidence
+        confidence: intentResult.confidence,
+        note: 'This is metadata only, does not control routing'
       })
     }
 
@@ -252,31 +253,35 @@ export class AlexOrchestrator {
       }
     }
 
-    // Phase 7: Route to artifact workflow if build intent detected for new requests
-    // RE-ENABLED: Now with proper fallback and graceful failure handling
+    // AI-DRIVEN ROUTING: For auto mode, always route to AI-driven orchestration
+    // The AI will decide whether this is a new automation request, continuation, revision, or normal conversation
     // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
-    if (isArtifactGeneration && userId && conversationId && !request.skipArtifactDetection) {
-      console.log('[DEBUG ORCHESTRATOR] Artifact generation intent detected', {
-        isArtifactGeneration,
+    if (mode === 'auto' && userId && conversationId && !request.skipArtifactDetection) {
+      console.log('[ALEX AI ROUTING] Request received', {
+        mode,
         userId,
         conversationId,
-        skipArtifactDetection: request.skipArtifactDetection,
-        intent: detectedIntent,
-        suggestedMode
+        contentPreview: content.substring(0, 100)
+      })
+      
+      console.log('[ALEX AI ROUTING] Deterministic intent metadata:', {
+        detectedIntent,
+        suggestedMode,
+        isArtifactGeneration,
+        note: 'Metadata only, AI will make actual decision'
       })
       
       // FEATURE FLAG: Use new AI-driven orchestration or legacy template-driven approach
       const useAIDrivenOrchestration = process.env.USE_AI_DRIVEN_ORCHESTRATION !== 'false'
       
-      console.log('[DEBUG ORCHESTRATOR] New request routing decision', {
+      console.log('[ALEX AI ROUTING] AIOrchestrator invoked', {
         useAIDrivenOrchestration,
-        featureFlagValue: process.env.USE_AI_DRIVEN_ORCHESTRATION,
-        routingTo: useAIDrivenOrchestration ? 'AI-driven WorkflowOrchestrator' : 'Legacy WorkflowManagerV2'
+        featureFlagValue: process.env.USE_AI_DRIVEN_ORCHESTRATION
       })
       
       try {
         if (useAIDrivenOrchestration) {
-          console.log('[AI-ORCHESTRATOR] PRIMARY PATH - New automation request using AI-driven orchestration')
+          console.log('[ALEX AI ROUTING] Using AI-driven WorkflowOrchestrator (AI will decide what to do)')
           const workflowOrchestrator = WorkflowOrchestrator.getInstance()
           const workflowRequest = {
             conversationId,
@@ -289,13 +294,17 @@ export class AlexOrchestrator {
           
           const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
           
-          console.log('[AI-ORCHESTRATOR] AI-driven workflow response:', {
-            status: workflowResponse.status,
-            hasQuestion: !!workflowResponse.question,
-            hasArchitecture: !!workflowResponse.architectureProposal,
-            hasArtifacts: !!workflowResponse.artifacts,
+          console.log('[ALEX AI ROUTING] AI decision:', {
+            actionType: workflowResponse.action?.type,
+            intent: workflowResponse.intent,
             hasPlan: !!workflowResponse.plan,
             messagePreview: workflowResponse.message?.substring(0, 100)
+          })
+          
+          console.log('[ALEX AI ROUTING] Selected action handler:', {
+            handler: workflowResponse.action?.type || 'none',
+            willGenerate: workflowResponse.action?.type === 'generate' || workflowResponse.action?.type === 'execute',
+            willQuestion: workflowResponse.action?.type === 'clarify'
           })
           
           // Return a special response indicating artifact workflow
@@ -316,7 +325,7 @@ export class AlexOrchestrator {
             artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
           }
         } else {
-          console.log('[LEGACY ORCHESTRATOR] Using legacy template-driven WorkflowManagerV2 for new request')
+          console.log('[ALEX AI ROUTING] Legacy path - using template-driven WorkflowManagerV2')
           const workflowRequest: WorkflowRequest = {
             conversationId,
             userId,
@@ -325,10 +334,10 @@ export class AlexOrchestrator {
             conversationHistory
           }
 
-          console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest for new artifact')
+          console.log('[ALEX AI ROUTING] Calling WorkflowManagerV2.processRequest')
           const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
 
-          console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response for new artifact:', {
+          console.log('[ALEX AI ROUTING] WorkflowManagerV2 response:', {
             status: workflowResponse.status,
             hasQuestion: !!workflowResponse.question,
             hasArchitecture: !!workflowResponse.architectureProposal,
@@ -519,8 +528,15 @@ export class AlexOrchestrator {
 
     // Add conversation history with token-aware limiting
     // Use recent messages but limit based on token budget to prevent TPM issues
+    // IMPORTANT: Exclude the current message from history to prevent duplication
+    // The current message is added separately at the end
     const recentHistory = conversationHistory.slice(-10)
     for (const msg of recentHistory) {
+      // Skip if this is the current message (deduplication)
+      if (msg.role === 'user' && msg.content === content) {
+        console.log('[ATTACHMENT TRACE] Skipping current message from history to prevent duplication')
+        continue
+      }
       messages.push({
         role: msg.role as 'user' | 'assistant',
         content: msg.content,
