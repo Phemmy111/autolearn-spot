@@ -9,6 +9,7 @@ export interface Conversation {
   title: string
   created_at: string
   updated_at: string
+  orchestration_state?: 'idle' | 'awaiting_clarification' | 'plan_ready' | 'plan_approved' | 'generating_artifact' | 'artifact_ready'
 }
 
 export interface Message {

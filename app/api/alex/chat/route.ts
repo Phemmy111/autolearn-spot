@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { conversationId, content, mode, fileIds, enableAgent } = body
+    const { conversationId, content, mode, fileIds, enableAgent, actionType } = body
 
     console.log('[DIAGNOSTIC] CHAT REQUEST START', {
       conversationId,
@@ -73,7 +73,9 @@ export async function POST(request: NextRequest) {
       fileIdsPresent: !!fileIds,
       fileIdsCount: fileIds?.length || 0,
       fileIds: fileIds || [],
-      contentPreview: content.substring(0, 100)
+      contentPreview: content.substring(0, 100),
+      actionType, // NEW: Explicit action type for plan approval
+      isPlanApproval: actionType === 'plan_approve'
     })
 
     alexLogger.debug('CHAT', 'Request received', { conversationId, mode, fileIds })
@@ -236,6 +238,89 @@ export async function POST(request: NextRequest) {
       .from('alex_conversations')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', conversationId)
+
+    // NEW: Handle explicit plan approval action
+    if (actionType === 'plan_approve') {
+      console.log('[PLAN APPROVAL] Explicit plan approval received, bypassing AI orchestration')
+      
+      // Load current plan
+      const { data: currentPlanData } = await supabase
+        .from('alex_automation_plans')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+      
+      if (currentPlanData?.plan_data) {
+        const currentPlan = JSON.parse(currentPlanData.plan_data)
+        console.log('[PLAN APPROVAL] Loaded current plan for execution:', currentPlan.objective)
+        
+        // Update conversation state
+        await supabase
+          .from('alex_conversations')
+          .update({ orchestration_state: 'plan_approved' })
+          .eq('id', conversationId)
+        
+        // Import and call workflow orchestrator directly for artifact generation
+        const { WorkflowOrchestrator } = await import('@/lib/alex/orchestration/workflow-orchestrator')
+        const orchestrator = WorkflowOrchestrator.getInstance()
+        
+        const generateResponse = await orchestrator['handleGenerate'](currentPlan, {
+          conversationId,
+          userId,
+          userMessage: content,
+          conversationHistory: historyMessages?.map(m => ({ role: m.role, content: m.content })) || [],
+          mode,
+          attachedFiles: attachedFiles || []
+        })
+        
+        // Stream the architecture proposal response
+        const encoder = new TextEncoder()
+        const stream = new ReadableStream({
+          async start(controller) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'orchestration',
+              data: {
+                action: { type: 'execute', message: generateResponse.message },
+                architectureProposal: generateResponse.architectureProposal,
+                plan: currentPlan
+              }
+            })}\n\n`))
+            
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+            controller.close()
+            
+            // Persist the assistant message
+            await supabase
+              .from('alex_messages')
+              .insert({
+                conversation_id: conversationId,
+                role: 'assistant',
+                content: generateResponse.message,
+                orchestration_data: {
+                  action: { type: 'execute', message: generateResponse.message },
+                  architectureProposal: generateResponse.architectureProposal,
+                  plan: currentPlan
+                }
+              })
+          }
+        })
+        
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          }
+        })
+      } else {
+        console.error('[PLAN APPROVAL] No current plan found')
+        return NextResponse.json({ error: 'No current plan to approve' }, { status: 400 })
+      }
+    }
 
     // Phase 4: Handle memory commands
     const memoryCommand = detectMemoryCommand(content)

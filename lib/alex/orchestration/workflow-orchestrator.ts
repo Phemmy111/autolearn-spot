@@ -198,8 +198,9 @@ export class WorkflowOrchestrator {
   
   /**
    * Handle artifact generation
+   * Made public for explicit plan approval flow
    */
-  private async handleGenerate(
+  public async handleGenerate(
     plan: AutomationPlan,
     request: WorkflowOrchestrationRequest
   ): Promise<WorkflowOrchestrationResponse> {

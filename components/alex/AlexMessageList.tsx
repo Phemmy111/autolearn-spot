@@ -11,7 +11,7 @@ import { AlexInteractiveQuestion } from './AlexInteractiveQuestion'
 import { AlexArchitectureApproval } from './AlexArchitectureApproval'
 
 // P0: Native orchestration action renderer
-function NativeOrchestrationAction({ action, onSelect, disabled }: { action: any, onSelect: (value: string) => void, disabled: boolean }) {
+function NativeOrchestrationAction({ action, onSelect, disabled }: { action: any, onSelect: (value: string, actionType?: string) => void, disabled: boolean }) {
   if (!action) return null
 
   console.log('[P0] Rendering native orchestration action:', action.type)
@@ -168,7 +168,7 @@ function NativeOrchestrationAction({ action, onSelect, disabled }: { action: any
           {action.confirmationRequired && (
             <div className="space-x-2">
               <button
-                onClick={() => onSelect('Yes, proceed')}
+                onClick={() => onSelect('Yes, proceed', 'plan_approve')}
                 disabled={disabled}
                 className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 rounded-lg text-sm transition-colors disabled:opacity-50"
               >
@@ -386,10 +386,22 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
             {(msg as any).orchestrationData.message && <div className="mb-2" />}
             <NativeOrchestrationAction
               action={(msg as any).orchestrationData.action}
-              onSelect={(value) => {
-                // Send natural language answer without field
-                const event = new CustomEvent('alexQuestionAnswer', { detail: { value } })
-                window.dispatchEvent(event)
+              onSelect={(value, actionType) => {
+                console.log('[DIAGNOSTIC] PLAN PROCEED INVOKED (LEGACY)', {
+                  value,
+                  actionType,
+                  isPlanApproval: actionType === 'plan_approve'
+                })
+                
+                if (actionType === 'plan_approve') {
+                  // Send plan approval as explicit action, not text
+                  const event = new CustomEvent('alexPlanApprove', { detail: { value } })
+                  window.dispatchEvent(event)
+                } else {
+                  // Send natural language answer without field
+                  const event = new CustomEvent('alexQuestionAnswer', { detail: { value } })
+                  window.dispatchEvent(event)
+                }
               }}
               disabled={isLoading}
             />
@@ -738,13 +750,36 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                               </ReactMarkdown>
                             </div>
                           )}
+                          {/* Fallback: Render content if orchestrationData.message is missing but content exists */}
+                          {!(message as any).orchestrationData.message && message.content && message.content.trim().length > 0 && (
+                            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900 mb-3">
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={MarkdownComponents}
+                              >
+                                {message.content}
+                              </ReactMarkdown>
+                            </div>
+                          )}
                           {/* Render native orchestration action */}
                           <NativeOrchestrationAction
                             action={(message as any).orchestrationData.action}
-                            onSelect={(value) => {
-                              // Send natural language answer without field
-                              const event = new CustomEvent('alexQuestionAnswer', { detail: { value } })
-                              window.dispatchEvent(event)
+                            onSelect={(value, actionType) => {
+                              console.log('[DIAGNOSTIC] PLAN PROCEED INVOKED', {
+                                value,
+                                actionType,
+                                isPlanApproval: actionType === 'plan_approve'
+                              })
+                              
+                              if (actionType === 'plan_approve') {
+                                // Send plan approval as explicit action, not text
+                                const event = new CustomEvent('alexPlanApprove', { detail: { value } })
+                                window.dispatchEvent(event)
+                              } else {
+                                // Send natural language answer without field
+                                const event = new CustomEvent('alexQuestionAnswer', { detail: { value } })
+                                window.dispatchEvent(event)
+                              }
                             }}
                             disabled={isLoading}
                           />

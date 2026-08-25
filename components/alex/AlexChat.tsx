@@ -48,6 +48,13 @@ export function AlexChat({ userId }: AlexChatProps) {
       sendMessage(value)
     }
 
+    const handlePlanApprove = (event: CustomEvent) => {
+      const { value } = event.detail
+      console.log('[AlexChat] Plan approval received - sending explicit action', { value })
+      // Send plan approval as explicit action type, not text
+      sendMessage(value, undefined, 'plan_approve')
+    }
+
     const handleArchitectureApprove = (event: CustomEvent) => {
       console.log('[AlexChat] Architecture approved')
       // Send approval message
@@ -67,12 +74,14 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
 
     window.addEventListener('alexQuestionAnswer', handleQuestionAnswer as EventListener)
+    window.addEventListener('alexPlanApprove', handlePlanApprove as EventListener)
     window.addEventListener('alexArchitectureApprove', handleArchitectureApprove as EventListener)
     window.addEventListener('alexArchitectureModify', handleArchitectureModify as EventListener)
     window.addEventListener('alexArchitectureImprove', handleArchitectureImprove as EventListener)
 
     return () => {
       window.removeEventListener('alexQuestionAnswer', handleQuestionAnswer as EventListener)
+      window.removeEventListener('alexPlanApprove', handlePlanApprove as EventListener)
       window.removeEventListener('alexArchitectureApprove', handleArchitectureApprove as EventListener)
       window.removeEventListener('alexArchitectureModify', handleArchitectureModify as EventListener)
       window.removeEventListener('alexArchitectureImprove', handleArchitectureImprove as EventListener)
@@ -211,7 +220,7 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
   }
 
-  const sendMessage = useCallback(async (content: string, fileIds?: string[]) => {
+  const sendMessage = useCallback(async (content: string, fileIds?: string[], actionType?: string) => {
     let conversationToUse = currentConversation
 
     if (!conversationToUse) {
@@ -260,7 +269,9 @@ export function AlexChat({ userId }: AlexChatProps) {
         fileIdsCount: fileIds?.length || 0,
         fileIds: fileIds || [],
         attachedFilesForMessageCount: attachedFilesForMessage.length,
-        attachedFilesForMessageIds: attachedFilesForMessage.map(f => f.id)
+        attachedFilesForMessageIds: attachedFilesForMessage.map(f => f.id),
+        actionType, // NEW: Explicit action type
+        isPlanApproval: actionType === 'plan_approve'
       })
 
       const res = await fetch('/api/alex/chat', {
@@ -271,6 +282,7 @@ export function AlexChat({ userId }: AlexChatProps) {
           content,
           mode,
           fileIds,
+          actionType, // NEW: Explicit action type
         }),
         signal: controller.signal,
       })
