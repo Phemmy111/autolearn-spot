@@ -132,6 +132,22 @@ export class WorkflowOrchestrator {
       await this.savePlan(request.conversationId, request.userId, action.plan, action.type)
     }
     
+    // CRITICAL FIX: Ensure build exists for plan actions
+    // This creates the build record if it doesn't exist, enabling plan persistence
+    if (action.type === 'plan' && action.plan) {
+      console.log('[Workflow Orchestrator] Ensuring build exists for plan action')
+      const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
+      if (!existingBuild) {
+        console.log('[Workflow Orchestrator] Creating new build for plan action')
+        await ArtifactService.createBuild(
+          request.conversationId,
+          request.userId,
+          action.plan.objective || request.userMessage,
+          'workflow'
+        )
+      }
+    }
+    
     // For generate action, invoke artifact generation machinery
     if (action.type === 'generate' || action.type === 'execute') {
       console.log('[P0] Invoking artifact generation machinery for action:', action.type)
