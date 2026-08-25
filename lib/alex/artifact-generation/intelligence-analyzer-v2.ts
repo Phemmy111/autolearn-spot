@@ -192,12 +192,18 @@ export class IntelligenceAnalyzerV2 {
         question = await this.formulateQuestion(blocker, specState)
       } catch (error) {
         console.error('[Intelligence Analyzer V2] Error formulating question, using fallback:', error)
-        // Fallback with better options based on field type
+        // Fallback with deterministic option generation
+        const { RequirementOptionGenerator } = await import('./requirement-option-generator')
+        const optionResult = RequirementOptionGenerator.generateOptions({
+          field: blocker,
+          specification: specState.spec
+        })
+        
         question = {
-          text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
+          text: `I need to know: ${blocker.replace(/_/g, ' ')}. ${optionResult.reason || 'Please provide your answer.'}`,
           field: blocker,
           context: blocker,
-          options: this.getFallbackOptions(blocker)
+          options: optionResult.options
         }
       }
       console.log('[DEBUG INTELLIGENCE ANALYZER V2] Formulated question:', {
@@ -276,12 +282,18 @@ export class IntelligenceAnalyzerV2 {
       try {
         question = await this.formulateQuestion(blocker, specState)
       } catch (error) {
-        console.error('[Intelligence Analyzer V2] Error formulating question in continuation, using fallback:', error)
+        console.error('[Intelligence Analyzer V2] Error formulating question in continuation, using deterministic fallback:', error)
+        const { RequirementOptionGenerator } = await import('./requirement-option-generator')
+        const optionResult = RequirementOptionGenerator.generateOptions({
+          field: blocker,
+          specification: specState.spec
+        })
+        
         question = {
-          text: `I need to know: ${blocker.replace(/_/g, ' ')}`,
+          text: `I need to know: ${blocker.replace(/_/g, ' ')}. ${optionResult.reason || 'Please provide your answer.'}`,
           field: blocker,
           context: blocker,
-          options: this.getFallbackOptions(blocker)
+          options: optionResult.options
         }
       }
       return {
@@ -1089,85 +1101,52 @@ Return empty array if no blockers exist.`
   }
   
   /**
-   * Formulate a question for a blocker using AI-based dynamic generation
+   * Formulate a question for a blocker using deterministic option generation
    */
   private static async formulateQuestion(blocker: string, specState: SpecState): Promise<AnalysisResult['question']> {
-    const { WorkflowAIService } = await import('./workflow-ai-service')
-    const aiService = WorkflowAIService.getInstance()
-
-    const prompt = `You are an expert automation consultant. Generate a natural, conversational question to ask the user about a missing specification.
-
-Missing field: ${blocker}
-Automation type: ${specState.spec.automationType || 'automation'}
-Description: ${specState.spec.description || 'General automation'}
-Domain: ${specState.spec.domain || 'custom'}
-Platform: ${specState.spec.platform || 'n8n'}
-
-Context about what we know:
-${Array.from(specState.known).map(k => `- ${k}: ${JSON.stringify(this.getSpecValue(specState.spec, k))}`).join('\n')}
-
-Generate a question that:
-1. Is natural and conversational (not robotic)
-2. Explains why we need this information
-3. Provides 3-5 relevant options if this is a choice field (email provider, AI model, notification channel, etc.)
-4. Returns null for options if this is an open-ended question (like a custom rule description)
-5. Keeps it concise (under 50 words)
-
-Examples:
-- For email provider: options should be ["Gmail", "Outlook", "IMAP/SMTP", "Recommend for me"]
-- For AI model: options should be ["Recommend for me", "OpenAI GPT-4", "Anthropic Claude-3", "Google Gemini"]
-- For destinations: options should be ["Email", "Slack", "Telegram", "WhatsApp", "Recommend for me"]
-- For custom description: options should be null
-
-Return ONLY valid JSON in this exact format:
-{
-  "text": "your question text",
-  "field": "${blocker}",
-  "context": "${blocker}",
-  "options": ["option1", "option2", "option3"] or null
-}
-
-Do not include any text before or after the JSON. The response must be pure JSON.`
-
-    console.log('[Intelligence Analyzer V2] Calling WorkflowAIService for question generation, blocker:', blocker)
-
-    const fullResponse = await aiService.generateResponse(prompt)
-    console.log('[Intelligence Analyzer V2] AI question response:', fullResponse.substring(0, 200))
-
-    // Try to extract JSON from response
-    const jsonMatch = fullResponse.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      const question = JSON.parse(jsonMatch[0])
-      console.log('[Intelligence Analyzer V2] Successfully parsed AI question:', {
-        hasOptions: !!question.options,
-        optionCount: question.options?.length
-      })
-      return question
-    }
-
-    // If JSON parsing fails, try to extract question and options from text
-    console.log('[Intelligence Analyzer V2] JSON parsing failed, attempting text extraction')
-    const lines = fullResponse.split('\n').filter(line => line.trim())
-
-    // Find the question (first non-empty line that's not a header)
-    const questionText = lines.find(line => !line.includes(':') && line.length > 10) || `I need to know: ${blocker.replace(/_/g, ' ')}`
-
-    // Find options (lines with - or numbers)
-    const options = lines
-      .filter(line => line.match(/^- /) || line.match(/^\d+\./))
-      .map(line => line.replace(/^- /, '').replace(/^\d+\.\s*/, '').trim())
-      .filter(opt => opt.length > 0 && opt.length < 50)
-
-    console.log('[Intelligence Analyzer V2] Extracted from text:', {
-      questionText: questionText.substring(0, 50),
-      optionCount: options.length
+    const { RequirementOptionGenerator } = await import('./requirement-option-generator')
+    
+    console.log('[Intelligence Analyzer V2] Formulating question for blocker:', blocker)
+    
+    // Use deterministic option generation
+    const optionResult = RequirementOptionGenerator.generateOptions({
+      field: blocker,
+      specification: specState.spec,
+      context: specState.questionContext
     })
-
+    
+    console.log('[Intelligence Analyzer V2] Option generation result:', {
+      strategy: optionResult.strategy,
+      optionCount: optionResult.options?.length || 0,
+      inputType: optionResult.inputType,
+      reason: optionResult.reason
+    })
+    
+    // Generate natural question text
+    const readableField = blocker.replace(/_/g, ' ').replace(/\./g, ' ')
+    let questionText: string
+    
+    if (optionResult.options && optionResult.options.length > 0) {
+      questionText = `I need to know: ${readableField}. Please select from the available options.`
+    } else {
+      const inputTypeHints: Record<string, string> = {
+        'email': 'Please provide an email address.',
+        'url': 'Please provide a URL.',
+        'number': 'Please provide a number.',
+        'time': 'Please provide a time.',
+        'date': 'Please provide a date.',
+        'boolean': 'Please select Yes or No.',
+        'text': 'Please provide your answer.'
+      }
+      const hint = inputTypeHints[optionResult.inputType] || 'Please provide your answer.'
+      questionText = `I need to know: ${readableField}. ${hint}`
+    }
+    
     return {
       text: questionText,
       field: blocker,
       context: blocker,
-      options: options.length > 0 ? options : this.getFallbackOptions(blocker)
+      options: optionResult.options
     }
   }
 
@@ -1181,49 +1160,6 @@ Do not include any text before or after the JSON. The response must be pure JSON
       value = value?.[part]
     }
     return value
-  }
-
-  /**
-   * Get fallback options for a field when AI generation fails
-   */
-  private static getFallbackOptions(blocker: string): string[] {
-    if (blocker.includes('emailProvider')) {
-      return ['Gmail', 'Outlook', 'IMAP/SMTP', 'SendGrid', 'Mailgun']
-    }
-    if (blocker.includes('aiProvider') || blocker.includes('aiModel')) {
-      return ['OpenAI GPT-4', 'Anthropic Claude-3', 'Google Gemini', 'Local LLM']
-    }
-    if (blocker.includes('knowledgeBase')) {
-      return ['None', 'Notion', 'Confluence', 'Google Drive', 'Pinecone']
-    }
-    if (blocker.includes('destinations')) {
-      return ['Email', 'Slack', 'Telegram', 'WhatsApp', 'Discord']
-    }
-    if (blocker.includes('routing')) {
-      return ['Every message', 'Support inquiries only', 'Sales inquiries only', 'Custom rules']
-    }
-    if (blocker.includes('timezone')) {
-      return ['UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London', 'Asia/Tokyo', 'Recommend for me']
-    }
-    if (blocker.includes('platform')) {
-      return ['n8n', 'Zapier', 'Make', 'Airflow', 'Prefect', 'Recommend for me']
-    }
-    if (blocker.includes('schedule') || blocker.includes('cron')) {
-      return ['Daily at 8 AM', 'Weekly on Monday', 'Monthly on 1st', 'Custom schedule', 'Recommend for me']
-    }
-    if (blocker.includes('recipient') || blocker.includes('email')) {
-      return ['Enter email address', 'my-email@example.com', 'Recommend for me']
-    }
-    if (blocker.includes('subject')) {
-      return ['Daily Reminder', 'Automation Update', 'Custom subject', 'Recommend for me']
-    }
-    if (blocker.includes('message') || blocker.includes('content')) {
-      return ['Enter your message', 'This is an automated reminder', 'Recommend for me']
-    }
-    if (blocker.includes('trigger') || blocker.includes('event')) {
-      return ['Time-based', 'Webhook', 'Email received', 'Form submitted', 'Recommend for me']
-    }
-    return ['Skip this field'] // Default fallback
   }
 
   /**
