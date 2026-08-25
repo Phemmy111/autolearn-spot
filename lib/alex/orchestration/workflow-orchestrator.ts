@@ -77,6 +77,11 @@ export class WorkflowOrchestrator {
       mode: request.mode as any
     }
     
+    console.log('[FORENSIC] Workflow Orchestrator conversation history diagnostics:')
+    console.log('[FORENSIC] conversationHistory length:', request.conversationHistory.length)
+    console.log('[FORENSIC] context.messages length:', context.messages.length)
+    console.log('[FORENSIC] conversationHistory preview:', request.conversationHistory.map(m => `${m.role}: ${m.content.substring(0, 50)}`).join('\n'))
+    
     // Load current automation plan if exists
     const currentPlan = await this.loadCurrentPlan(request.conversationId, request.userId)
     

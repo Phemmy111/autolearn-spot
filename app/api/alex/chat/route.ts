@@ -360,6 +360,10 @@ export async function POST(request: NextRequest) {
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
       .limit(20)
+    
+    console.log('[FORENSIC] Chat route conversation history diagnostics:')
+    console.log('[FORENSIC] historyMessages loaded:', historyMessages?.length || 0)
+    console.log('[FORENSIC] historyMessages preview:', historyMessages?.map(m => `${m.role}: ${m.content.substring(0, 50)}`).join('\n'))
 
     // Get attached files for context (Phase 3A + conversation-level persistence)
     let attachedFiles: any[] = []
