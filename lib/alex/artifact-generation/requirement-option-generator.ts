@@ -35,21 +35,21 @@ export class RequirementOptionGenerator {
     
     // Level 1: Schema-aware deterministic options
     const schemaResult = this.generateSchemaAwareOptions(field, specification)
-    if (schemaResult.options !== null) {
+    if (schemaResult !== null) {
       console.log('[Requirement Option Generator] Strategy: schema-aware')
       return schemaResult
     }
     
     // Level 2: Registry-based options
     const registryResult = this.generateRegistryBasedOptions(field)
-    if (registryResult.options !== null) {
+    if (registryResult !== null) {
       console.log('[Requirement Option Generator] Strategy: registry-based')
       return registryResult
     }
     
     // Level 3: Type-aware fallback
     const typeResult = this.generateTypeAwareOptions(field)
-    if (typeResult.options !== null) {
+    if (typeResult !== null) {
       console.log('[Requirement Option Generator] Strategy: type-aware')
       return typeResult
     }
