@@ -136,17 +136,17 @@ export class AlexOrchestrator {
     let isArtifactGeneration = false
 
     if (mode === 'auto') {
-      console.log('[DEBUG ORCHESTRATOR] Detecting intent for auto mode (metadata only)', { contentPreview: content.substring(0, 100) })
+      console.log('[DEBUG ORCHESTRATOR] Detecting intent for auto mode (advisory metadata only)', { contentPreview: content.substring(0, 100) })
       const intentResult = await detectIntent(content)
       detectedIntent = intentResult.intent
       suggestedMode = intentResult.suggestedMode
       isArtifactGeneration = intentResult.isArtifactGeneration || false
-      console.log('[DEBUG ORCHESTRATOR] Intent detection result (metadata)', {
+      console.log('[DEBUG ORCHESTRATOR] Intent detection result (advisory metadata)', {
         detectedIntent,
         suggestedMode,
         isArtifactGeneration,
         confidence: intentResult.confidence,
-        note: 'This is metadata only, does not control routing'
+        note: 'This is advisory metadata only, does not control routing or prevent AI orchestration'
       })
     }
 
@@ -162,89 +162,49 @@ export class AlexOrchestrator {
         console.log('[DEBUG ORCHESTRATOR] Existing build check result', { found: !!existingBuild, buildId: existingBuild?.id, status: existingBuild?.status })
         
         if (existingBuild) {
-          console.log('[DEBUG ORCHESTRATOR] Existing artifact build found, routing to workflow system')
+          console.log('[DEBUG ORCHESTRATOR] Existing artifact build found, routing to AI-driven workflow system')
           
-          // FEATURE FLAG: Use new AI-driven orchestration or legacy template-driven approach
-          const useAIDrivenOrchestration = process.env.USE_AI_DRIVEN_ORCHESTRATION !== 'false'
+          // P1.5: AI-driven orchestration is now the only production orchestration path
+          // The USE_AI_DRIVEN_ORCHESTRATION environment variable is deprecated and no longer controls routing
+          // It may be retained temporarily for deployment compatibility but does not affect behavior
+          console.log('[P1.5] Using AI-driven WorkflowOrchestrator (single production path)')
+          const workflowOrchestrator = WorkflowOrchestrator.getInstance()
+          const workflowRequest = {
+            conversationId,
+            userId,
+            userMessage: content,
+            conversationHistory,
+            mode,
+            attachedFiles
+          }
           
-          if (useAIDrivenOrchestration) {
-            console.log('[DEBUG ORCHESTRATOR] Using new AI-driven WorkflowOrchestrator')
-            const workflowOrchestrator = WorkflowOrchestrator.getInstance()
-            const workflowRequest = {
-              conversationId,
-              userId,
-              userMessage: content,
-              conversationHistory,
-              mode,
-              attachedFiles
-            }
-            
-            const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
-            
-            console.log('[DEBUG ORCHESTRATOR] WorkflowOrchestrator response:', {
-              status: workflowResponse.status,
-              hasQuestion: !!workflowResponse.question,
-              hasArchitecture: !!workflowResponse.architectureProposal,
-              hasArtifacts: !!workflowResponse.artifacts,
-              hasPlan: !!workflowResponse.plan,
-              messagePreview: workflowResponse.message?.substring(0, 100)
-            })
-            
-            // Return a special response indicating artifact workflow
-            return {
-              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
-              context: '',
-              detectedIntent,
-              suggestedMode,
-              aiRequest: {
-                messages: [
-                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
-                  { role: 'user', content: content }
-                ],
-                stream: false,
-                disableTools: true
-              },
-              imageFiles: [],
-              artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
-            }
-          } else {
-            console.log('[DEBUG ORCHESTRATOR] Using legacy template-driven WorkflowManagerV2')
-            const workflowRequest: WorkflowRequest = {
-              conversationId,
-              userId,
-              content,
-              attachedFiles,
-              conversationHistory
-            }
-
-            console.log('[DEBUG ORCHESTRATOR] Calling WorkflowManagerV2.processRequest')
-            const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
-
-            console.log('[DEBUG ORCHESTRATOR] WorkflowManagerV2 response:', {
-              status: workflowResponse.status,
-              hasQuestion: !!workflowResponse.question,
-              hasArchitecture: !!workflowResponse.architectureProposal,
-              hasArtifacts: !!workflowResponse.artifacts,
-              messagePreview: workflowResponse.message?.substring(0, 100)
-            })
-
-            // Return a special response indicating artifact workflow
-            return {
-              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
-              context: '',
-              detectedIntent,
-              suggestedMode,
-              aiRequest: {
-                messages: [
-                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
-                  { role: 'user', content: content }
-                ],
-                stream: false,
-                disableTools: true
-              },
-              imageFiles: [],
-              artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
-            }
+          const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
+          
+          console.log('[DEBUG ORCHESTRATOR] WorkflowOrchestrator response:', {
+            status: workflowResponse.status,
+            hasQuestion: !!workflowResponse.question,
+            hasArchitecture: !!workflowResponse.architectureProposal,
+            hasArtifacts: !!workflowResponse.artifacts,
+            hasPlan: !!workflowResponse.plan,
+            messagePreview: workflowResponse.message?.substring(0, 100)
+          })
+          
+          // Return a special response indicating artifact workflow
+          return {
+            systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+            context: '',
+            detectedIntent,
+            suggestedMode,
+            aiRequest: {
+              messages: [
+                { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                { role: 'user', content: content }
+              ],
+              stream: false,
+              disableTools: true
+            },
+            imageFiles: [],
+            artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
           }
         }
       } catch (error) {
@@ -271,97 +231,53 @@ export class AlexOrchestrator {
         note: 'Metadata only, AI will make actual decision'
       })
       
-      // FEATURE FLAG: Use new AI-driven orchestration or legacy template-driven approach
-      const useAIDrivenOrchestration = process.env.USE_AI_DRIVEN_ORCHESTRATION !== 'false'
-      
-      console.log('[ALEX AI ROUTING] AIOrchestrator invoked', {
-        useAIDrivenOrchestration,
-        featureFlagValue: process.env.USE_AI_DRIVEN_ORCHESTRATION
-      })
+      // P1.5: AI-driven orchestration is now the only production orchestration path
+      // The USE_AI_DRIVEN_ORCHESTRATION environment variable is deprecated and no longer controls routing
+      console.log('[P1.5] Using AI-driven WorkflowOrchestrator (single production path)')
       
       try {
-        if (useAIDrivenOrchestration) {
-          console.log('[ALEX AI ROUTING] Using AI-driven WorkflowOrchestrator (AI will decide what to do)')
-          const workflowOrchestrator = WorkflowOrchestrator.getInstance()
-          const workflowRequest = {
-            conversationId,
-            userId,
-            userMessage: content,
-            conversationHistory,
-            mode,
-            attachedFiles
-          }
-          
-          const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
-          
-          console.log('[ALEX AI ROUTING] AI decision:', {
-            actionType: workflowResponse.action?.type,
-            intent: workflowResponse.intent,
-            hasPlan: !!workflowResponse.plan,
-            messagePreview: workflowResponse.message?.substring(0, 100)
-          })
-          
-          console.log('[ALEX AI ROUTING] Selected action handler:', {
-            handler: workflowResponse.action?.type || 'none',
-            willGenerate: workflowResponse.action?.type === 'generate' || workflowResponse.action?.type === 'execute',
-            willQuestion: workflowResponse.action?.type === 'clarify'
-          })
-          
-          // Return a special response indicating artifact workflow
-          return {
-            systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
-            context: '',
-            detectedIntent,
-            suggestedMode,
-            aiRequest: {
-              messages: [
-                { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
-                { role: 'user', content: content }
-              ],
-              stream: false,
-              disableTools: true
-            },
-            imageFiles: [],
-            artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
-          }
-        } else {
-          console.log('[ALEX AI ROUTING] Legacy path - using template-driven WorkflowManagerV2')
-          const workflowRequest: WorkflowRequest = {
-            conversationId,
-            userId,
-            content,
-            attachedFiles,
-            conversationHistory
-          }
-
-          console.log('[ALEX AI ROUTING] Calling WorkflowManagerV2.processRequest')
-          const workflowResponse = await WorkflowManagerV2.processRequest(workflowRequest)
-
-          console.log('[ALEX AI ROUTING] WorkflowManagerV2 response:', {
-            status: workflowResponse.status,
-            hasQuestion: !!workflowResponse.question,
-            hasArchitecture: !!workflowResponse.architectureProposal,
-            hasArtifacts: !!workflowResponse.artifacts,
-            messagePreview: workflowResponse.message?.substring(0, 100)
-          })
-
-          // Return a special response indicating artifact workflow
-          return {
-            systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
-            context: '',
-            detectedIntent,
-            suggestedMode,
-            aiRequest: {
-              messages: [
-                { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
-                { role: 'user', content: content }
-              ],
-              stream: false,
-              disableTools: true
-            },
-            imageFiles: [],
-            artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
-          }
+        console.log('[ALEX AI ROUTING] Using AI-driven WorkflowOrchestrator (AI will decide what to do)')
+        const workflowOrchestrator = WorkflowOrchestrator.getInstance()
+        const workflowRequest = {
+          conversationId,
+          userId,
+          userMessage: content,
+          conversationHistory,
+          mode,
+          attachedFiles
+        }
+        
+        const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
+        
+        console.log('[ALEX AI ROUTING] AI decision:', {
+          actionType: workflowResponse.action?.type,
+          intent: workflowResponse.intent,
+          hasPlan: !!workflowResponse.plan,
+          messagePreview: workflowResponse.message?.substring(0, 100)
+        })
+        
+        console.log('[ALEX AI ROUTING] Selected action handler:', {
+          handler: workflowResponse.action?.type || 'none',
+          willGenerate: workflowResponse.action?.type === 'generate' || workflowResponse.action?.type === 'execute',
+          willQuestion: workflowResponse.action?.type === 'clarify'
+        })
+        
+        // Return a special response indicating artifact workflow
+        return {
+          systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+          context: '',
+          detectedIntent,
+          suggestedMode,
+          aiRequest: {
+            messages: [
+              { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+              { role: 'user', content: content }
+            ],
+            stream: false,
+            disableTools: true
+          },
+          imageFiles: [],
+          artifactWorkflow: workflowResponse // Special field to indicate artifact workflow
         }
       } catch (error) {
         console.error('[Orchestrator] Artifact workflow failed:', error)

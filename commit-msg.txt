@@ -1,76 +1,74 @@
-Make AI orchestration authoritative over question tracking, eliminate synthetic wizard answers
+Make AI-driven orchestration the only production path, eliminate legacy routing bypass
 
-P1 IMPLEMENTATION SUMMARY:
+P1.5 IMPLEMENTATION SUMMARY:
 
-Removed QuestionTracker's authority to override AI decisions and eliminated synthetic wizard answers.
-AI orchestration is now the final authority for orchestration actions, and user responses are
-persisted as natural conversational messages without field/value translation.
+Eliminated the configuration-controlled routing bypass that could return ALEX to the
+legacy wizard architecture. AI-driven orchestration is now the single authoritative
+production orchestration path for normal ALEX conversations.
 
 BACKEND CHANGES:
-1. lib/alex/orchestration/ai-orchestrator.ts
-   - Removed QuestionTracker override logic (no longer converts AI action to respond)
-   - QuestionTracker now advisory only, logs when question appears duplicate
-   - Added logging for confirmation-related actions (execute/generate)
-   - Added logging for revision detection (revise_automation intent)
-   - Added logging for orchestration start
-   - AI may reformulate or proceed regardless of duplicate detection
-
-2. lib/alex/orchestration/workflow-orchestrator.ts
-   - Removed QuestionTracker override logic (lines 101-114)
-   - Removed checkRecentlyAnswered() method (was used for override)
-   - Added logging to indicate QuestionTracker is advisory
-   - AI action preservation remains from P0
-
-3. app/api/alex/chat/route.ts
-   - Updated message persistence logging to indicate natural language
-   - Added logging to show no synthetic field/value dependency
-   - Messages persisted as normal conversational input (no field/value translation)
-
-FRONTEND CHANGES:
-4. components/alex/AlexChat.tsx
-   - Already removed field dependency in P0 (no changes needed)
-   - Only value parameter used, no field parameter
-   - Natural language answers sent as-is
-
-5. components/alex/AlexMessageList.tsx
-   - Already removed field dependency in P0 (no changes needed)
-   - NaturalOrchestrationAction renders without field requirement
-   - Legacy AlexInteractiveQuestion updated to not use field
+1. lib/alex/orchestrator.ts
+   - Removed USE_AI_DRIVEN_ORCHESTRATION feature flag check from existing build routing (lines 164-208)
+   - Removed USE_AI_DRIVEN_ORCHESTRATION feature flag check from new request routing (lines 227-281)
+   - Removed legacy else branch that routed to WorkflowManagerV2
+   - Added deprecation comments for the environment variable
+   - AI-driven WorkflowOrchestrator is now the only path in both locations
+   - Updated logging to indicate single production path
+   - Updated intent detector logging to emphasize advisory metadata only
 
 KEY ARCHITECTURAL CHANGES:
-- AI orchestration is now authoritative over QuestionTracker
-- QuestionTracker is advisory only (provides evidence, does not override)
-- No generic duplicate fallback ("I think we've already discussed that")
-- Natural user messages persisted naturally (no field/value requirement)
-- AI receives natural-language context for decision-making
-- Multiple requirements in one message respected
-- Confirmation works naturally (proceed/yes/alright)
-- Revision works naturally (plan changes not blocked by previous questions)
-- P0 native orchestration preserved (orchestration events, action types)
+- Configuration-controlled routing bypass eliminated
+- AI-driven orchestration structurally authoritative
+- Legacy path removed from primary production routing
+- Single orchestration brain for normal chat: ALEX AI ORCHESTRATOR
+- USE_AI_DRIVEN_ORCHESTRATION environment variable deprecated (no longer controls routing)
 
-AUTHORITY HIERARCHY:
-1. User's actual message
-2. Persisted AutomationPlan / orchestration state
-3. AIOrchestrator / LLM decision (AUTHORITATIVE)
-4. QuestionTracker (ADVISORY)
-5. Legacy compatibility mechanisms (only where necessary)
+FEATURE FLAG BEHAVIOR:
+- USE_AI_DRIVEN_ORCHESTRATION=true → AI path (unchanged)
+- USE_AI_DRIVEN_ORCHESTRATION=false → AI path (FIXED - no longer routes to legacy)
+- Variable absent → AI path (unchanged)
 
-VERIFICATION:
-- AI remains final orchestration authority
-- QuestionTracker is advisory (does not override AI decisions)
-- No generic duplicate fallback controls normal conversation
-- Natural user messages persisted naturally
-- AI receives natural-language context
-- Multiple requirements in one message respected
-- Confirmation works naturally
-- Revision works naturally
-- P0 native orchestration preserved
-- Artifact generation preserved
+LEGACY PATH STATUS:
+- WorkflowManagerV2: NOT production-reachable for normal chat (preserved for artifact API and tests)
+- IntelligenceAnalyzerV2: NOT production-reachable for normal chat (preserved for compatibility)
+- Intent detector: ADVISORY METADATA ONLY (does not control routing)
+- artifact_workflow: COMPATIBILITY-ONLY (primary contract is orchestration event)
+- field:value parsing: NOT production-reachable for normal chat (legacy path only)
 
-REMAINING P2 ISSUES (NOT FIXED IN P1):
-- P2-A: Assumption handling (not enforced in plan generation)
-- P2-B: AutomationSpec information loss (conversion is lossy)
-- Additional: Conversation contamination (legacy path may still have issues)
+P0 REGRESSION CHECK:
+- All 8 native actions preserved (respond/clarify/recommend/brainstorm/plan/generate/execute/revise)
+- Native orchestration events preserved
+- Frontend NativeOrchestrationAction preserved
+
+P1 REGRESSION CHECK:
+- QuestionTracker advisory only (preserved)
+- No synthetic wizard answers (preserved)
+- Natural-language persistence (preserved)
+- Confirmation/revision behavior preserved (preserved)
+
+REMAINING DETERMINISTIC GATES:
+- Intent detector: ADVISORY METADATA ONLY (does not override AI)
+- Existing build detection: ROUTING DECISION ONLY (AI still decides)
+- QuestionTracker: ADVISORY ONLY (does not override AI)
+- NO CRITICAL GATES remaining
+
+ARCHITECTURE LEVEL:
+- Before P1.5: LEVEL 2 (CONDITIONAL - could be LEVEL 3 or LEVEL 1 based on config)
+- After P1.5: LEVEL 3 (Genuine conversational AI orchestration - structurally guaranteed)
+
+CRITICAL PRODUCTION ISSUES RESOLVED:
+- Feature flag dependency: RESOLVED (no longer controls routing)
+- Legacy path still active: RESOLVED (removed from primary routing)
+- Field value parsing in legacy path: RESOLVED (not reachable for normal chat)
+
+VALIDATION:
+- Static verification: PASS (correct architectural changes)
+- Runtime verification: NOT EXECUTED (requires production deployment)
+- Recommendation: Deploy with monitoring to confirm AI-driven path is active
+
+DEPRECATION NOTES:
+- USE_AI_DRIVEN_ORCHESTRATION: DEPRECATED (remove from production config after verification)
+- Legacy orchestrator classes: PRESERVED for compatibility (consider removal after no dependencies confirmed)
 
 Generated with [Devin](https://devin.ai)
 
