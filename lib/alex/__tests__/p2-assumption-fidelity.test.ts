@@ -4,7 +4,6 @@
  * Tests for P2-A (assumption handling) and P2-B (AutomationSpec fidelity)
  */
 
-import { describe, it, expect } from '@jest/globals'
 import { AutomationPlan } from '../orchestration/types'
 import { AutomationSpec } from '../artifact-generation/automation-spec'
 
