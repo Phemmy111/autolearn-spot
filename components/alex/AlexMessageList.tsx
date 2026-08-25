@@ -10,6 +10,152 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { AlexInteractiveQuestion } from './AlexInteractiveQuestion'
 import { AlexArchitectureApproval } from './AlexArchitectureApproval'
 
+// P0: Native orchestration action renderer
+function NativeOrchestrationAction({ action, onSelect, disabled }: { action: any, onSelect: (value: string) => void, disabled: boolean }) {
+  if (!action) return null
+
+  console.log('[P0] Rendering native orchestration action:', action.type)
+
+  switch (action.type) {
+    case 'clarify':
+      return (
+        <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Lightbulb className="h-5 w-5 text-cyan-400" />
+            <span className="font-semibold text-cyan-300">Clarification</span>
+          </div>
+          <p className="text-sm text-slate-300 mb-3">{action.question}</p>
+          {action.options && action.options.length > 0 && (
+            <div className="space-y-2">
+              {action.options.map((option: string, i: number) => (
+                <button
+                  key={i}
+                  onClick={() => onSelect(option)}
+                  disabled={disabled}
+                  className="w-full text-left px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 rounded-lg text-sm text-slate-300 transition-colors disabled:opacity-50"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+
+    case 'recommend':
+      return (
+        <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <ThumbsUp className="h-5 w-5 text-green-400" />
+            <span className="font-semibold text-green-300">Recommendations</span>
+          </div>
+          <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          {action.recommendations && action.recommendations.length > 0 && (
+            <div className="space-y-2">
+              {action.recommendations.map((rec: string, i: number) => (
+                <button
+                  key={i}
+                  onClick={() => onSelect(rec)}
+                  disabled={disabled}
+                  className="w-full text-left px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 rounded-lg text-sm text-slate-300 transition-colors disabled:opacity-50"
+                >
+                  {rec}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+
+    case 'brainstorm':
+      return (
+        <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="h-5 w-5 text-purple-400" />
+            <span className="font-semibold text-purple-300">Brainstorming</span>
+          </div>
+          <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          {action.ideas && action.ideas.length > 0 && (
+            <ul className="list-disc list-inside text-sm text-slate-300 space-y-1">
+              {action.ideas.map((idea: string, i: number) => (
+                <li key={i}>{idea}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )
+
+    case 'plan':
+      return (
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Workflow className="h-5 w-5 text-blue-400" />
+            <span className="font-semibold text-blue-300">Automation Plan</span>
+          </div>
+          <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          {action.plan && (
+            <pre className="bg-slate-900/50 rounded-lg p-3 text-xs text-slate-300 overflow-x-auto">
+              {JSON.stringify(action.plan, null, 2)}
+            </pre>
+          )}
+        </div>
+      )
+
+    case 'execute':
+      return (
+        <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="h-5 w-5 text-orange-400" />
+            <span className="font-semibold text-orange-300">Execute</span>
+          </div>
+          <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          {action.confirmationRequired && (
+            <div className="space-x-2">
+              <button
+                onClick={() => onSelect('Yes, proceed')}
+                disabled={disabled}
+                className="px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 rounded-lg text-sm transition-colors disabled:opacity-50"
+              >
+                Yes, proceed
+              </button>
+              <button
+                onClick={() => onSelect('No, make changes first')}
+                disabled={disabled}
+                className="px-4 py-2 bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 rounded-lg text-sm transition-colors disabled:opacity-50"
+              >
+                Make changes first
+              </button>
+            </div>
+          )}
+        </div>
+      )
+
+    case 'revise':
+      return (
+        <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Edit2 className="h-5 w-5 text-yellow-400" />
+            <span className="font-semibold text-yellow-300">Revision</span>
+          </div>
+          <p className="text-sm text-slate-300 mb-3">{action.message}</p>
+          {action.plan && (
+            <pre className="bg-slate-900/50 rounded-lg p-3 text-xs text-slate-300 overflow-x-auto">
+              {JSON.stringify(action.plan, null, 2)}
+            </pre>
+          )}
+        </div>
+      )
+
+    case 'respond':
+      // Normal conversational response - no special UI needed
+      return null
+
+    default:
+      console.warn('[P0] Unknown action type:', action.type)
+      return null
+  }
+}
+
 interface AlexMessageListProps {
   messages: Message[]
   isLoading: boolean
@@ -135,16 +281,32 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
           <p className="text-sm text-slate-300 mb-3">{workflowData.message}</p>
         )}
 
-        {/* Interactive Question UI */}
+        {/* Interactive Question UI - Legacy artifact_workflow */}
         {workflowData.question && (
           <>
             {workflowData.message && <div className="mb-2" />}
             <AlexInteractiveQuestion
               question={workflowData.question}
               onSelect={(value) => {
-                // Send the selected value as a user message
-                // This will be handled by the parent component
-                const event = new CustomEvent('alexQuestionAnswer', { detail: { field: workflowData.question.field, value } })
+                // P0: Send the selected value as a user message WITHOUT field
+                // The AI will interpret the natural language answer
+                const event = new CustomEvent('alexQuestionAnswer', { detail: { value } })
+                window.dispatchEvent(event)
+              }}
+              disabled={isLoading}
+            />
+          </>
+        )}
+
+        {/* P0: Native Orchestration Action UI */}
+        {(msg as any).orchestrationData && (
+          <>
+            {(msg as any).orchestrationData.message && <div className="mb-2" />}
+            <NativeOrchestrationAction
+              action={(msg as any).orchestrationData.action}
+              onSelect={(value) => {
+                // Send natural language answer without field
+                const event = new CustomEvent('alexQuestionAnswer', { detail: { value } })
                 window.dispatchEvent(event)
               }}
               disabled={isLoading}

@@ -479,20 +479,23 @@ export async function POST(request: NextRequest) {
                   })}\n\n`)
                 )
               }
-            } else if (chunk.type === 'artifact_workflow') {
-              // Handle artifact workflow event from AI engine
-              console.log('[Chat Route] Artifact workflow event received from AI engine')
+            } else if (chunk.type === 'orchestration') {
+              // P0: Handle native orchestration event from AI engine
+              console.log('[P0] Native orchestration event received from AI engine')
+              console.log('[P0] AI action type:', chunk.data.action?.type)
 
               const message = chunk.data.message || ''
+              const action = chunk.data.action
               const artifacts = chunk.data.artifacts || []
-              const question = chunk.data.question || null
               const architectureProposal = chunk.data.architectureProposal || null
+              const plan = chunk.data.plan || null
 
-              console.log('[Chat Route] Artifact workflow data:', {
+              console.log('[P0] Orchestration data:', {
+                actionType: action?.type,
                 hasMessage: !!message,
-                hasQuestion: !!question,
                 hasArchitecture: !!architectureProposal,
-                hasArtifacts: artifacts.length > 0
+                hasArtifacts: artifacts.length > 0,
+                hasPlan: !!plan
               })
 
               // Send the message as delta content first
@@ -501,17 +504,22 @@ export async function POST(request: NextRequest) {
                 controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: message })}\n\n`))
               }
 
-              // Send question data if present - append to workflowData
-              if (question) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifact_workflow', data: { question } })}\n\n`))
+              // Send native orchestration action to frontend
+              if (action) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'orchestration', data: { action } })}\n\n`))
               }
 
-              // Send architecture proposal if present
+              // Send architecture proposal if present (for generate action)
               if (architectureProposal) {
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifact_workflow', data: { architectureProposal } })}\n\n`))
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'orchestration', data: { architectureProposal } })}\n\n`))
               }
 
-              // Send artifacts if present
+              // Send plan if present (for plan/revise actions)
+              if (plan) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'orchestration', data: { plan } })}\n\n`))
+              }
+
+              // Send artifacts if present (for generate action)
               if (artifacts.length > 0) {
                 const responseWithArtifacts = {
                   artifacts: artifacts.map((a: any) => ({

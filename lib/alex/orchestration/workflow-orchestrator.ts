@@ -29,12 +29,8 @@ export interface WorkflowOrchestrationRequest {
 export interface WorkflowOrchestrationResponse {
   status: string
   message: string
+  action: AlexNextAction // Native AI action - NOT converted to question format
   needsInput?: boolean
-  question?: {
-    text: string
-    reason?: string
-    options?: string[]
-  }
   architectureProposal?: any
   artifacts?: any[]
   specification?: AutomationSpec
@@ -128,6 +124,7 @@ export class WorkflowOrchestrator {
   
   /**
    * Handle the orchestration result and execute the appropriate action
+   * P0: Preserve native AI action instead of converting to question format
    */
   private async handleOrchestrationResult(
     result: OrchestrationResult,
@@ -136,16 +133,32 @@ export class WorkflowOrchestrator {
   ): Promise<WorkflowOrchestrationResponse> {
     const { action, updatedPlan } = result
     
+    console.log('[P0] Native AI action preserved:', action.type)
+    
     // Save updated plan if provided
     if (updatedPlan) {
       await this.savePlan(request.conversationId, request.userId, updatedPlan, action.type)
     }
     
+    // For generate action, invoke artifact generation machinery
+    if (action.type === 'generate' || action.type === 'execute') {
+      console.log('[P0] Invoking artifact generation machinery for action:', action.type)
+      const generateResponse = await this.handleGenerate(action.plan, request)
+      
+      // Return generate response with the AI action preserved
+      return {
+        ...generateResponse,
+        action: action // Preserve native AI action
+      }
+    }
+    
+    // For all other actions, return native response with AI action preserved
     switch (action.type) {
       case 'respond':
         return {
           status: 'collecting_requirements',
-          message: action.message
+          message: action.message,
+          action: action
         }
       
       case 'clarify':
@@ -153,11 +166,7 @@ export class WorkflowOrchestrator {
           status: 'collecting_requirements',
           message: action.message || 'I need some information to proceed.',
           needsInput: true,
-          question: {
-            text: action.question,
-            reason: action.reason,
-            options: action.options
-          }
+          action: action
         }
       
       case 'recommend':
@@ -165,11 +174,7 @@ export class WorkflowOrchestrator {
           status: 'collecting_requirements',
           message: action.message,
           needsInput: true,
-          question: {
-            text: action.recommendations?.join('\n') || '',
-            reason: 'Here are my recommendations',
-            options: action.recommendations
-          }
+          action: action
         }
       
       case 'brainstorm':
@@ -177,51 +182,31 @@ export class WorkflowOrchestrator {
           status: 'collecting_requirements',
           message: action.message,
           needsInput: true,
-          question: {
-            text: action.ideas?.join('\n') || '',
-            reason: 'Here are some ideas to consider',
-            options: action.ideas
-          }
+          action: action
         }
       
       case 'plan':
         return {
           status: 'planning',
           message: `Here's my plan for your automation:\n${JSON.stringify(action.plan, null, 2)}`,
-          plan: action.plan
+          plan: action.plan,
+          action: action
         }
-      
-      case 'generate':
-        // Convert plan to spec and generate architecture
-        return await this.handleGenerate(action.plan, request)
-      
-      case 'execute':
-        // Execute the plan (generate artifact)
-        if (action.confirmationRequired) {
-          return {
-            status: 'awaiting_confirmation',
-            message: 'I\'m ready to generate your automation. Should I proceed?',
-            needsInput: true,
-            question: {
-              text: 'Generate automation now?',
-              options: ['Yes, generate it', 'No, make changes first']
-            }
-          }
-        }
-        return await this.handleGenerate(action.plan, request)
       
       case 'revise':
         return {
           status: 'revising',
           message: action.message,
-          plan: action.plan
+          plan: action.plan,
+          action: action
         }
       
       default:
         console.warn('[Workflow Orchestrator] Unknown action type:', action.type)
         return {
           status: 'collecting_requirements',
-          message: 'I\'m not sure how to proceed. Could you clarify?'
+          message: 'I\'m not sure how to proceed. Could you clarify?',
+          action: action
         }
     }
   }

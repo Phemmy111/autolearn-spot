@@ -41,10 +41,10 @@ export function AlexChat({ userId }: AlexChatProps) {
   // Handle interactive question answers
   useEffect(() => {
     const handleQuestionAnswer = (event: CustomEvent) => {
-      const { field, value } = event.detail
-      console.log('[AlexChat] Question answered:', { field, value })
+      const { value } = event.detail
+      console.log('[P0] Question answered (natural language):', value)
       // Send just the value as natural language - AI will handle mapping
-      // The field context is preserved in the backend conversation state
+      // No field dependency - the AI interprets natural language
       sendMessage(value)
     }
 
@@ -334,9 +334,28 @@ export function AlexChat({ userId }: AlexChatProps) {
                       }
                       return prev
                     })
+                  } else if (parsed.type === 'orchestration') {
+                    // P0: Handle native orchestration response
+                    console.log('[P0] Native orchestration response:', parsed.data)
+                    console.log('[P0] AI action type:', parsed.data.action?.type)
+
+                    // Create a new assistant message for the orchestration response
+                    setMessages(prev => {
+                      return [
+                        ...prev,
+                        {
+                          id: crypto.randomUUID(),
+                          conversation_id: conversationToUse.id,
+                          role: 'assistant',
+                          content: parsed.data.message || '',
+                          created_at: new Date().toISOString(),
+                          orchestrationData: parsed.data // Native orchestration data with action
+                        }
+                      ]
+                    })
                   } else if (parsed.type === 'artifact_workflow') {
-                    // Phase 7: Handle artifact workflow response
-                    console.log('[AlexChat] Artifact workflow response:', parsed.data)
+                    // Legacy artifact workflow response (keep for backward compatibility)
+                    console.log('[AlexChat] Legacy artifact workflow response:', parsed.data)
 
                     // Create a new assistant message for each workflow response to preserve conversation history
                     setMessages(prev => {

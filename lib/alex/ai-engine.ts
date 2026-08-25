@@ -304,16 +304,18 @@ export class AIEngine {
           detectedIntent: orchestratorResponse.detectedIntent,
           suggestedMode: orchestratorResponse.suggestedMode,
           aiRequest: orchestratorResponse.aiRequest,
-          artifactWorkflow: orchestratorResponse.artifactWorkflow, // Phase 7: Pass through artifact workflow response
+          artifactWorkflow: orchestratorResponse.artifactWorkflow, // Pass through for legacy compatibility
         },
         imageFiles: orchestratorResponse.imageFiles,
       };
 
-      // Check for artifact workflow response and handle specially
+      // P0: Check for orchestration response and emit native orchestration event
       if (orchestratorResponse.artifactWorkflow) {
-        console.log('[AI Engine] Artifact workflow response detected, yielding special event')
+        console.log('[P0] Native orchestration response detected, yielding orchestration event')
+        console.log('[P0] AI action type:', orchestratorResponse.artifactWorkflow.action?.type)
+        
         yield {
-          type: 'artifact_workflow',
+          type: 'orchestration',
           data: orchestratorResponse.artifactWorkflow
         }
         yield {

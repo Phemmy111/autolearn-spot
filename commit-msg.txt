@@ -1,60 +1,63 @@
-Remove deterministic intent gatekeeper to enable AI-driven orchestration
+Remove legacy artifact_workflow UI contract, implement native orchestration actions
 
-ROOT CAUSE FIX:
-The deterministic intent detector (intent-detector.ts) was acting as a gatekeeper,
-preventing AI-driven orchestration from being invoked for requests that didn't match
-keyword patterns like "create/build/generate".
+P0 IMPLEMENTATION SUMMARY:
 
-Production evidence: "A workflow to automate a task" was routed to normal chat
-instead of AI-driven orchestration because isArtifactGeneration=false.
+Removed the legacy artifact_workflow protocol as the universal frontend interaction contract.
+AI-driven orchestration actions now reach the frontend as native conversational AI actions,
+preserving the LLM's chosen action type throughout the execution path.
 
-CHANGES:
-1. Changed routing condition from "isArtifactGeneration && ..." to "mode === 'auto' && ..."
-   - Now ALL auto mode requests reach AI-driven orchestration
-   - AI decides whether it's an automation request, not keyword patterns
-   - Removed the deterministic gatekeeper that prevented AIOrchestrator from running
+BACKEND CHANGES:
+1. lib/alex/orchestration/workflow-orchestrator.ts
+   - Added action: AlexNextAction to WorkflowOrchestrationResponse
+   - Modified handleOrchestrationResult() to preserve native AI action
+   - All actions (clarify/recommend/brainstorm/plan/revise) now return with action preserved
+   - generate/execute invoke artifact generation while preserving action
 
-2. Fixed message duplication bug
-   - buildMessages() now skips current message from history to prevent duplication
-   - Previous behavior: current message appeared twice in AI context
-   - Fixed by deduplication check in message construction
+2. lib/alex/ai-engine.ts
+   - Changed event type from artifact_workflow to orchestration
+   - Added logging to show AI action type being emitted
+   - Preserved backward compatibility in orchestrator metadata
 
-3. Updated logging for clarity
-   - Added [ALEX AI ROUTING] prefix to make new runtime path unmistakable
-   - Clarified that intent detection is now metadata only, not routing authority
+3. app/api/alex/chat/route.ts
+   - Added handler for orchestration event type
+   - Removed universal artifact_workflow question serialization
+   - Emits native orchestration event with action data to frontend
+   - Preserved architecture/plan/artifacts handling for generate action
 
-BEFORE EXECUTION PATH:
-User → Intent detector (DETERMINISTIC) → isArtifactGeneration check → 
-  If false → Normal chat path → LLM receives pre-determined messages
-  If true → Feature flag check → MAYBE AI-driven path
+FRONTEND CHANGES:
+4. components/alex/AlexChat.tsx
+   - Added handler for orchestration event type
+   - Stores orchestration data in orchestrationData field
+   - Preserved legacy artifact_workflow handler for backward compatibility
+   - Removed field dependency from question answer handling
 
-AFTER EXECUTION PATH:
-User → AI-driven orchestration → AI decides what to do → 
-  LLM reasoning → AlexNextAction → Appropriate handler
+5. components/alex/AlexMessageList.tsx
+   - Added NativeOrchestrationAction component for action-based rendering
+   - Renders clarify/recommend/brainstorm/plan/execute/revise with appropriate UI
+   - Removed field dependency from question answer handling
+   - Preserved legacy workflowData rendering for backward compatibility
 
-AI AUTHORITY:
-The LLM now has FINAL AUTHORITY over orchestration decisions:
-- Decides if request is automation-related
-- Decides what action to take (respond/clarify/recommend/brainstorm/plan/generate/execute/revise)
-- Decides when enough information is available
-- Decides what questions to ask (if any)
+KEY ARCHITECTURAL CHANGES:
+- AI action identity preserved from LLM to frontend
+- Frontend no longer depends on internal AutomationSpec field names
+- Natural language answers (no field:value format required)
+- Artifact generation machinery preserved
+- Legacy artifact_workflow protocol remains only for backward compatibility
 
-LEGACY COMPONENTS:
-- Intent detector: Still runs for metadata/analytics, but NO routing authority
-- WorkflowManagerV2: Still available as execution infrastructure when flag=false
-- IntelligenceAnalyzerV2: Still available for legacy path when flag=false
+VERIFICATION:
+- artifact_workflow is no longer the universal UI protocol
+- AI action identity survives to the frontend (all 8 actions)
+- No frontend field mapping required
+- Natural language answers remain natural language
+- Artifact generation still works (preserved machinery)
+- AutomationPlan remains authoritative
+- Existing functionality preserved
 
-ACCEPTANCE CRITERIA:
-✓ Criterion 1: "Create a lead capture bot" → AIOrchestrator invoked
-✓ Criterion 2: "I don't know what automation I need" → AIOrchestrator invoked
-✓ Criterion 3: "Recommend an automation platform" → AIOrchestrator invoked
-✓ Criterion 4: No deterministic keyword test can prevent AIOrchestrator
-✓ Criterion 5: Legacy blocker system cannot take control before AI decides
-✓ Criterion 6: ALEX does not require field:value format
-✓ Criterion 7: AIOrchestrator remains single orchestration brain
-
-FILES CHANGED:
-- lib/alex/orchestrator.ts (routing condition change, message deduplication, logging)
+REMAINING PROBLEMS (NOT FIXED IN P0):
+- P1: QuestionTracker aggressiveness (can override AI decisions)
+- P1: Synthetic message persistence (conversation contamination)
+- P2: Assumption handling (not enforced in plan generation)
+- P2: AutomationSpec conversion (information loss)
 
 Generated with [Devin](https://devin.ai)
 
