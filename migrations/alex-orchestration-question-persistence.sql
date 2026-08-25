@@ -39,17 +39,17 @@ ALTER TABLE alex_orchestration_questions ENABLE ROW LEVEL SECURITY;
 -- Policy: Users can only view their own questions
 CREATE POLICY "Users can view own orchestration questions"
   ON alex_orchestration_questions FOR SELECT
-  USING (user_id = auth.uid());
+  USING (user_id::text = auth.uid()::text);
 
 -- Policy: Users can insert their own questions
 CREATE POLICY "Users can insert own orchestration questions"
   ON alex_orchestration_questions FOR INSERT
-  WITH CHECK (user_id = auth.uid());
+  WITH CHECK (user_id::text = auth.uid()::text);
 
 -- Policy: Users can update their own questions
 CREATE POLICY "Users can update own orchestration questions"
   ON alex_orchestration_questions FOR UPDATE
-  USING (user_id = auth.uid());
+  USING (user_id::text = auth.uid()::text);
 
 -- Add comments for documentation
 COMMENT ON TABLE alex_orchestration_questions IS 'Persistent question tracking for AI-driven orchestration';

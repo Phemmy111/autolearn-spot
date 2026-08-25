@@ -13,6 +13,8 @@ Phase 8: New request detection - added comprehensive intent detection guidelines
 Phase 9: Looping failure prevention - added checkRecentlyAnswered in workflow orchestrator
 Phase 10: Legacy compatibility - maintained AutomationSpec bridge for downstream compatibility
 
+SQL FIX: Fixed type mismatch in RLS policies (user_id VARCHAR vs auth.uid() UUID) using type casting
+
 Files changed:
 - lib/alex/orchestrator.ts (primary routing fix)
 - lib/alex/orchestration/workflow-orchestrator.ts (plan persistence, loop prevention)
@@ -21,7 +23,7 @@ Files changed:
 - lib/alex/orchestration/types.ts (no changes needed)
 - lib/alex/artifact-generation/types.ts (added orchestration fields)
 - migrations/alex-ai-orchestration-plan-persistence.sql (new - plan persistence)
-- migrations/alex-orchestration-question-persistence.sql (new - question persistence)
+- migrations/alex-orchestration-question-persistence.sql (new - question persistence, FIXED)
 - lib/alex/__tests__/ai-orchestrator.test.ts (updated for persistent questions)
 - MIGRATION_INSTRUCTIONS.md (new - database migration guide)
 
