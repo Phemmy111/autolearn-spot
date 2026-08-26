@@ -223,6 +223,7 @@ export class AlexOrchestrator {
     // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
     // Phase B: Skip forced routing if conversational mode is enabled
     if (mode === 'auto' && userId && conversationId && !request.skipArtifactDetection && !enableConversationalMode) {
+      console.log('[ROUTING] Path 2 (AI-driven) entered')
       console.log('[ALEX AI ROUTING] Request received', {
         mode,
         userId,
@@ -312,6 +313,9 @@ export class AlexOrchestrator {
         }
       }
     }
+
+    // DIAGNOSTIC LOGGING — Path 3 entry point
+    console.log('[ROUTING] Path 3 (conversational/auto mode) entered')
 
     // Generate system prompt for token estimation
     const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools)
