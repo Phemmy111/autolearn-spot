@@ -11,6 +11,7 @@
 
 import { AIProvider, AIRequest, AIResponse, AIStreamEvent, AIProviderHealth, AIProviderType } from '../provider-interface'
 import { ProviderConfig } from '../provider-manager-types'
+import crypto from 'crypto'
 
 export class OpenAICompatibleAdapter implements AIProvider {
   readonly id: string
@@ -54,18 +55,37 @@ export class OpenAICompatibleAdapter implements AIProvider {
       throw new Error('No model specified')
     }
 
+    // DIAGNOSTIC LOGGING — REMOVE AFTER INVESTIGATION
+    const requestId = crypto.randomUUID()
+    const requestBody = {
+      model,
+      messages: request.messages,
+      temperature: request.temperature ?? 0.7,
+      max_tokens: request.maxTokens ?? 4000,
+      stream: false,
+      // Disable tool/function calling to prevent unwanted function use
+      tool_choice: request.disableTools ? 'none' : undefined,
+    }
+    const requestBodyStr = JSON.stringify(requestBody)
+    const requestTimestamp = new Date().toISOString()
+    
+    console.log('[DIAGNOSTIC] OUTGOING GROQ REQUEST — GENERATE:', {
+      requestId,
+      timestamp: requestTimestamp,
+      baseUrl: this.baseUrl,
+      model: requestBody.model,
+      messageCount: requestBody.messages?.length || 0,
+      requestBodyLength: requestBodyStr.length,
+      requestBodyBytes: new Blob([requestBodyStr]).size,
+      disableTools: request.disableTools,
+      // Full request body for inspection
+      requestBody: requestBody
+    })
+    
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify({
-        model,
-        messages: request.messages,
-        temperature: request.temperature ?? 0.7,
-        max_tokens: request.maxTokens ?? 4000,
-        stream: false,
-        // Disable tool/function calling to prevent unwanted function use
-        tool_choice: request.disableTools ? 'none' : undefined,
-      }),
+      body: requestBodyStr,
       signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
     })
 
@@ -144,10 +164,29 @@ export class OpenAICompatibleAdapter implements AIProvider {
         console.log('[ToolDebug] tools_disabled')
       }
 
+      // DIAGNOSTIC LOGGING — REMOVE AFTER INVESTIGATION
+      const requestId = crypto.randomUUID()
+      const requestBodyStr = JSON.stringify(requestBody)
+      const requestTimestamp = new Date().toISOString()
+      
+      console.log('[DIAGNOSTIC] OUTGOING GROQ REQUEST — STREAM:', {
+        requestId,
+        timestamp: requestTimestamp,
+        baseUrl: this.baseUrl,
+        model: requestBody.model,
+        messageCount: requestBody.messages?.length || 0,
+        toolCount: requestBody.tools?.length || 0,
+        requestBodyLength: requestBodyStr.length,
+        requestBodyBytes: new Blob([requestBodyStr]).size,
+        disableTools: request.disableTools,
+        // Full request body for inspection
+        requestBody: requestBody
+      })
+      
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: this.getHeaders(),
-        body: JSON.stringify(requestBody),
+        body: requestBodyStr,
         signal: AbortSignal.timeout(this.config.requestTimeout || 120000), // Increased from 30s to 2 minutes
       })
 
