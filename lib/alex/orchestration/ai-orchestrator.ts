@@ -41,6 +41,7 @@ export class AIOrchestrator {
   /**
    * Main orchestration entry point
    * AI decides what to do next based on conversation context and automation plan
+   * Phase B: Support conversational mode via ALEX_CONVERSATIONAL_MODE feature flag
    */
   async orchestrate(
     userMessage: string,
@@ -51,6 +52,10 @@ export class AIOrchestrator {
     console.log('[AI Orchestrator] User message:', userMessage.substring(0, 100))
     console.log('[AI Orchestrator] Current plan:', currentPlan ? 'present' : 'none')
     console.log('[AI Orchestrator] Conversation mode:', context.mode)
+
+    // Phase B: Check conversational mode feature flag
+    const enableConversationalMode = process.env.ALEX_CONVERSATIONAL_MODE === 'true'
+    console.log('[Phase B] Conversational mode:', enableConversationalMode)
     
     // P1: Log AI decision for confirmation handling
     console.log('[P1 ORCHESTRATION] Orchestration starting', {
@@ -66,8 +71,15 @@ export class AIOrchestrator {
       })
     }
     
-    // Use AI to determine intent and next action
-    const aiDecision = await this.askAIDecision(userMessage, context, currentPlan)
+    // Phase B: Branch based on conversational mode
+    let aiDecision: OrchestrationResult
+    if (enableConversationalMode) {
+      // New path: Natural language conversation
+      aiDecision = await this.askAIDecisionConversational(userMessage, context, currentPlan)
+    } else {
+      // Legacy path: JSON-forced orchestration
+      aiDecision = await this.askAIDecision(userMessage, context, currentPlan)
+    }
     
     console.log('[AI Orchestrator] AI decision:', {
       intent: aiDecision.intent,
@@ -324,6 +336,142 @@ If this is unrelated conversation, return action type "respond" with a helpful m
     } catch (error) {
       console.error('[AI Orchestrator] AI decision failed, using fallback:', error)
       return this.getFallbackDecision(userMessage, currentPlan, context)
+    }
+  }
+
+  /**
+   * Phase B: Conversational AI decision path
+   * Returns natural language response without requiring JSON
+   * Requirements are extracted separately via deterministic patterns
+   */
+  private async askAIDecisionConversational(
+    userMessage: string,
+    context: ConversationContext,
+    currentPlan: AutomationPlan | null
+  ): Promise<OrchestrationResult> {
+    const aiService = WorkflowAIService.getInstance()
+    
+    // Build conversation context for AI
+    const recentMessages = context.messages.slice(-20).map(m => 
+      `${m.role}: ${m.content.substring(0, 500)}`
+    ).join('\n')
+    
+    const planContext = currentPlan 
+      ? `\nCurrent automation plan:\n${JSON.stringify(currentPlan, null, 2)}`
+      : '\nNo current automation plan - this is a new request'
+    
+    console.log('[Phase B] Conversational AI context diagnostics:')
+    console.log('[Phase B] Total messages in context:', context.messages.length)
+    console.log('[Phase B] Recent messages count:', Math.min(20, context.messages.length))
+    console.log('[Phase B] currentPlan exists:', !!currentPlan)
+    
+    // Phase B: Natural language prompt - NO JSON requirement
+    const prompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an automation expert and conversational AI assistant.
+
+Your role:
+- Help users understand automation concepts
+- Assist with designing workflows and integrations
+- Answer questions about n8n, automation platforms, APIs, webhooks, and related technologies
+- Guide users through planning automations when they're ready
+- Respond naturally and conversationally
+
+Conversation context:
+Mode: ${context.mode}
+Recent messages (last 20):
+${recentMessages}
+${planContext}
+
+User's message: ${userMessage}
+
+Respond naturally to the user's message. Be helpful, clear, and conversational.
+If the user is discussing automation, use your expertise to provide useful guidance.
+If appropriate, ask follow-up questions to better understand their needs.
+Do not output JSON. Do not use structured formats. Just respond naturally.`
+
+    console.log('[Phase B] Calling AI for conversational response')
+    
+    try {
+      const response = await aiService.generateResponse(prompt)
+      console.log('[Phase B] AI response received:', response.substring(0, 500))
+      
+      // Phase B: Accept natural language response as valid
+      // No JSON parsing required
+      
+      // Phase B: Extract requirements via deterministic patterns (Phase 3)
+      const requirementUpdate = this.extractRequirementsFromMessage(userMessage)
+      
+      // Phase B: Load existing requirements for merge
+      let buildId: string | null = null
+      let existingRequirements: Record<string, any> = {}
+      
+      if (context?.userId && context?.conversationId) {
+        try {
+          const { ArtifactService } = await import('../artifact-generation/artifact-service')
+          const build = await ArtifactService.getActiveBuild(context.conversationId, context.userId)
+          if (build?.requirements_collected) {
+            buildId = build.id
+            existingRequirements = build.requirements_collected
+            console.log('[Phase B] Found existing requirements:', Object.keys(build.requirements_collected))
+          }
+        } catch (error) {
+          console.error('[Phase B] Failed to load requirements:', error)
+        }
+      }
+      
+      // Phase B: Persist requirements if extracted
+      if (requirementUpdate && Object.keys(requirementUpdate).length > 0) {
+        console.log('[Phase B] Extracted requirements from message:', Object.keys(requirementUpdate))
+        
+        try {
+          const { ArtifactService } = await import('../artifact-generation/artifact-service')
+          
+          if (buildId) {
+            // Update existing build
+            await ArtifactService.updateRequirements(buildId, requirementUpdate)
+            console.log('[Phase B] Updated requirements in build:', buildId)
+          } else if (context?.userId && context?.conversationId) {
+            // Create new build
+            const newBuild = await ArtifactService.createBuild(
+              context.conversationId,
+              context.userId,
+              userMessage,
+              'workflow'
+            )
+            await ArtifactService.updateRequirements(newBuild.id, requirementUpdate)
+            console.log('[Phase B] Created build and persisted requirements:', newBuild.id)
+          }
+        } catch (error) {
+          console.error('[Phase B] Failed to persist requirements:', error)
+          // Continue - requirement persistence failure should not prevent conversational response
+        }
+      }
+      
+      // Phase B: Return natural language response
+      return {
+        action: {
+          type: 'respond',
+          message: response
+        },
+        intent: 'unrelated_conversation', // Default to conversation for natural responses
+        confidence: 0.8,
+        reasoning: 'Conversational response via natural language path',
+        requirementUpdate
+      }
+      
+    } catch (error) {
+      console.error('[Phase B] Conversational AI response failed:', error)
+      
+      // Phase B: On genuine provider failure, return error message
+      // Do not use canned fallback that hides the failure
+      return {
+        action: {
+          type: 'respond',
+          message: 'I apologize, but I encountered an error processing your request. Please try again.'
+        },
+        intent: 'unrelated_conversation',
+        confidence: 0.0,
+        reasoning: 'Provider error in conversational path'
+      }
     }
   }
 

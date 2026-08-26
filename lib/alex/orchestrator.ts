@@ -150,10 +150,15 @@ export class AlexOrchestrator {
       })
     }
 
+    // Phase B: Check conversational mode feature flag
+    const enableConversationalMode = process.env.ALEX_CONVERSATIONAL_MODE === 'true'
+    console.log('[Phase B] Conversational mode in main orchestrator:', enableConversationalMode)
+
     // Phase 7: Check for existing artifact build first (highest priority)
     // This ensures workflow continuity even if current message doesn't match artifact patterns
     // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
-    if (userId && conversationId && !request.skipArtifactDetection) {
+    // Phase B: Skip forced routing if conversational mode is enabled
+    if (userId && conversationId && !request.skipArtifactDetection && !enableConversationalMode) {
       console.log('[DEBUG ORCHESTRATOR] Checking for existing artifact build', { userId, conversationId, skipArtifactDetection: request.skipArtifactDetection })
       try {
         const { ArtifactService } = await import('./artifact-generation/artifact-service')
@@ -213,10 +218,15 @@ export class AlexOrchestrator {
       }
     }
 
+    // Phase B: Check conversational mode feature flag
+    const enableConversationalMode = process.env.ALEX_CONVERSATIONAL_MODE === 'true'
+    console.log('[Phase B] Conversational mode in main orchestrator:', enableConversationalMode)
+
     // AI-DRIVEN ROUTING: For auto mode, always route to AI-driven orchestration
     // The AI will decide whether this is a new automation request, continuation, revision, or normal conversation
     // Skip if this is an internal AI request from the workflow manager to prevent infinite loops
-    if (mode === 'auto' && userId && conversationId && !request.skipArtifactDetection) {
+    // Phase B: Skip forced routing if conversational mode is enabled
+    if (mode === 'auto' && userId && conversationId && !request.skipArtifactDetection && !enableConversationalMode) {
       console.log('[ALEX AI ROUTING] Request received', {
         mode,
         userId,
