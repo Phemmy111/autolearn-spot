@@ -639,6 +639,46 @@ Do not output JSON. Do not use structured formats. Just respond naturally.`
       }
     }
 
+    // Phase 2: AI lead scoring detection
+    // Initialize lead scoring config if any pattern matches
+    let leadScoringConfig: any = {}
+    
+    // Check for AI scoring request
+    if (/\bai (?:to )?score/i.test(lower)) {
+      leadScoringConfig.enabled = true
+      leadScoringConfig.scoringMethod = 'ai'
+      leadScoringConfig.explainReasoning = true
+    }
+    
+    // Check for score range patterns
+    if (/\bscore (?:from )?0 to 100\b/i.test(lower) || /\bscore 0-100\b/i.test(lower)) {
+      leadScoringConfig.scoreRange = { min: 0, max: 100 }
+    }
+    
+    // Check for explanation request
+    if (/\bexplain (?:the )?(?:score|reasoning)\b/i.test(lower) || /\bexplain why\b/i.test(lower)) {
+      leadScoringConfig.explainReasoning = true
+    }
+    
+    // Check for qualification threshold
+    const thresholdMatch = lower.match(/\b(?:only send|only route|only notify|score|scoring|leads) (\d+)\+?\b/i)
+    if (thresholdMatch) {
+      leadScoringConfig.qualificationThreshold = parseInt(thresholdMatch[1])
+    }
+    
+    // Apply lead scoring config if any patterns matched
+    if (Object.keys(leadScoringConfig).length > 0) {
+      if (!update.aiConfig) {
+        update.aiConfig = {}
+      }
+      if (!update.aiConfig.leadScoring) {
+        update.aiConfig.leadScoring = {}
+      }
+      // Merge the new config with existing
+      update.aiConfig.leadScoring = { ...update.aiConfig.leadScoring, ...leadScoringConfig }
+      console.log('[Phase 2 Fallback] Extracted lead scoring config:', update.aiConfig.leadScoring)
+    }
+
     // Notification destination detection
     const notificationPatterns = [
       { pattern: /\b(slack|teams|discord)\b/i, field: 'outputs', map: (m: string) => ({ destinations: [m.toLowerCase()] }) },

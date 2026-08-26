@@ -61,12 +61,20 @@ export interface AutomationSpec {
   // AI-specific configuration
   aiConfig?: {
     enabled: boolean
-    task?: string  // classification, generation, extraction, etc.
+    task?: string  // classification, generation, extraction, lead_scoring, etc.
     confidenceThreshold?: number
     humanEscalation?: boolean
     fallbackBehavior?: string
     promptTemplate?: string
     systemPrompt?: string
+    // Phase 2: Lead scoring configuration
+    leadScoring?: {
+      enabled: boolean
+      scoreRange?: { min: number; max: number }
+      scoringMethod: 'ai'  // AI-driven, not fixed rules
+      explainReasoning: boolean
+      qualificationThreshold?: number  // Optional threshold for routing (e.g., 80)
+    }
   }
   
   // Human-in-the-loop

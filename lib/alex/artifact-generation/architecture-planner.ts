@@ -54,8 +54,12 @@ export class ArchitecturePlanner {
     integrations: string
     filename?: string
     replyScope?: string
+    aiConfig?: any  // Phase 3A.1: Accept structured AI configuration from requirements_collected
   }): WorkflowArchitecture {
     console.log('[Architecture Planner] Designing workflow for:', spec.functionality)
+    if (spec.aiConfig) {
+      console.log('[Architecture Planner] aiConfig received:', Object.keys(spec.aiConfig))
+    }
     
     const lowerRequest = spec.originalRequest.toLowerCase()
     const lowerFunctionality = spec.functionality.toLowerCase()
@@ -448,12 +452,266 @@ return [{ json: { ...$input.item.json, logged: true, logEntry } }];`
   
   /**
    * Design lead automation architecture
+   * Phase 3: Specialized for AI lead scoring with qualification routing
    */
   private static designLeadAutomation(spec: any): WorkflowArchitecture {
     const baseName = spec.filename?.replace('.json', '') || 'lead-automation'
-    
-    // Moderate complexity: trigger, qualification, routing, CRM integration
-    return this.designGenericAutomation(spec)
+
+    // Check if AI lead scoring is enabled
+    const aiConfig = spec.aiConfig
+    const leadScoringEnabled = aiConfig?.leadScoring?.enabled === true
+    const scoringMethod = aiConfig?.leadScoring?.scoringMethod === 'ai'
+    const explainReasoning = aiConfig?.leadScoring?.explainReasoning === true
+    const scoreRange = aiConfig?.leadScoring?.scoreRange || { min: 0, max: 100 }
+    const qualificationThreshold = aiConfig?.leadScoring?.qualificationThreshold
+
+    console.log('[Architecture Planner] Lead automation config:', {
+      leadScoringEnabled,
+      scoringMethod,
+      explainReasoning,
+      scoreRange,
+      qualificationThreshold
+    })
+
+    // If AI lead scoring is not enabled, use generic automation
+    if (!leadScoringEnabled || !scoringMethod) {
+      console.log('[Architecture Planner] AI lead scoring not enabled, using generic automation')
+      return this.designGenericAutomation(spec)
+    }
+
+    // Specialized AI lead scoring architecture
+    const nodes: NodeDesign[] = []
+    const connections: ConnectionDesign[] = []
+    let positionY = 0
+    const positionX = 250
+
+    // 1. Webhook trigger (generic, not Google Forms-specific)
+    const triggerNode = {
+      id: generateUUID(),
+      name: 'Webhook Trigger',
+      type: 'n8n-nodes-base.webhook',
+      typeVersion: 1,
+      position: [positionX, positionY],
+      parameters: {
+        path: 'submission',
+        responseMode: 'onReceived',
+        options: {}
+      },
+      purpose: 'Receives new submissions via webhook'
+    }
+    nodes.push(triggerNode)
+    positionY += 150
+
+    // 2. Normalize submission data
+    const normalizeNode = {
+      id: generateUUID(),
+      name: 'Normalize Submission Data',
+      type: 'n8n-nodes-base.set',
+      typeVersion: 3,
+      position: [positionX, positionY],
+      parameters: {
+        values: {
+          string: [
+            { name: 'submissionTime', value: '={{ $now.toISO() }}' },
+            { name: 'submissionData', value: '={{ JSON.stringify($json) }}' }
+          ]
+        }
+      },
+      purpose: 'Extract and normalize submission data'
+    }
+    nodes.push(normalizeNode)
+    connections.push({ from: triggerNode.name, to: normalizeNode.name, type: 'main', index: 0 })
+    positionY += 150
+
+    // 3. AI Scoring (generic, not lead-specific)
+    const aiScoringPrompt = `Analyze the following submission and assign a score from ${scoreRange.min} to ${scoreRange.max}.
+
+Evaluate the submission based on the information provided. Make a holistic judgment based on the submitted data.
+
+Return a JSON object with:
+- score: integer from ${scoreRange.min} to ${scoreRange.max}
+- reasoning: concise explanation of why this score was assigned
+
+Do not use predetermined point-based rules. Make a holistic judgment based on the submitted information.
+
+Submission data: {{ $json.submissionData }}`
+
+    const aiScoringNode = {
+      id: generateUUID(),
+      name: 'AI Scoring',
+      type: 'n8n-nodes-base.openAi',
+      typeVersion: 1,
+      position: [positionX, positionY],
+      parameters: {
+        resource: 'text',
+        operation: 'message',
+        modelId: 'gpt-4',
+        messages: {
+          values: [
+            {
+              role: 'system',
+              content: 'You are an expert evaluator. Analyze submissions and provide scores with reasoning. Always return valid JSON only.'
+            },
+            {
+              role: 'user',
+              content: aiScoringPrompt
+            }
+          ]
+        },
+        options: {
+          temperature: 0.3
+        }
+      },
+      purpose: 'AI analyzes submission and assigns score with reasoning'
+    }
+    nodes.push(aiScoringNode)
+    connections.push({ from: normalizeNode.name, to: aiScoringNode.name, type: 'main', index: 0 })
+    positionY += 150
+
+    // 4. Parse AI response
+    const parseNode = {
+      id: generateUUID(),
+      name: 'Parse AI Scoring Response',
+      type: 'n8n-nodes-base.code',
+      typeVersion: 2,
+      position: [positionX, positionY],
+      parameters: {
+        jsCode: `// Parse AI response to extract score and reasoning
+const aiResponse = $input.item.json.message || $input.item.json.text || '';
+let score = 0;
+let reasoning = 'Unable to parse AI response';
+
+try {
+  // Try to extract JSON from response
+  const jsonMatch = aiResponse.match(/\\{[\\s\\S]*\\}/);
+  if (jsonMatch) {
+    const parsed = JSON.parse(jsonMatch[0]);
+    score = parsed.score || 0;
+    reasoning = parsed.reasoning || 'No reasoning provided';
+  }
+} catch (error) {
+  console.error('Failed to parse AI response:', error);
+  // Fallback: try to extract score from text
+  const scoreMatch = aiResponse.match(/score[:\\s]*(\\d+)/i);
+  if (scoreMatch) {
+    score = parseInt(scoreMatch[1], 10);
+    reasoning = aiResponse.substring(0, 200);
+  }
+}
+
+// Ensure score is within range
+const minRange = ${scoreRange.min};
+const maxRange = ${scoreRange.max};
+score = Math.max(minRange, Math.min(maxRange, score));
+
+return [{
+  json: {
+    ...$input.item.json,
+    aiScore: score,
+    aiReasoning: reasoning,
+    scoredAt: $now.toISO()
+  }
+}];`
+      },
+      purpose: 'Extract structured score and reasoning from AI response'
+    }
+    nodes.push(parseNode)
+    connections.push({ from: aiScoringNode.name, to: parseNode.name, type: 'main', index: 0 })
+    positionY += 150
+
+    // 5. Google Sheets storage (ALL submissions, before qualification)
+    const sheetsNode = {
+      id: generateUUID(),
+      name: 'Store in Google Sheets',
+      type: 'n8n-nodes-base.googleSheets',
+      typeVersion: 4,
+      position: [positionX, positionY],
+      parameters: {
+        operation: 'append',
+        sheetId: {
+          __rl: true,
+          value: '',
+          mode: 'list',
+          resultField: 'sheetId'
+        },
+        range: 'A:Z',
+        options: {
+          cellFormat: 'RAW'
+        },
+        values: {
+          values: [
+            '={{ $json.submissionTime }}',
+            '={{ $json.aiScore }}',
+            '={{ $json.aiReasoning }}',
+            '={{ $json.submissionData }}'
+          ]
+        }
+      },
+      purpose: 'Store ALL submissions with AI score and reasoning in Google Sheets'
+    }
+    nodes.push(sheetsNode)
+    connections.push({ from: parseNode.name, to: sheetsNode.name, type: 'main', index: 0 })
+    positionY += 150
+
+    // 6. Qualification routing (only if threshold is specified)
+    if (qualificationThreshold !== undefined && qualificationThreshold !== null) {
+      const ifNode = {
+        id: generateUUID(),
+        name: `Qualification Check (Score >= ${qualificationThreshold})`,
+        type: 'n8n-nodes-base.if',
+        typeVersion: 2,
+        position: [positionX, positionY],
+        parameters: {
+          conditions: {
+            number: [
+              { value1: '={{ $json.aiScore }}', operation: 'larger', value2: qualificationThreshold.toString() }
+            ]
+          }
+        },
+        purpose: `Route leads with score >= ${qualificationThreshold} to qualified branch`
+      }
+      nodes.push(ifNode)
+      connections.push({ from: sheetsNode.name, to: ifNode.name, type: 'main', index: 0 })
+      positionY += 150
+
+      // 7. Email notification (qualified branch)
+      const emailNode = {
+        id: generateUUID(),
+        name: 'Email Qualified Submission',
+        type: 'n8n-nodes-base.gmail',
+        typeVersion: 2,
+        position: [positionX, positionY],
+        parameters: {
+          resource: 'message',
+          operation: 'send',
+          subject: 'Qualified Submission - Score: {{ $json.aiScore }}',
+          body: `A new qualified submission has been received.
+
+Score: {{ $json.aiScore }}
+Reasoning: {{ $json.aiReasoning }}
+Submitted: {{ $json.submissionTime }}
+
+Submission Data:
+{{ $json.submissionData }}
+
+This submission met the qualification threshold of ${qualificationThreshold}.`,
+          toEmail: '={{ $json.toEmail || "admin@example.com" }}',
+          options: {}
+        },
+        purpose: 'Send email notification for qualified submissions'
+      }
+      nodes.push(emailNode)
+      connections.push({ from: ifNode.name, to: emailNode.name, type: 'main', index: 0 })
+    }
+
+    return {
+      name: baseName,
+      description: 'AI-powered scoring automation with qualification routing',
+      nodes,
+      connections,
+      complexity: qualificationThreshold ? 'moderate' : 'simple',
+      reasoning: `AI scoring automation (${scoreRange.min}-${scoreRange.max}). All submissions stored in Google Sheets${qualificationThreshold ? `. Qualified submissions (score >= ${qualificationThreshold}) trigger email notification.` : '.'}`
+    }
   }
   
   /**

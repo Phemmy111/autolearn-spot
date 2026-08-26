@@ -21,7 +21,7 @@ import { WebResearchService } from './web-research/web-research-service';
 import { estimateTokens } from './token-estimation';
 import { MockSearchProvider } from './web-research/mock-search-provider';
 import { TavilySearchProvider } from './web-research/tavily-search-provider';
-import { ToolRegistry, ToolExecutionService, calculatorToolDefinition, calculatorToolExecutor, currentTimeToolDefinition, currentTimeToolExecutor, webSearchToolDefinition, createWebSearchToolExecutor } from './tools';
+import { ToolRegistry, ToolExecutionService, calculatorToolDefinition, calculatorToolExecutor, currentTimeToolDefinition, currentTimeToolExecutor, webSearchToolDefinition, createWebSearchToolExecutor, leadScoringToolDefinition, leadScoringToolExecutor } from './tools';
 
 export class AIEngine {
   private static adminProviderManager: ProviderManager | null = null
@@ -40,6 +40,7 @@ export class AIEngine {
       // Register built-in tools
       this.toolRegistry.registerTool(calculatorToolDefinition, calculatorToolExecutor)
       this.toolRegistry.registerTool(currentTimeToolDefinition, currentTimeToolExecutor)
+      this.toolRegistry.registerTool(leadScoringToolDefinition, leadScoringToolExecutor)
 
       console.log('[AI Engine] Tool registry initialized with', this.toolRegistry.getToolCount(), 'tools')
     }

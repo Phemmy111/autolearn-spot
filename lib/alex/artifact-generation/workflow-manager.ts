@@ -1067,21 +1067,33 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
       
       const platform = build.final_specification?.platform || 'custom'
       console.log('[Artifact Workflow] Platform:', platform)
-      
+
       const trigger = build.final_specification?.trigger || 'manual'
       const functionality = build.final_specification?.functionality || 'basic processing'
       const integrations = build.final_specification?.integrations || 'none'
-      
+
       console.log('[Artifact Workflow] Workflow specs:', { trigger, functionality, integrations })
-      
+
+      // Phase 3A.1: Merge requirements_collected into final_specification to preserve structured requirements
+      // This bridges the gap between conversational requirements collection and workflow generation
+      const mergedSpec = {
+        ...build.final_specification,
+        ...build.requirements_collected
+      }
+
+      console.log('[Artifact Workflow] Merged specification keys:', Object.keys(mergedSpec))
+      if (mergedSpec.aiConfig) {
+        console.log('[Artifact Workflow] aiConfig present in merged spec:', Object.keys(mergedSpec.aiConfig))
+      }
+
       let templateContent: any
       let fileType: string
       let mimeType: string
-      
+
       if (platform === 'n8n') {
         // Use Architecture Planner to design the workflow first
         console.log('[Artifact Workflow] Using Architecture Planner to design workflow')
-        
+
         const architecture = ArchitecturePlanner.design({
           originalRequest: build.original_request,
           platform,
@@ -1089,7 +1101,8 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
           functionality,
           integrations,
           filename,
-          replyScope: build.final_specification?.replyScope
+          replyScope: mergedSpec.replyScope,
+          aiConfig: mergedSpec.aiConfig
         })
         
         console.log('[Artifact Workflow] DEBUG: Architecture planner called with:', {
