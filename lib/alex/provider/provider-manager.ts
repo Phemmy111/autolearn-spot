@@ -483,30 +483,40 @@ export class ProviderManager {
    */
   private estimateRequestTokens(request: any): number {
     let totalTokens = 0
+    let messageTokens = 0
+    let toolTokens = 0
 
     // Estimate tokens for messages
     if (request.messages && Array.isArray(request.messages)) {
       for (const message of request.messages) {
         // Handle both string and array content
         if (typeof message.content === 'string') {
-          totalTokens += estimateTokens(message.content)
+          const msgTokens = estimateTokens(message.content)
+          messageTokens += msgTokens
+          totalTokens += msgTokens
         } else if (Array.isArray(message.content)) {
           // Multimodal content (text + images)
           for (const contentItem of message.content) {
             if (contentItem.type === 'text') {
-              totalTokens += estimateTokens(contentItem.text)
+              const textTokens = estimateTokens(contentItem.text)
+              messageTokens += textTokens
+              totalTokens += textTokens
             } else if (contentItem.type === 'image_url') {
               // Images are encoded as base64, estimate based on actual data size
               const imageUrl = contentItem.image_url?.url || ''
               if (imageUrl.startsWith('data:')) {
                 // Estimate base64 image tokens: ~1 token per 4 characters of base64
                 const base64Data = imageUrl.split(',')[1] || ''
-                totalTokens += Math.ceil(base64Data.length / 4)
+                const imageTokens = Math.ceil(base64Data.length / 4)
+                messageTokens += imageTokens
+                totalTokens += imageTokens
               } else if (imageUrl.startsWith('placeholder://')) {
                 // Placeholder fallback - should be rare after the fix
-                totalTokens += 85 // Conservative placeholder estimate
+                messageTokens += 85
+                totalTokens += 85
               } else {
                 // URL-based image - use conservative estimate
+                messageTokens += 85
                 totalTokens += 85
               }
             }
@@ -521,12 +531,23 @@ export class ProviderManager {
     if (request.tools && Array.isArray(request.tools)) {
       for (const tool of request.tools) {
         // Tool definition tokens
-        totalTokens += estimateTokens(tool.name)
-        totalTokens += estimateTokens(tool.description)
-        totalTokens += estimateTokens(JSON.stringify(tool.inputSchema))
-        totalTokens += 10 // Overhead per tool
+        const toolNameTokens = estimateTokens(tool.name)
+        const toolDescTokens = estimateTokens(tool.description)
+        const toolSchemaTokens = estimateTokens(JSON.stringify(tool.inputSchema))
+        const toolTotal = toolNameTokens + toolDescTokens + toolSchemaTokens + 10
+        toolTokens += toolTotal
+        totalTokens += toolTotal
       }
     }
+
+    console.log('[TPM Token Estimation] Breakdown:', {
+      messageTokens,
+      toolTokens,
+      messageCount: request.messages?.length || 0,
+      toolCount: request.tools?.length || 0,
+      totalTokens,
+      avgMessageTokens: request.messages?.length ? messageTokens / request.messages.length : 0
+    })
 
     return totalTokens
   }

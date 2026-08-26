@@ -9,6 +9,7 @@
 import { ProviderManager } from '../provider/provider-manager'
 import { ProviderRegistry } from '../provider/provider-registry'
 import { AIRequest } from '../provider/provider-interface'
+import { estimateTokens } from '../token-estimation'
 
 export class WorkflowAIService {
   private static instance: WorkflowAIService | null = null
@@ -31,6 +32,38 @@ export class WorkflowAIService {
    */
   async generateResponse(prompt: string): Promise<string> {
     console.log('[Workflow AI Service] Starting AI generation with prompt length:', prompt.length)
+    console.log('[Workflow AI Service] Prompt preview:', prompt.substring(0, 200))
+
+    // FINAL TOKEN SAFETY CHECK - Enforce hard limit before ProviderManager
+    const providerInputBudget = 6400 // 80% of 8000 TPM limit
+    const estimatedTokens = estimateTokens(prompt)
+    
+    console.log('[Workflow AI Service] FINAL TOKEN SAFETY CHECK:', {
+      promptLength: prompt.length,
+      estimatedTokens,
+      providerInputBudget,
+      withinBudget: estimatedTokens <= providerInputBudget
+    })
+
+    if (estimatedTokens > providerInputBudget) {
+      console.error('[Workflow AI Service] PROMPT EXCEEDS BUDGET - Truncating to fit')
+      const reductionRatio = providerInputBudget / estimatedTokens
+      const newLength = Math.floor(prompt.length * reductionRatio)
+      prompt = prompt.substring(0, newLength) + '... [truncated to meet TPM limit]'
+      
+      const retriedTokens = estimateTokens(prompt)
+      console.log('[Workflow AI Service] Truncated prompt:', {
+        originalLength: prompt.length,
+        newLength,
+        originalTokens: estimatedTokens,
+        retriedTokens,
+        providerInputBudget
+      })
+      
+      if (retriedTokens > providerInputBudget) {
+        throw new Error(`Prompt cannot be reduced to meet provider TPM limit of ${providerInputBudget}. Original: ${estimatedTokens} tokens, After truncation: ${retriedTokens} tokens.`)
+      }
+    }
 
     try {
       // Use ProviderManager's streaming capability with fallback
@@ -41,6 +74,13 @@ export class WorkflowAIService {
         maxTokens: 4000,
         stream: true,
       }
+
+      console.log('[Workflow AI Service] Request structure:', {
+        messageCount: request.messages.length,
+        totalMessageLength: request.messages.reduce((sum, m) => sum + (typeof m.content === 'string' ? m.content.length : 0), 0),
+        hasTools: !!request.tools,
+        toolCount: request.tools?.length || 0
+      })
 
       let fullResponse = ''
       let chunkCount = 0

@@ -362,10 +362,13 @@ If this is unrelated conversation, return action type "respond" with a helpful m
     const aiService = WorkflowAIService.getInstance()
     
     // Phase 3C.1: Token budgeting for conversational path
-    // Get provider-safe input budget
+    // Note: Budgeting now occurs in WorkflowAIService on the final request
+    // This intermediate budgeting is kept for diagnostic purposes but the actual
+    // enforcement happens in WorkflowAIService.generateResponse()
     const providerInputBudget = 6400 // 80% of 8000 TPM limit
     
     console.log('[Phase B Token Budget] Provider input budget:', providerInputBudget)
+    console.log('[Phase B Token Budget] Note: Final token enforcement occurs in WorkflowAIService')
     
     // Build prompt components with token estimation
     const systemPrompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an automation expert and conversational AI assistant.
@@ -462,6 +465,8 @@ If appropriate, ask follow-up questions to better understand their needs.
 Do not output JSON. Do not use structured formats. Just respond naturally.`
 
     console.log('[Phase B] Calling AI for conversational response')
+    console.log('[Phase B] Final prompt length:', prompt.length)
+    console.log('[Phase B] Final prompt preview:', prompt.substring(0, 300))
     
     try {
       const response = await aiService.generateResponse(prompt)
