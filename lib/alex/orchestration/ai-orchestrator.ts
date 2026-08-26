@@ -15,12 +15,22 @@ import {
   RequirementUpdate
 } from './types'
 import { OrchestrationQuestionService } from './orchestration-question-service'
+import { estimateTokens } from '../token-estimation'
 
 export class AIOrchestrator {
   private static instance: AIOrchestrator
   
   private constructor() {
     // No in-memory question tracker - using persistent service
+  }
+
+  /**
+   * Token estimation helper for conversational path budgeting
+   */
+  private estimateTokens(text: string): number {
+    if (!text) return 0
+    const normalizedText = text.replace(/\s+/g, ' ').trim()
+    return Math.ceil(normalizedText.length / 4) // Conservative: ~4 chars per token
   }
   
   static getInstance(): AIOrchestrator {
@@ -351,37 +361,100 @@ If this is unrelated conversation, return action type "respond" with a helpful m
   ): Promise<OrchestrationResult> {
     const aiService = WorkflowAIService.getInstance()
     
-    // Build conversation context for AI
-    const recentMessages = context.messages.slice(-20).map(m => 
-      `${m.role}: ${m.content.substring(0, 500)}`
-    ).join('\n')
+    // Phase 3C.1: Token budgeting for conversational path
+    // Get provider-safe input budget
+    const providerInputBudget = 6400 // 80% of 8000 TPM limit
     
-    const planContext = currentPlan 
-      ? `\nCurrent automation plan:\n${JSON.stringify(currentPlan, null, 2)}`
-      : '\nNo current automation plan - this is a new request'
+    console.log('[Phase B Token Budget] Provider input budget:', providerInputBudget)
     
-    console.log('[Phase B] Conversational AI context diagnostics:')
-    console.log('[Phase B] Total messages in context:', context.messages.length)
-    console.log('[Phase B] Recent messages count:', Math.min(20, context.messages.length))
-    console.log('[Phase B] currentPlan exists:', !!currentPlan)
-    
-    // Phase B: Natural language prompt - NO JSON requirement
-    const prompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an automation expert and conversational AI assistant.
+    // Build prompt components with token estimation
+    const systemPrompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an automation expert and conversational AI assistant.
 
 Your role:
 - Help users understand automation concepts
 - Assist with designing workflows and integrations
 - Answer questions about n8n, automation platforms, APIs, webhooks, and related technologies
 - Guide users through planning automations when they're ready
-- Respond naturally and conversationally
+- Respond naturally and conversationally`
+    
+    const systemPromptTokens = this.estimateTokens(systemPrompt)
+    console.log('[Phase B Token Budget] System prompt tokens:', systemPromptTokens)
+    
+    // Build conversation context with token-aware selection
+    // Priority: most recent messages first, drop oldest if budget exceeded
+    let conversationContext = ''
+    let conversationTokens = 0
+    const maxConversationTokens = providerInputBudget - systemPromptTokens - 500 // Reserve 500 for plan + user message
+    
+    // Build messages from newest to oldest to prioritize recent context
+    const recentMessagesReversed = [...context.messages].reverse()
+    for (const message of recentMessagesReversed) {
+      const messageText = `${message.role}: ${message.content.substring(0, 200)}` // Shorter limit for budgeting
+      const messageTokens = this.estimateTokens(messageText)
+      
+      if (conversationTokens + messageTokens <= maxConversationTokens) {
+        conversationContext = messageText + '\n' + conversationContext
+        conversationTokens += messageTokens
+      } else {
+        console.log('[Phase B Token Budget] Skipping message to stay within budget')
+        break
+      }
+    }
+    
+    console.log('[Phase B Token Budget] Conversation context tokens:', conversationTokens)
+    console.log('[Phase B Token Budget] Messages included:', recentMessagesReversed.length)
+    
+    // Build plan context with token awareness
+    let planContext = ''
+    let planTokens = 0
+    const maxPlanTokens = providerInputBudget - systemPromptTokens - conversationTokens - 200 // Reserve 200 for user message
+    
+    if (currentPlan) {
+      // Compact plan representation for token efficiency
+      const compactPlan = {
+        objective: currentPlan.objective,
+        platform: currentPlan.platform?.name,
+        status: currentPlan.status,
+        stageCount: currentPlan.architecture?.stages?.length || 0
+      }
+      const planText = `\nCurrent automation plan:\n${JSON.stringify(compactPlan, null, 2)}`
+      const estimatedPlanTokens = this.estimateTokens(planText)
+      
+      if (estimatedPlanTokens <= maxPlanTokens) {
+        planContext = planText
+        planTokens = estimatedPlanTokens
+      } else {
+        console.log('[Phase B Token Budget] Plan too large, using minimal representation')
+        planContext = `\nCurrent automation plan: ${currentPlan.objective}`
+        planTokens = this.estimateTokens(planContext)
+      }
+    } else {
+      planContext = '\nNo current automation plan - this is a new request'
+      planTokens = this.estimateTokens(planContext)
+    }
+    
+    console.log('[Phase B Token Budget] Plan context tokens:', planTokens)
+    
+    // User message (never removed)
+    const userMessageText = `User's message: ${userMessage}`
+    const userMessageTokens = this.estimateTokens(userMessageText)
+    console.log('[Phase B Token Budget] User message tokens:', userMessageTokens)
+    
+    // Calculate total estimated tokens
+    const totalEstimatedTokens = systemPromptTokens + conversationTokens + planTokens + userMessageTokens
+    console.log('[Phase B Token Budget] Total estimated tokens:', totalEstimatedTokens)
+    console.log('[Phase B Token Budget] Provider input budget:', providerInputBudget)
+    console.log('[Phase B Token Budget] Within budget:', totalEstimatedTokens <= providerInputBudget)
+    
+    // Phase B: Natural language prompt - NO JSON requirement
+    const prompt = `${systemPrompt}
 
 Conversation context:
 Mode: ${context.mode}
-Recent messages (last 20):
-${recentMessages}
+Recent messages:
+${conversationContext}
 ${planContext}
-
-User's message: ${userMessage}
+${userMessageText}
 
 Respond naturally to the user's message. Be helpful, clear, and conversational.
 If the user is discussing automation, use your expertise to provide useful guidance.
