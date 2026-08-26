@@ -10,7 +10,8 @@ import {
   AlexNextAction, 
   AutomationPlan, 
   ConversationContext, 
-  OrchestrationResult 
+  OrchestrationResult,
+  RequirementUpdate
 } from './types'
 import { ArtifactService } from '../artifact-generation/artifact-service'
 import { ArchitectureDesigner } from '../artifact-generation/architecture-designer'
@@ -121,9 +122,35 @@ export class WorkflowOrchestrator {
     request: WorkflowOrchestrationRequest,
     currentPlan: AutomationPlan | null
   ): Promise<WorkflowOrchestrationResponse> {
-    const { action, updatedPlan } = result
+    const { action, updatedPlan, requirementUpdate } = result
     
     console.log('[P0] Native AI action preserved:', action.type)
+    
+    // Phase 2: Persist requirement updates incrementally
+    if (requirementUpdate) {
+      console.log('[Phase 2] Persisting requirement update:', Object.keys(requirementUpdate))
+      
+      // Ensure build exists for requirement persistence
+      const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
+      let buildId: string
+      
+      if (!existingBuild) {
+        console.log('[Phase 2] Creating new build for requirement persistence')
+        const newBuild = await ArtifactService.createBuild(
+          request.conversationId,
+          request.userId,
+          request.userMessage,
+          'workflow'
+        )
+        buildId = newBuild.id
+      } else {
+        buildId = existingBuild.id
+      }
+      
+      // Persist requirement update
+      await ArtifactService.updateRequirements(buildId, requirementUpdate)
+      console.log('[Phase 2] Requirements persisted to build:', buildId)
+    }
     
     // Save updated plan if provided
     if (updatedPlan) {

@@ -11,7 +11,8 @@ import {
   AutomationPlan, 
   ConversationContext, 
   UserIntent,
-  OrchestrationResult 
+  OrchestrationResult,
+  RequirementUpdate
 } from './types'
 import { OrchestrationQuestionService } from './orchestration-question-service'
 
@@ -303,23 +304,66 @@ If this is unrelated conversation, return action type "respond" with a helpful m
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0])
         
+        // Phase 2: Extract requirement updates from updatedPlan
+        const requirementUpdate = this.extractRequirementUpdate(result.updatedPlan, currentPlan)
+        
         // Validate and convert to typed result
         return {
           action: this.validateAction(result.action),
           intent: result.intent as UserIntent,
           updatedPlan: result.updatedPlan || undefined,
           confidence: result.confidence || 0.5,
-          reasoning: result.reasoning
+          reasoning: result.reasoning,
+          requirementUpdate // Phase 2: Include requirement update
         }
       }
       
       // Fallback if JSON parsing fails
       console.error('[AI Orchestrator] Failed to parse AI decision, using fallback')
-      return this.getFallbackDecision(userMessage, currentPlan)
+      return this.getFallbackDecision(userMessage, currentPlan, context)
     } catch (error) {
       console.error('[AI Orchestrator] AI decision failed, using fallback:', error)
-      return this.getFallbackDecision(userMessage, currentPlan)
+      return this.getFallbackDecision(userMessage, currentPlan, context)
     }
+  }
+
+  /**
+   * Phase 2: Extract requirement updates from AI plan
+   * Returns only the new/changed fields between currentPlan and updatedPlan
+   */
+  private extractRequirementUpdate(
+    updatedPlan: AutomationPlan | null | undefined,
+    currentPlan: AutomationPlan | null
+  ): RequirementUpdate | undefined {
+    if (!updatedPlan) {
+      return undefined
+    }
+
+    const update: RequirementUpdate = {}
+
+    // Extract key fields that represent requirements
+    if (updatedPlan.platform && (!currentPlan?.platform || currentPlan.platform.name !== updatedPlan.platform.name)) {
+      update.platform = updatedPlan.platform
+    }
+
+    if (updatedPlan.trigger && (!currentPlan?.trigger || currentPlan.trigger.type !== updatedPlan.trigger.type)) {
+      update.trigger = updatedPlan.trigger
+    }
+
+    if (updatedPlan.inputs && (!currentPlan?.inputs || currentPlan.inputs.sources !== updatedPlan.inputs.sources)) {
+      update.inputs = updatedPlan.inputs
+    }
+
+    if (updatedPlan.outputs && (!currentPlan?.outputs || currentPlan.outputs.destinations !== updatedPlan.outputs.destinations)) {
+      update.outputs = updatedPlan.outputs
+    }
+
+    if (updatedPlan.integrations && (!currentPlan?.integrations || currentPlan.integrations.platform !== updatedPlan.integrations.platform)) {
+      update.integrations = updatedPlan.integrations
+    }
+
+    // Return undefined if no changes detected
+    return Object.keys(update).length > 0 ? update : undefined
   }
   
   /**
@@ -376,18 +420,166 @@ If this is unrelated conversation, return action type "respond" with a helpful m
   }
   
   /**
-   * Fallback decision when AI fails
+   * Phase 3: Extract requirements from user message using deterministic pattern matching
+   * Safety net for when AI structured output fails
+   * Conservative: only extracts strong, unambiguous signals
    */
-  private getFallbackDecision(
+  private extractRequirementsFromMessage(userMessage: string): RequirementUpdate {
+    const lower = userMessage.toLowerCase()
+    const update: RequirementUpdate = {}
+
+    // Platform detection (automation platforms)
+    const platformPatterns = [
+      { pattern: /\b(n8n|zapier|make|integromat)\b/i, field: 'platform', map: (m: string) => ({ name: m.toLowerCase() }) },
+      { pattern: /\b(workflow automation|automation platform)\b/i, field: 'platform', map: () => ({ name: 'n8n' }) }
+    ]
+
+    for (const { pattern, field, map } of platformPatterns) {
+      const match = lower.match(pattern)
+      if (match) {
+        update[field] = map(match[1])
+        console.log('[Phase 3 Fallback] Extracted platform:', update[field])
+        break
+      }
+    }
+
+    // Form source detection
+    const formPatterns = [
+      { pattern: /\bgoogle form(s)?\b/i, field: 'trigger', map: () => ({ source: 'google-form', description: 'Google Forms' }) },
+      { pattern: /\btypeform\b/i, field: 'trigger', map: () => ({ source: 'typeform', description: 'Typeform' }) },
+      { pattern: /\bairtable form\b/i, field: 'trigger', map: () => ({ source: 'airtable', description: 'Airtable Form' }) }
+    ]
+
+    for (const { pattern, field, map } of formPatterns) {
+      const match = lower.match(pattern)
+      if (match) {
+        update[field] = map()
+        console.log('[Phase 3 Fallback] Extracted form source:', update[field])
+        break
+      }
+    }
+
+    // Email provider detection
+    const emailPatterns = [
+      { pattern: /\bgmail\b/i, field: 'integrations', map: () => ({ emailProvider: 'gmail' }) },
+      { pattern: /\b(outlook|exchange|microsoft 365)\b/i, field: 'integrations', map: () => ({ emailProvider: 'outlook' }) },
+      { pattern: /\b(simple mail transfer protocol|smtp)\b/i, field: 'integrations', map: () => ({ emailProvider: 'imap/smtp' }) }
+    ]
+
+    for (const { pattern, field, map } of emailPatterns) {
+      const match = lower.match(pattern)
+      if (match) {
+        update[field] = map()
+        console.log('[Phase 3 Fallback] Extracted email provider:', update[field])
+        break
+      }
+    }
+
+    // Qualification/scoring method detection
+    const scoringPatterns = [
+      { pattern: /\bautomatic scoring\b/i, field: 'qualificationMethod', map: () => 'automatic scoring' },
+      { pattern: /\bscore (them )?automatically\b/i, field: 'qualificationMethod', map: () => 'automatic scoring' },
+      { pattern: /\blead scoring\b/i, field: 'qualificationMethod', map: () => 'lead scoring' }
+    ]
+
+    for (const { pattern, field, map } of scoringPatterns) {
+      const match = lower.match(pattern)
+      if (match) {
+        update[field] = map()
+        console.log('[Phase 3 Fallback] Extracted qualification method:', update[field])
+        break
+      }
+    }
+
+    // Notification destination detection
+    const notificationPatterns = [
+      { pattern: /\b(slack|teams|discord)\b/i, field: 'outputs', map: (m: string) => ({ destinations: [m.toLowerCase()] }) },
+      { pattern: /\bemail notification(s)?\b/i, field: 'outputs', map: () => ({ destinations: ['email'] }) }
+    ]
+
+    for (const { pattern, field, map } of notificationPatterns) {
+      const match = lower.match(pattern)
+      if (match) {
+        update[field] = map(match[1])
+        console.log('[Phase 3 Fallback] Extracted notification destination:', update[field])
+        break
+      }
+    }
+
+    return Object.keys(update).length > 0 ? update : undefined
+  }
+
+  /**
+   * Fallback decision when AI fails
+   * Phase 2: Preserve workflow state by loading requirements from database
+   * Phase 3: Attempt to extract obvious requirements from current user message
+   */
+  private async getFallbackDecision(
     userMessage: string,
-    currentPlan: AutomationPlan | null
-  ): OrchestrationResult {
+    currentPlan: AutomationPlan | null,
+    context?: ConversationContext
+  ): Promise<OrchestrationResult> {
     console.log('[AI Orchestrator] Using fallback decision logic')
     
     const lower = userMessage.toLowerCase()
     
-    // If no current plan, assume new request
-    if (!currentPlan) {
+    // Phase 2: Try to load existing requirements from database
+    let hasExistingRequirements = false
+    let buildId: string | undefined
+    let existingRequirements: Record<string, any> = {}
+
+    if (context?.userId && context?.conversationId) {
+      try {
+        const { ArtifactService } = await import('../artifact-generation/artifact-service')
+        const build = await ArtifactService.getActiveBuild(context.conversationId, context.userId)
+        if (build?.requirements_collected && Object.keys(build.requirements_collected).length > 0) {
+          hasExistingRequirements = true
+          buildId = build.id
+          existingRequirements = build.requirements_collected
+          console.log('[AI Orchestrator] Fallback: Found existing requirements in database:', Object.keys(build.requirements_collected))
+        }
+      } catch (error) {
+        console.error('[AI Orchestrator] Failed to load requirements in fallback:', error)
+      }
+    }
+
+    // Phase 3: Attempt to extract obvious requirements from current user message
+    const newRequirements = this.extractRequirementsFromMessage(userMessage)
+    
+    if (newRequirements && buildId) {
+      console.log('[Phase 3 Fallback] Extracted requirements from message:', Object.keys(newRequirements))
+      
+      try {
+        const { ArtifactService } = await import('../artifact-generation/artifact-service')
+        const mergedRequirements = { ...existingRequirements, ...newRequirements }
+        await ArtifactService.updateRequirements(buildId, newRequirements)
+        console.log('[Phase 3 Fallback] Persisted extracted requirements to build:', buildId)
+      } catch (error) {
+        console.error('[Phase 3 Fallback] Failed to persist extracted requirements:', error)
+        // Continue with existing state if persistence fails
+      }
+    } else if (newRequirements && !buildId) {
+      console.log('[Phase 3 Fallback] Extracted requirements but no build exists, creating build')
+      
+      try {
+        const { ArtifactService } = await import('../artifact-generation/artifact-service')
+        if (context?.userId && context?.conversationId) {
+          const newBuild = await ArtifactService.createBuild(
+            context.conversationId,
+            context.userId,
+            userMessage,
+            'workflow'
+          )
+          await ArtifactService.updateRequirements(newBuild.id, newRequirements)
+          console.log('[Phase 3 Fallback] Created build and persisted requirements:', newBuild.id)
+        }
+      } catch (error) {
+        console.error('[Phase 3 Fallback] Failed to create build and persist requirements:', error)
+      }
+    }
+    
+    // If no current plan and no existing requirements, assume new request
+    if (!currentPlan && !hasExistingRequirements && !newRequirements) {
       return {
         action: {
           type: 'clarify',
@@ -401,15 +593,19 @@ If this is unrelated conversation, return action type "respond" with a helpful m
       }
     }
     
-    // If current plan exists, treat as answer
+    // If current plan exists or requirements exist, preserve state
+    const message = (hasExistingRequirements || newRequirements)
+      ? 'I understand. Let me continue with your automation based on what we\'ve discussed so far.'
+      : 'I understand. Let me continue with your automation.'
+    
     return {
       action: {
         type: 'respond',
-        message: 'I understand. Let me continue with your automation.'
+        message
       },
       intent: 'answer_question',
       confidence: 0.3,
-      reasoning: 'AI decision failed, using fallback for continuation'
+      reasoning: 'AI decision failed, using fallback for continuation with preserved state'
     }
   }
   

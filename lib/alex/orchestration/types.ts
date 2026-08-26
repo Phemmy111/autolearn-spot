@@ -197,6 +197,7 @@ export interface OrchestrationResult {
   updatedPlan?: AutomationPlan;
   confidence: number;
   reasoning?: string;
+  requirementUpdate?: RequirementUpdate; // Phase 2: Incremental requirement updates
 }
 
 /**
@@ -214,3 +215,9 @@ export interface ConversationMessage {
     planId?: string;
   };
 }
+
+/**
+ * Partial workflow requirement update for incremental persistence
+ * Merged into requirements_collected in alex_artifact_builds
+ */
+export type RequirementUpdate = Record<string, any>;

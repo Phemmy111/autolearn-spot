@@ -179,6 +179,65 @@ export class ArtifactService {
   }
 
   /**
+   * Update requirements incrementally
+   * Merges new requirements into existing requirements_collected
+   * Never replaces existing requirements - only adds/updates
+   */
+  static async updateRequirements(
+    buildId: string,
+    requirementUpdate: Record<string, any>
+  ): Promise<Record<string, any>> {
+    // No-op if update is empty or null
+    if (!requirementUpdate || Object.keys(requirementUpdate).length === 0) {
+      console.log('[Artifact Service] Empty requirement update, skipping')
+      const { data: build } = await getSupabaseClient()
+        .from('alex_artifact_builds')
+        .select('requirements_collected')
+        .eq('id', buildId)
+        .single()
+      return build?.requirements_collected || {}
+    }
+
+    // Load existing build
+    const { data: build, error: loadError } = await getSupabaseClient()
+      .from('alex_artifact_builds')
+      .select('requirements_collected')
+      .eq('id', buildId)
+      .single()
+
+    if (loadError || !build) {
+      console.error('[Artifact Service] Failed to load build for requirements update:', loadError)
+      throw new Error(`Failed to load build: ${loadError?.message || 'Build not found'}`)
+    }
+
+    // Treat null/missing/invalid existing requirements as empty object
+    const existingRequirements = build.requirements_collected || {}
+
+    // Merge incoming update into existing requirements (shallow merge)
+    const mergedRequirements = {
+      ...existingRequirements,
+      ...requirementUpdate
+    }
+
+    // Persist merged requirements
+    const { error: updateError } = await getSupabaseClient()
+      .from('alex_artifact_builds')
+      .update({
+        requirements_collected: mergedRequirements,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', buildId)
+
+    if (updateError) {
+      console.error('[Artifact Service] Failed to update requirements:', updateError)
+      throw new Error(`Failed to update requirements: ${updateError.message}`)
+    }
+
+    console.log('[Artifact Service] Requirements updated:', buildId, 'keys added:', Object.keys(requirementUpdate))
+    return mergedRequirements
+  }
+
+  /**
    * Update build status
    */
   static async updateBuildStatus(
