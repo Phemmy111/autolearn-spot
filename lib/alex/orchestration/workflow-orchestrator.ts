@@ -168,9 +168,9 @@ export class WorkflowOrchestrator {
             reason: action.reason,
             options: action.options,
             enrichedOptions: action.enrichedOptions,
-            inputType: action.inputType,
-            header: action.header,
-            field: action.field
+            inputType: action.inputType || 'select',
+            header: action.header || action.field,
+            field: action.field || 'general'
           }
         }
       

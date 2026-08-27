@@ -51,7 +51,9 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       'create simple', 'create basic', 'create advanced',
       'build simple', 'build basic', 'build advanced',
       'generate simple', 'generate basic', 'generate advanced',
-      'email notification system', 'notification system', 'alert system'
+      'email notification system', 'notification system', 'alert system',
+      'automate a task', 'automate this', 'automate that', 'help me automate',
+      'i want to automate', 'need to automate', 'automation for'
     ]
 
     // Check if it's a build request (stronger indication: starts with build/create + specific artifact)
@@ -59,6 +61,12 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
     const startsWithBuildVerb = lowerContent.startsWith('create ') || lowerContent.startsWith('build ') || lowerContent.startsWith('generate ')
     const isBuildRequest = startsWithBuildVerb || buildPatterns.some(pattern => lowerContent.startsWith(pattern) ||
       (lowerContent.includes(pattern) && lowerContent.length < 50))
+    
+    // Additional check: simple workflow/automation requests should also trigger
+    const simpleWorkflowPatterns = [
+      'workflow to', 'automation to', 'bot to', 'automate task', 'automate this'
+    ]
+    const isSimpleWorkflowRequest = simpleWorkflowPatterns.some(pattern => lowerContent.includes(pattern))
 
     console.log('[DEBUG INTENT DETECTOR] Build request check:', {
       isBuildRequest,
@@ -87,10 +95,11 @@ export async function detectIntent(content: string): Promise<IntentDetectionResu
       contentPreview: lowerContent.substring(0, 100)
     })
 
-    if (isBuildRequest || hasStrongBuildIndicator) {
+    if (isBuildRequest || hasStrongBuildIndicator || isSimpleWorkflowRequest) {
       console.log('[DEBUG INTENT DETECTOR] Artifact generation detected', {
         isBuildRequest,
         hasStrongBuildIndicator,
+        isSimpleWorkflowRequest,
         contentPreview: lowerContent.substring(0, 50)
       })
       return {

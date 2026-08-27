@@ -186,20 +186,36 @@ export class QuestionOptionsGenerator {
     if (contextLower.includes('platform') || contextLower.includes('automation platform')) {
       return this.generatePlatformOptions()
     }
-    if (contextLower.includes('trigger') || contextLower.includes('when should')) {
+    if (contextLower.includes('trigger') || contextLower.includes('when should') || contextLower.includes('start')) {
       return this.generateTriggerOptions()
     }
     if (contextLower.includes('complex') || contextLower.includes('complexity')) {
       return this.generateComplexityOptions()
     }
-    if (contextLower.includes('notification') || contextLower.includes('alert')) {
+    if (contextLower.includes('notification') || contextLower.includes('alert') || contextLower.includes('message')) {
       return this.generateNotificationOptions()
     }
-    if (contextLower.includes('error') || contextLower.includes('fail')) {
+    if (contextLower.includes('error') || contextLower.includes('fail') || contextLower.includes('handle')) {
       return this.generateErrorHandlingOptions()
     }
     if (contextLower.includes('format') || contextLower.includes('data')) {
       return this.generateDataFormatOptions()
+    }
+    if (contextLower.includes('email') && contextLower.includes('provider')) {
+      return [
+        { label: 'Gmail', value: 'gmail', description: 'Google\'s email service', recommended: true },
+        { label: 'Outlook', value: 'outlook', description: 'Microsoft\'s email service' },
+        { label: 'Yahoo Mail', value: 'yahoo', description: 'Yahoo\'s email service' },
+        { label: 'Other/IMAP', value: 'imap', description: 'Custom IMAP email server' }
+      ]
+    }
+    if (contextLower.includes('slack') && contextLower.includes('channel')) {
+      return [
+        { label: '#general', value: '#general', description: 'Main team channel', recommended: true },
+        { label: '#alerts', value: '#alerts', description: 'Dedicated alerts channel' },
+        { label: '#notifications', value: '#notifications', description: 'Notification-specific channel' },
+        { label: 'Custom channel', value: 'custom', description: 'Specify your own channel' }
+      ]
     }
     
     return null

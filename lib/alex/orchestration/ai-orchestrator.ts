@@ -172,7 +172,7 @@ Determine:
 4. What is your reasoning?
 
 Intent Detection Guidelines:
-- new_automation: User wants to create a completely new automation (e.g., "Create a bot", "Build a workflow", "Make an automation")
+- new_automation: User wants to create a completely new automation (e.g., "Create a bot", "Build a workflow", "Make an automation", "Automate a task")
 - revise_automation: User wants to change an existing plan (e.g., "Actually use Slack instead", "Change the trigger", "Modify the platform")
 - answer_question: User is providing information in response to a previous question
 - clarification: User is asking for clarification about something
@@ -191,6 +191,18 @@ For each action type:
 - generate: The automation is sufficiently specified - proceed to generate the artifact
 - execute: Execute the plan (generate artifact) - optionally require confirmation
 - revise: Revise the existing plan based on user feedback
+
+CRITICAL INTERACTIVE QUESTION GUIDELINES:
+- When you use "clarify" action, you MUST provide a structured question with options
+- NEVER provide comprehensive guides or tutorials in a single response
+- ALWAYS break down complex automations into step-by-step interactive questions
+- Use the "reason" field to provide context for why you're asking
+- Use the "options" field to provide clear choices when applicable
+- Use the "field" field to indicate what aspect of the automation you're asking about
+- Example: If asking about platform, set field="platform" and provide platform options
+- Example: If asking about trigger, set field="trigger" and provide trigger type options
+- Keep responses concise and focused on gathering ONE piece of information at a time
+- DO NOT dump entire workflow specifications - guide the user interactively
 
 IMPORTANT GUIDELINES:
 - DO NOT mechanically enumerate fields like "trigger?", "platform?", "inputs?"
@@ -220,6 +232,7 @@ Return ONLY valid JSON in this exact format:
     "message": "response message if applicable",
     "question": "question text if clarify",
     "reason": "why asking if clarify",
+    "field": "what aspect this question covers (e.g., platform, trigger, inputs)",
     "options": ["option1", "option2"] if clarify,
     "recommendations": ["rec1", "rec2"] if recommend,
     "ideas": ["idea1", "idea2"] if brainstorm,
@@ -284,8 +297,8 @@ If this is unrelated conversation, return action type "respond" with a helpful m
           reason: action.reason,
           options: action.options,
           enrichedOptions: enrichedOptions || undefined,
-          inputType: action.inputType,
-          header: action.header,
+          inputType: action.inputType || 'select',
+          header: action.header || action.field,
           field: action.field
         }
       
@@ -354,7 +367,15 @@ If this is unrelated conversation, return action type "respond" with a helpful m
           type: 'clarify',
           question: 'What automation would you like me to help you create?',
           reason: 'I need to understand your automation goal',
-          options: ['A workflow to automate a task', 'A chatbot for customer support', 'An integration between systems', 'Something else']
+          field: 'objective',
+          enrichedOptions: [
+            { label: 'Email automation', value: 'email automation', description: 'Automate email processing or notifications' },
+            { label: 'Data synchronization', value: 'data sync', description: 'Sync data between apps or databases' },
+            { label: 'Web scraping', value: 'web scraping', description: 'Extract data from websites' },
+            { label: 'API integration', value: 'api integration', description: 'Connect and automate API workflows' },
+            { label: 'Scheduling', value: 'scheduling', description: 'Automate scheduled tasks or reminders' },
+            { label: 'Custom workflow', value: 'custom', description: 'Describe your specific automation need' }
+          ]
         },
         intent: 'new_automation',
         confidence: 0.3,
