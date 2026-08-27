@@ -78,6 +78,107 @@ export async function POST(request: NextRequest) {
 
     alexLogger.debug('CHAT', 'Request received', { conversationId, mode, fileIds })
 
+    // Check if there's an active artifact build for this conversation
+    const { data: activeBuild } = await supabase
+      .from('alex_artifact_builds')
+      .select('*')
+      .eq('conversation_id', conversationId)
+      .eq('user_id', userId)
+      .in('status', ['collecting_requirements', 'ready_for_confirmation', 'awaiting_architecture_verification'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+
+    console.log('[DIAGNOSTIC] ACTIVE ARTIFACT BUILD CHECK', {
+      hasActiveBuild: !!activeBuild,
+      buildStatus: activeBuild?.status,
+      buildType: activeBuild?.build_type
+    })
+
+    // If there's an active artifact build, route through workflow orchestrator
+    if (activeBuild) {
+      console.log('[CHAT ROUTE] Routing to workflow orchestrator due to active build')
+      
+      try {
+        const { WorkflowOrchestrator } = await import('@/lib/alex/orchestration/workflow-orchestrator')
+        const workflowOrchestrator = WorkflowOrchestrator.getInstance()
+        
+        const workflowRequest = {
+          conversationId,
+          userId,
+          userMessage: content,
+          conversationHistory,
+          mode,
+          attachedFiles
+        }
+        
+        const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
+        
+        console.log('[CHAT ROUTE] Workflow orchestrator response:', {
+          status: workflowResponse.status,
+          hasQuestion: !!workflowResponse.question,
+          hasArchitecture: !!workflowResponse.architectureProposal,
+          hasArtifacts: !!workflowResponse.artifacts,
+          hasPlan: !!workflowResponse.plan,
+          messagePreview: workflowResponse.message?.substring(0, 100)
+        })
+        
+        // Stream the workflow response as artifact workflow events
+        const encoder = new TextEncoder()
+        const stream = new ReadableStream({
+          async start(controller) {
+            try {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'start' })}\n\n`))
+              
+              if (workflowResponse.message) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'delta', content: workflowResponse.message })}\n\n`))
+              }
+              
+              if (workflowResponse.question) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifact_workflow', data: { question: workflowResponse.question } })}\n\n`))
+              }
+              
+              if (workflowResponse.architectureProposal) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifact_workflow', data: { architectureProposal: workflowResponse.architectureProposal } })}\n\n`))
+              }
+              
+              if (workflowResponse.artifacts && workflowResponse.artifacts.length > 0) {
+                const responseWithArtifacts = {
+                  artifacts: workflowResponse.artifacts.map((a: any) => ({
+                    id: a.id,
+                    filename: a.filename,
+                    file_type: a.file_type,
+                    mime_type: a.mime_type,
+                    download_url: `/api/alex/artifacts/${a.id}/download`
+                  }))
+                }
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'artifacts', data: responseWithArtifacts.artifacts })}\n\n`))
+              }
+              
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+              controller.close()
+            } catch (error) {
+              console.error('[CHAT ROUTE] Workflow orchestrator error:', error)
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'error', data: { message: 'Workflow orchestration failed' } })}\n\n`))
+              controller.close()
+            }
+          }
+        })
+        
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          }
+        })
+      } catch (error) {
+        console.error('[CHAT ROUTE] Failed to route to workflow orchestrator:', error)
+        // Fall through to normal chat flow if workflow orchestrator fails
+      }
+    }
+
     // Resolve effective file IDs: current message + conversation files
     const currentMessageFileIds = fileIds || []
     let persistedConversationFileIds: string[] = []
