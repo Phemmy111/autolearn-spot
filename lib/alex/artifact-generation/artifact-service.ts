@@ -11,7 +11,8 @@ import {
   BuildStatus, 
   BuildType,
   ArtifactManifest,
-  ValidationResult
+  ValidationResult,
+  QuestionOption
 } from './types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -91,7 +92,10 @@ export class ArtifactService {
     buildId: string,
     question: string,
     questionType: 'missing_requirement' | 'clarification' | 'verification',
-    context?: string
+    context?: string,
+    options?: any[],
+    inputType?: 'select' | 'multi-select' | 'text' | 'email' | 'url' | 'number' | 'time' | 'date' | 'boolean',
+    header?: string
   ): Promise<ArtifactQuestion> {
     const { data, error } = await getSupabaseClient()
       .from('alex_artifact_questions')
@@ -100,7 +104,10 @@ export class ArtifactService {
         question,
         question_type: questionType,
         context,
-        is_answered: false
+        is_answered: false,
+        options,
+        input_type: inputType,
+        header
       })
       .select()
       .single()
@@ -110,7 +117,7 @@ export class ArtifactService {
       throw new Error(`Failed to add question: ${error.message}`)
     }
 
-    console.log('[Artifact Service] Question added:', data.id, 'with context:', context)
+    console.log('[Artifact Service] Question added:', data.id, 'with context:', context, 'options:', options?.length)
     return data
   }
 

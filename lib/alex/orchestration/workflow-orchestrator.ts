@@ -34,6 +34,16 @@ export interface WorkflowOrchestrationResponse {
     text: string
     reason?: string
     options?: string[]
+    // Enhanced interactive question support
+    enrichedOptions?: Array<{
+      label: string
+      value: string
+      description?: string
+      recommended?: boolean
+    }>
+    inputType?: 'select' | 'multi-select' | 'text' | 'email' | 'url' | 'number' | 'time' | 'date' | 'boolean'
+    header?: string
+    field?: string
   }
   architectureProposal?: any
   artifacts?: any[]
@@ -156,7 +166,11 @@ export class WorkflowOrchestrator {
           question: {
             text: action.question,
             reason: action.reason,
-            options: action.options
+            options: action.options,
+            enrichedOptions: action.enrichedOptions,
+            inputType: action.inputType,
+            header: action.header,
+            field: action.field
           }
         }
       
@@ -168,7 +182,8 @@ export class WorkflowOrchestrator {
           question: {
             text: action.recommendations?.join('\n') || '',
             reason: 'Here are my recommendations',
-            options: action.recommendations
+            options: action.recommendations,
+            enrichedOptions: action.enrichedOptions
           }
         }
       
@@ -180,7 +195,8 @@ export class WorkflowOrchestrator {
           question: {
             text: action.ideas?.join('\n') || '',
             reason: 'Here are some ideas to consider',
-            options: action.ideas
+            options: action.ideas,
+            enrichedOptions: action.enrichedOptions
           }
         }
       

@@ -13,10 +13,14 @@ interface Option {
 interface AlexInteractiveQuestionProps {
   question: {
     text: string
-    field: string
-    context: string
+    field?: string
+    context?: string
     options?: string[]
+    // Enhanced interactive question support
+    enrichedOptions?: Option[]
     inputType?: 'select' | 'multi-select' | 'text' | 'email' | 'url' | 'number' | 'time' | 'date' | 'boolean'
+    header?: string
+    reason?: string
   }
   onSelect: (value: string) => void
   disabled?: boolean
@@ -50,8 +54,11 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
   }
 
   // Determine if this is a finite choice question
-  const hasOptions = question.options && question.options.length > 0
+  const hasOptions = (question.options && question.options.length > 0) || (question.enrichedOptions && question.enrichedOptions.length > 0)
   const inputType = question.inputType || 'text'
+  
+  // Use enriched options if available, otherwise fall back to simple options
+  const displayOptions = question.enrichedOptions || question.options?.map(opt => ({ label: opt, value: opt })) || []
 
   // Render select/multi-select options
   if (hasOptions) {
@@ -61,6 +68,12 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
           <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-slate-200 font-medium">{question.text}</p>
+            {question.reason && (
+              <p className="text-xs text-slate-400 mt-1">{question.reason}</p>
+            )}
+            {question.header && (
+              <p className="text-xs text-slate-500 mt-1">{question.header}</p>
+            )}
             {question.field && (
               <p className="text-xs text-slate-500 mt-1">Context: {question.field}</p>
             )}
@@ -68,16 +81,19 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {question.options.map((option, index) => {
-            const isRecommended = index === 0 // First option is recommended
+          {displayOptions.map((option, index) => {
+            const isRecommended = option.recommended || index === 0 // First option is recommended if not specified
+            const displayLabel = option.label || option.value
+            const displayValue = option.value
+            
             return (
               <button
-                key={option}
-                onClick={() => handleSelect(option)}
+                key={displayValue}
+                onClick={() => handleSelect(displayValue)}
                 disabled={disabled}
                 className={`
                   relative p-3 rounded-lg border text-left transition-all
-                  ${selected === option
+                  ${selected === displayValue
                     ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300'
                     : 'bg-slate-900/50 border-slate-600 text-slate-300 hover:border-slate-500 hover:bg-slate-900'
                   }
@@ -90,12 +106,17 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  {selected === option ? (
+                  {selected === displayValue ? (
                     <Check className="h-4 w-4 text-cyan-400" />
                   ) : (
                     <div className="h-4 w-4 border border-slate-500 rounded-sm" />
                   )}
-                  <span className="text-sm font-medium">{option}</span>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">{displayLabel}</span>
+                    {option.description && (
+                      <p className="text-xs text-slate-400 mt-1">{option.description}</p>
+                    )}
+                  </div>
                 </div>
               </button>
             )
@@ -113,6 +134,12 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
           <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-slate-200 font-medium">{question.text}</p>
+            {question.reason && (
+              <p className="text-xs text-slate-400 mt-1">{question.reason}</p>
+            )}
+            {question.header && (
+              <p className="text-xs text-slate-500 mt-1">{question.header}</p>
+            )}
             {question.field && (
               <p className="text-xs text-slate-500 mt-1">Context: {question.field}</p>
             )}
@@ -182,6 +209,12 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
         {getInputIcon()}
         <div className="flex-1">
           <p className="text-slate-200 font-medium">{question.text}</p>
+          {question.reason && (
+            <p className="text-xs text-slate-400 mt-1">{question.reason}</p>
+          )}
+          {question.header && (
+            <p className="text-xs text-slate-500 mt-1">{question.header}</p>
+          )}
           {question.field && (
             <p className="text-xs text-slate-500 mt-1">Context: {question.field}</p>
           )}

@@ -102,6 +102,13 @@ export interface GeneratedArtifact {
   }
 }
 
+export interface QuestionOption {
+  label: string
+  value: string
+  description?: string
+  recommended?: boolean
+}
+
 export interface ArtifactQuestion {
   id: string
   build_id: string
@@ -112,6 +119,10 @@ export interface ArtifactQuestion {
   answered_at?: string
   is_answered: boolean
   created_at: string
+  // Interactive question support
+  options?: QuestionOption[]  // Available options for selection
+  input_type?: 'select' | 'multi-select' | 'text' | 'email' | 'url' | 'number' | 'time' | 'date' | 'boolean'
+  header?: string  // Short label for the question category
 }
 
 export interface ArtifactGenerationResult {

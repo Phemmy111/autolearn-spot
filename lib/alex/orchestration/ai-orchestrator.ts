@@ -6,6 +6,7 @@
  */
 
 import { WorkflowAIService } from '../artifact-generation/workflow-ai-service'
+import { QuestionOptionsGenerator } from '../artifact-generation/question-options-generator'
 import { 
   AlexNextAction, 
   AutomationPlan, 
@@ -274,25 +275,44 @@ If this is unrelated conversation, return action type "respond" with a helpful m
         return { type: 'respond', message: action.message || '' }
       
       case 'clarify':
+        // Generate enriched options if available for the context
+        const contextForOptions = action.reason || action.field || ''
+        const enrichedOptions = contextForOptions ? QuestionOptionsGenerator.getOptionsForContext(contextForOptions) : null
         return {
           type: 'clarify',
           question: action.question || '',
           reason: action.reason,
-          options: action.options
+          options: action.options,
+          enrichedOptions: enrichedOptions || undefined,
+          inputType: action.inputType,
+          header: action.header,
+          field: action.field
         }
       
       case 'recommend':
+        // Convert recommendations to enriched options if they're simple strings
+        const enrichedRecs = action.recommendations?.map((rec: string) => ({
+          label: rec,
+          value: rec
+        }))
         return {
           type: 'recommend',
           message: action.message || '',
-          recommendations: action.recommendations
+          recommendations: action.recommendations,
+          enrichedOptions: enrichedRecs
         }
       
       case 'brainstorm':
+        // Convert ideas to enriched options if they're simple strings
+        const enrichedIdeas = action.ideas?.map((idea: string) => ({
+          label: idea,
+          value: idea
+        }))
         return {
           type: 'brainstorm',
           message: action.message || '',
-          ideas: action.ideas
+          ideas: action.ideas,
+          enrichedOptions: enrichedIdeas
         }
       
       case 'plan':

@@ -6,6 +6,16 @@
  */
 
 /**
+ * Interactive question option structure
+ */
+export interface InteractiveOption {
+  label: string;
+  value: string;
+  description?: string;
+  recommended?: boolean;
+}
+
+/**
  * AI-decided next action
  * The orchestrator returns one of these based on conversation context and automation plan
  */
@@ -19,16 +29,23 @@ export type AlexNextAction =
       question: string;
       reason?: string;
       options?: string[];
+      // Enhanced interactive question support
+      enrichedOptions?: InteractiveOption[];
+      inputType?: 'select' | 'multi-select' | 'text' | 'email' | 'url' | 'number' | 'time' | 'date' | 'boolean';
+      header?: string;
+      field?: string;
     }
   | {
       type: "recommend";
       message: string;
       recommendations?: string[];
+      enrichedOptions?: InteractiveOption[];
     }
   | {
       type: "brainstorm";
       message: string;
       ideas?: string[];
+      enrichedOptions?: InteractiveOption[];
     }
   | {
       type: "plan";
