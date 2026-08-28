@@ -100,14 +100,33 @@ export async function POST(request: NextRequest) {
       console.log('[CHAT ROUTE] Routing to workflow orchestrator due to active build')
       
       try {
+        // Save user message FIRST so it appears in conversation history
+        const { data: earlyUserMessage, error: earlyUserMsgError } = await supabase
+          .from('alex_messages')
+          .insert({
+            conversation_id: conversationId,
+            role: 'user',
+            content,
+            file_ids: fileIds || [],
+          })
+          .select()
+          .single()
+
+        if (earlyUserMsgError) {
+          console.error('[CHAT ROUTE] Failed to save user message in early routing:', earlyUserMsgError)
+          // Fall through to normal chat flow
+          throw earlyUserMsgError
+        }
+
         const { WorkflowOrchestrator } = await import('@/lib/alex/orchestration/workflow-orchestrator')
         const workflowOrchestrator = WorkflowOrchestrator.getInstance()
 
-        // Fetch conversation history inline (conversationHistory is built later in the normal path)
+        // Fetch conversation history (excluding the message we just saved — it's passed as userMessage)
         const { data: earlyHistoryMessages } = await supabase
           .from('alex_messages')
           .select('role, content')
           .eq('conversation_id', conversationId)
+          .neq('id', earlyUserMessage.id)
           .order('created_at', { ascending: true })
           .limit(20)
         const earlyConversationHistory = earlyHistoryMessages?.map((m: any) => ({
@@ -134,6 +153,16 @@ export async function POST(request: NextRequest) {
           hasPlan: !!workflowResponse.plan,
           messagePreview: workflowResponse.message?.substring(0, 100)
         })
+
+        // Save assistant response so future turns have the full conversation
+        const assistantContent = workflowResponse.message || 'I need some information to proceed.'
+        await supabase
+          .from('alex_messages')
+          .insert({
+            conversation_id: conversationId,
+            role: 'assistant',
+            content: assistantContent,
+          })
         
         // Stream the workflow response as artifact workflow events
         const encoder = new TextEncoder()
