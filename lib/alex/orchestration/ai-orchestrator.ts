@@ -208,7 +208,8 @@ For each action type:
 
 CRITICAL INTERACTIVE QUESTION GUIDELINES:
 - When you use "clarify" action, you MUST provide a structured question with options
-- NEVER provide comprehensive guides or tutorials in a single response
+- NEVER provide comprehensive guides or tutorials in a single response, not even in a "respond" action.
+- If the user provides an answer to a question, do NOT reply with a tutorial. Either ask the NEXT logical question using "clarify", or if you have enough information, use "plan" or "generate".
 - ALWAYS break down complex automations into step-by-step interactive questions
 - Use the "reason" field to provide context for why you're asking
 - Use the "options" field to provide clear choices when applicable
