@@ -49,9 +49,8 @@ export function AlexChat({ userId }: AlexChatProps) {
     }
 
     const handleArchitectureApprove = (event: CustomEvent) => {
-      console.log('[AlexChat] Architecture approved')
-      // Send approval message to trigger artifact generation
-      sendMessage('I approve this architecture, please generate the workflow')
+      console.log('[AlexChat] Architecture approved - artifact generation handled directly by API')
+      // Removed redundant sendMessage call which was causing AI loops
     }
 
     const handleArchitectureModify = (event: CustomEvent) => {

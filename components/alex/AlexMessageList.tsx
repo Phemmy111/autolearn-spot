@@ -142,10 +142,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
             <AlexInteractiveQuestion
               question={workflowData.question}
               onSelect={(value) => {
-                // Send the selected value as a user message
-                // This will be handled by the parent component
-                const event = new CustomEvent('alexQuestionAnswer', { detail: { field: workflowData.question.field || 'general', value } })
-                window.dispatchEvent(event)
+                // Do nothing here, AlexInteractiveQuestion already dispatches the 'alexQuestionAnswer' event
               }}
               disabled={isLoading}
             />
