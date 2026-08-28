@@ -80,6 +80,12 @@ export class AIOrchestrator {
     if (aiDecision.updatedPlan) {
       updatedPlan = aiDecision.updatedPlan
       updatedPlan.lastUpdated = new Date().toISOString()
+      
+      // Reverse fallback: If AI provided updatedPlan but missed action.plan, copy it over
+      // so that UI rendering (like status: 'planning') doesn't show an empty object.
+      if (!aiDecision.action.plan || Object.keys(aiDecision.action.plan).length === 0) {
+        aiDecision.action.plan = updatedPlan;
+      }
     }
     
     // If AI wants to generate but no platform is set, switch to clarify
