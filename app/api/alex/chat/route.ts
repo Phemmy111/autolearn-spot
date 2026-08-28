@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       .select('*')
       .eq('conversation_id', conversationId)
       .eq('user_id', userId)
-      .in('status', ['collecting_requirements', 'ready_for_confirmation', 'awaiting_architecture_verification'])
+      .in('status', ['collecting_requirements', 'ready_for_confirmation', 'awaiting_architecture_verification', 'planning'])
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
