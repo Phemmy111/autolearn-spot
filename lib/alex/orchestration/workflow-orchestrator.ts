@@ -157,6 +157,33 @@ export class WorkflowOrchestrator {
     if (updatedPlan) {
       await this.savePlan(request.conversationId, request.userId, updatedPlan, action.type)
     }
+
+    // CRITICAL FIX: Ensure a build record always exists when we're in a
+    // collecting_requirements phase (clarify / respond / recommend / brainstorm).
+    // Without this, the next user turn won't be routed back to the workflow
+    // orchestrator because route.ts checks alex_artifact_builds for active builds.
+    const requirementGatheringActions = ['clarify', 'respond', 'recommend', 'brainstorm']
+    if (requirementGatheringActions.includes(action.type) && !updatedPlan) {
+      try {
+        const existingBuild = await ArtifactService.getActiveBuild(
+          request.conversationId,
+          request.userId
+        )
+        if (!existingBuild) {
+          console.log('[Workflow Orchestrator] No build record found during requirement gathering — creating one now to anchor the conversation')
+          const newBuild = await ArtifactService.createBuild(
+            request.conversationId,
+            request.userId,
+            request.userMessage,
+            'workflow'
+          )
+          console.log('[Workflow Orchestrator] Anchor build created:', newBuild.id)
+        }
+      } catch (err) {
+        console.error('[Workflow Orchestrator] Failed to create anchor build:', err)
+        // Non-fatal — continue so the user still gets their response
+      }
+    }
     
     switch (action.type) {
       case 'respond':

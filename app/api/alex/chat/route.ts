@@ -102,14 +102,26 @@ export async function POST(request: NextRequest) {
       try {
         const { WorkflowOrchestrator } = await import('@/lib/alex/orchestration/workflow-orchestrator')
         const workflowOrchestrator = WorkflowOrchestrator.getInstance()
+
+        // Fetch conversation history inline (conversationHistory is built later in the normal path)
+        const { data: earlyHistoryMessages } = await supabase
+          .from('alex_messages')
+          .select('role, content')
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: true })
+          .limit(20)
+        const earlyConversationHistory = earlyHistoryMessages?.map((m: any) => ({
+          role: m.role,
+          content: m.content
+        })) || []
         
         const workflowRequest = {
           conversationId,
           userId,
           userMessage: content,
-          conversationHistory,
+          conversationHistory: earlyConversationHistory,
           mode,
-          attachedFiles
+          attachedFiles: [] // files are resolved later; orchestrator can work without them here
         }
         
         const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
