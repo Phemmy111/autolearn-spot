@@ -69,6 +69,26 @@ export class AIOrchestrator {
       confidence: aiDecision.confidence
     })
     
+    // CRITICAL: Check if platform is specified before allowing generate action
+    if (aiDecision.action.type === 'generate' || aiDecision.action.type === 'execute') {
+      const planToCheck = aiDecision.updatedPlan || currentPlan
+      if (!planToCheck?.platform?.name) {
+        console.log('[AI Orchestrator] Platform not specified, changing to clarify action')
+        aiDecision.action = {
+          type: 'clarify',
+          question: 'Which automation platform would you like to use?',
+          reason: 'Platform selection is required before generating the workflow',
+          field: 'platform',
+          enrichedOptions: [
+            { label: 'n8n', value: 'n8n', description: 'Visual workflow automation with 400+ integrations', recommended: true },
+            { label: 'Zapier', value: 'zapier', description: 'Easy-to-use automation with 5,000+ app integrations' },
+            { label: 'Make (Integromat)', value: 'make', description: 'Advanced scenarios with powerful data transformation' },
+            { label: 'Custom Script', value: 'custom', description: 'Python/Node.js script for maximum flexibility' }
+          ]
+        }
+      }
+    }
+    
     // Update plan if provided
     let updatedPlan = currentPlan
     if (aiDecision.updatedPlan) {
@@ -107,22 +127,22 @@ export class AIOrchestrator {
       }
     }
     
-    // Track answers if this looks like an answer to a previous question
-    if (aiDecision.intent === 'answer_question' && context.userId && context.conversationId) {
-      const unanswered = await OrchestrationQuestionService.getUnansweredQuestions({
-        conversationId: context.conversationId,
-        userId: context.userId
-      })
+    // Check if this is an answer to a previous question (when current plan exists)
+    if (currentPlan && !userMessage.toLowerCase().includes('stop') && !userMessage.toLowerCase().includes('cancel') && !userMessage.toLowerCase().includes('never mind')) {
+      console.log('[AI Orchestrator] Current plan exists, treating as continuation unless explicit cancellation')
       
-      if (unanswered.length > 0) {
-        // Try to match this answer to a recent question
-        const mostRecent = unanswered[0]
-        await OrchestrationQuestionService.recordAnswer({
-          conversationId: context.conversationId,
-          userId: context.userId,
-          question: mostRecent.question,
-          answer: userMessage
-        })
+      // If the message is short and looks like an answer, treat as answer_question
+      if (userMessage.length < 200 && !userMessage.includes('?')) {
+        console.log('[AI Orchestrator] Short message without question mark, treating as answer')
+        return {
+          action: {
+            type: 'respond',
+            message: 'Thanks for the information. Let me continue with your automation design.'
+          },
+          intent: 'answer_question',
+          confidence: 0.7,
+          reasoning: 'User provided information in existing automation context'
+        }
       }
     }
     
@@ -184,6 +204,12 @@ Intent Detection Guidelines:
 
 IMPORTANT: If user mentions specific automation (WhatsApp, email, etc.) and wants to "generate the json" or similar, treat as new_automation and use interactive questions
 
+IMPORTANT STATE MANAGEMENT:
+- If there's an active automation plan (currentPlan exists), assume user is continuing the automation conversation
+- Even if the user's message seems unrelated, check if they're answering a question or providing information
+- Only treat as unrelated_conversation if user explicitly says "stop", "cancel", "never mind", or starts a completely different topic
+- If user asks questions about the automation being built, treat as clarification within the context
+
 For each action type:
 - respond: Provide a conversational response acknowledging the user
 - clarify: Ask a specific question to gather necessary information. Include reason for asking and optional answer choices.
@@ -209,6 +235,8 @@ CRITICAL INTERACTIVE QUESTION GUIDELINES:
 - NEVER provide full implementation guides - ask questions instead
 - NEVER provide code examples or JSON before understanding requirements
 - ALWAYS start with understanding the goal, then platform, then trigger, then specifics
+- CRITICAL: If platform is not specified in the plan, you MUST ask for platform selection before proceeding to generate action
+- CRITICAL: Never default to n8n - always ask user to specify platform preference
 
 IMPORTANT GUIDELINES:
 - DO NOT mechanically enumerate fields like "trigger?", "platform?", "inputs?"
@@ -346,6 +374,18 @@ If this is unrelated conversation, return action type "respond" with a helpful m
         return {
           type: 'revise',
           message: action.message || '',
+          plan: action.plan || {}
+        }
+      
+      case 'generate_artifact':
+        return {
+          type: 'generate_artifact',
+          plan: action.plan || {}
+        }
+      
+      case 'approve':
+        return {
+          type: 'approve',
           plan: action.plan || {}
         }
       

@@ -156,6 +156,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
         {workflowData.architectureProposal && (
           <AlexArchitectureApproval
             architecture={workflowData.architectureProposal}
+            conversationId={conversationId}
             onApprove={() => {
               const event = new CustomEvent('alexArchitectureApprove', { detail: {} })
               window.dispatchEvent(event)

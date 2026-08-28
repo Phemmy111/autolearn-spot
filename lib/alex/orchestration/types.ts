@@ -64,6 +64,15 @@ export type AlexNextAction =
       type: "revise";
       message: string;
       plan: AutomationPlan;
+    }
+  | {
+      type: "generate_artifact";
+      plan: AutomationPlan;
+      artifactData?: any;
+    }
+  | {
+      type: "approve";
+      plan: AutomationPlan;
     };
 
 /**

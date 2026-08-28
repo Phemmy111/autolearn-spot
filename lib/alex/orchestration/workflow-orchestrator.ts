@@ -16,6 +16,7 @@ import { ArtifactService } from '../artifact-generation/artifact-service'
 import { ArchitectureDesigner } from '../artifact-generation/architecture-designer'
 import { AutomationSpec } from '../artifact-generation/automation-spec'
 import { OrchestrationQuestionService } from './orchestration-question-service'
+import { WorkflowJSONGenerator } from '../artifact-generation/workflow-json-generator'
 
 export interface WorkflowOrchestrationRequest {
   conversationId: string
@@ -233,6 +234,13 @@ export class WorkflowOrchestrator {
           plan: action.plan
         }
       
+      case 'generate_artifact':
+        return await this.handleArtifactGeneration(action.plan, request)
+      
+      case 'approve':
+        // User approved the architecture - proceed to artifact generation
+        return await this.handleArtifactGeneration(action.plan, request)
+      
       default:
         console.warn('[Workflow Orchestrator] Unknown action type:', action.type)
         return {
@@ -250,6 +258,27 @@ export class WorkflowOrchestrator {
     request: WorkflowOrchestrationRequest
   ): Promise<WorkflowOrchestrationResponse> {
     console.log('[Workflow Orchestrator] Generating artifact from plan')
+    
+    // CRITICAL: Check if platform is specified before proceeding
+    if (!plan.platform?.name) {
+      console.log('[Workflow Orchestrator] Platform not specified, asking for platform selection')
+      return {
+        status: 'collecting_requirements',
+        message: 'I need to know which platform to use before generating the workflow.',
+        needsInput: true,
+        question: {
+          text: 'Which automation platform would you like to use?',
+          reason: 'Platform selection is required for workflow generation',
+          field: 'platform',
+          enrichedOptions: [
+            { label: 'n8n', value: 'n8n', description: 'Visual workflow automation with 400+ integrations', recommended: true },
+            { label: 'Zapier', value: 'zapier', description: 'Easy-to-use automation with 5,000+ app integrations' },
+            { label: 'Make (Integromat)', value: 'make', description: 'Advanced scenarios with powerful data transformation' },
+            { label: 'Custom Script', value: 'custom', description: 'Python/Node.js script for maximum flexibility' }
+          ]
+        }
+      }
+    }
     
     // Convert plan to AutomationSpec (legacy compatibility)
     const spec = this.planToSpec(plan)
@@ -283,8 +312,8 @@ export class WorkflowOrchestrator {
       message: 'I\'ve designed the architecture for your automation. Please review and confirm.',
       architectureProposal: {
         description: plan.objective,
-        platform: plan.platform?.name || 'n8n',
-        platformReasoning: plan.platform?.reasoning || 'Suitable for this automation',
+        platform: plan.platform?.name || null, // Don't default to n8n - ask if not specified
+        platformReasoning: plan.platform?.reasoning || 'Platform selection needed',
         complexity: plan.architecture?.complexity || 'moderate',
         stages: plan.architecture?.stages || [],
         assumptions: plan.assumptions || [],
@@ -292,6 +321,87 @@ export class WorkflowOrchestrator {
       },
       specification: spec,
       plan
+    }
+  }
+  
+  /**
+   * Handle actual artifact generation (JSON file creation)
+   */
+  private async handleArtifactGeneration(
+    plan: AutomationPlan,
+    request: WorkflowOrchestrationRequest
+  ): Promise<WorkflowOrchestrationResponse> {
+    console.log('[Workflow Orchestrator] Generating actual artifact from plan')
+    
+    try {
+      // Get active build
+      const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
+      
+      if (!existingBuild) {
+        throw new Error('No active build found for artifact generation')
+      }
+      
+      // Update build status
+      await ArtifactService.updateBuildStatus(existingBuild.id, 'generating')
+      
+      // Generate workflow JSON
+      const platform = plan.platform?.name || 'n8n'
+      const workflowData = WorkflowJSONGenerator.generateWorkflow(plan, platform)
+      
+      console.log('[Workflow Orchestrator] Generated workflow data:', {
+        platform,
+        filename: workflowData.filename,
+        fileType: workflowData.fileType,
+        contentLength: workflowData.content.length
+      })
+      
+      // Create artifact record
+      const { data: artifact, error: artifactError } = await ArtifactService.saveArtifact(
+        existingBuild.id,
+        request.userId,
+        workflowData.filename,
+        workflowData.fileType,
+        workflowData.fileType,
+        workflowData.content,
+        true, // isPrimary
+        {
+          platform: platform,
+          generation_stage: 'final',
+          architecture_approved: true
+        }
+      )
+      
+      if (artifactError || !artifact) {
+        throw new Error(`Failed to create artifact: ${artifactError?.message || 'Unknown error'}`)
+      }
+      
+      // Update build status to completed
+      await ArtifactService.updateBuildStatus(existingBuild.id, 'completed')
+      
+      // Update build with final specification
+      const spec = this.planToSpec(plan)
+      await ArtifactService.updateSpecification(existingBuild.id, spec, [])
+      
+      return {
+        status: 'completed',
+        message: 'Your workflow has been generated successfully! You can download it below.',
+        artifacts: [artifact],
+        specification: spec,
+        plan
+      }
+    } catch (error) {
+      console.error('[Workflow Orchestrator] Artifact generation failed:', error)
+      
+      // Update build status to failed
+      const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
+      if (existingBuild) {
+        await ArtifactService.updateBuildStatus(existingBuild.id, 'failed')
+      }
+      
+      return {
+        status: 'failed',
+        message: `Failed to generate workflow: ${error instanceof Error ? error.message : 'Unknown error'}`
+      }
     }
   }
   
