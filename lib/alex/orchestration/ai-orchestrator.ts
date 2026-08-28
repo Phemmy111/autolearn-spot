@@ -86,6 +86,12 @@ export class AIOrchestrator {
     // but let the AI provide its own question — don't hardcode options here
     if (aiDecision.action.type === 'generate' || aiDecision.action.type === 'execute') {
       const planToCheck = updatedPlan || currentPlan
+      
+      // Auto-fix if AI generated platform as a string instead of object
+      if (planToCheck && typeof planToCheck.platform === 'string') {
+        planToCheck.platform = { name: planToCheck.platform };
+      }
+      
       if (!planToCheck?.platform?.name) {
         console.log('[AI Orchestrator] Platform not specified, switching to clarify action')
         aiDecision.action = {
@@ -263,15 +269,16 @@ Return ONLY valid JSON in this exact format:
     "options": ["option1", "option2"] if clarify,
     "recommendations": ["rec1", "rec2"] if recommend,
     "ideas": ["idea1", "idea2"] if brainstorm,
-    "plan": { automation plan object } if plan/generate/execute/revise,
+    "plan": { "objective": "...", "platform": { "name": "n8n" }, "trigger": { "type": "...", "description": "..." }, "status": "draft" } if plan/generate/execute/revise,
     "confirmationRequired": true/false if execute
   },
-  "updatedPlan": { updated automation plan object if applicable } or null,
+  "updatedPlan": { "objective": "...", "platform": { "name": "n8n" }, "trigger": { "type": "...", "description": "..." }, "status": "draft" } or null,
   "confidence": 0.0-1.0,
   "reasoning": "brief explanation of your decision"
 }
 
 If no plan update is needed, set "updatedPlan" to null.
+IMPORTANT: When providing the plan, the platform MUST be an object like {"platform": {"name": "n8n"}}, NOT a string.
 If this is unrelated conversation, return action type "respond" with a helpful message.`
 
     console.log('[AI Orchestrator] Calling AI for decision with prompt length:', prompt.length)

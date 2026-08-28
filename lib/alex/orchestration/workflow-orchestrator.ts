@@ -332,6 +332,11 @@ export class WorkflowOrchestrator {
   ): Promise<WorkflowOrchestrationResponse> {
     console.log('[Workflow Orchestrator] Generating artifact from plan')
     
+    // Auto-fix if AI generated platform as a string instead of object
+    if (plan && typeof plan.platform === 'string') {
+      plan.platform = { name: plan.platform };
+    }
+
     // CRITICAL: Check if platform is specified before proceeding
     if (!plan.platform?.name) {
       console.log('[Workflow Orchestrator] Platform not specified, asking for platform selection')
