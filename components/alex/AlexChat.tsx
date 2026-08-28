@@ -50,8 +50,8 @@ export function AlexChat({ userId }: AlexChatProps) {
 
     const handleArchitectureApprove = (event: CustomEvent) => {
       console.log('[AlexChat] Architecture approved')
-      // Send approval message
-      sendMessage('yes')
+      // Send approval message to trigger artifact generation
+      sendMessage('I approve this architecture, please generate the workflow')
     }
 
     const handleArchitectureModify = (event: CustomEvent) => {

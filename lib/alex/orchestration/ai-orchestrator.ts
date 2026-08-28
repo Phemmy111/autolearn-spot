@@ -119,32 +119,22 @@ export class AIOrchestrator {
         })
       } else {
         console.log('[AI Orchestrator] Question prevented by persistent tracker:', question.substring(0, 50))
-        // Fallback to respond instead
+        // Fallback to clarify instead of respond to maintain interactive flow
         aiDecision.action = {
-          type: 'respond',
-          message: "I think we've already discussed that. Let me proceed with what we have."
+          type: 'clarify',
+          question: 'We\'ve already covered that. Should I go ahead and propose the architecture for this automation, or is there anything else to add?',
+          reason: 'Preventing repeated question',
+          field: 'proceed_to_generation',
+          enrichedOptions: [
+            { label: 'Yes, generate architecture', value: 'Please generate the architecture now' },
+            { label: 'No, I have more details', value: 'I want to add more details' }
+          ]
         }
       }
     }
     
-    // Check if this is an answer to a previous question (when current plan exists)
-    if (currentPlan && !userMessage.toLowerCase().includes('stop') && !userMessage.toLowerCase().includes('cancel') && !userMessage.toLowerCase().includes('never mind')) {
-      console.log('[AI Orchestrator] Current plan exists, treating as continuation unless explicit cancellation')
-      
-      // If the message is short and looks like an answer, treat as answer_question
-      if (userMessage.length < 200 && !userMessage.includes('?')) {
-        console.log('[AI Orchestrator] Short message without question mark, treating as answer')
-        return {
-          action: {
-            type: 'respond',
-            message: 'Thanks for the information. Let me continue with your automation design.'
-          },
-          intent: 'answer_question',
-          confidence: 0.7,
-          reasoning: 'User provided information in existing automation context'
-        }
-      }
-    }
+    // The AI decision accurately determines if the user is answering a question 
+    // and asks the next question or proceeds to generation. We shouldn't override it.
     
     return {
       action: aiDecision.action,
@@ -429,11 +419,13 @@ If this is unrelated conversation, return action type "respond" with a helpful m
       }
     }
     
-    // If current plan exists, treat as answer
+    // If current plan exists, treat as answer but ask a generic continuation question to maintain flow
     return {
       action: {
-        type: 'respond',
-        message: 'I understand. Let me continue with your automation.'
+        type: 'clarify',
+        question: 'I understand. What else should we configure for this automation (like triggers, specific actions, or connections)?',
+        reason: 'Continuing automation setup after fallback',
+        field: 'details'
       },
       intent: 'answer_question',
       confidence: 0.3,

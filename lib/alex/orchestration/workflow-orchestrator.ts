@@ -121,10 +121,16 @@ export class WorkflowOrchestrator {
       
       if (wasRecentlyAnswered) {
         console.log('[Workflow Orchestrator] Preventing repeated question:', question.substring(0, 50))
-        // Change to respond action
+        // Change to clarify action so we don't drop out of the interactive flow
         orchestrationResult.action = {
-          type: 'respond',
-          message: "I think we've already covered that. Let me proceed with the information we have."
+          type: 'clarify',
+          question: 'We\'ve covered that part. Should I go ahead and propose the architecture for this automation, or is there anything else to add?',
+          reason: 'Preventing repeated question',
+          field: 'proceed_to_generation',
+          enrichedOptions: [
+            { label: 'Yes, generate architecture', value: 'Please generate the architecture now' },
+            { label: 'No, I have more details', value: 'I want to add more details' }
+          ]
         }
       }
     }
@@ -235,11 +241,11 @@ export class WorkflowOrchestrator {
         }
       
       case 'generate_artifact':
-        return await this.handleArtifactGeneration(action.plan, request)
+        return await this.generateArtifactFromPlan(action.plan, request)
       
       case 'approve':
         // User approved the architecture - proceed to artifact generation
-        return await this.handleArtifactGeneration(action.plan, request)
+        return await this.generateArtifactFromPlan(action.plan, request)
       
       default:
         console.warn('[Workflow Orchestrator] Unknown action type:', action.type)
@@ -327,7 +333,7 @@ export class WorkflowOrchestrator {
   /**
    * Handle actual artifact generation (JSON file creation)
    */
-  private async handleArtifactGeneration(
+  public async generateArtifactFromPlan(
     plan: AutomationPlan,
     request: WorkflowOrchestrationRequest
   ): Promise<WorkflowOrchestrationResponse> {
@@ -382,10 +388,16 @@ export class WorkflowOrchestrator {
       const spec = this.planToSpec(plan)
       await ArtifactService.updateSpecification(existingBuild.id, spec, [])
       
+      // Attach download URL
+      const artifactWithUrl = {
+        ...artifact,
+        download_url: `/api/alex/artifacts/${artifact.id}/download`
+      }
+      
       return {
         status: 'completed',
         message: 'Your workflow has been generated successfully! You can download it below.',
-        artifacts: [artifact],
+        artifacts: [artifactWithUrl],
         specification: spec,
         plan
       }
@@ -678,5 +690,33 @@ export class WorkflowOrchestrator {
       console.error('[Workflow Orchestrator] Failed to check recently answered:', error)
       return false
     }
+  }
+
+  /**
+   * Handle direct architecture approval bypassing the AI loop
+   */
+  public async handleApproval(
+    conversationId: string,
+    userId: string
+  ): Promise<WorkflowOrchestrationResponse> {
+    console.log('[Workflow Orchestrator] Handling direct approval for conversation:', conversationId)
+    
+    // Load the fully populated plan from database
+    const plan = await this.loadCurrentPlan(conversationId, userId)
+    if (!plan) {
+      throw new Error('No active plan found to generate artifact')
+    }
+    
+    // Create the workflow request context
+    const request: WorkflowOrchestrationRequest = {
+      conversationId,
+      userId,
+      userMessage: 'User approved architecture - generate artifact',
+      conversationHistory: [],
+      mode: 'automation'
+    }
+    
+    // Directly generate artifact from the plan
+    return await this.generateArtifactFromPlan(plan, request)
   }
 }

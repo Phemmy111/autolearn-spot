@@ -61,16 +61,8 @@ export async function POST(request: Request) {
     const { WorkflowOrchestrator } = await import('@/lib/alex/orchestration/workflow-orchestrator')
     const workflowOrchestrator = WorkflowOrchestrator.getInstance()
 
-    // Trigger artifact generation
-    const workflowRequest = {
-      conversationId,
-      userId,
-      userMessage: 'User approved architecture - generate artifact',
-      conversationHistory: [],
-      mode: 'automation'
-    }
-
-    const response = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
+    // Trigger artifact generation directly via handleApproval
+    const response = await workflowOrchestrator.handleApproval(conversationId, userId)
 
     console.log('[Artifact Approval] Artifact generation response:', response.status)
 
