@@ -80,6 +80,31 @@ export class WorkflowOrchestrator {
       mode: request.mode
     })
     
+    // Load current automation plan if exists
+    const currentPlan = await this.loadCurrentPlan(request.conversationId, request.userId)
+    
+    // EARLY EXIT: If the user explicitly asked to generate the architecture,
+    // skip the AI decision loop entirely and go straight to generation.
+    // This prevents the infinite loop where the AI keeps asking the same question.
+    const generatePhrases = [
+      'please generate the architecture now',
+      'generate the architecture',
+      'yes, generate architecture',
+      'generate architecture',
+      'proceed to generation',
+      'go ahead and propose the architecture',
+      'yes, go ahead',
+      'generate now',
+      'proceed'
+    ]
+    const normalizedMessage = request.userMessage.toLowerCase().trim()
+    const isExplicitGenerateRequest = generatePhrases.some(phrase => normalizedMessage.includes(phrase))
+    
+    if (isExplicitGenerateRequest && currentPlan) {
+      console.log('[Workflow Orchestrator] Explicit generate request detected — skipping AI loop')
+      return await this.handleGenerate(currentPlan, request)
+    }
+    
     // Load conversation context
     const context: ConversationContext = {
       conversationId: request.conversationId,
@@ -91,9 +116,6 @@ export class WorkflowOrchestrator {
       })),
       mode: request.mode as any
     }
-    
-    // Load current automation plan if exists
-    const currentPlan = await this.loadCurrentPlan(request.conversationId, request.userId)
     
     // Let AI decide what to do
     const orchestrationResult = await this.aiOrchestrator.orchestrate(
@@ -121,7 +143,15 @@ export class WorkflowOrchestrator {
       
       if (wasRecentlyAnswered) {
         console.log('[Workflow Orchestrator] Preventing repeated question:', question.substring(0, 50))
-        // Change to clarify action so we don't drop out of the interactive flow
+        
+        // Instead of asking the same "proceed to generation?" question (which loops),
+        // directly proceed to architecture generation if we have a plan
+        if (currentPlan) {
+          console.log('[Workflow Orchestrator] Have a plan — proceeding directly to architecture generation')
+          return await this.handleGenerate(currentPlan, request)
+        }
+        
+        // No plan yet — ask the user what to do (but only once)
         orchestrationResult.action = {
           type: 'clarify',
           question: 'We\'ve covered that part. Should I go ahead and propose the architecture for this automation, or is there anything else to add?',
