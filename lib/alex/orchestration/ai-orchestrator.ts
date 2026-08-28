@@ -192,7 +192,7 @@ IMPORTANT: If user mentions specific automation (WhatsApp, email, etc.) and want
 
 IMPORTANT STATE MANAGEMENT:
 - If there's an active automation plan (currentPlan exists), assume user is continuing the automation conversation
-- Even if the user's message seems unrelated, check if they're answering a question or providing information
+- Even if the user's message seems unrelated or is very short (e.g., just a few words like "(subject and body"), strongly favor treating it as an answer to the previous question.
 - Only treat as unrelated_conversation if user explicitly says "stop", "cancel", "never mind", or starts a completely different topic
 - If user asks questions about the automation being built, treat as clarification within the context
 
@@ -432,7 +432,7 @@ If this is unrelated conversation, return action type "respond" with a helpful m
     return {
       action: {
         type: 'clarify',
-        question: 'I understand. What else should we configure for this automation (like triggers, specific actions, or connections)?',
+        question: 'Could you provide a bit more detail about that? (For example, any specific fields, rules, or steps you want to include?)',
         reason: 'Continuing automation setup after fallback',
         field: 'details'
       },
