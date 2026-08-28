@@ -17,6 +17,7 @@ import { ArchitectureDesigner } from '../artifact-generation/architecture-design
 import { AutomationSpec } from '../artifact-generation/automation-spec'
 import { OrchestrationQuestionService } from './orchestration-question-service'
 import { WorkflowJSONGenerator } from '../artifact-generation/workflow-json-generator'
+import { QuestionOptionsGenerator } from '../artifact-generation/question-options-generator'
 
 export interface WorkflowOrchestrationRequest {
   conversationId: string
@@ -333,12 +334,7 @@ export class WorkflowOrchestrator {
           text: 'Which automation platform would you like to use?',
           reason: 'Platform selection is required for workflow generation',
           field: 'platform',
-          enrichedOptions: [
-            { label: 'n8n', value: 'n8n', description: 'Visual workflow automation with 400+ integrations', recommended: true },
-            { label: 'Zapier', value: 'zapier', description: 'Easy-to-use automation with 5,000+ app integrations' },
-            { label: 'Make (Integromat)', value: 'make', description: 'Advanced scenarios with powerful data transformation' },
-            { label: 'Custom Script', value: 'custom', description: 'Python/Node.js script for maximum flexibility' }
-          ]
+          enrichedOptions: QuestionOptionsGenerator.generatePlatformOptions()
         }
       }
     }

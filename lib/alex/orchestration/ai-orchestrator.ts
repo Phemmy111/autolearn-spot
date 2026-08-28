@@ -69,22 +69,18 @@ export class AIOrchestrator {
       confidence: aiDecision.confidence
     })
     
-    // CRITICAL: Check if platform is specified before allowing generate action
+    // If AI wants to generate but no platform is set, switch to clarify
+    // but let the AI provide its own question — don't hardcode options here
     if (aiDecision.action.type === 'generate' || aiDecision.action.type === 'execute') {
       const planToCheck = aiDecision.updatedPlan || currentPlan
       if (!planToCheck?.platform?.name) {
-        console.log('[AI Orchestrator] Platform not specified, changing to clarify action')
+        console.log('[AI Orchestrator] Platform not specified, switching to clarify action')
         aiDecision.action = {
           type: 'clarify',
-          question: 'Which automation platform would you like to use?',
+          question: 'Which automation platform would you like to use for this workflow?',
           reason: 'Platform selection is required before generating the workflow',
-          field: 'platform',
-          enrichedOptions: [
-            { label: 'n8n', value: 'n8n', description: 'Visual workflow automation with 400+ integrations', recommended: true },
-            { label: 'Zapier', value: 'zapier', description: 'Easy-to-use automation with 5,000+ app integrations' },
-            { label: 'Make (Integromat)', value: 'make', description: 'Advanced scenarios with powerful data transformation' },
-            { label: 'Custom Script', value: 'custom', description: 'Python/Node.js script for maximum flexibility' }
-          ]
+          field: 'platform'
+          // No hardcoded enrichedOptions — let validateAction() handle fallback if needed
         }
       }
     }
@@ -312,15 +308,28 @@ If this is unrelated conversation, return action type "respond" with a helpful m
         return { type: 'respond', message: action.message || '' }
       
       case 'clarify':
-        // Generate enriched options if available for the context
-        const contextForOptions = action.reason || action.field || ''
-        const enrichedOptions = contextForOptions ? QuestionOptionsGenerator.getOptionsForContext(contextForOptions) : null
+        // Trust the AI's options first; only fall back to generator when AI provides nothing
+        let aiEnrichedOptions = action.enrichedOptions
+        if (!aiEnrichedOptions || aiEnrichedOptions.length === 0) {
+          // Convert AI's plain options array to enrichedOptions if present
+          if (action.options && action.options.length > 0) {
+            aiEnrichedOptions = action.options.map((opt: string) => ({
+              label: opt,
+              value: opt
+            }))
+          } else {
+            // Last resort: use the static generator as a fallback
+            const contextForOptions = action.reason || action.field || ''
+            const generatedOptions = contextForOptions ? QuestionOptionsGenerator.getOptionsForContext(contextForOptions) : null
+            aiEnrichedOptions = generatedOptions || undefined
+          }
+        }
         return {
           type: 'clarify',
           question: action.question || '',
           reason: action.reason,
           options: action.options,
-          enrichedOptions: enrichedOptions || undefined,
+          enrichedOptions: aiEnrichedOptions,
           inputType: action.inputType || 'select',
           header: action.header || action.field,
           field: action.field
