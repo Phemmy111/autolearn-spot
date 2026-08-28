@@ -69,10 +69,23 @@ export class AIOrchestrator {
       confidence: aiDecision.confidence
     })
     
+    // Update plan if provided
+    let updatedPlan = currentPlan
+    
+    // If AI provided a plan in the action but not in updatedPlan, use it
+    if (!aiDecision.updatedPlan && aiDecision.action.plan && Object.keys(aiDecision.action.plan).length > 0) {
+      aiDecision.updatedPlan = aiDecision.action.plan as AutomationPlan;
+    }
+
+    if (aiDecision.updatedPlan) {
+      updatedPlan = aiDecision.updatedPlan
+      updatedPlan.lastUpdated = new Date().toISOString()
+    }
+    
     // If AI wants to generate but no platform is set, switch to clarify
     // but let the AI provide its own question — don't hardcode options here
     if (aiDecision.action.type === 'generate' || aiDecision.action.type === 'execute') {
-      const planToCheck = aiDecision.updatedPlan || currentPlan
+      const planToCheck = updatedPlan || currentPlan
       if (!planToCheck?.platform?.name) {
         console.log('[AI Orchestrator] Platform not specified, switching to clarify action')
         aiDecision.action = {
@@ -83,13 +96,6 @@ export class AIOrchestrator {
           // No hardcoded enrichedOptions — let validateAction() handle fallback if needed
         }
       }
-    }
-    
-    // Update plan if provided
-    let updatedPlan = currentPlan
-    if (aiDecision.updatedPlan) {
-      updatedPlan = aiDecision.updatedPlan
-      updatedPlan.lastUpdated = new Date().toISOString()
     }
     
     // Track questions if clarification action

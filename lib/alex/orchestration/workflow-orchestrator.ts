@@ -272,11 +272,16 @@ export class WorkflowOrchestrator {
           plan: action.plan
         }
       
-      case 'generate':
+      case 'generate': {
         // Convert plan to spec and generate architecture
-        return await this.handleGenerate(action.plan, request)
+        // If the AI didn't provide the plan again in the action, use the accumulated plan
+        const planToGenerate = (action.plan && Object.keys(action.plan).length > 0) 
+          ? action.plan 
+          : (updatedPlan || currentPlan || {});
+        return await this.handleGenerate(planToGenerate, request)
+      }
       
-      case 'execute':
+      case 'execute': {
         // Execute the plan (generate artifact)
         if (action.confirmationRequired) {
           return {
@@ -289,7 +294,11 @@ export class WorkflowOrchestrator {
             }
           }
         }
-        return await this.handleGenerate(action.plan, request)
+        const planToExecute = (action.plan && Object.keys(action.plan).length > 0) 
+          ? action.plan 
+          : (updatedPlan || currentPlan || {});
+        return await this.handleGenerate(planToExecute, request)
+      }
       
       case 'revise':
         return {
