@@ -378,6 +378,7 @@ export async function POST(request: NextRequest) {
       .from('alex_messages')
       .select('role, content')
       .eq('conversation_id', conversationId)
+      .neq('id', userMessage.id)
       .order('created_at', { ascending: true })
       .limit(20)
 
