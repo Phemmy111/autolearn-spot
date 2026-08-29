@@ -111,14 +111,15 @@ export class AIOrchestrator {
     }
     
     // INTERCEPT: If AI still dumped JSON or a step-by-step guide in ANY action, convert it to a clarify action
-    if (aiDecision.action.message) {
-      const msg = aiDecision.action.message
-      const msgLower = msg.toLowerCase()
-      
+    const fullMsg = JSON.stringify(aiDecision)
+    const msgLower = fullMsg.toLowerCase()
+    
+    // Check if there's a long setup guide anywhere in the response
+    if (fullMsg) {
       const isJsonDump = (msgLower.includes('```json') && msgLower.includes('"nodes"')) ||
                          (msgLower.includes('"connections"') && msgLower.includes('n8n-nodes-base'))
                          
-      const isSetupGuide = msg.length > 400 && 
+      const isSetupGuide = fullMsg.length > 400 && 
                            (msgLower.includes('node') || msgLower.includes('webhook')) &&
                            (msgLower.includes('step') || msgLower.includes('overview') || msgLower.includes('┌──'))
 
@@ -128,7 +129,7 @@ export class AIOrchestrator {
         // Build a rich plan from whatever context we have
         // Extract useful workflow step info from the AI's message before we discard it
         const extractedSteps: Array<{step: string, description: string}> = []
-        const stepMatches = msg.match(/(?:step|node)\s*\d+[a-z]?\s*[:\-–—]\s*([^\n]+)/gi)
+        const stepMatches = fullMsg.match(/(?:step|node)\s*\d+[a-z]?\s*[:\-–—]\s*([^\n]+)/gi)
         if (stepMatches) {
           stepMatches.forEach((m: string, i: number) => {
             extractedSteps.push({ step: `Step ${i + 1}`, description: m.trim() })

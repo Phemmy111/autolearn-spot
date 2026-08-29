@@ -105,6 +105,7 @@ export class WorkflowOrchestrator {
       'generate json',
       'generate the complete json',
       'generate the complete json file',
+      'generate the complete json file for import',
       'generate the json file',
       'yes, generate',
       'generate it'
