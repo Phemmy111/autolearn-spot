@@ -146,7 +146,8 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
     }
 
     // Ensure required fields (after successful parse)
-    workflow.name = workflow.name || plan.objective || 'Generated Workflow'
+    const rawName = workflow.name || plan.objective || 'Generated Workflow'
+    workflow.name = rawName.length > 120 ? rawName.substring(0, 117) + '...' : rawName
     workflow.settings = workflow.settings || { executionOrder: 'v1' }
     workflow.pinData = workflow.pinData || {}
     workflow.meta = workflow.meta || { instanceId: 'generated-by-alex' }
@@ -222,6 +223,11 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
     let xPos = 250
     const yBase = 300
 
+    // Auto-generate workflow steps from plan context if plan.workflow is empty
+    if (!plan.workflow || !Array.isArray(plan.workflow) || plan.workflow.length === 0) {
+      plan.workflow = this.inferWorkflowSteps(plan)
+    }
+
     // 1. Trigger node
     const triggerType = (plan.trigger?.type || '').toLowerCase()
     if (triggerType === 'webhook' || triggerType.includes('webhook')) {
@@ -239,7 +245,7 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         position: [xPos, yBase],
         webhookId: 'auto-' + Date.now()
       })
-    } else if (triggerType === 'schedule' || triggerType.includes('cron')) {
+    } else if (triggerType === 'schedule' || triggerType.includes('cron') || triggerType.includes('daily') || triggerType.includes('hourly')) {
       nodes.push({
         parameters: {
           rule: {
@@ -288,17 +294,17 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         let parameters: any = { keepOnlySet: false, values: { string: [{ name: 'placeholder', value: 'placeholder' }] } }
 
         // Infer node type from description
-        if (desc.includes('http') || desc.includes('fetch') || desc.includes('api') || desc.includes('scrape') || desc.includes('get ')) {
+        if (desc.includes('http') || desc.includes('fetch') || desc.includes('api') || desc.includes('scrape') || desc.includes('get ') || desc.includes('rss') || desc.includes('url') || desc.includes('request') || desc.includes('download') || desc.includes('content')) {
           nodeType = 'n8n-nodes-base.httpRequest'
           parameters = { method: 'GET', url: 'https://example.com' }
-        } else if (desc.includes('summarize') || desc.includes('ai') || desc.includes('llm') || desc.includes('generate')) {
+        } else if (desc.includes('summarize') || desc.includes('ai') || desc.includes('llm') || desc.includes('generate') || desc.includes('analyze') || desc.includes('classify') || desc.includes('extract')) {
           nodeType = '@n8n/n8n-nodes-langchain.chainLlm'
           parameters = { prompt: '={{ $json.content }}' }
-        } else if (desc.includes('email') || desc.includes('gmail')) {
+        } else if (desc.includes('email') || desc.includes('gmail') || desc.includes('mail') || desc.includes('digest')) {
           nodeType = 'n8n-nodes-base.gmail'
           typeVersion = 2
           parameters = { operation: 'send', message: 'Hello' }
-        } else if (desc.includes('slack') || desc.includes('message')) {
+        } else if (desc.includes('slack')) {
           nodeType = 'n8n-nodes-base.slack'
           typeVersion = 2
           parameters = { resource: 'message', operation: 'post', text: 'Hello' }
@@ -312,12 +318,24 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         } else if (desc.includes('chunk') || desc.includes('batch') || desc.includes('split')) {
           nodeType = 'n8n-nodes-base.splitInBatches'
           parameters = { batchSize: 10 }
+        } else if (desc.includes('format') || desc.includes('transform') || desc.includes('combine') || desc.includes('merge')) {
+          nodeType = 'n8n-nodes-base.set'
+          parameters = { keepOnlySet: false, values: {} }
+        } else if (desc.includes('notion')) {
+          nodeType = 'n8n-nodes-base.notion'
+          typeVersion = 2
+          parameters = { operation: 'create', resource: 'page' }
+        } else if (desc.includes('telegram')) {
+          nodeType = 'n8n-nodes-base.telegram'
+          parameters = { operation: 'sendMessage' }
+        } else if (desc.includes('discord')) {
+          nodeType = 'n8n-nodes-base.discord'
+          parameters = { operation: 'sendMessage' }
         }
 
         // Check if the AI provided a nodeType explicitly in the plan
         if (step.nodeType) {
           nodeType = step.nodeType
-          // Clear parameters if it's a specific node type we don't know well, to avoid validation errors
           if (nodeType !== 'n8n-nodes-base.set') parameters = {} 
         }
 
@@ -368,8 +386,9 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
       }
     }
 
+    const rawName = plan.objective || 'Generated Workflow'
     const workflow = {
-      name: plan.objective || 'Generated Workflow',
+      name: rawName.length > 120 ? rawName.substring(0, 117) + '...' : rawName,
       nodes,
       connections,
       settings: { executionOrder: 'v1' },
@@ -378,6 +397,90 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
     }
 
     return JSON.stringify(workflow, null, 2)
+  }
+
+  /**
+   * Infer workflow steps from plan inputs/outputs/objective when
+   * the plan has no explicit workflow array.
+   */
+  private static inferWorkflowSteps(plan: AutomationPlan): Array<{step: string, description: string}> {
+    const steps: Array<{step: string, description: string}> = []
+    const objective = (plan.objective || '').toLowerCase()
+
+    // Step 1: Fetch / Ingest data from each source
+    const sources = plan.inputs?.sources || []
+    if (sources.length > 0) {
+      sources.forEach((src: string) => {
+        const srcLower = (src || '').toLowerCase()
+        if (srcLower.includes('rss')) {
+          steps.push({ step: 'Fetch RSS Feeds', description: 'Fetch content from RSS feed sources via HTTP Request' })
+        } else if (srcLower.includes('url') || srcLower.includes('web') || srcLower.includes('page')) {
+          steps.push({ step: 'Fetch Web Content', description: 'Fetch content from URLs/webpages via HTTP Request' })
+        } else if (srcLower.includes('api')) {
+          steps.push({ step: 'Fetch API Data', description: 'Fetch data from external API via HTTP Request' })
+        } else if (srcLower.includes('email') || srcLower.includes('mail')) {
+          steps.push({ step: 'Read Emails', description: 'Read incoming emails via Gmail/email node' })
+        } else if (srcLower.includes('social') || srcLower.includes('twitter') || srcLower.includes('linkedin') || srcLower.includes('facebook')) {
+          steps.push({ step: 'Fetch Social Media', description: 'Fetch social media content via HTTP Request API' })
+        } else if (srcLower.includes('document') || srcLower.includes('pdf') || srcLower.includes('file') || srcLower.includes('text')) {
+          steps.push({ step: 'Read Documents', description: 'Read and extract content from documents via HTTP Request' })
+        } else {
+          steps.push({ step: `Fetch ${src}`, description: `Fetch data from ${src} via HTTP Request` })
+        }
+      })
+    } else if (objective.includes('summar') || objective.includes('content')) {
+      steps.push({ step: 'Fetch Content', description: 'Fetch content from source via HTTP Request' })
+    }
+
+    // Step 2: If multiple sources, combine them
+    if (steps.length > 1) {
+      steps.push({ step: 'Combine Data', description: 'Format and combine data from multiple sources' })
+    }
+
+    // Step 3: AI processing if the objective implies it
+    if (objective.includes('summar') || objective.includes('generat') || objective.includes('analyz') ||
+        objective.includes('classif') || objective.includes('extract') || objective.includes('ai') ||
+        objective.includes('bot') || objective.includes('chat')) {
+      steps.push({ step: 'AI Summarize', description: 'Summarize and analyze content using AI/LLM' })
+    }
+
+    // Step 4: Format output
+    steps.push({ step: 'Format Output', description: 'Format and transform the results for delivery' })
+
+    // Step 5: Deliver to each destination
+    const destinations = plan.outputs?.destinations || []
+    if (destinations.length > 0) {
+      destinations.forEach((dest: string) => {
+        const destLower = (dest || '').toLowerCase()
+        if (destLower.includes('email') || destLower.includes('gmail') || destLower.includes('mail')) {
+          steps.push({ step: 'Send Email Digest', description: 'Send results as email digest via Gmail' })
+        } else if (destLower.includes('slack')) {
+          steps.push({ step: 'Post to Slack', description: 'Post results to Slack channel' })
+        } else if (destLower.includes('sheet') || destLower.includes('spreadsheet')) {
+          steps.push({ step: 'Save to Google Sheets', description: 'Append results to Google Sheets spreadsheet' })
+        } else if (destLower.includes('notion')) {
+          steps.push({ step: 'Save to Notion', description: 'Create page in Notion database' })
+        } else if (destLower.includes('webhook')) {
+          steps.push({ step: 'Send via Webhook', description: 'Send results via webhook/HTTP request to external app' })
+        } else if (destLower.includes('telegram')) {
+          steps.push({ step: 'Send to Telegram', description: 'Send message via Telegram bot' })
+        } else if (destLower.includes('discord')) {
+          steps.push({ step: 'Send to Discord', description: 'Send message to Discord channel' })
+        } else {
+          steps.push({ step: `Send to ${dest}`, description: `Deliver results to ${dest}` })
+        }
+      })
+    }
+
+    // If nothing was inferred, add a generic processing step
+    if (steps.length === 0) {
+      steps.push({ step: 'Fetch Data', description: 'Fetch input data via HTTP Request' })
+      steps.push({ step: 'Process', description: 'Process and transform data' })
+      steps.push({ step: 'Output', description: 'Send results to output destination' })
+    }
+
+    console.log(`[WorkflowJSONGenerator] Inferred ${steps.length} workflow steps from plan context`)
+    return steps
   }
 
   /**
