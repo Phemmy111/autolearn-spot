@@ -86,7 +86,7 @@ export class WorkflowAIService {
       messages: [{ role: 'user', content: prompt }],
       model: options?.personalModel || undefined,
       temperature: 0.2, // Low temperature for structured JSON output
-      maxTokens: 16000,
+      maxTokens: 8000,
       stream: false,
     }
 
@@ -99,7 +99,12 @@ export class WorkflowAIService {
       for (const provider of activeProviders) {
         try {
           console.log(`[Workflow AI Service] Trying provider: ${provider.name}`)
-          const result = await provider.generate(request)
+          
+          // Ensure a model is selected (crucial because some providers don't have a currentModel in DB)
+          const finalModel = request.model || provider.config.currentModel || provider.config.defaultModel
+          const finalRequest = { ...request, model: finalModel }
+          
+          const result = await provider.generate(finalRequest)
           
           if (result?.content && result.content.length > 0) {
             console.log(`[Workflow AI Service] Non-streaming succeeded via ${provider.name}. Response length:`, result.content.length)
