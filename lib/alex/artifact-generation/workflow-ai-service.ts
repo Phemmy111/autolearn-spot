@@ -38,7 +38,7 @@ export class WorkflowAIService {
         messages: [{ role: 'user', content: prompt }],
         model: undefined, // Let provider manager select
         temperature: 0.7,
-        maxTokens: 4000,
+        maxTokens: 8000,
         stream: true,
       }
 

@@ -25,28 +25,58 @@ export class WorkflowJSONGenerator {
 AUTOMATION PLAN:
 ${planSummary}
 
-CRITICAL n8n SCHEMA RULES:
-1. Output ONLY the raw JSON object. No markdown, no code fences, no explanation.
-2. Every node MUST have: "parameters" (object), "id" (uuid-like string), "name", "type" (exact n8n node type), "typeVersion" (number), "position" (array [x, y]).
-3. Use REAL n8n node types. CRITICAL: Default to "typeVersion": 1 for maximum backward compatibility with older n8n instances.
-   - Triggers: n8n-nodes-base.webhook (v1), n8n-nodes-base.scheduleTrigger (v1), n8n-nodes-base.manualTrigger (v1)
-   - Logic: n8n-nodes-base.if (v1), n8n-nodes-base.switch (v1), n8n-nodes-base.merge (v1)
-   - Data & Transform: n8n-nodes-base.code (v1 or v2) (use parameters.jsCode), n8n-nodes-base.set (v1), n8n-nodes-base.httpRequest (v1)
-   - Apps: n8n-nodes-base.googleSheets (v1 or v2), n8n-nodes-base.twilio (v1), n8n-nodes-base.slack (v1)
-   - AI/LangChain: @n8n/n8n-nodes-langchain.lmChatGoogleGemini (v1), @n8n/n8n-nodes-langchain.chainLlm (v1), @n8n/n8n-nodes-langchain.lmChatGroq (v1)
-4. Connections MUST use node names as keys. Format for main output:
-   { "NodeName": { "main": [ [ { "node": "NextNode", "type": "main", "index": 0 } ] ] } }
-   For AI models feeding into a chain, use the "ai_languageModel" type:
-   { "ModelNodeName": { "ai_languageModel": [ [ { "node": "ChainNodeName", "type": "ai_languageModel", "index": 0 } ] ] } }
-   For IF nodes, main has TWO arrays (0 = true branch, 1 = false branch):
-   { "IfNode": { "main": [ [ { "node": "TrueNode", "type": "main", "index": 0 } ], [ { "node": "FalseNode", "type": "main", "index": 0 } ] ] } }
-5. Credentials: When needed, add a "credentials" object to the node, e.g. { "googleSheetsOAuth2Api": { "id": "placeholder_id", "name": "Google Sheets account" } }. Do not invent real keys.
-6. Position nodes intelligently on an [x, y] grid (e.g. Trigger at [0, 0], next at [250, 0], AI models at [250, 200]).
-7. Expressions: Use "={{ $json.property }}" syntax.
-8. The top-level JSON must have: "name" (string), "nodes" (array), "connections" (object), "active" (boolean), "settings" (object, e.g. {"executionOrder": "v1"}), "versionId" (uuid).
-9. Make parameters as complete and realistic as possible based on the plan. Include proper JS code in Code nodes, proper headers in HTTP requests, etc.
+CRITICAL RULES:
+1. Output ONLY the raw JSON object. No markdown, no code fences, no explanation text.
+2. NEVER use n8n-nodes-base.code as a substitute for a real integration node. Use the ACTUAL n8n node type for each service.
+3. Every node MUST have: "parameters" (object), "id" (unique uuid string), "name" (string), "type" (exact n8n node type string), "typeVersion" (number, default 1), "position" ([x, y] array).
 
-OUTPUT: Return ONLY the JSON object.`
+NODE TYPE REFERENCE (use these EXACT type strings):
+- Gmail trigger: "n8n-nodes-base.gmailTrigger", typeVersion: 1
+- Gmail send/reply: "n8n-nodes-base.gmail", typeVersion: 2, parameters.operation: "reply" or "send"
+- Google Sheets append: "n8n-nodes-base.googleSheets", typeVersion: 2, parameters.operation: "appendOrUpdate"
+- Slack send message: "n8n-nodes-base.slack", typeVersion: 2, parameters.resource: "message", parameters.operation: "post"
+- Twilio send SMS: "n8n-nodes-base.twilio", typeVersion: 1
+- Webhook: "n8n-nodes-base.webhook", typeVersion: 1
+- IF conditional: "n8n-nodes-base.if", typeVersion: 1
+- Switch: "n8n-nodes-base.switch", typeVersion: 1
+- HTTP Request: "n8n-nodes-base.httpRequest", typeVersion: 1
+- Code (JS): "n8n-nodes-base.code", typeVersion: 1 (ONLY for custom JavaScript logic, NOT as substitute for real nodes)
+- Set data: "n8n-nodes-base.set", typeVersion: 1
+- Schedule trigger: "n8n-nodes-base.scheduleTrigger", typeVersion: 1
+- Manual trigger: "n8n-nodes-base.manualTrigger", typeVersion: 1
+- Google Gemini AI: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", typeVersion: 1
+- LLM Chain: "@n8n/n8n-nodes-langchain.chainLlm", typeVersion: 1
+- Merge: "n8n-nodes-base.merge", typeVersion: 1
+
+CONNECTIONS FORMAT:
+- Standard: { "NodeA": { "main": [ [ { "node": "NodeB", "type": "main", "index": 0 } ] ] } }
+- IF node (2 branches): { "IF": { "main": [ [ { "node": "TrueNode", "type": "main", "index": 0 } ], [ { "node": "FalseNode", "type": "main", "index": 0 } ] ] } }
+- Switch node (3 branches): { "Switch": { "main": [ [ { "node": "Branch0Node", "type": "main", "index": 0 } ], [ { "node": "Branch1Node", "type": "main", "index": 0 } ], [ { "node": "Branch2Node", "type": "main", "index": 0 } ] ] } }
+- AI model to chain: { "Gemini": { "ai_languageModel": [ [ { "node": "LLMChain", "type": "ai_languageModel", "index": 0 } ] ] } }
+- One output to multiple nodes: { "NodeA": { "main": [ [ { "node": "NodeB", "type": "main", "index": 0 }, { "node": "NodeC", "type": "main", "index": 0 } ] ] } }
+
+CONCRETE EXAMPLE (Shopify webhook with IF routing):
+{
+  "name": "Shopify Order Router",
+  "nodes": [
+    { "parameters": { "httpMethod": "POST", "path": "shopify-order", "responseMode": "onReceived" }, "id": "a1b2c3d4-0001-4000-8000-000000000001", "name": "Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [250, 300] },
+    { "parameters": { "conditions": { "number": [{ "value1": "={{ $json.total_price }}", "operation": "larger", "value2": 500 }] } }, "id": "a1b2c3d4-0002-4000-8000-000000000002", "name": "IF Total > 500", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [500, 300] },
+    { "parameters": { "from": "+15551234567", "to": "+15559876543", "message": "High-value order: ={{ $json.total_price }}" }, "id": "a1b2c3d4-0003-4000-8000-000000000003", "name": "Twilio SMS", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [750, 200], "credentials": { "twilioApi": { "id": "1", "name": "Twilio account" } } },
+    { "parameters": { "operation": "appendOrUpdate", "sheetName": "Orders", "columns": "order_id,total,customer,date", "options": {} }, "id": "a1b2c3d4-0004-4000-8000-000000000004", "name": "Log to Sheets", "type": "n8n-nodes-base.googleSheets", "typeVersion": 2, "position": [750, 400], "credentials": { "googleSheetsOAuth2Api": { "id": "1", "name": "Google Sheets account" } } }
+  ],
+  "connections": {
+    "Webhook": { "main": [[ { "node": "IF Total > 500", "type": "main", "index": 0 } ]] },
+    "IF Total > 500": { "main": [[ { "node": "Twilio SMS", "type": "main", "index": 0 } ], [ { "node": "Log to Sheets", "type": "main", "index": 0 } ]] }
+  },
+  "active": false, "settings": { "executionOrder": "v1" }, "versionId": "a1b2c3d4-0000-4000-8000-000000000000"
+}
+
+TOP-LEVEL JSON MUST HAVE: "name", "nodes", "connections", "active" (false), "settings" ({"executionOrder": "v1"}), "versionId" (uuid).
+Credentials: Add placeholder credentials objects on nodes that need auth.
+Expressions: Use "={{ $json.property }}" syntax.
+Positions: Spread nodes across the canvas. Use branching Y positions for parallel paths (e.g. true branch at y=200, false branch at y=400).
+
+OUTPUT: Return ONLY the JSON object, nothing else.`
 
 
     console.log('[WorkflowJSONGenerator] Generating n8n workflow via AI for plan:', plan.objective)
@@ -295,9 +325,12 @@ OUTPUT: Return ONLY the JSON object.`
       default: {
         try {
           const content = await this.generateN8NWorkflowWithAI(plan)
+          console.log('[WorkflowJSONGenerator] ✅ AI generation succeeded!')
           return { content, filename, fileType: 'application/json' }
         } catch (error) {
-          console.error('[WorkflowJSONGenerator] AI generation failed, using fallback:', error)
+          console.error('[WorkflowJSONGenerator] ❌ AI generation FAILED, falling back to template generator.')
+          console.error('[WorkflowJSONGenerator] Error details:', error instanceof Error ? error.message : String(error))
+          console.error('[WorkflowJSONGenerator] Stack:', error instanceof Error ? error.stack : 'N/A')
           const content = this.generateN8NWorkflowFallback(plan)
           return { content, filename, fileType: 'application/json' }
         }
