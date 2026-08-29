@@ -14,7 +14,10 @@ export class WorkflowJSONGenerator {
    * Sends the plan to the AI with strict n8n schema instructions,
    * producing valid, importable workflow JSON.
    */
-  static async generateN8NWorkflowWithAI(plan: AutomationPlan): Promise<string> {
+  static async generateN8NWorkflowWithAI(
+    plan: AutomationPlan,
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
+  ): Promise<string> {
     const { WorkflowAIService } = await import('./workflow-ai-service')
     const aiService = WorkflowAIService.getInstance()
 
@@ -79,11 +82,8 @@ Positions: Spread nodes across the canvas. Use branching Y positions for paralle
 OUTPUT: Return ONLY the JSON object, nothing else.`
 
 
-    console.log('[WorkflowJSONGenerator] Generating n8n workflow via AI for plan:', plan.objective)
-
-    const response = await aiService.generateResponse(prompt)
-
-    // Robust JSON extraction (handles markdown and extra text)
+    console.log('[WorkflowJSONGenerator] Requesting JSON generation from AI...')
+    const response = await aiService.generateResponse(prompt, options)
     let jsonStr = response.trim()
     
     // If it has markdown code blocks, extract just the content inside them
@@ -317,14 +317,18 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
    * Main generator - routes to appropriate platform.
    * Now uses AI for n8n, with fallback to templates.
    */
-  static async generateWorkflowAsync(plan: AutomationPlan, platform: string): Promise<{ content: string; filename: string; fileType: string }> {
+  static async generateWorkflowAsync(
+    plan: AutomationPlan, 
+    platform: string,
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
+  ): Promise<{ content: string; filename: string; fileType: string }> {
     const filename = `${this.sanitizeFilename(plan.objective || 'workflow')}.json`
 
     switch (platform.toLowerCase()) {
       case 'n8n':
       default: {
         try {
-          const content = await this.generateN8NWorkflowWithAI(plan)
+          const content = await this.generateN8NWorkflowWithAI(plan, options)
           console.log('[WorkflowJSONGenerator] ✅ AI generation succeeded!')
           return { content, filename, fileType: 'application/json' }
         } catch (error) {

@@ -140,7 +140,12 @@ export class WorkflowOrchestrator {
     const orchestrationResult = await this.aiOrchestrator.orchestrate(
       request.userMessage,
       context,
-      currentPlan
+      currentPlan,
+      {
+        personalProvider: (request as any).personalProvider,
+        personalApiKey: (request as any).personalApiKey,
+        personalModel: (request as any).personalModel
+      }
     )
     
     console.log('[Workflow Orchestrator] Orchestration result:', {
@@ -349,7 +354,11 @@ export class WorkflowOrchestrator {
     // Attempt to generate a logical architecture via the AI service
     let architecture: any = null;
     try {
-      architecture = await ArchitectureDesigner.design(spec);
+      architecture = await ArchitectureDesigner.design(spec, {
+        personalProvider: (request as any).personalProvider,
+        personalApiKey: (request as any).personalApiKey,
+        personalModel: (request as any).personalModel
+      });
     } catch (err) {
       console.error('[Workflow Orchestrator] Architecture design failed:', err);
       // Provide a minimal placeholder so the UI does not break
@@ -430,7 +439,11 @@ export class WorkflowOrchestrator {
       
       // Generate workflow JSON (AI-powered)
       const platform = plan.platform?.name || 'n8n'
-      const workflowData = await WorkflowJSONGenerator.generateWorkflowAsync(plan, platform)
+      const workflowData = await WorkflowJSONGenerator.generateWorkflowAsync(plan, platform, {
+        personalProvider: (request as any).personalProvider,
+        personalApiKey: (request as any).personalApiKey,
+        personalModel: (request as any).personalModel
+      })
       
       console.log('[Workflow Orchestrator] Generated workflow data:', {
         platform,

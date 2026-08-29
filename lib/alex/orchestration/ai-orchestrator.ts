@@ -45,7 +45,8 @@ export class AIOrchestrator {
   async orchestrate(
     userMessage: string,
     context: ConversationContext,
-    currentPlan: AutomationPlan | null
+    currentPlan: AutomationPlan | null,
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
   ): Promise<OrchestrationResult> {
     console.log('[AI Orchestrator] ===== ORCHESTRATION START =====')
     console.log('[AI Orchestrator] User message:', userMessage.substring(0, 100))
@@ -60,8 +61,8 @@ export class AIOrchestrator {
       })
     }
     
-    // Use AI to determine intent and next action
-    const aiDecision = await this.askAIDecision(userMessage, context, currentPlan)
+    // First ask AI to decide what to do
+    const aiDecision = await this.askAIDecision(userMessage, context, currentPlan, options)
     
     console.log('[AI Orchestrator] AI decision:', {
       intent: aiDecision.intent,
@@ -70,7 +71,7 @@ export class AIOrchestrator {
     })
     
     // Update plan if provided
-    let updatedPlan = currentPlan
+    let updatedPlan = aiDecision.updatedPlan || currentPlan
     
     // If AI provided a plan in the action but not in updatedPlan, use it
     if (!aiDecision.updatedPlan && aiDecision.action.plan && Object.keys(aiDecision.action.plan).length > 0) {
@@ -209,7 +210,8 @@ export class AIOrchestrator {
   private async askAIDecision(
     userMessage: string,
     context: ConversationContext,
-    currentPlan: AutomationPlan | null
+    currentPlan: AutomationPlan | null,
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
   ): Promise<OrchestrationResult> {
     const aiService = WorkflowAIService.getInstance()
     
@@ -294,7 +296,7 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
     console.log('[AI Orchestrator] Calling AI for decision with prompt length:', prompt.length)
     
     try {
-      const response = await aiService.generateResponse(prompt)
+      const response = await aiService.generateResponse(prompt, options)
       console.log('[AI Orchestrator] AI response received:', response.substring(0, 500))
       
       // Clean up response (remove markdown code blocks if present)

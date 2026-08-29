@@ -186,7 +186,10 @@ export class ArchitectureDesigner {
    * Design logical architecture based on automation specification
    * Phase 3A: Token-efficient AI-based dynamic generation
    */
-  static async design(spec: AutomationSpec): Promise<LogicalArchitecture> {
+  static async design(
+    spec: AutomationSpec,
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
+  ): Promise<LogicalArchitecture> {
     console.log('[Architecture Designer] Designing logical architecture using AI for:', spec.automationType)
     
     const { WorkflowAIService } = await import('./workflow-ai-service')
@@ -268,7 +271,7 @@ Return ONLY JSON.`
 
     console.log('[Architecture Designer] Calling AI for architecture generation with prompt length:', prompt.length)
 
-    const response = await aiService.generateResponse(prompt)
+    const response = await aiService.generateResponse(prompt, options)
     console.log('[Architecture Designer] AI architecture response received, length:', response.length)
     console.log('[Architecture Designer] Full AI response:', response)
 

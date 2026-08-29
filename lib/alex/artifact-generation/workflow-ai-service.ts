@@ -29,14 +29,53 @@ export class WorkflowAIService {
   /**
    * Generate a simple text response using a provider
    */
-  async generateResponse(prompt: string): Promise<string> {
+  async generateResponse(
+    prompt: string, 
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
+  ): Promise<string> {
     console.log('[Workflow AI Service] Starting AI generation with prompt length:', prompt.length)
 
     try {
+      // Ensure providers are loaded
+      await this.providerManager.loadProviders()
+
+      // Add personal provider if specified
+      if (options?.personalProvider && options?.personalApiKey) {
+        try {
+          const providerTypeMap: Record<string, { type: string; baseUrl?: string; defaultModel: string }> = {
+            'openai': { type: 'openai', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o' },
+            'anthropic': { type: 'openai_compatible', baseUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-3-5-sonnet-20240620' },
+            'gemini': { type: 'gemini', defaultModel: 'gemini-2.0-flash' },
+            'groq': { type: 'groq', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile' },
+            'openrouter': { type: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', defaultModel: 'openai/gpt-4o' },
+          }
+          const mapping = providerTypeMap[options.personalProvider]
+          if (mapping) {
+            const { ProviderFactory } = await import('../provider/provider-factory')
+            const adapter = ProviderFactory.createProvider({
+              id: 'personal-provider',
+              name: `Personal ${options.personalProvider}`,
+              type: mapping.type as any,
+              priority: 0,
+              enabled: true,
+              config: {
+                apiKeyEncrypted: options.personalApiKey,
+                baseUrl: mapping.baseUrl,
+                currentModel: options.personalModel || mapping.defaultModel
+              }
+            })
+            this.providerManager.getRegistry().register(adapter)
+            console.log(`[Workflow AI Service] Registered personal provider: ${options.personalProvider} with model ${options.personalModel || mapping.defaultModel}`)
+          }
+        } catch (e) {
+          console.error('[Workflow AI Service] Failed to register personal provider', e)
+        }
+      }
+
       // Use ProviderManager's streaming capability with fallback
       const request: AIRequest = {
         messages: [{ role: 'user', content: prompt }],
-        model: undefined, // Let provider manager select
+        model: options?.personalModel || undefined, // Let provider manager select if not passed
         temperature: 0.7,
         maxTokens: 8000,
         stream: true,
@@ -83,8 +122,11 @@ export class WorkflowAIService {
   /**
    * Generate JSON response
    */
-  async generateJSON<T>(prompt: string): Promise<T> {
-    const response = await this.generateResponse(prompt)
+  async generateJSON<T>(
+    prompt: string,
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
+  ): Promise<T> {
+    const response = await this.generateResponse(prompt, options)
     const jsonMatch = response.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]) as T
