@@ -346,15 +346,15 @@ export class WorkflowOrchestrator {
     request: WorkflowOrchestrationRequest
   ): Promise<WorkflowOrchestrationResponse> {
     console.log('[Workflow Orchestrator] Generating artifact from plan')
-    
-    // Auto-fix if AI generated platform as a string instead of object
+
+    // Auto‑fix if AI generated platform as a string instead of object
     if (plan && typeof plan.platform === 'string') {
       plan.platform = { name: plan.platform };
     }
 
-    // CRITICAL: Check if platform is specified before proceeding
+    // CRITICAL: Ensure a platform is selected before proceeding
     if (!plan.platform?.name) {
-      console.log('[Workflow Orchestrator] Platform not specified, asking for platform selection')
+      console.log('[Workflow Orchestrator] Platform not specified – prompting user')
       return {
         status: 'collecting_requirements',
         message: 'I need to know which platform to use before generating the workflow.',
@@ -365,51 +365,70 @@ export class WorkflowOrchestrator {
           field: 'platform',
           enrichedOptions: QuestionOptionsGenerator.generatePlatformOptions()
         }
-      }
+      };
     }
-    
-    // Convert plan to AutomationSpec (legacy compatibility)
-    const spec = this.planToSpec(plan)
-    
-    // Design architecture
-    const architecture = await ArchitectureDesigner.design(spec)
-    
-    // Create or update build
-    const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
-    
-    let build
+
+    // Convert the plan to a legacy‑compatible AutomationSpec
+    const spec = this.planToSpec(plan);
+
+    // Attempt to generate a logical architecture via the AI service
+    let architecture: any = null;
+    try {
+      architecture = await ArchitectureDesigner.design(spec);
+    } catch (err) {
+      console.error('[Workflow Orchestrator] Architecture design failed:', err);
+      // Provide a minimal placeholder so the UI does not break
+      architecture = {
+        id: 'fallback-arch',
+        name: 'Fallback Architecture',
+        description: 'Placeholder architecture generated because the AI designer failed.',
+        goal: plan.objective || 'unknown',
+        domain: spec.domain || 'custom',
+        complexity: 'moderate',
+        reasoning: 'Fallback architecture – AI response could not be parsed.',
+        stages: [],
+        dataFlow: undefined,
+        assumptions: [],
+        recommendations: [],
+        unresolvedDecisions: [],
+        platformAgnostic: true
+      };
+    }
+
+    // Persist the build record (create if missing)
+    const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId);
+    let build;
     if (existingBuild) {
-      // Update existing build
-      await ArtifactService.updateSpecification(existingBuild.id, spec, [])
-      await ArtifactService.updateBuildStatus(existingBuild.id, 'designing_architecture')
-      build = existingBuild
+      await ArtifactService.updateSpecification(existingBuild.id, spec, []);
+      await ArtifactService.updateBuildStatus(existingBuild.id, 'designing_architecture');
+      build = existingBuild;
     } else {
-      // Create new build
       build = await ArtifactService.createBuild(
         request.conversationId,
         request.userId,
         request.userMessage,
         'workflow'
-      )
-      await ArtifactService.updateSpecification(build.id, spec, [])
+      );
+      await ArtifactService.updateSpecification(build.id, spec, []);
     }
-    
-    // Return architecture proposal
+
+    // Return a full architecture proposal for the UI
     return {
       status: 'awaiting_architecture_verification',
       message: 'I\'ve designed the architecture for your automation. Please review and confirm.',
       architectureProposal: {
         description: plan.objective,
-        platform: plan.platform?.name || null, // Don't default to n8n - ask if not specified
+        platform: plan.platform?.name || null,
         platformReasoning: plan.platform?.reasoning || 'Platform selection needed',
-        complexity: plan.architecture?.complexity || 'moderate',
-        stages: plan.architecture?.stages || [],
-        assumptions: plan.assumptions || [],
-        recommendations: plan.recommendations || []
+        complexity: architecture.complexity || plan.architecture?.complexity || 'moderate',
+        // Include the complete architecture object for richer UI rendering
+        architecture,
+        assumptions: architecture.assumptions || [],
+        recommendations: architecture.recommendations || []
       },
       specification: spec,
       plan
-    }
+    };
   }
   
   /**
