@@ -260,6 +260,7 @@ export class AIEngine {
             'anthropic': { type: 'openai_compatible', baseUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-3-5-sonnet-20240620' },
             'gemini': { type: 'gemini', defaultModel: 'gemini-2.0-flash' },
             'groq': { type: 'groq', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile' },
+            'openrouter': { type: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', defaultModel: 'openai/gpt-4o' },
           }
           const mapping = providerTypeMap[request.personalProvider]
           if (mapping) {

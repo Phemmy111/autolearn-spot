@@ -7,7 +7,7 @@ interface PersonalAISettingsModalProps {
 }
 
 export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsModalProps) {
-  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'gemini' | 'groq' | ''>('')
+  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'gemini' | 'groq' | 'openrouter' | ''>('')
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
   const [isSaved, setIsSaved] = useState(false)
@@ -134,6 +134,7 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
                 <option value="anthropic">Anthropic</option>
                 <option value="gemini">Google Gemini</option>
                 <option value="groq">Groq</option>
+                <option value="openrouter">OpenRouter</option>
               </select>
             </div>
             

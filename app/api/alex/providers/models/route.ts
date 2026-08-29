@@ -75,6 +75,19 @@ export async function POST(request: NextRequest) {
           return { id, name: m.displayName || id }
         })
     }
+    else if (provider === 'openrouter') {
+      const res = await fetch('https://openrouter.ai/api/v1/models', {
+        headers: { Authorization: `Bearer ${apiKey}` }
+      })
+      if (!res.ok) {
+        if (res.status === 401) return NextResponse.json({ error: 'Invalid OpenRouter API key' }, { status: 400 })
+        return NextResponse.json({ error: `OpenRouter error (${res.status})` }, { status: 502 })
+      }
+      const data = await res.json()
+      models = (data.data || [])
+        .map((m: any) => ({ id: m.id, name: m.name || m.id }))
+        .sort((a: any, b: any) => a.name.localeCompare(b.name))
+    }
     else {
       return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 })
     }
