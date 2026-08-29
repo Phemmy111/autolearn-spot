@@ -52,13 +52,13 @@ export async function POST(request: Request) {
       debugError
     })
 
-    // Get active build
+    // Get active build — also accept 'failed' so users can retry
     const { data: activeBuild, error: buildError } = await supabase
       .from('alex_artifact_builds')
       .select('*')
       .eq('conversation_id', conversationId)
       .eq('user_id', userId)
-      .in('status', ['collecting_requirements', 'designing_architecture', 'awaiting_architecture_verification'])
+      .in('status', ['collecting_requirements', 'designing_architecture', 'awaiting_architecture_verification', 'failed'])
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
@@ -71,6 +71,15 @@ export async function POST(request: Request) {
         expectedConversationId: conversationId
       })
       return NextResponse.json({ error: 'No active build found' }, { status: 404 })
+    }
+
+    // If the build previously failed, reset it so generation can be retried
+    if (activeBuild.status === 'failed') {
+      console.log('[Artifact Approval] Build was in failed state — resetting to awaiting_architecture_verification for retry')
+      await supabase
+        .from('alex_artifact_builds')
+        .update({ status: 'awaiting_architecture_verification', updated_at: new Date().toISOString() })
+        .eq('id', activeBuild.id)
     }
 
     console.log('[Artifact Approval] Active build found:', activeBuild.id)
