@@ -43,13 +43,17 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
       setFetchError('');
       
       try {
-        const res = await fetch(`/api/alex/providers/models?provider=${provider}&apiKey=${encodeURIComponent(apiKey)}`);
+        const res = await fetch('/api/alex/providers/models', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider, apiKey })
+        });
         if (res.ok) {
           const data = await res.json();
           setAvailableModels(data.models || []);
         } else {
-          const err = await res.json();
-          setFetchError(err.error || 'Failed to fetch models');
+          const err = await res.json().catch(() => ({ error: 'Failed to fetch models' }));
+          setFetchError(err.error || `Failed to fetch ${provider} models`);
         }
       } catch (e) {
         setFetchError('Network error');

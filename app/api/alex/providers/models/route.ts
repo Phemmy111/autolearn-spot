@@ -3,16 +3,15 @@ import { auth } from '@clerk/nextjs/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    const provider = searchParams.get('provider')
-    const apiKey = searchParams.get('apiKey')
+    const body = await request.json()
+    const { provider, apiKey } = body
 
     if (!provider || !apiKey) {
       return NextResponse.json({ error: 'Missing provider or apiKey' }, { status: 400 })
@@ -24,10 +23,14 @@ export async function GET(request: NextRequest) {
       const res = await fetch('https://api.openai.com/v1/models', {
         headers: { Authorization: `Bearer ${apiKey}` }
       })
-      if (!res.ok) throw new Error('Failed to fetch OpenAI models')
+      if (!res.ok) {
+        const errText = await res.text()
+        console.error('[Models API] OpenAI error:', res.status, errText)
+        throw new Error(`OpenAI API error (${res.status})`)
+      }
       const data = await res.json()
-      models = data.data
-        .filter((m: any) => m.id.includes('gpt'))
+      models = (data.data || [])
+        .filter((m: any) => m.id && (m.id.includes('gpt') || m.id.includes('o1') || m.id.includes('o3') || m.id.includes('o4')))
         .map((m: any) => ({ id: m.id, name: m.id }))
         .sort((a: any, b: any) => a.id.localeCompare(b.id))
     } 
@@ -38,28 +41,39 @@ export async function GET(request: NextRequest) {
           'anthropic-version': '2023-06-01'
         }
       })
-      if (!res.ok) throw new Error('Failed to fetch Anthropic models')
+      if (!res.ok) {
+        const errText = await res.text()
+        console.error('[Models API] Anthropic error:', res.status, errText)
+        throw new Error(`Anthropic API error (${res.status})`)
+      }
       const data = await res.json()
-      models = data.data
-        .filter((m: any) => m.type === 'model')
+      models = (data.data || [])
         .map((m: any) => ({ id: m.id, name: m.display_name || m.id }))
     }
     else if (provider === 'groq') {
       const res = await fetch('https://api.groq.com/openai/v1/models', {
         headers: { Authorization: `Bearer ${apiKey}` }
       })
-      if (!res.ok) throw new Error('Failed to fetch Groq models')
+      if (!res.ok) {
+        const errText = await res.text()
+        console.error('[Models API] Groq error:', res.status, errText)
+        throw new Error(`Groq API error (${res.status})`)
+      }
       const data = await res.json()
-      models = data.data
+      models = (data.data || [])
         .map((m: any) => ({ id: m.id, name: m.id }))
         .sort((a: any, b: any) => a.id.localeCompare(b.id))
     }
     else if (provider === 'gemini') {
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
-      if (!res.ok) throw new Error('Failed to fetch Gemini models')
+      if (!res.ok) {
+        const errText = await res.text()
+        console.error('[Models API] Gemini error:', res.status, errText)
+        throw new Error(`Gemini API error (${res.status})`)
+      }
       const data = await res.json()
-      models = data.models
-        .filter((m: any) => m.name.includes('gemini') && m.supportedGenerationMethods.includes('generateContent'))
+      models = (data.models || [])
+        .filter((m: any) => m.name && m.name.includes('gemini') && m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
         .map((m: any) => {
           const id = m.name.replace('models/', '')
           return { id, name: m.displayName || id }
@@ -71,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ models })
   } catch (error: any) {
-    console.error('[API] Failed to fetch models:', error)
+    console.error('[Models API] Error:', error.message)
     return NextResponse.json({ error: error.message || 'Failed to fetch models' }, { status: 500 })
   }
 }
