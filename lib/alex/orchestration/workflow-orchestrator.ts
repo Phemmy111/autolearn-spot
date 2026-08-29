@@ -410,9 +410,9 @@ export class WorkflowOrchestrator {
       // Update build status
       await ArtifactService.updateBuildStatus(existingBuild.id, 'generating')
       
-      // Generate workflow JSON
+      // Generate workflow JSON (AI-powered)
       const platform = plan.platform?.name || 'n8n'
-      const workflowData = WorkflowJSONGenerator.generateWorkflow(plan, platform)
+      const workflowData = await WorkflowJSONGenerator.generateWorkflowAsync(plan, platform)
       
       console.log('[Workflow Orchestrator] Generated workflow data:', {
         platform,

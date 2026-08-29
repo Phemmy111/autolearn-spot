@@ -1,767 +1,363 @@
 /**
  * Workflow JSON Generator
  * 
- * Generates actual workflow JSON files based on AutomationPlan
- * Supports multiple platforms (n8n, Zapier, Make, etc.)
+ * Uses AI to generate proper, standard n8n workflow JSON files.
+ * Falls back to basic template generation if AI fails.
  */
 
 import { AutomationPlan } from '../orchestration/types'
 
 export class WorkflowJSONGenerator {
+
   /**
-   * Generate n8n workflow JSON from AutomationPlan
+   * AI-powered n8n workflow generation.
+   * Sends the plan to the AI with strict n8n schema instructions,
+   * producing valid, importable workflow JSON.
    */
-  static generateN8NWorkflow(plan: AutomationPlan): string {
-    const nodes = this.generateN8NNodes(plan)
-    const connections = this.generateN8NConnections(nodes)
-    
-    const workflow = {
-      name: plan.objective || 'Generated Workflow',
-      nodes: nodes,
-      connections: connections,
-      settings: {
-        executionOrder: 'v1'
-      },
-      staticData: null,
-      tags: [],
-      pinData: {},
-      versionId: '1.0.0',
-      meta: {
-        instanceId: 'generated-by-alex'
-      }
+  static async generateN8NWorkflowWithAI(plan: AutomationPlan): Promise<string> {
+    const { WorkflowAIService } = await import('./workflow-ai-service')
+    const aiService = WorkflowAIService.getInstance()
+
+    const planSummary = this.buildPlanSummary(plan)
+
+    const prompt = `You are an expert n8n workflow builder. Generate a COMPLETE, VALID, IMPORTABLE n8n workflow JSON based on the following automation plan.
+
+AUTOMATION PLAN:
+${planSummary}
+
+CRITICAL RULES:
+1. Output ONLY the raw JSON object. No markdown, no code fences, no explanation.
+2. Every node MUST have: "parameters", "id" (uuid-like string), "name", "type", "typeVersion", "position" (array [x, y]).
+3. Use ONLY real n8n node types. Common ones:
+   - Triggers: n8n-nodes-base.webhook (v2), n8n-nodes-base.gmailTrigger (v1), n8n-nodes-base.scheduleTrigger (v1.2), n8n-nodes-base.manualTrigger (v1)
+   - Logic: n8n-nodes-base.if (v2), n8n-nodes-base.switch (v3), n8n-nodes-base.merge (v3), n8n-nodes-base.filter (v2)
+   - Actions: n8n-nodes-base.gmail (v2.1), n8n-nodes-base.slack (v2.2), n8n-nodes-base.httpRequest (v4.2), n8n-nodes-base.twilio (v1), n8n-nodes-base.googleSheets (v4.5), n8n-nodes-base.telegram (v1.2)
+   - Data: n8n-nodes-base.code (v2), n8n-nodes-base.set (v3.4), n8n-nodes-base.respondToWebhook (v1.1), n8n-nodes-base.noOp (v1)
+4. Connections MUST use node names as keys. Format:
+   { "NodeName": { "main": [ [ { "node": "NextNodeName", "type": "main", "index": 0 } ] ] } }
+   For IF nodes with true/false branches: main has TWO arrays: first = true branch, second = false branch.
+5. Credential placeholders: use { "id": "CREDENTIAL_ID", "name": "Your <ServiceName> account" }
+6. Position nodes on a grid: trigger starts at [250, 300], each subsequent node +250 on x-axis. For branches, offset y-axis (true branch y=200, false branch y=450).
+7. The top-level JSON must have: name, nodes, connections, settings, pinData, meta.
+8. settings must have: { "executionOrder": "v1" }
+9. Do NOT invent fake API keys, emails, phone numbers, or URLs. Use expression placeholders like "={{ $json.fieldName }}" for dynamic data, and credential placeholders for auth.
+10. Every expression value MUST start with "=" followed by "{{ }}" for n8n expression syntax. Example: "={{ $json.body.total_price }}"
+
+OUTPUT: Return ONLY the JSON object.`
+
+    console.log('[WorkflowJSONGenerator] Generating n8n workflow via AI for plan:', plan.objective)
+
+    const response = await aiService.generateResponse(prompt)
+
+    // Clean up AI response
+    let cleanResponse = response.trim()
+    // Strip markdown code fences
+    if (cleanResponse.startsWith('```json')) {
+      cleanResponse = cleanResponse.replace(/^```json\s*\n?/, '').replace(/\n?\s*```$/, '')
+    } else if (cleanResponse.startsWith('```')) {
+      cleanResponse = cleanResponse.replace(/^```\s*\n?/, '').replace(/\n?\s*```$/, '')
     }
-    
+
+    // Extract JSON
+    const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      throw new Error('AI did not return valid JSON for workflow')
+    }
+
+    // Parse and validate
+    const workflow = JSON.parse(jsonMatch[0])
+
+    // Ensure required top-level keys exist
+    if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
+      throw new Error('AI workflow missing "nodes" array')
+    }
+    if (!workflow.connections || typeof workflow.connections !== 'object') {
+      throw new Error('AI workflow missing "connections" object')
+    }
+
+    // Ensure required fields
+    workflow.name = workflow.name || plan.objective || 'Generated Workflow'
+    workflow.settings = workflow.settings || { executionOrder: 'v1' }
+    workflow.pinData = workflow.pinData || {}
+    workflow.meta = workflow.meta || { instanceId: 'generated-by-alex' }
+
+    console.log('[WorkflowJSONGenerator] AI generated workflow with', workflow.nodes.length, 'nodes')
     return JSON.stringify(workflow, null, 2)
   }
 
   /**
-   * Detect the use case from the plan to generate appropriate nodes
+   * Build a compact text summary of the plan for the AI prompt
    */
-  private static detectUseCase(plan: AutomationPlan): string {
-    const objective = (plan.objective || '').toLowerCase()
-    const triggerSource = (plan.trigger?.source || '').toLowerCase()
-    const triggerType = (plan.trigger?.type || '').toLowerCase()
-    const triggerDesc = (plan.trigger?.description || '').toLowerCase()
-    const allText = `${objective} ${triggerSource} ${triggerType} ${triggerDesc}`
+  private static buildPlanSummary(plan: AutomationPlan): string {
+    const parts: string[] = []
 
-    if (allText.includes('email') || allText.includes('gmail') || allText.includes('mail')) {
-      if (allText.includes('respond') || allText.includes('reply') || allText.includes('auto-reply') || allText.includes('autorespond')) {
-        return 'email-auto-responder'
-      }
-      if (allText.includes('forward')) return 'email-forwarder'
-      if (allText.includes('classify') || allText.includes('categorize') || allText.includes('label')) return 'email-classifier'
-      return 'email-auto-responder' // default email use case
+    parts.push(`Objective: ${plan.objective || 'Unknown'}`)
+
+    if (plan.platform) {
+      parts.push(`Platform: ${plan.platform.name || 'n8n'}`)
     }
-    if (allText.includes('slack')) return 'slack-bot'
-    if (allText.includes('webhook')) return 'webhook-handler'
-    if (allText.includes('schedule') || allText.includes('cron') || allText.includes('daily') || allText.includes('weekly')) return 'scheduled-task'
-    if (allText.includes('spreadsheet') || allText.includes('google sheet')) return 'sheets-automation'
-    
-    return 'generic'
-  }
 
-  /**
-   * Generate n8n nodes based on plan
-   */
-  private static generateN8NNodes(plan: AutomationPlan): any[] {
-    const useCase = this.detectUseCase(plan)
-
-    switch (useCase) {
-      case 'email-auto-responder':
-        return this.generateEmailAutoResponderNodes(plan)
-      case 'email-forwarder':
-        return this.generateEmailForwarderNodes(plan)
-      case 'email-classifier':
-        return this.generateEmailClassifierNodes(plan)
-      case 'slack-bot':
-        return this.generateSlackBotNodes(plan)
-      case 'webhook-handler':
-        return this.generateWebhookHandlerNodes(plan)
-      case 'scheduled-task':
-        return this.generateScheduledTaskNodes(plan)
-      case 'sheets-automation':
-        return this.generateSheetsAutomationNodes(plan)
-      default:
-        return this.generateGenericNodes(plan)
+    if (plan.trigger) {
+      parts.push(`Trigger: ${plan.trigger.type || 'manual'} - ${plan.trigger.description || plan.trigger.source || 'No description'}`)
     }
+
+    if (plan.workflow && Array.isArray(plan.workflow)) {
+      parts.push('Workflow Steps:')
+      plan.workflow.forEach((step: any, i: number) => {
+        parts.push(`  ${i + 1}. ${step.step || step.name || 'Step'}: ${step.description || 'No description'}`)
+      })
+    }
+
+    if (plan.inputs) {
+      parts.push(`Inputs: ${JSON.stringify(plan.inputs)}`)
+    }
+
+    if (plan.outputs) {
+      parts.push(`Outputs: ${JSON.stringify(plan.outputs)}`)
+    }
+
+    if (plan.assumptions && plan.assumptions.length > 0) {
+      parts.push(`Assumptions: ${plan.assumptions.join(', ')}`)
+    }
+
+    if (plan.recommendations && plan.recommendations.length > 0) {
+      parts.push(`Recommendations: ${plan.recommendations.join(', ')}`)
+    }
+
+    // Include architecture stages if present
+    if (plan.architecture && (plan.architecture as any).stages) {
+      parts.push('Architecture Stages:')
+      ;(plan.architecture as any).stages.forEach((stage: any) => {
+        parts.push(`  - ${stage.name} (${stage.category}): ${stage.purpose || ''}`)
+      })
+    }
+
+    return parts.join('\n')
   }
 
   /**
-   * Email Auto-Responder: Gmail Trigger → IF Filter → Gmail Reply
+   * Fallback: Generate a basic n8n workflow from plan (no AI).
+   * Used only when AI generation fails.
    */
-  private static generateEmailAutoResponderNodes(plan: AutomationPlan): any[] {
-    return [
-      {
-        parameters: {
-          pollTimes: {
-            item: [{ mode: 'everyMinute' }]
-          },
-          simple: true
-        },
-        id: 'node-1',
-        name: 'Gmail Trigger',
-        type: 'n8n-nodes-base.gmailTrigger',
-        typeVersion: 1,
-        position: [250, 300],
-        credentials: {
-          gmailOAuth2: {
-            id: 'GMAIL_CREDENTIAL_ID',
-            name: 'Gmail account'
-          }
-        }
-      },
-      {
-        parameters: {
-          conditions: {
-            options: {
-              caseSensitive: false,
-              leftValue: '',
-              typeValidation: 'strict'
-            },
-            conditions: [
-              {
-                id: 'condition-1',
-                leftValue: '={{ $json.from.value[0].address }}',
-                rightValue: '',
-                operator: {
-                  type: 'string',
-                  operation: 'notEmpty'
-                }
-              }
-            ],
-            combinator: 'and'
-          },
-          options: {}
-        },
-        id: 'node-2',
-        name: 'Filter Emails',
-        type: 'n8n-nodes-base.if',
-        typeVersion: 2,
-        position: [480, 300]
-      },
-      {
-        parameters: {
-          sendTo: '={{ $json.from.value[0].address }}',
-          subject: '=Re: {{ $json.subject }}',
-          message: 'Thank you for your email. This is an automated acknowledgment. I have received your message and will get back to you as soon as possible.\n\nBest regards',
-          options: {
-            appendAttribution: false,
-            replyTo: ''
-          }
-        },
-        id: 'node-3',
-        name: 'Send Auto-Reply',
-        type: 'n8n-nodes-base.gmail',
-        typeVersion: 2.1,
-        position: [720, 200],
-        credentials: {
-          gmailOAuth2: {
-            id: 'GMAIL_CREDENTIAL_ID',
-            name: 'Gmail account'
-          }
-        }
-      },
-      {
-        parameters: {
-          options: {}
-        },
-        id: 'node-4',
-        name: 'No Reply Needed',
-        type: 'n8n-nodes-base.noOp',
-        typeVersion: 1,
-        position: [720, 420]
-      }
-    ]
-  }
-
-  /**
-   * Email Forwarder: Gmail Trigger → Gmail Send
-   */
-  private static generateEmailForwarderNodes(plan: AutomationPlan): any[] {
-    return [
-      {
-        parameters: {
-          pollTimes: {
-            item: [{ mode: 'everyMinute' }]
-          },
-          simple: true
-        },
-        id: 'node-1',
-        name: 'Gmail Trigger',
-        type: 'n8n-nodes-base.gmailTrigger',
-        typeVersion: 1,
-        position: [250, 300],
-        credentials: {
-          gmailOAuth2: {
-            id: 'GMAIL_CREDENTIAL_ID',
-            name: 'Gmail account'
-          }
-        }
-      },
-      {
-        parameters: {
-          sendTo: 'FORWARD_TO_EMAIL@example.com',
-          subject: '=Fwd: {{ $json.subject }}',
-          message: '=---------- Forwarded message ----------\nFrom: {{ $json.from.value[0].address }}\nDate: {{ $json.date }}\nSubject: {{ $json.subject }}\n\n{{ $json.textPlain || $json.snippet }}',
-          options: {}
-        },
-        id: 'node-2',
-        name: 'Forward Email',
-        type: 'n8n-nodes-base.gmail',
-        typeVersion: 2.1,
-        position: [500, 300],
-        credentials: {
-          gmailOAuth2: {
-            id: 'GMAIL_CREDENTIAL_ID',
-            name: 'Gmail account'
-          }
-        }
-      }
-    ]
-  }
-
-  /**
-   * Email Classifier: Gmail Trigger → Code (classify) → Switch → Gmail Label
-   */
-  private static generateEmailClassifierNodes(plan: AutomationPlan): any[] {
-    return [
-      {
-        parameters: {
-          pollTimes: {
-            item: [{ mode: 'everyMinute' }]
-          },
-          simple: true
-        },
-        id: 'node-1',
-        name: 'Gmail Trigger',
-        type: 'n8n-nodes-base.gmailTrigger',
-        typeVersion: 1,
-        position: [250, 300],
-        credentials: {
-          gmailOAuth2: {
-            id: 'GMAIL_CREDENTIAL_ID',
-            name: 'Gmail account'
-          }
-        }
-      },
-      {
-        parameters: {
-          jsCode: `// Classify email based on subject and content
-const subject = ($input.item.json.subject || '').toLowerCase();
-const body = ($input.item.json.textPlain || $input.item.json.snippet || '').toLowerCase();
-
-let category = 'general';
-
-if (subject.includes('urgent') || subject.includes('asap') || body.includes('urgent')) {
-  category = 'urgent';
-} else if (subject.includes('invoice') || subject.includes('payment') || subject.includes('receipt')) {
-  category = 'billing';
-} else if (subject.includes('support') || subject.includes('help') || subject.includes('issue')) {
-  category = 'support';
-} else if (subject.includes('meeting') || subject.includes('calendar') || subject.includes('schedule')) {
-  category = 'meetings';
-}
-
-return { ...($input.item.json), category };`
-        },
-        id: 'node-2',
-        name: 'Classify Email',
-        type: 'n8n-nodes-base.code',
-        typeVersion: 2,
-        position: [500, 300]
-      },
-      {
-        parameters: {
-          assignments: {
-            assignments: [
-              {
-                id: 'assignment-1',
-                name: 'result',
-                value: '={{ "Email classified as: " + $json.category }}',
-                type: 'string'
-              }
-            ]
-          },
-          options: {}
-        },
-        id: 'node-3',
-        name: 'Set Result',
-        type: 'n8n-nodes-base.set',
-        typeVersion: 3.4,
-        position: [740, 300]
-      }
-    ]
-  }
-
-  /**
-   * Slack Bot: Slack Trigger → Code → Slack Send
-   */
-  private static generateSlackBotNodes(plan: AutomationPlan): any[] {
-    return [
-      {
-        parameters: {
-          triggerOn: 'message',
-          channelId: 'CHANNEL_ID'
-        },
-        id: 'node-1',
-        name: 'Slack Trigger',
-        type: 'n8n-nodes-base.slackTrigger',
-        typeVersion: 1,
-        position: [250, 300],
-        credentials: {
-          slackOAuth2Api: {
-            id: 'SLACK_CREDENTIAL_ID',
-            name: 'Slack account'
-          }
-        }
-      },
-      {
-        parameters: {
-          jsCode: `// Process the incoming Slack message
-const message = $input.item.json.text || '';
-let response = "Thanks for your message! I'll process that for you.";
-
-// Add your custom logic here
-return { response, originalMessage: message };`
-        },
-        id: 'node-2',
-        name: 'Process Message',
-        type: 'n8n-nodes-base.code',
-        typeVersion: 2,
-        position: [500, 300]
-      },
-      {
-        parameters: {
-          channel: 'CHANNEL_ID',
-          text: '={{ $json.response }}',
-          otherOptions: {}
-        },
-        id: 'node-3',
-        name: 'Send Reply',
-        type: 'n8n-nodes-base.slack',
-        typeVersion: 2.2,
-        position: [740, 300],
-        credentials: {
-          slackOAuth2Api: {
-            id: 'SLACK_CREDENTIAL_ID',
-            name: 'Slack account'
-          }
-        }
-      }
-    ]
-  }
-
-  /**
-   * Webhook Handler: Webhook → Code → Respond
-   */
-  private static generateWebhookHandlerNodes(plan: AutomationPlan): any[] {
-    return [
-      {
-        parameters: {
-          httpMethod: 'POST',
-          path: 'webhook',
-          responseMode: 'lastNode',
-          options: {}
-        },
-        id: 'node-1',
-        name: 'Webhook Trigger',
-        type: 'n8n-nodes-base.webhook',
-        typeVersion: 2,
-        position: [250, 300],
-        webhookId: 'auto-generated-webhook'
-      },
-      {
-        parameters: {
-          jsCode: `// Process the incoming webhook payload
-const payload = $input.item.json.body || $input.item.json;
-
-// Add your processing logic here
-return { 
-  processed: true, 
-  message: "Webhook received and processed",
-  data: payload 
-};`
-        },
-        id: 'node-2',
-        name: 'Process Webhook',
-        type: 'n8n-nodes-base.code',
-        typeVersion: 2,
-        position: [500, 300]
-      },
-      {
-        parameters: {
-          respondWith: 'json',
-          responseBody: '={{ JSON.stringify($json) }}',
-          options: {}
-        },
-        id: 'node-3',
-        name: 'Respond',
-        type: 'n8n-nodes-base.respondToWebhook',
-        typeVersion: 1.1,
-        position: [740, 300]
-      }
-    ]
-  }
-
-  /**
-   * Scheduled Task: Schedule Trigger → Code → Set Output
-   */
-  private static generateScheduledTaskNodes(plan: AutomationPlan): any[] {
-    return [
-      {
-        parameters: {
-          rule: {
-            interval: [
-              {
-                field: 'cronExpression',
-                expression: '0 9 * * *'
-              }
-            ]
-          }
-        },
-        id: 'node-1',
-        name: 'Schedule Trigger',
-        type: 'n8n-nodes-base.scheduleTrigger',
-        typeVersion: 1.2,
-        position: [250, 300]
-      },
-      {
-        parameters: {
-          jsCode: `// Scheduled task logic
-// This runs at the configured schedule
-const now = new Date().toISOString();
-
-// Add your scheduled task logic here
-return { 
-  executedAt: now, 
-  status: "completed",
-  message: "${plan.objective || 'Scheduled task completed'}"
-};`
-        },
-        id: 'node-2',
-        name: 'Run Task',
-        type: 'n8n-nodes-base.code',
-        typeVersion: 2,
-        position: [500, 300]
-      },
-      {
-        parameters: {
-          assignments: {
-            assignments: [
-              {
-                id: 'assignment-1',
-                name: 'result',
-                value: '={{ $json.message }}',
-                type: 'string'
-              }
-            ]
-          },
-          options: {}
-        },
-        id: 'node-3',
-        name: 'Set Output',
-        type: 'n8n-nodes-base.set',
-        typeVersion: 3.4,
-        position: [740, 300]
-      }
-    ]
-  }
-
-  /**
-   * Sheets Automation: Schedule/Webhook Trigger → Google Sheets → Set
-   */
-  private static generateSheetsAutomationNodes(plan: AutomationPlan): any[] {
-    return [
-      {
-        parameters: {
-          rule: {
-            interval: [
-              {
-                field: 'cronExpression',
-                expression: '0 */6 * * *'
-              }
-            ]
-          }
-        },
-        id: 'node-1',
-        name: 'Schedule Trigger',
-        type: 'n8n-nodes-base.scheduleTrigger',
-        typeVersion: 1.2,
-        position: [250, 300]
-      },
-      {
-        parameters: {
-          operation: 'read',
-          documentId: {
-            __rl: true,
-            value: 'YOUR_SPREADSHEET_ID',
-            mode: 'id'
-          },
-          sheetName: {
-            __rl: true,
-            value: 'Sheet1',
-            mode: 'name'
-          },
-          options: {}
-        },
-        id: 'node-2',
-        name: 'Read Google Sheet',
-        type: 'n8n-nodes-base.googleSheets',
-        typeVersion: 4.5,
-        position: [500, 300],
-        credentials: {
-          googleSheetsOAuth2Api: {
-            id: 'SHEETS_CREDENTIAL_ID',
-            name: 'Google Sheets account'
-          }
-        }
-      },
-      {
-        parameters: {
-          jsCode: `// Process the spreadsheet data
-const rows = $input.all();
-return rows.map(row => ({
-  ...row.json,
-  processed: true,
-  processedAt: new Date().toISOString()
-}));`
-        },
-        id: 'node-3',
-        name: 'Process Data',
-        type: 'n8n-nodes-base.code',
-        typeVersion: 2,
-        position: [740, 300]
-      }
-    ]
-  }
-
-  /**
-   * Generic workflow from plan steps
-   */
-  private static generateGenericNodes(plan: AutomationPlan): any[] {
+  static generateN8NWorkflowFallback(plan: AutomationPlan): string {
     const nodes: any[] = []
     let xPos = 250
+    const yBase = 300
 
-    // Trigger
+    // 1. Trigger node
     const triggerType = (plan.trigger?.type || '').toLowerCase()
-    if (triggerType === 'webhook') {
+    if (triggerType === 'webhook' || triggerType.includes('webhook')) {
       nodes.push({
         parameters: {
           httpMethod: 'POST',
-          path: 'webhook',
+          path: plan.objective ? plan.objective.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 30) : 'webhook',
           responseMode: 'onReceived',
           options: {}
         },
-        id: 'node-1',
-        name: 'Webhook Trigger',
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Webhook',
         type: 'n8n-nodes-base.webhook',
         typeVersion: 2,
-        position: [xPos, 300],
-        webhookId: 'auto-generated-webhook'
+        position: [xPos, yBase],
+        webhookId: 'auto-' + Date.now()
       })
-    } else if (triggerType === 'schedule') {
+    } else if (triggerType === 'schedule' || triggerType.includes('cron')) {
       nodes.push({
         parameters: {
           rule: {
             interval: [{ field: 'cronExpression', expression: '0 9 * * *' }]
           }
         },
-        id: 'node-1',
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
         name: 'Schedule Trigger',
         type: 'n8n-nodes-base.scheduleTrigger',
         typeVersion: 1.2,
-        position: [xPos, 300]
+        position: [xPos, yBase]
+      })
+    } else if (triggerType.includes('email') || triggerType.includes('gmail')) {
+      nodes.push({
+        parameters: {
+          pollTimes: { item: [{ mode: 'everyMinute' }] },
+          simple: true
+        },
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Gmail Trigger',
+        type: 'n8n-nodes-base.gmailTrigger',
+        typeVersion: 1,
+        position: [xPos, yBase],
+        credentials: {
+          gmailOAuth2: { id: 'GMAIL_CREDENTIAL_ID', name: 'Your Gmail account' }
+        }
       })
     } else {
       nodes.push({
         parameters: {},
-        id: 'node-1',
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
         name: 'Manual Trigger',
         type: 'n8n-nodes-base.manualTrigger',
         typeVersion: 1,
-        position: [xPos, 300]
+        position: [xPos, yBase]
       })
     }
     xPos += 250
 
-    // Workflow steps
+    // 2. Workflow step nodes (generic Code nodes as fallback)
     if (plan.workflow && Array.isArray(plan.workflow)) {
-      plan.workflow.forEach((step, index) => {
+      plan.workflow.forEach((step: any, index: number) => {
         nodes.push({
           parameters: {
-            jsCode: `// ${step.step || 'Process step'}\n// ${step.description || 'Add your processing logic here'}\nreturn $input.all();`
+            jsCode: `// ${step.step || 'Step ' + (index + 1)}\n// ${step.description || 'Add your logic here'}\nreturn $input.all();`
           },
-          id: `node-${index + 2}`,
+          id: crypto.randomUUID ? crypto.randomUUID() : `step-${index}-${Date.now()}`,
           name: step.step || `Step ${index + 1}`,
           type: 'n8n-nodes-base.code',
           typeVersion: 2,
-          position: [xPos, 300]
+          position: [xPos, yBase]
         })
         xPos += 250
       })
     }
 
-    // Add at least one processing node if none from workflow steps
+    // Ensure at least one processing node
     if (nodes.length === 1) {
       nodes.push({
         parameters: {
-          jsCode: `// ${plan.objective || 'Process step'}\n// Add your processing logic here\nreturn $input.all();`
+          jsCode: `// ${plan.objective || 'Processing'}\n// Add your logic here\nreturn $input.all();`
         },
-        id: 'node-2',
+        id: crypto.randomUUID ? crypto.randomUUID() : 'process-' + Date.now(),
         name: 'Process',
         type: 'n8n-nodes-base.code',
         typeVersion: 2,
-        position: [xPos, 300]
+        position: [xPos, yBase]
       })
     }
 
-    return nodes
-  }
-
-  /**
-   * Generate n8n connections — handles IF node true/false branches
-   */
-  private static generateN8NConnections(nodes: any[]): any {
+    // Build connections
     const connections: any = {}
-    
     for (let i = 0; i < nodes.length - 1; i++) {
       const current = nodes[i]
       const next = nodes[i + 1]
-      
-      // If current is an IF node and there's a node after next, wire both branches
+
       if (current.type === 'n8n-nodes-base.if' && i + 2 < nodes.length) {
         connections[current.name] = {
           main: [
-            [{ node: next.name, type: 'main', index: 0 }],        // true branch
-            [{ node: nodes[i + 2].name, type: 'main', index: 0 }] // false branch
+            [{ node: next.name, type: 'main', index: 0 }],
+            [{ node: nodes[i + 2].name, type: 'main', index: 0 }]
           ]
         }
-        // Skip the false-branch node in the next iteration
         i++
       } else {
         connections[current.name] = {
-          main: [[{
-            node: next.name,
-            type: 'main',
-            index: 0
-          }]]
+          main: [[{ node: next.name, type: 'main', index: 0 }]]
         }
       }
     }
-    
-    return connections
-  }
 
-  /**
-   * Generate Zapier zap (simplified)
-   */
-  static generateZapierZap(plan: AutomationPlan): string {
-    const zap = {
-      title: plan.objective || 'Generated Zap',
-      description: plan.objective,
-      steps: [
-        {
-          type: 'trigger',
-          description: plan.trigger?.description || 'Trigger step'
-        },
-        ...(plan.workflow?.map((step: any) => ({
-          type: 'action',
-          description: step.description || step.step
-        })) || [])
-      ]
+    const workflow = {
+      name: plan.objective || 'Generated Workflow',
+      nodes,
+      connections,
+      settings: { executionOrder: 'v1' },
+      pinData: {},
+      meta: { instanceId: 'generated-by-alex' }
     }
-    
-    return JSON.stringify(zap, null, 2)
+
+    return JSON.stringify(workflow, null, 2)
   }
 
   /**
-   * Generate Make scenario (simplified)
+   * Main generator - routes to appropriate platform.
+   * Now uses AI for n8n, with fallback to templates.
    */
-  static generateMakeScenario(plan: AutomationPlan): string {
-    const scenario = {
-      name: plan.objective || 'Generated Scenario',
-      flow: [
-        {
-          modules: [
-            {
-              parameters: {},
-              ...plan.trigger
-            },
+  static async generateWorkflowAsync(plan: AutomationPlan, platform: string): Promise<{ content: string; filename: string; fileType: string }> {
+    const filename = `${this.sanitizeFilename(plan.objective || 'workflow')}.json`
+
+    switch (platform.toLowerCase()) {
+      case 'n8n':
+      default: {
+        try {
+          const content = await this.generateN8NWorkflowWithAI(plan)
+          return { content, filename, fileType: 'application/json' }
+        } catch (error) {
+          console.error('[WorkflowJSONGenerator] AI generation failed, using fallback:', error)
+          const content = this.generateN8NWorkflowFallback(plan)
+          return { content, filename, fileType: 'application/json' }
+        }
+      }
+
+      case 'zapier': {
+        const zap = {
+          title: plan.objective || 'Generated Zap',
+          description: plan.objective,
+          steps: [
+            { type: 'trigger', description: plan.trigger?.description || 'Trigger step' },
             ...(plan.workflow?.map((step: any) => ({
-              parameters: {},
-              ...step
+              type: 'action',
+              description: step.description || step.step
             })) || [])
           ]
         }
-      ]
+        return { content: JSON.stringify(zap, null, 2), filename, fileType: 'application/json' }
+      }
+
+      case 'make':
+      case 'integromat': {
+        const scenario = {
+          name: plan.objective || 'Generated Scenario',
+          flow: [{
+            modules: [
+              { parameters: {}, ...plan.trigger },
+              ...(plan.workflow?.map((step: any) => ({ parameters: {}, ...step })) || [])
+            ]
+          }]
+        }
+        return { content: JSON.stringify(scenario, null, 2), filename, fileType: 'application/json' }
+      }
     }
-    
-    return JSON.stringify(scenario, null, 2)
   }
 
   /**
-   * Generate custom script
-   */
-  static generateCustomScript(plan: AutomationPlan): string {
-    const script = `#!/usr/bin/env node
-
-/**
- * Generated automation script
- * Objective: ${plan.objective}
- */
-
-${plan.workflow?.map((step: any, index: number) => `
-// Step ${index + 1}: ${step.description || step.step}
-// ${step.step || 'Processing...'}
-`).join('\n') || '// Add your automation logic here'}
-
-console.log('Automation completed successfully')
-`
-    
-    return script
-  }
-
-  /**
-   * Main generator - routes to appropriate platform
+   * Synchronous wrapper (for backward compatibility).
+   * Falls back to template-based generation only.
    */
   static generateWorkflow(plan: AutomationPlan, platform: string): { content: string; filename: string; fileType: string } {
+    const filename = `${this.sanitizeFilename(plan.objective || 'workflow')}.json`
+
     switch (platform.toLowerCase()) {
       case 'n8n':
-        return {
-          content: this.generateN8NWorkflow(plan),
-          filename: `${this.sanitizeFilename(plan.objective || 'workflow')}.json`,
-          fileType: 'application/json'
+      default: {
+        const content = this.generateN8NWorkflowFallback(plan)
+        return { content, filename, fileType: 'application/json' }
+      }
+
+      case 'zapier': {
+        const zap = {
+          title: plan.objective || 'Generated Zap',
+          description: plan.objective,
+          steps: [
+            { type: 'trigger', description: plan.trigger?.description || 'Trigger step' },
+            ...(plan.workflow?.map((step: any) => ({
+              type: 'action',
+              description: step.description || step.step
+            })) || [])
+          ]
         }
-      
-      case 'zapier':
-        return {
-          content: this.generateZapierZap(plan),
-          filename: `${this.sanitizeFilename(plan.objective || 'zap')}.json`,
-          fileType: 'application/json'
-        }
-      
+        return { content: JSON.stringify(zap, null, 2), filename, fileType: 'application/json' }
+      }
+
       case 'make':
-      case 'integromat':
-        return {
-          content: this.generateMakeScenario(plan),
-          filename: `${this.sanitizeFilename(plan.objective || 'scenario')}.json`,
-          fileType: 'application/json'
+      case 'integromat': {
+        const scenario = {
+          name: plan.objective || 'Generated Scenario',
+          flow: [{
+            modules: [
+              { parameters: {}, ...plan.trigger },
+              ...(plan.workflow?.map((step: any) => ({ parameters: {}, ...step })) || [])
+            ]
+          }]
         }
-      
-      case 'custom':
-      case 'script':
-        return {
-          content: this.generateCustomScript(plan),
-          filename: `${this.sanitizeFilename(plan.objective || 'automation')}.js`,
-          fileType: 'application/javascript'
-        }
-      
-      default:
-        return {
-          content: this.generateN8NWorkflow(plan),
-          filename: `${this.sanitizeFilename(plan.objective || 'workflow')}.json`,
-          fileType: 'application/json'
-        }
+        return { content: JSON.stringify(scenario, null, 2), filename, fileType: 'application/json' }
+      }
     }
   }
 
