@@ -40,6 +40,18 @@ export async function POST(request: Request) {
       }
     })
 
+    // Debug: Check all builds for this conversation regardless of status or user
+    const { data: allBuilds, error: debugError } = await supabase
+      .from('alex_artifact_builds')
+      .select('id, user_id, status')
+      .eq('conversation_id', conversationId)
+    
+    console.log('[Artifact Approval] DEBUG - Found builds for conversation:', {
+      conversationId,
+      builds: allBuilds,
+      debugError
+    })
+
     // Get active build
     const { data: activeBuild, error: buildError } = await supabase
       .from('alex_artifact_builds')
@@ -52,6 +64,12 @@ export async function POST(request: Request) {
       .single()
 
     if (buildError || !activeBuild) {
+      console.error('[Artifact Approval] Failed to find active build:', {
+        error: buildError,
+        foundData: activeBuild,
+        expectedUserId: userId,
+        expectedConversationId: conversationId
+      })
       return NextResponse.json({ error: 'No active build found' }, { status: 404 })
     }
 
