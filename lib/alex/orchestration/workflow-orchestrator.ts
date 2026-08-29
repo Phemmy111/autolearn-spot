@@ -451,24 +451,20 @@ export class WorkflowOrchestrator {
         contentLength: workflowData.content.length
       })
       
-      // Create artifact record
-      const { data: artifact, error: artifactError } = await ArtifactService.saveArtifact(
-        existingBuild.id,
-        request.userId,
-        workflowData.filename,
-        workflowData.fileType,
-        workflowData.fileType,
-        workflowData.content,
-        true, // isPrimary
-        {
-          platform: platform,
-          generation_stage: 'final',
-          architecture_approved: true
-        }
-      )
-      
-      if (artifactError || !artifact) {
-        throw new Error(`Failed to create artifact: ${artifactError?.message || 'Unknown error'}`)
+      // Create artifact record — saveArtifact returns the artifact directly (throws on error)
+      let artifact: any
+      try {
+        artifact = await ArtifactService.saveArtifact(
+          existingBuild.id,
+          request.userId,
+          workflowData.filename,
+          workflowData.fileType,
+          workflowData.fileType,
+          workflowData.content,
+          true // isPrimary
+        )
+      } catch (saveError) {
+        throw new Error(`Failed to create artifact: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`)
       }
       
       // Update build status to completed
