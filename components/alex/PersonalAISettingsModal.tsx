@@ -109,13 +109,71 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
                 
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-1.5">Model (Optional)</label>
-                  <input 
-                    type="text" 
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    placeholder="e.g. gpt-4o, claude-3-5-sonnet-20240620"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors"
-                  />
+                  <select 
+                    value={
+                      model === '' ? '' : 
+                      ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 
+                       'claude-3-5-sonnet-20240620', 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229',
+                       'gemini-2.0-flash', 'gemini-2.0-pro-exp-02-05', 'gemini-1.5-pro', 'gemini-1.5-flash',
+                       'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'
+                      ].includes(model) ? model : 'custom'
+                    }
+                    onChange={(e) => {
+                      if (e.target.value === 'custom') {
+                        // Keep current model if it's already custom, otherwise clear it
+                        if (['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'claude-3-5-sonnet-20240620', 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229', 'gemini-2.0-flash', 'gemini-2.0-pro-exp-02-05', 'gemini-1.5-pro', 'gemini-1.5-flash', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'].includes(model)) {
+                          setModel('');
+                        }
+                      } else {
+                        setModel(e.target.value);
+                      }
+                    }}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors mb-2"
+                  >
+                    <option value="">Default for provider</option>
+                    {provider === 'openai' && (
+                      <>
+                        <option value="gpt-4o">gpt-4o</option>
+                        <option value="gpt-4o-mini">gpt-4o-mini</option>
+                        <option value="gpt-4-turbo">gpt-4-turbo</option>
+                      </>
+                    )}
+                    {provider === 'anthropic' && (
+                      <>
+                        <option value="claude-3-5-sonnet-20240620">claude-3-5-sonnet-20240620</option>
+                        <option value="claude-3-5-sonnet-20241022">claude-3-5-sonnet-20241022</option>
+                        <option value="claude-3-haiku-20240307">claude-3-haiku-20240307</option>
+                        <option value="claude-3-opus-20240229">claude-3-opus-20240229</option>
+                      </>
+                    )}
+                    {provider === 'gemini' && (
+                      <>
+                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                        <option value="gemini-2.0-pro-exp-02-05">gemini-2.0-pro-exp-02-05</option>
+                        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                      </>
+                    )}
+                    {provider === 'groq' && (
+                      <>
+                        <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+                        <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
+                        <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+                        <option value="gemma2-9b-it">gemma2-9b-it</option>
+                      </>
+                    )}
+                    <option value="custom">Custom...</option>
+                  </select>
+                  
+                  {(!['', 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'claude-3-5-sonnet-20240620', 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229', 'gemini-2.0-flash', 'gemini-2.0-pro-exp-02-05', 'gemini-1.5-pro', 'gemini-1.5-flash', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'].includes(model) || model === 'custom') && (
+                    <input 
+                      type="text" 
+                      value={model === 'custom' ? '' : model}
+                      onChange={(e) => setModel(e.target.value)}
+                      placeholder="Enter custom model ID"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors"
+                    />
+                  )}
                 </div>
               </>
             )}
