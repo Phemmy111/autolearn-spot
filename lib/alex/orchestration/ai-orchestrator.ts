@@ -240,23 +240,36 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
       const response = await aiService.generateResponse(prompt)
       console.log('[AI Orchestrator] AI response received:', response.substring(0, 500))
       
+      // Clean up response (remove markdown code blocks if present)
+      let cleanResponse = response.trim()
+      if (cleanResponse.startsWith('```json')) {
+        cleanResponse = cleanResponse.replace(/^```json\n?/, '').replace(/\n?```$/, '')
+      } else if (cleanResponse.startsWith('```')) {
+        cleanResponse = cleanResponse.replace(/^```\n?/, '').replace(/\n?```$/, '')
+      }
+      
       // Parse JSON response
-      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
-        const result = JSON.parse(jsonMatch[0])
-        
-        // Validate and convert to typed result
-        return {
-          action: this.validateAction(result.action),
-          intent: result.intent as UserIntent,
-          updatedPlan: result.updatedPlan || undefined,
-          confidence: result.confidence || 0.5,
-          reasoning: result.reasoning
+        try {
+          const result = JSON.parse(jsonMatch[0])
+          
+          // Validate and convert to typed result
+          return {
+            action: this.validateAction(result.action),
+            intent: result.intent as UserIntent,
+            updatedPlan: result.updatedPlan || undefined,
+            confidence: result.confidence || 0.5,
+            reasoning: result.reasoning
+          }
+        } catch (parseError) {
+          console.error('[AI Orchestrator] JSON parse error:', parseError, '\nRaw extracted:', jsonMatch[0])
+          return this.getFallbackDecision(userMessage, currentPlan)
         }
       }
       
-      // Fallback if JSON parsing fails
-      console.error('[AI Orchestrator] Failed to parse AI decision, using fallback')
+      // Fallback if no JSON found
+      console.error('[AI Orchestrator] Failed to find JSON in AI decision, using fallback')
       return this.getFallbackDecision(userMessage, currentPlan)
     } catch (error) {
       console.error('[AI Orchestrator] AI decision failed, using fallback:', error)
@@ -395,17 +408,15 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
       }
     }
     
-    // If current plan exists, treat as answer but ask a generic continuation question to maintain flow
+    // If current plan exists, treat as a conversational fallback
     return {
       action: {
-        type: 'clarify',
-        question: 'Could you provide a bit more detail about that? (For example, any specific fields, rules, or steps you want to include?)',
-        reason: 'Continuing automation setup after fallback',
-        field: 'details'
+        type: 'respond',
+        message: 'I had a little trouble processing that response. Could you rephrase it or provide more details about what you want to achieve?'
       },
       intent: 'answer_question',
-      confidence: 0.3,
-      reasoning: 'AI decision failed, using fallback for continuation'
+      confidence: 0.1,
+      reasoning: 'AI decision failed, using conversational fallback'
     }
   }
   
