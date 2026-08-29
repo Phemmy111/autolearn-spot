@@ -400,7 +400,6 @@ export class WorkflowOrchestrator {
     let build;
     if (existingBuild) {
       await ArtifactService.updateSpecification(existingBuild.id, spec, []);
-      await ArtifactService.updateBuildStatus(existingBuild.id, 'designing_architecture');
       build = existingBuild;
     } else {
       build = await ArtifactService.createBuild(
@@ -411,6 +410,9 @@ export class WorkflowOrchestrator {
       );
       await ArtifactService.updateSpecification(build.id, spec, []);
     }
+
+    // Set the status to awaiting_architecture_verification so the approval endpoint can find it
+    await ArtifactService.updateBuildStatus(build.id, 'awaiting_architecture_verification');
 
     // Return a full architecture proposal for the UI
     return {

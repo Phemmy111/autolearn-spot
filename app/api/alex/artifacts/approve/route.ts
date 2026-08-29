@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       .select('*')
       .eq('conversation_id', conversationId)
       .eq('user_id', userId)
-      .in('status', ['collecting_requirements', 'awaiting_architecture_verification'])
+      .in('status', ['collecting_requirements', 'designing_architecture', 'awaiting_architecture_verification'])
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
