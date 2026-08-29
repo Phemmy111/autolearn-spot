@@ -83,26 +83,31 @@ export async function POST(
     }
 
     try {
-      // For Gemini, use default models list (no public API)
       if (provider.provider_type === 'gemini') {
-        const defaultModels = [
-          'gemini-1.5-pro',
-          'gemini-1.5-flash',
-          'gemini-1.0-pro',
-          'gemini-pro',
-          'gemini-pro-vision',
-        ]
+        const apiKey = decrypt(provider.api_key_encrypted)
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
+        
+        let availableModels: string[] = []
+        
+        if (res.ok) {
+          const data = await res.json()
+          availableModels = (data.models || [])
+            .filter((m: any) => m.name && m.name.includes('gemini') && m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
+            .map((m: any) => m.name.replace('models/', ''))
+        } else {
+          throw new Error(`Gemini API error (${res.status})`)
+        }
 
         await supabaseAdmin
           .from('alex_provider_config')
           .update({
-            models: { available: defaultModels },
+            models: { available: availableModels },
             model_list_metadata: { lastRefreshed: new Date().toISOString() },
             updated_at: new Date().toISOString(),
           })
           .eq('id', id)
 
-        return NextResponse.json({ models: defaultModels })
+        return NextResponse.json({ models: availableModels })
       }
 
       // For OpenAI-compatible providers, fetch from /models endpoint
