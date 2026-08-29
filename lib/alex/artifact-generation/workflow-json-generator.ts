@@ -53,23 +53,29 @@ OUTPUT: Return ONLY the JSON object.`
 
     const response = await aiService.generateResponse(prompt)
 
-    // Clean up AI response
-    let cleanResponse = response.trim()
-    // Strip markdown code fences
-    if (cleanResponse.startsWith('```json')) {
-      cleanResponse = cleanResponse.replace(/^```json\s*\n?/, '').replace(/\n?\s*```$/, '')
-    } else if (cleanResponse.startsWith('```')) {
-      cleanResponse = cleanResponse.replace(/^```\s*\n?/, '').replace(/\n?\s*```$/, '')
+    // Robust JSON extraction (handles markdown and extra text)
+    let jsonStr = response.trim()
+    
+    // If it has markdown code blocks, extract just the content inside them
+    const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+    if (codeBlockMatch && codeBlockMatch[1]) {
+      jsonStr = codeBlockMatch[1].trim()
+    } else {
+      // Find the first { and last }
+      const firstBrace = jsonStr.indexOf('{')
+      const lastBrace = jsonStr.lastIndexOf('}')
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonStr = jsonStr.substring(firstBrace, lastBrace + 1)
+      }
     }
 
-    // Extract JSON
-    const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      throw new Error('AI did not return valid JSON for workflow')
+    let workflow;
+    try {
+      workflow = JSON.parse(jsonStr)
+    } catch (parseError) {
+      console.error('[WorkflowJSONGenerator] JSON parse failed on:', jsonStr.substring(0, 200) + '...')
+      throw new Error('AI did not return valid JSON for workflow: ' + parseError)
     }
-
-    // Parse and validate
-    const workflow = JSON.parse(jsonMatch[0])
 
     // Ensure required top-level keys exist
     if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
