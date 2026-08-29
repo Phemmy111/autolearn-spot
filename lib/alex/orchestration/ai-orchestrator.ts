@@ -274,7 +274,7 @@ Workflow Design & Intelligence Guidelines:
 
 Interactive Flow Guidelines:
 - Sequence: Gather missing information ONE step at a time in this order: Goal -> Platform -> Data Source -> Trigger -> Output/Delivery -> AI Model (if applicable) -> Edge Cases.
-- Use "clarify" to ask ONE specific question at a time. Include a reason, field, and helpful options.
+- Use "clarify" to ask ONE specific question at a time. Include a reason, field, and helpful options. Set "inputType": "multi-select" if the user should be allowed to pick multiple options (e.g. data sources).
 - Use "recommend" to suggest platforms or architectural improvements with strong reasoning.
 - Use "plan" to propose the final automation architecture ONLY when all 5 minimum requirements are gathered.
 - Use the "field" property in "clarify" to indicate what aspect is being asked (e.g., "platform", "trigger", "data_source", "delivery", "ai_model", "output_format").
@@ -293,6 +293,7 @@ Return ONLY valid JSON in this exact format:
     "question": "question text if clarify",
     "reason": "why asking if clarify",
     "field": "what aspect this covers",
+    "inputType": "select or multi-select (use multi-select if the user can choose multiple options)",
     "options": ["option1", "option2"] if clarify,
     "recommendations": ["rec1", "rec2"] if recommend,
     "ideas": ["idea1", "idea2"] if brainstorm,
@@ -485,8 +486,15 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
     // If current plan exists, treat as a conversational fallback
     return {
       action: {
-        type: 'respond',
-        message: 'I had a little trouble processing that response. Could you rephrase it or provide more details about what you want to achieve?'
+        type: 'clarify',
+        question: 'Should I still proceed?',
+        reason: 'I had a little trouble processing that response.',
+        field: 'proceed_confirmation',
+        options: ['Yes', 'No'],
+        enrichedOptions: [
+          { label: 'Yes, proceed', value: 'yes' },
+          { label: 'No, let me rephrase', value: 'no' }
+        ]
       },
       intent: 'answer_question',
       confidence: 0.1,

@@ -29,9 +29,22 @@ interface AlexInteractiveQuestionProps {
 export function AlexInteractiveQuestion({ question, onSelect, disabled = false }: AlexInteractiveQuestionProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const [inputValue, setInputValue] = useState('')
+  const [selectedValues, setSelectedValues] = useState<string[]>([])
 
   const handleSelect = (value: string) => {
     if (disabled) return
+    
+    if (question.inputType === 'multi-select') {
+      setSelectedValues(prev => {
+        if (prev.includes(value)) {
+          return prev.filter(v => v !== value)
+        } else {
+          return [...prev, value]
+        }
+      })
+      return
+    }
+
     setSelected(value)
     onSelect(value)
     
@@ -40,6 +53,24 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
       detail: { 
         field: question.field || 'general', 
         value,
+        question: question.text,
+        context: question.context || question.reason,
+        header: question.header
+      } 
+    })
+    window.dispatchEvent(event)
+  }
+
+  const handleMultiSubmit = () => {
+    if (disabled || selectedValues.length === 0) return
+    const valueStr = selectedValues.join(', ')
+    onSelect(valueStr)
+    
+    // Send selection event with full context
+    const event = new CustomEvent('alexQuestionAnswer', { 
+      detail: { 
+        field: question.field || 'general', 
+        value: valueStr,
         question: question.text,
         context: question.context || question.reason,
         header: question.header
@@ -68,6 +99,7 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
   // Determine if this is a finite choice question
   const hasOptions = (question.options && question.options.length > 0) || (question.enrichedOptions && question.enrichedOptions.length > 0)
   const inputType = question.inputType || 'text'
+  const isMulti = inputType === 'multi-select'
   
   // Use enriched options if available, otherwise fall back to simple options
   const displayOptions = question.enrichedOptions || question.options?.map(opt => ({ label: opt, value: opt })) || []
@@ -94,10 +126,12 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {displayOptions.map((option, index) => {
-            const isRecommended = option.recommended || index === 0 // First option is recommended if not specified
+            const isRecommended = option.recommended || (!isMulti && index === 0)
             const displayLabel = option.label || option.value
             const displayValue = option.value
             
+            const isSelected = isMulti ? selectedValues.includes(displayValue) : selected === displayValue
+
             return (
               <button
                 key={displayValue}
@@ -105,7 +139,7 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
                 disabled={disabled}
                 className={`
                   relative p-3 rounded-lg border text-left transition-all
-                  ${selected === displayValue
+                  ${isSelected
                     ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300'
                     : 'bg-slate-900/50 border-slate-600 text-slate-300 hover:border-slate-500 hover:bg-slate-900'
                   }
@@ -118,7 +152,7 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  {selected === displayValue ? (
+                  {isSelected ? (
                     <Check className="h-4 w-4 text-cyan-400" />
                   ) : (
                     <div className="h-4 w-4 border border-slate-500 rounded-sm" />
@@ -134,6 +168,21 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
             )
           })}
         </div>
+        {isMulti && (
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleMultiSubmit}
+              disabled={disabled || selectedValues.length === 0}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                disabled || selectedValues.length === 0
+                  ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                  : 'bg-cyan-500 hover:bg-cyan-600 text-white'
+              }`}
+            >
+              Submit Selection
+            </button>
+          </div>
+        )}
       </div>
     )
   }
