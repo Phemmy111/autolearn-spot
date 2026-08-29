@@ -460,8 +460,44 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
     
     const lower = userMessage.toLowerCase()
     
-    // If no current plan, assume new request
+    // If no current plan, try to extract intent from the user's message
+    // instead of asking the generic "what do you want?" question
     if (!currentPlan) {
+      // Check if the user's message already describes what they want
+      const hasObjective = lower.length > 10 && (
+        lower.includes('create') || lower.includes('build') || lower.includes('make') ||
+        lower.includes('automate') || lower.includes('bot') || lower.includes('workflow') ||
+        lower.includes('summarize') || lower.includes('scrape') || lower.includes('sync') ||
+        lower.includes('notify') || lower.includes('send') || lower.includes('monitor') ||
+        lower.includes('track') || lower.includes('generate') || lower.includes('schedule') ||
+        lower.includes('connect') || lower.includes('integrate')
+      )
+      
+      if (hasObjective) {
+        // User already told us what they want — ask for platform next
+        return {
+          action: {
+            type: 'clarify',
+            question: 'Which automation platform would you like to use?',
+            reason: `Great! I'll help you with that. First, let me know which platform you'd like to build on.`,
+            field: 'platform',
+            enrichedOptions: [
+              { label: 'n8n', value: 'n8n', description: 'Self-hosted or cloud, great for AI/LLM integrations', recommended: true },
+              { label: 'Make (Integromat)', value: 'Make', description: 'Visual builder with good AI support' },
+              { label: 'Zapier', value: 'Zapier', description: 'Cloud-only, extensive integrations, easy to use' }
+            ]
+          },
+          updatedPlan: {
+            objective: userMessage,
+            status: 'draft'
+          },
+          intent: 'new_automation',
+          confidence: 0.5,
+          reasoning: 'AI decision failed but user message contains a clear objective — asking for platform'
+        }
+      }
+      
+      // User message is too vague — ask what they want
       return {
         action: {
           type: 'clarify',
@@ -483,11 +519,99 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
       }
     }
     
-    // If current plan exists, treat as a conversational fallback
+    // If current plan exists, check what's missing and ask for it
+    // instead of a generic "should I proceed?" message
+    if (!currentPlan.platform?.name) {
+      return {
+        action: {
+          type: 'clarify',
+          question: 'Which automation platform would you like to use?',
+          reason: 'I need to know which platform to build on.',
+          field: 'platform',
+          enrichedOptions: [
+            { label: 'n8n', value: 'n8n', description: 'Self-hosted or cloud, great for AI/LLM integrations', recommended: true },
+            { label: 'Make (Integromat)', value: 'Make', description: 'Visual builder with good AI support' },
+            { label: 'Zapier', value: 'Zapier', description: 'Cloud-only, extensive integrations, easy to use' }
+          ]
+        },
+        intent: 'answer_question',
+        confidence: 0.4,
+        reasoning: 'AI decision failed, plan exists but platform is missing'
+      }
+    }
+
+    if (!currentPlan.inputs?.sources || currentPlan.inputs.sources.length === 0) {
+      return {
+        action: {
+          type: 'clarify',
+          question: 'Where will the data or content come from?',
+          reason: 'I need to know the data source to set up the input nodes.',
+          field: 'data_source',
+          inputType: 'multi-select',
+          enrichedOptions: [
+            { label: 'URLs / Webpages', value: 'URLs/webpages', description: 'Fetch and process web content' },
+            { label: 'RSS feeds', value: 'RSS feeds', description: 'Subscribe to news/blog feeds' },
+            { label: 'APIs', value: 'APIs', description: 'Pull data from external APIs' },
+            { label: 'Emails', value: 'Emails', description: 'Process incoming emails' },
+            { label: 'Documents (PDF, text)', value: 'Documents', description: 'Parse uploaded files' },
+            { label: 'Social media', value: 'Social media', description: 'Twitter/X, LinkedIn, Facebook, etc.' }
+          ]
+        },
+        intent: 'answer_question',
+        confidence: 0.4,
+        reasoning: 'AI decision failed, plan exists but data source is missing'
+      }
+    }
+
+    if (!currentPlan.trigger?.type && !currentPlan.trigger?.description) {
+      return {
+        action: {
+          type: 'clarify',
+          question: 'What should trigger this workflow?',
+          reason: 'Every automation needs a trigger to start.',
+          field: 'trigger',
+          enrichedOptions: [
+            { label: 'Schedule (daily, hourly, etc.)', value: 'schedule', description: 'Run on a recurring schedule' },
+            { label: 'Webhook', value: 'webhook', description: 'Triggered by another app or service' },
+            { label: 'Manual', value: 'manual', description: 'Click a button to run' },
+            { label: 'On new email', value: 'email', description: 'When an email arrives' },
+            { label: 'On new data/file', value: 'new_data', description: 'When new data or files are added' }
+          ]
+        },
+        intent: 'answer_question',
+        confidence: 0.4,
+        reasoning: 'AI decision failed, plan exists but trigger is missing'
+      }
+    }
+
+    if (!currentPlan.outputs?.destinations || currentPlan.outputs.destinations.length === 0) {
+      return {
+        action: {
+          type: 'clarify',
+          question: 'Where should the results be sent or saved?',
+          reason: 'I need to know the output destination to complete the workflow.',
+          field: 'delivery',
+          inputType: 'multi-select',
+          enrichedOptions: [
+            { label: 'Email (Gmail/Outlook)', value: 'Email', description: 'Send results via email' },
+            { label: 'Slack', value: 'Slack', description: 'Post to a Slack channel' },
+            { label: 'Google Sheets', value: 'Google Sheets', description: 'Append rows to a spreadsheet' },
+            { label: 'Notion', value: 'Notion', description: 'Create pages in a Notion database' },
+            { label: 'Webhook', value: 'Webhook', description: 'Send to another app via webhook' },
+            { label: 'Dashboard/UI', value: 'Dashboard', description: 'Display in a web dashboard' }
+          ]
+        },
+        intent: 'answer_question',
+        confidence: 0.4,
+        reasoning: 'AI decision failed, plan exists but output is missing'
+      }
+    }
+
+    // Plan has all key fields — ask to proceed
     return {
       action: {
         type: 'clarify',
-        question: 'Should I still proceed?',
+        question: 'Should I still proceed with generating the workflow?',
         reason: 'I had a little trouble processing that response.',
         field: 'proceed_confirmation',
         options: ['Yes', 'No'],

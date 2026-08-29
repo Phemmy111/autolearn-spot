@@ -202,6 +202,13 @@ export class WorkflowOrchestrator {
             'workflow'
           )
           console.log('[Workflow Orchestrator] Anchor build created:', newBuild.id)
+          
+          // Create and save an initial plan so it's not null on next turn
+          const initialPlan: AutomationPlan = currentPlan || {
+            objective: request.userMessage || 'New automation request',
+            status: 'draft'
+          }
+          await this.savePlan(request.conversationId, request.userId, initialPlan, action.type)
         }
       } catch (err) {
         console.error('[Workflow Orchestrator] Failed to create anchor build:', err)
