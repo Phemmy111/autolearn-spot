@@ -5,8 +5,9 @@ import { AlexMessageList } from './AlexMessageList'
 import { AlexInputArea } from './AlexInputArea'
 import { AlexSidebar } from './AlexSidebar'
 import { AlexFileList } from './AlexFileList'
+import { PersonalAISettingsModal } from './PersonalAISettingsModal'
 import { Message, Conversation, AlexFile } from '@/lib/alex/types'
-import { Menu, X, Bot, Plus, Sparkles, Home } from 'lucide-react'
+import { Menu, X, Bot, Plus, Sparkles, Home, Settings } from 'lucide-react'
 
 interface AlexChatProps {
   userId: string
@@ -17,6 +18,7 @@ export function AlexChat({ userId }: AlexChatProps) {
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -257,6 +259,23 @@ export function AlexChat({ userId }: AlexChatProps) {
         attachedFilesForMessageIds: attachedFilesForMessage.map(f => f.id)
       })
 
+      let personalProviderConfig = {}
+      try {
+        const savedConfig = localStorage.getItem('alex_personal_provider')
+        if (savedConfig) {
+          const config = JSON.parse(savedConfig)
+          if (config.provider && config.apiKey) {
+            personalProviderConfig = {
+              personalProvider: config.provider,
+              personalApiKey: config.apiKey,
+              personalModel: config.model || undefined
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse personal provider config', e)
+      }
+
       const res = await fetch('/api/alex/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -265,6 +284,7 @@ export function AlexChat({ userId }: AlexChatProps) {
           content,
           mode,
           fileIds,
+          ...personalProviderConfig
         }),
         signal: controller.signal,
       })
@@ -528,13 +548,22 @@ export function AlexChat({ userId }: AlexChatProps) {
             </div>
             <span className="font-semibold text-white text-sm">ALEX</span>
           </div>
-          <button
-            onClick={startNewConversation}
-            className="w-10 h-10 flex items-center justify-center bg-cyan-500/10 text-cyan-400 rounded-xl hover:bg-cyan-500/20 transition-colors"
-            aria-label="New conversation"
-          >
-            <Plus className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              aria-label="Settings"
+            >
+              <Settings className="h-5 w-5" />
+            </button>
+            <button
+              onClick={startNewConversation}
+              className="w-10 h-10 flex items-center justify-center bg-cyan-500/10 text-cyan-400 rounded-xl hover:bg-cyan-500/20 transition-colors"
+              aria-label="New conversation"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -579,12 +608,21 @@ export function AlexChat({ userId }: AlexChatProps) {
                 </div>
                 <span className="font-semibold text-white">ALEX</span>
               </div>
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="text-sm text-slate-400 hover:text-white transition-colors"
-              >
-                {isSidebarOpen ? 'Hide' : 'Show'} conversations
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="text-slate-400 hover:text-white transition-colors flex items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-800"
+                  title="Personal AI Settings"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="text-sm text-slate-400 hover:text-white transition-colors"
+                >
+                  {isSidebarOpen ? 'Hide' : 'Show'} conversations
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -630,6 +668,11 @@ export function AlexChat({ userId }: AlexChatProps) {
           />
         </div>
       </div>
+      
+      <PersonalAISettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   )
 }

@@ -21,6 +21,7 @@ import { WebResearchService } from './web-research/web-research-service';
 import { estimateTokens } from './token-estimation';
 import { MockSearchProvider } from './web-research/mock-search-provider';
 import { TavilySearchProvider } from './web-research/tavily-search-provider';
+import { ProviderFactory } from './provider/provider-factory';
 import { ToolRegistry, ToolExecutionService, calculatorToolDefinition, calculatorToolExecutor, currentTimeToolDefinition, currentTimeToolExecutor, webSearchToolDefinition, createWebSearchToolExecutor } from './tools';
 
 export class AIEngine {
@@ -218,6 +219,10 @@ export class AIEngine {
     workflowErrors?: string[];
     generateWorkflowArtifact?: boolean;
     skipArtifactDetection?: boolean; // Skip artifact routing for internal AI requests
+    // Personal provider (user-level fallback)
+    personalProvider?: string;
+    personalApiKey?: string;
+    personalModel?: string;
   }): AsyncGenerator<{
     type: 'orchestrator' | 'stream';
     data: any;
@@ -246,6 +251,47 @@ export class AIEngine {
       
       // Load all providers from database
       await providerManager.loadProviders()
+      
+      // Register personal provider if user provided one (highest priority)
+      if (request.personalProvider && request.personalApiKey) {
+        try {
+          const providerTypeMap: Record<string, { type: string; baseUrl?: string; defaultModel: string }> = {
+            'openai': { type: 'openai', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o' },
+            'anthropic': { type: 'openai_compatible', baseUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-3-5-sonnet-20240620' },
+            'gemini': { type: 'gemini', defaultModel: 'gemini-2.0-flash' },
+            'groq': { type: 'groq', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile' },
+          }
+          const mapping = providerTypeMap[request.personalProvider]
+          if (mapping) {
+            const personalConfig: any = {
+              id: 'personal-provider',
+              providerName: `personal-${request.personalProvider}`,
+              displayName: `Personal ${request.personalProvider}`,
+              providerType: mapping.type,
+              apiKeyEncrypted: request.personalApiKey, // Already decrypted from client
+              baseUrl: mapping.baseUrl,
+              currentModel: request.personalModel || mapping.defaultModel,
+              isActive: true,
+              priority: 0, // Highest priority
+              healthStatus: 'unknown',
+              fallbackEnabled: true,
+              capabilities: ['chat', 'streaming'],
+              requestTimeout: 120000,
+              modelListMetadata: {},
+              failureCount: 0,
+              consecutiveFailureCount: 0,
+              authType: 'bearer',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }
+            const personalAdapter = ProviderFactory.createProvider(personalConfig)
+            registry.registerProvider(personalAdapter)
+            console.log(`[AI Engine] Personal provider registered: ${request.personalProvider} (model: ${personalConfig.currentModel})`)
+          }
+        } catch (personalError) {
+          console.warn('[AI Engine] Failed to register personal provider, falling back to admin providers:', personalError)
+        }
+      }
       
       console.log('[FALLBACK] Providers loaded from database')
       

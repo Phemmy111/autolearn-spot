@@ -65,7 +65,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { conversationId, content, mode, fileIds, enableAgent } = body
+    const { 
+      conversationId, 
+      content, 
+      mode, 
+      fileIds, 
+      enableAgent,
+      personalProvider,
+      personalApiKey,
+      personalModel
+    } = body
 
     console.log('[DIAGNOSTIC] CHAT REQUEST START', {
       conversationId,
@@ -73,6 +82,7 @@ export async function POST(request: NextRequest) {
       fileIdsPresent: !!fileIds,
       fileIdsCount: fileIds?.length || 0,
       fileIds: fileIds || [],
+      hasPersonalProvider: !!personalProvider,
       contentPreview: content.substring(0, 100)
     })
 
@@ -138,12 +148,17 @@ export async function POST(request: NextRequest) {
           conversationId,
           userId,
           userMessage: content,
-          conversationHistory: earlyConversationHistory,
           mode,
-          attachedFiles: [] // files are resolved later; orchestrator can work without them here
+          conversationHistory: earlyConversationHistory,
+          attachedFiles: [], // Attached files not fully supported in old orchestrator yet
+          // Add personal config
+          personalProvider,
+          personalApiKey,
+          personalModel
         }
-        
-        const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest)
+
+        // Await the orchestration result
+        const workflowResponse = await workflowOrchestrator.orchestrateWorkflow(workflowRequest as any)
         
         console.log('[CHAT ROUTE] Workflow orchestrator response:', {
           status: workflowResponse.status,
@@ -603,6 +618,9 @@ export async function POST(request: NextRequest) {
             enableAgent: enableAgent || false, // Phase 6: Enable agent mode
             conversationId,
             enableTokenAwareAssembly: (attachedFiles || []).length > 0, // Enable token-aware assembly when files are attached
+            personalProvider,
+            personalApiKey,
+            personalModel
           })) {
             if (chunk.type === 'orchestrator') {
               // Phase 7: Check for artifact workflow response

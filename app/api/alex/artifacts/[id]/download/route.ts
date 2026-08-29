@@ -44,14 +44,21 @@ export async function GET(
       return NextResponse.json({ error: 'Artifact not found' }, { status: 404 })
     }
 
-    console.log('[Artifact Download] Returning artifact:', { filename: artifact.filename, size: artifact.content.length })
+    let finalContent = artifact.content
+    if (typeof finalContent === 'object') {
+      finalContent = JSON.stringify(finalContent, null, 2)
+    } else if (typeof finalContent !== 'string') {
+      finalContent = String(finalContent)
+    }
+
+    console.log('[Artifact Download] Returning artifact:', { filename: artifact.filename, size: finalContent.length })
 
     // Return file as download
-    return new NextResponse(artifact.content, {
+    return new NextResponse(finalContent, {
       headers: {
         'Content-Type': artifact.mime_type,
         'Content-Disposition': `attachment; filename="${artifact.filename}"`,
-        'Content-Length': artifact.content.length.toString()
+        'Content-Length': Buffer.byteLength(finalContent, 'utf8').toString()
       }
     })
   } catch (error) {
