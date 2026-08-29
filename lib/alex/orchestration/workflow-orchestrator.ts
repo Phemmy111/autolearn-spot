@@ -506,6 +506,7 @@ export class WorkflowOrchestrator {
       }
     } catch (error) {
       console.error('[Workflow Orchestrator] Artifact generation failed:', error)
+      console.error('[Workflow Orchestrator] Error stack:', error instanceof Error ? error.stack : 'No stack')
       
       // Update build status to failed
       const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
@@ -515,7 +516,7 @@ export class WorkflowOrchestrator {
       
       return {
         status: 'failed',
-        message: `Failed to generate workflow: ${error instanceof Error ? error.message : 'Unknown error'}`
+        message: `Failed to generate workflow: ${error instanceof Error ? error.message : 'Unknown error'}\n\nStack: ${error instanceof Error ? error.stack : ''}`
       }
     }
   }

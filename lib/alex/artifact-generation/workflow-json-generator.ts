@@ -50,7 +50,15 @@ export class WorkflowJSONGenerator {
 
     // Process nodes based on workflow steps
     if (plan.workflow) {
-      plan.workflow.forEach((step, index) => {
+      let workflowSteps = plan.workflow
+      if (!Array.isArray(workflowSteps)) {
+        if (typeof workflowSteps === 'object') {
+          workflowSteps = Object.values(workflowSteps)
+        } else {
+          workflowSteps = [workflowSteps]
+        }
+      }
+      workflowSteps.forEach((step, index) => {
         const processNode = this.generateProcessNode(step, nodeId)
         nodes.push(processNode)
         nodeId++
