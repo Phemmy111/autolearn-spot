@@ -251,8 +251,7 @@ export class ArtifactService {
         content,
         file_size: content.length,
         validation_status: 'pending',
-        is_primary: isPrimary,
-        traceability: traceability || {}
+        is_primary: isPrimary
       })
       .select()
       .single()
