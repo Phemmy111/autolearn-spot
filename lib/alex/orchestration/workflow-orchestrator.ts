@@ -265,26 +265,13 @@ export class WorkflowOrchestrator {
           }
         }
             case 'plan': {
-          // Ensure an artifact build exists to anchor the conversation for subsequent steps
-          try {
-            const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
-            if (!existingBuild) {
-              console.log('[Workflow Orchestrator] No build record found after plan — creating anchor build')
-              await ArtifactService.createBuild(
-                request.conversationId,
-                request.userId,
-                request.userMessage,
-                'workflow'
-              )
-            }
-          } catch (err) {
-            console.error('[Workflow Orchestrator] Failed to create anchor build after plan:', err)
-          }
-          return {
-            status: 'planning',
-            message: `Here's my plan for your automation:\n${JSON.stringify(action.plan, null, 2)}`,
-            plan: action.plan
-          }
+          // When the AI has a complete plan, proceed directly to architecture design
+          // so the user sees the "Approve & Generate" button immediately.
+          console.log('[Workflow Orchestrator] Plan action received — proceeding to architecture design')
+          const planForGenerate = (action.plan && Object.keys(action.plan).length > 0)
+            ? action.plan
+            : (updatedPlan || currentPlan || {})
+          return await this.handleGenerate(planForGenerate, request)
         }
       
       case 'generate': {
