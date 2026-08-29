@@ -73,11 +73,12 @@ export class WorkflowOrchestrator {
    * Replaces WorkflowManagerV2.processRequest for AI-driven behavior
    */
   async orchestrateWorkflow(request: WorkflowOrchestrationRequest): Promise<WorkflowOrchestrationResponse> {
+    const userMessage = request.userMessage || ''
     console.log('[Workflow Orchestrator] ===== ORCHESTRATION START =====')
     console.log('[Workflow Orchestrator] Request:', {
       conversationId: request.conversationId,
       userId: request.userId,
-      message: request.userMessage.substring(0, 100),
+      message: userMessage.substring(0, 100),
       mode: request.mode
     })
     
@@ -110,7 +111,7 @@ export class WorkflowOrchestrator {
       'yes, generate',
       'generate it'
     ]
-    const normalizedMessage = request.userMessage.toLowerCase().trim()
+    const normalizedMessage = userMessage.toLowerCase().trim()
     const isExplicitGenerateRequest = generatePhrases.some(phrase => normalizedMessage.includes(phrase))
     
     // Also detect short affirmative answers when a plan already exists

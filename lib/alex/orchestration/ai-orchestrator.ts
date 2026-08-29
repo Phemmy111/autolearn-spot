@@ -138,7 +138,7 @@ export class AIOrchestrator {
         
         if (!aiDecision.updatedPlan) {
           aiDecision.updatedPlan = currentPlan || {
-            objective: userMessage.substring(0, 500),
+            objective: (userMessage || '').substring(0, 500),
             platform: { name: "n8n" },
             status: "draft"
           }
@@ -151,7 +151,7 @@ export class AIOrchestrator {
         
         // Always store the user's original message as the objective if not already set
         if (!aiDecision.updatedPlan.objective || aiDecision.updatedPlan.objective === 'Extracted workflow from request') {
-          aiDecision.updatedPlan.objective = userMessage.substring(0, 500)
+          aiDecision.updatedPlan.objective = (userMessage || '').substring(0, 500)
         }
         
         aiDecision.action = {
