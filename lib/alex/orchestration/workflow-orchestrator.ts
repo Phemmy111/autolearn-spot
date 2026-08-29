@@ -264,12 +264,27 @@ export class WorkflowOrchestrator {
             enrichedOptions: action.enrichedOptions
           }
         }
-      
-      case 'plan':
-        return {
-          status: 'planning',
-          message: `Here's my plan for your automation:\n${JSON.stringify(action.plan, null, 2)}`,
-          plan: action.plan
+            case 'plan': {
+          // Ensure an artifact build exists to anchor the conversation for subsequent steps
+          try {
+            const existingBuild = await ArtifactService.getActiveBuild(request.conversationId, request.userId)
+            if (!existingBuild) {
+              console.log('[Workflow Orchestrator] No build record found after plan — creating anchor build')
+              await ArtifactService.createBuild(
+                request.conversationId,
+                request.userId,
+                request.userMessage,
+                'workflow'
+              )
+            }
+          } catch (err) {
+            console.error('[Workflow Orchestrator] Failed to create anchor build after plan:', err)
+          }
+          return {
+            status: 'planning',
+            message: `Here's my plan for your automation:\n${JSON.stringify(action.plan, null, 2)}`,
+            plan: action.plan
+          }
         }
       
       case 'generate': {

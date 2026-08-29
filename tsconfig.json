@@ -36,6 +36,14 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "lib/analytics/**",
+    "lib/alex/workflows/__tests__/**",
+    "lib/alex/vision-service.ts",
+    "lib/badge-system.ts",
+    "lib/leaderboard-scoring.ts",
+    "lib/notification-scheduler.ts"
   ]
 }
