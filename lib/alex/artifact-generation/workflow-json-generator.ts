@@ -28,12 +28,12 @@ ${planSummary}
 CRITICAL n8n SCHEMA RULES:
 1. Output ONLY the raw JSON object. No markdown, no code fences, no explanation.
 2. Every node MUST have: "parameters" (object), "id" (uuid-like string), "name", "type" (exact n8n node type), "typeVersion" (number), "position" (array [x, y]).
-3. Use REAL n8n node types. Some common/advanced examples:
-   - Triggers: n8n-nodes-base.webhook (v1 or v2), n8n-nodes-base.scheduleTrigger (v1.2), n8n-nodes-base.manualTrigger (v1)
-   - Logic: n8n-nodes-base.if (v2), n8n-nodes-base.switch (v3), n8n-nodes-base.merge (v3)
-   - Data & Transform: n8n-nodes-base.code (v2) (use parameters.jsCode), n8n-nodes-base.set (v3.4), n8n-nodes-base.httpRequest (v4.2)
-   - Apps: n8n-nodes-base.googleSheets (v4.5), n8n-nodes-base.twilio (v1), n8n-nodes-base.slack (v2.2)
-   - AI/LangChain: @n8n/n8n-nodes-langchain.lmChatGoogleGemini (v1), @n8n/n8n-nodes-langchain.chainLlm (v1.5), @n8n/n8n-nodes-langchain.lmChatGroq (v1), @n8n/n8n-nodes-langchain.lmChatOpenRouter (v1)
+3. Use REAL n8n node types. CRITICAL: Default to "typeVersion": 1 for maximum backward compatibility with older n8n instances.
+   - Triggers: n8n-nodes-base.webhook (v1), n8n-nodes-base.scheduleTrigger (v1), n8n-nodes-base.manualTrigger (v1)
+   - Logic: n8n-nodes-base.if (v1), n8n-nodes-base.switch (v1), n8n-nodes-base.merge (v1)
+   - Data & Transform: n8n-nodes-base.code (v1 or v2) (use parameters.jsCode), n8n-nodes-base.set (v1), n8n-nodes-base.httpRequest (v1)
+   - Apps: n8n-nodes-base.googleSheets (v1 or v2), n8n-nodes-base.twilio (v1), n8n-nodes-base.slack (v1)
+   - AI/LangChain: @n8n/n8n-nodes-langchain.lmChatGoogleGemini (v1), @n8n/n8n-nodes-langchain.chainLlm (v1), @n8n/n8n-nodes-langchain.lmChatGroq (v1)
 4. Connections MUST use node names as keys. Format for main output:
    { "NodeName": { "main": [ [ { "node": "NextNode", "type": "main", "index": 0 } ] ] } }
    For AI models feeding into a chain, use the "ai_languageModel" type:

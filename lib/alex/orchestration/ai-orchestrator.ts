@@ -110,8 +110,8 @@ export class AIOrchestrator {
       }
     }
     
-    // INTERCEPT: If AI still dumped JSON or a step-by-step guide in a respond action, convert it to a clarify action
-    if (aiDecision.action.type === 'respond' && aiDecision.action.message) {
+    // INTERCEPT: If AI still dumped JSON or a step-by-step guide in ANY action, convert it to a clarify action
+    if (aiDecision.action.message) {
       const msg = aiDecision.action.message
       const msgLower = msg.toLowerCase()
       
