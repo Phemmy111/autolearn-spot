@@ -243,7 +243,7 @@ export function AlexChat({ userId }: AlexChatProps) {
       attached_files: attachedFilesForMessage,
       created_at: new Date().toISOString(),
     }
-    setMessages([...messages, userMessage])
+    setMessages(prev => [...prev, userMessage])
 
     try {
       console.log('[DIAGNOSTIC] FRONTEND CHAT REQUEST', {
