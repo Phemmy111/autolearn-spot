@@ -147,7 +147,7 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
 
     // Ensure required fields (after successful parse)
     const rawName = workflow.name || plan.objective || 'Generated Workflow'
-    workflow.name = rawName.length > 120 ? rawName.substring(0, 117) + '...' : rawName
+    workflow.name = rawName.length > 60 ? rawName.substring(0, 57) + '...' : rawName
     workflow.settings = workflow.settings || { executionOrder: 'v1' }
     workflow.pinData = workflow.pinData || {}
     workflow.meta = workflow.meta || { instanceId: 'generated-by-alex' }
@@ -388,7 +388,7 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
 
     const rawName = plan.objective || 'Generated Workflow'
     const workflow = {
-      name: rawName.length > 120 ? rawName.substring(0, 117) + '...' : rawName,
+      name: rawName.length > 60 ? rawName.substring(0, 57) + '...' : rawName,
       nodes,
       connections,
       settings: { executionOrder: 'v1' },
