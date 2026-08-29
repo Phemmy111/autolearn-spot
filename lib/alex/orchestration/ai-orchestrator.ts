@@ -110,6 +110,33 @@ export class AIOrchestrator {
       }
     }
     
+    // INTERCEPT: If AI still dumped JSON in a respond action, convert it to a clarify/plan action
+    if (aiDecision.action.type === 'respond' && aiDecision.action.message) {
+      if (
+        (aiDecision.action.message.includes('```json') && aiDecision.action.message.includes('"nodes"')) ||
+        (aiDecision.action.message.includes('"connections"') && aiDecision.action.message.includes('n8n-nodes-base'))
+      ) {
+        console.log('[AI Orchestrator] Intercepted raw JSON dump in respond action. Converting to clarify action.')
+        
+        if (!aiDecision.updatedPlan) {
+          aiDecision.updatedPlan = currentPlan || {
+            objective: "Extracted workflow from request",
+            platform: { name: "n8n" },
+            status: "draft"
+          }
+        }
+        
+        aiDecision.action = {
+          type: 'clarify',
+          question: 'I have the workflow logic ready. Would you like me to generate a ready-made n8n JSON file for this?',
+          reason: 'Workflow JSON intercepted, transitioning to generator',
+          field: 'generate_artifact',
+          options: ['Yes, generate the JSON', 'No, I need to make changes'],
+          plan: aiDecision.updatedPlan
+        }
+      }
+    }
+    
     // Track questions if clarification action
     if (aiDecision.action.type === 'clarify' && context.userId && context.conversationId) {
       const question = aiDecision.action.question

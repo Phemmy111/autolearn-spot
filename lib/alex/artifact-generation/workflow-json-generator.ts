@@ -85,6 +85,14 @@ OUTPUT: Return ONLY the JSON object.`
     workflow.pinData = workflow.pinData || {}
     workflow.meta = workflow.meta || { instanceId: 'generated-by-alex' }
 
+    // Enforce IDs for all nodes, otherwise n8n shows ? icons
+    workflow.nodes.forEach((node: any, index: number) => {
+      if (!node.id) {
+        const fallbackId = 'node-' + Date.now() + '-' + index
+        node.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : fallbackId
+      }
+    })
+
     console.log('[WorkflowJSONGenerator] AI generated workflow with', workflow.nodes.length, 'nodes')
     return JSON.stringify(workflow, null, 2)
   }
