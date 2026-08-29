@@ -118,8 +118,7 @@ export class AIOrchestrator {
       const isJsonDump = (msgLower.includes('```json') && msgLower.includes('"nodes"')) ||
                          (msgLower.includes('"connections"') && msgLower.includes('n8n-nodes-base'))
                          
-      const isSetupGuide = (aiDecision.intent === 'new_automation' || aiDecision.intent === 'revise_automation') && 
-                           msg.length > 400 && 
+      const isSetupGuide = msg.length > 400 && 
                            (msgLower.includes('node') || msgLower.includes('webhook')) &&
                            (msgLower.includes('step') || msgLower.includes('overview') || msgLower.includes('┌──'))
 
