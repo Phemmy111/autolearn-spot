@@ -110,13 +110,21 @@ export class AIOrchestrator {
       }
     }
     
-    // INTERCEPT: If AI still dumped JSON in a respond action, convert it to a clarify/plan action
+    // INTERCEPT: If AI still dumped JSON or a step-by-step guide in a respond action, convert it to a clarify action
     if (aiDecision.action.type === 'respond' && aiDecision.action.message) {
-      if (
-        (aiDecision.action.message.includes('```json') && aiDecision.action.message.includes('"nodes"')) ||
-        (aiDecision.action.message.includes('"connections"') && aiDecision.action.message.includes('n8n-nodes-base'))
-      ) {
-        console.log('[AI Orchestrator] Intercepted raw JSON dump in respond action. Converting to clarify action.')
+      const msg = aiDecision.action.message
+      const msgLower = msg.toLowerCase()
+      
+      const isJsonDump = (msgLower.includes('```json') && msgLower.includes('"nodes"')) ||
+                         (msgLower.includes('"connections"') && msgLower.includes('n8n-nodes-base'))
+                         
+      const isSetupGuide = (aiDecision.intent === 'new_automation' || aiDecision.intent === 'revise_automation') && 
+                           msg.length > 400 && 
+                           (msgLower.includes('node') || msgLower.includes('webhook')) &&
+                           (msgLower.includes('step') || msgLower.includes('overview') || msgLower.includes('┌──'))
+
+      if (isJsonDump || isSetupGuide) {
+        console.log('[AI Orchestrator] Intercepted setup guide / JSON dump in respond action. Converting to clarify action.')
         
         if (!aiDecision.updatedPlan) {
           aiDecision.updatedPlan = currentPlan || {
