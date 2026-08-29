@@ -24,9 +24,8 @@ export async function POST(request: NextRequest) {
         headers: { Authorization: `Bearer ${apiKey}` }
       })
       if (!res.ok) {
-        const errText = await res.text()
-        console.error('[Models API] OpenAI error:', res.status, errText)
-        throw new Error(`OpenAI API error (${res.status})`)
+        if (res.status === 401) return NextResponse.json({ error: 'Invalid OpenAI API key' }, { status: 400 })
+        return NextResponse.json({ error: `OpenAI error (${res.status})` }, { status: 502 })
       }
       const data = await res.json()
       models = (data.data || [])
@@ -42,9 +41,8 @@ export async function POST(request: NextRequest) {
         }
       })
       if (!res.ok) {
-        const errText = await res.text()
-        console.error('[Models API] Anthropic error:', res.status, errText)
-        throw new Error(`Anthropic API error (${res.status})`)
+        if (res.status === 401) return NextResponse.json({ error: 'Invalid Anthropic API key' }, { status: 400 })
+        return NextResponse.json({ error: `Anthropic error (${res.status})` }, { status: 502 })
       }
       const data = await res.json()
       models = (data.data || [])
@@ -55,9 +53,8 @@ export async function POST(request: NextRequest) {
         headers: { Authorization: `Bearer ${apiKey}` }
       })
       if (!res.ok) {
-        const errText = await res.text()
-        console.error('[Models API] Groq error:', res.status, errText)
-        throw new Error(`Groq API error (${res.status})`)
+        if (res.status === 401) return NextResponse.json({ error: 'Invalid Groq API key' }, { status: 400 })
+        return NextResponse.json({ error: `Groq error (${res.status})` }, { status: 502 })
       }
       const data = await res.json()
       models = (data.data || [])
@@ -67,9 +64,8 @@ export async function POST(request: NextRequest) {
     else if (provider === 'gemini') {
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`)
       if (!res.ok) {
-        const errText = await res.text()
-        console.error('[Models API] Gemini error:', res.status, errText)
-        throw new Error(`Gemini API error (${res.status})`)
+        if (res.status === 400 || res.status === 403) return NextResponse.json({ error: 'Invalid Gemini API key' }, { status: 400 })
+        return NextResponse.json({ error: `Gemini error (${res.status})` }, { status: 502 })
       }
       const data = await res.json()
       models = (data.models || [])
