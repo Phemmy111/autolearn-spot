@@ -323,7 +323,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Tables
     table: ({ children }: any) => (
-      <div className="overflow-x-auto my-4 max-w-full -mx-4 px-4">
+      <div className="overflow-x-auto my-4 max-w-full -mx-3 px-3 sm:-mx-4 sm:px-4">
         <table className="min-w-full divide-y divide-slate-700 border border-slate-700 rounded-lg text-xs">
           {children}
         </table>
@@ -438,7 +438,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
         {messages.map((message, index) => (
           <div
             key={message.id}
-            className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex gap-3 w-full ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {message.role === 'assistant' && (
               <div className="flex-shrink-0">
@@ -449,10 +449,10 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
             )}
             
             <div
-              className={`max-w-2xl rounded-2xl px-4 py-3 ${
+              className={`rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 min-w-0 w-full overflow-x-auto ${
                 message.role === 'user'
-                  ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-slate-900 shadow-lg shadow-cyan-500/20'
-                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white'
+                  ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-slate-900 shadow-lg shadow-cyan-500/20 max-w-[85%] sm:max-w-xl mx-2'
+                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
               }`}
             >
               <div className="flex flex-col gap-3">
