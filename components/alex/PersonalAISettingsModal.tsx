@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Key, CheckCircle2, AlertCircle } from 'lucide-react'
+import { X, Key, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react'
 
 interface PersonalAISettingsModalProps {
   isOpen: boolean
@@ -11,6 +11,9 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
   const [apiKey, setApiKey] = useState('')
   const [model, setModel] = useState('')
   const [isSaved, setIsSaved] = useState(false)
+  const [availableModels, setAvailableModels] = useState<{id: string, name: string}[]>([])
+  const [isLoadingModels, setIsLoadingModels] = useState(false)
+  const [fetchError, setFetchError] = useState('')
 
   useEffect(() => {
     if (isOpen) {
@@ -28,6 +31,39 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
       setIsSaved(false)
     }
   }, [isOpen])
+
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (!provider || apiKey.length < 10) {
+        setAvailableModels([]);
+        return;
+      }
+      
+      setIsLoadingModels(true);
+      setFetchError('');
+      
+      try {
+        const res = await fetch(`/api/alex/providers/models?provider=${provider}&apiKey=${encodeURIComponent(apiKey)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setAvailableModels(data.models || []);
+        } else {
+          const err = await res.json();
+          setFetchError(err.error || 'Failed to fetch models');
+        }
+      } catch (e) {
+        setFetchError('Network error');
+      } finally {
+        setIsLoadingModels(false);
+      }
+    }
+
+    const timeout = setTimeout(() => {
+      fetchModels();
+    }, 1000);
+    
+    return () => clearTimeout(timeout);
+  }, [apiKey, provider]);
 
   if (!isOpen) return null
 
@@ -53,6 +89,9 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
       }, 1500)
     }
   }
+
+  const isModelInList = availableModels.some(m => m.id === model);
+  const showCustomInput = model === 'custom' || (model !== '' && !isModelInList && availableModels.length > 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -108,22 +147,20 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1.5">Model (Optional)</label>
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-sm font-medium text-slate-300">Model (Optional)</label>
+                    {isLoadingModels && <RefreshCw className="w-3.5 h-3.5 text-cyan-500 animate-spin" />}
+                  </div>
+                  
+                  {fetchError && (
+                    <div className="text-xs text-red-400 mb-2">{fetchError}</div>
+                  )}
+                  
                   <select 
-                    value={
-                      model === '' ? '' : 
-                      ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 
-                       'claude-3-5-sonnet-20240620', 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229',
-                       'gemini-2.0-flash', 'gemini-2.0-pro-exp-02-05', 'gemini-1.5-pro', 'gemini-1.5-flash',
-                       'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'
-                      ].includes(model) ? model : 'custom'
-                    }
+                    value={model === '' ? '' : (showCustomInput && model === 'custom' ? 'custom' : (isModelInList ? model : (availableModels.length > 0 ? 'custom' : model)))}
                     onChange={(e) => {
                       if (e.target.value === 'custom') {
-                        // Keep current model if it's already custom, otherwise clear it
-                        if (['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'claude-3-5-sonnet-20240620', 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229', 'gemini-2.0-flash', 'gemini-2.0-pro-exp-02-05', 'gemini-1.5-pro', 'gemini-1.5-flash', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'].includes(model)) {
-                          setModel('');
-                        }
+                        if (isModelInList) setModel('');
                       } else {
                         setModel(e.target.value);
                       }
@@ -131,47 +168,22 @@ export function PersonalAISettingsModal({ isOpen, onClose }: PersonalAISettingsM
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors mb-2"
                   >
                     <option value="">Default for provider</option>
-                    {provider === 'openai' && (
-                      <>
-                        <option value="gpt-4o">gpt-4o</option>
-                        <option value="gpt-4o-mini">gpt-4o-mini</option>
-                        <option value="gpt-4-turbo">gpt-4-turbo</option>
-                      </>
-                    )}
-                    {provider === 'anthropic' && (
-                      <>
-                        <option value="claude-3-5-sonnet-20240620">claude-3-5-sonnet-20240620</option>
-                        <option value="claude-3-5-sonnet-20241022">claude-3-5-sonnet-20241022</option>
-                        <option value="claude-3-haiku-20240307">claude-3-haiku-20240307</option>
-                        <option value="claude-3-opus-20240229">claude-3-opus-20240229</option>
-                      </>
-                    )}
-                    {provider === 'gemini' && (
-                      <>
-                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                        <option value="gemini-2.0-pro-exp-02-05">gemini-2.0-pro-exp-02-05</option>
-                        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-                      </>
-                    )}
-                    {provider === 'groq' && (
-                      <>
-                        <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
-                        <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
-                        <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
-                        <option value="gemma2-9b-it">gemma2-9b-it</option>
-                      </>
+                    {availableModels.map(m => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                    {!isModelInList && model !== '' && model !== 'custom' && availableModels.length === 0 && (
+                      <option value={model}>{model}</option>
                     )}
                     <option value="custom">Custom...</option>
                   </select>
                   
-                  {(!['', 'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'claude-3-5-sonnet-20240620', 'claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307', 'claude-3-opus-20240229', 'gemini-2.0-flash', 'gemini-2.0-pro-exp-02-05', 'gemini-1.5-pro', 'gemini-1.5-flash', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'].includes(model) || model === 'custom') && (
+                  {(showCustomInput || (model !== '' && !isModelInList && availableModels.length === 0)) && (
                     <input 
                       type="text" 
                       value={model === 'custom' ? '' : model}
                       onChange={(e) => setModel(e.target.value)}
                       placeholder="Enter custom model ID"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-200 focus:outline-none focus:border-cyan-500 transition-colors mt-2 border-dashed"
                     />
                   )}
                 </div>
