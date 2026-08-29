@@ -258,21 +258,53 @@ export class WorkflowOrchestrator {
           }
         }
             case 'plan': {
-          // When the AI has a complete plan, proceed directly to architecture design
-          // so the user sees the "Approve & Generate" button immediately.
-          console.log('[Workflow Orchestrator] Plan action received — proceeding to architecture design')
+          // Validate plan completeness before proceeding to architecture design
+          console.log('[Workflow Orchestrator] Plan action received — validating completeness')
           const planForGenerate = (action.plan && Object.keys(action.plan).length > 0)
             ? action.plan
             : (updatedPlan || currentPlan || {})
+          
+          const missingField = this.getMissingPlanField(planForGenerate)
+          if (missingField) {
+            console.log('[Workflow Orchestrator] Plan incomplete, missing:', missingField.field)
+            return {
+              status: 'collecting_requirements',
+              message: missingField.message,
+              needsInput: true,
+              question: {
+                text: missingField.question,
+                reason: missingField.reason,
+                field: missingField.field,
+                enrichedOptions: missingField.options
+              }
+            }
+          }
+          
           return await this.handleGenerate(planForGenerate, request)
         }
       
       case 'generate': {
-        // Convert plan to spec and generate architecture
-        // If the AI didn't provide the plan again in the action, use the accumulated plan
+        // Validate plan completeness before generating
         const planToGenerate = (action.plan && Object.keys(action.plan).length > 0) 
           ? action.plan 
           : (updatedPlan || currentPlan || {});
+        
+        const missingFieldGen = this.getMissingPlanField(planToGenerate)
+        if (missingFieldGen) {
+          console.log('[Workflow Orchestrator] Plan incomplete for generate, missing:', missingFieldGen.field)
+          return {
+            status: 'collecting_requirements',
+            message: missingFieldGen.message,
+            needsInput: true,
+            question: {
+              text: missingFieldGen.question,
+              reason: missingFieldGen.reason,
+              field: missingFieldGen.field,
+              enrichedOptions: missingFieldGen.options
+            }
+          }
+        }
+        
         return await this.handleGenerate(planToGenerate, request)
       }
       
@@ -778,6 +810,62 @@ export class WorkflowOrchestrator {
       console.error('[Workflow Orchestrator] Failed to check recently answered:', error)
       return false
     }
+  }
+
+  /**
+   * Helper to check if a plan is missing required fields before generation
+   * Returns the missing field details or null if complete
+   */
+  private getMissingPlanField(plan: AutomationPlan): { field: string, question: string, reason: string, message: string, options?: Array<{label: string, value: string}> } | null {
+    // 1. Check Platform
+    if (!plan.platform?.name) {
+      return {
+        field: 'platform',
+        question: 'Which automation platform would you like to use for this workflow?',
+        reason: 'Platform selection is required before generating the workflow',
+        message: 'I need to know which platform to use before generating the workflow.',
+        options: QuestionOptionsGenerator.generatePlatformOptions()
+      }
+    }
+
+    // 2. Check Data Source (inputs)
+    if (!plan.inputs?.sources || plan.inputs.sources.length === 0) {
+      return {
+        field: 'data_source',
+        question: 'Where will the data or content for this workflow come from?',
+        reason: 'I need to know the data source to set up the input nodes',
+        message: 'I need to know where the data comes from before proceeding.'
+      }
+    }
+
+    // 3. Check Trigger
+    if (!plan.trigger?.type && !plan.trigger?.description) {
+      return {
+        field: 'trigger',
+        question: 'What should trigger this workflow?',
+        reason: 'Every automation needs a trigger to start',
+        message: 'I need to know what triggers this automation.',
+        options: [
+          { label: 'Schedule (e.g., daily, hourly)', value: 'schedule' },
+          { label: 'Webhook (triggered by another app)', value: 'webhook' },
+          { label: 'Manual (trigger by clicking a button)', value: 'manual' },
+          { label: 'Email (when an email arrives)', value: 'email' },
+          { label: 'New File/Data (when new data is added)', value: 'new_data' }
+        ]
+      }
+    }
+
+    // 4. Check Output/Delivery
+    if (!plan.outputs?.destinations || plan.outputs.destinations.length === 0) {
+      return {
+        field: 'delivery',
+        question: 'Where should the results be sent or saved?',
+        reason: 'I need to know the destination to set up the output nodes',
+        message: 'I need to know where to send the final output.'
+      }
+    }
+
+    return null; // Plan is complete enough
   }
 
   /**

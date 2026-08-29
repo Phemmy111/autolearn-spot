@@ -23,17 +23,26 @@ export class WorkflowJSONGenerator {
 
     const planSummary = this.buildPlanSummary(plan)
 
-    const prompt = `You are an elite n8n workflow architect. Generate a COMPLETE, VALID, IMPORTABLE n8n workflow JSON based on the following automation plan.
+    let attempt = 0
+    const maxAttempts = 2
+    let workflow;
 
+    while (attempt < maxAttempts) {
+      attempt++
+      const retryPrompt = attempt > 1 ? `\nCRITICAL FIX REQUIRED: Your previous response used too many "n8n-nodes-base.code" nodes. You MUST use proper n8n integration nodes (e.g. n8n-nodes-base.httpRequest, @n8n/n8n-nodes-langchain.chainLlm, n8n-nodes-base.gmail) instead of generic Code nodes for integrations and AI logic.\n` : ''
+      
+      const prompt = `You are an elite n8n workflow architect. Generate a COMPLETE, VALID, IMPORTABLE n8n workflow JSON based on the following automation plan.
+${retryPrompt}
 AUTOMATION PLAN:
 ${planSummary}
 
 CRITICAL RULES:
 1. Output ONLY the raw JSON object. No markdown, no code fences, no explanation text.
-2. NEVER use n8n-nodes-base.code as a substitute for a real integration node. Use the ACTUAL n8n node type for each service.
+2. ABSOLUTELY NEVER use "n8n-nodes-base.code" as a placeholder or substitute for a real integration node. Use the ACTUAL n8n node type for each service (e.g., httpRequest for APIs, chainLlm for AI, gmail for emails).
 3. Every node MUST have: "parameters" (object), "id" (unique uuid string), "name" (string), "type" (exact n8n node type string), "typeVersion" (number, default 1), "position" ([x, y] array).
 
 NODE TYPE REFERENCE (use these EXACT type strings):
+- HTTP Request (for APIs, scraping, fetching): "n8n-nodes-base.httpRequest", typeVersion: 1
 - Gmail trigger: "n8n-nodes-base.gmailTrigger", typeVersion: 1
 - Gmail send/reply: "n8n-nodes-base.gmail", typeVersion: 2, parameters.operation: "reply" or "send"
 - Google Sheets append: "n8n-nodes-base.googleSheets", typeVersion: 2, parameters.operation: "appendOrUpdate"
@@ -42,14 +51,17 @@ NODE TYPE REFERENCE (use these EXACT type strings):
 - Webhook: "n8n-nodes-base.webhook", typeVersion: 1
 - IF conditional: "n8n-nodes-base.if", typeVersion: 1
 - Switch: "n8n-nodes-base.switch", typeVersion: 1
-- HTTP Request: "n8n-nodes-base.httpRequest", typeVersion: 1
-- Code (JS): "n8n-nodes-base.code", typeVersion: 1 (ONLY for custom JavaScript logic, NOT as substitute for real nodes)
-- Set data: "n8n-nodes-base.set", typeVersion: 1
-- Schedule trigger: "n8n-nodes-base.scheduleTrigger", typeVersion: 1
+- Set data / Format: "n8n-nodes-base.set", typeVersion: 1
+- Schedule / Cron: "n8n-nodes-base.scheduleTrigger", typeVersion: 1
 - Manual trigger: "n8n-nodes-base.manualTrigger", typeVersion: 1
-- Google Gemini AI: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", typeVersion: 1
-- LLM Chain: "@n8n/n8n-nodes-langchain.chainLlm", typeVersion: 1
-- Merge: "n8n-nodes-base.merge", typeVersion: 1
+- Basic LLM Chain (for summarization/generation): "@n8n/n8n-nodes-langchain.chainLlm", typeVersion: 1
+- Google Gemini AI Model: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", typeVersion: 1
+- OpenAI Chat Model: "@n8n/n8n-nodes-langchain.lmChatOpenAi", typeVersion: 1
+- Output Parser (Auto-fixing JSON): "@n8n/n8n-nodes-langchain.outputParserAutofixing", typeVersion: 1
+- Split In Batches / Chunking: "n8n-nodes-base.splitInBatches", typeVersion: 1
+- Wait / Rate Limit: "n8n-nodes-base.wait", typeVersion: 1
+- Merge / Combine: "n8n-nodes-base.merge", typeVersion: 1
+- Code (JS): "n8n-nodes-base.code", typeVersion: 1 (ONLY use this if custom data transformation via JavaScript is explicitly needed. Do NOT use it for APIs, Emails, AI, or Webhooks)
 
 CONNECTIONS FORMAT:
 - Standard: { "NodeA": { "main": [ [ { "node": "NodeB", "type": "main", "index": 0 } ] ] } }
@@ -58,20 +70,23 @@ CONNECTIONS FORMAT:
 - AI model to chain: { "Gemini": { "ai_languageModel": [ [ { "node": "LLMChain", "type": "ai_languageModel", "index": 0 } ] ] } }
 - One output to multiple nodes: { "NodeA": { "main": [ [ { "node": "NodeB", "type": "main", "index": 0 }, { "node": "NodeC", "type": "main", "index": 0 } ] ] } }
 
-CONCRETE EXAMPLE (Shopify webhook with IF routing):
+CONCRETE EXAMPLE (LLM Summarization with API Fetch):
 {
-  "name": "Shopify Order Router",
+  "name": "Content Summarizer",
   "nodes": [
-    { "parameters": { "httpMethod": "POST", "path": "shopify-order", "responseMode": "onReceived" }, "id": "a1b2c3d4-0001-4000-8000-000000000001", "name": "Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [250, 300] },
-    { "parameters": { "conditions": { "number": [{ "value1": "={{ $json.total_price }}", "operation": "larger", "value2": 500 }] } }, "id": "a1b2c3d4-0002-4000-8000-000000000002", "name": "IF Total > 500", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [500, 300] },
-    { "parameters": { "from": "+15551234567", "to": "+15559876543", "message": "High-value order: ={{ $json.total_price }}" }, "id": "a1b2c3d4-0003-4000-8000-000000000003", "name": "Twilio SMS", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [750, 200], "credentials": { "twilioApi": { "id": "1", "name": "Twilio account" } } },
-    { "parameters": { "operation": "appendOrUpdate", "sheetName": "Orders", "columns": "order_id,total,customer,date", "options": {} }, "id": "a1b2c3d4-0004-4000-8000-000000000004", "name": "Log to Sheets", "type": "n8n-nodes-base.googleSheets", "typeVersion": 2, "position": [750, 400], "credentials": { "googleSheetsOAuth2Api": { "id": "1", "name": "Google Sheets account" } } }
+    { "parameters": {}, "id": "uuid-1", "name": "Manual Trigger", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [100, 300] },
+    { "parameters": { "url": "https://example.com/api/content", "method": "GET" }, "id": "uuid-2", "name": "Fetch Content", "type": "n8n-nodes-base.httpRequest", "typeVersion": 1, "position": [300, 300] },
+    { "parameters": { "prompt": "Summarize this: ={{ $json.content }}" }, "id": "uuid-3", "name": "Summarize", "type": "@n8n/n8n-nodes-langchain.chainLlm", "typeVersion": 1, "position": [500, 300] },
+    { "parameters": { "model": "gemini-1.5-flash" }, "id": "uuid-4", "name": "Gemini Model", "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", "typeVersion": 1, "position": [500, 500] },
+    { "parameters": { "resource": "message", "operation": "post", "text": "Summary: ={{ $json.text }}" }, "id": "uuid-5", "name": "Send to Slack", "type": "n8n-nodes-base.slack", "typeVersion": 2, "position": [700, 300] }
   ],
   "connections": {
-    "Webhook": { "main": [[ { "node": "IF Total > 500", "type": "main", "index": 0 } ]] },
-    "IF Total > 500": { "main": [[ { "node": "Twilio SMS", "type": "main", "index": 0 } ], [ { "node": "Log to Sheets", "type": "main", "index": 0 } ]] }
+    "Manual Trigger": { "main": [[ { "node": "Fetch Content", "type": "main", "index": 0 } ]] },
+    "Fetch Content": { "main": [[ { "node": "Summarize", "type": "main", "index": 0 } ]] },
+    "Gemini Model": { "ai_languageModel": [[ { "node": "Summarize", "type": "ai_languageModel", "index": 0 } ]] },
+    "Summarize": { "main": [[ { "node": "Send to Slack", "type": "main", "index": 0 } ]] }
   },
-  "active": false, "settings": { "executionOrder": "v1" }, "versionId": "a1b2c3d4-0000-4000-8000-000000000000"
+  "active": false, "settings": { "executionOrder": "v1" }, "versionId": "uuid-6"
 }
 
 TOP-LEVEL JSON MUST HAVE: "name", "nodes", "connections", "active" (false), "settings" ({"executionOrder": "v1"}), "versionId" (uuid).
@@ -81,41 +96,56 @@ Positions: Spread nodes across the canvas. Use branching Y positions for paralle
 
 OUTPUT: Return ONLY the JSON object, nothing else.`
 
-
-    console.log('[WorkflowJSONGenerator] Requesting JSON generation from AI...')
-    const response = await aiService.generateResponse(prompt, options)
-    let jsonStr = response.trim()
-    
-    // If it has markdown code blocks, extract just the content inside them
-    const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
-    if (codeBlockMatch && codeBlockMatch[1]) {
-      jsonStr = codeBlockMatch[1].trim()
-    } else {
-      // Find the first { and last }
-      const firstBrace = jsonStr.indexOf('{')
-      const lastBrace = jsonStr.lastIndexOf('}')
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        jsonStr = jsonStr.substring(firstBrace, lastBrace + 1)
+      console.log(`[WorkflowJSONGenerator] Requesting JSON generation from AI (Attempt ${attempt})...`)
+      const response = await aiService.generateResponse(prompt, options)
+      let jsonStr = response.trim()
+      
+      // If it has markdown code blocks, extract just the content inside them
+      const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/)
+      if (codeBlockMatch && codeBlockMatch[1]) {
+        jsonStr = codeBlockMatch[1].trim()
+      } else {
+        // Find the first { and last }
+        const firstBrace = jsonStr.indexOf('{')
+        const lastBrace = jsonStr.lastIndexOf('}')
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          jsonStr = jsonStr.substring(firstBrace, lastBrace + 1)
+        }
       }
+
+      try {
+        workflow = JSON.parse(jsonStr)
+      } catch (parseError) {
+        console.error('[WorkflowJSONGenerator] JSON parse failed on:', jsonStr.substring(0, 200) + '...')
+        if (attempt >= maxAttempts) {
+          throw new Error('AI did not return valid JSON for workflow: ' + parseError)
+        }
+        continue;
+      }
+
+      // Ensure required top-level keys exist
+      if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
+        if (attempt >= maxAttempts) throw new Error('AI workflow missing "nodes" array')
+        continue;
+      }
+      if (!workflow.connections || typeof workflow.connections !== 'object') {
+        if (attempt >= maxAttempts) throw new Error('AI workflow missing "connections" object')
+        continue;
+      }
+
+      // Validation: Check if AI used too many Code nodes
+      const nonTriggerNodes = workflow.nodes.filter((n: any) => !n.type?.includes('Trigger'))
+      const codeNodes = nonTriggerNodes.filter((n: any) => n.type === 'n8n-nodes-base.code')
+      
+      if (nonTriggerNodes.length > 0 && codeNodes.length / nonTriggerNodes.length > 0.5 && attempt < maxAttempts) {
+        console.warn(`[WorkflowJSONGenerator] AI returned too many Code nodes (${codeNodes.length}/${nonTriggerNodes.length}). Retrying...`)
+        continue;
+      }
+      
+      break; // Success!
     }
 
-    let workflow;
-    try {
-      workflow = JSON.parse(jsonStr)
-    } catch (parseError) {
-      console.error('[WorkflowJSONGenerator] JSON parse failed on:', jsonStr.substring(0, 200) + '...')
-      throw new Error('AI did not return valid JSON for workflow: ' + parseError)
-    }
-
-    // Ensure required top-level keys exist
-    if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
-      throw new Error('AI workflow missing "nodes" array')
-    }
-    if (!workflow.connections || typeof workflow.connections !== 'object') {
-      throw new Error('AI workflow missing "connections" object')
-    }
-
-    // Ensure required fields
+    // Ensure required fields (after successful parse)
     workflow.name = workflow.name || plan.objective || 'Generated Workflow'
     workflow.settings = workflow.settings || { executionOrder: 'v1' }
     workflow.pinData = workflow.pinData || {}
@@ -249,17 +279,54 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
     }
     xPos += 250
 
-    // 2. Workflow step nodes (generic Code nodes as fallback)
+    // 2. Workflow step nodes (using semantic mapping instead of generic Code nodes)
     if (plan.workflow && Array.isArray(plan.workflow)) {
       plan.workflow.forEach((step: any, index: number) => {
+        const desc = (step.description || step.step || '').toLowerCase()
+        let nodeType = 'n8n-nodes-base.set'
+        let typeVersion = 1
+        let parameters: any = { keepOnlySet: false, values: { string: [{ name: 'placeholder', value: 'placeholder' }] } }
+
+        // Infer node type from description
+        if (desc.includes('http') || desc.includes('fetch') || desc.includes('api') || desc.includes('scrape') || desc.includes('get ')) {
+          nodeType = 'n8n-nodes-base.httpRequest'
+          parameters = { method: 'GET', url: 'https://example.com' }
+        } else if (desc.includes('summarize') || desc.includes('ai') || desc.includes('llm') || desc.includes('generate')) {
+          nodeType = '@n8n/n8n-nodes-langchain.chainLlm'
+          parameters = { prompt: '={{ $json.content }}' }
+        } else if (desc.includes('email') || desc.includes('gmail')) {
+          nodeType = 'n8n-nodes-base.gmail'
+          typeVersion = 2
+          parameters = { operation: 'send', message: 'Hello' }
+        } else if (desc.includes('slack') || desc.includes('message')) {
+          nodeType = 'n8n-nodes-base.slack'
+          typeVersion = 2
+          parameters = { resource: 'message', operation: 'post', text: 'Hello' }
+        } else if (desc.includes('sheet') || desc.includes('spreadsheet')) {
+          nodeType = 'n8n-nodes-base.googleSheets'
+          typeVersion = 2
+          parameters = { operation: 'appendOrUpdate' }
+        } else if (desc.includes('if') || desc.includes('condition') || desc.includes('filter')) {
+          nodeType = 'n8n-nodes-base.if'
+          parameters = { conditions: { string: [] } }
+        } else if (desc.includes('chunk') || desc.includes('batch') || desc.includes('split')) {
+          nodeType = 'n8n-nodes-base.splitInBatches'
+          parameters = { batchSize: 10 }
+        }
+
+        // Check if the AI provided a nodeType explicitly in the plan
+        if (step.nodeType) {
+          nodeType = step.nodeType
+          // Clear parameters if it's a specific node type we don't know well, to avoid validation errors
+          if (nodeType !== 'n8n-nodes-base.set') parameters = {} 
+        }
+
         nodes.push({
-          parameters: {
-            jsCode: `// ${step.step || 'Step ' + (index + 1)}\n// ${step.description || 'Add your logic here'}\nreturn $input.all();`
-          },
+          parameters,
           id: crypto.randomUUID ? crypto.randomUUID() : `step-${index}-${Date.now()}`,
           name: step.step || `Step ${index + 1}`,
-          type: 'n8n-nodes-base.code',
-          typeVersion: 2,
+          type: nodeType,
+          typeVersion,
           position: [xPos, yBase]
         })
         xPos += 250
