@@ -336,9 +336,8 @@ Return ONLY JSON.`
     }
 
     // Stage validation
+    const stageIds = new Set<string>()
     if (architecture.stages) {
-      const stageIds = new Set<string>()
-      
       for (const stage of architecture.stages) {
         if (!stage.id) {
           errors.push(`Stage is missing id`)
