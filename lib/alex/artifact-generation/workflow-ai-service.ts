@@ -4,6 +4,9 @@
  * This service bypasses AIEngine to avoid circular dependencies
  * when generating workflow-specific content (questions, architecture, blockers).
  * It uses the ProviderManager for credential management and fallback.
+ * 
+ * Uses NON-STREAMING (generate) by default for reliability, since
+ * workflow JSON generation needs complete, parseable responses.
  */
 
 import { ProviderManager } from '../provider/provider-manager'
@@ -27,7 +30,47 @@ export class WorkflowAIService {
   }
 
   /**
-   * Generate a simple text response using a provider
+   * Register a personal provider if credentials are provided
+   */
+  private async registerPersonalProvider(
+    options?: { personalProvider?: string; personalApiKey?: string; personalModel?: string }
+  ): Promise<void> {
+    if (!options?.personalProvider || !options?.personalApiKey) return
+
+    try {
+      const providerTypeMap: Record<string, { type: string; baseUrl?: string; defaultModel: string }> = {
+        'openai': { type: 'openai', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o' },
+        'anthropic': { type: 'openai_compatible', baseUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-3-5-sonnet-20240620' },
+        'gemini': { type: 'gemini', defaultModel: 'gemini-2.0-flash' },
+        'groq': { type: 'groq', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile' },
+        'openrouter': { type: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', defaultModel: 'openai/gpt-4o' },
+      }
+      const mapping = providerTypeMap[options.personalProvider]
+      if (mapping) {
+        const { ProviderFactory } = await import('../provider/provider-factory')
+        const adapter = ProviderFactory.createProvider({
+          id: 'personal-provider',
+          name: `Personal ${options.personalProvider}`,
+          type: mapping.type as any,
+          priority: 0,
+          enabled: true,
+          config: {
+            apiKeyEncrypted: options.personalApiKey,
+            baseUrl: mapping.baseUrl,
+            currentModel: options.personalModel || mapping.defaultModel
+          }
+        })
+        this.providerManager.getRegistry().register(adapter)
+        console.log(`[Workflow AI Service] Registered personal provider: ${options.personalProvider} with model ${options.personalModel || mapping.defaultModel}`)
+      }
+    } catch (e) {
+      console.error('[Workflow AI Service] Failed to register personal provider', e)
+    }
+  }
+
+  /**
+   * Generate a response using NON-STREAMING first (more reliable for JSON),
+   * with streaming as fallback if non-streaming fails.
    */
   async generateResponse(
     prompt: string, 
@@ -35,87 +78,77 @@ export class WorkflowAIService {
   ): Promise<string> {
     console.log('[Workflow AI Service] Starting AI generation with prompt length:', prompt.length)
 
-    try {
-      // Ensure providers are loaded
-      await this.providerManager.loadProviders()
+    // Ensure providers are loaded
+    await this.providerManager.loadProviders()
+    await this.registerPersonalProvider(options)
 
-      // Add personal provider if specified
-      if (options?.personalProvider && options?.personalApiKey) {
+    const request: AIRequest = {
+      messages: [{ role: 'user', content: prompt }],
+      model: options?.personalModel || undefined,
+      temperature: 0.2, // Low temperature for structured JSON output
+      maxTokens: 16000,
+      stream: false,
+    }
+
+    // ATTEMPT 1: Non-streaming via provider.generate() directly
+    // (executeWithFallback discards the AI content, so we call generate() directly)
+    try {
+      console.log('[Workflow AI Service] Attempting non-streaming generation...')
+      const activeProviders = this.providerManager.getRegistry().getEnabledProviders()
+      
+      for (const provider of activeProviders) {
         try {
-          const providerTypeMap: Record<string, { type: string; baseUrl?: string; defaultModel: string }> = {
-            'openai': { type: 'openai', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o' },
-            'anthropic': { type: 'openai_compatible', baseUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-3-5-sonnet-20240620' },
-            'gemini': { type: 'gemini', defaultModel: 'gemini-2.0-flash' },
-            'groq': { type: 'groq', baseUrl: 'https://api.groq.com/openai/v1', defaultModel: 'llama-3.3-70b-versatile' },
-            'openrouter': { type: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', defaultModel: 'openai/gpt-4o' },
+          console.log(`[Workflow AI Service] Trying provider: ${provider.name}`)
+          const result = await provider.generate(request)
+          
+          if (result?.content && result.content.length > 0) {
+            console.log(`[Workflow AI Service] Non-streaming succeeded via ${provider.name}. Response length:`, result.content.length)
+            return result.content
           }
-          const mapping = providerTypeMap[options.personalProvider]
-          if (mapping) {
-            const { ProviderFactory } = await import('../provider/provider-factory')
-            const adapter = ProviderFactory.createProvider({
-              id: 'personal-provider',
-              name: `Personal ${options.personalProvider}`,
-              type: mapping.type as any,
-              priority: 0,
-              enabled: true,
-              config: {
-                apiKeyEncrypted: options.personalApiKey,
-                baseUrl: mapping.baseUrl,
-                currentModel: options.personalModel || mapping.defaultModel
-              }
-            })
-            this.providerManager.getRegistry().register(adapter)
-            console.log(`[Workflow AI Service] Registered personal provider: ${options.personalProvider} with model ${options.personalModel || mapping.defaultModel}`)
-          }
-        } catch (e) {
-          console.error('[Workflow AI Service] Failed to register personal provider', e)
+          console.warn(`[Workflow AI Service] Provider ${provider.name} returned empty content, trying next...`)
+        } catch (providerError) {
+          console.warn(`[Workflow AI Service] Provider ${provider.name} failed:`,
+            providerError instanceof Error ? providerError.message : String(providerError))
+          // Try next provider
         }
       }
+      
+      console.warn('[Workflow AI Service] All providers failed non-streaming, falling back to streaming...')
+    } catch (nonStreamError) {
+      console.warn('[Workflow AI Service] Non-streaming setup failed, falling back to streaming:', 
+        nonStreamError instanceof Error ? nonStreamError.message : String(nonStreamError))
+    }
 
-      // Use ProviderManager's streaming capability with fallback
-      const request: AIRequest = {
-        messages: [{ role: 'user', content: prompt }],
-        model: options?.personalModel || undefined, // Let provider manager select if not passed
-        temperature: 0.7,
-        maxTokens: 8000,
-        stream: true,
-      }
+    // ATTEMPT 2: Streaming fallback (in case non-streaming is not supported by the provider)
+    try {
+      console.log('[Workflow AI Service] Attempting streaming generation...')
+      const streamRequest: AIRequest = { ...request, stream: true }
 
       let fullResponse = ''
       let chunkCount = 0
-
-      // Use ProviderManager's executeStreamingWithFallback method
-      const response = this.providerManager.executeStreamingWithFallback(request)
+      const response = this.providerManager.executeStreamingWithFallback(streamRequest)
 
       for await (const chunk of response) {
         chunkCount++
-        console.log('[Workflow AI Service] Chunk received:', chunk.type, chunk.data)
-
-        // Handle different stream event types
         if (chunk.type === 'delta' && chunk.data?.content) {
           fullResponse += chunk.data.content
-        } else if (chunk.type === 'finish') {
-          console.log('[Workflow AI Service] Stream finished')
         } else if (chunk.type === 'error') {
-          console.error('[Workflow AI Service] Stream error:', chunk.data)
+          console.error('[Workflow AI Service] Stream error chunk:', chunk.data)
           throw new Error(chunk.data?.message || 'Stream error')
         }
       }
 
-      console.log('[Workflow AI Service] Stream completed. Total chunks:', chunkCount, 'Response length:', fullResponse.length)
-
-      if (chunkCount === 0) {
-        throw new Error('No chunks received from provider')
-      }
+      console.log('[Workflow AI Service] Streaming completed. Chunks:', chunkCount, 'Length:', fullResponse.length)
 
       if (fullResponse.length === 0) {
-        throw new Error('Provider returned empty response')
+        throw new Error('Streaming returned empty response')
       }
 
       return fullResponse
-    } catch (error) {
-      console.error('[Workflow AI Service] AI generation failed:', error)
-      throw error
+    } catch (streamError) {
+      console.error('[Workflow AI Service] Streaming also failed:', 
+        streamError instanceof Error ? streamError.message : String(streamError))
+      throw streamError
     }
   }
 
