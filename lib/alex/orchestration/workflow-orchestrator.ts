@@ -132,39 +132,9 @@ export class WorkflowOrchestrator {
       hasUpdatedPlan: !!orchestrationResult.updatedPlan
     })
     
-    // Special handling for looping failure prevention
-    // If AI wants to ask a question that was just answered, prevent it
-    if (orchestrationResult.action.type === 'clarify' && request.userId && request.conversationId) {
-      const question = orchestrationResult.action.question
-      const wasRecentlyAnswered = await this.checkRecentlyAnswered(
-        request.conversationId,
-        request.userId,
-        question
-      )
-      
-      if (wasRecentlyAnswered) {
-        console.log('[Workflow Orchestrator] Preventing repeated question:', question.substring(0, 50))
-        
-        // Instead of asking the same "proceed to generation?" question (which loops),
-        // directly proceed to architecture generation if we have a plan
-        if (currentPlan) {
-          console.log('[Workflow Orchestrator] Have a plan — proceeding directly to architecture generation')
-          return await this.handleGenerate(currentPlan, request)
-        }
-        
-        // No plan yet — ask the user what to do (but only once)
-        orchestrationResult.action = {
-          type: 'clarify',
-          question: 'We\'ve covered that part. Should I go ahead and propose the architecture for this automation, or is there anything else to add?',
-          reason: 'Preventing repeated question',
-          field: 'proceed_to_generation',
-          enrichedOptions: [
-            { label: 'Yes, generate architecture', value: 'Please generate the architecture now' },
-            { label: 'No, I have more details', value: 'I want to add more details' }
-          ]
-        }
-      }
-    }
+    // We no longer manually intercept questions here. 
+    // The AI's system prompt has been updated to prevent asking the same question twice,
+    // and manual fuzzy-matching causes false positives leading to infinite loops.
     
     // Handle the AI's decision
     return await this.handleOrchestrationResult(

@@ -122,29 +122,17 @@ export class AIOrchestrator {
         questionContext: contextStr
       })
       
-      if (shouldAsk) {
-        await OrchestrationQuestionService.recordQuestion({
-          conversationId: context.conversationId,
-          userId: context.userId,
-          question,
-          questionContext: contextStr,
-          questionType: 'clarify',
-          orchestrationAction: aiDecision.action.type
-        })
-      } else {
-        console.log('[AI Orchestrator] Question prevented by persistent tracker:', question.substring(0, 50))
-        // Fallback to clarify instead of respond to maintain interactive flow
-        aiDecision.action = {
-          type: 'clarify',
-          question: 'We\'ve already covered that. Should I go ahead and propose the architecture for this automation, or is there anything else to add?',
-          reason: 'Preventing repeated question',
-          field: 'proceed_to_generation',
-          enrichedOptions: [
-            { label: 'Yes, generate architecture', value: 'Please generate the architecture now' },
-            { label: 'No, I have more details', value: 'I want to add more details' }
-          ]
-        }
-      }
+      // We no longer block the AI from asking questions based on fuzzy matching.
+      // The AI is now instructed to avoid repetition via prompt, and fuzzy matching 
+      // falsely triggers when the AI needs to re-ask a question due to an invalid user answer.
+      await OrchestrationQuestionService.recordQuestion({
+        conversationId: context.conversationId,
+        userId: context.userId,
+        question,
+        questionContext: contextStr,
+        questionType: 'clarify',
+        orchestrationAction: aiDecision.action.type
+      }).catch(err => console.error('[AI Orchestrator] Failed to record question:', err))
     }
     
     // The AI decision accurately determines if the user is answering a question 
