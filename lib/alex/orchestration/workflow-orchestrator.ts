@@ -96,13 +96,29 @@ export class WorkflowOrchestrator {
       'go ahead and propose the architecture',
       'yes, go ahead',
       'generate now',
-      'proceed'
+      'proceed',
+      'yes, generate it',
+      'yes, generate the json',
+      'yes generate it',
+      'yes generate the json',
+      'generate the json',
+      'generate json',
+      'generate the complete json',
+      'generate the complete json file',
+      'generate the json file',
+      'yes, generate',
+      'generate it'
     ]
     const normalizedMessage = request.userMessage.toLowerCase().trim()
     const isExplicitGenerateRequest = generatePhrases.some(phrase => normalizedMessage.includes(phrase))
     
-    if (isExplicitGenerateRequest && currentPlan) {
-      console.log('[Workflow Orchestrator] Explicit generate request detected — skipping AI loop')
+    // Also detect short affirmative answers when a plan already exists
+    // (user is likely confirming after being asked "Would you like me to generate a ready-made JSON file?")
+    const shortAffirmatives = ['yes', 'yep', 'yeah', 'sure', 'ok', 'okay', 'go ahead', 'do it', 'please', 'y']
+    const isShortConfirmation = currentPlan && shortAffirmatives.includes(normalizedMessage)
+    
+    if ((isExplicitGenerateRequest || isShortConfirmation) && currentPlan) {
+      console.log('[Workflow Orchestrator] Explicit generate/confirm request detected — skipping AI loop')
       return await this.handleGenerate(currentPlan, request)
     }
     

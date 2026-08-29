@@ -123,14 +123,34 @@ export class AIOrchestrator {
                            (msgLower.includes('step') || msgLower.includes('overview') || msgLower.includes('┌──'))
 
       if (isJsonDump || isSetupGuide) {
-        console.log('[AI Orchestrator] Intercepted setup guide / JSON dump in respond action. Converting to clarify action.')
+        console.log('[AI Orchestrator] Intercepted setup guide / JSON dump. Converting to clarify action.')
+        
+        // Build a rich plan from whatever context we have
+        // Extract useful workflow step info from the AI's message before we discard it
+        const extractedSteps: Array<{step: string, description: string}> = []
+        const stepMatches = msg.match(/(?:step|node)\s*\d+[a-z]?\s*[:\-–—]\s*([^\n]+)/gi)
+        if (stepMatches) {
+          stepMatches.forEach((m: string, i: number) => {
+            extractedSteps.push({ step: `Step ${i + 1}`, description: m.trim() })
+          })
+        }
         
         if (!aiDecision.updatedPlan) {
           aiDecision.updatedPlan = currentPlan || {
-            objective: "Extracted workflow from request",
+            objective: userMessage.substring(0, 500),
             platform: { name: "n8n" },
             status: "draft"
           }
+        }
+        
+        // Enrich the plan with extracted steps if it doesn't already have workflow steps
+        if (extractedSteps.length > 0 && (!aiDecision.updatedPlan.workflow || aiDecision.updatedPlan.workflow.length === 0)) {
+          aiDecision.updatedPlan.workflow = extractedSteps
+        }
+        
+        // Always store the user's original message as the objective if not already set
+        if (!aiDecision.updatedPlan.objective || aiDecision.updatedPlan.objective === 'Extracted workflow from request') {
+          aiDecision.updatedPlan.objective = userMessage.substring(0, 500)
         }
         
         aiDecision.action = {
