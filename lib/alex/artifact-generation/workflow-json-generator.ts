@@ -20,30 +20,34 @@ export class WorkflowJSONGenerator {
 
     const planSummary = this.buildPlanSummary(plan)
 
-    const prompt = `You are an expert n8n workflow builder. Generate a COMPLETE, VALID, IMPORTABLE n8n workflow JSON based on the following automation plan.
+    const prompt = `You are an elite n8n workflow architect. Generate a COMPLETE, VALID, IMPORTABLE n8n workflow JSON based on the following automation plan.
 
 AUTOMATION PLAN:
 ${planSummary}
 
-CRITICAL RULES:
+CRITICAL n8n SCHEMA RULES:
 1. Output ONLY the raw JSON object. No markdown, no code fences, no explanation.
-2. Every node MUST have: "parameters", "id" (uuid-like string), "name", "type", "typeVersion", "position" (array [x, y]).
-3. Use ONLY real n8n node types. Common ones:
-   - Triggers: n8n-nodes-base.webhook (v2), n8n-nodes-base.gmailTrigger (v1), n8n-nodes-base.scheduleTrigger (v1.2), n8n-nodes-base.manualTrigger (v1)
-   - Logic: n8n-nodes-base.if (v2), n8n-nodes-base.switch (v3), n8n-nodes-base.merge (v3), n8n-nodes-base.filter (v2)
-   - Actions: n8n-nodes-base.gmail (v2.1), n8n-nodes-base.slack (v2.2), n8n-nodes-base.httpRequest (v4.2), n8n-nodes-base.twilio (v1), n8n-nodes-base.googleSheets (v4.5), n8n-nodes-base.telegram (v1.2)
-   - Data: n8n-nodes-base.code (v2), n8n-nodes-base.set (v3.4), n8n-nodes-base.respondToWebhook (v1.1), n8n-nodes-base.noOp (v1)
-4. Connections MUST use node names as keys. Format:
-   { "NodeName": { "main": [ [ { "node": "NextNodeName", "type": "main", "index": 0 } ] ] } }
-   For IF nodes with true/false branches: main has TWO arrays: first = true branch, second = false branch.
-5. Credential placeholders: use { "id": "CREDENTIAL_ID", "name": "Your <ServiceName> account" }
-6. Position nodes on a grid: trigger starts at [250, 300], each subsequent node +250 on x-axis. For branches, offset y-axis (true branch y=200, false branch y=450).
-7. The top-level JSON must have: name, nodes, connections, settings, pinData, meta.
-8. settings must have: { "executionOrder": "v1" }
-9. Do NOT invent fake API keys, emails, phone numbers, or URLs. Use expression placeholders like "={{ $json.fieldName }}" for dynamic data, and credential placeholders for auth.
-10. Every expression value MUST start with "=" followed by "{{ }}" for n8n expression syntax. Example: "={{ $json.body.total_price }}"
+2. Every node MUST have: "parameters" (object), "id" (uuid-like string), "name", "type" (exact n8n node type), "typeVersion" (number), "position" (array [x, y]).
+3. Use REAL n8n node types. Some common/advanced examples:
+   - Triggers: n8n-nodes-base.webhook (v1 or v2), n8n-nodes-base.scheduleTrigger (v1.2), n8n-nodes-base.manualTrigger (v1)
+   - Logic: n8n-nodes-base.if (v2), n8n-nodes-base.switch (v3), n8n-nodes-base.merge (v3)
+   - Data & Transform: n8n-nodes-base.code (v2) (use parameters.jsCode), n8n-nodes-base.set (v3.4), n8n-nodes-base.httpRequest (v4.2)
+   - Apps: n8n-nodes-base.googleSheets (v4.5), n8n-nodes-base.twilio (v1), n8n-nodes-base.slack (v2.2)
+   - AI/LangChain: @n8n/n8n-nodes-langchain.lmChatGoogleGemini (v1), @n8n/n8n-nodes-langchain.chainLlm (v1.5), @n8n/n8n-nodes-langchain.lmChatGroq (v1), @n8n/n8n-nodes-langchain.lmChatOpenRouter (v1)
+4. Connections MUST use node names as keys. Format for main output:
+   { "NodeName": { "main": [ [ { "node": "NextNode", "type": "main", "index": 0 } ] ] } }
+   For AI models feeding into a chain, use the "ai_languageModel" type:
+   { "ModelNodeName": { "ai_languageModel": [ [ { "node": "ChainNodeName", "type": "ai_languageModel", "index": 0 } ] ] } }
+   For IF nodes, main has TWO arrays (0 = true branch, 1 = false branch):
+   { "IfNode": { "main": [ [ { "node": "TrueNode", "type": "main", "index": 0 } ], [ { "node": "FalseNode", "type": "main", "index": 0 } ] ] } }
+5. Credentials: When needed, add a "credentials" object to the node, e.g. { "googleSheetsOAuth2Api": { "id": "placeholder_id", "name": "Google Sheets account" } }. Do not invent real keys.
+6. Position nodes intelligently on an [x, y] grid (e.g. Trigger at [0, 0], next at [250, 0], AI models at [250, 200]).
+7. Expressions: Use "={{ $json.property }}" syntax.
+8. The top-level JSON must have: "name" (string), "nodes" (array), "connections" (object), "active" (boolean), "settings" (object, e.g. {"executionOrder": "v1"}), "versionId" (uuid).
+9. Make parameters as complete and realistic as possible based on the plan. Include proper JS code in Code nodes, proper headers in HTTP requests, etc.
 
 OUTPUT: Return ONLY the JSON object.`
+
 
     console.log('[WorkflowJSONGenerator] Generating n8n workflow via AI for plan:', plan.objective)
 
