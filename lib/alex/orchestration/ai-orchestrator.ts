@@ -418,45 +418,78 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
 
     console.log('[AI Orchestrator] Calling AI for decision with prompt length:', prompt.length)
     
-    try {
-      const response = await aiService.generateResponse(prompt, options)
-      console.log('[AI Orchestrator] AI response received:', response.substring(0, 500))
-      
-      // Clean up response (remove markdown code blocks if present)
-      let cleanResponse = response.trim()
-      if (cleanResponse.startsWith('```json')) {
-        cleanResponse = cleanResponse.replace(/^```json\n?/, '').replace(/\n?```$/, '')
-      } else if (cleanResponse.startsWith('```')) {
-        cleanResponse = cleanResponse.replace(/^```\n?/, '').replace(/\n?```$/, '')
-      }
-      
-      // Parse JSON response
-      const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        try {
-          const result = JSON.parse(jsonMatch[0])
-          
-          // Validate and convert to typed result
-          return {
-            action: this.validateAction(result.action),
-            intent: result.intent as UserIntent,
-            updatedPlan: result.updatedPlan || undefined,
-            confidence: result.confidence || 0.5,
-            reasoning: result.reasoning
-          }
-        } catch (parseError) {
-          console.error('[AI Orchestrator] JSON parse error:', parseError, '\nRaw extracted:', jsonMatch[0])
-          return this.getFallbackDecision(userMessage, currentPlan)
+    let attempt = 0;
+    let currentPrompt = prompt;
+    
+    while (attempt < 2) {
+      attempt++;
+      try {
+        const response = await aiService.generateResponse(currentPrompt, options)
+        console.log(`[AI Orchestrator] AI response received (Attempt ${attempt}):`, response.substring(0, 500))
+        
+        // Clean up response (remove markdown code blocks if present)
+        let cleanResponse = response.trim()
+        if (cleanResponse.startsWith('```json')) {
+          cleanResponse = cleanResponse.replace(/^```json\n?/, '').replace(/\n?```$/, '')
+        } else if (cleanResponse.startsWith('```')) {
+          cleanResponse = cleanResponse.replace(/^```\n?/, '').replace(/\n?```$/, '')
         }
+        
+        // Parse JSON response
+        const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          try {
+            // First try basic JSON parse
+            let jsonString = jsonMatch[0]
+            
+            // Fix trailing commas (common LLM hallucination)
+            jsonString = jsonString.replace(/,\s*([}\]])/g, '$1')
+            
+            const result = JSON.parse(jsonString)
+            
+            // Validate and convert to typed result
+            return {
+              action: this.validateAction(result.action),
+              intent: result.intent as UserIntent,
+              updatedPlan: result.updatedPlan || undefined,
+              confidence: result.confidence || 0.5,
+              reasoning: result.reasoning
+            }
+          } catch (parseError) {
+            console.error(`[AI Orchestrator] JSON parse error on attempt ${attempt}:`, parseError)
+            
+            if (attempt === 1) {
+              console.log('[AI Orchestrator] Retrying with JSON fix prompt...')
+              // Append a stern warning to the prompt for the second attempt
+              currentPrompt = prompt + `\n\nCRITICAL ERROR: Your previous response was NOT valid JSON. It failed to parse with error: ${(parseError as Error).message}. You MUST return ONLY valid, parseable JSON without trailing commas or unescaped quotes.`
+              continue;
+            }
+            
+            return this.getFallbackDecision(userMessage, currentPlan)
+          }
+        }
+        
+        // No JSON found
+        if (attempt === 1) {
+           console.log('[AI Orchestrator] No JSON found in response, retrying...')
+           currentPrompt = prompt + `\n\nCRITICAL ERROR: You did not return a JSON object. You MUST start your response with { and end with }. Do not include introductory text.`
+           continue;
+        }
+        
+        console.error('[AI Orchestrator] Failed to find JSON in AI decision after retries, using fallback')
+        return this.getFallbackDecision(userMessage, currentPlan)
+      } catch (error) {
+        console.error(`[AI Orchestrator] AI decision network/API error on attempt ${attempt}:`, error)
+        if (attempt === 1) {
+          console.log('[AI Orchestrator] Network error, retrying in 2 seconds...')
+          await new Promise(resolve => setTimeout(resolve, 2000))
+          continue;
+        }
+        return this.getFallbackDecision(userMessage, currentPlan)
       }
-      
-      // Fallback if no JSON found
-      console.error('[AI Orchestrator] Failed to find JSON in AI decision, using fallback')
-      return this.getFallbackDecision(userMessage, currentPlan)
-    } catch (error) {
-      console.error('[AI Orchestrator] AI decision failed, using fallback:', error)
-      return this.getFallbackDecision(userMessage, currentPlan)
     }
+    
+    return this.getFallbackDecision(userMessage, currentPlan)
   }
   
   /**
