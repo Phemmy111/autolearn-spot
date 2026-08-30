@@ -278,7 +278,7 @@ export class VisionService {
 
         // OpenAI GPT-4 Vision and later models support vision
         if (provider.type === 'openai') {
-          const modelName = (provider as any).model || ''
+          const modelName = (provider as any).config?.currentModel || ''
           // GPT-4o, GPT-4o-mini, GPT-4 Vision support images
           if (modelName.includes('gpt-4o') || modelName.includes('vision') || modelName.includes('gpt-4-turbo')) {
             return true
@@ -300,18 +300,14 @@ export class VisionService {
         return selectedProvider
       }
 
-      // Fallback: Try any available provider
-      // Some providers may support vision even if not explicitly marked
-      console.log('[Vision Service] No known vision-capable providers, trying fallback to any available provider')
-      const fallbackProvider = enabledProviders.sort((a, b) => a.priority - b.priority)[0]
-      console.log('[Vision Service] Selected fallback provider:', fallbackProvider.name)
-      return fallbackProvider
+      // If no known vision providers, immediately use the dedicated fallback vision provider
+      // (Do NOT guess random providers, as text-only models like Groq will crash)
+      console.log('[Vision Service] No known vision providers found, using dedicated fallback vision provider')
+      const fallbackType = (process.env.ALEX_VISION_PROVIDER as 'openai' | 'gemini') || 'openai'
+      return new FallbackVisionProvider(fallbackType)
 
     } catch (error) {
       console.error('[Vision Service] Error selecting vision provider:', error)
-
-      // Last resort: Use dedicated fallback vision provider
-      console.log('[Vision Service] Using dedicated fallback vision provider')
       const fallbackType = (process.env.ALEX_VISION_PROVIDER as 'openai' | 'gemini') || 'openai'
       return new FallbackVisionProvider(fallbackType)
     }
