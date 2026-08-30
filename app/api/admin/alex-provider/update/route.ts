@@ -57,6 +57,16 @@ export async function PATCH(request: Request) {
     if (body.is_active !== undefined) updates.is_active = body.is_active
     if (body.priority !== undefined) updates.priority = body.priority
     if (body.fallback_enabled !== undefined) updates.fallback_enabled = body.fallback_enabled
+    if (body.is_vision_fallback !== undefined) {
+      updates.is_vision_fallback = body.is_vision_fallback
+      // If enabling vision fallback, clear it on all other providers first
+      if (body.is_vision_fallback) {
+        await supabaseAdmin
+          .from('alex_provider_config')
+          .update({ is_vision_fallback: false })
+          .neq('id', id)
+      }
+    }
     if (body.current_model) updates.current_model = body.current_model
     if (body.base_url !== undefined) updates.base_url = body.base_url || null
     if (body.display_name) updates.display_name = body.display_name

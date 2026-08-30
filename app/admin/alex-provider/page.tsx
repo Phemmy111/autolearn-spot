@@ -21,6 +21,7 @@ import {
   Clock,
   Server,
   Edit,
+  Eye,
 } from 'lucide-react'
 
 type ProviderType = 'self_hosted' | 'groq' | 'openrouter' | 'gemini' | 'openai' | 'openai_compatible'
@@ -38,6 +39,7 @@ interface ProviderConfig {
   priority: number
   health_status: HealthStatus
   fallback_enabled: boolean
+  is_vision_fallback: boolean
   capabilities: string[]
   request_timeout: number
   auth_type: AuthType
@@ -72,6 +74,7 @@ export default function AlexProviderPage() {
     current_model: '',
     priority: 1,
     fallback_enabled: true,
+    is_vision_fallback: false,
     auth_type: 'none' as AuthType,
     request_timeout: 30000,
   })
@@ -126,6 +129,7 @@ export default function AlexProviderPage() {
         current_model: '',
         priority: 1,
         fallback_enabled: true,
+        is_vision_fallback: false,
         auth_type: 'none',
         request_timeout: 30000,
       })
@@ -246,6 +250,7 @@ export default function AlexProviderPage() {
         display_name: editingProvider.display_name,
         priority: editingProvider.priority,
         fallback_enabled: editingProvider.fallback_enabled,
+        is_vision_fallback: editingProvider.is_vision_fallback || false,
         request_timeout: editingProvider.request_timeout,
       }
 
@@ -440,6 +445,12 @@ export default function AlexProviderPage() {
                         <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-400/10 border border-blue-400/50 text-xs font-mono text-blue-400">
                           <Activity className="h-3 w-3" />
                           Fallback
+                        </span>
+                      )}
+                      {provider.is_vision_fallback && (
+                        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-400/10 border border-purple-400/50 text-xs font-mono text-purple-400">
+                          <Eye className="h-3 w-3" />
+                          Vision Fallback
                         </span>
                       )}
                     </div>
@@ -692,6 +703,19 @@ export default function AlexProviderPage() {
                       Enable as fallback provider
                     </label>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="visionFallback"
+                      checked={newProvider.is_vision_fallback || false}
+                      onChange={(e) => setNewProvider({ ...newProvider, is_vision_fallback: e.target.checked })}
+                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                    />
+                    <label htmlFor="visionFallback" className="font-mono text-xs text-[#b9cacb]">
+                      <Eye className="h-3 w-3 inline mr-1 text-purple-400" />
+                      Use as vision fallback (for image analysis)
+                    </label>
+                  </div>
                 </div>
                 <div className="flex gap-3 mt-6">
                   <button
@@ -845,6 +869,19 @@ export default function AlexProviderPage() {
                     />
                     <label htmlFor="editFallbackEnabled" className="font-mono text-xs text-[#b9cacb]">
                       Enable as fallback provider
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="editVisionFallback"
+                      checked={editingProvider.is_vision_fallback || false}
+                      onChange={(e) => setEditingProvider({ ...editingProvider, is_vision_fallback: e.target.checked })}
+                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                    />
+                    <label htmlFor="editVisionFallback" className="font-mono text-xs text-[#b9cacb]">
+                      <Eye className="h-3 w-3 inline mr-1 text-purple-400" />
+                      Use as vision fallback (for image analysis)
                     </label>
                   </div>
                 </div>

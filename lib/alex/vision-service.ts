@@ -248,14 +248,44 @@ export class VisionService {
 
   /**
    * Select a vision-capable provider from available providers
-   * Improved: More permissive selection with fallback to any available provider
+   * Priority: 1) User-configured vision fallback from DB  2) Known vision providers  3) FallbackVisionProvider
    */
   private static async selectVisionProvider(
     providerManager: ProviderManager,
     providerRegistry: ProviderRegistry
   ): Promise<AIProvider | null> {
     try {
-      // Reload providers to get current configuration
+      // 1) Check if user has configured a vision fallback provider in the dashboard
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        if (supabaseUrl && supabaseKey) {
+          const supabase = createClient(supabaseUrl, supabaseKey)
+          const { data: visionProvider } = await supabase
+            .from('alex_provider_config')
+            .select('*')
+            .eq('is_vision_fallback', true)
+            .eq('is_active', true)
+            .single()
+
+          if (visionProvider) {
+            console.log('[Vision Service] Using user-configured vision fallback provider:', visionProvider.display_name)
+            // Find this provider in the registry by matching ID or name
+            const registryProvider = providerRegistry.getAllProviders().find(
+              p => p.id === visionProvider.id || p.name === visionProvider.provider_name || p.name === visionProvider.display_name
+            )
+            if (registryProvider) {
+              return registryProvider
+            }
+            // If not in registry, log warning and continue to other methods
+            console.warn('[Vision Service] Configured vision fallback provider not found in registry, trying other methods')
+          }
+        }
+      } catch (dbError) {
+        console.warn('[Vision Service] Could not check DB for vision fallback config:', dbError)
+      }
+
+      // 2) Reload providers to get current configuration
       await providerManager.loadProviders()
 
       // Get all enabled providers
