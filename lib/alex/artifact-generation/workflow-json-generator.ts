@@ -44,6 +44,8 @@ CRITICAL RULES:
 
 NODE TYPE REFERENCE (use these EXACT type strings):
 - HTTP Request (for APIs, scraping, fetching): "n8n-nodes-base.httpRequest", typeVersion: 4.1
+- RSS Feed Read (to read RSS/Atom feeds): "n8n-nodes-base.rssFeedRead", typeVersion: 1
+- OpenAI (direct chat/completion): "n8n-nodes-base.openAi", typeVersion: 1, parameters.model: "gpt-4o-mini"
 - Gmail trigger: "n8n-nodes-base.gmailTrigger", typeVersion: 1
 - Gmail send/reply: "n8n-nodes-base.gmail", typeVersion: 2, parameters.operation: "reply" or "send"
 - Google Sheets append: "n8n-nodes-base.googleSheets", typeVersion: 4.3, parameters.operation: "appendOrUpdate"
@@ -53,6 +55,7 @@ NODE TYPE REFERENCE (use these EXACT type strings):
 - IF conditional: "n8n-nodes-base.if", typeVersion: 1
 - Switch: "n8n-nodes-base.switch", typeVersion: 1
 - Set data / Format: "n8n-nodes-base.set", typeVersion: 3.2
+- Item Lists (limit, sort, filter items): "n8n-nodes-base.itemLists", typeVersion: 3, parameters.operation: "limit" (set maxItems)
 - Schedule / Cron: "n8n-nodes-base.scheduleTrigger", typeVersion: 1.2
 - Manual trigger: "n8n-nodes-base.manualTrigger", typeVersion: 1
 - Basic LLM Chain (for summarization/generation): "@n8n/n8n-nodes-langchain.chainLlm", typeVersion: 1.4
@@ -62,6 +65,9 @@ NODE TYPE REFERENCE (use these EXACT type strings):
 - Split In Batches / Chunking: "n8n-nodes-base.splitInBatches", typeVersion: 1
 - Wait / Rate Limit: "n8n-nodes-base.wait", typeVersion: 1
 - Merge / Combine: "n8n-nodes-base.merge", typeVersion: 1
+- Notion: "n8n-nodes-base.notion", typeVersion: 2
+- Telegram: "n8n-nodes-base.telegram", typeVersion: 1
+- Discord: "n8n-nodes-base.discord", typeVersion: 1
 - Code (JS): "n8n-nodes-base.code", typeVersion: 1 (ONLY use this if custom data transformation via JavaScript is explicitly needed. Do NOT use it for APIs, Emails, AI, or Webhooks)
 
 CONNECTIONS FORMAT:
@@ -327,7 +333,15 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         let parameters: any = { keepOnlySet: false, values: { string: [{ name: 'placeholder', value: 'placeholder' }] } }
 
         // Infer node type from description
-        if (desc.includes('http') || desc.includes('fetch') || desc.includes('api') || desc.includes('scrape') || desc.includes('get ') || desc.includes('rss') || desc.includes('url') || desc.includes('request') || desc.includes('download') || desc.includes('content')) {
+        if (desc.includes('rss') || desc.includes('feed')) {
+          nodeType = 'n8n-nodes-base.rssFeedRead'
+          typeVersion = 1
+          parameters = { url: 'https://example.com/feed/' }
+        } else if (desc.includes('limit') || desc.includes('top ')) {
+          nodeType = 'n8n-nodes-base.itemLists'
+          typeVersion = 3
+          parameters = { operation: 'limit', maxItems: 5 }
+        } else if (desc.includes('http') || desc.includes('fetch') || desc.includes('api') || desc.includes('scrape') || desc.includes('get ') || desc.includes('url') || desc.includes('request') || desc.includes('download') || desc.includes('content')) {
           nodeType = 'n8n-nodes-base.httpRequest'
           parameters = { method: 'GET', url: 'https://example.com' }
         } else if (desc.includes('summarize') || desc.includes('ai') || desc.includes('llm') || desc.includes('generate') || desc.includes('analyze') || desc.includes('classify') || desc.includes('extract')) {

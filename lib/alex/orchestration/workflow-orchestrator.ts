@@ -517,25 +517,133 @@ export class WorkflowOrchestrator {
   }
   
   /**
-   * Generates a markdown setup guide based on the automation plan
+   * Generates a comprehensive, AI-quality markdown setup guide based on the automation plan.
+   * This produces a detailed walkthrough with credential setup, testing, and troubleshooting.
    */
   private generateSetupGuide(plan: AutomationPlan, platform: string): string {
-    let guide = `Your ${platform} workflow has been generated successfully! 🎉\n\n### 🚀 Setup Instructions:\n\n`
-    guide += `1. **Download & Import**: Download the JSON file below, go to your ${platform} workspace, and click 'Import from file' in a new workflow.\n`
+    const platformName = platform.charAt(0).toUpperCase() + platform.slice(1)
+    const objective = plan.objective || 'your automation'
     
-    // Add dynamic credential steps based on inputs/outputs
-    const needsCreds = []
-    if (plan.inputs?.sources) needsCreds.push(...plan.inputs.sources)
-    if (plan.outputs?.destinations) needsCreds.push(...plan.outputs.destinations)
+    let guide = `Your **${platformName}** workflow has been generated successfully! 🎉\n\n`
+    guide += `---\n\n`
+    guide += `## 🚀 Complete Setup Guide\n\n`
     
-    if (needsCreds.length > 0) {
-      guide += `2. **Configure Credentials**: Open the nodes with warning icons (like ${needsCreds.slice(0, 3).join(', ')}) and select or create your credentials.\n`
+    // Step 1: Download & Import
+    guide += `### Step 1: Download & Import\n`
+    guide += `1. Click the **Download** button below to save the \`.json\` workflow file.\n`
+    if (platform.toLowerCase() === 'n8n') {
+      guide += `2. Open your n8n dashboard and click **Add Workflow** (or create a new blank workflow).\n`
+      guide += `3. Click the **three-dot menu (⋯)** in the top-right corner of the canvas.\n`
+      guide += `4. Select **Import from file...** and upload the downloaded JSON file.\n`
+      guide += `5. All nodes will automatically populate on your canvas!\n\n`
+    } else if (platform.toLowerCase() === 'zapier') {
+      guide += `2. Open your Zapier dashboard and create a new Zap.\n`
+      guide += `3. Configure each step according to the specification below.\n\n`
     } else {
-      guide += `2. **Configure Credentials**: Open any nodes with warning icons and authenticate your accounts.\n`
+      guide += `2. Open your ${platformName} workspace and import the downloaded file.\n\n`
     }
     
-    guide += `3. **Map the Data**: Review the node parameters to ensure the variables correctly match your data fields (e.g. dragging and dropping fields from previous nodes).\n`
-    guide += `4. **Test Run**: Click 'Execute Workflow' to test it live.\n\nLet me know if you need any adjustments or help setting up the credentials!`
+    // Step 2: Configure Credentials (dynamic based on plan)
+    guide += `### Step 2: Configure Credentials\n`
+    guide += `The imported workflow has the correct structure, but it needs **your personal API keys** to function:\n\n`
+    
+    const credentialSteps: string[] = []
+    const allServices = new Set<string>()
+    
+    // Collect services from inputs
+    if (plan.inputs?.sources) {
+      plan.inputs.sources.forEach((src: string) => {
+        const srcLower = (src || '').toLowerCase()
+        if (srcLower.includes('gmail') || srcLower.includes('email')) allServices.add('gmail')
+        if (srcLower.includes('slack')) allServices.add('slack')
+        if (srcLower.includes('sheet')) allServices.add('google_sheets')
+        if (srcLower.includes('notion')) allServices.add('notion')
+        if (srcLower.includes('telegram')) allServices.add('telegram')
+        if (srcLower.includes('discord')) allServices.add('discord')
+        if (srcLower.includes('openai') || srcLower.includes('ai') || srcLower.includes('gpt')) allServices.add('openai')
+      })
+    }
+    
+    // Collect services from outputs
+    if (plan.outputs?.destinations) {
+      plan.outputs.destinations.forEach((dest: string) => {
+        const destLower = (dest || '').toLowerCase()
+        if (destLower.includes('gmail') || destLower.includes('email')) allServices.add('gmail')
+        if (destLower.includes('slack')) allServices.add('slack')
+        if (destLower.includes('sheet')) allServices.add('google_sheets')
+        if (destLower.includes('notion')) allServices.add('notion')
+        if (destLower.includes('telegram')) allServices.add('telegram')
+        if (destLower.includes('discord')) allServices.add('discord')
+      })
+    }
+    
+    // Check objective for AI usage
+    const objLower = (plan.objective || '').toLowerCase()
+    if (objLower.includes('summar') || objLower.includes('ai') || objLower.includes('generat') || objLower.includes('analyz') || objLower.includes('bot') || objLower.includes('chat')) {
+      allServices.add('openai')
+    }
+    
+    // Generate credential instructions for detected services
+    if (allServices.has('openai')) {
+      credentialSteps.push(`- **OpenAI / AI Model**: Double-click the AI node → Create a new OpenAI credential → Paste your [OpenAI API key](https://platform.openai.com/api-keys).`)
+    }
+    if (allServices.has('gmail')) {
+      credentialSteps.push(`- **Gmail**: Double-click the Gmail node → Follow the OAuth2 flow to connect your Google account, or provide your Gmail credentials.`)
+    }
+    if (allServices.has('slack')) {
+      credentialSteps.push(`- **Slack**: Double-click the Slack node → Create a new Slack OAuth2 credential → Follow the authorization flow to connect your workspace. Set the **channel** to the one you want messages posted to.`)
+    }
+    if (allServices.has('google_sheets')) {
+      credentialSteps.push(`- **Google Sheets**: Double-click the Google Sheets node → Connect your Google account via OAuth2 → Select the target spreadsheet and sheet.`)
+    }
+    if (allServices.has('notion')) {
+      credentialSteps.push(`- **Notion**: Double-click the Notion node → Create a Notion credential with your [internal integration token](https://www.notion.so/my-integrations).`)
+    }
+    if (allServices.has('telegram')) {
+      credentialSteps.push(`- **Telegram**: Double-click the Telegram node → Enter your Bot Token (get one from [@BotFather](https://t.me/BotFather)) → Set the Chat ID.`)
+    }
+    if (allServices.has('discord')) {
+      credentialSteps.push(`- **Discord**: Double-click the Discord node → Provide your Discord Bot Token or Webhook URL.`)
+    }
+    
+    if (credentialSteps.length > 0) {
+      guide += credentialSteps.join('\n') + '\n\n'
+    } else {
+      guide += `- Open any nodes marked with a ⚠️ warning icon and create or select your credentials.\n\n`
+    }
+    
+    // Step 3: Customize Parameters
+    guide += `### Step 3: Review & Customize Parameters\n`
+    
+    if (plan.trigger) {
+      const triggerType = (plan.trigger.type || '').toLowerCase()
+      if (triggerType.includes('schedule') || triggerType.includes('cron')) {
+        guide += `- **Schedule**: The trigger is set to run on a schedule. Double-click it to adjust the time/frequency if needed.\n`
+      } else if (triggerType.includes('webhook')) {
+        guide += `- **Webhook URL**: After activating the workflow, n8n will generate a unique webhook URL. Copy it and configure it in your source application.\n`
+      }
+    }
+    
+    guide += `- **Data Mapping**: Review each node's parameters to ensure the expressions (e.g. \`{{ $json.field }}\`) correctly reference the data from previous nodes.\n`
+    guide += `- **Node Parameters**: Customize text templates, filters, and output formats to match your exact needs.\n\n`
+    
+    // Step 4: Test
+    guide += `### Step 4: Test Your Workflow\n`
+    guide += `1. Click the **Test Workflow** button (or "Execute Workflow") at the bottom of the canvas.\n`
+    guide += `2. Check that data flows correctly through each node — you can click any node to inspect its output.\n`
+    guide += `3. If any node shows an error, double-click it to review the configuration.\n\n`
+    
+    // Step 5: Activate
+    guide += `### Step 5: Activate\n`
+    guide += `Once testing is successful, toggle the **Active** switch in the top-right corner from \`Inactive\` to \`Active\`. Your workflow will now run automatically!\n\n`
+    
+    // Troubleshooting
+    guide += `---\n\n`
+    guide += `### 💡 Troubleshooting Tips\n`
+    guide += `- **"Node type not recognized"**: Make sure your n8n instance is up-to-date. Some nodes (like AI/LangChain nodes) require n8n v1.19+.\n`
+    guide += `- **Credential errors**: Re-check your API keys. Most issues come from expired tokens or incorrect scopes.\n`
+    guide += `- **Empty output**: Verify that the data source (RSS feed, API, etc.) is reachable and returning data.\n\n`
+    guide += `Let me know if you need any adjustments or help setting up the credentials! 🛠️`
     
     return guide
   }
