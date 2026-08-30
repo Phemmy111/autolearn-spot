@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export class ProviderManager {
   private registry: ProviderRegistry
+  private providerConfigs: Map<string, ProviderConfig> = new Map()
 
   // Encryption key (matching quiz system approach)
   private encryptionKey = process.env.ALEX_PROVIDER_ENCRYPTION_KEY || 'default-key-change-in-production-32bytes'
@@ -98,11 +99,13 @@ export class ProviderManager {
 
       // Clear existing registry to ensure fresh load
       this.registry.clear()
+      this.providerConfigs.clear()
 
       // Load and register each provider
       for (const config of configs) {
         try {
           const providerConfig = this.mapDbConfigToProviderConfig(config)
+          this.providerConfigs.set(providerConfig.id, providerConfig)
 
           // Decrypt API key for the adapter
           const configWithDecryptedKey = {
@@ -393,6 +396,21 @@ export class ProviderManager {
       if (exhaustedProviders.has(provider.id)) {
         console.log('[FALLBACK] Skipping exhausted provider:', provider.id, provider.name)
         continue
+      }
+
+      // Check if provider is currently in a cooldown due to previous failures
+      const config = this.providerConfigs.get(provider.id)
+      if (config && (config.healthStatus === 'unavailable' || config.healthStatus === 'degraded')) {
+        const lastCheck = config.lastHealthCheck ? new Date(config.lastHealthCheck).getTime() : 0
+        const now = Date.now()
+        const tenMinutesMs = 10 * 60 * 1000
+        
+        if (now - lastCheck < tenMinutesMs) {
+          console.log(`[FALLBACK] Skipping ${provider.name} because it is in a 10-minute cooldown (Status: ${config.healthStatus})`)
+          continue
+        } else {
+          console.log(`[FALLBACK] ${provider.name} cooldown expired. Attempting optimistic retry.`)
+        }
       }
 
       console.log('[FALLBACK] Attempting provider:', {
