@@ -42,19 +42,19 @@ CRITICAL RULES:
 3. Every node MUST have: "parameters" (object), "id" (unique uuid string), "name" (string), "type" (exact n8n node type string), "typeVersion" (number, default 1), "position" ([x, y] array).
 
 NODE TYPE REFERENCE (use these EXACT type strings):
-- HTTP Request (for APIs, scraping, fetching): "n8n-nodes-base.httpRequest", typeVersion: 1
+- HTTP Request (for APIs, scraping, fetching): "n8n-nodes-base.httpRequest", typeVersion: 4.1
 - Gmail trigger: "n8n-nodes-base.gmailTrigger", typeVersion: 1
 - Gmail send/reply: "n8n-nodes-base.gmail", typeVersion: 2, parameters.operation: "reply" or "send"
-- Google Sheets append: "n8n-nodes-base.googleSheets", typeVersion: 2, parameters.operation: "appendOrUpdate"
-- Slack send message: "n8n-nodes-base.slack", typeVersion: 2, parameters.resource: "message", parameters.operation: "post"
+- Google Sheets append: "n8n-nodes-base.googleSheets", typeVersion: 4.3, parameters.operation: "appendOrUpdate"
+- Slack send message: "n8n-nodes-base.slack", typeVersion: 2.2, parameters.resource: "message", parameters.operation: "post"
 - Twilio send SMS: "n8n-nodes-base.twilio", typeVersion: 1
-- Webhook: "n8n-nodes-base.webhook", typeVersion: 1
+- Webhook: "n8n-nodes-base.webhook", typeVersion: 1.1
 - IF conditional: "n8n-nodes-base.if", typeVersion: 1
 - Switch: "n8n-nodes-base.switch", typeVersion: 1
-- Set data / Format: "n8n-nodes-base.set", typeVersion: 1
-- Schedule / Cron: "n8n-nodes-base.scheduleTrigger", typeVersion: 1
+- Set data / Format: "n8n-nodes-base.set", typeVersion: 3.2
+- Schedule / Cron: "n8n-nodes-base.scheduleTrigger", typeVersion: 1.2
 - Manual trigger: "n8n-nodes-base.manualTrigger", typeVersion: 1
-- Basic LLM Chain (for summarization/generation): "@n8n/n8n-nodes-langchain.chainLlm", typeVersion: 1
+- Basic LLM Chain (for summarization/generation): "@n8n/n8n-nodes-langchain.chainLlm", typeVersion: 1.4
 - Google Gemini AI Model: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", typeVersion: 1
 - OpenAI Chat Model: "@n8n/n8n-nodes-langchain.lmChatOpenAi", typeVersion: 1
 - Output Parser (Auto-fixing JSON): "@n8n/n8n-nodes-langchain.outputParserAutofixing", typeVersion: 1
@@ -310,16 +310,18 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
           parameters = { resource: 'message', operation: 'post', text: 'Hello' }
         } else if (desc.includes('sheet') || desc.includes('spreadsheet')) {
           nodeType = 'n8n-nodes-base.googleSheets'
-          typeVersion = 2
+          typeVersion = 4.3
           parameters = { operation: 'appendOrUpdate' }
         } else if (desc.includes('if') || desc.includes('condition') || desc.includes('filter')) {
           nodeType = 'n8n-nodes-base.if'
           parameters = { conditions: { string: [] } }
         } else if (desc.includes('chunk') || desc.includes('batch') || desc.includes('split')) {
           nodeType = 'n8n-nodes-base.splitInBatches'
+          typeVersion = 3
           parameters = { batchSize: 10 }
         } else if (desc.includes('format') || desc.includes('transform') || desc.includes('combine') || desc.includes('merge')) {
           nodeType = 'n8n-nodes-base.set'
+          typeVersion = 3.2
           parameters = { keepOnlySet: false, values: {} }
         } else if (desc.includes('notion')) {
           nodeType = 'n8n-nodes-base.notion'

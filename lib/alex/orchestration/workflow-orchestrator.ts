@@ -520,9 +520,11 @@ export class WorkflowOrchestrator {
         download_url: `/api/alex/artifacts/${artifact.id}/download`
       }
       
+      const setupMessage = this.generateSetupGuide(plan, platform)
+
       return {
         status: 'completed',
-        message: 'Your workflow has been generated successfully! You can download it below.',
+        message: setupMessage,
         artifacts: [artifactWithUrl],
         specification: spec,
         plan
@@ -544,6 +546,30 @@ export class WorkflowOrchestrator {
     }
   }
   
+  /**
+   * Generates a markdown setup guide based on the automation plan
+   */
+  private generateSetupGuide(plan: AutomationPlan, platform: string): string {
+    let guide = `Your ${platform} workflow has been generated successfully! 🎉\n\n### 🚀 Setup Instructions:\n\n`
+    guide += `1. **Download & Import**: Download the JSON file below, go to your ${platform} workspace, and click 'Import from file' in a new workflow.\n`
+    
+    // Add dynamic credential steps based on inputs/outputs
+    const needsCreds = []
+    if (plan.inputs?.sources) needsCreds.push(...plan.inputs.sources)
+    if (plan.outputs?.destinations) needsCreds.push(...plan.outputs.destinations)
+    
+    if (needsCreds.length > 0) {
+      guide += `2. **Configure Credentials**: Open the nodes with warning icons (like ${needsCreds.slice(0, 3).join(', ')}) and select or create your credentials.\n`
+    } else {
+      guide += `2. **Configure Credentials**: Open any nodes with warning icons and authenticate your accounts.\n`
+    }
+    
+    guide += `3. **Map the Data**: Review the node parameters to ensure the variables correctly match your data fields (e.g. dragging and dropping fields from previous nodes).\n`
+    guide += `4. **Test Run**: Click 'Execute Workflow' to test it live.\n\nLet me know if you need any adjustments or help setting up the credentials!`
+    
+    return guide
+  }
+
   /**
    * Convert AutomationPlan to AutomationSpec (legacy compatibility)
    */
