@@ -42,22 +42,34 @@ CRITICAL RULES:
 3. Every node MUST have: "parameters" (object), "id" (unique uuid string), "name" (string), "type" (exact n8n node type string), "typeVersion" (number, default 1), "position" ([x, y] array).
 4. PRE-CONFIGURE ALL NODES COMPLETELY. Fill in the "parameters" object with intelligent, ready-to-use configurations. For AI nodes (chainLlm, agent), write an appropriate and highly detailed "prompt" or "systemMessage" based on the user's objective. For HTTP nodes, provide a realistic dummy URL if a real one isn't given (e.g. "https://api.example.com/rss"). For integrations that require credentials, configure the node's parameters as if they were connected (e.g., set the operation type, resource type) so it is a ready-made workflow.
 
-NODE TYPE REFERENCE (use these EXACT type strings):
+TRIGGER NODE TYPE REFERENCE (every workflow starts with ONE trigger — use these EXACT type strings):
+- Manual trigger (user clicks button): "n8n-nodes-base.manualTrigger", typeVersion: 1
+- Schedule / Cron (run on a schedule — daily, hourly, custom interval): "n8n-nodes-base.scheduleTrigger", typeVersion: 1.2
+- Webhook (run on receiving an HTTP request): "n8n-nodes-base.webhook", typeVersion: 1.1
+- Form submission (generate webforms in n8n): "n8n-nodes-base.formTrigger", typeVersion: 2.2
+- Chat message (run when a user sends a chat message — for AI chatbots): "@n8n/n8n-nodes-langchain.chatTrigger", typeVersion: 1.1
+- Execute workflow trigger (called by another workflow): "n8n-nodes-base.executeWorkflowTrigger", typeVersion: 1
+- Gmail trigger (on new email): "n8n-nodes-base.gmailTrigger", typeVersion: 1
+- Telegram trigger (on new Telegram message): "n8n-nodes-base.telegramTrigger", typeVersion: 1.1
+- Slack trigger (on new Slack event): "n8n-nodes-base.slackTrigger", typeVersion: 1
+- Airtable trigger (on new/updated Airtable record): "n8n-nodes-base.airtableTrigger", typeVersion: 1
+- Notion trigger (on Notion database change): "n8n-nodes-base.notionTrigger", typeVersion: 1
+- Google Sheets trigger (on row added/updated): "n8n-nodes-base.googleSheetsTrigger", typeVersion: 1
+- Error trigger (workflow errors): "n8n-nodes-base.errorTrigger", typeVersion: 1
+- File trigger / Local file changes: "n8n-nodes-base.localFileTrigger", typeVersion: 1
+
+ACTION NODE TYPE REFERENCE (use these EXACT type strings for workflow steps):
 - HTTP Request (for APIs, scraping, fetching): "n8n-nodes-base.httpRequest", typeVersion: 4.1
 - RSS Feed Read (to read RSS/Atom feeds): "n8n-nodes-base.rssFeedRead", typeVersion: 1
 - OpenAI (direct chat/completion): "n8n-nodes-base.openAi", typeVersion: 1, parameters.model: "gpt-4o-mini"
-- Gmail trigger: "n8n-nodes-base.gmailTrigger", typeVersion: 1
 - Gmail send/reply: "n8n-nodes-base.gmail", typeVersion: 2, parameters.operation: "reply" or "send"
 - Google Sheets append: "n8n-nodes-base.googleSheets", typeVersion: 4.3, parameters.operation: "appendOrUpdate"
 - Slack send message: "n8n-nodes-base.slack", typeVersion: 2.2, parameters.resource: "message", parameters.operation: "post"
 - Twilio send SMS: "n8n-nodes-base.twilio", typeVersion: 1
-- Webhook: "n8n-nodes-base.webhook", typeVersion: 1.1
 - IF conditional: "n8n-nodes-base.if", typeVersion: 1
 - Switch: "n8n-nodes-base.switch", typeVersion: 1
 - Set data / Format: "n8n-nodes-base.set", typeVersion: 3.2
 - Item Lists (limit, sort, filter items): "n8n-nodes-base.itemLists", typeVersion: 3, parameters.operation: "limit" (set maxItems)
-- Schedule / Cron: "n8n-nodes-base.scheduleTrigger", typeVersion: 1.2
-- Manual trigger: "n8n-nodes-base.manualTrigger", typeVersion: 1
 - Basic LLM Chain (for summarization/generation): "@n8n/n8n-nodes-langchain.chainLlm", typeVersion: 1.4
 - Google Gemini AI Model: "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", typeVersion: 1
 - OpenAI Chat Model: "@n8n/n8n-nodes-langchain.lmChatOpenAi", typeVersion: 1
@@ -66,8 +78,11 @@ NODE TYPE REFERENCE (use these EXACT type strings):
 - Wait / Rate Limit: "n8n-nodes-base.wait", typeVersion: 1
 - Merge / Combine: "n8n-nodes-base.merge", typeVersion: 1
 - Notion: "n8n-nodes-base.notion", typeVersion: 2
-- Telegram: "n8n-nodes-base.telegram", typeVersion: 1
+- Telegram send: "n8n-nodes-base.telegram", typeVersion: 1
 - Discord: "n8n-nodes-base.discord", typeVersion: 1
+- Airtable: "n8n-nodes-base.airtable", typeVersion: 2
+- Execute Workflow (call another workflow): "n8n-nodes-base.executeWorkflow", typeVersion: 1
+- Respond to Webhook (send response back): "n8n-nodes-base.respondToWebhook", typeVersion: 1
 - Code (JS): "n8n-nodes-base.code", typeVersion: 1 (ONLY use this if custom data transformation via JavaScript is explicitly needed. Do NOT use it for APIs, Emails, AI, or Webhooks)
 
 CONNECTIONS FORMAT:
@@ -269,7 +284,10 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
 
     // 1. Trigger node
     const triggerType = (plan.trigger?.type || '').toLowerCase()
-    if (triggerType === 'webhook' || triggerType.includes('webhook')) {
+    const triggerDesc = (plan.trigger?.description || plan.trigger?.source || '').toLowerCase()
+    const triggerContext = triggerType + ' ' + triggerDesc
+
+    if (triggerContext.includes('webhook')) {
       nodes.push({
         parameters: {
           httpMethod: 'POST',
@@ -284,7 +302,7 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         position: [xPos, yBase],
         webhookId: 'auto-' + Date.now()
       })
-    } else if (triggerType === 'schedule' || triggerType.includes('cron') || triggerType.includes('daily') || triggerType.includes('hourly')) {
+    } else if (triggerContext.includes('schedule') || triggerContext.includes('cron') || triggerContext.includes('daily') || triggerContext.includes('hourly') || triggerContext.includes('every') || triggerContext.includes('interval') || triggerContext.includes('morning') || triggerContext.includes('night')) {
       nodes.push({
         parameters: {
           rule: {
@@ -297,7 +315,32 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         typeVersion: 1.2,
         position: [xPos, yBase]
       })
-    } else if (triggerType.includes('email') || triggerType.includes('gmail')) {
+    } else if (triggerContext.includes('form') || triggerContext.includes('submission') || triggerContext.includes('webform')) {
+      nodes.push({
+        parameters: {
+          formTitle: plan.objective || 'Form',
+          formFields: { values: [{ fieldLabel: 'Input', fieldType: 'text', requiredField: true }] },
+          options: {}
+        },
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Form Trigger',
+        type: 'n8n-nodes-base.formTrigger',
+        typeVersion: 2.2,
+        position: [xPos, yBase],
+        webhookId: 'form-' + Date.now()
+      })
+    } else if (triggerContext.includes('chat') || triggerContext.includes('chatbot') || triggerContext.includes('conversation')) {
+      nodes.push({
+        parameters: {
+          options: {}
+        },
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Chat Trigger',
+        type: '@n8n/n8n-nodes-langchain.chatTrigger',
+        typeVersion: 1.1,
+        position: [xPos, yBase]
+      })
+    } else if (triggerContext.includes('email') || triggerContext.includes('gmail') || triggerContext.includes('mail')) {
       nodes.push({
         parameters: {
           pollTimes: { item: [{ mode: 'everyMinute' }] },
@@ -311,6 +354,96 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         credentials: {
           gmailOAuth2: { id: 'GMAIL_CREDENTIAL_ID', name: 'Your Gmail account' }
         }
+      })
+    } else if (triggerContext.includes('telegram')) {
+      nodes.push({
+        parameters: {
+          updates: ['message']
+        },
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Telegram Trigger',
+        type: 'n8n-nodes-base.telegramTrigger',
+        typeVersion: 1.1,
+        position: [xPos, yBase],
+        credentials: {
+          telegramApi: { id: 'TELEGRAM_CREDENTIAL_ID', name: 'Your Telegram Bot' }
+        }
+      })
+    } else if (triggerContext.includes('slack')) {
+      nodes.push({
+        parameters: {},
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Slack Trigger',
+        type: 'n8n-nodes-base.slackTrigger',
+        typeVersion: 1,
+        position: [xPos, yBase],
+        credentials: {
+          slackOAuth2Api: { id: 'SLACK_CREDENTIAL_ID', name: 'Your Slack account' }
+        }
+      })
+    } else if (triggerContext.includes('notion')) {
+      nodes.push({
+        parameters: {
+          pollTimes: { item: [{ mode: 'everyMinute' }] },
+          event: 'pageAddedToDatabase',
+          simple: true
+        },
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Notion Trigger',
+        type: 'n8n-nodes-base.notionTrigger',
+        typeVersion: 1,
+        position: [xPos, yBase],
+        credentials: {
+          notionApi: { id: 'NOTION_CREDENTIAL_ID', name: 'Your Notion account' }
+        }
+      })
+    } else if (triggerContext.includes('airtable')) {
+      nodes.push({
+        parameters: {
+          pollTimes: { item: [{ mode: 'everyMinute' }] },
+          simple: true
+        },
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Airtable Trigger',
+        type: 'n8n-nodes-base.airtableTrigger',
+        typeVersion: 1,
+        position: [xPos, yBase],
+        credentials: {
+          airtableTokenApi: { id: 'AIRTABLE_CREDENTIAL_ID', name: 'Your Airtable account' }
+        }
+      })
+    } else if (triggerContext.includes('sheet') || triggerContext.includes('spreadsheet') || triggerContext.includes('google sheet')) {
+      nodes.push({
+        parameters: {
+          pollTimes: { item: [{ mode: 'everyMinute' }] },
+          event: 'rowAdded'
+        },
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Google Sheets Trigger',
+        type: 'n8n-nodes-base.googleSheetsTrigger',
+        typeVersion: 1,
+        position: [xPos, yBase],
+        credentials: {
+          googleSheetsOAuth2Api: { id: 'GSHEETS_CREDENTIAL_ID', name: 'Your Google account' }
+        }
+      })
+    } else if (triggerContext.includes('execute') || triggerContext.includes('sub-workflow') || triggerContext.includes('called by')) {
+      nodes.push({
+        parameters: {},
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Execute Workflow Trigger',
+        type: 'n8n-nodes-base.executeWorkflowTrigger',
+        typeVersion: 1,
+        position: [xPos, yBase]
+      })
+    } else if (triggerContext.includes('error') || triggerContext.includes('failure')) {
+      nodes.push({
+        parameters: {},
+        id: crypto.randomUUID ? crypto.randomUUID() : 'trigger-' + Date.now(),
+        name: 'Error Trigger',
+        type: 'n8n-nodes-base.errorTrigger',
+        typeVersion: 1,
+        position: [xPos, yBase]
       })
     } else {
       nodes.push({
