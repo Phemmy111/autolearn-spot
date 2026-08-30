@@ -153,12 +153,44 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
     workflow.meta = workflow.meta || { instanceId: 'generated-by-alex' }
 
     // Enforce IDs for all nodes, otherwise n8n shows ? icons
+    // Also strictly enforce that node.name is a string (n8n will crash with t.toLowerCase is not a function if it's a number)
     workflow.nodes.forEach((node: any, index: number) => {
       if (!node.id) {
         const fallbackId = 'node-' + Date.now() + '-' + index
         node.id = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : fallbackId
       }
+      if (node.name !== undefined && node.name !== null) {
+        node.name = String(node.name)
+      } else {
+        node.name = `Node ${index + 1}`
+      }
     })
+
+    // Also enforce connection keys and node references are strings
+    if (workflow.connections) {
+      const newConnections: any = {}
+      for (const sourceNode in workflow.connections) {
+        const sourceString = String(sourceNode)
+        newConnections[sourceString] = workflow.connections[sourceNode]
+        
+        // Fix target nodes
+        for (const outputType in newConnections[sourceString]) {
+          const branches = newConnections[sourceString][outputType]
+          if (Array.isArray(branches)) {
+            branches.forEach((branch: any) => {
+              if (Array.isArray(branch)) {
+                branch.forEach((target: any) => {
+                  if (target.node !== undefined && target.node !== null) {
+                    target.node = String(target.node)
+                  }
+                })
+              }
+            })
+          }
+        }
+      }
+      workflow.connections = newConnections
+    }
 
     console.log('[WorkflowJSONGenerator] AI generated workflow with', workflow.nodes.length, 'nodes')
     return JSON.stringify(workflow, null, 2)
@@ -344,7 +376,7 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         nodes.push({
           parameters,
           id: crypto.randomUUID ? crypto.randomUUID() : `step-${index}-${Date.now()}`,
-          name: step.step || `Step ${index + 1}`,
+          name: String(step.step || `Step ${index + 1}`),
           type: nodeType,
           typeVersion,
           position: [xPos, yBase]
