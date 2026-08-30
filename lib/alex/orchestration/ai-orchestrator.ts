@@ -330,38 +330,6 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
           const result = JSON.parse(jsonMatch[0])
           
           // Validate and convert to typed result
-          // If the AI indicates the user answered a clarification question,
-          // merge the answer into the current plan before returning.
-          if (result.intent === 'answer_question' && result.action?.field) {
-            const field = result.action.field as string;
-            const answer = userMessage.trim();
-            const updatedPlan: any = { ...(currentPlan || {}) };
-            switch (field) {
-              case 'platform':
-                updatedPlan.platform = { name: answer };
-                break;
-              case 'data_source':
-                updatedPlan.inputs = { sources: answer.split(/,\s*/).map(s => s.trim()) };
-                break;
-              case 'trigger':
-                updatedPlan.trigger = { type: answer };
-                break;
-              case 'delivery':
-                updatedPlan.outputs = { destinations: answer.split(/,\s*/).map(s => s.trim()) };
-                break;
-              default:
-                // Store generic answer under the field name
-                (updatedPlan as any)[field] = answer;
-            }
-            return {
-              action: { type: 'plan', plan: updatedPlan },
-              intent: result.intent as UserIntent,
-              updatedPlan,
-              confidence: result.confidence || 0.5,
-              reasoning: result.reasoning
-            };
-          }
-
           return {
             action: this.validateAction(result.action),
             intent: result.intent as UserIntent,
