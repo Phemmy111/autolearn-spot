@@ -239,12 +239,10 @@ export class VisionService {
     if (capabilities.includes('vision') || capabilities.includes('multimodal')) {
       return true
     }
-    // If capabilities is empty or only has 'streaming', assume vision support for OpenAI-compatible providers
-    // This ensures Groq and similar providers work without manual configuration
-    if (capabilities.length === 0 || (capabilities.length === 1 && capabilities[0] === 'streaming')) {
-      console.log('[Vision Service] Assuming vision support for OpenAI-compatible provider (capabilities:', capabilities, ')')
-      return true
-    }
+    
+    // We no longer assume vision support for empty capabilities arrays,
+    // as passing image arrays to text-only models (like Groq) causes fatal validation errors
+    // ("messages[N].content must be a string").
     return false
   }
 

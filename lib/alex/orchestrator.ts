@@ -527,12 +527,10 @@ export class AlexOrchestrator {
       })
     }
 
-    // Add current user message with multimodal content if images are present
-    // Only use multimodal content if provider supports vision/multimodal capabilities
+    // Only use multimodal content if provider explicitly supports vision/multimodal capabilities
+    // We do NOT assume vision support for empty arrays to prevent sending image arrays to text-only models (like Groq)
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
-    // Assume vision support for OpenAI-compatible providers when capabilities are empty or only contain 'streaming'
-    const supportsVision = capabilities.includes('vision') || capabilities.includes('multimodal') ||
-      (capabilities.length === 0 || (capabilities.length === 1 && capabilities[0] === 'streaming'))
+    const supportsVision = capabilities.includes('vision') || capabilities.includes('multimodal')
     
     if (imageFiles && imageFiles.length > 0 && supportsVision) {
       // Build multimodal content: text + images
