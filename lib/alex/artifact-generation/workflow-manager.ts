@@ -820,27 +820,18 @@ Be specific to their task. Don't give generic options. Be the expert who knows w
     await ArtifactService.updateBuildStatus(build.id, 'generating')
 
     try {
-      // Try template-based generation first (most reliable)
-      const templateResult = await this.attemptTemplateGeneration(build, request)
-      
-      if (templateResult.success) {
-        return templateResult.response
-      }
-
-      // If template failed, try AI-based generation
-      console.log('[Artifact Workflow] Template generation failed, trying AI-based')
-      const primaryResult = await this.attemptArtifactGeneration(build, request, 1)
-      
+      // Directly attempt AI-based generation
+      console.log('[Artifact Workflow] Attempting AI-based generation');
+      const primaryResult = await this.attemptArtifactGeneration(build, request, 1);
       if (primaryResult.success) {
-        return primaryResult.response
+        return primaryResult.response;
       }
 
-      // If primary failed, try fallback method
-      console.log('[Artifact Workflow] Primary generation failed, trying fallback')
-      const fallbackResult = await this.attemptFallbackGeneration(build, request)
-      
+      // If AI generation failed, try fallback generation
+      console.log('[Artifact Workflow] AI generation failed, trying fallback');
+      const fallbackResult = await this.attemptFallbackGeneration(build, request);
       if (fallbackResult.success) {
-        return fallbackResult.response
+        return fallbackResult.response;
       }
 
       // All methods failed

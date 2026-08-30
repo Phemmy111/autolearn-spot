@@ -86,7 +86,7 @@ export class WorkflowAIService {
       messages: [{ role: 'user', content: prompt }],
       model: options?.personalModel || undefined,
       temperature: 0.2, // Low temperature for structured JSON output
-      maxTokens: 8000,
+      maxTokens: 3000,
       stream: false,
     }
 
