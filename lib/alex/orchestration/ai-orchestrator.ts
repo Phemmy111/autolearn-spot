@@ -89,15 +89,69 @@ export class AIOrchestrator {
       }
     }
     
+    // UNIVERSAL FIX: Auto-fix platform as string → object in ALL cases (not just generate/execute)
+    // The AI frequently returns platform: "n8n" instead of platform: { name: "n8n" }
+    if (updatedPlan && typeof updatedPlan.platform === 'string') {
+      updatedPlan.platform = { name: updatedPlan.platform }
+    }
+    if (currentPlan && typeof currentPlan.platform === 'string') {
+      (currentPlan as any).platform = { name: currentPlan.platform }
+    }
+    
+    // UNIVERSAL ANSWER MERGER: When the user answers a question for a known field,
+    // ensure the answer is patched into the plan even if the AI forgot to set it.
+    // This prevents the infinite loop where the AI keeps re-asking the same question.
+    if (updatedPlan && context.messages.length > 0) {
+      const lastAssistantMsg = [...context.messages].reverse().find(m => m.role === 'assistant')
+      const userAnswer = userMessage.trim()
+      
+      if (lastAssistantMsg) {
+        const assistantContent = lastAssistantMsg.content.toLowerCase()
+        
+        // Detect which field was being asked based on the assistant's last message
+        const isPlatformQuestion = assistantContent.includes('which automation platform') || 
+                                   assistantContent.includes('which platform') ||
+                                   assistantContent.includes('platform selection')
+        const isDataSourceQuestion = assistantContent.includes('where will the data') || 
+                                      assistantContent.includes('data source') ||
+                                      assistantContent.includes('content come from') ||
+                                      assistantContent.includes('where does the input')
+        const isTriggerQuestion = assistantContent.includes('what should trigger') || 
+                                   assistantContent.includes('what triggers') ||
+                                   assistantContent.includes('what starts the workflow')
+        const isDeliveryQuestion = assistantContent.includes('where should the results') || 
+                                    assistantContent.includes('output destination') ||
+                                    assistantContent.includes('results be sent')
+        
+        if (isPlatformQuestion && userAnswer && !updatedPlan.platform?.name) {
+          const platformMap: Record<string, string> = { 'n8n': 'n8n', 'make': 'Make', 'zapier': 'Zapier', 'make (integromat)': 'Make' }
+          const resolved = platformMap[userAnswer.toLowerCase()] || userAnswer
+          updatedPlan.platform = { name: resolved }
+          console.log('[AI Orchestrator] Answer merger: Set platform to', resolved)
+        }
+        
+        if (isDataSourceQuestion && userAnswer && (!updatedPlan.inputs?.sources || updatedPlan.inputs.sources.length === 0)) {
+          const sources = userAnswer.split(',').map((s: string) => s.trim()).filter(Boolean)
+          updatedPlan.inputs = { ...(updatedPlan.inputs || {}), sources }
+          console.log('[AI Orchestrator] Answer merger: Set data sources to', sources)
+        }
+        
+        if (isTriggerQuestion && userAnswer && !updatedPlan.trigger?.type) {
+          updatedPlan.trigger = { type: userAnswer, description: userAnswer }
+          console.log('[AI Orchestrator] Answer merger: Set trigger to', userAnswer)
+        }
+        
+        if (isDeliveryQuestion && userAnswer && (!updatedPlan.outputs?.destinations || updatedPlan.outputs.destinations.length === 0)) {
+          const destinations = userAnswer.split(',').map((s: string) => s.trim()).filter(Boolean)
+          updatedPlan.outputs = { ...(updatedPlan.outputs || {}), destinations }
+          console.log('[AI Orchestrator] Answer merger: Set delivery to', destinations)
+        }
+      }
+    }
+    
     // If AI wants to generate but no platform is set, switch to clarify
-    // but let the AI provide its own question — don't hardcode options here
     if (aiDecision.action.type === 'generate' || aiDecision.action.type === 'execute') {
       const planToCheck = updatedPlan || currentPlan
-      
-      // Auto-fix if AI generated platform as a string instead of object
-      if (planToCheck && typeof planToCheck.platform === 'string') {
-        planToCheck.platform = { name: planToCheck.platform };
-      }
       
       if (!planToCheck?.platform?.name) {
         console.log('[AI Orchestrator] Platform not specified, switching to clarify action')
@@ -106,7 +160,6 @@ export class AIOrchestrator {
           question: 'Which automation platform would you like to use for this workflow?',
           reason: 'Platform selection is required before generating the workflow',
           field: 'platform'
-          // No hardcoded enrichedOptions — let validateAction() handle fallback if needed
         }
       }
     }
@@ -154,6 +207,61 @@ export class AIOrchestrator {
         if (!aiDecision.updatedPlan.objective || aiDecision.updatedPlan.objective === 'Extracted workflow from request') {
           aiDecision.updatedPlan.objective = (userMessage || '').substring(0, 500)
         }
+        
+        // SMART EXTRACTION: Pre-fill trigger, inputs, and outputs from the user's message
+        // so the bot doesn't need to ask obvious questions
+        const msgLowerUser = (userMessage || '').toLowerCase()
+        const combinedLower = msgLowerUser + ' ' + msgLower
+        
+        // Extract trigger
+        if (!aiDecision.updatedPlan.trigger?.type) {
+          if (combinedLower.includes('webhook')) {
+            aiDecision.updatedPlan.trigger = { type: 'webhook', description: 'Webhook trigger' }
+          } else if (combinedLower.includes('schedule') || combinedLower.includes('cron') || combinedLower.includes('every day') || combinedLower.includes('every hour') || combinedLower.includes('every morning')) {
+            aiDecision.updatedPlan.trigger = { type: 'schedule', description: 'Scheduled trigger' }
+          } else if (combinedLower.includes('new email') || combinedLower.includes('email arrives') || combinedLower.includes('incoming email')) {
+            aiDecision.updatedPlan.trigger = { type: 'email', description: 'Email trigger' }
+          } else if (combinedLower.includes('rss')) {
+            aiDecision.updatedPlan.trigger = { type: 'rss', description: 'RSS feed trigger' }
+          } else if (combinedLower.includes('manual')) {
+            aiDecision.updatedPlan.trigger = { type: 'manual', description: 'Manual trigger' }
+          }
+        }
+        
+        // Extract inputs/sources
+        if (!aiDecision.updatedPlan.inputs?.sources || aiDecision.updatedPlan.inputs.sources.length === 0) {
+          const inputSources: string[] = []
+          if (combinedLower.includes('form submission') || combinedLower.includes('form data')) inputSources.push('Form submissions')
+          if (combinedLower.includes('webhook')) inputSources.push('Webhook payload')
+          if (combinedLower.includes('rss')) inputSources.push('RSS feed')
+          if (combinedLower.includes('email')) inputSources.push('Email')
+          if (combinedLower.includes('api') || combinedLower.includes('http request')) inputSources.push('API/HTTP Request')
+          if (combinedLower.includes('url') || combinedLower.includes('webpage') || combinedLower.includes('article')) inputSources.push('Web URLs')
+          if (inputSources.length > 0) {
+            aiDecision.updatedPlan.inputs = { ...(aiDecision.updatedPlan.inputs || {}), sources: inputSources }
+          }
+        }
+        
+        // Extract outputs/destinations
+        if (!aiDecision.updatedPlan.outputs?.destinations || aiDecision.updatedPlan.outputs.destinations.length === 0) {
+          const outputDests: string[] = []
+          if (combinedLower.includes('google sheet') || combinedLower.includes('spreadsheet')) outputDests.push('Google Sheets')
+          if (combinedLower.includes('slack')) outputDests.push('Slack')
+          if (combinedLower.includes('email') || combinedLower.includes('gmail')) outputDests.push('Email')
+          if (combinedLower.includes('notion')) outputDests.push('Notion')
+          if (combinedLower.includes('telegram')) outputDests.push('Telegram')
+          if (combinedLower.includes('discord')) outputDests.push('Discord')
+          if (combinedLower.includes('airtable')) outputDests.push('Airtable')
+          if (outputDests.length > 0) {
+            aiDecision.updatedPlan.outputs = { ...(aiDecision.updatedPlan.outputs || {}), destinations: outputDests }
+          }
+        }
+        
+        console.log('[AI Orchestrator] Smart extraction result:', {
+          trigger: aiDecision.updatedPlan.trigger,
+          inputs: aiDecision.updatedPlan.inputs,
+          outputs: aiDecision.updatedPlan.outputs
+        })
         
         aiDecision.action = {
           type: 'clarify',
