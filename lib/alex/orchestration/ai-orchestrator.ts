@@ -596,13 +596,18 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
     
     return {
       action: {
-        type: 'respond',
-        message: 'I had a little trouble processing that. Could you rephrase your request or provide more detail about what you\'d like to automate?'
+        type: 'clarify',
+        question: 'Do you still want me to proceed?',
+        field: 'proceed_confirmation',
+        enrichedOptions: [
+          { label: 'Yes, proceed', value: 'yes', recommended: true },
+          { label: 'No, let me make changes', value: 'no' }
+        ]
       },
       updatedPlan: currentPlan || undefined,
       intent: 'clarification',
       confidence: 0.1,
-      reasoning: 'AI decision failed, returning simple retry message instead of template questions'
+      reasoning: 'AI decision failed, returning a silent proceed confirmation instead of an error message'
     }
   }
   
