@@ -407,10 +407,36 @@ export class WorkflowOrchestrator {
     // Set the status to awaiting_architecture_verification so the approval endpoint can find it
     await ArtifactService.updateBuildStatus(build.id, 'awaiting_architecture_verification');
 
+    // Build a visual illustration of the architecture for the chat UI
+    let visualArchitecture = 'I\'ve designed the architecture for your automation. Please review the visual breakdown below before we generate the JSON:\n\n'
+    if (architecture.stages && architecture.stages.length > 0) {
+      visualArchitecture += '```mermaid\nflowchart TD\n'
+      architecture.stages.forEach((stage: any, index: number) => {
+        const shape = stage.category === 'trigger' ? '(( ' : stage.category === 'decision' ? '{ ' : '[ '
+        const shapeEnd = stage.category === 'trigger' ? ' ))' : stage.category === 'decision' ? ' }' : ' ]'
+        const nodeName = `${stage.id}${shape}"**${stage.name}**<br/>_${stage.purpose}_"${shapeEnd}`
+        visualArchitecture += `    ${nodeName}\n`
+        
+        if (index < architecture.stages.length - 1) {
+          visualArchitecture += `    ${stage.id} --> ${architecture.stages[index + 1].id}\n`
+        }
+      })
+      visualArchitecture += '```\n\n'
+      
+      if (architecture.recommendations && architecture.recommendations.length > 0) {
+        visualArchitecture += `**💡 Recommendations:**\n`
+        architecture.recommendations.forEach((rec: string) => {
+          visualArchitecture += `- ${rec}\n`
+        })
+      }
+    } else {
+      visualArchitecture += '_(Architecture diagram unavailable. Click "Approve & Generate" to build it.)_'
+    }
+
     // Return a full architecture proposal for the UI
     return {
       status: 'awaiting_architecture_verification',
-      message: 'I\'ve designed the architecture for your automation. Please review and confirm.',
+      message: visualArchitecture,
       architectureProposal: {
         description: plan.objective,
         platform: plan.platform?.name || null,
@@ -548,126 +574,183 @@ export class WorkflowOrchestrator {
     const platformName = platform.charAt(0).toUpperCase() + platform.slice(1)
     const objective = plan.objective || 'your automation'
     
-    let guide = `Your **${platformName}** workflow has been generated successfully! 🎉\n\n`
-    guide += `---\n\n`
-    guide += `## 🚀 Complete Setup Guide\n\n`
+    let guide = `# 📋 Setup Guide: ${objective}\n\n`
+    guide += `**Platform:** ${platformName}  \n`
+    guide += `**Trigger:** ${plan.trigger?.description || plan.trigger?.type || 'Not specified'}  \n`
+    if (plan.inputs?.sources?.length) guide += `**Data Sources:** ${plan.inputs.sources.join(', ')}  \n`
+    if (plan.outputs?.destinations?.length) guide += `**Outputs:** ${plan.outputs.destinations.join(', ')}  \n`
+    guide += `\n---\n\n`
     
     // Step 1: Download & Import
-    guide += `### Step 1: Download & Import\n`
-    guide += `1. Click the **Download** button below to save the \`.json\` workflow file.\n`
+    guide += `## Step 1: Download & Import the Workflow\n\n`
     if (platform.toLowerCase() === 'n8n') {
-      guide += `2. Open your n8n dashboard and click **Add Workflow** (or create a new blank workflow).\n`
-      guide += `3. Click the **three-dot menu (⋯)** in the top-right corner of the canvas.\n`
-      guide += `4. Select **Import from file...** and upload the downloaded JSON file.\n`
-      guide += `5. All nodes will automatically populate on your canvas!\n\n`
-    } else if (platform.toLowerCase() === 'zapier') {
-      guide += `2. Open your Zapier dashboard and create a new Zap.\n`
-      guide += `3. Configure each step according to the specification below.\n\n`
+      guide += `1. Click the **Download** button to save the \`.json\` workflow file to your computer.\n`
+      guide += `2. Open your n8n dashboard (e.g., \`https://your-n8n-instance.com\`).\n`
+      guide += `3. Click **"Add Workflow"** or open an existing blank workflow.\n`
+      guide += `4. Click the **three-dot menu (⋯)** in the top-right corner of the canvas.\n`
+      guide += `5. Select **"Import from File..."** and upload the downloaded \`.json\` file.\n`
+      guide += `6. All nodes will be placed on your canvas with connections already wired.\n\n`
     } else {
-      guide += `2. Open your ${platformName} workspace and import the downloaded file.\n\n`
+      guide += `1. Download the workflow file and import it into your ${platformName} workspace.\n\n`
     }
     
-    // Step 2: Configure Credentials (dynamic based on plan)
-    guide += `### Step 2: Configure Credentials\n`
-    guide += `The imported workflow has the correct structure, but it needs **your personal API keys** to function:\n\n`
+    // Step 2: Workflow Architecture Overview
+    guide += `## Step 2: Understand Your Workflow Architecture\n\n`
+    guide += `Here's what each part of the workflow does:\n\n`
+    
+    if (plan.workflow && plan.workflow.length > 0) {
+      plan.workflow.forEach((step: any, index: number) => {
+        guide += `**Node ${index + 1}: ${step.step}**  \n`
+        guide += `> ${step.description}  \n`
+        if (step.nodeType) guide += `> _n8n node type:_ \`${step.nodeType}\`  \n`
+        guide += `\n`
+      })
+    } else {
+      guide += `_Workflow steps were generated dynamically by the AI. Open the JSON to see all nodes._\n\n`
+    }
+    
+    // Step 3: Configure Credentials (dynamic based on plan)
+    guide += `## Step 3: Configure Credentials & API Keys\n\n`
+    guide += `The imported workflow has the correct structure, but you need to connect **your personal accounts and API keys** for each service.\n\n`
     
     const credentialSteps: string[] = []
     const allServices = new Set<string>()
     
-    // Collect services from inputs
-    if (plan.inputs?.sources) {
-      plan.inputs.sources.forEach((src: string) => {
-        const srcLower = (src || '').toLowerCase()
-        if (srcLower.includes('gmail') || srcLower.includes('email')) allServices.add('gmail')
-        if (srcLower.includes('slack')) allServices.add('slack')
-        if (srcLower.includes('sheet')) allServices.add('google_sheets')
-        if (srcLower.includes('notion')) allServices.add('notion')
-        if (srcLower.includes('telegram')) allServices.add('telegram')
-        if (srcLower.includes('discord')) allServices.add('discord')
-        if (srcLower.includes('openai') || srcLower.includes('ai') || srcLower.includes('gpt')) allServices.add('openai')
-      })
-    }
+    // Collect services from inputs, outputs, objective, trigger, and workflow steps
+    const allText = [
+      ...(plan.inputs?.sources || []),
+      ...(plan.outputs?.destinations || []),
+      plan.objective || '',
+      plan.trigger?.type || '',
+      plan.trigger?.description || '',
+      ...(plan.workflow?.map((s: any) => `${s.step} ${s.description} ${s.nodeType || ''}`) || [])
+    ].join(' ').toLowerCase()
     
-    // Collect services from outputs
-    if (plan.outputs?.destinations) {
-      plan.outputs.destinations.forEach((dest: string) => {
-        const destLower = (dest || '').toLowerCase()
-        if (destLower.includes('gmail') || destLower.includes('email')) allServices.add('gmail')
-        if (destLower.includes('slack')) allServices.add('slack')
-        if (destLower.includes('sheet')) allServices.add('google_sheets')
-        if (destLower.includes('notion')) allServices.add('notion')
-        if (destLower.includes('telegram')) allServices.add('telegram')
-        if (destLower.includes('discord')) allServices.add('discord')
-      })
-    }
-    
-    // Check objective for AI usage
+    if (allText.includes('gmail') || allText.includes('email')) allServices.add('gmail')
+    if (allText.includes('slack')) allServices.add('slack')
+    if (allText.includes('sheet') || allText.includes('spreadsheet')) allServices.add('google_sheets')
+    if (allText.includes('notion')) allServices.add('notion')
+    if (allText.includes('telegram')) allServices.add('telegram')
+    if (allText.includes('discord')) allServices.add('discord')
+    if (allText.includes('twilio') || allText.includes('whatsapp')) allServices.add('twilio')
+    if (allText.includes('openai') || allText.includes('gpt')) allServices.add('openai')
+    if (allText.includes('gemini') || allText.includes('google ai')) allServices.add('gemini')
+    if (allText.includes('claude') || allText.includes('anthropic')) allServices.add('anthropic')
+    if (allText.includes('airtable')) allServices.add('airtable')
+    if (allText.includes('webhook')) allServices.add('webhook')
+    if (allText.includes('http') || allText.includes('api')) allServices.add('http')
+
+    // If objective mentions AI/bot/chat but no specific model was detected, add a generic AI entry
     const objLower = (plan.objective || '').toLowerCase()
-    if (objLower.includes('summar') || objLower.includes('ai') || objLower.includes('generat') || objLower.includes('analyz') || objLower.includes('bot') || objLower.includes('chat')) {
+    if ((objLower.includes('summar') || objLower.includes('ai') || objLower.includes('generat') || objLower.includes('analyz') || objLower.includes('bot') || objLower.includes('chat')) &&
+        !allServices.has('openai') && !allServices.has('gemini') && !allServices.has('anthropic')) {
       allServices.add('openai')
     }
     
     // Generate credential instructions for detected services
+    if (allServices.has('twilio')) {
+      credentialSteps.push(`### 📱 Twilio (WhatsApp)\n1. Go to [Twilio Console](https://console.twilio.com/).\n2. Copy your **Account SID** and **Auth Token** from the dashboard.\n3. In n8n, double-click the Webhook node (or Twilio node) and create a new **Twilio API** credential.\n4. Paste your Account SID and Auth Token.\n5. **WhatsApp Setup**: In the Twilio Console, go to **Messaging → Try it Out → Send a WhatsApp Message** to get your Twilio WhatsApp sandbox number. Follow the instructions to join the sandbox.\n6. Set your n8n webhook URL as the **"When a message comes in"** callback URL in Twilio's WhatsApp sandbox settings.`)
+    }
     if (allServices.has('openai')) {
-      credentialSteps.push(`- **OpenAI / AI Model**: Double-click the AI node → Create a new OpenAI credential → Paste your [OpenAI API key](https://platform.openai.com/api-keys).`)
+      credentialSteps.push(`### 🤖 OpenAI\n1. Go to [OpenAI API Keys](https://platform.openai.com/api-keys) and create a new secret key.\n2. In n8n, double-click the AI/OpenAI node → click **"Create New Credential"** → paste your API key.\n3. Make sure you have sufficient API credits in your OpenAI account.`)
+    }
+    if (allServices.has('gemini')) {
+      credentialSteps.push(`### 🤖 Google Gemini\n1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey) and create a new API key.\n2. In n8n, double-click the Google Gemini / AI node → click **"Create New Credential"** → select **Google Gemini (PaLM) API** → paste your API key.\n3. Note: Gemini 1.5 Flash is free for low usage. For production, check [Google AI pricing](https://ai.google.dev/pricing).`)
+    }
+    if (allServices.has('anthropic')) {
+      credentialSteps.push(`### 🤖 Anthropic (Claude)\n1. Go to [Anthropic Console](https://console.anthropic.com/) and create an API key.\n2. In n8n, double-click the Anthropic node → click **"Create New Credential"** → paste your API key.`)
     }
     if (allServices.has('gmail')) {
-      credentialSteps.push(`- **Gmail**: Double-click the Gmail node → Follow the OAuth2 flow to connect your Google account, or provide your Gmail credentials.`)
+      credentialSteps.push(`### 📧 Gmail\n1. In n8n, double-click the Gmail node → click **"Create New Credential"** → select **Gmail OAuth2**.\n2. Follow the Google OAuth consent screen flow to authorize n8n to access your Gmail.\n3. Set the **To** address, **Subject**, and **Body** fields as needed.`)
     }
     if (allServices.has('slack')) {
-      credentialSteps.push(`- **Slack**: Double-click the Slack node → Create a new Slack OAuth2 credential → Follow the authorization flow to connect your workspace. Set the **channel** to the one you want messages posted to.`)
+      credentialSteps.push(`### 💬 Slack\n1. In n8n, double-click the Slack node → click **"Create New Credential"** → select **Slack OAuth2 API**.\n2. Follow the authorization flow to connect your Slack workspace.\n3. Set the **Channel** to the target channel name (e.g., \`#general\`).`)
     }
     if (allServices.has('google_sheets')) {
-      credentialSteps.push(`- **Google Sheets**: Double-click the Google Sheets node → Connect your Google account via OAuth2 → Select the target spreadsheet and sheet.`)
+      credentialSteps.push(`### 📊 Google Sheets\n1. In n8n, double-click the Google Sheets node → click **"Create New Credential"** → select **Google Sheets OAuth2**.\n2. Authorize n8n to access your Google account.\n3. Select the target **Spreadsheet** and **Sheet** from the dropdowns.`)
     }
     if (allServices.has('notion')) {
-      credentialSteps.push(`- **Notion**: Double-click the Notion node → Create a Notion credential with your [internal integration token](https://www.notion.so/my-integrations).`)
+      credentialSteps.push(`### 📓 Notion\n1. Go to [Notion Integrations](https://www.notion.so/my-integrations) and create a new internal integration.\n2. Copy the **Internal Integration Token**.\n3. In n8n, double-click the Notion node → click **"Create New Credential"** → paste the token.\n4. **Important**: Share the target Notion page/database with your integration via the page's "Share" menu.`)
     }
     if (allServices.has('telegram')) {
-      credentialSteps.push(`- **Telegram**: Double-click the Telegram node → Enter your Bot Token (get one from [@BotFather](https://t.me/BotFather)) → Set the Chat ID.`)
+      credentialSteps.push(`### 📨 Telegram\n1. Open Telegram and message [@BotFather](https://t.me/BotFather) → send \`/newbot\` to create a bot.\n2. Copy the **Bot Token** BotFather gives you.\n3. In n8n, double-click the Telegram node → click **"Create New Credential"** → paste the Bot Token.\n4. Set the **Chat ID** (you can get it by messaging [@userinfobot](https://t.me/userinfobot)).`)
     }
     if (allServices.has('discord')) {
-      credentialSteps.push(`- **Discord**: Double-click the Discord node → Provide your Discord Bot Token or Webhook URL.`)
+      credentialSteps.push(`### 🎮 Discord\n1. Go to [Discord Developer Portal](https://discord.com/developers/applications) and create a new application.\n2. Under **Bot**, create a bot and copy the **Bot Token**.\n3. In n8n, double-click the Discord node → paste the Bot Token or use a Webhook URL.`)
+    }
+    if (allServices.has('airtable')) {
+      credentialSteps.push(`### 📋 Airtable\n1. Go to [Airtable Account](https://airtable.com/account) → generate a Personal Access Token.\n2. In n8n, double-click the Airtable node → paste the token.\n3. Select the target Base and Table.`)
     }
     
     if (credentialSteps.length > 0) {
-      guide += credentialSteps.join('\n') + '\n\n'
+      guide += credentialSteps.join('\n\n') + '\n\n'
     } else {
-      guide += `- Open any nodes marked with a ⚠️ warning icon and create or select your credentials.\n\n`
+      guide += `Open any nodes marked with a ⚠️ warning icon and create or select your credentials.\n\n`
     }
     
-    // Step 3: Customize Parameters
-    guide += `### Step 3: Review & Customize Parameters\n`
-    
-    if (plan.trigger) {
-      const triggerType = (plan.trigger.type || '').toLowerCase()
-      if (triggerType.includes('schedule') || triggerType.includes('cron')) {
-        guide += `- **Schedule**: The trigger is set to run on a schedule. Double-click it to adjust the time/frequency if needed.\n`
-      } else if (triggerType.includes('webhook')) {
-        guide += `- **Webhook URL**: After activating the workflow, n8n will generate a unique webhook URL. Copy it and configure it in your source application.\n`
+    // Step 4: Trigger-specific setup
+    guide += `## Step 4: Configure the Trigger\n\n`
+    const triggerType = (plan.trigger?.type || '').toLowerCase()
+    if (triggerType.includes('schedule') || triggerType.includes('cron')) {
+      guide += `Your workflow uses a **Schedule Trigger**. By default it may be set to run every hour.\n`
+      guide += `- Double-click the trigger node to customize the schedule (e.g., daily at 9 AM, every 30 minutes, etc.).\n`
+      guide += `- Use the **Cron Expression** field for advanced scheduling.\n\n`
+    } else if (triggerType.includes('webhook') || triggerType.includes('whatsapp') || triggerType.includes('twilio')) {
+      guide += `Your workflow uses a **Webhook Trigger**.\n`
+      guide += `1. After activating the workflow, n8n will generate a unique **Production Webhook URL** (e.g., \`https://your-n8n.com/webhook/abc123\`).\n`
+      guide += `2. Copy this URL and paste it into the external service that will send data to it.\n`
+      if (allServices.has('twilio')) {
+        guide += `3. **For Twilio/WhatsApp**: Go to your Twilio Console → Messaging → WhatsApp Sandbox → paste the webhook URL into the **"When a message comes in"** field.\n`
       }
+      guide += `\n`
+    } else if (triggerType.includes('form')) {
+      guide += `Your workflow uses a **Form Trigger**. n8n will generate a hosted web form for you.\n`
+      guide += `- After activating, click the trigger node to get the **Form URL** you can share with users.\n`
+      guide += `- Customize the form fields by editing the trigger node's parameters.\n\n`
+    } else if (triggerType.includes('chat')) {
+      guide += `Your workflow uses a **Chat Trigger** for AI chatbot functionality.\n`
+      guide += `- After activating, n8n provides a built-in chat widget URL you can embed on your website.\n\n`
+    } else if (triggerType.includes('manual')) {
+      guide += `Your workflow uses a **Manual Trigger**. Click **"Execute Workflow"** to run it on-demand.\n\n`
+    } else {
+      guide += `Double-click the first (trigger) node to review and configure how the workflow starts.\n\n`
     }
     
-    guide += `- **Data Mapping**: Review each node's parameters to ensure the expressions (e.g. \`{{ $json.field }}\`) correctly reference the data from previous nodes.\n`
-    guide += `- **Node Parameters**: Customize text templates, filters, and output formats to match your exact needs.\n\n`
+    // Step 5: Test
+    guide += `## Step 5: Test Your Workflow\n\n`
+    guide += `1. Click the **"Test Workflow"** button (or **"Execute Workflow"**) at the bottom of the canvas.\n`
+    guide += `2. Watch data flow through each node — click any node to inspect its input/output.\n`
+    guide += `3. If a node shows a ⚠️ or ❌ error:\n`
+    guide += `   - Double-click it to check the configuration.\n`
+    guide += `   - Verify credentials are connected and valid.\n`
+    guide += `   - Check that data expressions (e.g., \`{{ $json.body }}\`) match the actual incoming data structure.\n`
+    if (allServices.has('twilio')) {
+      guide += `4. **WhatsApp Testing**: Send a message from your WhatsApp to the Twilio sandbox number and check if the workflow triggers.\n`
+    }
+    guide += `\n`
     
-    // Step 4: Test
-    guide += `### Step 4: Test Your Workflow\n`
-    guide += `1. Click the **Test Workflow** button (or "Execute Workflow") at the bottom of the canvas.\n`
-    guide += `2. Check that data flows correctly through each node — you can click any node to inspect its output.\n`
-    guide += `3. If any node shows an error, double-click it to review the configuration.\n\n`
-    
-    // Step 5: Activate
-    guide += `### Step 5: Activate\n`
-    guide += `Once testing is successful, toggle the **Active** switch in the top-right corner from \`Inactive\` to \`Active\`. Your workflow will now run automatically!\n\n`
+    // Step 6: Activate
+    guide += `## Step 6: Activate for Production\n\n`
+    guide += `Once testing is successful:\n`
+    guide += `1. Toggle the **Active** switch in the top-right corner from \`Inactive\` to \`Active\`.\n`
+    guide += `2. Your workflow will now run automatically based on the trigger!\n`
+    guide += `3. Monitor executions in the **Executions** tab to ensure everything runs smoothly.\n\n`
     
     // Troubleshooting
     guide += `---\n\n`
-    guide += `### 💡 Troubleshooting Tips\n`
-    guide += `- **"Node type not recognized"**: Make sure your n8n instance is up-to-date. Some nodes (like AI/LangChain nodes) require n8n v1.19+.\n`
-    guide += `- **Credential errors**: Re-check your API keys. Most issues come from expired tokens or incorrect scopes.\n`
-    guide += `- **Empty output**: Verify that the data source (RSS feed, API, etc.) is reachable and returning data.\n\n`
-    guide += `Let me know if you need any adjustments or help setting up the credentials! 🛠️`
+    guide += `## 🛠️ Troubleshooting\n\n`
+    guide += `| Problem | Solution |\n`
+    guide += `|---------|----------|\n`
+    guide += `| **"Node type not recognized"** | Update n8n to the latest version. AI/LangChain nodes require n8n v1.19+. |\n`
+    guide += `| **Credential errors (401/403)** | Re-check your API keys. Tokens may have expired or have insufficient scopes. |\n`
+    guide += `| **Empty output** | Verify the data source is reachable and returning data. Test the URL/API in your browser first. |\n`
+    guide += `| **Webhook not triggering** | Make sure the workflow is set to **Active** (not just saved). Test with a tool like [webhook.site](https://webhook.site). |\n`
+    if (allServices.has('twilio')) {
+      guide += `| **WhatsApp messages not arriving** | Ensure you've joined the Twilio sandbox by sending the join code. Check the webhook URL is the **Production** URL (not Test). |\n`
+    }
+    guide += `\n`
+    guide += `---\n\n`
+    guide += `Need adjustments? Just ask and I'll modify the workflow for you! 🚀`
     
     return guide
   }

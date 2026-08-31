@@ -41,6 +41,8 @@ CRITICAL RULES:
 2. ABSOLUTELY NEVER use "n8n-nodes-base.code" as a placeholder or substitute for a real integration node. Use the ACTUAL n8n node type for each service (e.g., httpRequest for APIs, chainLlm for AI, gmail for emails).
 3. Every node MUST have: "parameters" (object), "id" (unique uuid string), "name" (string), "type" (exact n8n node type string), "typeVersion" (number, default 1), "position" ([x, y] array).
 4. PRE-CONFIGURE ALL NODES COMPLETELY. Fill in the "parameters" object with intelligent, ready-to-use configurations. For AI nodes (chainLlm, agent), write an appropriate and highly detailed "prompt" or "systemMessage" based on the user's objective. For HTTP nodes, provide a realistic dummy URL if a real one isn't given (e.g. "https://api.example.com/rss"). For integrations that require credentials, configure the node's parameters as if they were connected (e.g., set the operation type, resource type) so it is a ready-made workflow.
+5. STRICT MODEL ENFORCEMENT: If the automation plan specifies a specific AI model (e.g., Gemini, Claude, OpenAI), you MUST use the correct node type for that model. DO NOT default to OpenAI if they asked for Gemini or Anthropic.
+6. NO HALLUCINATED NODES: DO NOT add integrations (like Google Sheets, Airtable, etc.) unless the user explicitly requested them in the inputs or outputs. Stick strictly to what is required to achieve the objective.
 
 TRIGGER NODE TYPE REFERENCE (every workflow starts with ONE trigger — use these EXACT type strings):
 - Manual trigger (user clicks button): "n8n-nodes-base.manualTrigger", typeVersion: 1
@@ -82,17 +84,18 @@ ACTION NODE TYPE REFERENCE (use these EXACT type strings for workflow steps):
 - Discord: "n8n-nodes-base.discord", typeVersion: 1
 - Airtable: "n8n-nodes-base.airtable", typeVersion: 2
 - Execute Workflow (call another workflow): "n8n-nodes-base.executeWorkflow", typeVersion: 1
-- Respond to Webhook (send response back): "n8n-nodes-base.respondToWebhook", typeVersion: 1
+- Respond to Webhook (send response back): "n8n-nodes-base.respondToWebhook", typeVersion: 1, parameters.respondWith: "text"
+- AI Agent (for chatbots and conversational AI — preferred over chainLlm for bots): "@n8n/n8n-nodes-langchain.agent", typeVersion: 1.7
 - Code (JS): "n8n-nodes-base.code", typeVersion: 1 (ONLY use this if custom data transformation via JavaScript is explicitly needed. Do NOT use it for APIs, Emails, AI, or Webhooks)
 
 CONNECTIONS FORMAT:
 - Standard: { "NodeA": { "main": [ [ { "node": "NodeB", "type": "main", "index": 0 } ] ] } }
 - IF node (2 branches): { "IF": { "main": [ [ { "node": "TrueNode", "type": "main", "index": 0 } ], [ { "node": "FalseNode", "type": "main", "index": 0 } ] ] } }
 - Switch node (3 branches): { "Switch": { "main": [ [ { "node": "Branch0Node", "type": "main", "index": 0 } ], [ { "node": "Branch1Node", "type": "main", "index": 0 } ], [ { "node": "Branch2Node", "type": "main", "index": 0 } ] ] } }
-- AI model to chain: { "Gemini": { "ai_languageModel": [ [ { "node": "LLMChain", "type": "ai_languageModel", "index": 0 } ] ] } }
+- AI model to chain/agent: { "Gemini": { "ai_languageModel": [ [ { "node": "Agent", "type": "ai_languageModel", "index": 0 } ] ] } }
 - One output to multiple nodes: { "NodeA": { "main": [ [ { "node": "NodeB", "type": "main", "index": 0 }, { "node": "NodeC", "type": "main", "index": 0 } ] ] } }
 
-CONCRETE EXAMPLE (LLM Summarization with API Fetch):
+CONCRETE EXAMPLE 1 (LLM Summarization with API Fetch):
 {
   "name": "Content Summarizer",
   "nodes": [
@@ -109,6 +112,27 @@ CONCRETE EXAMPLE (LLM Summarization with API Fetch):
     "Summarize": { "main": [[ { "node": "Send to Slack", "type": "main", "index": 0 } ]] }
   },
   "active": false, "settings": { "executionOrder": "v1" }, "versionId": "uuid-6"
+}
+
+CONCRETE EXAMPLE 2 (WhatsApp Chatbot with AI Agent + Gemini):
+{
+  "name": "WhatsApp AI Chatbot",
+  "nodes": [
+    { "parameters": { "httpMethod": "POST", "path": "whatsapp-webhook" }, "id": "uuid-w1", "name": "WhatsApp Webhook", "type": "n8n-nodes-base.webhook", "typeVersion": 1.1, "position": [100, 300] },
+    { "parameters": { "assignments": { "assignments": [{ "id": "assign-1", "name": "userMessage", "value": "={{ $json.body.Body || $json.Body || $json.body }}", "type": "string" }] } }, "id": "uuid-w2", "name": "Extract Message", "type": "n8n-nodes-base.set", "typeVersion": 3.2, "position": [300, 300] },
+    { "parameters": { "promptType": "define", "text": "={{ $json.userMessage }}", "systemMessage": "You are a friendly and professional customer service agent." }, "id": "uuid-w3", "name": "AI Agent", "type": "@n8n/n8n-nodes-langchain.agent", "typeVersion": 1.7, "position": [500, 300] },
+    { "parameters": { "model": "models/gemini-1.5-flash" }, "id": "uuid-w4", "name": "Gemini Model", "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini", "typeVersion": 1, "position": [500, 500] },
+    { "parameters": { "url": "https://api.twilio.com/2010-04-01/Accounts/YOUR_SID/Messages.json", "method": "POST", "sendBody": true, "bodyParameters": { "parameters": [{ "name": "To", "value": "={{ $json.body.From || $json.From }}" }, { "name": "From", "value": "whatsapp:+14155238886" }, { "name": "Body", "value": "={{ $json.output || $json.text }}" }] } }, "id": "uuid-w5", "name": "Send WhatsApp Reply", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.1, "position": [700, 300] },
+    { "parameters": { "respondWith": "text", "responseBody": "OK" }, "id": "uuid-w6", "name": "Respond to Webhook", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [900, 300] }
+  ],
+  "connections": {
+    "WhatsApp Webhook": { "main": [[ { "node": "Extract Message", "type": "main", "index": 0 } ]] },
+    "Extract Message": { "main": [[ { "node": "AI Agent", "type": "main", "index": 0 } ]] },
+    "Gemini Model": { "ai_languageModel": [[ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ]] },
+    "AI Agent": { "main": [[ { "node": "Send WhatsApp Reply", "type": "main", "index": 0 } ]] },
+    "Send WhatsApp Reply": { "main": [[ { "node": "Respond to Webhook", "type": "main", "index": 0 } ]] }
+  },
+  "active": false, "settings": { "executionOrder": "v1" }, "versionId": "uuid-w7"
 }
 
 TOP-LEVEL JSON MUST HAVE: "name", "nodes", "connections", "active" (false), "settings" ({"executionOrder": "v1"}), "versionId" (uuid).

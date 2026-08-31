@@ -577,29 +577,22 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
   }
   
   /**
-   * Fallback decision when AI fails — NO template questions.
-   * Simply tells the user we had trouble and to try again.
+   * Fallback decision when AI fails (e.g. timeout or unparseable JSON).
    */
   private getFallbackDecision(
     userMessage: string,
     currentPlan: AutomationPlan | null
   ): OrchestrationResult {
-    console.log('[AI Orchestrator] AI failed — using minimal fallback (no templates)')
+    console.log('[AI Orchestrator] AI failed — using fallback error response')
     
     return {
       action: {
-        type: 'clarify',
-        question: 'Do you still want me to proceed?',
-        field: 'proceed_confirmation',
-        enrichedOptions: [
-          { label: 'Yes, proceed', value: 'yes', recommended: true },
-          { label: 'No, let me make changes', value: 'no' }
-        ]
+        type: 'respond',
+        message: 'I apologize, but I encountered an error processing that request (my AI engine either timed out or failed to parse the context). Could you please try rephrasing or clicking one of the options again?'
       },
       updatedPlan: currentPlan || undefined,
       intent: 'clarification',
-      confidence: 0.1,
-      reasoning: 'AI decision failed, returning a silent proceed confirmation instead of an error message'
+      confidence: 0.1
     }
   }
   

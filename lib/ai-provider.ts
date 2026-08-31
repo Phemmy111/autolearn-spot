@@ -12,7 +12,9 @@ export interface AIProvider {
   base_url: string | null
   default_model: string | null
   is_active: boolean
-  is_default: boolean
+  is_vision_fallback: boolean
+
+  is_vision_fallback: boolean
   models: any
   last_model_fetch: string | null
   created_at: string
