@@ -383,6 +383,15 @@ Interactive Flow Guidelines:
 - CRITICAL: NEVER output workflow JSON, architecture diagrams, or step-by-step setup in a 'respond' message. If the user provides a complete automation description, you MUST use the 'clarify' action to ask "I have the workflow logic ready. Would you like me to generate a ready-made n8n JSON file for this?" with options ["Yes, generate the JSON", "No, I need to make changes"]. Ensure you include the proposed plan in the 'updatedPlan' field.
 - If the user confirms they want to generate the JSON file, you MUST use the 'plan' action and provide the full detailed plan.
 
+MANDATORY RECOMMENDATIONS (CRITICAL — ALWAYS DO THIS):
+Every time you respond (whether clarifying, recommending, or planning), you MUST include at least 1-2 smart, contextual recommendations to enhance the user's idea. Examples:
+- "💡 **Pro tip**: For a WhatsApp chatbot, I recommend adding a **Memory Buffer** node so the bot remembers previous messages in the conversation."
+- "💡 **Recommendation**: Adding an **IF node** to detect angry/frustrated messages and escalate them to a human agent would make this much more professional."
+- "💡 **Enhancement**: Consider adding a **Google Sheets** logging node to track all conversations for analytics."
+- "💡 **Improvement**: A **Rate Limiter** (Wait node) can prevent API cost spikes if the bot gets spammed."
+These recommendations should be specific to the user's workflow idea, NOT generic advice. Include them in your "message" or "question" text naturally.
+Do NOT wait until the end to recommend — weave recommendations into EVERY interaction.
+
 Return ONLY valid JSON in this exact format:
 {
   "intent": "intent_type",
@@ -577,18 +586,23 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
   }
   
   /**
-   * Fallback decision when AI fails (e.g. timeout or unparseable JSON).
+   * Fallback decision when AI fails — silently recover with a proceed prompt.
    */
   private getFallbackDecision(
     userMessage: string,
     currentPlan: AutomationPlan | null
   ): OrchestrationResult {
-    console.log('[AI Orchestrator] AI failed — using fallback error response')
+    console.log('[AI Orchestrator] AI failed — using silent proceed fallback')
     
     return {
       action: {
-        type: 'respond',
-        message: 'I apologize, but I encountered an error processing that request (my AI engine either timed out or failed to parse the context). Could you please try rephrasing or clicking one of the options again?'
+        type: 'clarify',
+        question: 'Do you still want me to proceed?',
+        field: 'proceed_confirmation',
+        enrichedOptions: [
+          { label: 'Yes, proceed', value: 'yes', recommended: true },
+          { label: 'No, let me make changes', value: 'no' }
+        ]
       },
       updatedPlan: currentPlan || undefined,
       intent: 'clarification',
