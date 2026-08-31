@@ -155,8 +155,26 @@ Positions: Spread nodes across the canvas. Use branching Y positions for paralle
 
 OUTPUT: Return ONLY the JSON object, nothing else.`
 
+      // Dynamically load a relevant template based on the plan keywords
+      let dynamicTemplate = ''
+      try {
+        const { WorkflowTemplates } = await import('./workflow-templates')
+        const planText = planSummary.toLowerCase()
+        const matchedTemplate = WorkflowTemplates.find(t => 
+          t.keywords.some(k => planText.includes(k))
+        )
+        if (matchedTemplate) {
+          dynamicTemplate = `\n${matchedTemplate.title}\n${matchedTemplate.json}\n`
+          console.log(`[WorkflowJSONGenerator] Using dynamic template: ${matchedTemplate.id}`)
+        }
+      } catch (err) {
+        console.warn('[WorkflowJSONGenerator] Could not load templates:', err)
+      }
+
+      const finalPrompt = prompt + dynamicTemplate
+
       console.log(`[WorkflowJSONGenerator] Requesting JSON generation from AI (Attempt ${attempt})...`)
-      const response = await aiService.generateResponse(prompt, options)
+      const response = await aiService.generateResponse(finalPrompt, options)
       let jsonStr = response.trim()
       
       // If it has markdown code blocks, extract just the content inside them
