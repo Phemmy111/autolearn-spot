@@ -542,9 +542,13 @@ export class WorkflowOrchestrator {
         })
       }
 
+      // Generate follow-up suggestions based on the workflow type
+      const followUpSuggestions = this.generateFollowUpSuggestions(plan)
+      const fullMessage = setupMessage + '\n\n' + followUpSuggestions
+
       return {
         status: 'completed',
-        message: setupMessage,
+        message: fullMessage,
         artifacts: artifactsList,
         specification: spec,
         plan
@@ -1058,5 +1062,66 @@ export class WorkflowOrchestrator {
     
     // Directly generate artifact from the plan
     return await this.generateArtifactFromPlan(plan, request)
+  }
+
+  /**
+   * Generate context-aware follow-up suggestions based on the workflow type.
+   * Suggests complementary workflows or enhancements the user might want next.
+   */
+  private generateFollowUpSuggestions(plan: AutomationPlan): string {
+    const objective = (plan.objective || '').toLowerCase()
+    const trigger = (plan.trigger?.type || '').toLowerCase()
+    const workflow = plan.workflow || []
+    const workflowStr = JSON.stringify(workflow).toLowerCase()
+    
+    const suggestions: string[] = []
+
+    // ── Chatbot / WhatsApp / Telegram / Customer Service ──
+    if (objective.includes('chatbot') || objective.includes('chat bot') || objective.includes('customer service') || objective.includes('whatsapp') || objective.includes('telegram')) {
+      suggestions.push('📊 **Conversation Analytics Dashboard** — Build a workflow that logs every conversation to Google Sheets or Airtable, then generates a daily summary report (busiest hours, common questions, sentiment analysis).')
+      suggestions.push('🚨 **Human Escalation Workflow** — Create a separate workflow that gets triggered when the AI bot detects an angry customer or a question it cannot answer, automatically notifying a human agent via Slack or Email.')
+      suggestions.push('📝 **FAQ Auto-Updater** — Build a workflow that analyzes repeated unanswered questions and automatically suggests new FAQ entries to add to the bot\'s knowledge base.')
+    }
+
+    // ── Content / Summarization / RSS ──
+    if (objective.includes('summar') || objective.includes('content') || objective.includes('rss') || objective.includes('news') || objective.includes('digest')) {
+      suggestions.push('📅 **Weekly Digest Compiler** — Instead of individual summaries, build a workflow that collects all summaries from the week and sends a single polished digest every Monday morning.')
+      suggestions.push('🔍 **Trending Topics Alert** — Add a workflow that detects when a topic appears across multiple sources and sends a "trending" alert to your team immediately.')
+    }
+
+    // ── Email / Lead / CRM ──
+    if (objective.includes('email') || objective.includes('lead') || objective.includes('crm') || objective.includes('sales')) {
+      suggestions.push('🏷️ **Lead Scoring Workflow** — Build a workflow that scores incoming leads (based on company size, job title, urgency keywords) and routes hot leads directly to your sales team on Slack.')
+      suggestions.push('📧 **Follow-up Email Sequence** — Create an automated follow-up workflow that sends a thank-you email after 1 hour and a check-in email after 3 days if no response.')
+    }
+
+    // ── Webhook-triggered ──
+    if (trigger.includes('webhook') || trigger.includes('form')) {
+      suggestions.push('🛡️ **Input Validation Workflow** — Add a pre-processing workflow that validates and sanitizes incoming webhook data before it reaches your main workflow, rejecting spam or malformed requests.')
+    }
+
+    // ── Schedule-triggered ──
+    if (trigger.includes('schedule') || trigger.includes('cron')) {
+      suggestions.push('📊 **Execution Report** — Build a monitoring workflow that tracks every run of this scheduled workflow and sends you a weekly success/failure report.')
+    }
+
+    // ── Generic (always useful) ──
+    if (suggestions.length < 2) {
+      suggestions.push('🔔 **Error Alert Workflow** — Build a companion workflow using the Error Trigger that notifies you on Slack or Email whenever this workflow fails, so you can fix issues quickly.')
+      suggestions.push('📈 **Usage Tracker** — Add a simple logging workflow that records every execution to Google Sheets, helping you track usage patterns over time.')
+    }
+
+    // Take at most 3 suggestions
+    const selectedSuggestions = suggestions.slice(0, 3)
+
+    let output = '---\n\n'
+    output += '## 🚀 What\'s Next? Recommended Follow-Up Workflows\n\n'
+    output += 'To make your automation even more powerful, consider adding:\n\n'
+    for (const suggestion of selectedSuggestions) {
+      output += `${suggestion}\n\n`
+    }
+    output += '> 💬 Just ask me to build any of these and I\'ll design it for you!\n'
+
+    return output
   }
 }

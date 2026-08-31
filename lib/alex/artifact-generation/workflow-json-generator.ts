@@ -40,9 +40,16 @@ CRITICAL RULES:
 1. Output ONLY the raw JSON object. No markdown, no code fences, no explanation text.
 2. ABSOLUTELY NEVER use "n8n-nodes-base.code" as a placeholder or substitute for a real integration node. Use the ACTUAL n8n node type for each service (e.g., httpRequest for APIs, chainLlm for AI, gmail for emails).
 3. Every node MUST have: "parameters" (object), "id" (unique uuid string), "name" (string), "type" (exact n8n node type string), "typeVersion" (number, default 1), "position" ([x, y] array).
-4. PRE-CONFIGURE ALL NODES COMPLETELY. Fill in the "parameters" object with intelligent, ready-to-use configurations. For AI nodes (chainLlm, agent), write an appropriate and highly detailed "prompt" or "systemMessage" based on the user's objective. For HTTP nodes, provide a realistic dummy URL if a real one isn't given (e.g. "https://api.example.com/rss"). For integrations that require credentials, configure the node's parameters as if they were connected (e.g., set the operation type, resource type) so it is a ready-made workflow.
+4. PRE-CONFIGURE ALL NODES COMPLETELY. Fill in the "parameters" object with intelligent, ready-to-use configurations. For HTTP nodes, provide a realistic dummy URL if a real one isn't given (e.g. "https://api.example.com/rss"). For integrations that require credentials, configure the node's parameters as if they were connected (e.g., set the operation type, resource type) so it is a ready-made workflow.
 5. STRICT MODEL ENFORCEMENT: If the automation plan specifies a specific AI model (e.g., Gemini, Claude, OpenAI), you MUST use the correct node type for that model. DO NOT default to OpenAI if they asked for Gemini or Anthropic.
 6. NO HALLUCINATED NODES: DO NOT add integrations (like Google Sheets, Airtable, etc.) unless the user explicitly requested them in the inputs or outputs. Stick strictly to what is required to achieve the objective.
+7. SMART AI SYSTEM PROMPTS: For AI Agent or LLM Chain nodes, the "systemMessage" or "prompt" MUST be deeply tailored, professional, and detailed — NOT generic. Tailor it to the exact use case:
+   - Customer service bot: Include tone guidelines (friendly, professional), escalation rules ("If a user says they want to speak to a human, say: I'll connect you to a live agent right away."), FAQ handling, greeting and closing protocols.
+   - Content summarizer: Specify output format (bullet points vs paragraph), length constraints, what to prioritize (key facts, action items), language/tone.
+   - Lead qualifier: Define qualification criteria, scoring rubric, what data to extract (name, email, budget, timeline).
+   - General chatbot: Include persona description, knowledge boundaries ("If you don't know, say: I'm not sure about that, let me check."), response length guidelines.
+   Example systemMessage for a customer service bot: "You are Alex, a friendly and professional customer service agent for [Company]. Your role: 1) Greet the customer warmly. 2) Understand their issue by asking clarifying questions. 3) Provide helpful, accurate answers based on the company's policies. 4) If you cannot resolve the issue, say: 'Let me connect you with a specialist who can help.' 5) Always be empathetic and patient. 6) Keep responses concise (2-3 sentences max). 7) End every conversation with: 'Is there anything else I can help with?'"
+8. CONNECTION COMPLETENESS: EVERY node must be connected. No orphan or floating nodes. Every non-trigger node must be a target of at least one connection. Every non-terminal node must be a source of at least one connection.
 
 TRIGGER NODE TYPE REFERENCE (every workflow starts with ONE trigger — use these EXACT type strings):
 - Manual trigger (user clicks button): "n8n-nodes-base.manualTrigger", typeVersion: 1
@@ -239,6 +246,21 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
     }
 
     console.log('[WorkflowJSONGenerator] AI generated workflow with', workflow.nodes.length, 'nodes')
+
+    // ── Connection Validation: detect and auto-fix orphan/dangling nodes ──
+    try {
+      const { ConnectionValidator } = await import('./connection-validator')
+      const { fixed, issues } = ConnectionValidator.validateAndFix(workflow)
+      if (issues.length > 0) {
+        console.log('[WorkflowJSONGenerator] Connection validation:', issues.join(' | '))
+      }
+      if (fixed) {
+        console.log('[WorkflowJSONGenerator] Auto-fixed connection issues.')
+      }
+    } catch (validationError) {
+      console.warn('[WorkflowJSONGenerator] Connection validation skipped:', validationError)
+    }
+
     return JSON.stringify(workflow, null, 2)
   }
 
