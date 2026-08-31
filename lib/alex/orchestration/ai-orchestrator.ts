@@ -500,8 +500,23 @@ Make sure your proposed workflow steps in the plan are comprehensive and handle 
     const type = action.type
     
     switch (type) {
-      case 'respond':
-        return { type: 'respond', message: action.message || '' }
+      case 'respond': {
+        const msg = action.message || ''
+        // Intercept AI hallucinating workflow JSON directly into the chat
+        if (msg.includes('"nodes"') && msg.includes('"connections"')) {
+          console.warn('[AI Orchestrator] Intercepted hallucinated JSON dump in chat. Redirecting to plan generation.')
+          return {
+            type: 'clarify',
+            question: 'I have designed the workflow logic. Would you like me to generate a downloadable, ready-to-import n8n JSON file for this?',
+            field: 'proceed_confirmation',
+            enrichedOptions: [
+              { label: 'Yes, generate the JSON file', value: 'yes', recommended: true },
+              { label: 'No, let me make changes', value: 'no' }
+            ]
+          }
+        }
+        return { type: 'respond', message: msg }
+      }
       
       case 'clarify':
         // Convert AI's plain options array to enrichedOptions if present
