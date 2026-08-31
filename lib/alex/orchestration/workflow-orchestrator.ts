@@ -583,6 +583,28 @@ export class WorkflowOrchestrator {
     guide += `**Trigger:** ${plan.trigger?.description || plan.trigger?.type || 'Not specified'}  \n`
     if (plan.inputs?.sources?.length) guide += `**Data Sources:** ${plan.inputs.sources.join(', ')}  \n`
     if (plan.outputs?.destinations?.length) guide += `**Outputs:** ${plan.outputs.destinations.join(', ')}  \n`
+    
+    // Calculate Complexity Score
+    const nodeCount = plan.workflow ? plan.workflow.length : 0
+    let complexity = 'Moderate'
+    if (nodeCount <= 3) complexity = 'Simple (Beginner friendly)'
+    else if (nodeCount >= 7) complexity = 'Advanced (Requires careful testing)'
+    guide += `**Complexity:** ${complexity} (${nodeCount > 0 ? nodeCount : 'auto-generated'} nodes)  \n`
+    
+    // Calculate Cost Estimate (rough approximation based on AI models)
+    const planText = JSON.stringify(plan).toLowerCase()
+    if (planText.includes('gemini') || planText.includes('lmchatgooglegemini')) {
+      guide += `**Est. Cost:** Very Low (~$0.00 - $0.50/mo depending on volume via Google Gemini Flash)  \n`
+    } else if (planText.includes('openai') || planText.includes('lmchatopenai') || planText.includes('gpt-4')) {
+      guide += `**Est. Cost:** Moderate (~$2.00 - $10.00/mo depending on volume via OpenAI API)  \n`
+    } else if (planText.includes('claude') || planText.includes('anthropic')) {
+      guide += `**Est. Cost:** Moderate (~$3.00 - $15.00/mo depending on volume via Anthropic API)  \n`
+    } else if (planText.includes('chat bot') || planText.includes('chatbot') || planText.includes('chainllm') || planText.includes('agent')) {
+      guide += `**Est. Cost:** Variable (depends on the AI provider you select in the workflow)  \n`
+    } else {
+      guide += `**Est. Cost:** Free (no paid AI APIs required, standard n8n integrations)  \n`
+    }
+
     guide += `\n---\n\n`
     
     // Step 1: Download & Import

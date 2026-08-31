@@ -24,12 +24,18 @@ export class WorkflowJSONGenerator {
     const planSummary = this.buildPlanSummary(plan)
 
     let attempt = 0
-    const maxAttempts = 2
+    const maxAttempts = 3
     let workflow;
+    let lastFailureReason = ''
 
     while (attempt < maxAttempts) {
       attempt++
-      const retryPrompt = attempt > 1 ? `\nCRITICAL FIX REQUIRED: Your previous response used too many "n8n-nodes-base.code" nodes. You MUST use proper n8n integration nodes (e.g. n8n-nodes-base.httpRequest, @n8n/n8n-nodes-langchain.chainLlm, n8n-nodes-base.gmail) instead of generic Code nodes for integrations and AI logic.\n` : ''
+      let retryPrompt = ''
+      if (attempt > 1 && lastFailureReason) {
+        retryPrompt = `\nCRITICAL FIX REQUIRED (Attempt ${attempt}/${maxAttempts}): Your previous response FAILED because: ${lastFailureReason}. Fix this issue and try again. Do NOT repeat the same mistake.\n`
+      } else if (attempt > 1) {
+        retryPrompt = `\nCRITICAL FIX REQUIRED: Your previous response had issues. Please generate a clean, valid n8n workflow JSON.\n`
+      }
       
       const prompt = `You are an elite n8n workflow architect. Generate a COMPLETE, VALID, IMPORTABLE n8n workflow JSON based on the following automation plan.
 ${retryPrompt}
@@ -170,6 +176,7 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
         workflow = JSON.parse(jsonStr)
       } catch (parseError) {
         console.error('[WorkflowJSONGenerator] JSON parse failed on:', jsonStr.substring(0, 200) + '...')
+        lastFailureReason = 'JSON parse error. Your output was not valid JSON. Ensure you do not include trailing commas or markdown text.'
         if (attempt >= maxAttempts) {
           throw new Error('AI did not return valid JSON for workflow: ' + parseError)
         }
@@ -178,10 +185,12 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
 
       // Ensure required top-level keys exist
       if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
+        lastFailureReason = 'The workflow JSON is missing the required "nodes" array.'
         if (attempt >= maxAttempts) throw new Error('AI workflow missing "nodes" array')
         continue;
       }
       if (!workflow.connections || typeof workflow.connections !== 'object') {
+        lastFailureReason = 'The workflow JSON is missing the required "connections" object.'
         if (attempt >= maxAttempts) throw new Error('AI workflow missing "connections" object')
         continue;
       }
@@ -191,6 +200,7 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
       const codeNodes = nonTriggerNodes.filter((n: any) => n.type === 'n8n-nodes-base.code')
       
       if (nonTriggerNodes.length > 0 && codeNodes.length / nonTriggerNodes.length > 0.5 && attempt < maxAttempts) {
+        lastFailureReason = `You used too many "n8n-nodes-base.code" nodes (${codeNodes.length}/${nonTriggerNodes.length}). You MUST use proper n8n integration nodes (e.g., n8n-nodes-base.httpRequest, @n8n/n8n-nodes-langchain.chainLlm) instead of generic Code nodes for integrations and AI.`
         console.warn(`[WorkflowJSONGenerator] AI returned too many Code nodes (${codeNodes.length}/${nonTriggerNodes.length}). Retrying...`)
         continue;
       }
