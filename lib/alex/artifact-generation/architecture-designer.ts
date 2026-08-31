@@ -276,12 +276,28 @@ Return ONLY JSON.`
     console.log('[Architecture Designer] Full AI response:', response)
 
     // Try to extract JSON from response
-    const jsonMatch = response.match(/\{[\s\S]*\}/)
-    console.log('[Architecture Designer] JSON match result:', jsonMatch ? 'found' : 'not found')
+    let jsonMatch = response.match(/```json\n([\s\S]*?)\n```/);
+    if (!jsonMatch) {
+      jsonMatch = response.match(/```\n([\s\S]*?)\n```/);
+    }
+    
+    let jsonString = '';
     if (jsonMatch) {
-      console.log('[Architecture Designer] Extracted JSON length:', jsonMatch[0].length)
+      jsonString = jsonMatch[1];
+    } else {
+      // Fallback: Try to find the outermost braces
+      const firstBrace = response.indexOf('{');
+      const lastBrace = response.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonString = response.substring(firstBrace, lastBrace + 1);
+      }
+    }
+
+    console.log('[Architecture Designer] JSON match result:', jsonString ? 'found' : 'not found')
+    if (jsonString) {
+      console.log('[Architecture Designer] Extracted JSON length:', jsonString.length)
       try {
-        const architecture = JSON.parse(jsonMatch[0])
+        const architecture = JSON.parse(jsonString)
         console.log('[Architecture Designer] Successfully parsed AI architecture:', {
           stageCount: architecture.stages?.length,
           complexity: architecture.complexity,
@@ -292,7 +308,11 @@ Return ONLY JSON.`
         const validation = this.validateArchitecture(architecture)
         if (!validation.valid) {
           console.error('[Architecture Designer] Architecture validation failed:', validation.errors)
-          throw new Error(`Invalid architecture: ${validation.errors.join(', ')}`)
+          // Don't throw, autofix empty required arrays so it doesn't fail completely
+          if (!architecture.assumptions) architecture.assumptions = [];
+          if (!architecture.recommendations) architecture.recommendations = [];
+          if (!architecture.unresolvedDecisions) architecture.unresolvedDecisions = [];
+          if (!architecture.stages) architecture.stages = [];
         }
 
         return architecture

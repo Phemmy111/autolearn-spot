@@ -684,11 +684,11 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
           console.log('[WorkflowJSONGenerator] ✅ AI generation succeeded!')
           return { content, filename, fileType: 'application/json' }
         } catch (error) {
-          console.error('[WorkflowJSONGenerator] ❌ AI generation FAILED, falling back to template generator.')
+          console.error('[WorkflowJSONGenerator] ❌ AI generation FAILED. Fallback template is disabled by user request.')
           console.error('[WorkflowJSONGenerator] Error details:', error instanceof Error ? error.message : String(error))
           console.error('[WorkflowJSONGenerator] Stack:', error instanceof Error ? error.stack : 'N/A')
-          const content = this.generateN8NWorkflowFallback(plan)
-          return { content, filename, fileType: 'application/json' }
+          
+          throw new Error('AI workflow generation failed. Please click "Modify" and try again to ensure a high-quality, AI-powered workflow is generated.')
         }
       }
 

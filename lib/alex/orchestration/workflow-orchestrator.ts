@@ -484,18 +484,42 @@ export class WorkflowOrchestrator {
       const spec = this.planToSpec(plan)
       await ArtifactService.updateSpecification(existingBuild.id, spec, [])
       
-      // Attach download URL
+      const setupMessage = this.generateSetupGuide(plan, platform)
+
+      // Create secondary artifact for the setup guide
+      let guideArtifact: any
+      try {
+        guideArtifact = await ArtifactService.saveArtifact(
+          existingBuild.id,
+          request.userId,
+          `setup-guide.md`,
+          'text/markdown',
+          'text/markdown',
+          setupMessage,
+          false // isPrimary
+        )
+      } catch (saveError) {
+        console.error('[Workflow Orchestrator] Failed to save setup guide artifact', saveError)
+      }
+
+      // Attach download URL for JSON artifact
       const artifactWithUrl = {
         ...artifact,
         download_url: `/api/alex/artifacts/${artifact.id}/download`
       }
       
-      const setupMessage = this.generateSetupGuide(plan, platform)
+      const artifactsList = [artifactWithUrl]
+      if (guideArtifact) {
+        artifactsList.push({
+          ...guideArtifact,
+          download_url: `/api/alex/artifacts/${guideArtifact.id}/download`
+        })
+      }
 
       return {
         status: 'completed',
         message: setupMessage,
-        artifacts: [artifactWithUrl],
+        artifacts: artifactsList,
         specification: spec,
         plan
       }
