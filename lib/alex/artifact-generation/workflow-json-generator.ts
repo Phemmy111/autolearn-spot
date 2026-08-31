@@ -174,7 +174,16 @@ OUTPUT: Return ONLY the JSON object, nothing else.`
       const finalPrompt = prompt + dynamicTemplate
 
       console.log(`[WorkflowJSONGenerator] Requesting JSON generation from AI (Attempt ${attempt})...`)
-      const response = await aiService.generateResponse(finalPrompt, options)
+      let response = ''
+      try {
+        response = await aiService.generateResponse(finalPrompt, options)
+      } catch (apiError: any) {
+        console.warn(`[WorkflowJSONGenerator] AI API call failed on attempt ${attempt}: ${apiError.message}`)
+        lastFailureReason = `The previous API request failed with error: ${apiError.message}. Ensure your output is purely JSON.`
+        if (attempt >= maxAttempts) throw apiError
+        continue
+      }
+      
       let jsonStr = response.trim()
       
       // If it has markdown code blocks, extract just the content inside them
