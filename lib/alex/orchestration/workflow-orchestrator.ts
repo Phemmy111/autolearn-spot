@@ -634,6 +634,45 @@ export class WorkflowOrchestrator {
     } else {
       guide += `_Workflow steps were generated dynamically by the AI. Open the JSON to see all nodes._\n\n`
     }
+
+    // Live Preview / Data Flow Simulation
+    guide += `### 🔄 Data Flow Simulation (Live Preview)\n\n`
+    guide += `_Here is an animated text preview of how data moves through this workflow when it runs:_  \n\n`
+    
+    // Simulate a payload based on the trigger
+    const triggerLower = (plan.trigger?.type || '').toLowerCase()
+    let dummyPayload = ''
+    if (triggerLower.includes('webhook') || triggerLower.includes('whatsapp') || triggerLower.includes('twilio')) {
+      dummyPayload = `{"body": {"From": "whatsapp:+1234567890", "Body": "Hello, I need help with my account."}}`
+    } else if (triggerLower.includes('form')) {
+      dummyPayload = `{"name": "John Doe", "email": "john@example.com", "budget": "High"}`
+    } else if (triggerLower.includes('schedule') || triggerLower.includes('cron')) {
+      dummyPayload = `{"timestamp": "${new Date().toISOString()}"}`
+    } else {
+      dummyPayload = `{"event": "triggered"}`
+    }
+
+    guide += `1. 🟢 **Trigger Event**: Workflow starts. Payload received: \`${dummyPayload}\`\n`
+    if (plan.workflow && plan.workflow.length > 0) {
+      plan.workflow.forEach((step: any, index: number) => {
+        const actionText = step.step.toLowerCase()
+        if (actionText.includes('if') || actionText.includes('switch')) {
+          guide += `${index + 2}. 🔀 **Condition Check**: Evaluates \`${step.step}\`. Routes data to the appropriate branch.\n`
+        } else if (actionText.includes('ai') || actionText.includes('summarize') || actionText.includes('agent')) {
+          guide += `${index + 2}. 🧠 **AI Processing**: Sends data to the AI model. AI generates response based on system prompt.\n`
+        } else if (actionText.includes('slack') || actionText.includes('email') || actionText.includes('gmail') || actionText.includes('message')) {
+          guide += `${index + 2}. 📤 **Outgoing Message**: Formats data and sends via ${step.step}.\n`
+        } else if (actionText.includes('sheet') || actionText.includes('airtable') || actionText.includes('database')) {
+          guide += `${index + 2}. 💾 **Data Storage**: Appends a new row/record to the database.\n`
+        } else {
+          guide += `${index + 2}. ⚙️ **Processing**: ${step.step} executes.\n`
+        }
+      })
+      guide += `${plan.workflow.length + 2}. 🏁 **Workflow Complete**.\n\n`
+    } else {
+      guide += `2. ⚙️ **Processing**: Data flows through the generated nodes.\n`
+      guide += `3. 🏁 **Workflow Complete**.\n\n`
+    }
     
     // Step 3: Configure Credentials (dynamic based on plan)
     guide += `## Step 3: Configure Credentials & API Keys\n\n`
