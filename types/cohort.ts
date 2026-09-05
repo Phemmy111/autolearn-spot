@@ -39,6 +39,7 @@ export interface Cohort {
   is_current: boolean
   timezone: string
   settings: CohortSettings
+  learning_product_id?: string | null
   created_at: string
   updated_at: string
 }
