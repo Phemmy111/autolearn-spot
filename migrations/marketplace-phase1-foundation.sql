@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS public.learning_products (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
-ALTER TABLE public.cohorts 
-ADD COLUMN IF NOT EXISTS learning_product_id UUID REFERENCES public.learning_products(id) ON DELETE SET NULL;
+ALTER TABLE public.cohorts ADD COLUMN IF NOT EXISTS learning_product_id UUID REFERENCES public.learning_products(id) ON DELETE SET NULL;
 
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON public.categories(slug);
 CREATE INDEX IF NOT EXISTS idx_skills_category_id ON public.skills(category_id);
