@@ -19,6 +19,9 @@ import { NotificationService as PartnerNotificationService } from '@/lib/growth-
 import { FounderEmailService } from '@/lib/growth-engine/FounderEmailService';
 import { AdminEmailService } from '@/lib/growth-engine/AdminEmailService';
 import { logUserActivity } from '@/lib/audit-logging';
+// Phase 4: Cart checkout
+import { getOrderByProviderRef, getOrderItems, markOrderPaid } from '@/lib/order-service';
+import { clearCartItems } from '@/lib/cart-service';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -56,6 +59,107 @@ async function getReferrerName(referrerId: string): Promise<string> {
   } catch {
     return 'Unknown';
   }
+}
+
+/**
+ * Process Cart Checkout payment flow
+ */
+async function processCartCheckout(data: any, reference: string, amountInNaira: number) {
+  const email = data.customer.email;
+  const orderId = data.metadata?.order_id;
+  const userId = data.metadata?.user_id;
+
+  if (!orderId || !userId) {
+    console.error(`Cart checkout missing metadata: order_id or user_id not found for ref ${reference}`);
+    return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
+  }
+
+  // 1. Locate the order
+  const order = await getOrderByProviderRef(reference);
+  if (!order) {
+    console.error(`Order not found for provider_ref: ${reference}`);
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+  }
+
+  // 2. Idempotency check
+  if (order.status === 'PAID') {
+    console.log(`Cart checkout ${reference} already processed - order is PAID`);
+    return NextResponse.json({ received: true, message: 'Payment already processed' });
+  }
+
+  // 3. Verify amount
+  if (amountInNaira !== order.total) {
+    console.error(`Payment amount mismatch for Cart Checkout: expected ₦${order.total}, got ₦${amountInNaira}`);
+    return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 });
+  }
+
+  // 4. Resolve current cohort (for enrollments)
+  const { data: currentCohort } = await supabaseAdmin
+    .from('cohorts')
+    .select('id, name')
+    .eq('is_current', true)
+    .single();
+
+  if (!currentCohort) {
+    console.error('CART CHECKOUT: No current cohort found');
+    return NextResponse.json({ error: 'No active cohort found' }, { status: 400 });
+  }
+
+  // 5. Mark order as PAID
+  const marked = await markOrderPaid(order.id);
+  if (!marked) {
+    console.error(`Failed to mark order ${order.id} as PAID`);
+    return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+  }
+
+  // 6. Create enrollments for each order item
+  const orderItems = await getOrderItems(order.id);
+  
+  for (const item of orderItems) {
+    const enrollmentData = {
+      cohort_id: currentCohort.id,
+      email: email,
+      payment_ref: reference, // we can use provider_ref as the payment reference
+      amount_paid: item.price_snapshot,
+      status: 'active',
+      activated_at: new Date().toISOString(),
+      // Phase 4: we don't handle cart-level referrals yet, so these are null
+      referral_code: null,
+      referred_by_code: null,
+      learning_product_id: item.learning_product_id
+    };
+
+    const { error: enrollmentError } = await supabaseAdmin
+      .from('enrollments')
+      .upsert(enrollmentData, {
+        onConflict: 'cohort_id, email, learning_product_id'
+      });
+
+    if (enrollmentError) {
+      console.error('CART CHECKOUT: Failed to create enrollment for item', item.id, enrollmentError);
+      // We log but continue with other items. In a robust system we might want a retry queue.
+    }
+  }
+
+  // 7. Clear cart
+  await clearCartItems(userId);
+
+  // Log success
+  await logUserActivity({
+    action: 'cart_checkout_completed',
+    user_id: email,
+    user_email: email,
+    description: `Cart checkout completed for ₦${amountInNaira} (${orderItems.length} items)`,
+    metadata: {
+      paymentReference: reference,
+      orderId: order.id
+    },
+  });
+
+  return NextResponse.json({
+    received: true,
+    message: 'Cart checkout processed successfully',
+  });
 }
 
 /**
@@ -515,6 +619,21 @@ export async function POST(request: NextRequest) {
 
         // Process Direct Enrollment flow
         return await processDirectEnrollment(data, reference, amountInNaira, pendingId);
+      }
+
+      if (paymentType === 'cart_checkout') {
+        console.log('CART CHECKOUT: Processing via Cart Checkout flow', { reference });
+        await logPaymentEvent({
+          action: 'payment_flow_routed',
+          category: 'webhook_received',
+          payment_reference: reference,
+          description: 'Routed to Cart Checkout flow',
+          status: 'success',
+          metadata: { flow: 'cart_checkout', payment_type: paymentType, order_id: data.metadata?.order_id }
+        });
+
+        // Process Cart Checkout flow
+        return await processCartCheckout(data, reference, amountInNaira);
       }
 
       console.log('SCHOLARSHIP: Processing via Scholarship flow', { reference });
