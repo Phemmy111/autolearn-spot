@@ -1,5 +1,6 @@
 import { LearningProduct } from '@/types/product';
 import { ProductCard } from './ProductCard';
+import { Search, SlidersHorizontal, BookOpen } from 'lucide-react';
 
 interface MarketplaceProductGridProps {
   products: LearningProduct[];
@@ -8,12 +9,16 @@ interface MarketplaceProductGridProps {
 export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps) {
   if (!products || products.length === 0) {
     return (
-      <section id="products" className="py-16 bg-muted/30 border-t border-border">
+      <section id="products" className="py-24 bg-background">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-heading font-bold text-foreground mb-4">Featured Courses & Skills</h2>
-          <div className="bg-card border border-border rounded-2xl p-12 max-w-2xl mx-auto">
-            <h3 className="text-lg font-medium text-foreground mb-2">Check back soon!</h3>
-            <p className="text-muted-foreground">Our creators are currently building amazing new learning products. New skills will be available shortly.</p>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-6">
+            <BookOpen className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h2 className="text-3xl font-heading font-bold text-foreground mb-4 tracking-tight">Curating Excellence</h2>
+          <div className="max-w-md mx-auto">
+            <p className="text-muted-foreground leading-relaxed">
+              Our creators are currently building amazing new learning experiences. Premium skills and courses will be available shortly.
+            </p>
           </div>
         </div>
       </section>
@@ -21,31 +26,56 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
   }
 
   return (
-    <section id="products" className="py-16 md:py-24 bg-muted/10 border-t border-border">
+    <section id="products" className="py-20 md:py-32 bg-muted/5 border-t border-border">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-          <div>
-            <h2 className="text-3xl font-heading font-bold text-foreground mb-2">Our Featured Products</h2>
-            <p className="text-muted-foreground">Practical, in-demand skills taught by industry experts.</p>
+        
+        {/* Header & Search/Filter Bar */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-8">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4 tracking-tight">
+              Featured Learning Experiences
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Practical, in-demand skills taught by industry experts to accelerate your growth.
+            </p>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-            {/* Phase 5A Stub Tabs */}
-            {['All', 'Courses', 'Digital Products', 'Masterclasses'].map((tab, i) => (
-              <button 
-                key={tab} 
-                className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  i === 0 
-                    ? 'bg-brand-primary/10 text-brand-primary border border-brand-primary/20' 
-                    : 'bg-card border border-border text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {tab}
+          
+          <div className="flex-shrink-0 w-full lg:w-auto">
+            <div className="flex items-center gap-3 bg-card p-2 rounded-2xl border border-border shadow-sm">
+              <div className="relative flex-1 lg:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input 
+                  type="text" 
+                  placeholder="Search products..." 
+                  className="w-full pl-9 pr-4 py-2.5 bg-muted/50 border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 transition-all"
+                  disabled
+                />
+              </div>
+              <button className="flex items-center justify-center p-2.5 bg-muted rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors">
+                <SlidersHorizontal className="w-5 h-5" />
               </button>
-            ))}
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Tab Navigation (Visual Only) */}
+        <div className="flex gap-2 overflow-x-auto pb-6 mb-8 hide-scrollbar scroll-smooth">
+          {['All Products', 'Masterclasses', 'Cohorts', 'Digital Downloads'].map((tab, i) => (
+            <button 
+              key={tab} 
+              className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+                i === 0 
+                  ? 'bg-foreground text-background shadow-md' 
+                  : 'bg-card border border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
