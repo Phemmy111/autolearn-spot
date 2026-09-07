@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Star, Users, Clock, Globe } from 'lucide-react';
 import { LearningProduct } from '@/types/product';
+import AddToCartButton from './AddToCartButton';
 
 interface ProductCardProps {
   product: LearningProduct;
@@ -19,7 +20,7 @@ export function ProductCard({ product, authorName = 'Instructor' }: ProductCardP
   return (
     <div className="group flex flex-col bg-card border border-border rounded-2xl overflow-hidden hover:border-brand-primary/50 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:-translate-y-1">
       {/* Thumbnail */}
-      <Link href={`/product/${product.slug}`} className="relative aspect-video w-full bg-muted overflow-hidden block">
+      <Link href={`/learning_products/${product.id}`}>
         {product.thumbnail_url ? (
           <Image
             src={product.thumbnail_url}
@@ -40,7 +41,7 @@ export function ProductCard({ product, authorName = 'Instructor' }: ProductCardP
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-5">
-        <Link href={`/product/${product.slug}`} className="block mb-2 hover:text-brand-primary transition-colors">
+        <Link href={`/learning_products/${product.id}`} className="block mb-2 hover:text-brand-primary transition-colors">
           <h3 className="font-heading font-bold text-lg text-foreground line-clamp-2 leading-tight">
             {product.title}
           </h3>
@@ -78,8 +79,9 @@ export function ProductCard({ product, authorName = 'Instructor' }: ProductCardP
             </div>
             <span className="text-sm font-medium text-foreground">{authorName}</span>
           </div>
-          <div className="text-right">
+          <div className="text-right flex flex-col items-end gap-2">
             <span className="font-bold text-lg text-foreground">{formattedPrice}</span>
+            <AddToCartButton productId={product.id} />
           </div>
         </div>
       </div>
