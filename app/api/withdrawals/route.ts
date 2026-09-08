@@ -27,10 +27,10 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { amount, bankName, accountNumber, accountName } = body;
+    const { amount } = body;
 
-    if (!amount || !bankName || !accountNumber || !accountName) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (amount === undefined) {
+      return NextResponse.json({ error: 'Missing amount' }, { status: 400 });
     }
 
     const numAmount = Number(amount);
@@ -38,21 +38,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
-    const result = await WithdrawalService.submitWithdrawal({
-      userId,
-      amount: numAmount,
-      bankName,
-      accountNumber,
-      accountName
-    });
+    // Look up authorId based on Clerk userId
+    const { supabaseAdmin } = await import('@/lib/supabase');
+    const { data: author, error: authorErr } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('user_id', userId)
+      .single();
 
-    if (!result.success) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+    if (authorErr || !author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 });
     }
 
-    return NextResponse.json({ success: true, withdrawal: result.withdrawal });
-  } catch (error) {
+    // Generate deterministic request_ref (UUID)
+    const requestRef = crypto.randomUUID();
+
+    // Use authorService requestWithdrawal RPC
+    const { requestWithdrawal } = await import('@/lib/authorService');
+    const withdrawal = await requestWithdrawal(author.id, numAmount, requestRef);
+
+    return NextResponse.json({ success: true, withdrawal });
+  } catch (error: any) {
     console.error('[POST /api/withdrawals] Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 400 });
   }
 }
