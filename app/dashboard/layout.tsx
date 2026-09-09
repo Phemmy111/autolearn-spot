@@ -47,15 +47,20 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen bg-[#111317]">
       <nav className="w-64 bg-[#1a1d23] text-white p-4">
         <ul className="space-y-2">
-          <li><a href="/dashboard/earnings" className="block py-2 hover:text-primary-500">Earnings</a></li>
-          <li><a href="/dashboard/transactions" className="block py-2 hover:text-primary-500">Transactions</a></li>
-          <li><a href="/dashboard/bank-profile" className="block py-2 hover:text-primary-500">Bank Profile</a></li>
           <li>
-            <span className="block py-2">Withdrawals</span>
-            <ul className="ml-4 space-y-1">
-              <li><a href="/dashboard/withdrawals/request" className="block py-1 hover:text-primary-500">Request Withdrawal</a></li>
-              <li><a href="/dashboard/withdrawals/history" className="block py-1 hover:text-primary-500">Withdrawal History</a></li>
-            </ul>
+            <a href="/dashboard" className="block py-2 hover:text-primary-500">Learning</a>
+          </li>
+          <li>
+            <a href="/dashboard/history" className="block py-2 hover:text-primary-500">Purchase History</a>
+          </li>
+          <li>
+            <a href="/certificate/verify" className="block py-2 hover:text-primary-500">Certificates</a>
+          </li>
+          <li>
+            <a href="/dashboard/settings" className="block py-2 hover:text-primary-500">Profile Settings</a>
+          </li>
+          <li className="mt-8 border-t border-gray-700 pt-4">
+            <a href="/author" className="block py-2 text-primary-500 hover:text-primary-400">Author Dashboard →</a>
           </li>
         </ul>
       </nav>
