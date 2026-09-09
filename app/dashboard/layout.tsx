@@ -43,5 +43,23 @@ export default async function DashboardLayout({
   await trackAuthentication();
 
   // They are enrolled, render the normal dashboard layout/pages
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-screen bg-[#111317]">
+      <nav className="w-64 bg-[#1a1d23] text-white p-4">
+        <ul className="space-y-2">
+          <li><a href="/dashboard/earnings" className="block py-2 hover:text-primary-500">Earnings</a></li>
+          <li><a href="/dashboard/transactions" className="block py-2 hover:text-primary-500">Transactions</a></li>
+          <li><a href="/dashboard/bank-profile" className="block py-2 hover:text-primary-500">Bank Profile</a></li>
+          <li>
+            <span className="block py-2">Withdrawals</span>
+            <ul className="ml-4 space-y-1">
+              <li><a href="/dashboard/withdrawals/request" className="block py-1 hover:text-primary-500">Request Withdrawal</a></li>
+              <li><a href="/dashboard/withdrawals/history" className="block py-1 hover:text-primary-500">Withdrawal History</a></li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <main className="flex-1 p-6">{children}</main>
+    </div>
+  );
 }
