@@ -1,4 +1,5 @@
 -- Create storage bucket for author documents
+-- Note: This migration must be run by a database owner or via Supabase dashboard
 
 -- Insert storage bucket if it doesn't exist
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -11,26 +12,5 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Enable RLS for the bucket
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
--- Policy: Anyone can upload to author-documents (for application submission)
-CREATE POLICY "Public upload to author-documents"
-ON storage.objects FOR INSERT
-WITH CHECK (bucket_id = 'author-documents');
-
--- Policy: Users can view their own uploaded documents
-CREATE POLICY "Users can view own author documents"
-ON storage.objects FOR SELECT
-USING (
-  bucket_id = 'author-documents' AND
-  auth.jwt() ->> 'sub' = (storage.foldername(name))[1]
-);
-
--- Policy: Admins can view all author documents
-CREATE POLICY "Admins can view all author documents"
-ON storage.objects FOR SELECT
-USING (
-  bucket_id = 'author-documents' AND
-  (auth.jwt() ->> 'role' = 'admin' OR auth.jwt() ->> 'role' = 'super_admin')
-);
+-- Note: RLS policies for storage.objects must be configured in Supabase dashboard
+-- or by a database owner with proper permissions
