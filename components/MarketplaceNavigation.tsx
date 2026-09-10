@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, ShoppingBag, User, LogIn } from 'lucide-react';
+import { Menu, X, ShoppingBag, User, LogIn, Brain } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/nextjs';
+import Image from 'next/image';
 
 /**
- * Simple Marketplace Navigation
- * 
- * Basic navigation for the marketplace without route groups.
+ * Marketplace Navigation
+ *
+ * Navigation for the public marketplace matching Phase 1 roadmap:
+ * Logo, Explore, Skills, Courses, Authors, ALEX, Cart, Account
  */
 export function MarketplaceNavigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,9 +18,11 @@ export function MarketplaceNavigation() {
   const { user } = useUser();
 
   const navItems = [
-    { name: 'Home', href: '/' },
-    { name: 'Marketplace', href: '/marketplace' },
+    { name: 'Explore', href: '/marketplace' },
     { name: 'Skills', href: '/skills' },
+    { name: 'Courses', href: '/learning_products' },
+    { name: 'Authors', href: '/dashboard' },
+    { name: 'ALEX', href: '/autolearn-ai', icon: Brain },
   ];
 
   return (
@@ -26,8 +30,14 @@ export function MarketplaceNavigation() {
       {/* Desktop Navigation */}
       <nav className="hidden md:flex items-center justify-between h-16 border-b border-neutral-200 bg-white px-6 lg:px-8 sticky top-0 z-50">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
-            <ShoppingBag className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 flex items-center justify-center">
+            <Image
+              src="/autolearn-brandmark.png"
+              alt="AutoLearn Spot"
+              width={32}
+              height={32}
+              className="object-contain"
+            />
           </div>
           <span className="font-heading text-lg font-bold text-neutral-900">
             AutoLearn Spot
@@ -39,8 +49,9 @@ export function MarketplaceNavigation() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-neutral-600 hover:text-sky-600 transition-colors"
+              className="text-sm font-medium text-neutral-600 hover:text-sky-600 transition-colors flex items-center gap-1"
             >
+              {item.icon && <item.icon className="w-4 h-4" />}
               {item.name}
             </Link>
           ))}
@@ -66,6 +77,12 @@ export function MarketplaceNavigation() {
           >
             Author Studio
           </Link>
+          <Link
+            href="/admin"
+            className="text-sm font-medium text-neutral-600 hover:text-sky-600 transition-colors"
+          >
+            Admin Portal
+          </Link>
         </div>
       </nav>
 
@@ -80,8 +97,14 @@ export function MarketplaceNavigation() {
             <Menu className="w-6 h-6" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-sky-600 rounded-lg flex items-center justify-center">
-              <ShoppingBag className="w-4 h-4 text-white" />
+            <div className="w-6 h-6 flex items-center justify-center">
+              <Image
+                src="/autolearn-brandmark.png"
+                alt="AutoLearn Spot"
+                width={24}
+                height={24}
+                className="object-contain"
+              />
             </div>
             <span className="font-heading text-base font-bold text-neutral-900">
               AutoLearn Spot
@@ -154,6 +177,13 @@ export function MarketplaceNavigation() {
                   className="block px-4 py-3 text-base font-medium text-neutral-700 hover:text-sky-600 hover:bg-neutral-50 rounded-lg transition-colors"
                 >
                   Author Studio
+                </Link>
+                <Link
+                  href="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-3 text-base font-medium text-neutral-700 hover:text-sky-600 hover:bg-neutral-50 rounded-lg transition-colors"
+                >
+                  Admin Portal
                 </Link>
               </div>
             </div>
