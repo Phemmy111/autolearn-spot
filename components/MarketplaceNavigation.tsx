@@ -19,8 +19,6 @@ export function MarketplaceNavigation() {
     { name: 'Home', href: '/' },
     { name: 'Marketplace', href: '/marketplace' },
     { name: 'Skills', href: '/skills' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
   ];
 
   return (

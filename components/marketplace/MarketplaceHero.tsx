@@ -33,8 +33,8 @@ export function MarketplaceHero() {
             Explore Marketplace
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link 
-            href="/authors/apply" 
+          <Link
+            href="/author/apply"
             className="w-full sm:w-auto px-8 py-4 bg-transparent border border-border text-foreground font-medium rounded-full hover:bg-muted/50 transition-colors duration-300"
           >
             Become a Creator
