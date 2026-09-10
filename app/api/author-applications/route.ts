@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { auth } from '@clerk/nextjs/server';
+import { EmailService } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,6 +83,9 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Send application submitted email
+    await EmailService.sendApplicationSubmitted(email, fullName);
 
     return NextResponse.json(
       { success: true, application },
