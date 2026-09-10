@@ -24,11 +24,23 @@ export default function AdminApplicationsPage() {
         const res = await fetch('/api/admin/authors/applications');
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
-        setApplications(data);
-      } catch (e) {
-        console.error(e);
-        // Use sample data as fallback
-        setApplications(sampleApplications);
+        if (data.applications) {
+          const mappedApps = data.applications.map((app: any) => ({
+            id: app.id,
+            name: app.full_name,
+            avatar: app.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
+            email: app.email,
+            expertise: app.expertise_area || 'Not specified',
+            status: app.status === 'SUBMITTED' || app.status === 'UNDER_REVIEW' ? 'Pending Review' : 
+                    app.status === 'APPROVED' ? 'Approved' : 'Rejected',
+            date: new Date(app.submitted_at).toLocaleDateString(),
+            experience: 'Not specified', // Missing from DB schema usually or not in query
+            documents: (app.portfolio_link ? 1 : 0) + (app.resume_link ? 1 : 0) || 1
+          }));
+          setApplications(mappedApps);
+        } else {
+          setApplications(sampleApplications);
+        }
       } finally {
         setLoading(false);
       }

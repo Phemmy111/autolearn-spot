@@ -14,74 +14,44 @@ export default function AdminAuthorsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('All Authors');
 
-  // Realistic fictional data for demonstration
-  const authors = [
-    {
-      id: 'auth_1',
-      name: 'David Adeyemi',
-      avatar: 'DA',
-      expertise: 'Software Engineer',
-      skills: ['AI Automation', 'Web Dev'],
-      products: 4,
-      students: 12450,
-      sales: 15320,
-      revenue: '$45,200',
-      status: 'Active',
-      joined: 'Oct 12, 2023'
-    },
-    {
-      id: 'auth_2',
-      name: 'Amara Okafor',
-      avatar: 'AO',
-      expertise: 'Product Designer',
-      skills: ['UI/UX Design', 'Figma'],
-      products: 2,
-      students: 8200,
-      sales: 9150,
-      revenue: '$28,400',
-      status: 'Active',
-      joined: 'Jan 05, 2024'
-    },
-    {
-      id: 'auth_3',
-      name: 'Daniel Williams',
-      avatar: 'DW',
-      expertise: 'Marketing Director',
-      skills: ['Digital Marketing', 'SEO'],
-      products: 1,
-      students: 0,
-      sales: 0,
-      revenue: '$0',
-      status: 'Pending',
-      joined: 'Mar 18, 2024'
-    },
-    {
-      id: 'auth_4',
-      name: 'Sarah Ibrahim',
-      avatar: 'SI',
-      expertise: 'Data Scientist',
-      skills: ['Data Analytics', 'Python'],
-      products: 6,
-      students: 21300,
-      sales: 24500,
-      revenue: '$92,100',
-      status: 'Active',
-      joined: 'Aug 22, 2023'
-    },
-    {
-      id: 'auth_5',
-      name: 'Michael Chen',
-      avatar: 'MC',
-      expertise: 'Cloud Architect',
-      skills: ['AWS', 'DevOps'],
-      products: 0,
-      students: 0,
-      sales: 0,
-      revenue: '$0',
-      status: 'Suspended',
-      joined: 'Feb 11, 2024'
+  const [authors, setAuthors] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [stats, setStats] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    async function fetchAuthors() {
+      try {
+        const res = await fetch('/api/admin/authors');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        
+        if (data.authors) {
+          const mappedAuthors = data.authors.map((author: any) => ({
+            id: author.id,
+            name: author.display_name || 'Unknown',
+            avatar: (author.display_name || 'U').substring(0, 2).toUpperCase(),
+            expertise: 'Not specified', // Placeholder as it might not be in the schema
+            skills: [], // Placeholder
+            products: 0, // Placeholder
+            students: 0, // Placeholder
+            sales: 0, // Placeholder
+            revenue: `$${author.author_earnings?.[0]?.total_gross || 0}`,
+            status: author.status === 'ACTIVE' ? 'Active' : author.status === 'SUSPENDED' ? 'Suspended' : 'Pending',
+            joined: new Date(author.created_at).toLocaleDateString()
+          }));
+          setAuthors(mappedAuthors);
+        }
+        if (data.statistics) {
+          setStats(data.statistics);
+        }
+      } catch(e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchAuthors();
+  }, []);
 
   return (
     <div className="min-h-screen pb-12 text-gray-900 font-sans">
@@ -138,11 +108,11 @@ export default function AdminAuthorsPage() {
         {/* ─── Statistics Row ─── */}
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 mb-8">
           {[
-            { label: 'Total Authors', value: '1,248', icon: Users, trend: '+12% this month', color: 'bg-blue-50 text-blue-600' },
-            { label: 'Active Authors', value: '892', icon: UserCheck, trend: '71% of total', color: 'bg-emerald-50 text-emerald-600' },
-            { label: 'Pending Apps', value: '45', icon: Clock, trend: '12 need review', color: 'bg-amber-50 text-amber-600' },
-            { label: 'Suspended', value: '18', icon: ShieldAlert, trend: '-2 since last week', color: 'bg-red-50 text-red-600' },
-            { label: 'Total Revenue', value: '$842.5K', icon: DollarSign, trend: '+24% this year', color: 'bg-indigo-50 text-indigo-600' }
+            { label: 'Total Authors', value: stats?.totalAuthors || '0', icon: Users, trend: 'All time', color: 'bg-blue-50 text-blue-600' },
+            { label: 'Active Authors', value: stats?.activeAuthors || '0', icon: UserCheck, trend: 'Currently active', color: 'bg-emerald-50 text-emerald-600' },
+            { label: 'Pending Apps', value: stats?.pendingApplications || '0', icon: Clock, trend: 'Needs review', color: 'bg-amber-50 text-amber-600' },
+            { label: 'Suspended', value: '-', icon: ShieldAlert, trend: 'N/A', color: 'bg-red-50 text-red-600' },
+            { label: 'Total Revenue', value: '-', icon: DollarSign, trend: 'N/A', color: 'bg-indigo-50 text-indigo-600' }
           ].map((stat, i) => (
             <div key={i} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">

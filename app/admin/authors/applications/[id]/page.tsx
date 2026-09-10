@@ -61,7 +61,62 @@ export default function ApplicationDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { id } = params as { id: string };
-  const app = sampleApplications[id];
+  const [app, setApp] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    async function fetchApplication() {
+      try {
+        const res = await fetch(`/api/admin/authors/applications/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        
+        if (data.application) {
+          const appData = data.application;
+          setApp({
+            id: appData.id,
+            name: appData.full_name,
+            avatar: appData.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
+            email: appData.email,
+            phone: 'Not provided', 
+            location: 'Not provided',
+            linkedin: appData.linkedin_link || '#',
+            portfolio: appData.portfolio_link || '#',
+            professionalTitle: appData.expertise_area || 'Not specified',
+            experience: 'Not specified',
+            skills: ['Not specified'],
+            bio: appData.bio || 'Not provided',
+            motivation: appData.why_become_author || 'Not provided',
+            documents: {
+              cv: appData.resume_link || '#',
+              portfolio: appData.portfolio_link || '#',
+              id: '#' 
+            },
+            status: appData.status === 'SUBMITTED' || appData.status === 'UNDER_REVIEW' ? 'Pending Review' : 
+                    appData.status === 'APPROVED' ? 'Approved' : 'Rejected',
+            submittedAt: appData.submitted_at
+          });
+        }
+      } catch(e) {
+        console.error(e);
+        // Fallback to sample data
+        setApp(sampleApplications[id as keyof typeof sampleApplications] || null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (id) {
+      fetchApplication();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#F4F5F7] text-gray-900 font-sans">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   if (!app) {
     return (
