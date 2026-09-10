@@ -11,7 +11,7 @@ import {
 import { useAuth } from '@clerk/nextjs';
 
 export default function AdminApplicationsPage() {
-  
+  const router = useRouter();
 
   // State for applications data
   const [applications, setApplications] = useState<any[]>([]);
