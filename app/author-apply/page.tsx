@@ -5,6 +5,7 @@ import { ShoppingBag, ArrowRight } from 'lucide-react';
  * Author Application Page
  * 
  * Landing page for users who want to become authors.
+ * Located outside the /author layout to allow unauthenticated access.
  * Will be connected to backend application flow in future phases.
  */
 export default function AuthorApplyPage() {

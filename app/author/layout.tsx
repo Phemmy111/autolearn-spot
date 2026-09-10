@@ -23,7 +23,7 @@ export default async function AuthorLayout({
 
   const approved = await isApprovedAuthor(userId);
   if (!approved) {
-    redirect('/author/apply');
+    redirect('/author-apply');
   }
 
   return <AuthorShell>{children}</AuthorShell>;
