@@ -123,6 +123,33 @@ export default function AuthorApplyPage() {
     setIsSubmitting(true);
 
     try {
+      // Upload files first if any exist
+      let cvUrl = null;
+      let portfolioUrl = null;
+      let idUrl = null;
+
+      if (cvFile || portfolioFile || idFile) {
+        const formData = new FormData();
+        if (cvFile) formData.append('cvFile', cvFile);
+        if (portfolioFile) formData.append('portfolioFile', portfolioFile);
+        if (idFile) formData.append('idFile', idFile);
+
+        const uploadResponse = await fetch('/api/author-applications/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const uploadData = await uploadResponse.json();
+        if (uploadResponse.ok) {
+          cvUrl = uploadData.cvUrl || null;
+          portfolioUrl = uploadData.portfolioUrl || null;
+          idUrl = uploadData.idUrl || null;
+        } else {
+          console.error('File upload failed:', uploadData.error);
+          // Continue with application even if file upload fails
+        }
+      }
+
       const response = await fetch('/api/author-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,6 +165,9 @@ export default function AuthorApplyPage() {
           expertiseArea: formData.expertiseAreas.join(', '),
           bio: formData.bio,
           whyBecomeAuthor: formData.bio,
+          cvUrl,
+          portfolioUrl,
+          idUrl,
         }),
       });
 

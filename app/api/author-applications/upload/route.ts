@@ -1,0 +1,128 @@
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: Request) {
+  try {
+    const formData = await request.formData();
+    const cvFile = formData.get('cvFile') as File | null;
+    const portfolioFile = formData.get('portfolioFile') as File | null;
+    const idFile = formData.get('idFile') as File | null;
+
+    const result: any = {};
+
+    // Handle CV upload
+    if (cvFile && cvFile.size > 0) {
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      
+      if (!validTypes.includes(cvFile.type)) {
+        return NextResponse.json({ error: 'Invalid CV format. Must be PDF, DOC, or DOCX' }, { status: 400 });
+      }
+
+      if (cvFile.size > 5 * 1024 * 1024) { // 5MB limit
+        return NextResponse.json({ error: 'CV file too large. Maximum size is 5MB' }, { status: 400 });
+      }
+
+      const fileExt = cvFile.name.split('.').pop();
+      const fileName = `author-documents/cv-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabaseAdmin
+        .storage
+        .from('author-documents')
+        .upload(fileName, cvFile, {
+          contentType: cvFile.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('[POST /api/author-applications/upload] CV upload error:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload CV' }, { status: 500 });
+      }
+
+      const { data: { publicUrl } } = supabaseAdmin
+        .storage
+        .from('author-documents')
+        .getPublicUrl(fileName);
+
+      result.cvUrl = publicUrl;
+    }
+
+    // Handle Portfolio upload
+    if (portfolioFile && portfolioFile.size > 0) {
+      const validTypes = ['application/pdf', 'application/zip', 'application/x-zip-compressed'];
+      
+      if (!validTypes.includes(portfolioFile.type)) {
+        return NextResponse.json({ error: 'Invalid portfolio format. Must be PDF or ZIP' }, { status: 400 });
+      }
+
+      if (portfolioFile.size > 10 * 1024 * 1024) { // 10MB limit
+        return NextResponse.json({ error: 'Portfolio file too large. Maximum size is 10MB' }, { status: 400 });
+      }
+
+      const fileExt = portfolioFile.name.split('.').pop();
+      const fileName = `author-documents/portfolio-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabaseAdmin
+        .storage
+        .from('author-documents')
+        .upload(fileName, portfolioFile, {
+          contentType: portfolioFile.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('[POST /api/author-applications/upload] Portfolio upload error:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload portfolio' }, { status: 500 });
+      }
+
+      const { data: { publicUrl } } = supabaseAdmin
+        .storage
+        .from('author-documents')
+        .getPublicUrl(fileName);
+
+      result.portfolioUrl = publicUrl;
+    }
+
+    // Handle ID Document upload
+    if (idFile && idFile.size > 0) {
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+      
+      if (!validTypes.includes(idFile.type)) {
+        return NextResponse.json({ error: 'Invalid ID format. Must be PDF, JPG, or PNG' }, { status: 400 });
+      }
+
+      if (idFile.size > 5 * 1024 * 1024) { // 5MB limit
+        return NextResponse.json({ error: 'ID file too large. Maximum size is 5MB' }, { status: 400 });
+      }
+
+      const fileExt = idFile.name.split('.').pop();
+      const fileName = `author-documents/id-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabaseAdmin
+        .storage
+        .from('author-documents')
+        .upload(fileName, idFile, {
+          contentType: idFile.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error('[POST /api/author-applications/upload] ID upload error:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload ID document' }, { status: 500 });
+      }
+
+      const { data: { publicUrl } } = supabaseAdmin
+        .storage
+        .from('author-documents')
+        .getPublicUrl(fileName);
+
+      result.idUrl = publicUrl;
+    }
+
+    return NextResponse.json({ success: true, ...result });
+  } catch (error) {
+    console.error('[POST /api/author-applications/upload] Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

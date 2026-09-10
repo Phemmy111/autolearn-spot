@@ -13,14 +13,22 @@ export async function POST(request: NextRequest) {
     const {
       fullName,
       email,
-      expertiseArea,
+      phone,
+      location,
+      professionalTitle,
+      yearsOfExperience,
+      linkedinProfile,
       portfolioLink,
+      expertiseArea,
       bio,
       whyBecomeAuthor,
+      cvUrl,
+      portfolioUrl,
+      idUrl,
     } = body;
 
     // Validate required fields
-    if (!fullName || !email || !expertiseArea || !bio || !whyBecomeAuthor) {
+    if (!fullName || !email || !phone || !location || !professionalTitle || !yearsOfExperience || !expertiseArea || !bio) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -48,12 +56,21 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         full_name: fullName,
         email,
-        expertise_area: expertiseArea,
-        portfolio_link: portfolioLink || null,
+        phone,
+        location,
+        professional_title: professionalTitle,
+        years_of_experience: yearsOfExperience,
+        linkedin_profile: linkedinProfile || null,
+        portfolio_url: portfolioLink || null,
+        expertise: expertiseArea.split(', '),
         bio,
-        why_become_author: whyBecomeAuthor,
+        motivation: whyBecomeAuthor || bio,
+        cv_url: cvUrl || null,
+        portfolio_samples_url: portfolioUrl || null,
+        id_document_url: idUrl || null,
         status: 'SUBMITTED',
         submitted_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
