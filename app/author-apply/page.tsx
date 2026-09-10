@@ -242,45 +242,69 @@ export default function AuthorApplyPage() {
   return (
     <div className="min-h-screen bg-gray-50 selection:bg-indigo-100 selection:text-indigo-900 pb-20">
 
+      {/* ── Custom Animations ── */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes float-delayed {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
+        }
+        @keyframes gradient-x {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes gentle-pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.95; transform: scale(0.99); }
+        }
+        .animate-float { animation: float 5s ease-in-out infinite; }
+        .animate-float-delayed { animation: float-delayed 6s ease-in-out infinite 2s; }
+        .animate-gradient-x { animation: gradient-x 3s linear infinite; background-size: 200% 200%; }
+        .animate-gentle-pulse { animation: gentle-pulse 4s ease-in-out infinite; }
+      `}} />
+
       {/* ── Enhanced Hero Section ── */}
       <section className="relative overflow-hidden bg-gray-50 border-b border-gray-200">
         {/* Background Patterns */}
         <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-50"></div>
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-indigo-200/40 blur-3xl opacity-60 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-purple-200/40 blur-3xl opacity-60 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-indigo-200/40 blur-3xl opacity-60 pointer-events-none animate-gentle-pulse"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-purple-200/40 blur-3xl opacity-60 pointer-events-none animate-float-delayed"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white text-indigo-700 text-sm font-bold rounded-full mb-6 border border-indigo-100 shadow-sm">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white text-indigo-700 text-sm font-bold rounded-full mb-6 border border-indigo-100 shadow-sm animate-float">
               <Sparkles className="w-4 h-4 text-indigo-500" />
               Become an Author
             </span>
             
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight mb-6 tracking-tight">
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-gray-900 leading-tight mb-6 tracking-tight animate-float" style={{ animationDelay: '0.5s' }}>
               Share Your Knowledge,<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 animate-gradient-x">
                 Build Your Income
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-gray-600 leading-relaxed mb-10 font-medium">
+            <p className="text-lg md:text-xl text-gray-600 leading-relaxed mb-10 font-medium animate-gentle-pulse" style={{ animationDelay: '1s' }}>
               Join AutoLearn Spot as a content creator and reach thousands of learners while earning from your expertise. Fill out the application form below to get started.
             </p>
 
             {/* Stats Row */}
-            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-sm font-bold text-gray-700 bg-white/70 py-4 px-8 rounded-2xl border border-gray-200 backdrop-blur-md shadow-sm">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-sm font-bold text-gray-700 bg-white/70 py-4 px-8 rounded-2xl border border-gray-200 backdrop-blur-md shadow-sm animate-float-delayed">
+              <div className="flex items-center gap-2 hover:scale-105 transition-transform cursor-default">
                 <Users className="w-5 h-5 text-indigo-600"/> 
                 <span>500+ <span className="font-medium text-gray-500">Active Authors</span></span>
               </div>
               <div className="hidden sm:block w-px h-6 bg-gray-300"></div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 hover:scale-105 transition-transform cursor-default">
                 <GraduationCap className="w-5 h-5 text-purple-600"/> 
                 <span>10k+ <span className="font-medium text-gray-500">Learners</span></span>
               </div>
               <div className="hidden sm:block w-px h-6 bg-gray-300"></div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 hover:scale-105 transition-transform cursor-default">
                 <DollarSign className="w-5 h-5 text-emerald-600"/> 
                 <span>Earn <span className="font-medium text-gray-500">on every enrolment</span></span>
               </div>
