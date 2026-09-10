@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, Loader2, ArrowRight, Sparkles, GraduationCap, Users, TrendingUp, Shield } from 'lucide-react';
+import { CheckCircle, Loader2, ArrowRight, Sparkles, GraduationCap, TrendingUp, Users, Shield, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import Image from 'next/image';
 
@@ -10,7 +10,7 @@ import Image from 'next/image';
  * Professional Author Application Page
  *
  * Split-screen design with dark hero section and clean form area.
- * Matches professional design standards with proper contrast and visual hierarchy.
+ * Requires authentication but provides clear sign-up/sign-in options.
  */
 export default function AuthorApplyPage() {
   const { isSignedIn, user } = useAuth();
@@ -81,23 +81,143 @@ export default function AuthorApplyPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100">
-        <div className="max-w-md w-full mx-4 text-center">
-          <div className="w-20 h-20 bg-sky-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <GraduationCap className="w-10 h-10 text-sky-600" />
+      <div className="min-h-screen bg-neutral-100">
+        <div className="flex min-h-screen">
+          {/* Left Hero Section */}
+          <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex-col justify-between p-12 relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-20 left-20 w-72 h-72 bg-sky-500 rounded-full filter blur-3xl" />
+              <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl" />
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-12 h-12 bg-sky-500 rounded-xl flex items-center justify-center">
+                  <Image
+                    src="/autolearn-brandmark.png"
+                    alt="AutoLearn Spot"
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
+                </div>
+                <span className="text-2xl font-bold text-white">AutoLearn Spot</span>
+              </div>
+
+              <h1 className="text-4xl font-bold text-white mb-6 leading-tight">
+                Join Our<br />
+                <span className="text-sky-400">Creator Community</span>
+              </h1>
+              <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+                Share your expertise with thousands of learners worldwide. Create impactful courses and build your digital brand.
+              </p>
+            </div>
+
+            {/* Benefits */}
+            <div className="relative z-10 space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-sky-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-5 h-5 text-sky-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Earn Revenue</h3>
+                  <p className="text-slate-400 text-sm">Monetize your expertise through course sales</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Global Reach</h3>
+                  <p className="text-slate-400 text-sm">Connect with learners from around the world</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-5 h-5 text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">Professional Tools</h3>
+                  <p className="text-slate-400 text-sm">Access powerful course creation and management tools</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-neutral-900 mb-3">
-            Sign In Required
-          </h1>
-          <p className="text-neutral-600 mb-8">
-            Please sign in to apply to become an author
-          </p>
-          <button
-            onClick={() => router.push('/sign-in')}
-            className="inline-flex items-center justify-center px-8 py-4 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-          >
-            Sign In
-          </button>
+
+          {/* Right Auth Section */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12">
+            <div className="w-full max-w-lg">
+              {/* Mobile Logo */}
+              <div className="lg:hidden flex items-center gap-3 mb-8">
+                <div className="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center">
+                  <Image
+                    src="/autolearn-brandmark.png"
+                    alt="AutoLearn Spot"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
+                </div>
+                <span className="text-xl font-bold text-neutral-900">AutoLearn Spot</span>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-2xl p-8 lg:p-10">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-sky-500 to-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+                    Become an Author
+                  </h1>
+                  <p className="text-neutral-600">
+                    Create an account to start your journey
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <button
+                    onClick={() => router.push('/sign-up')}
+                    className="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold rounded-xl hover:from-sky-600 hover:to-sky-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    <UserPlus className="mr-2 w-5 h-5" />
+                    Create Account
+                  </button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-neutral-300"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-neutral-500">or</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => router.push('/sign-in')}
+                    className="w-full inline-flex items-center justify-center px-6 py-4 border-2 border-sky-500 text-sky-600 font-semibold rounded-xl hover:bg-sky-50 transition-all duration-200"
+                  >
+                    <LogIn className="mr-2 w-5 h-5" />
+                    Sign In
+                  </button>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/')}
+                    className="text-sm text-neutral-600 hover:text-sky-600 transition-colors font-medium"
+                  >
+                    Return to home
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -270,7 +390,7 @@ export default function AuthorApplyPage() {
                   Become an Author
                 </h1>
                 <p className="text-neutral-600">
-                  Start your journey as a course creator
+                  Complete your application details
                 </p>
               </div>
 
