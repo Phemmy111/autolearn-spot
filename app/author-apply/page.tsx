@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle, Loader2, ArrowRight, Sparkles, GraduationCap, TrendingUp, Users, Shield, UserPlus, LogIn } from 'lucide-react';
+import { CheckCircle, Loader2, ArrowRight, GraduationCap, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import Image from 'next/image';
 
 /**
- * Professional Author Application Page
+ * Minimal Professional Author Application Page
  *
- * Split-screen design with dark hero section and clean form area.
- * Requires authentication but provides clear sign-up/sign-in options.
+ * Clean, minimal split-screen design matching reference image.
+ * Simple, professional, no heavy decorative elements.
  */
 export default function AuthorApplyPage() {
   const { isSignedIn, user } = useAuth();
@@ -81,108 +81,35 @@ export default function AuthorApplyPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-neutral-100">
+      <div className="min-h-screen bg-white">
         <div className="flex min-h-screen">
-          {/* Left Hero Section */}
-          <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex-col justify-between p-12 relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-20 left-20 w-72 h-72 bg-sky-500 rounded-full filter blur-3xl" />
-              <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl" />
-            </div>
-
-            {/* Content */}
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-sky-500 rounded-xl flex items-center justify-center">
-                  <Image
-                    src="/autolearn-brandmark.png"
-                    alt="AutoLearn Spot"
-                    width={48}
-                    height={48}
-                    className="object-contain"
-                  />
-                </div>
-                <span className="text-2xl font-bold text-white">AutoLearn Spot</span>
+          {/* Left Hero Section - Minimal */}
+          <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 to-purple-700 flex flex-col justify-center items-center p-16 relative">
+            <div className="max-w-lg text-center">
+              <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-8">
+                <GraduationCap className="w-8 h-8 text-white" />
               </div>
-
-              <h1 className="text-4xl font-bold text-white mb-6 leading-tight">
-                Join Our<br />
-                <span className="text-sky-400">Creator Community</span>
+              <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
+                Become an Instructor
               </h1>
-              <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-                Share your expertise with thousands of learners worldwide. Create impactful courses and build your digital brand.
+              <p className="text-lg text-white/90 leading-relaxed">
+                Join our team of experts and start teaching on AutoLearn Spot
               </p>
-            </div>
-
-            {/* Benefits */}
-            <div className="relative z-10 space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-sky-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-5 h-5 text-sky-400" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-1">Earn Revenue</h3>
-                  <p className="text-slate-400 text-sm">Monetize your expertise through course sales</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Users className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-1">Global Reach</h3>
-                  <p className="text-slate-400 text-sm">Connect with learners from around the world</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-5 h-5 text-green-400" />
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-1">Professional Tools</h3>
-                  <p className="text-slate-400 text-sm">Access powerful course creation and management tools</p>
-                </div>
-              </div>
             </div>
           </div>
 
           {/* Right Auth Section */}
-          <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12">
-            <div className="w-full max-w-lg">
-              {/* Mobile Logo */}
-              <div className="lg:hidden flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center">
-                  <Image
-                    src="/autolearn-brandmark.png"
-                    alt="AutoLearn Spot"
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
-                </div>
-                <span className="text-xl font-bold text-neutral-900">AutoLearn Spot</span>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-2xl p-8 lg:p-10">
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-sky-500 to-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Sparkles className="w-8 h-8 text-white" />
-                  </div>
-                  <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-                    Become an Author
-                  </h1>
-                  <p className="text-neutral-600">
-                    Create an account to start your journey
-                  </p>
-                </div>
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-neutral-50">
+            <div className="w-full max-w-md">
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-neutral-900 mb-6">
+                  Get Started
+                </h2>
 
                 <div className="space-y-4">
                   <button
                     onClick={() => router.push('/sign-up')}
-                    className="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold rounded-xl hover:from-sky-600 hover:to-sky-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="w-full inline-flex items-center justify-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     <UserPlus className="mr-2 w-5 h-5" />
                     Create Account
@@ -199,7 +126,7 @@ export default function AuthorApplyPage() {
 
                   <button
                     onClick={() => router.push('/sign-in')}
-                    className="w-full inline-flex items-center justify-center px-6 py-4 border-2 border-sky-500 text-sky-600 font-semibold rounded-xl hover:bg-sky-50 transition-all duration-200"
+                    className="w-full inline-flex items-center justify-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
                   >
                     <LogIn className="mr-2 w-5 h-5" />
                     Sign In
@@ -210,7 +137,7 @@ export default function AuthorApplyPage() {
                   <button
                     type="button"
                     onClick={() => router.push('/')}
-                    className="text-sm text-neutral-600 hover:text-sky-600 transition-colors font-medium"
+                    className="text-sm text-neutral-600 hover:text-indigo-600 transition-colors"
                   >
                     Return to home
                   </button>
@@ -225,12 +152,12 @@ export default function AuthorApplyPage() {
 
   if (existingApplication) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full mx-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-10 h-10 text-green-600" />
+              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h1 className="text-2xl font-bold text-neutral-900 mb-2">
                 Application Status
@@ -239,7 +166,7 @@ export default function AuthorApplyPage() {
             <div className="bg-neutral-50 rounded-xl p-6 mb-6">
               <p className="text-sm text-neutral-600 mb-2">
                 <strong>Status:</strong>{' '}
-                <span className="capitalize text-sky-600 font-semibold">
+                <span className="capitalize text-indigo-600 font-semibold">
                   {existingApplication.status.replace('_', ' ')}
                 </span>
               </p>
@@ -256,7 +183,7 @@ export default function AuthorApplyPage() {
             </p>
             <button
               onClick={() => router.push('/')}
-              className="w-full inline-flex items-center justify-center px-6 py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-all duration-200"
+              className="w-full inline-flex items-center justify-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
             >
               Return to Home
             </button>
@@ -268,23 +195,23 @@ export default function AuthorApplyPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="max-w-md w-full mx-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-10 h-10 text-green-600" />
+              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h1 className="text-2xl font-bold text-neutral-900 mb-2">
                 Application Submitted!
               </h1>
               <p className="text-neutral-600">
-                Thank you for your interest in becoming an author. We will review your application and get back to you soon.
+                Thank you for your interest in becoming an instructor. We will review your application and get back to you soon.
               </p>
             </div>
             <button
               onClick={() => router.push('/')}
-              className="w-full inline-flex items-center justify-center px-6 py-3 bg-sky-600 text-white font-semibold rounded-xl hover:bg-sky-700 transition-all duration-200"
+              className="w-full inline-flex items-center justify-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
             >
               Return to Home
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -296,108 +223,35 @@ export default function AuthorApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-white">
       <div className="flex min-h-screen">
-        {/* Left Hero Section */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex-col justify-between p-12 relative overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-sky-500 rounded-full filter blur-3xl" />
-            <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500 rounded-full filter blur-3xl" />
-          </div>
-
-          {/* Content */}
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-sky-500 rounded-xl flex items-center justify-center">
-                <Image
-                  src="/autolearn-brandmark.png"
-                  alt="AutoLearn Spot"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-              </div>
-              <span className="text-2xl font-bold text-white">AutoLearn Spot</span>
+        {/* Left Hero Section - Minimal */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 to-purple-700 flex flex-col justify-center items-center p-16 relative">
+          <div className="max-w-lg text-center">
+            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-8">
+              <GraduationCap className="w-8 h-8 text-white" />
             </div>
-
-            <h1 className="text-4xl font-bold text-white mb-6 leading-tight">
-              Join Our<br />
-              <span className="text-sky-400">Creator Community</span>
+            <h1 className="text-4xl font-bold text-white mb-4 leading-tight">
+              Become an Instructor
             </h1>
-            <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-              Share your expertise with thousands of learners worldwide. Create impactful courses and build your digital brand.
+            <p className="text-lg text-white/90 leading-relaxed">
+              Join our team of experts and start teaching on AutoLearn Spot
             </p>
-          </div>
-
-          {/* Benefits */}
-          <div className="relative z-10 space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-sky-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-5 h-5 text-sky-400" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold mb-1">Earn Revenue</h3>
-                <p className="text-slate-400 text-sm">Monetize your expertise through course sales</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Users className="w-5 h-5 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold mb-1">Global Reach</h3>
-                <p className="text-slate-400 text-sm">Connect with learners from around the world</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Shield className="w-5 h-5 text-green-400" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold mb-1">Professional Tools</h3>
-                <p className="text-slate-400 text-sm">Access powerful course creation and management tools</p>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Right Form Section */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-12">
-          <div className="w-full max-w-lg">
-            {/* Mobile Logo */}
-            <div className="lg:hidden flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center">
-                <Image
-                  src="/autolearn-brandmark.png"
-                  alt="AutoLearn Spot"
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-              <span className="text-xl font-bold text-neutral-900">AutoLearn Spot</span>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-2xl p-8 lg:p-10">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-br from-sky-500 to-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-                <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-                  Become an Author
-                </h1>
-                <p className="text-neutral-600">
-                  Complete your application details
-                </p>
-              </div>
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-neutral-50">
+          <div className="w-full max-w-md">
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-neutral-900 mb-6">
+                Application Form
+              </h2>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label htmlFor="fullName" className="block text-sm font-semibold text-neutral-900 mb-2">
-                    Full Name *
+                  <label htmlFor="fullName" className="block text-sm font-medium text-neutral-700 mb-2">
+                    Full Name
                   </label>
                   <input
                     type="text"
@@ -406,14 +260,14 @@ export default function AuthorApplyPage() {
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-neutral-50 focus:bg-white transition-all duration-200"
-                    placeholder="Enter your full name"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                    placeholder="John Doe"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-neutral-900 mb-2">
-                    Email Address *
+                  <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-2">
+                    Email Address
                   </label>
                   <input
                     type="email"
@@ -422,14 +276,14 @@ export default function AuthorApplyPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-neutral-50 focus:bg-white transition-all duration-200"
-                    placeholder="Enter your email address"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                    placeholder="john@example.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="expertiseArea" className="block text-sm font-semibold text-neutral-900 mb-2">
-                    Area of Expertise *
+                  <label htmlFor="expertiseArea" className="block text-sm font-medium text-neutral-700 mb-2">
+                    Area of Expertise
                   </label>
                   <select
                     id="expertiseArea"
@@ -437,7 +291,7 @@ export default function AuthorApplyPage() {
                     value={formData.expertiseArea}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-neutral-50 focus:bg-white transition-all duration-200"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                   >
                     <option value="">Select your expertise area</option>
                     <option value="Programming">Programming</option>
@@ -451,7 +305,7 @@ export default function AuthorApplyPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="portfolioLink" className="block text-sm font-semibold text-neutral-900 mb-2">
+                  <label htmlFor="portfolioLink" className="block text-sm font-medium text-neutral-700 mb-2">
                     Portfolio Link (Optional)
                   </label>
                   <input
@@ -460,14 +314,14 @@ export default function AuthorApplyPage() {
                     name="portfolioLink"
                     value={formData.portfolioLink}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-neutral-50 focus:bg-white transition-all duration-200"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                     placeholder="https://yourportfolio.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="bio" className="block text-sm font-semibold text-neutral-900 mb-2">
-                    Bio *
+                  <label htmlFor="bio" className="block text-sm font-medium text-neutral-700 mb-2">
+                    Bio
                   </label>
                   <textarea
                     id="bio"
@@ -476,14 +330,14 @@ export default function AuthorApplyPage() {
                     onChange={handleChange}
                     required
                     rows={4}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-neutral-50 focus:bg-white transition-all duration-200 resize-none"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
                     placeholder="Tell us about yourself and your experience"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="whyBecomeAuthor" className="block text-sm font-semibold text-neutral-900 mb-2">
-                    Why do you want to become an author? *
+                  <label htmlFor="whyBecomeAuthor" className="block text-sm font-medium text-neutral-700 mb-2">
+                    Why do you want to become an instructor?
                   </label>
                   <textarea
                     id="whyBecomeAuthor"
@@ -492,7 +346,7 @@ export default function AuthorApplyPage() {
                     onChange={handleChange}
                     required
                     rows={4}
-                    className="w-full px-4 py-3 border border-neutral-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent bg-neutral-50 focus:bg-white transition-all duration-200 resize-none"
+                    className="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
                     placeholder="Share your motivation for creating courses on AutoLearn Spot"
                   />
                 </div>
@@ -500,7 +354,7 @@ export default function AuthorApplyPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full inline-flex items-center justify-center px-6 py-4 bg-gradient-to-r from-sky-500 to-sky-600 text-white font-semibold rounded-xl hover:from-sky-600 hover:to-sky-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full inline-flex items-center justify-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>
@@ -508,10 +362,7 @@ export default function AuthorApplyPage() {
                       Submitting...
                     </>
                   ) : (
-                    <>
-                      Submit Application
-                      <ArrowRight className="ml-2 w-5 h-5" />
-                    </>
+                    'Submit Application'
                   )}
                 </button>
               </form>
@@ -520,7 +371,7 @@ export default function AuthorApplyPage() {
                 <button
                   type="button"
                   onClick={() => router.push('/')}
-                  className="text-sm text-neutral-600 hover:text-sky-600 transition-colors font-medium"
+                  className="text-sm text-neutral-600 hover:text-indigo-600 transition-colors"
                 >
                   Cancel and return to home
                 </button>
