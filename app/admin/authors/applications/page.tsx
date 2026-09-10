@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -11,10 +11,31 @@ import {
 import { useAuth } from '@clerk/nextjs';
 
 export default function AdminApplicationsPage() {
-  const router = useRouter();
+  
 
-  // Realistic fictional data for demonstration
-  const applications = [
+  // State for applications data
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch applications from backend; fallback to sample data if fetch fails
+  useEffect(() => {
+    async function fetchApplications() {
+      try {
+        const res = await fetch('/api/admin/authors/applications');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setApplications(data);
+      } catch (e) {
+        console.error(e);
+        // Use sample data as fallback
+        setApplications(sampleApplications);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchApplications();
+  }, []);
+  const sampleApplications = [
     {
       id: 'app_1',
       name: 'Daniel Williams',
