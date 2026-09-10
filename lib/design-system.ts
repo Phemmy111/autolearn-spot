@@ -134,10 +134,10 @@ export const gradients = {
 
 // Surfaces - Background layers
 export const surfaces = {
-  primary: '#ffffff',
+  primary: '#f5f5f5', // Light gray as default background (design studio configurable)
   secondary: '#fafafa',
-  tertiary: '#f5f5f5',
-  elevated: '#ffffff',
+  tertiary: '#f0f0f0',
+  elevated: '#ffffff', // White for elevated cards/containers
   overlay: 'rgba(0, 0, 0, 0.5)',
   backdrop: 'rgba(255, 255, 255, 0.8)',
 };

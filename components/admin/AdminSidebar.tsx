@@ -63,6 +63,12 @@ const navigation: NavSection[] = [
     ],
   },
   {
+    title: 'Authors',
+    items: [
+      { label: 'Applications', href: '/admin/authors/applications', icon: Users },
+    ],
+  },
+  {
     title: 'Learning',
     items: [
       { label: 'Quizzes', href: '/admin/quizzes', icon: BookOpen },

@@ -135,9 +135,9 @@
 
 .light {
   color-scheme: light;
-  --background: #ffffff;
+  --background: #f5f5f5; /* Light gray as default background */
   --foreground: #0a0a0a;
-  --card: #f5f5f5;
+  --card: #ffffff; /* White for elevated cards/containers */
   --card-foreground: #0a0a0a;
   --popover: #ffffff;
   --popover-foreground: #0a0a0a;
@@ -158,7 +158,7 @@
   --chart-3: #003d7a;
   --chart-4: #002951;
   --chart-5: #001428;
-  --sidebar: #f5f5f5;
+  --sidebar: #ffffff;
   --sidebar-foreground: #0a0a0a;
   --sidebar-primary: #0066cc;
   --sidebar-primary-foreground: #ffffff;
