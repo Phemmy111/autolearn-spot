@@ -13,8 +13,8 @@ export default function AuthorApplyPage() {
       <div className="max-w-2xl w-full mx-4">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShoppingBag className="w-8 h-8 text-primary-600" />
+            <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ShoppingBag className="w-8 h-8 text-sky-600" />
             </div>
             <h1 className="text-3xl font-bold text-neutral-900 mb-2">
               Become an Author
@@ -55,7 +55,7 @@ export default function AuthorApplyPage() {
             </p>
             <Link
               href="/"
-              className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 bg-sky-600 text-white font-medium rounded-lg hover:bg-sky-700 transition-colors"
             >
               Return to Home
               <ArrowRight className="ml-2 w-5 h-5" />

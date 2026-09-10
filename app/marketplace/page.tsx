@@ -30,7 +30,7 @@ export default function MarketplacePage() {
               <input
                 type="text"
                 placeholder="Search courses..."
-                className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
               />
             </div>
             <button className="flex items-center gap-2 px-4 py-2 border border-neutral-300 rounded-lg hover:bg-white transition-colors">

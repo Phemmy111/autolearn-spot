@@ -1,7 +1,6 @@
 import { getPublicSettings } from '@/lib/public-settings'
 import { getPublishedProducts } from '@/lib/public-product-service'
-
-// Reused components
+import { MarketplaceNavigation } from '@/components/MarketplaceNavigation'
 import { AnnouncementBanner } from '@/components/announcement-banner'
 import { CohortAnnouncementStrip } from '@/components/CohortAnnouncementStrip'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
@@ -132,7 +131,7 @@ export default async function Page() {
 
   return (
     <main className="min-h-screen bg-background">
-      <MarketplaceHeader />
+      <MarketplaceNavigation />
       <AnnouncementBanner />
       <CohortAnnouncementStrip />
       

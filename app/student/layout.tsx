@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { StudentShell } from '@/components/shells/StudentShell';
+import { StudentShell } from '@/components/student/StudentShell';
 
 /**
  * STUDENT Layout Shell
