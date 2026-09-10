@@ -1,23 +1,31 @@
 import Link from 'next/link';
 import { BookOpen, Trophy, FileText, Award, ArrowRight } from 'lucide-react';
+import { auth } from '@clerk/nextjs/server';
+import { UserButton } from '@clerk/nextjs';
 
 /**
  * Student Dashboard Landing Page
- * 
+ *
  * Clean student dashboard with navigation to learning areas.
  * Will be connected to backend data in future phases.
  */
-export default function StudentDashboardPage() {
+export default async function StudentDashboardPage() {
+  const { user } = await auth();
+  const firstName = user?.firstName || user?.username || 'Student';
+
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-900 mb-2">
-          Welcome back!
-        </h1>
-        <p className="text-neutral-600">
-          Continue your learning journey
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-neutral-900 mb-2">
+            Welcome back, {firstName}!
+          </h1>
+          <p className="text-neutral-600">
+            Continue your learning journey
+          </p>
+        </div>
+        <UserButton afterSignOutUrl="/" />
       </div>
 
       {/* Quick Stats */}
