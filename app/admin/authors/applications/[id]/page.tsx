@@ -1,259 +1,230 @@
-import { requireAdmin } from '@/lib/admin';
-import { supabaseAdmin } from '@/lib/supabase';
-import { ArrowLeft, CheckCircle, XCircle, Clock, ExternalLink, Mail } from 'lucide-react';
+"use client"
+
+import React from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import {
+  ArrowLeft, CheckCircle2, XCircle, Clock, Edit2, FileText, Calendar, Phone, Mail, MapPin,
+  Linkedin, Link as LinkIcon, Users, UserCheck, UserPlus, Upload, Loader2, ShieldCheck, AlertTriangle
+} from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+// Sample data for demonstration – in a real app this would be fetched from the backend.
+const sampleApplications = {
+  app_1: {
+    id: 'app_1',
+    name: 'Daniel Williams',
+    avatar: 'DW',
+    email: 'daniel@example.com',
+    phone: '+1 555‑123‑4567',
+    location: 'New York, USA',
+    linkedin: 'https://linkedin.com/in/daniel-williams',
+    portfolio: 'https://danielw.dev',
+    professionalTitle: 'Marketing Director',
+    experience: '10+ years',
+    skills: ['Digital Marketing', 'SEO', 'Content Strategy'],
+    bio: "Passionate about helping brands grow through data‑driven strategies. Over a decade of experience leading marketing teams and driving ROI.",
+    motivation: "I want to share my expertise with a community of eager learners and help them launch successful careers in marketing.",
+    documents: {
+      cv: '/documents/daniel_cv.pdf',
+      portfolio: '/documents/daniel_portfolio.zip',
+      id: '/documents/daniel_id.jpg',
+    },
+    status: 'Pending Review',
+    submittedAt: '2023-10-12T10:45:00Z',
+  },
+  app_2: {
+    id: 'app_2',
+    name: 'Jessica Taylor',
+    avatar: 'JT',
+    email: 'jessica.t@example.com',
+    phone: '+44 20 7946 0958',
+    location: 'London, UK',
+    linkedin: 'https://linkedin.com/in/jessica-taylor',
+    portfolio: 'https://jessicadesign.co',
+    professionalTitle: 'UI/UX Designer',
+    experience: '4-5 years',
+    skills: ['Figma', 'Prototyping', 'User Research'],
+    bio: "Design‑first mind with a knack for turning complex problems into elegant user experiences.",
+    motivation: "I love teaching design fundamentals and want to empower the next generation of creators.",
+    documents: {
+      cv: '/documents/jessica_cv.pdf',
+      portfolio: '/documents/jessica_portfolio.zip',
+      id: '/documents/jessica_id.png',
+    },
+    status: 'Approved',
+    submittedAt: '2023-10-10T14:20:00Z',
+  },
+  // Additional mock entries can be added here.
+};
 
-async function getApplicationDetails(id: string) {
-  const { data, error } = await supabaseAdmin
-    .from('author_applications')
-    .select('*')
-    .eq('id', id)
-    .single();
+export default function ApplicationDetailPage() {
+  const router = useRouter();
+  const params = useParams();
+  const { id } = params as { id: string };
+  const app = sampleApplications[id];
 
-  if (error) {
-    console.error('Error fetching application details:', error);
-    return null;
-  }
-
-  return data;
-}
-
-export default async function ApplicationReviewPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  await requireAdmin();
-  const application = await getApplicationDetails(params.id);
-
-  if (!application) {
+  if (!app) {
     return (
-      <div className="p-8">
-        <Link
-          href="/admin/authors/applications"
-          className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-white mb-4 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Applications
-        </Link>
-        <p className="text-[#b9cacb]">Application not found</p>
+      <div className="flex items-center justify-center min-h-screen bg-[#F4F5F7] text-gray-900 font-sans">
+        <p className="text-lg text-gray-600">Application not found.</p>
       </div>
     );
   }
 
-  const updateApplicationStatus = async (status: string) => {
-    'use server';
-    const { error } = await supabaseAdmin
-      .from('author_applications')
-      .update({
-        status,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', params.id);
-
-    if (error) {
-      console.error('Error updating application status:', error);
-      return { error: 'Failed to update status' };
-    }
-
-    // TODO: Send email notification to applicant
-    // TODO: If approved, create author profile and send login details
-
-    return { success: true };
+  const statusColors = {
+    'Pending Review': 'bg-amber-50 text-amber-700 border-amber-100',
+    Approved: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+    Rejected: 'bg-red-50 text-red-700 border-red-100',
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'SUBMITTED':
-        return 'bg-blue-100 text-blue-800';
-      case 'UNDER_REVIEW':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'APPROVED':
-        return 'bg-green-100 text-green-800';
-      case 'DECLINED':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const handleAction = (action: string) => {
+    // Placeholder – in production trigger API calls.
+    alert(`${action} action triggered for ${app.name}`);
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <Link
-          href="/admin/authors/applications"
-          className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-white mb-4 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Applications
-        </Link>
-        <h1 className="font-heading text-3xl font-bold text-white mb-2">
-          Application Review
-        </h1>
-        <p className="font-mono text-sm text-[#b9cacb]">
-          Review and manage author application
-        </p>
-      </div>
+    <div className="min-h-screen pb-12 text-gray-900 font-sans bg-[#F4F5F7]">
+      {/* Top Bar */}
+      <header className="h-16 bg-white border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+        <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
+          <Link href="/admin/authors" className="hover:text-gray-800 transition-colors">Admin</Link>
+          <ArrowLeft className="h-4 w-4 text-gray-400" />
+          <Link href="/admin/authors/applications" className="hover:text-gray-800 transition-colors">Applications</Link>
+          <ArrowLeft className="h-4 w-4 text-gray-400" />
+          <span className="text-gray-900 font-semibold">{app.name}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors">
+            <Edit2 className="h-5 w-5" />
+          </button>
+          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors" onClick={() => router.back()} title="Back">
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+        </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Application Details */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="font-heading text-xl font-bold text-white">
-                Application Details
-              </h2>
-              <span
-                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(application.status)}`}
+      <main className="max-w-5xl mx-auto px-6 sm:px-8 pt-8">
+        {/* Header */}
+        <section className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="h-20 w-20 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-2xl font-bold text-indigo-700 shadow-sm border border-indigo-200">
+              {app.avatar}
+            </div>
+            <div>
+              <h1 className="text-2xl font-extrabold text-gray-900">{app.name}</h1>
+              <p className="text-sm text-gray-500">{app.professionalTitle}</p>
+            </div>
+          </div>
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${statusColors[app.status as keyof typeof statusColors]}`}
+          >
+            {app.status === 'Pending Review' && <Clock className="h-4 w-4" />}
+            {app.status === 'Approved' && <CheckCircle2 className="h-4 w-4" />}
+            {app.status === 'Rejected' && <XCircle className="h-4 w-4" />}
+            {app.status}
+          </div>
+        </section>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          {app.status === 'Pending Review' && (
+            <>
+              <button
+                onClick={() => handleAction('Approve')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
               >
-                {application.status.replace('_', ' ')}
-              </span>
-            </div>
+                <CheckCircle2 className="h-4 w-4" /> Approve
+              </button>
+              <button
+                onClick={() => handleAction('Reject')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+              >
+                <XCircle className="h-4 w-4" /> Reject
+              </button>
+              <button
+                onClick={() => handleAction('Request Changes')}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+              >
+                <AlertTriangle className="h-4 w-4" /> Request Changes
+              </button>
+            </>
+          )}
+        </div>
 
-            <div className="space-y-4">
-              <div>
-                <p className="font-mono text-xs text-[#b9cacb] mb-1">Full Name</p>
-                <p className="text-[#e2e8e2]">{application.full_name}</p>
+        {/* Sections Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Personal Information */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Users className="h-5 w-5 text-gray-500" /> Personal Information
+            </h2>
+            <dl className="grid grid-cols-1 gap-3">
+              <div className="flex justify-between"><dt className="text-sm text-gray-600">Email</dt><dd className="text-sm font-medium text-gray-900">{app.email}</dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-gray-600">Phone</dt><dd className="text-sm font-medium text-gray-900">{app.phone}</dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-gray-600">Location</dt><dd className="text-sm font-medium text-gray-900">{app.location}</dd></div>
+              <div className="flex justify-between items-center"><dt className="text-sm text-gray-600">LinkedIn</dt><dd className="text-sm font-medium text-blue-600 underline"><a href={app.linkedin} target="_blank" rel="noopener noreferrer">Profile</a></dd></div>
+              <div className="flex justify-between items-center"><dt className="text-sm text-gray-600">Portfolio</dt><dd className="text-sm font-medium text-blue-600 underline"><a href={app.portfolio} target="_blank" rel="noopener noreferrer">Site</a></dd></div>
+            </dl>
+          </section>
+
+          {/* Professional Information */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <UserCheck className="h-5 w-5 text-gray-500" /> Professional Information
+            </h2>
+            <dl className="grid grid-cols-1 gap-3">
+              <div className="flex justify-between"><dt className="text-sm text-gray-600">Title</dt><dd className="text-sm font-medium text-gray-900">{app.professionalTitle}</dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-gray-600">Experience</dt><dd className="text-sm font-medium text-gray-900">{app.experience}</dd></div>
+              <div className="flex flex-col">
+                <dt className="text-sm text-gray-600 mb-1">Skills</dt>
+                <dd className="flex flex-wrap gap-2">
+                  {app.skills.map((skill) => (
+                    <span key={skill} className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">{skill}</span>
+                  ))}
+                </dd>
               </div>
+            </dl>
+          </section>
 
-              <div>
-                <p className="font-mono text-xs text-[#b9cacb] mb-1">Email</p>
+          {/* About & Motivation */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-gray-500" /> About / Motivation
+            </h2>
+            <p className="text-sm text-gray-700 mb-4"><span className="font-medium">Bio:</span> {app.bio}</p>
+            <p className="text-sm text-gray-700"><span className="font-medium">Motivation:</span> {app.motivation}</p>
+          </section>
+
+          {/* Documents */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Upload className="h-5 w-5 text-gray-500" /> Documents
+            </h2>
+            <ul className="space-y-3">
+              <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-[#b9cacb]" />
-                  <a
-                    href={`mailto:${application.email}`}
-                    className="text-[#e2e8e2] hover:text-[#00f0ff] transition-colors"
-                  >
-                    {application.email}
-                  </a>
+                  <FileText className="h-5 w-5 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-900">Curriculum Vitae (CV)</span>
                 </div>
-              </div>
-
-              <div>
-                <p className="font-mono text-xs text-[#b9cacb] mb-1">Expertise Area</p>
-                <p className="text-[#e2e8e2]">{application.expertise_area}</p>
-              </div>
-
-              {application.portfolio_link && (
-                <div>
-                  <p className="font-mono text-xs text-[#b9cacb] mb-1">Portfolio</p>
-                  <a
-                    href={application.portfolio_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[#00f0ff] hover:text-white transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    View Portfolio
-                  </a>
+                <a href={app.documents.cv} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+              </li>
+              <li className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-900">Portfolio Samples</span>
                 </div>
-              )}
-
-              <div>
-                <p className="font-mono text-xs text-[#b9cacb] mb-1">Bio</p>
-                <p className="text-[#e2e8e2] whitespace-pre-wrap">{application.bio}</p>
-              </div>
-
-              <div>
-                <p className="font-mono text-xs text-[#b9cacb] mb-1">Why Become an Author</p>
-                <p className="text-[#e2e8e2] whitespace-pre-wrap">
-                  {application.why_become_author}
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-[#1f2229]">
-                <p className="font-mono text-xs text-[#b9cacb] mb-1">Submitted</p>
-                <p className="text-[#e2e8e2]">
-                  {new Date(application.submitted_at).toLocaleString()}
-                </p>
-              </div>
-            </div>
-          </div>
+                <a href={app.documents.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">Download</a>
+              </li>
+              <li className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-900">ID Document</span>
+                </div>
+                <a href={app.documents.id} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+              </li>
+            </ul>
+          </section>
         </div>
-
-        {/* Actions */}
-        <div className="space-y-6">
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
-            <h2 className="font-heading text-xl font-bold text-white mb-4">
-              Actions
-            </h2>
-
-            <div className="space-y-3">
-              <form action={async () => {
-                'use server';
-                await updateApplicationStatus('UNDER_REVIEW');
-              }}>
-                <button
-                  type="submit"
-                  disabled={application.status === 'UNDER_REVIEW' || application.status === 'APPROVED' || application.status === 'DECLINED'}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#1a1d24] border border-[#00f0ff] text-[#00f0ff] font-mono text-xs font-bold uppercase rounded hover:bg-[#00f0ff] hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Clock className="w-4 h-4" />
-                  Mark as Under Review
-                </button>
-              </form>
-
-              <form action={async () => {
-                'use server';
-                await updateApplicationStatus('APPROVED');
-              }}>
-                <button
-                  type="submit"
-                  disabled={application.status === 'APPROVED' || application.status === 'DECLINED'}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white font-mono text-xs font-bold uppercase rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  Approve Application
-                </button>
-              </form>
-
-              <form action={async () => {
-                'use server';
-                await updateApplicationStatus('DECLINED');
-              }}>
-                <button
-                  type="submit"
-                  disabled={application.status === 'APPROVED' || application.status === 'DECLINED'}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white font-mono text-xs font-bold uppercase rounded hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <XCircle className="w-4 h-4" />
-                  Decline Application
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
-            <h2 className="font-heading text-lg font-bold text-white mb-4">
-              Application Timeline
-            </h2>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-[#00f0ff] rounded-full mt-2" />
-                <div>
-                  <p className="text-sm text-[#e2e8e2]">Submitted</p>
-                  <p className="font-mono text-xs text-[#b9cacb]">
-                    {new Date(application.submitted_at).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              {application.updated_at && application.updated_at !== application.submitted_at && (
-                <div className="flex items-start gap-3">
-                  <div className="w-2 h-2 bg-[#b9cacb] rounded-full mt-2" />
-                  <div>
-                    <p className="text-sm text-[#e2e8e2]">Last Updated</p>
-                    <p className="font-mono text-xs text-[#b9cacb]">
-                      {new Date(application.updated_at).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
