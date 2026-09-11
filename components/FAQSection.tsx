@@ -60,17 +60,17 @@ export default function FAQSection() {
 
   if (isLoading) {
     return (
-      <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
+      <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-[#edf0f4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-4">
                 Frequently Asked Questions
               </h2>
             </div>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl h-20 animate-pulse" />
+                <div key={i} className="border border-neutral-300/50 bg-white rounded-xl h-20 animate-pulse" />
               ))}
             </div>
           </div>
@@ -84,11 +84,11 @@ export default function FAQSection() {
   }
 
   return (
-    <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
+    <section id="faq" className="py-16 sm:py-24 bg-[#edf0f4] border-t border-neutral-300/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 mb-4">
               Frequently Asked Questions
             </h2>
           </div>
@@ -97,17 +97,17 @@ export default function FAQSection() {
             {faqs.map((faq, index) => (
               <div
                 key={faq.id}
-                className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
+                className="border border-neutral-300/50 bg-white rounded-xl overflow-hidden shadow-sm"
               >
                 <button
-                  className="w-full px-5 sm:px-6 py-4 text-left flex items-center justify-between"
+                  className="w-full px-5 sm:px-6 py-4 text-left flex items-center justify-between hover:bg-neutral-50 transition-colors"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 >
-                  <span className="font-medium text-sm sm:text-base text-[#e2e2e8]">{faq.question}</span>
-                  <CheckCircle className={`h-5 w-5 text-[#00f0ff] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
+                  <span className="font-medium text-sm sm:text-base text-neutral-900">{faq.question}</span>
+                  <CheckCircle className={`h-5 w-5 text-[#10b981] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
                 </button>
                 {openIndex === index && (
-                  <div className="px-5 sm:px-6 pb-4 text-sm text-[#b9cacb]">
+                  <div className="px-5 sm:px-6 pb-4 text-sm text-neutral-600 bg-neutral-50 pt-2">
                     {faq.answer}
                   </div>
                 )}
