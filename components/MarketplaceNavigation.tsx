@@ -9,7 +9,7 @@ import Image from 'next/image';
 /**
  * Marketplace Navigation
  *
- * Dark-themed navigation for the public marketplace:
+ * Light/gray-themed navigation for the public marketplace:
  * Logo, Explore, Skills, Courses, Authors, ALEX, Cart, Account
  */
 export function MarketplaceNavigation() {
@@ -27,7 +27,7 @@ export function MarketplaceNavigation() {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center justify-between h-16 bg-[#0c0e14] px-6 lg:px-8 sticky top-0 z-50">
+      <nav className="hidden md:flex items-center justify-between h-16 bg-[#e5e9ed] px-6 lg:px-8 sticky top-0 z-50 border-b border-neutral-300/50">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 flex items-center justify-center">
             <Image
@@ -38,7 +38,7 @@ export function MarketplaceNavigation() {
               className="object-contain"
             />
           </div>
-          <span className="font-heading text-lg font-bold text-white">
+          <span className="font-heading text-lg font-bold text-neutral-900">
             AutoLearn Spot
           </span>
         </Link>
@@ -48,7 +48,7 @@ export function MarketplaceNavigation() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-neutral-400 hover:text-white transition-colors flex items-center gap-1.5"
+              className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors flex items-center gap-1.5"
             >
               {item.icon && <item.icon className="w-4 h-4" />}
               {item.name}
@@ -59,26 +59,26 @@ export function MarketplaceNavigation() {
         <div className="flex items-center gap-5">
           <Link
             href="/cart"
-            className="text-sm font-medium text-neutral-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
           >
             Cart
           </Link>
           <Link
             href="/student"
-            className="text-sm font-medium text-neutral-400 hover:text-white transition-colors flex items-center gap-1.5"
+            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors flex items-center gap-1.5"
           >
             <User className="w-4 h-4" />
             Student Portal
           </Link>
           <Link
             href="/author"
-            className="text-sm font-medium text-neutral-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
           >
             Author Studio
           </Link>
           <Link
             href="/admin"
-            className="text-sm font-medium text-neutral-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
           >
             Admin Portal
           </Link>
@@ -86,7 +86,7 @@ export function MarketplaceNavigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden sticky top-0 z-50 h-14 bg-[#0c0e14] px-4">
+      <nav className="md:hidden sticky top-0 z-50 h-14 bg-[#e5e9ed] px-4 border-b border-neutral-300/50">
         <div className="flex items-center justify-between h-full">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 flex items-center justify-center">
@@ -98,14 +98,14 @@ export function MarketplaceNavigation() {
                 className="object-contain"
               />
             </div>
-            <span className="font-heading text-base font-bold text-white">
+            <span className="font-heading text-base font-bold text-neutral-900">
               AutoLearn Spot
             </span>
           </Link>
           
           <button
             onClick={() => setIsOpen(true)}
-            className="text-neutral-400 hover:text-white transition-colors"
+            className="text-neutral-600 hover:text-neutral-900 transition-colors"
             aria-label="Open menu"
           >
             <Menu className="w-6 h-6" />
@@ -117,19 +117,19 @@ export function MarketplaceNavigation() {
       {isOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-neutral-900/40 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          <div className="fixed inset-y-0 right-0 z-50 w-[80%] max-w-sm bg-[#0c0e14] shadow-2xl transform transition-transform duration-300">
+          <div className="fixed inset-y-0 right-0 z-50 w-[80%] max-w-sm bg-[#e5e9ed] shadow-2xl transform transition-transform duration-300">
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-neutral-800">
-                <span className="font-heading text-lg font-bold text-white">
+              <div className="flex items-center justify-between p-4 border-b border-neutral-300/50">
+                <span className="font-heading text-lg font-bold text-neutral-900">
                   Menu
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-neutral-500 hover:text-white transition-colors bg-neutral-800 p-2 rounded-full"
+                  className="text-neutral-600 hover:text-neutral-900 transition-colors bg-white/50 p-2 rounded-full"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
@@ -143,27 +143,27 @@ export function MarketplaceNavigation() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-4 py-3 text-base font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-xl transition-colors"
+                    className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-white/50 rounded-xl transition-colors"
                   >
                     {item.name}
                   </Link>
                 ))}
               </div>
 
-              <div className="border-t border-neutral-800" />
+              <div className="border-t border-neutral-300/50" />
 
               {/* Auth & Portal Links */}
               <div className="p-4 space-y-1">
-                <Link href="/cart" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-xl transition-colors">
+                <Link href="/cart" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-white/50 rounded-xl transition-colors">
                   Cart
                 </Link>
-                <Link href="/student" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-xl transition-colors">
+                <Link href="/student" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-white/50 rounded-xl transition-colors">
                   Student Portal
                 </Link>
-                <Link href="/author" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-xl transition-colors">
+                <Link href="/author" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-white/50 rounded-xl transition-colors">
                   Author Studio
                 </Link>
-                <Link href="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-300 hover:text-white hover:bg-neutral-800 rounded-xl transition-colors">
+                <Link href="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-white/50 rounded-xl transition-colors">
                   Admin Portal
                 </Link>
               </div>
