@@ -17,6 +17,8 @@ import Link from 'next/link'
 import { MarketplaceHeader } from '@/components/marketplace/MarketplaceHeader'
 import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero'
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid'
+import { FeatureStrip } from '@/components/marketplace/FeatureStrip'
+import { TopSkillsGrid } from '@/components/marketplace/TopSkillsGrid'
 
 import './page.css'
 
@@ -141,6 +143,8 @@ export default async function Page() {
       
       {/* Marketplace Core Sections */}
       {sectionEnabled('section_hero_enabled') && <MarketplaceHero />}
+      <FeatureStrip />
+      <TopSkillsGrid />
       <MarketplaceProductGrid products={publishedProducts} />
 
       {/* Social Proof & Contact */}
