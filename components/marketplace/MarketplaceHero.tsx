@@ -4,53 +4,57 @@ import Image from 'next/image';
 
 export function MarketplaceHero() {
   return (
-    <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden bg-[#f4f7f9]">
+    <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden bg-[#e5e9ed]">
       {/* Background radial gradient */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-white via-[#f4f7f9] to-[#eaeff3]" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#edf0f4] via-[#e5e9ed] to-[#dce1e7]" />
       
       {/* Accent glows */}
-      <div className="absolute top-20 left-0 w-[600px] h-[600px] bg-blue-100/40 blur-[120px] rounded-full pointer-events-none mix-blend-multiply" />
-      <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-sky-100/40 blur-[120px] rounded-full pointer-events-none mix-blend-multiply" />
+      <div className="absolute top-20 left-0 w-[600px] h-[600px] bg-emerald-100/30 blur-[120px] rounded-full pointer-events-none mix-blend-multiply" />
+      <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-teal-100/30 blur-[120px] rounded-full pointer-events-none mix-blend-multiply" />
 
       <div className="container relative z-10 mx-auto px-6 lg:px-8 max-w-7xl">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           
           {/* Left Column: Content */}
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold mb-8 border border-blue-100 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-sm font-semibold mb-8 border border-emerald-200 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
               <Sparkles className="w-4 h-4" />
               Learn Without Limits
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-[72px] font-heading font-extrabold text-neutral-900 tracking-tight mb-6 leading-[1.05] animate-in fade-in slide-in-from-bottom-6 duration-700 delay-150 fill-mode-both">
-              Discover Your Next Skill. <span className="text-brand-primary">Learn and Grow.</span>
+            <h1 className="text-5xl md:text-6xl lg:text-[72px] font-heading font-extrabold text-neutral-900 tracking-tight mb-6 leading-[1.05]">
+              <span className="inline-block animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-both">Discover Your</span>{' '}
+              <span className="inline-block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200 fill-mode-both">Next Skill.</span>{' '}
+              <span className="inline-block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 fill-mode-both text-[#10b981]">Learn</span>{' '}
+              <span className="inline-block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-600 fill-mode-both text-[#10b981]">and</span>{' '}
+              <span className="inline-block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 fill-mode-both text-[#10b981]">Grow.</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-neutral-600 mb-10 max-w-xl leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300 fill-mode-both">
+            <p className="text-lg md:text-xl text-neutral-600 mb-10 max-w-xl leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500 fill-mode-both">
               Elevate your career with premium courses, curated digital products, and communities led by industry experts.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12 animate-in fade-in zoom-in-95 duration-700 delay-500 fill-mode-both">
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12 animate-in fade-in zoom-in-95 duration-700 delay-700 fill-mode-both">
               <Link 
                 href="#products" 
-                className="group flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 bg-brand-primary text-white font-semibold rounded-full hover:bg-brand-primary-hover transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(var(--color-brand-primary),0.5)] hover:shadow-[0_12px_24px_-8px_rgba(var(--color-brand-primary),0.6)] hover:-translate-y-0.5"
+                className="group flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 bg-[#10b981] text-white font-semibold rounded-full hover:bg-[#059669] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)] hover:shadow-[0_12px_24px_-8px_rgba(16,185,129,0.6)] hover:-translate-y-0.5"
               >
                 Explore Marketplace
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/author-apply"
-                className="w-full sm:w-auto px-8 py-4 bg-white border border-neutral-200 text-neutral-700 font-semibold rounded-full hover:bg-neutral-50 hover:border-neutral-300 transition-all duration-300 shadow-sm"
+                className="w-full sm:w-auto px-8 py-4 bg-white border border-neutral-300 text-neutral-700 font-semibold rounded-full hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-300 shadow-sm"
               >
                 Become a Creator
               </Link>
             </div>
 
             {/* Social Proof */}
-            <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-700 fill-mode-both">
+            <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-900 fill-mode-both">
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-[#f4f7f9] bg-neutral-200 overflow-hidden relative">
+                  <div key={i} className="w-10 h-10 rounded-full border-2 border-[#e5e9ed] bg-neutral-300 overflow-hidden relative">
                     <Image 
                       src={`https://i.pravatar.cc/100?img=${i + 10}`} 
                       alt="Student" 
@@ -59,7 +63,7 @@ export function MarketplaceHero() {
                     />
                   </div>
                 ))}
-                <div className="w-10 h-10 rounded-full border-2 border-[#f4f7f9] bg-neutral-100 text-neutral-600 text-xs font-bold flex items-center justify-center relative z-10">
+                <div className="w-10 h-10 rounded-full border-2 border-[#e5e9ed] bg-neutral-200 text-neutral-600 text-xs font-bold flex items-center justify-center relative z-10">
                   +
                 </div>
               </div>
@@ -73,8 +77,7 @@ export function MarketplaceHero() {
           {/* Right Column: Visuals */}
           <div className="relative h-[500px] lg:h-[650px] w-full hidden md:block animate-in fade-in zoom-in-95 duration-1000 delay-300 fill-mode-both">
             {/* Main Image Mask/Container */}
-            <div className="absolute right-0 bottom-0 w-[90%] h-[95%] bg-neutral-200 rounded-[40px] overflow-hidden shadow-2xl">
-               {/* Use a placeholder image that fits the vibe. In a real app this would be driven by the CMS */}
+            <div className="absolute right-0 bottom-0 w-[90%] h-[95%] bg-neutral-300 rounded-[40px] overflow-hidden shadow-2xl">
                <Image
                  src="https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069&auto=format&fit=crop"
                  alt="Student learning"
@@ -108,7 +111,7 @@ export function MarketplaceHero() {
 
             {/* Floating Card 3: Digital Marketing */}
             <div className="absolute bottom-[25%] -left-8 bg-white/90 backdrop-blur-md p-3 pr-6 rounded-2xl shadow-xl flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default z-20">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-inner">
+              <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-inner">
                 <Megaphone className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -124,16 +127,15 @@ export function MarketplaceHero() {
                 <span className="text-xs font-bold text-neutral-500">68%</span>
               </div>
               <div className="w-full bg-neutral-100 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '68%' }}></div>
+                <div className="bg-[#10b981] h-2 rounded-full" style={{ width: '68%' }}></div>
               </div>
             </div>
 
-            {/* Hand-drawn text element (simulated with handwriting font if available, or nice italic) */}
+            {/* Hand-drawn text element */}
             <div className="absolute top-[15%] right-[5%] -rotate-6 z-20 hidden lg:block">
               <p className="font-serif italic text-xl text-neutral-600">
                 Better Skills<br/>Bigger Opportunities
               </p>
-              {/* Simple SVG curved arrow */}
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="absolute -bottom-6 -right-2 text-neutral-400 -rotate-45" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 9c2.5-3 7-3 9 0s2 7 6 7"/>
                 <path d="M16 16l4 0l0-4"/>

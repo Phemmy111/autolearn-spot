@@ -2,7 +2,6 @@ import { getPublicSettings } from '@/lib/public-settings'
 import { getPublishedProducts } from '@/lib/public-product-service'
 import { MarketplaceNavigation } from '@/components/MarketplaceNavigation'
 import { AnnouncementBanner } from '@/components/announcement-banner'
-import { CohortAnnouncementStrip } from '@/components/CohortAnnouncementStrip'
 import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal'
 import { AutolearnBot } from '@/components/autolearn-bot'
 import FAQSection from '@/components/FAQSection'
@@ -135,7 +134,6 @@ export default async function Page() {
     <main className="min-h-screen bg-background">
       <MarketplaceNavigation />
       <AnnouncementBanner />
-      <CohortAnnouncementStrip />
       
       {/* Floating widgets */}
       <WhatsAppChatModal variant="floating" />
