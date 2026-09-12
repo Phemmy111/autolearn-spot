@@ -176,9 +176,20 @@ export function ThreeAiBackground() {
     })
     autoText.position.set(-0.1, 0.52, 0.08)
     learnText.position.set(-0.1, -0.5, 0.08)
+    
+    const spotText = createBlockWord({
+      text: 'SPOT',
+      material: textMaterial,
+      edgeMaterial: textEdgeMaterial,
+      cellGeometry: textCellGeometry,
+      edgeGeometry: textEdgeGeometry,
+    })
+    spotText.position.set(-0.1, -1.52, 0.08)
+    
     autoText.rotation.y = -0.05
     learnText.rotation.y = 0.04
-    letterGroup.add(autoText, learnText)
+    spotText.rotation.y = 0.07
+    letterGroup.add(autoText, learnText, spotText)
 
     const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.18, 1), coreMaterial)
     core.position.set(0, 0, -0.72)
@@ -236,20 +247,41 @@ export function ThreeAiBackground() {
       randomPositions[stride + 2] = (Math.random() - 0.5) * 2.8;
     }
 
-    // Collect target positions from block letters (autoText and learnText voxels)
-    const targetPositions = new Float32Array(PARTICLE_COUNT * 3);
-    const voxels: THREE.Object3D[] = [];
-    autoText.traverse((obj) => { if (obj.type === 'Mesh') voxels.push(obj); });
-    learnText.traverse((obj) => { if (obj.type === 'Mesh') voxels.push(obj); });
-    const voxelCount = voxels.length;
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const src = voxels[i % voxelCount] as THREE.Mesh;
-      const pos = src.position;
-      const stride = i * 3;
-      targetPositions[stride] = pos.x;
-      targetPositions[stride + 1] = pos.y;
-      targetPositions[stride + 2] = pos.z;
+    // Collect voxels per word
+    const autoVoxels: THREE.Object3D[] = []
+    const learnVoxels: THREE.Object3D[] = []
+    const spotVoxels: THREE.Object3D[] = []
+    autoText.traverse((obj) => { if (obj.type === 'Mesh') autoVoxels.push(obj) })
+    learnText.traverse((obj) => { if (obj.type === 'Mesh') learnVoxels.push(obj) })
+    spotText.traverse((obj) => { if (obj.type === 'Mesh') spotVoxels.push(obj) })
+
+    const fillTarget = (target: Float32Array, vox: THREE.Object3D[]) => {
+      const count = vox.length
+      if (count === 0) return
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const src = vox[i % count] as THREE.Mesh
+        const pos = src.position
+        const stride = i * 3
+        target[stride] = pos.x
+        target[stride + 1] = pos.y
+        target[stride + 2] = pos.z
+      }
     }
+
+    const autoTarget = new Float32Array(PARTICLE_COUNT * 3)
+    const learnTarget = new Float32Array(PARTICLE_COUNT * 3)
+    const spotTarget = new Float32Array(PARTICLE_COUNT * 3)
+    const combinedTarget = new Float32Array(PARTICLE_COUNT * 3)
+    
+    fillTarget(autoTarget, autoVoxels)
+    fillTarget(learnTarget, learnVoxels)
+    fillTarget(spotTarget, spotVoxels)
+    
+    const allVoxels = autoVoxels.concat(learnVoxels, spotVoxels)
+    fillTarget(combinedTarget, allVoxels)
+
+    const phaseTargets = [autoTarget, learnTarget, spotTarget, combinedTarget]
+    const phasesCount = phaseTargets.length
 
     // Initialise particle positions with random positions
     const particlePositions = new Float32Array(PARTICLE_COUNT * 3);
@@ -261,26 +293,38 @@ export function ThreeAiBackground() {
     root.add(particles);
 
     // Animation parameters
-    const cycleDuration = 8; // seconds for full write+erase cycle
+    let frameId: number;
+    const startedAt = performance.now();
 
     const animate = () => {
       const elapsed = (performance.now() - startedAt) / 1000;
-      const t = (elapsed % cycleDuration) / cycleDuration;
-      const progress = t < 0.5 ? t * 2 : (1 - t) * 2; // 0→1→0
-
+      const globalT = (elapsed % totalDuration) / totalDuration;
+      
+      const phaseIdx = Math.floor(globalT * phasesCount);
+      const phaseProg = (globalT * phasesCount) % 1;
+      
+      const currentTarget = phaseTargets[phaseIdx];
+      
+      // Interpolate between random positions and the current target
+      const progress = phaseProg < 0.5 ? phaseProg * 2 : (1 - phaseProg) * 2; // 0→1→0
+      
       for (let i = 0; i < PARTICLE_COUNT; i++) {
         const stride = i * 3;
         const r0 = randomPositions[stride];
         const r1 = randomPositions[stride + 1];
         const r2 = randomPositions[stride + 2];
-        const tx = targetPositions[stride];
-        const ty = targetPositions[stride + 1];
-        const tz = targetPositions[stride + 2];
+        const tx = currentTarget[stride];
+        const ty = currentTarget[stride + 1];
+        const tz = currentTarget[stride + 2];
         particlePositions[stride] = r0 * (1 - progress) + tx * progress;
         particlePositions[stride + 1] = r1 * (1 - progress) + ty * progress;
         particlePositions[stride + 2] = r2 * (1 - progress) + tz * progress;
       }
       particleGeometry.attributes.position.needsUpdate = true;
+      
+      // Fade opacity
+      const opacityProg = Math.cos(phaseProg * Math.PI) * -0.5 + 0.5; // smooth 0->1->0
+      particleMaterial.opacity = (opacityProg * 0.5 + 0.1) * baseOpacity;
 
       // existing rotations etc.
       root.rotation.y = Math.sin(elapsed * 0.18) * 0.06;
@@ -292,6 +336,9 @@ export function ThreeAiBackground() {
       learnText.rotation.y = 0.04 + Math.cos(elapsed * 0.64) * 0.055;
       learnText.rotation.x = Math.sin(elapsed * 0.52) * 0.025;
       learnText.position.z = 0.08 + Math.cos(elapsed * 0.82) * 0.12;
+      spotText.rotation.y = 0.07 + Math.sin(elapsed * 0.58) * 0.055;
+      spotText.rotation.x = Math.cos(elapsed * 0.61) * 0.025;
+      spotText.position.z = 0.08 + Math.sin(elapsed * 0.75) * 0.12;
       core.rotation.x = elapsed * 0.18;
       core.rotation.y = elapsed * 0.24;
       particles.rotation.z = elapsed * 0.018;

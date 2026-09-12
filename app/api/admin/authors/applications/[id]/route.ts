@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin();
@@ -16,7 +16,7 @@ export async function GET(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
 
     console.log('[Admin Application Details] Fetching application with ID:', id);
 
@@ -48,7 +48,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await requireAdmin();
@@ -57,7 +57,7 @@ export async function PATCH(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { status, admin_review_note } = body;
 
