@@ -23,7 +23,13 @@ export default function AdminApplicationsPage() {
   useEffect(() => {
     async function fetchApplications() {
       try {
-        const res = await fetch('/api/admin/authors/applications');
+        const params = new URLSearchParams();
+        if (searchTerm) params.append('search', searchTerm);
+        if (statusFilter) params.append('status', statusFilter);
+        params.append('page', pagination.page.toString());
+        params.append('limit', pagination.limit.toString());
+
+        const res = await fetch(`/api/admin/authors/applications?${params.toString()}`);
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
         if (data.applications) {
@@ -53,7 +59,7 @@ export default function AdminApplicationsPage() {
       }
     }
     fetchApplications();
-  }, []);
+  }, [searchTerm, statusFilter, pagination.page]);
 
   return (
     <div className="min-h-screen pb-12 text-gray-900 font-sans">
@@ -111,15 +117,21 @@ export default function AdminApplicationsPage() {
               <input 
                 type="text" 
                 placeholder="Search by name, email, or expertise..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all"
               />
             </div>
             <div className="flex gap-3 w-full sm:w-auto">
-              <select className="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                <option>All Statuses</option>
-                <option>Pending Review</option>
-                <option>Approved</option>
-                <option>Rejected</option>
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              >
+                <option value="">All Statuses</option>
+                <option value="SUBMITTED">Pending Review</option>
+                <option value="APPROVED">Approved</option>
+                <option value="DECLINED">Rejected</option>
               </select>
               <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
                 <Filter className="h-4 w-4 text-gray-500" /> Filters
@@ -220,12 +232,14 @@ export default function AdminApplicationsPage() {
             </span>
             <div className="flex gap-2">
               <button 
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
                 className={`px-3 py-1.5 bg-white border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page <= 1 ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
                 disabled={pagination.page <= 1}
               >
                 Previous
               </button>
               <button 
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
                 className={`px-3 py-1.5 bg-white border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page >= pagination.totalPages ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
                 disabled={pagination.page >= pagination.totalPages}
               >
