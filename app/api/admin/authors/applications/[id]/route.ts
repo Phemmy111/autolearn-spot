@@ -5,6 +5,26 @@ import { EmailService } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
+// Helper function to normalize object path from stored URLs
+function normalizeObjectPath(urlOrPath: string): string {
+  // If it's a full URL, extract the path part
+  if (urlOrPath.startsWith('http')) {
+    const url = new URL(urlOrPath);
+    let path = url.pathname;
+    
+    // Remove storage prefix if present
+    path = path.replace(/^\/storage\/v1\/object\/(public|sign)\//, '');
+    
+    // Remove bucket name prefix if present
+    path = path.replace(/^author-documents\//, '');
+    
+    return path;
+  }
+  
+  // If it's just a path, remove bucket name prefix
+  return urlOrPath.replace(/^author-documents\//, '');
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -43,10 +63,12 @@ export async function GET(
     
     if (application.cv_url) {
       try {
+        const normalizedPath = normalizeObjectPath(application.cv_url);
+        console.log('[Admin Application Details] Normalized CV path:', normalizedPath);
         const { data: signedUrlData } = await supabaseAdmin
           .storage
           .from('author-documents')
-          .createSignedUrl(application.cv_url, 60 * 60); // 1 hour expiry
+          .createSignedUrl(normalizedPath, 60 * 60); // 1 hour expiry
         signedUrls.cv = signedUrlData.signedUrl;
       } catch (error) {
         console.error('[Admin Application Details] Error generating signed URL for CV:', error);
@@ -55,10 +77,12 @@ export async function GET(
     
     if (application.portfolio_samples_url) {
       try {
+        const normalizedPath = normalizeObjectPath(application.portfolio_samples_url);
+        console.log('[Admin Application Details] Normalized portfolio path:', normalizedPath);
         const { data: signedUrlData } = await supabaseAdmin
           .storage
           .from('author-documents')
-          .createSignedUrl(application.portfolio_samples_url, 60 * 60);
+          .createSignedUrl(normalizedPath, 60 * 60);
         signedUrls.portfolio = signedUrlData.signedUrl;
       } catch (error) {
         console.error('[Admin Application Details] Error generating signed URL for portfolio:', error);
@@ -67,10 +91,12 @@ export async function GET(
     
     if (application.id_document_url) {
       try {
+        const normalizedPath = normalizeObjectPath(application.id_document_url);
+        console.log('[Admin Application Details] Normalized ID path:', normalizedPath);
         const { data: signedUrlData } = await supabaseAdmin
           .storage
           .from('author-documents')
-          .createSignedUrl(application.id_document_url, 60 * 60);
+          .createSignedUrl(normalizedPath, 60 * 60);
         signedUrls.id = signedUrlData.signedUrl;
       } catch (error) {
         console.error('[Admin Application Details] Error generating signed URL for ID:', error);
