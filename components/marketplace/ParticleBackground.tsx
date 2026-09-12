@@ -10,6 +10,8 @@ interface Particle {
   speedY: number;
   color: string;
   opacity: number;
+  twinkleSpeed: number;
+  twinkleOffset: number;
 }
 
 export function ParticleBackground() {
@@ -24,12 +26,19 @@ export function ParticleBackground() {
 
     let animationFrameId: number;
     let particles: Particle[] = [];
+    let time = 0;
 
-    // Colors matching the brand: Emerald, Teal, and subtle Blue/Gray
-    const colors = ['#10b981', '#0d9488', '#94a3b8', '#0ea5e9'];
+    // Bold brand colors — darker for visibility on light gray
+    const colors = [
+      '#059669', // emerald-600
+      '#0d9488', // teal-500
+      '#0284c7', // sky-600
+      '#6366f1', // indigo-500
+      '#475569', // slate-600
+      '#10b981', // emerald-500
+    ];
 
     const resizeCanvas = () => {
-      // Ensure canvas covers the parent container
       const parent = canvas.parentElement;
       if (parent) {
         canvas.width = parent.offsetWidth;
@@ -40,26 +49,34 @@ export function ParticleBackground() {
 
     const initParticles = () => {
       particles = [];
-      const numParticles = Math.floor((canvas.width * canvas.height) / 15000); // Responsive particle count
+      // 3x more particles than before
+      const numParticles = Math.floor((canvas.width * canvas.height) / 5000);
 
       for (let i = 0; i < numParticles; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 2 + 0.5,
-          speedX: (Math.random() - 0.5) * 0.3,
-          speedY: (Math.random() - 0.5) * 0.3 - 0.1, // Slight upward drift
+          size: Math.random() * 3 + 1, // 1px to 4px (was 0.5–2.5)
+          speedX: (Math.random() - 0.5) * 0.4,
+          speedY: (Math.random() - 0.5) * 0.4 - 0.15,
           color: colors[Math.floor(Math.random() * colors.length)],
-          opacity: Math.random() * 0.5 + 0.1,
+          opacity: Math.random() * 0.6 + 0.4, // 0.4 to 1.0 (was 0.1–0.6)
+          twinkleSpeed: Math.random() * 0.02 + 0.005,
+          twinkleOffset: Math.random() * Math.PI * 2,
         });
       }
     };
 
     const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      time += 1;
 
       particles.forEach((p) => {
-        ctx.globalAlpha = p.opacity;
+        // Twinkling effect — oscillates opacity
+        const twinkle = Math.sin(time * p.twinkleSpeed + p.twinkleOffset);
+        const dynamicOpacity = p.opacity * (0.6 + 0.4 * twinkle);
+
+        ctx.globalAlpha = Math.max(0.15, dynamicOpacity);
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -93,7 +110,7 @@ export function ParticleBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-0 pointer-events-none opacity-60"
+      className="absolute inset-0 z-0 pointer-events-none"
       style={{ width: '100%', height: '100%' }}
     />
   );

@@ -15,6 +15,9 @@ export default function AdminApplicationsPage() {
   // State for applications data
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Fetch applications from backend; fallback to sample data if fetch fails
   useEffect(() => {
@@ -39,6 +42,9 @@ export default function AdminApplicationsPage() {
             documents: (app.portfolio_samples_url ? 1 : 0) + (app.cv_url ? 1 : 0) + (app.id_document_url ? 1 : 0) || 0
           }));
           setApplications(mappedApps);
+          if (data.pagination) {
+            setPagination(data.pagination);
+          }
         } else {
           setApplications([]);
         }
@@ -135,7 +141,18 @@ export default function AdminApplicationsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {applications.map((app) => (
+                {applications.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <FileText className="h-12 w-12 text-gray-300 mb-4" />
+                        <p className="text-gray-500 font-medium">No author applications found</p>
+                        <p className="text-gray-400 text-sm mt-1">Applications will appear here when people apply to become authors</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  applications.map((app) => (
                   <tr key={app.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer" onClick={() => router.push(`/admin/authors/applications/${app.id}`)}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
@@ -188,15 +205,32 @@ export default function AdminApplicationsPage() {
                     </td>
                   </tr>
                 ))}
+                )}
               </tbody>
             </table>
           </div>
           
           <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-500">Showing <span className="font-bold text-gray-700">1</span> to <span className="font-bold text-gray-700">5</span> of <span className="font-bold text-gray-700">45</span> pending applications</span>
+            <span className="text-sm font-medium text-gray-500">
+              {applications.length > 0 ? (
+                <>Showing <span className="font-bold text-gray-700">{((pagination.page - 1) * pagination.limit) + 1}</span> to <span className="font-bold text-gray-700">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of <span className="font-bold text-gray-700">{pagination.total}</span> applications</>
+              ) : (
+                <>No applications found</>
+              )}
+            </span>
             <div className="flex gap-2">
-              <button className="px-3 py-1.5 bg-white border border-gray-200 text-gray-500 font-bold text-sm rounded-lg opacity-50 cursor-not-allowed">Previous</button>
-              <button className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-lg hover:bg-gray-50 shadow-sm transition-colors">Next</button>
+              <button 
+                className={`px-3 py-1.5 bg-white border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page <= 1 ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                disabled={pagination.page <= 1}
+              >
+                Previous
+              </button>
+              <button 
+                className={`px-3 py-1.5 bg-white border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page >= pagination.totalPages ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                disabled={pagination.page >= pagination.totalPages}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
