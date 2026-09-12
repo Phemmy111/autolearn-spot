@@ -307,21 +307,33 @@ export default function ApplicationDetailPage() {
                   <FileText className="h-5 w-5 text-gray-500" />
                   <span className="text-sm font-medium text-gray-900">Curriculum Vitae (CV)</span>
                 </div>
-                <a href={app.documents.cv} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+                {app.documents.cv && app.documents.cv !== '#' ? (
+                  <a href={app.documents.cv} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+                ) : (
+                  <span className="text-sm text-gray-400 italic">Not provided</span>
+                )}
               </li>
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-gray-500" />
                   <span className="text-sm font-medium text-gray-900">Portfolio Samples</span>
                 </div>
-                <a href={app.documents.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">Download</a>
+                {app.documents.portfolio && app.documents.portfolio !== '#' ? (
+                  <a href={app.documents.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">Download</a>
+                ) : (
+                  <span className="text-sm text-gray-400 italic">Not provided</span>
+                )}
               </li>
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-gray-500" />
                   <span className="text-sm font-medium text-gray-900">ID Document</span>
                 </div>
-                <a href={app.documents.id} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+                {app.documents.id && app.documents.id !== '#' ? (
+                  <a href={app.documents.id} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+                ) : (
+                  <span className="text-sm text-gray-400 italic">Not provided</span>
+                )}
               </li>
             </ul>
           </section>

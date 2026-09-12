@@ -1,5 +1,13 @@
 -- Create storage bucket for author documents
--- Note: This migration must be run by a database owner or via Supabase dashboard
+-- IMPORTANT: This must be run in Supabase Dashboard SQL Editor (requires owner permissions)
+-- Storage bucket creation via SQL typically requires database owner privileges
+
+-- Alternative: Create bucket manually in Supabase Dashboard:
+-- 1. Go to Storage → New bucket
+-- 2. Name: author-documents
+-- 3. Public: false (private)
+-- 4. File size limit: 10MB
+-- 5. Allowed MIME types: application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/zip, application/x-zip-compressed, image/jpeg, image/jpg, image/png
 
 -- Insert storage bucket if it doesn't exist
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
