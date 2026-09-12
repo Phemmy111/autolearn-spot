@@ -74,9 +74,15 @@ export async function POST(
     const clerkUserId = application.user_id || null;
 
     // Create new author profile
+    // Note: user_id is required by the original schema (references auth.users)
+    // For Clerk integration, we use clerk_user_id for the actual user link
+    // We set user_id to a placeholder UUID since we're not using Supabase auth
+    const placeholderUserId = '00000000-0000-0000-0000-000000000000';
+
     const { data: author, error: authorError } = await supabaseAdmin
       .from('authors')
       .insert({
+        user_id: placeholderUserId, // Required by schema, but we use clerk_user_id for actual auth
         clerk_user_id: clerkUserId,
         display_name: application.full_name,
         email: application.email,
