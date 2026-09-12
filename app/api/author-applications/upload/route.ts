@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       }
 
       const fileExt = cvFile.name.split('.').pop();
-      const fileName = `author-documents/cv-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `cv-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       console.log('[Upload] Attempting to upload CV to bucket: author-documents');
       console.log('[Upload] File name:', fileName);
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       }
 
       const fileExt = portfolioFile.name.split('.').pop();
-      const fileName = `author-documents/portfolio-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `portfolio-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       const { error: uploadError } = await supabaseAdmin
         .storage
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       }
 
       const fileExt = idFile.name.split('.').pop();
-      const fileName = `author-documents/id-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileName = `id-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
       const { error: uploadError } = await supabaseAdmin
         .storage

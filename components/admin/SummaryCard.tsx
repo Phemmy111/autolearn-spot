@@ -26,38 +26,38 @@ export async function SummaryCard() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-      <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all duration-300 group">
+      <div className="border border-neutral-200 bg-white p-6 rounded-xl hover:border-neutral-300 transition-all duration-300 group shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-[#00f0ff]/10 rounded-lg md:group-hover:scale-110 transition-transform">
-            <BookOpen className="h-6 w-6 text-[#00f0ff]" />
+          <div className="p-3 bg-[#10b981]/10 rounded-lg md:group-hover:scale-110 transition-transform">
+            <BookOpen className="h-6 w-6 text-[#10b981]" />
           </div>
           <div>
-            <p className="font-mono text-xs text-[#5d5f63] uppercase tracking-wider mb-1">Total Quizzes</p>
-            <p className="font-heading text-3xl font-bold text-white">{quizzesCount || 0}</p>
+            <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider mb-1">Total Quizzes</p>
+            <p className="font-heading text-3xl font-bold text-neutral-900">{quizzesCount || 0}</p>
           </div>
         </div>
       </div>
 
-      <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all duration-300 group">
+      <div className="border border-neutral-200 bg-white p-6 rounded-xl hover:border-neutral-300 transition-all duration-300 group shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-emerald-400/10 rounded-lg md:group-hover:scale-110 transition-transform">
-            <Users className="h-6 w-6 text-emerald-400" />
+          <div className="p-3 bg-emerald-500/10 rounded-lg md:group-hover:scale-110 transition-transform">
+            <Users className="h-6 w-6 text-emerald-500" />
           </div>
           <div>
-            <p className="font-mono text-xs text-[#5d5f63] uppercase tracking-wider mb-1">Total Students</p>
-            <p className="font-heading text-3xl font-bold text-white">{totalStudents}</p>
+            <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider mb-1">Total Students</p>
+            <p className="font-heading text-3xl font-bold text-neutral-900">{totalStudents}</p>
           </div>
         </div>
       </div>
 
-      <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl hover:border-[#00f0ff]/50 transition-all duration-300 group">
+      <div className="border border-neutral-200 bg-white p-6 rounded-xl hover:border-neutral-300 transition-all duration-300 group shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-amber-400/10 rounded-lg md:group-hover:scale-110 transition-transform">
-            <Trophy className="h-6 w-6 text-amber-400" />
+          <div className="p-3 bg-amber-500/10 rounded-lg md:group-hover:scale-110 transition-transform">
+            <Trophy className="h-6 w-6 text-amber-500" />
           </div>
           <div>
-            <p className="font-mono text-xs text-[#5d5f63] uppercase tracking-wider mb-1">Pass Rate</p>
-            <p className="font-heading text-3xl font-bold text-white">{Math.round(passRate)}%</p>
+            <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider mb-1">Pass Rate</p>
+            <p className="font-heading text-3xl font-bold text-neutral-900">{Math.round(passRate)}%</p>
           </div>
         </div>
       </div>

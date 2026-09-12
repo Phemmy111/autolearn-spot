@@ -48,9 +48,9 @@ export function CertificateToggle() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 border border-[#1f2229] bg-[#0c0e12] px-4 py-2 rounded">
-        <Loader2 className="h-4 w-4 animate-spin text-[#b9cacb]" />
-        <span className="font-mono text-xs text-[#b9cacb]">Loading...</span>
+      <div className="flex items-center gap-2 border border-neutral-200 bg-neutral-50 px-4 py-2 rounded">
+        <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
+        <span className="font-mono text-xs text-neutral-500">Loading...</span>
       </div>
     )
   }
@@ -61,8 +61,8 @@ export function CertificateToggle() {
       disabled={toggling}
       className={`flex items-center gap-2 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded text-sm transition-colors ${
         enabled
-          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 hover:bg-emerald-500/30'
-          : 'bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30'
+          ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 shadow-sm'
+          : 'bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 shadow-sm'
       } ${toggling ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       {toggling ? (
