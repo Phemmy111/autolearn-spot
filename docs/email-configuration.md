@@ -1,47 +1,23 @@
 # Email Configuration Guide
 
-The EmailService now supports multiple email providers. Configure your preferred provider by setting the appropriate environment variables.
+The EmailService uses the same SMTP configuration as existing services (partners, scholarship, etc.).
 
 ## Environment Variables
+
+### SMTP Configuration (Required)
+```bash
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password_here
+SMTP_FROM=noreply@autolearnspot.com
+```
 
 ### Founder Email Configuration
 ```bash
 FOUNDER_EMAIL=femiadeleke2020@gmail.com
 ```
 This email address will receive notifications whenever someone submits a new author application.
-
-### Choose Your Email Provider
-```bash
-EMAIL_PROVIDER=smtp  # Options: 'resend', 'sendgrid', or 'smtp'
-```
-
-### Resend Configuration (Recommended)
-```bash
-EMAIL_PROVIDER=resend
-RESEND_API_KEY=re_xxxxxxxxxxxxxx
-EMAIL_FROM=AutoLearn Spot <noreply@autolearnspot.com>
-FOUNDER_EMAIL=femiadeleke2020@gmail.com
-```
-
-### SendGrid Configuration
-```bash
-EMAIL_PROVIDER=sendgrid
-SENDGRID_API_KEY=SG.xxxxxxxxxxxxxx
-EMAIL_FROM=AutoLearn Spot <noreply@autolearnspot.com>
-FOUNDER_EMAIL=femiadeleke2020@gmail.com
-```
-
-### SMTP Configuration (Gmail, Outlook, Custom)
-```bash
-EMAIL_PROVIDER=smtp
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_email@gmail.com
-SMTP_PASSWORD=your_app_password_here
-EMAIL_FROM=AutoLearn Spot <noreply@autolearnspot.com>
-FOUNDER_EMAIL=femiadeleke2020@gmail.com
-```
 
 ## Setup Instructions
 
