@@ -484,16 +484,7 @@ export const SKILLS_BY_CATEGORY: Record<string, { id: string; name: string }[]> 
   "Other": []
 };
 
-export const ALL_SKILLS = Object.values(SKILLS_BY_CATEGORY).flat();
-  "AI Automation",
-  'Technology',
-  'Business',
-  'Design',
-  'Marketing',
-  'Personal Development',
-  'Creative Arts',
-  'Health & Fitness'
-];
+
 
 export const SKILLS_BY_CATEGORY: Record<string, { id: string, name: string }[]> = {
   'Technology': [
