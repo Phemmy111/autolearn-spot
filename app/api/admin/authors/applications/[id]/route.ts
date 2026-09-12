@@ -18,19 +18,30 @@ export async function GET(
   try {
     const { id } = params;
 
+    console.log('[Admin Application Details] Fetching application with ID:', id);
+
     const { data: application, error } = await supabaseAdmin
       .from('author_applications')
       .select('*')
       .eq('id', id)
       .single();
 
-    if (error || !application) {
+    console.log('[Admin Application Details] Query result:', { error, application });
+
+    if (error) {
+      console.error('[Admin Application Details] Database error:', error);
+      return NextResponse.json({ error: 'Application not found', details: error.message }, { status: 404 });
+    }
+
+    if (!application) {
+      console.warn('[Admin Application Details] No application found for ID:', id);
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
 
+    console.log('[Admin Application Details] Successfully fetched application:', application.id);
     return NextResponse.json({ application });
   } catch (error) {
-    console.error('Error in admin application details API:', error);
+    console.error('[Admin Application Details] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

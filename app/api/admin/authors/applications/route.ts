@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
+    console.log('[Admin Applications List] Fetching with params:', { status, search, page, limit });
+
     // Build query
     let query = supabaseAdmin
       .from('author_applications')
@@ -39,8 +41,14 @@ export async function GET(request: NextRequest) {
 
     const { data: applications, error, count } = await query;
 
+    console.log('[Admin Applications List] Query result:', { 
+      applicationsCount: applications?.length || 0, 
+      totalCount: count, 
+      error: error?.message 
+    });
+
     if (error) {
-      console.error('Error fetching author applications:', error);
+      console.error('[Admin Applications List] Error fetching author applications:', error);
       return NextResponse.json({ error: 'Failed to fetch applications' }, { status: 500 });
     }
 

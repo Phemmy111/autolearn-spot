@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { getFormation } from './marketplace/particleFormations'
+
 
 function hasWebGLSupport() {
   const canvas = document.createElement('canvas')
