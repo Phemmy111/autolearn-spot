@@ -82,7 +82,7 @@ export default function Navigation() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 {item.name}
               </a>
@@ -90,7 +90,7 @@ export default function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 {item.name}
               </Link>
@@ -102,14 +102,14 @@ export default function Navigation() {
             isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Student Login
               </Link>
@@ -156,14 +156,14 @@ export default function Navigation() {
             isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Student Login
               </Link>
@@ -221,7 +221,7 @@ export default function Navigation() {
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-[#b9cacb] hover:text-[#10b981] transition-colors"
+                  className="text-neutral-500 hover:text-[#10b981] transition-colors"
                   aria-label="Close menu"
                 >
                   <X className="h-6 w-6" />

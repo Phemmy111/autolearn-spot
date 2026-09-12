@@ -159,7 +159,7 @@ export default function StudentPartnerPage() {
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-4 relative z-10">Complete Your Enrollment</h1>
-            <p className="text-[#b9cacb] mb-8 max-w-lg mx-auto relative z-10 text-lg">
+            <p className="text-neutral-500 mb-8 max-w-lg mx-auto relative z-10 text-lg">
               The Student Partner program is automatically activated when you complete your course enrollment. Once enrolled, you'll earn ₦1,500 for every successful referral.
             </p>
             
@@ -167,17 +167,17 @@ export default function StudentPartnerPage() {
               <div className="bg-[#c0c4c9] border border-neutral-200 rounded-xl p-6">
                 <DollarSign className="h-8 w-8 text-[#10b981] mb-3" />
                 <h3 className="font-bold mb-1">₦1,500</h3>
-                <p className="text-sm text-[#b9cacb]">Per successful referral</p>
+                <p className="text-sm text-neutral-500">Per successful referral</p>
               </div>
               <div className="bg-[#c0c4c9] border border-neutral-200 rounded-xl p-6">
                 <Clock className="h-8 w-8 text-purple-400 mb-3" />
                 <h3 className="font-bold mb-1">7 Days</h3>
-                <p className="text-sm text-[#b9cacb]">Commission holding period</p>
+                <p className="text-sm text-neutral-500">Commission holding period</p>
               </div>
               <div className="bg-[#c0c4c9] border border-neutral-200 rounded-xl p-6">
                 <TrendingUp className="h-8 w-8 text-green-400 mb-3" />
                 <h3 className="font-bold mb-1">Unlimited</h3>
-                <p className="text-sm text-[#b9cacb]">Earning potential</p>
+                <p className="text-sm text-neutral-500">Earning potential</p>
               </div>
             </div>
             
@@ -201,11 +201,11 @@ export default function StudentPartnerPage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Student Partner Dashboard</h1>
-            <p className="text-[#b9cacb]">Track your referrals and earnings</p>
+            <p className="text-neutral-500">Track your referrals and earnings</p>
           </div>
           <Link 
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-[#c0c4c9] text-[#b9cacb] rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-[#c0c4c9] text-neutral-500 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
             Back to Dashboard
@@ -220,12 +220,12 @@ export default function StudentPartnerPage() {
                 <Share2 className="h-6 w-6 text-[#10b981]" />
                 <h2 className="text-xl font-bold">Your Referral Link</h2>
               </div>
-              <p className="text-[#b9cacb] text-sm max-w-xl">
+              <p className="text-neutral-500 text-sm max-w-xl">
                 Share this unique link with your network. When they enroll through it, you earn ₦1,500 commission after their payment is verified.
               </p>
             </div>
             <div className="flex items-center gap-2 w-full lg:w-auto">
-              <div className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-neutral-900/80 truncate flex-1 lg:w-80">
+              <div className="bg-neutral-100 border border-neutral-300 rounded-lg px-4 py-3 font-mono text-sm text-neutral-900/80 truncate flex-1 lg:w-80">
                 {data?.referralLink}
               </div>
               <button 
@@ -247,7 +247,7 @@ export default function StudentPartnerPage() {
                 <LinkIcon className="h-5 w-5 text-purple-400" />
                 <h2 className="text-lg font-bold">Your Referral Code</h2>
               </div>
-              <p className="text-[#b9cacb] text-sm">
+              <p className="text-neutral-500 text-sm">
                 Share this 8-character code. Users can also enter it manually during enrollment.
               </p>
             </div>
@@ -274,7 +274,7 @@ export default function StudentPartnerPage() {
                 <MousePointerClick className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1">Total Clicks</p>
+            <p className="text-sm text-neutral-500 mb-1">Total Clicks</p>
             <h3 className="text-3xl font-bold">{data?.stats?.totalClicks || 0}</h3>
           </div>
           
@@ -284,7 +284,7 @@ export default function StudentPartnerPage() {
                 <Users className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1">Registrations</p>
+            <p className="text-sm text-neutral-500 mb-1">Registrations</p>
             <h3 className="text-3xl font-bold">{data?.stats?.totalRegistrations || 0}</h3>
           </div>
 
@@ -294,7 +294,7 @@ export default function StudentPartnerPage() {
                 <Clock className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1">Pending Earnings</p>
+            <p className="text-sm text-neutral-500 mb-1">Pending Earnings</p>
             <h3 className="text-3xl font-bold text-yellow-400">₦{(data?.stats?.pendingEarnings || 0).toLocaleString()}</h3>
           </div>
 
@@ -305,7 +305,7 @@ export default function StudentPartnerPage() {
                 <Wallet className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-1 relative z-10">Available Balance</p>
+            <p className="text-sm text-neutral-500 mb-1 relative z-10">Available Balance</p>
             <h3 className="text-3xl font-bold text-[#10b981] relative z-10">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</h3>
           </div>
         </div>
@@ -319,17 +319,17 @@ export default function StudentPartnerPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-neutral-200">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Email</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-[#b9cacb]">Status</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-[#b9cacb]">Commission</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-500">Email</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-500">Date</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-500">Status</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-neutral-500">Commission</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.recentReferrals.map((referral: any, index: number) => (
                     <tr key={index} className="border-b border-neutral-200 last:border-0">
                       <td className="py-4 px-4 text-sm">{referral.email}</td>
-                      <td className="py-4 px-4 text-sm text-[#b9cacb]">
+                      <td className="py-4 px-4 text-sm text-neutral-500">
                         {new Date(referral.date).toLocaleDateString()}
                       </td>
                       <td className="py-4 px-4">
@@ -352,7 +352,7 @@ export default function StudentPartnerPage() {
               </table>
             </div>
           ) : (
-            <div className="text-center py-12 text-[#b9cacb]">
+            <div className="text-center py-12 text-neutral-500">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No referrals yet. Start sharing your link!</p>
             </div>
@@ -369,17 +369,17 @@ export default function StudentPartnerPage() {
                 <div key={index} className="flex items-center justify-between p-4 bg-[#c0c4c9] border border-neutral-200 rounded-xl">
                   <div>
                     <p className="font-semibold">{commission.refereeEmail}</p>
-                    <p className="text-sm text-[#b9cacb]">{new Date(commission.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm text-neutral-500">{new Date(commission.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-[#10b981]">₦{commission.amount.toLocaleString()}</p>
-                    <p className="text-xs text-[#b9cacb]">{commission.status}</p>
+                    <p className="text-xs text-neutral-500">{commission.status}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-[#b9cacb]">
+            <div className="text-center py-12 text-neutral-500">
               <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No commissions earned yet. Refer your first student!</p>
             </div>
@@ -397,12 +397,12 @@ export default function StudentPartnerPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm mb-1">{resource.name}</h3>
-                      <p className="text-xs text-[#b9cacb] mb-2">{resource.category}</p>
+                      <p className="text-xs text-neutral-500 mb-2">{resource.category}</p>
                     </div>
                     <FileText className="h-5 w-5 text-[#10b981] flex-shrink-0" />
                   </div>
                   {resource.description && (
-                    <p className="text-xs text-[#b9cacb] mb-3 line-clamp-2">{resource.description}</p>
+                    <p className="text-xs text-neutral-500 mb-3 line-clamp-2">{resource.description}</p>
                   )}
                   <div className="flex gap-2">
                     <button
@@ -429,7 +429,7 @@ export default function StudentPartnerPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-[#b9cacb]">
+            <div className="text-center py-12 text-neutral-500">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No marketing kits available yet. Check back soon!</p>
             </div>
@@ -464,21 +464,21 @@ export default function StudentPartnerPage() {
             <div className="bg-[#c0c4c9] border border-neutral-200 rounded-xl p-4">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm text-[#b9cacb] mb-1">Bank Name</p>
+                  <p className="text-sm text-neutral-500 mb-1">Bank Name</p>
                   <p className="font-semibold">{data.bankProfile.bank_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[#b9cacb] mb-1">Account Number</p>
+                  <p className="text-sm text-neutral-500 mb-1">Account Number</p>
                   <p className="font-semibold">{data.bankProfile.account_number}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[#b9cacb] mb-1">Account Name</p>
+                  <p className="text-sm text-neutral-500 mb-1">Account Name</p>
                   <p className="font-semibold">{data.bankProfile.account_name}</p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-[#b9cacb]">
+            <div className="text-center py-8 text-neutral-500">
               <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No bank details added yet. Add your bank details to withdraw your earnings.</p>
             </div>
@@ -495,11 +495,11 @@ export default function StudentPartnerPage() {
           <div className="bg-[#c0c4c9] border border-neutral-200 rounded-xl p-6 mb-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-sm text-[#b9cacb] mb-1">Available Balance</p>
+                <p className="text-sm text-neutral-500 mb-1">Available Balance</p>
                 <p className="text-3xl font-bold text-[#10b981]">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-[#b9cacb] mb-1">Minimum Withdrawal</p>
+                <p className="text-sm text-neutral-500 mb-1">Minimum Withdrawal</p>
                 <p className="text-lg font-semibold">₦5,000</p>
               </div>
             </div>
@@ -513,7 +513,7 @@ export default function StudentPartnerPage() {
                   placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
                   min={minWithdrawal}
                   max={data?.stats?.availableBalance || 0}
-                  className="w-full bg-[#070B12] border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-white border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
                   disabled={isWithdrawing}
                 />
               </div>
@@ -543,7 +543,7 @@ export default function StudentPartnerPage() {
               <h3 className="text-xl font-bold">Bank Details</h3>
               <button
                 onClick={() => setShowBankModal(false)}
-                className="text-[#b9cacb] hover:text-neutral-900 transition-colors"
+                className="text-neutral-500 hover:text-neutral-900 transition-colors"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -590,7 +590,7 @@ export default function StudentPartnerPage() {
                 <button
                   type="button"
                   onClick={() => setShowBankModal(false)}
-                  className="flex-1 border border-neutral-200 bg-[#c0c4c9] text-[#b9cacb] px-4 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors"
+                  className="flex-1 border border-neutral-200 bg-[#c0c4c9] text-neutral-500 px-4 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors"
                 >
                   Cancel
                 </button>
@@ -615,7 +615,7 @@ export default function StudentPartnerPage() {
               <h3 className="text-xl font-bold">{selectedMaterial.resource_name}</h3>
               <button
                 onClick={() => setShowMaterialModal(false)}
-                className="text-[#b9cacb] hover:text-neutral-900 transition-colors"
+                className="text-neutral-500 hover:text-neutral-900 transition-colors"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -630,15 +630,15 @@ export default function StudentPartnerPage() {
                   className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => window.open(selectedMaterial.resource_url, '_blank')}
                 />
-                <p className="text-xs text-[#b9cacb] mt-2 text-center">Click image to open in new tab</p>
+                <p className="text-xs text-neutral-500 mt-2 text-center">Click image to open in new tab</p>
               </div>
             )}
             
             {/* Description/Caption */}
             {selectedMaterial.description && (
-              <div className="bg-[#070B12] p-4 rounded-lg mb-6">
+              <div className="bg-white p-4 rounded-lg mb-6">
                 <p className="text-sm font-medium text-[#e2e2e8] mb-2">Caption</p>
-                <p className="text-sm text-[#b9cacb]">{selectedMaterial.description}</p>
+                <p className="text-sm text-neutral-500">{selectedMaterial.description}</p>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(selectedMaterial.description);
@@ -664,7 +664,7 @@ export default function StudentPartnerPage() {
               </a>
               <button
                 onClick={() => setShowMaterialModal(false)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-[#c0c4c9] transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-[#c0c4c9] transition-colors"
               >
                 Close
               </button>

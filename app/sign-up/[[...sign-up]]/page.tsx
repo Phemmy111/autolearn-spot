@@ -7,7 +7,7 @@ export default function SignUpPage() {
         <div className="mb-8 text-center">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#10b981]">Student Portal</p>
           <h1 className="mt-2 font-heading text-2xl font-bold uppercase text-neutral-900">Create Account</h1>
-          <p className="mt-2 font-mono text-sm text-[#b9cacb]">Join AutoLearn Spot to access your curriculum</p>
+          <p className="mt-2 font-mono text-sm text-neutral-500">Join AutoLearn Spot to access your curriculum</p>
         </div>
         <SignUp
           forceRedirectUrl="/dashboard"
@@ -24,10 +24,10 @@ export default function SignUpPage() {
             elements: {
               card: 'bg-[#c0c4c9] border border-[#3b494b] shadow-none rounded-none',
               headerTitle: 'text-neutral-900 font-mono',
-              headerSubtitle: 'text-[#b9cacb] font-mono text-xs',
+              headerSubtitle: 'text-neutral-500 font-mono text-xs',
               formButtonPrimary: 'bg-[#10b981] text-black font-mono font-bold uppercase hover:bg-[#00d4e0] rounded-none',
               formFieldInput: 'bg-[#c0c4c9] border border-[#3b494b] text-neutral-900 font-mono rounded-none focus:border-[#10b981]',
-              formFieldLabel: 'text-[#b9cacb] font-mono text-xs uppercase',
+              formFieldLabel: 'text-neutral-500 font-mono text-xs uppercase',
               footerActionLink: 'text-[#10b981] font-mono hover:text-[#00d4e0]',
               identityPreviewText: 'text-[#e2e8e2]',
               dividerLine: 'bg-[#3b494b]',

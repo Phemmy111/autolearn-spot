@@ -129,7 +129,7 @@ export default function AdminLiveClassesSettingsPage() {
                   type="text"
                   value={settings.title}
                   onChange={(e) => setSettings({ ...settings, title: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -138,7 +138,7 @@ export default function AdminLiveClassesSettingsPage() {
                   type="date"
                   value={settings.date}
                   onChange={(e) => setSettings({ ...settings, date: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -147,7 +147,7 @@ export default function AdminLiveClassesSettingsPage() {
                   type="time"
                   value={settings.time}
                   onChange={(e) => setSettings({ ...settings, time: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -156,7 +156,7 @@ export default function AdminLiveClassesSettingsPage() {
                   type="text"
                   value={settings.timezone}
                   onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -164,7 +164,7 @@ export default function AdminLiveClassesSettingsPage() {
                 <select
                   value={settings.status}
                   onChange={(e) => setSettings({ ...settings, status: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 >
                   <option value="scheduled">Scheduled</option>
                   <option value="live">Live</option>
@@ -179,7 +179,7 @@ export default function AdminLiveClassesSettingsPage() {
                 value={settings.description}
                 onChange={(e) => setSettings({ ...settings, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function AdminLiveClassesSettingsPage() {
                   type="url"
                   value={settings.url}
                   onChange={(e) => setSettings({ ...settings, url: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
               </div>
@@ -207,7 +207,7 @@ export default function AdminLiveClassesSettingsPage() {
                   type="text"
                   value={settings.joinButtonText}
                   onChange={(e) => setSettings({ ...settings, joinButtonText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -216,7 +216,7 @@ export default function AdminLiveClassesSettingsPage() {
                   id="countdownEnabled"
                   checked={settings.countdownEnabled === 'true'}
                   onChange={(e) => setSettings({ ...settings, countdownEnabled: e.target.checked ? 'true' : 'false' })}
-                  className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                  className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                 />
                 <label htmlFor="countdownEnabled" className="text-sm text-neutral-600">Enable Countdown Timer</label>
               </div>
@@ -236,7 +236,7 @@ export default function AdminLiveClassesSettingsPage() {
                   type="url"
                   value={settings.recordingUrl}
                   onChange={(e) => setSettings({ ...settings, recordingUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
               </div>
@@ -246,7 +246,7 @@ export default function AdminLiveClassesSettingsPage() {
                   id="replayEnabled"
                   checked={settings.replayEnabled === 'true'}
                   onChange={(e) => setSettings({ ...settings, replayEnabled: e.target.checked ? 'true' : 'false' })}
-                  className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                  className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                 />
                 <label htmlFor="replayEnabled" className="text-sm text-neutral-600">Enable Replay Access</label>
               </div>

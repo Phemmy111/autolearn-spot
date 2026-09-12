@@ -22,7 +22,7 @@ export default function AmbassadorLandingPage() {
             <span className="text-[#10b981]">Earn rewards.</span>
           </h1>
           
-          <p className="text-lg md:text-xl text-[#b9cacb] max-w-2xl mb-10 leading-relaxed">
+          <p className="text-lg md:text-xl text-neutral-500 max-w-2xl mb-10 leading-relaxed">
             Join the AutoLearn Spot Community Ambassador program. Earn ₦1,000 for every student you refer who completes their enrollment. No limits, no caps.
           </p>
           
@@ -51,21 +51,21 @@ export default function AmbassadorLandingPage() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#10b981]/10 blur-3xl rounded-full -mr-16 -mt-16 transition-all group-hover:bg-[#10b981]/20" />
               <DollarSign className="h-10 w-10 text-[#10b981] mb-6" />
               <h3 className="text-xl font-bold mb-4">Earn ₦1,000 per referral</h3>
-              <p className="text-[#b9cacb] leading-relaxed">Get paid directly to your bank account for every verified student enrollment you bring to the platform.</p>
+              <p className="text-neutral-500 leading-relaxed">Get paid directly to your bank account for every verified student enrollment you bring to the platform.</p>
             </div>
             
             <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl relative overflow-hidden group hover:border-[#10b981]/50 transition-colors">
               <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-3xl rounded-full -mr-16 -mt-16 transition-all group-hover:bg-purple-500/20" />
               <TrendingUp className="h-10 w-10 text-purple-400 mb-6" />
               <h3 className="text-xl font-bold mb-4">Real-time Tracking</h3>
-              <p className="text-[#b9cacb] leading-relaxed">Monitor your clicks, registrations, and earnings in real-time through your dedicated ambassador dashboard.</p>
+              <p className="text-neutral-500 leading-relaxed">Monitor your clicks, registrations, and earnings in real-time through your dedicated ambassador dashboard.</p>
             </div>
             
             <div className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl relative overflow-hidden group hover:border-[#10b981]/50 transition-colors">
               <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 blur-3xl rounded-full -mr-16 -mt-16 transition-all group-hover:bg-green-500/20" />
               <Users className="h-10 w-10 text-green-400 mb-6" />
               <h3 className="text-xl font-bold mb-4">Impact Lives</h3>
-              <p className="text-[#b9cacb] leading-relaxed">Help others discover high-quality tech education and start their journey into the tech industry.</p>
+              <p className="text-neutral-500 leading-relaxed">Help others discover high-quality tech education and start their journey into the tech industry.</p>
             </div>
           </div>
         </section>
@@ -79,28 +79,28 @@ export default function AmbassadorLandingPage() {
               <div className="text-center relative">
                 <div className="w-16 h-16 rounded-full bg-[#10b981]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">1</div>
                 <h4 className="font-bold mb-2">Apply</h4>
-                <p className="text-sm text-[#b9cacb]">Submit your simple application to join</p>
+                <p className="text-sm text-neutral-500">Submit your simple application to join</p>
                 <div className="hidden md:block absolute top-8 left-[60%] w-full h-[2px] bg-gradient-to-r from-[#00f0ff]/50 to-transparent" />
               </div>
               
               <div className="text-center relative">
                 <div className="w-16 h-16 rounded-full bg-[#10b981]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">2</div>
                 <h4 className="font-bold mb-2">Get Approved</h4>
-                <p className="text-sm text-[#b9cacb]">Receive your unique referral link</p>
+                <p className="text-sm text-neutral-500">Receive your unique referral link</p>
                 <div className="hidden md:block absolute top-8 left-[60%] w-full h-[2px] bg-gradient-to-r from-[#00f0ff]/50 to-transparent" />
               </div>
               
               <div className="text-center relative">
                 <div className="w-16 h-16 rounded-full bg-[#10b981]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">3</div>
                 <h4 className="font-bold mb-2">Share</h4>
-                <p className="text-sm text-[#b9cacb]">Share your link with your network</p>
+                <p className="text-sm text-neutral-500">Share your link with your network</p>
                 <div className="hidden md:block absolute top-8 left-[60%] w-full h-[2px] bg-gradient-to-r from-[#00f0ff]/50 to-transparent" />
               </div>
               
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-[#10b981]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">4</div>
                 <h4 className="font-bold mb-2">Earn</h4>
-                <p className="text-sm text-[#b9cacb]">Get ₦1,000 for every enrollment</p>
+                <p className="text-sm text-neutral-500">Get ₦1,000 for every enrollment</p>
               </div>
             </div>
           </div>

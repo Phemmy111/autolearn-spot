@@ -306,7 +306,7 @@ export default function AdminWorkflowShowcasePage() {
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
+                className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -319,7 +319,7 @@ export default function AdminWorkflowShowcasePage() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   required
                 />
               </div>
@@ -329,7 +329,7 @@ export default function AdminWorkflowShowcasePage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -337,7 +337,7 @@ export default function AdminWorkflowShowcasePage() {
                 <select
                   value={formData.mediaType}
                   onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 >
                   <option value="video">Video</option>
                   <option value="image">Image</option>
@@ -348,7 +348,7 @@ export default function AdminWorkflowShowcasePage() {
                   {formData.mediaType === 'video' ? 'Video File or URL' : 'Image File or URL'}
                 </label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                     <Upload className="h-4 w-4 text-neutral-600" />
                     <span className="text-sm text-neutral-600">
                       {mediaFile ? mediaFile.name : `Upload ${formData.mediaType === 'video' ? 'Video (MP4)' : 'Image (PNG/JPG)'}`}
@@ -367,7 +367,7 @@ export default function AdminWorkflowShowcasePage() {
                     />
                   </label>
                   {mediaFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                       <span className="text-xs text-neutral-600 truncate">{mediaFile.name}</span>
                       <button
                         type="button"
@@ -386,7 +386,7 @@ export default function AdminWorkflowShowcasePage() {
                       type="url"
                       value={formData.videoUrl}
                       onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                      className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                       placeholder="https://..."
                     />
                   )}
@@ -397,7 +397,7 @@ export default function AdminWorkflowShowcasePage() {
                   <div>
                     <label className="block text-sm font-medium text-neutral-600 mb-2">Thumbnail (Optional)</label>
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                      <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                         <Upload className="h-4 w-4 text-neutral-600" />
                         <span className="text-sm text-neutral-600">
                           {thumbnailFile ? thumbnailFile.name : 'Upload Thumbnail (PNG/JPG)'}
@@ -416,7 +416,7 @@ export default function AdminWorkflowShowcasePage() {
                         />
                       </label>
                       {thumbnailFile && (
-                        <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                        <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                           <span className="text-xs text-neutral-600 truncate">{thumbnailFile.name}</span>
                           <button
                             type="button"
@@ -435,7 +435,7 @@ export default function AdminWorkflowShowcasePage() {
                           type="url"
                           value={formData.thumbnailUrl}
                           onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                          className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                          className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                           placeholder="https://..."
                         />
                       )}
@@ -444,7 +444,7 @@ export default function AdminWorkflowShowcasePage() {
                   <div>
                     <label className="block text-sm font-medium text-neutral-600 mb-2">Poster (Optional)</label>
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                      <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                         <Upload className="h-4 w-4 text-neutral-600" />
                         <span className="text-sm text-neutral-600">
                           {posterFile ? posterFile.name : 'Upload Poster (PNG/JPG)'}
@@ -463,7 +463,7 @@ export default function AdminWorkflowShowcasePage() {
                         />
                       </label>
                       {posterFile && (
-                        <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                        <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                           <span className="text-xs text-neutral-600 truncate">{posterFile.name}</span>
                           <button
                             type="button"
@@ -482,7 +482,7 @@ export default function AdminWorkflowShowcasePage() {
                           type="url"
                           value={formData.posterUrl}
                           onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                          className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                          className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                           placeholder="https://..."
                         />
                       )}
@@ -497,7 +497,7 @@ export default function AdminWorkflowShowcasePage() {
                     type="number"
                     value={formData.displayOrder}
                     onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -507,7 +507,7 @@ export default function AdminWorkflowShowcasePage() {
                     type="checkbox"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Featured</span>
                 </label>
@@ -516,7 +516,7 @@ export default function AdminWorkflowShowcasePage() {
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Enabled</span>
                 </label>
@@ -531,7 +531,7 @@ export default function AdminWorkflowShowcasePage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 bg-[#070B12] text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                  className="flex-1 px-4 py-3 bg-white text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
                 >
                   Cancel
                 </button>

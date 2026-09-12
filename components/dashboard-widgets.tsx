@@ -100,7 +100,7 @@ export function DashboardWidgets() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       {/* Resume Learning Widget */}
       <div className="border border-neutral-200 bg-[#c0c4c9] p-5 flex flex-col">
-        <h3 className="font-mono text-[10px] uppercase tracking-wider text-[#b9cacb] mb-4">Quick Action</h3>
+        <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Quick Action</h3>
         {nextVideo ? (
           <>
             <h4 className="font-heading text-lg font-bold text-neutral-900 mb-2 line-clamp-1">{nextVideo.title}</h4>
@@ -124,7 +124,7 @@ export function DashboardWidgets() {
 
       {/* Certificate Widget */}
       <div className="border border-neutral-200 bg-[#c0c4c9] p-5 flex flex-col">
-        <h3 className="font-mono text-[10px] uppercase tracking-wider text-[#b9cacb] mb-4">Achievement</h3>
+        <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Achievement</h3>
         <div className="flex-1 flex flex-col items-center justify-center text-center border border-dashed border-neutral-200 p-4 bg-[#c0c4c9]">
           {certLoading ? (
             <Loader2 className="h-8 w-8 animate-spin text-[#3b494b]" />
@@ -169,7 +169,7 @@ export function DashboardWidgets() {
           ) : (
             <>
               <Lock className="h-8 w-8 text-[#3b494b] mb-2" />
-              <p className="text-xs text-[#b9cacb] font-semibold">Certificate Locked</p>
+              <p className="text-xs text-neutral-500 font-semibold">Certificate Locked</p>
               <p className="text-[10px] text-[#5d5f63] mt-2 max-w-[180px]">
                 {!certEnabled
                   ? 'Certificates are not yet available.'
@@ -182,7 +182,7 @@ export function DashboardWidgets() {
 
       {/* Global Resources Placeholder */}
       <div className="border border-neutral-200 bg-[#c0c4c9] p-5 flex flex-col">
-        <h3 className="font-mono text-[10px] uppercase tracking-wider text-[#b9cacb] mb-4">Global Resources</h3>
+        <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Global Resources</h3>
         <div className="flex-1 flex flex-col gap-3">
           <div className="flex items-center justify-between p-3 border border-neutral-200 bg-[#c0c4c9]">
             <div className="flex items-center gap-3">
@@ -203,7 +203,7 @@ export function DashboardWidgets() {
                 <ExternalLink className="h-4 w-4 text-[#5d5f63]" />
               </div>
               <div>
-                <p className="text-xs text-[#b9cacb] font-semibold">N8n Templates Vault</p>
+                <p className="text-xs text-neutral-500 font-semibold">N8n Templates Vault</p>
                 <p className="text-[10px] text-[#5d5f63]">Coming Soon</p>
               </div>
             </div>

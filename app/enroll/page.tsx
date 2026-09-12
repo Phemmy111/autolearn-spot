@@ -179,7 +179,7 @@ function EnrollForm() {
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin" />
-          <span className="text-[#b9cacb]">Loading...</span>
+          <span className="text-neutral-500">Loading...</span>
         </div>
       </div>
     );
@@ -201,7 +201,7 @@ function EnrollForm() {
               </Link>
               <Link 
                 href="/" 
-                className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors"
+                className="flex items-center gap-2 text-sm text-neutral-500 hover:text-[#10b981] transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
@@ -218,7 +218,7 @@ function EnrollForm() {
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-normal text-[#e2e2e8] mb-4">
               Enrollment Closed
             </h1>
-            <p className="text-base leading-7 text-[#b9cacb] mb-8">
+            <p className="text-base leading-7 text-neutral-500 mb-8">
               Registration for the current cohort is currently closed. Please check back later for updates on upcoming cohorts.
             </p>
             <Link
@@ -249,7 +249,7 @@ function EnrollForm() {
             </Link>
             <Link 
               href="/" 
-              className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors"
+              className="flex items-center gap-2 text-sm text-neutral-500 hover:text-[#10b981] transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -280,7 +280,7 @@ function EnrollForm() {
               <h1 className="text-3xl sm:text-4xl font-semibold tracking-normal text-[#e2e2e8] mb-4">
                 {enrollmentSettings.enrollmentPageHeadline}
               </h1>
-              <p className="text-base leading-7 text-[#b9cacb]">
+              <p className="text-base leading-7 text-neutral-500">
                 {enrollmentSettings.enrollmentPageDescription}
               </p>
             </div>
@@ -595,25 +595,25 @@ function EnrollForm() {
                 </div>
                 <div className="space-y-3">
                   {enrollmentSettings.currentCohortName && (
-                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                    <div className="flex items-center gap-2 text-sm text-neutral-500">
                       <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Cohort:</strong> {enrollmentSettings.currentCohortName}</span>
                     </div>
                   )}
                   {enrollmentSettings.currentCohortNumber && (
-                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                    <div className="flex items-center gap-2 text-sm text-neutral-500">
                       <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Number:</strong> {enrollmentSettings.currentCohortNumber}</span>
                     </div>
                   )}
                   {enrollmentSettings.cohortStartDate && (
-                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                    <div className="flex items-center gap-2 text-sm text-neutral-500">
                       <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Start Date:</strong> {new Date(enrollmentSettings.cohortStartDate).toLocaleDateString()}</span>
                     </div>
                   )}
                   {enrollmentSettings.cohortEndDate && (
-                    <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                    <div className="flex items-center gap-2 text-sm text-neutral-500">
                       <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">End Date:</strong> {new Date(enrollmentSettings.cohortEndDate).toLocaleDateString()}</span>
                     </div>
@@ -635,28 +635,28 @@ function EnrollForm() {
                   <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">4-Week Program</p>
-                    <p className="text-xs text-[#b9cacb]">Hands-on n8n automation training</p>
+                    <p className="text-xs text-neutral-500">Hands-on n8n automation training</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">Live Sessions</p>
-                    <p className="text-xs text-[#b9cacb]">Every Saturday, 2 hours</p>
+                    <p className="text-xs text-neutral-500">Every Saturday, 2 hours</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">10+ Real Projects</p>
-                    <p className="text-xs text-[#b9cacb]">Build production-ready workflows</p>
+                    <p className="text-xs text-neutral-500">Build production-ready workflows</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">Certificate</p>
-                    <p className="text-xs text-[#b9cacb]">Verified credential upon completion</p>
+                    <p className="text-xs text-neutral-500">Verified credential upon completion</p>
                   </div>
                 </div>
               </div>
@@ -665,19 +665,19 @@ function EnrollForm() {
             <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">What You'll Learn</h2>
               <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>n8n Fundamentals & Setup</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>AI-Powered Workflows</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>Deployment on Railway</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>Capstone Project</span>
                 </div>
@@ -688,12 +688,12 @@ function EnrollForm() {
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Investment</h2>
               <div className="text-center">
                 {feeLoading ? (
-                  <div className="text-4xl font-bold text-[#b9cacb] mb-2">Loading...</div>
+                  <div className="text-4xl font-bold text-neutral-500 mb-2">Loading...</div>
                 ) : (
                   <div className="text-4xl font-bold text-[#10b981] mb-2">₦{fee.toLocaleString()}</div>
                 )}
-                <p className="text-sm text-[#b9cacb] mb-4">One-time payment</p>
-                <div className="flex items-center justify-center gap-2 text-xs text-[#b9cacb]">
+                <p className="text-sm text-neutral-500 mb-4">One-time payment</p>
+                <div className="flex items-center justify-center gap-2 text-xs text-neutral-500">
                   <Star className="h-4 w-4" />
                   <span>Secure payment via Paystack</span>
                 </div>
@@ -719,7 +719,7 @@ export default function EnrollPage() {
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin" />
-          <span className="text-[#b9cacb]">Loading...</span>
+          <span className="text-neutral-500">Loading...</span>
         </div>
       </div>
     }>

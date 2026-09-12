@@ -48,23 +48,23 @@ export function PartnerTypesSection() {
   });
 
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#070B12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-white">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Choose Your Partner Type</h2>
-          <p className="text-sm sm:text-base text-[#b9cacb]">Select the partnership model that suits you best</p>
+          <p className="text-sm sm:text-base text-neutral-500">Select the partnership model that suits you best</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {partnerTypes.map((type, index) => (
             <div key={index} className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00F5FF]/50 transition-colors">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Commission</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Commission</span>
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#00F5FF]">{type.commission}</div>
               </div>
               
               <h3 className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8] mb-2">{type.title}</h3>
-              <p className="text-sm text-[#b9cacb] mb-4 sm:mb-6">{type.description}</p>
+              <p className="text-sm text-neutral-500 mb-4 sm:mb-6">{type.description}</p>
               
               <ul className="space-y-1 sm:space-y-2 mb-4 sm:mb-6">
                 {type.features.map((feature, i) => (

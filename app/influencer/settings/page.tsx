@@ -74,7 +74,7 @@ export default function InfluencerSettingsPage() {
       <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/influencer/dashboard" className="text-[#b9cacb] hover:text-purple-400 transition-colors">
+            <Link href="/influencer/dashboard" className="text-neutral-500 hover:text-purple-400 transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export default function InfluencerSettingsPage() {
             
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">{userData?.user?.full_name || 'Influencer'}</h3>
-              <p className="text-[#b9cacb] text-sm mb-4">{userData?.user?.email || ''}</p>
+              <p className="text-neutral-500 text-sm mb-4">{userData?.user?.email || ''}</p>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs font-mono uppercase px-2 py-1 bg-purple-500/10 text-purple-400 rounded">
                   {userData?.user?.platform || 'instagram'}
@@ -117,7 +117,7 @@ export default function InfluencerSettingsPage() {
                   ₦{(userData?.user?.commission_rate || 2000).toLocaleString()}/referral
                 </span>
               </div>
-              <p className="text-xs text-[#b9cacb]/60">
+              <p className="text-xs text-neutral-500/60">
                 Update your profile picture to personalize your influencer dashboard experience.
               </p>
             </div>
@@ -132,19 +132,19 @@ export default function InfluencerSettingsPage() {
           
           <div className="space-y-4">
             <div className="flex justify-between items-center py-3 border-b border-neutral-200">
-              <span className="text-[#b9cacb]">Email</span>
+              <span className="text-neutral-500">Email</span>
               <span className="text-neutral-900">{userData?.user?.email || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3 border-b border-neutral-200">
-              <span className="text-[#b9cacb]">Partner Type</span>
+              <span className="text-neutral-500">Partner Type</span>
               <span className="text-neutral-900">Influencer</span>
             </div>
             <div className="flex justify-between items-center py-3 border-b border-neutral-200">
-              <span className="text-[#b9cacb]">Platform</span>
+              <span className="text-neutral-500">Platform</span>
               <span className="text-neutral-900">{userData?.user?.platform || 'instagram'}</span>
             </div>
             <div className="flex justify-between items-center py-3">
-              <span className="text-[#b9cacb]">Commission Rate</span>
+              <span className="text-neutral-500">Commission Rate</span>
               <span className="text-neutral-900">₦{(userData?.user?.commission_rate || 2000).toLocaleString()}/referral</span>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function InfluencerSettingsPage() {
         <div className="mt-6 flex justify-end">
           <button 
             onClick={handleLogout}
-            className="font-mono text-xs uppercase px-4 py-2 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-[#b9cacb]"
+            className="font-mono text-xs uppercase px-4 py-2 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-neutral-500"
           >
             <LogOut className="h-3 w-3" /> Logout
           </button>

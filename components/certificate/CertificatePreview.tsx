@@ -105,7 +105,7 @@ export function CertificatePreview({
     <div className="bg-[#c0c4c9] border border-neutral-200 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
         <div className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
-        <h3 className="text-sm font-semibold text-[#b9cacb]">Live Preview</h3>
+        <h3 className="text-sm font-semibold text-neutral-500">Live Preview</h3>
       </div>
       
       <div ref={containerRef} className="relative w-full aspect-[3/2] bg-[#0a0c10] rounded-lg overflow-hidden">
@@ -137,13 +137,13 @@ export function CertificatePreview({
         </div>
         
         {/* Preview watermark */}
-        <div className="absolute top-4 right-4 px-3 py-1 bg-black/50 backdrop-blur-sm rounded text-xs text-[#b9cacb] border border-neutral-200">
+        <div className="absolute top-4 right-4 px-3 py-1 bg-neutral-50 backdrop-blur-sm rounded text-xs text-neutral-500 border border-neutral-200">
           PREVIEW
         </div>
       </div>
       
-      <div className="mt-4 p-3 bg-[#070B12] border border-neutral-200 rounded-lg">
-        <p className="text-xs text-[#b9cacb]">
+      <div className="mt-4 p-3 bg-white border border-neutral-200 rounded-lg">
+        <p className="text-xs text-neutral-500">
           <span className="text-[#10b981]">Student:</span> John Doe • 
           <span className="text-[#10b981]">Course:</span> {course || "n8n Automation"} • 
           <span className="text-[#10b981]"> Certificate ID:</span> ALS-2026-DEMO-001

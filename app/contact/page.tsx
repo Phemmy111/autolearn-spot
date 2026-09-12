@@ -27,16 +27,16 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B12] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <Link href="/" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-[#12E6F3] mb-8 transition-colors">
+        <Link href="/" className="inline-flex items-center gap-2 text-neutral-500 hover:text-[#12E6F3] mb-8 transition-colors">
           <ArrowLeft className="h-4 w-4" />
           Back to Home
         </Link>
 
         <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-8">
           <h1 className="text-2xl font-bold text-[#e2e2e8] mb-2">Contact Us</h1>
-          <p className="text-[#b9cacb] mb-8">Get in touch with our support team</p>
+          <p className="text-neutral-500 mb-8">Get in touch with our support team</p>
 
           <button
             onClick={handleWhatsAppContact}
@@ -46,7 +46,7 @@ export default function ContactPage() {
             Contact via WhatsApp
           </button>
 
-          <div className="mt-6 text-center text-sm text-[#b9cacb]">
+          <div className="mt-6 text-center text-sm text-neutral-500">
             <p>Or email us at:</p>
             <a href={`mailto:${settings.supportEmail}`} className="text-[#12E6F3] hover:underline">
               {settings.supportEmail}

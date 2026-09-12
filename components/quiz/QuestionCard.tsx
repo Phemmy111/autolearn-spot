@@ -34,7 +34,7 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                   isSelected
                     ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981]'
-                    : 'border-neutral-200 bg-[#c0c4c9] text-[#b9cacb] hover:border-[#3b494b]'
+                    : 'border-neutral-200 bg-[#c0c4c9] text-neutral-500 hover:border-[#3b494b]'
                 }`}
               >
                 <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#10b981]' : 'border-[#5d5f63]'}`}>

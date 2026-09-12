@@ -109,7 +109,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
 
             <button
               aria-label="Close"
-              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-neutral-200 bg-[#c0c4c9] text-[#b9cacb] transition hover:border-[#10b981]/70 hover:text-[#10b981] sm:right-6 sm:top-6"
+              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-neutral-200 bg-[#c0c4c9] text-neutral-500 transition hover:border-[#10b981]/70 hover:text-[#10b981] sm:right-6 sm:top-6"
               onClick={() => setIsOpen(false)}
               type="button"
             >
@@ -131,7 +131,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
                   >
                     Chat with Femi
                   </h2>
-                  <p className="mt-2 text-sm leading-6 text-[#b9cacb]">
+                  <p className="mt-2 text-sm leading-6 text-neutral-500">
                     Pick a message to open WhatsApp instantly.
                   </p>
                   {/* Quick message presets */}

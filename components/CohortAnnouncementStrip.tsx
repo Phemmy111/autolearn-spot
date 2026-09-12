@@ -37,7 +37,7 @@ export function CohortAnnouncementStrip() {
               {formattedDate && (
                 <>
                   <span className="hidden sm:inline text-[#1f2229]">•</span>
-                  <span className="text-[10px] sm:text-[11px] text-[#b9cacb]">
+                  <span className="text-[10px] sm:text-[11px] text-neutral-500">
                     Starts {formattedDate}
                   </span>
                 </>

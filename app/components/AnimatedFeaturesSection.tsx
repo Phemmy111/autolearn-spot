@@ -37,7 +37,7 @@ export function AnimatedFeaturesSection() {
                   <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#10b981]" />
                 </div>
                 <h3 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>
-                <p className="text-sm text-[#b9cacb]">{feature.description}</p>
+                <p className="text-sm text-neutral-500">{feature.description}</p>
               </div>
             )
           })}

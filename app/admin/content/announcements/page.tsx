@@ -251,7 +251,7 @@ export default function AdminAnnouncementsPage() {
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
+                className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -264,7 +264,7 @@ export default function AdminAnnouncementsPage() {
                   value={formData.text}
                   onChange={(e) => setFormData({ ...formData, text: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                   required
                 />
               </div>
@@ -275,7 +275,7 @@ export default function AdminAnnouncementsPage() {
                     type="text"
                     value={formData.ctaText}
                     onChange={(e) => setFormData({ ...formData, ctaText: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
                 <div>
@@ -284,7 +284,7 @@ export default function AdminAnnouncementsPage() {
                     type="url"
                     value={formData.ctaLink}
                     onChange={(e) => setFormData({ ...formData, ctaLink: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                     placeholder="https://..."
                   />
                 </div>
@@ -296,7 +296,7 @@ export default function AdminAnnouncementsPage() {
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
                 <div>
@@ -305,7 +305,7 @@ export default function AdminAnnouncementsPage() {
                     type="date"
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -315,7 +315,7 @@ export default function AdminAnnouncementsPage() {
                   <select
                     value={formData.displayPosition}
                     onChange={(e) => setFormData({ ...formData, displayPosition: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   >
                     <option value="top">Top</option>
                     <option value="bottom">Bottom</option>
@@ -327,7 +327,7 @@ export default function AdminAnnouncementsPage() {
                   <select
                     value={formData.displayType}
                     onChange={(e) => setFormData({ ...formData, displayType: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   >
                     <option value="banner">Banner</option>
                     <option value="modal">Modal</option>
@@ -341,7 +341,7 @@ export default function AdminAnnouncementsPage() {
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Enabled</span>
                 </label>
@@ -356,7 +356,7 @@ export default function AdminAnnouncementsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 bg-[#070B12] text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                  className="flex-1 px-4 py-3 bg-white text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
                 >
                   Cancel
                 </button>

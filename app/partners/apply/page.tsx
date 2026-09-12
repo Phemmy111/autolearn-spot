@@ -67,7 +67,7 @@ const BENEFITS = [
 
 function PartnersFooter() {
   return (
-    <footer className="border-t border-neutral-200 bg-[#070B12] py-12 sm:py-16">
+    <footer className="border-t border-neutral-200 bg-white py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
           <div className="md:col-span-2">
@@ -82,29 +82,29 @@ function PartnersFooter() {
                 AutoLearn Spot
               </span>
             </div>
-            <p className="text-sm text-[#b9cacb] mb-4">
+            <p className="text-sm text-neutral-500 mb-4">
               Become a partner and earn commissions while helping others learn valuable AI automation skills.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                 Facebook
               </a>
-              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                 LinkedIn
               </a>
-              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                 Instagram
               </a>
-              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                 TikTok
               </a>
-              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                 YouTube
               </a>
-              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                 X
               </a>
-              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                 WhatsApp
               </a>
             </div>
@@ -119,12 +119,12 @@ function PartnersFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/partners/apply" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners/apply" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   Apply Now
                 </Link>
               </li>
               <li>
-                <Link href="/partners/dashboard" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners/dashboard" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   Partner Dashboard
                 </Link>
               </li>
@@ -135,17 +135,17 @@ function PartnersFooter() {
             <h3 className="font-semibold text-[#e2e2e8] mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/contact" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <Link href="/contact" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <a href={socialLinks.whatsapp.url} className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <a href={socialLinks.whatsapp.url} className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   WhatsApp Support
                 </a>
               </li>
               <li>
-                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <Link href="/scholarship" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   Scholarship
                 </Link>
               </li>
@@ -156,17 +156,17 @@ function PartnersFooter() {
             <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <Link href="/" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/partners" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   Partners
                 </Link>
               </li>
               <li>
-                <Link href="/scholarship" className="text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors">
+                <Link href="/scholarship" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
                   Scholarship
                 </Link>
               </li>
@@ -175,7 +175,7 @@ function PartnersFooter() {
         </div>
         
         <div className="border-t border-neutral-200 pt-8 text-center">
-          <p className="text-sm text-[#b9cacb]">
+          <p className="text-sm text-neutral-500">
             © 2026 AutoLearn Spot. All Rights Reserved.
           </p>
         </div>
@@ -292,7 +292,7 @@ export default function PartnerApplicationPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[#070B12] flex flex-col">
+      <div className="min-h-screen bg-white flex flex-col">
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full">
             <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 text-center">
@@ -300,7 +300,7 @@ export default function PartnerApplicationPage() {
                 <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-[#00F5FF]" />
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-[#e2e2e8] mb-4">Application Received!</h2>
-              <p className="text-sm sm:text-base text-[#b9cacb] mb-8 leading-relaxed">
+              <p className="text-sm sm:text-base text-neutral-500 mb-8 leading-relaxed">
                 Thank you for applying to become a Community Partner with AutoLearn Spot. Our team will review your application and get back to you via email within 2-3 business days.
               </p>
               <Link
@@ -318,7 +318,7 @@ export default function PartnerApplicationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B12]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -337,7 +337,7 @@ export default function PartnerApplicationPage() {
             </Link>
             <Link 
               href="/" 
-              className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#00F5FF] transition-colors"
+              className="flex items-center gap-2 text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -361,7 +361,7 @@ export default function PartnerApplicationPage() {
               <h1 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
                 Become a Community Partner
               </h1>
-              <p className="text-base text-[#b9cacb] leading-relaxed">
+              <p className="text-base text-neutral-500 leading-relaxed">
                 Earn commissions while helping others learn valuable automation skills. Join our growing network of partners across Nigeria.
               </p>
             </div>
@@ -379,7 +379,7 @@ export default function PartnerApplicationPage() {
                       <Icon className="h-5 w-5 text-[#00F5FF]" />
                     </div>
                     <h3 className="font-semibold text-[#e2e2e8] text-sm mb-1">{benefit.title}</h3>
-                    <p className="text-xs text-[#b9cacb]">{benefit.description}</p>
+                    <p className="text-xs text-neutral-500">{benefit.description}</p>
                   </div>
                 );
               })}
@@ -393,15 +393,15 @@ export default function PartnerApplicationPage() {
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#b9cacb]">Community Partner</span>
+                  <span className="text-neutral-500">Community Partner</span>
                   <span className="font-mono text-[#00F5FF]">₦1,500 per referral</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#b9cacb]">Minimum Withdrawal</span>
+                  <span className="text-neutral-500">Minimum Withdrawal</span>
                   <span className="font-mono text-[#00F5FF]">₦5,000</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#b9cacb]">Payout Schedule</span>
+                  <span className="text-neutral-500">Payout Schedule</span>
                   <span className="font-mono text-[#00F5FF]">Weekly</span>
                 </div>
               </div>
@@ -426,45 +426,45 @@ export default function PartnerApplicationPage() {
                 </h3>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">Full Name *</label>
+                  <label className="text-sm font-medium text-neutral-500">Full Name *</label>
                   <input
                     required
                     type="text"
                     name="full_name"
-                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="Enter your full name"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">Email Address *</label>
+                  <label className="text-sm font-medium text-neutral-500">Email Address *</label>
                   <input
                     required
                     type="email"
                     name="email"
-                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="your@email.com"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">Phone Number *</label>
+                    <label className="text-sm font-medium text-neutral-500">Phone Number *</label>
                     <input
                       required
                       type="tel"
                       name="phone"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="0801 234 5678"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">WhatsApp Number *</label>
+                    <label className="text-sm font-medium text-neutral-500">WhatsApp Number *</label>
                     <input
                       required
                       type="tel"
                       name="whatsapp"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="0801 234 5678"
                     />
                   </div>
@@ -472,11 +472,11 @@ export default function PartnerApplicationPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">State *</label>
+                    <label className="text-sm font-medium text-neutral-500">State *</label>
                     <select
                       required
                       name="state"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     >
                       <option value="">Select your state</option>
                       {NIGERIAN_STATES.map((state) => (
@@ -487,11 +487,11 @@ export default function PartnerApplicationPage() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">Occupation *</label>
+                    <label className="text-sm font-medium text-neutral-500">Occupation *</label>
                     <select
                       required
                       name="occupation"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     >
                       <option value="">Select your occupation</option>
                       {OCCUPATIONS.map((occupation) => (
@@ -511,21 +511,21 @@ export default function PartnerApplicationPage() {
                 </h3>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">Organization (Optional)</label>
+                  <label className="text-sm font-medium text-neutral-500">Organization (Optional)</label>
                   <input
                     type="text"
                     name="organization"
-                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="Your organization or institution"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">Website (Optional)</label>
+                  <label className="text-sm font-medium text-neutral-500">Website (Optional)</label>
                   <input
                     type="url"
                     name="website"
-                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="https://yourwebsite.com"
                   />
                 </div>
@@ -539,38 +539,38 @@ export default function PartnerApplicationPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">Facebook Profile</label>
+                    <label className="text-sm font-medium text-neutral-500">Facebook Profile</label>
                     <input
                       type="url"
                       name="facebook"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="facebook.com/yourprofile"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">Instagram Profile</label>
+                    <label className="text-sm font-medium text-neutral-500">Instagram Profile</label>
                     <input
                       type="url"
                       name="instagram"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="instagram.com/yourprofile"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">TikTok Profile</label>
+                    <label className="text-sm font-medium text-neutral-500">TikTok Profile</label>
                     <input
                       type="url"
                       name="tiktok"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="tiktok.com/@yourprofile"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#b9cacb]">YouTube Channel</label>
+                    <label className="text-sm font-medium text-neutral-500">YouTube Channel</label>
                     <input
                       type="url"
                       name="youtube"
-                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="youtube.com/@yourchannel"
                     />
                   </div>
@@ -584,33 +584,33 @@ export default function PartnerApplicationPage() {
                 </h3>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">Why do you want to become a partner? *</label>
+                  <label className="text-sm font-medium text-neutral-500">Why do you want to become a partner? *</label>
                   <textarea
                     required
                     name="motivation"
                     rows={4}
-                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
                     placeholder="Tell us why you're interested in becoming a partner..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">How do you plan to promote the program? *</label>
+                  <label className="text-sm font-medium text-neutral-500">How do you plan to promote the program? *</label>
                   <textarea
                     required
                     name="promotion_method"
                     rows={4}
-                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
                     placeholder="Describe your promotion strategy..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#b9cacb]">Previous Experience (Optional)</label>
+                  <label className="text-sm font-medium text-neutral-500">Previous Experience (Optional)</label>
                   <textarea
                     name="experience"
                     rows={3}
-                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
                     placeholder="Any previous experience with partnerships or marketing..."
                   />
                 </div>
@@ -623,9 +623,9 @@ export default function PartnerApplicationPage() {
                     type="checkbox"
                     checked={agreed}
                     onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-1 w-4 h-4 border border-neutral-200 bg-[#070B12]/50 rounded focus:outline-none focus:border-[#00F5FF]"
+                    className="mt-1 w-4 h-4 border border-neutral-200 bg-white/50 rounded focus:outline-none focus:border-[#00F5FF]"
                   />
-                  <span className="text-sm text-[#b9cacb]">
+                  <span className="text-sm text-neutral-500">
                     I agree to the partner program terms and conditions. I understand that commission payments are subject to successful student enrollments and a 7-day holding period.
                   </span>
                 </label>

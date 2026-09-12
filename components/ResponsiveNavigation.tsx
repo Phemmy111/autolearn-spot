@@ -76,7 +76,7 @@ export default function ResponsiveNavigation() {
             <Link
               key={item.name}
               href={item.href}
-              className="text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors whitespace-nowrap"
+              className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
             >
               {item.name}
             </Link>
@@ -134,7 +134,7 @@ export default function ResponsiveNavigation() {
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-[#b9cacb] hover:text-[#10b981] transition-colors"
+                  className="text-neutral-500 hover:text-[#10b981] transition-colors"
                   aria-label="Close menu"
                 >
                   <X className="h-6 w-6" />

@@ -174,7 +174,7 @@ export default function AdminMediaPage() {
           {files.map((file) => (
             <div key={file.id} className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
               {/* Preview */}
-              <div className="aspect-video bg-[#070B12] flex items-center justify-center relative">
+              <div className="aspect-video bg-white flex items-center justify-center relative">
                 {file.type.startsWith('image/') ? (
                   <img
                     src={file.publicUrl}
@@ -202,7 +202,7 @@ export default function AdminMediaPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => copyToClipboard(file.publicUrl)}
-                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-[#070B12] border border-neutral-200 rounded text-xs text-neutral-600 hover:text-neutral-900 hover:border-[#10b981] transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-white border border-neutral-200 rounded text-xs text-neutral-600 hover:text-neutral-900 hover:border-[#10b981] transition-colors"
                   >
                     {copiedUrl === file.publicUrl ? (
                       <>
@@ -218,7 +218,7 @@ export default function AdminMediaPage() {
                   </button>
                   <button
                     onClick={() => handleDelete(file.name)}
-                    className="p-1.5 bg-[#070B12] border border-neutral-200 rounded text-neutral-600 hover:text-red-400 hover:border-red-400 transition-colors"
+                    className="p-1.5 bg-white border border-neutral-200 rounded text-neutral-600 hover:text-red-400 hover:border-red-400 transition-colors"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>

@@ -50,7 +50,7 @@ export default function SettingsPage() {
   if (!isSignedIn) {
     return (
       <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center text-[#e2e8e2]">
-        <p className="text-[#b9cacb]">Please sign in to access settings</p>
+        <p className="text-neutral-500">Please sign in to access settings</p>
       </div>
     )
   }
@@ -61,7 +61,7 @@ export default function SettingsPage() {
       <div className="border-b border-[#3b494b] bg-[#c0c4c9]/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-[#b9cacb] hover:text-[#10b981] transition-colors">
+            <Link href="/dashboard" className="text-neutral-500 hover:text-[#10b981] transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-2">
@@ -95,8 +95,8 @@ export default function SettingsPage() {
             
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">{user?.firstName || 'Student'}</h3>
-              <p className="text-[#b9cacb] text-sm mb-4">{user?.emailAddresses?.[0]?.emailAddress || ''}</p>
-              <p className="text-xs text-[#b9cacb]/60">
+              <p className="text-neutral-500 text-sm mb-4">{user?.emailAddresses?.[0]?.emailAddress || ''}</p>
+              <p className="text-xs text-neutral-500/60">
                 Update your profile picture to personalize your dashboard experience.
               </p>
             </div>
@@ -111,15 +111,15 @@ export default function SettingsPage() {
           
           <div className="space-y-4">
             <div className="flex justify-between items-center py-3 border-b border-[#3b494b]">
-              <span className="text-[#b9cacb]">Email</span>
+              <span className="text-neutral-500">Email</span>
               <span className="text-[#e2e8e2]">{user?.emailAddresses?.[0]?.emailAddress || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3 border-b border-[#3b494b]">
-              <span className="text-[#b9cacb]">Name</span>
+              <span className="text-neutral-500">Name</span>
               <span className="text-[#e2e8e2]">{user?.firstName || 'Student'} {user?.lastName || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3">
-              <span className="text-[#b9cacb]">Username</span>
+              <span className="text-neutral-500">Username</span>
               <span className="text-[#e2e8e2]">{user?.username || 'Not set'}</span>
             </div>
           </div>

@@ -98,7 +98,7 @@ export function EnrollmentRequired() {
         <p className="font-mono text-lg text-[#10b981] mb-2">
           Your account has been created successfully.
         </p>
-        <p className="font-mono text-[#b9cacb] max-w-2xl mx-auto">
+        <p className="font-mono text-neutral-500 max-w-2xl mx-auto">
           To access the current training curriculum, you need an active enrollment.
         </p>
       </div>
@@ -115,7 +115,7 @@ export function EnrollmentRequired() {
             </div>
             <div className="relative z-10">
               <h2 className="font-heading text-2xl font-bold uppercase text-neutral-900 mb-2">Activate Your Enrollment</h2>
-              <p className="font-mono text-sm text-[#b9cacb] mb-6">Unlock full access to our comprehensive curriculum.</p>
+              <p className="font-mono text-sm text-neutral-500 mb-6">Unlock full access to our comprehensive curriculum.</p>
               
               <div className="mb-8">
                 <h3 className="font-mono text-xs uppercase tracking-widest text-[#10b981] mb-4">Unlock:</h3>
@@ -132,7 +132,7 @@ export function EnrollmentRequired() {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#3b494b]/50 pt-6">
                 <div>
                   <span className="block font-mono text-xs text-[#5d5f63] uppercase tracking-wider mb-1">One-time payment</span>
-                  <span className="text-3xl font-bold text-neutral-900">₦8,000 <span className="text-sm font-normal text-[#b9cacb]">NGN</span></span>
+                  <span className="text-3xl font-bold text-neutral-900">₦8,000 <span className="text-sm font-normal text-neutral-500">NGN</span></span>
                 </div>
                 <Link
                   href="https://paystack.shop/pay/yoksvlq4xn"
@@ -150,12 +150,12 @@ export function EnrollmentRequired() {
             {/* Option 2 - Already Paid */}
             <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/60 backdrop-blur-sm p-6 transition-colors hover:bg-[#c0c4c9]">
               <h3 className="font-mono text-lg font-bold text-neutral-900 mb-2">Already completed your payment?</h3>
-              <p className="font-mono text-xs text-[#b9cacb] mb-6">Enter your Paystack payment reference below and we'll verify your payment instantly.</p>
+              <p className="font-mono text-xs text-neutral-500 mb-6">Enter your Paystack payment reference below and we'll verify your payment instantly.</p>
               
               {!showVerifyInput ? (
                 <button
                   onClick={() => setShowVerifyInput(true)}
-                  className="flex w-full items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-xs uppercase text-[#b9cacb] transition-colors hover:border-[#10b981] hover:text-[#10b981] rounded"
+                  className="flex w-full items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-xs uppercase text-neutral-500 transition-colors hover:border-[#10b981] hover:text-[#10b981] rounded"
                 >
                   <ShieldCheck className="h-4 w-4" /> Verify Payment
                 </button>
@@ -204,7 +204,7 @@ export function EnrollmentRequired() {
             {/* Option 3 - Manually Enrolled */}
             <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/60 backdrop-blur-sm p-6 transition-colors hover:bg-[#c0c4c9] flex flex-col">
               <h3 className="font-mono text-lg font-bold text-neutral-900 mb-2">Manually Enrolled?</h3>
-              <p className="font-mono text-xs text-[#b9cacb] mb-6 flex-grow">
+              <p className="font-mono text-xs text-neutral-500 mb-6 flex-grow">
                 Were you enrolled by an administrator? If you've already been added manually but still cannot access your dashboard, contact support.
               </p>
               
@@ -234,8 +234,8 @@ export function EnrollmentRequired() {
             
             <div className="space-y-1">
               <p className="font-heading text-xl font-bold text-neutral-900 uppercase">Cohort 1</p>
-              <p className="font-mono text-sm text-[#b9cacb]">Week 2 • Day 2</p>
-              <p className="font-mono text-xs text-[#b9cacb] mt-2">Live Classes: Every Saturday</p>
+              <p className="font-mono text-sm text-neutral-500">Week 2 • Day 2</p>
+              <p className="font-mono text-xs text-neutral-500 mt-2">Live Classes: Every Saturday</p>
             </div>
             
             <div className="mt-4 border-t border-[#3b494b]/50 pt-4">
@@ -264,7 +264,7 @@ export function EnrollmentRequired() {
           {/* Option 4 - Sign Out Section */}
           <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/40 p-6 backdrop-blur-sm text-center">
             <p className="font-mono text-sm font-bold text-neutral-900 mb-2">Not your account?</p>
-            <p className="font-mono text-xs text-[#b9cacb] mb-1">You are currently signed in as:</p>
+            <p className="font-mono text-xs text-neutral-500 mb-1">You are currently signed in as:</p>
             <p className="font-mono text-sm text-[#10b981] mb-4 truncate">
               {user?.primaryEmailAddress?.emailAddress || "Loading..."}
             </p>
@@ -273,7 +273,7 @@ export function EnrollmentRequired() {
             </p>
             <button
               onClick={() => signOut({ redirectUrl: '/' })}
-              className="inline-flex items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition-colors hover:border-red-500 hover:text-red-500 rounded"
+              className="inline-flex items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs uppercase text-neutral-500 transition-colors hover:border-red-500 hover:text-red-500 rounded"
             >
               <LogOut className="h-3 w-3" /> Sign Out
             </button>
@@ -290,12 +290,12 @@ export function EnrollmentRequired() {
             <a href="https://wa.me/2348120934828" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#c0c4c9] p-6 text-center transition-all hover:border-[#10b981]/50 hover:bg-[#c0c4c9]">
               <MessageCircle className="h-6 w-6 text-[#10b981]" />
               <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">WhatsApp Support</span>
-              <span className="text-[10px] text-[#b9cacb]">+234 812 093 4828</span>
+              <span className="text-[10px] text-neutral-500">+234 812 093 4828</span>
             </a>
             <a href="mailto:autolearnspot@gmail.com" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#c0c4c9] p-6 text-center transition-all hover:border-[#10b981]/50 hover:bg-[#c0c4c9]">
               <Mail className="h-6 w-6 text-[#10b981]" />
               <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">Email Support</span>
-              <span className="text-[10px] text-[#b9cacb]">autolearnspot@gmail.com</span>
+              <span className="text-[10px] text-neutral-500">autolearnspot@gmail.com</span>
             </a>
           </div>
 
@@ -313,7 +313,7 @@ export function EnrollmentRequired() {
                   </span>
                 </button>
                 {openFaqIndex === index && (
-                  <div className="border-t border-[#3b494b]/30 p-4 text-sm text-[#b9cacb] bg-[#0a0c10]">
+                  <div className="border-t border-[#3b494b]/30 p-4 text-sm text-neutral-500 bg-[#0a0c10]">
                     {faq.answer}
                   </div>
                 )}

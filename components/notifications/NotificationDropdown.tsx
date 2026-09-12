@@ -108,7 +108,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
       case 'announcement': return <Megaphone className="h-5 w-5 text-[#10b981]" />
       case 'assignment_review':
       case 'certificate': return <CheckCircle2 className="h-5 w-5 text-[#a855f7]" />
-      default: return <Info className="h-5 w-5 text-[#b9cacb]" />
+      default: return <Info className="h-5 w-5 text-neutral-500" />
     }
   }
 
@@ -146,7 +146,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
               <Check className="h-3 w-3" /> Mark all read
             </button>
           )}
-          <button onClick={onClose} className="text-[#b9cacb] hover:text-neutral-900">
+          <button onClick={onClose} className="text-neutral-500 hover:text-neutral-900">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -154,13 +154,13 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
 
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <div className="p-8 text-center text-sm font-mono text-[#b9cacb]">Loading...</div>
+          <div className="p-8 text-center text-sm font-mono text-neutral-500">Loading...</div>
         ) : error ? (
           <div className="p-8 text-center text-sm font-mono text-[#ff6b6b]">{error}</div>
         ) : deliveries.length === 0 ? (
           <div className="p-8 text-center">
             <Bell className="h-12 w-12 text-[#3b494b] mx-auto mb-3 opacity-50" />
-            <p className="text-sm font-mono text-[#b9cacb]">No notifications yet</p>
+            <p className="text-sm font-mono text-neutral-500">No notifications yet</p>
           </div>
         ) : (
           <div className="divide-y divide-[#1f2229]">
@@ -182,10 +182,10 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <p className={`text-sm font-bold truncate ${isUnread ? 'text-neutral-900' : 'text-[#b9cacb]'}`}>
+                        <p className={`text-sm font-bold truncate ${isUnread ? 'text-neutral-900' : 'text-neutral-500'}`}>
                           {notification.title}
                         </p>
-                        <span className="flex-shrink-0 text-[10px] font-mono text-[#b9cacb]">
+                        <span className="flex-shrink-0 text-[10px] font-mono text-neutral-500">
                           {formatTimeAgo(notification.created_at)}
                         </span>
                       </div>
@@ -222,7 +222,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
         <Link 
           href="/dashboard/settings/notifications" 
           onClick={onClose}
-          className="flex items-center justify-center gap-2 text-xs font-mono text-[#b9cacb] hover:text-neutral-900 transition-colors"
+          className="flex items-center justify-center gap-2 text-xs font-mono text-neutral-500 hover:text-neutral-900 transition-colors"
         >
           <Settings className="h-4 w-4" /> Notification Settings
         </Link>

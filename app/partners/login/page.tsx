@@ -45,7 +45,7 @@ export default function PartnerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B12] flex items-center justify-center p-4 sm:p-6">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
@@ -62,7 +62,7 @@ export default function PartnerLoginPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-2">
             Partner Portal
           </h1>
-          <p className="text-[#b9cacb]">
+          <p className="text-neutral-500">
             Sign in to manage your referrals and earnings
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function PartnerLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">Partner Type</label>
+              <label className="text-sm font-medium text-neutral-500">Partner Type</label>
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -104,23 +104,23 @@ export default function PartnerLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">Email Address</label>
+              <label className="text-sm font-medium text-neutral-500">Email Address</label>
               <input
                 required
                 type="email"
                 name="email"
-                className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="your@email.com"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#b9cacb]">Password</label>
+              <label className="text-sm font-medium text-neutral-500">Password</label>
               <input
                 required
                 type="password"
                 name="password"
-                className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="••••••••"
               />
             </div>
@@ -145,7 +145,7 @@ export default function PartnerLoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/partners/apply" className="text-[#b9cacb] hover:text-[#00F5FF] text-sm transition-colors inline-flex items-center gap-1">
+            <Link href="/partners/apply" className="text-neutral-500 hover:text-[#00F5FF] text-sm transition-colors inline-flex items-center gap-1">
               Apply to become a Community Partner
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -153,7 +153,7 @@ export default function PartnerLoginPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-[#b9cacb] hover:text-[#00F5FF] text-sm transition-colors">
+          <Link href="/" className="text-neutral-500 hover:text-[#00F5FF] text-sm transition-colors">
             ← Back to AutoLearn Spot
           </Link>
         </div>

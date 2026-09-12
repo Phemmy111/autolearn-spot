@@ -46,7 +46,7 @@ export default function AmbassadorLoginPage() {
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">
         <div className="w-full max-w-md">
-          <Link href="/ambassador" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-neutral-900 mb-8 transition-colors">
+          <Link href="/ambassador" className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-900 mb-8 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
           </Link>
           
@@ -54,7 +54,7 @@ export default function AmbassadorLoginPage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#10b981]/10 blur-3xl rounded-full pointer-events-none" />
             
             <h1 className="text-2xl font-bold mb-2">Ambassador Login</h1>
-            <p className="text-[#b9cacb] mb-8 text-sm">Welcome back. Enter your credentials to access your dashboard.</p>
+            <p className="text-neutral-500 mb-8 text-sm">Welcome back. Enter your credentials to access your dashboard.</p>
             
             {error && (
               <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 mb-6 text-sm">
@@ -64,20 +64,20 @@ export default function AmbassadorLoginPage() {
             
             <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[#b9cacb]">Email Address</label>
+                <label className="text-sm font-medium text-neutral-500">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#b9cacb]" />
-                  <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="you@example.com" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500" />
+                  <input required type="email" name="email" className="w-full bg-neutral-100 border border-neutral-300 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="you@example.com" />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium text-[#b9cacb]">Password</label>
+                  <label className="text-sm font-medium text-neutral-500">Password</label>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#b9cacb]" />
-                  <input required type="password" name="password" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="••••••••" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500" />
+                  <input required type="password" name="password" className="w-full bg-neutral-100 border border-neutral-300 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="••••••••" />
                 </div>
               </div>
 

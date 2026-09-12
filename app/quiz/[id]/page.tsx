@@ -132,7 +132,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
       <div className="mx-auto max-w-2xl text-center border border-red-500/50 bg-red-500/10 p-8 rounded-xl">
         <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
         <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Error</h2>
-        <p className="font-mono text-sm text-[#b9cacb] mb-6">{error}</p>
+        <p className="font-mono text-sm text-neutral-500 mb-6">{error}</p>
         <Link href="/quizzes" className="text-[#10b981] hover:underline font-mono text-sm">
           Back to Quizzes
         </Link>
@@ -148,7 +148,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
     return (
       <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-[#c0c4c9] p-8 rounded-xl">
         <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-4">Sign In Required</h2>
-        <p className="font-mono text-sm text-[#b9cacb] mb-6">You need to sign in to take this quiz.</p>
+        <p className="font-mono text-sm text-neutral-500 mb-6">You need to sign in to take this quiz.</p>
         <Link
           href="/sign-in"
           className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors"
@@ -172,11 +172,11 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         </h2>
         <div className="flex justify-center gap-8 mb-6 font-mono text-sm">
           <div className="text-center">
-            <p className="text-[#b9cacb]">Score</p>
+            <p className="text-neutral-500">Score</p>
             <p className="text-2xl font-bold text-[#10b981]">{result.score}</p>
           </div>
           <div className="text-center">
-            <p className="text-[#b9cacb]">Percentage</p>
+            <p className="text-neutral-500">Percentage</p>
             <p className="text-2xl font-bold text-[#10b981]">{result.percentage}%</p>
           </div>
         </div>
@@ -239,7 +239,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
                 {q.explanation && (
                   <div className="mt-4 pt-4 border-t border-neutral-200/50">
-                    <p className="font-mono text-xs uppercase tracking-wider text-[#b9cacb] mb-2">Explanation</p>
+                    <p className="font-mono text-xs uppercase tracking-wider text-neutral-500 mb-2">Explanation</p>
                     <p className="font-mono text-sm text-[#8b949e] leading-relaxed">
                       {q.explanation}
                     </p>
@@ -258,7 +258,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
       <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-[#c0c4c9] p-8 rounded-xl shadow-xl">
         <h2 className="font-heading text-3xl font-bold text-neutral-900 mb-4">{quiz.title}</h2>
         {quiz.description && (
-          <p className="text-[#b9cacb] font-mono text-sm mb-6">{quiz.description}</p>
+          <p className="text-neutral-500 font-mono text-sm mb-6">{quiz.description}</p>
         )}
         <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[#10b981]">
           {quiz.time_limit && (
@@ -296,7 +296,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="mx-auto max-w-3xl">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/quizzes" className="text-[#b9cacb] hover:text-neutral-900">
+        <Link href="/quizzes" className="text-neutral-500 hover:text-neutral-900">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div className="flex-1">
@@ -329,7 +329,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                     isSelected
                       ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981]'
-                      : 'border-neutral-200 bg-[#c0c4c9] text-[#b9cacb] hover:border-[#3b494b]'
+                      : 'border-neutral-200 bg-[#c0c4c9] text-neutral-500 hover:border-[#3b494b]'
                   }`}
                 >
                   <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#10b981]' : 'border-[#5d5f63]'}`}>
@@ -360,7 +360,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                   className={`flex-1 cursor-pointer rounded-lg border p-4 text-center transition-colors ${
                     isSelected
                       ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981]'
-                      : 'border-neutral-200 bg-[#c0c4c9] text-[#b9cacb] hover:border-[#3b494b]'
+                      : 'border-neutral-200 bg-[#c0c4c9] text-neutral-500 hover:border-[#3b494b]'
                   }`}
                 >
                   <input
@@ -392,7 +392,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         <button
           onClick={() => setCurrentQuestion((prev) => Math.max(0, prev - 1))}
           disabled={currentQuestion === 0}
-          className="flex items-center gap-2 text-[#b9cacb] hover:text-neutral-900 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
+          className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Previous
         </button>
@@ -419,13 +419,13 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-[#c0c4c9] p-8 text-center shadow-2xl">
             <h2 className="mb-4 font-heading text-2xl font-bold text-neutral-900">Unanswered Questions</h2>
-            <p className="mb-8 font-mono text-sm text-[#b9cacb]">
+            <p className="mb-8 font-mono text-sm text-neutral-500">
               You have {questions.filter(q => !answers[q.id]).length} questions left unanswered. Are you sure you want to submit?
             </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="font-mono text-sm text-[#b9cacb] hover:text-neutral-900 px-6 py-3"
+                className="font-mono text-sm text-neutral-500 hover:text-neutral-900 px-6 py-3"
               >
                 Cancel
               </button>

@@ -39,7 +39,7 @@ export default function QuizSelector({ quizzes, selectedQuizId }: { quizzes: Qui
             ))}
           </select>
         </div>
-        <div className="mt-6 flex items-center gap-2 text-[#b9cacb] font-mono text-xs">
+        <div className="mt-6 flex items-center gap-2 text-neutral-500 font-mono text-xs">
           <HelpCircle className="h-4 w-4 text-[#10b981]" />
           <span>Select a quiz to view question difficulty metrics.</span>
         </div>

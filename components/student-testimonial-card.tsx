@@ -58,14 +58,14 @@ export function StudentTestimonialCard({
         </div>
         <div className="flex-1">
           <h3 className="font-semibold text-[#e2e2e8] text-base">{name}</h3>
-          <p className="text-sm text-[#b9cacb] mt-1">{school}</p>
+          <p className="text-sm text-neutral-500 mt-1">{school}</p>
           <div className="flex items-center gap-1 mt-2">
             {renderStars(rating)}
-            <span className="text-xs text-[#b9cacb] ml-2">({rating}/5)</span>
+            <span className="text-xs text-neutral-500 ml-2">({rating}/5)</span>
           </div>
         </div>
       </div>
-      <p className="text-sm text-[#b9cacb] leading-relaxed">"{testimonial}"</p>
+      <p className="text-sm text-neutral-500 leading-relaxed">"{testimonial}"</p>
     </div>
   );
 }

@@ -29,7 +29,7 @@ function CertificateVerifyContent() {
             <CheckCircle className="h-8 w-8 text-emerald-400" />
           </div>
           <h1 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Certificate Verified</h1>
-          <p className="font-mono text-xs text-[#b9cacb] uppercase tracking-wider">
+          <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider">
             Autolearn Spot • Powered by Moon Space Network
           </p>
         </div>
@@ -46,11 +46,11 @@ function CertificateVerifyContent() {
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Completion Date</p>
-            <p className="text-[#b9cacb]">{decodeURIComponent(date)}</p>
+            <p className="text-neutral-500">{decodeURIComponent(date)}</p>
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Issued By</p>
-            <p className="text-[#b9cacb]">Moon Space Network (MSN)</p>
+            <p className="text-neutral-500">Moon Space Network (MSN)</p>
           </div>
         </div>
 
@@ -81,7 +81,7 @@ export default function CertificateVerifyPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <p className="text-[#b9cacb] font-mono text-sm">Loading verification...</p>
+        <p className="text-neutral-500 font-mono text-sm">Loading verification...</p>
       </div>
     }>
       <CertificateVerifyContent />

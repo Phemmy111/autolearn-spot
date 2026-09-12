@@ -45,7 +45,7 @@ export function AnimatedCurriculumSection() {
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             Curriculum
           </h2>
-          <p className="text-sm sm:text-base text-[#b9cacb] max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-neutral-500 max-w-2xl mx-auto">
             A structured 4-week program designed to take you from beginner to certified automation expert
           </p>
         </div>
@@ -79,10 +79,10 @@ export function AnimatedCurriculumSection() {
                 {week.phase}
               </div>
               <h3 className="text-base sm:text-lg font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
-              <p className="text-sm text-[#b9cacb] mb-3 sm:mb-4">{week.body}</p>
+              <p className="text-sm text-neutral-500 mb-3 sm:mb-4">{week.body}</p>
               <ul className="space-y-1 sm:space-y-2">
                 {week.items.map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-xs text-[#b9cacb]">
+                  <li key={item} className="flex items-center gap-2 text-xs text-neutral-500">
                     <CheckCircle className="h-3 w-3 text-[#10b981] flex-shrink-0" />
                     {item}
                   </li>

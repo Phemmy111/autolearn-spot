@@ -38,7 +38,7 @@ export default async function ScholarshipLandingPage() {
               </span>
             </h1>
 
-            <p className="text-lg text-[#b9cacb] mb-10 max-w-2xl mx-auto">
+            <p className="text-lg text-neutral-500 mb-10 max-w-2xl mx-auto">
               The full value of this hands-on n8n and AI automation training is <strong className="text-neutral-900">{formattedFullValue}</strong>.
               Selected scholars only pay a <strong className="text-[#10b981]">{formattedCommitmentFee} Commitment Fee</strong>.
             </p>
@@ -72,7 +72,7 @@ export default async function ScholarshipLandingPage() {
               <h3 className="font-heading text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-[#10b981]">//</span> The Value
               </h3>
-              <p className="text-[#b9cacb] mb-4">
+              <p className="text-neutral-500 mb-4">
                 This is our premier 4-week training program, normally priced at {formattedFullValue}. It covers everything from n8n basics to deploying production AI agents.
               </p>
             </div>
@@ -86,7 +86,7 @@ export default async function ScholarshipLandingPage() {
               <h3 className="font-heading text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-[#10b981]">//</span> The Commitment
               </h3>
-              <p className="text-[#b9cacb] mb-4">
+              <p className="text-neutral-500 mb-4">
                 The training is scholarship-supported. If selected, you pay only a {formattedCommitmentFee} commitment fee to cover onboarding, administration, and your MSN certificate.
               </p>
             </div>
@@ -100,7 +100,7 @@ export default async function ScholarshipLandingPage() {
               <h3 className="font-heading text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-[#10b981]">//</span> The Process
               </h3>
-              <ul className="space-y-3 text-[#b9cacb] font-mono text-sm">
+              <ul className="space-y-3 text-neutral-500 font-mono text-sm">
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 text-[#10b981] mt-0.5" />
                   <span>Submit application</span>
@@ -126,17 +126,17 @@ export default async function ScholarshipLandingPage() {
         <div className="space-y-6">
           <div className="border border-neutral-200 bg-[#c0c4c9] p-6">
             <h4 className="font-bold text-lg mb-2">Is the {formattedCommitmentFee} a tuition fee?</h4>
-            <p className="text-[#b9cacb]">No. The training itself is scholarship-supported (valued at {formattedFullValue}). The commitment fee covers onboarding logistics, platform administration, and your final certification.</p>
+            <p className="text-neutral-500">No. The training itself is scholarship-supported (valued at {formattedFullValue}). The commitment fee covers onboarding logistics, platform administration, and your final certification.</p>
           </div>
           
           <div className="border border-neutral-200 bg-[#c0c4c9] p-6">
             <h4 className="font-bold text-lg mb-2">When will I hear back?</h4>
-            <p className="text-[#b9cacb]">Our team reviews applications on a rolling basis. You can expect an update via email and on our status checking portal within 3 days of submission.</p>
+            <p className="text-neutral-500">Our team reviews applications on a rolling basis. You can expect an update via email and on our status checking portal within 3 days of submission.</p>
           </div>
           
           <div className="border border-neutral-200 bg-[#c0c4c9] p-6">
             <h4 className="font-bold text-lg mb-2">What happens if I'm accepted?</h4>
-            <p className="text-[#b9cacb]">You will receive an acceptance email with instructions on how to pay the commitment fee and complete your enrollment to secure your spot.</p>
+            <p className="text-neutral-500">You will receive an acceptance email with instructions on how to pay the commitment fee and complete your enrollment to secure your spot.</p>
           </div>
         </div>
 
@@ -150,7 +150,7 @@ export default async function ScholarshipLandingPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <p className="text-[#b9cacb] mb-3">Join our WhatsApp community for updates:</p>
+          <p className="text-neutral-500 mb-3">Join our WhatsApp community for updates:</p>
           <a
             href={settings.generalWhatsApp}
             target="_blank"

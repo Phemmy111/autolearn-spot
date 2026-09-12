@@ -134,7 +134,7 @@ export default function AdminGeneralSettingsPage() {
                   type="text"
                   value={settings.siteName}
                   onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -143,7 +143,7 @@ export default function AdminGeneralSettingsPage() {
                   type="text"
                   value={settings.siteTagline}
                   onChange={(e) => setSettings({ ...settings, siteTagline: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function AdminGeneralSettingsPage() {
                     type="text"
                     value={settings.primaryColor}
                     onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -186,7 +186,7 @@ export default function AdminGeneralSettingsPage() {
                     type="text"
                     value={settings.secondaryColor}
                     onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -203,7 +203,7 @@ export default function AdminGeneralSettingsPage() {
                     type="text"
                     value={settings.accentColor}
                     onChange={(e) => setSettings({ ...settings, accentColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function AdminGeneralSettingsPage() {
                   type="email"
                   value={settings.supportEmail}
                   onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -232,7 +232,7 @@ export default function AdminGeneralSettingsPage() {
                   type="tel"
                   value={settings.supportPhone}
                   onChange={(e) => setSettings({ ...settings, supportPhone: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -241,7 +241,7 @@ export default function AdminGeneralSettingsPage() {
                   type="tel"
                   value={settings.supportWhatsApp}
                   onChange={(e) => setSettings({ ...settings, supportWhatsApp: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -250,7 +250,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.whatsappDirectLink}
                   onChange={(e) => setSettings({ ...settings, whatsappDirectLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
@@ -269,7 +269,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.whatsappCommunityLink}
                   onChange={(e) => setSettings({ ...settings, whatsappCommunityLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -278,7 +278,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.instagramUrl}
                   onChange={(e) => setSettings({ ...settings, instagramUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -287,7 +287,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.tiktokUrl}
                   onChange={(e) => setSettings({ ...settings, tiktokUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -296,7 +296,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.youtubeUrl}
                   onChange={(e) => setSettings({ ...settings, youtubeUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -305,7 +305,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.facebookUrl}
                   onChange={(e) => setSettings({ ...settings, facebookUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -314,7 +314,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.twitterUrl}
                   onChange={(e) => setSettings({ ...settings, twitterUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -323,7 +323,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.linkedinUrl}
                   onChange={(e) => setSettings({ ...settings, linkedinUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>

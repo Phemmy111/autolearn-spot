@@ -169,12 +169,12 @@ export default function ScholarshipApplyPage() {
           
           <h2 className="font-heading text-2xl font-bold mb-4">Application Submitted!</h2>
           
-          <p className="text-[#b9cacb] mb-6">
+          <p className="text-neutral-500 mb-6">
             We have received your application. A confirmation email has been sent to {formData.email}.
           </p>
           
           <div className="bg-[#1a1c20] border border-neutral-200 p-4 mb-8">
-            <p className="text-sm text-[#b9cacb] mb-1 uppercase tracking-widest">Your Reference Number</p>
+            <p className="text-sm text-neutral-500 mb-1 uppercase tracking-widest">Your Reference Number</p>
             <p className="font-mono text-xl text-[#10b981] font-bold">{successData.referenceNumber}</p>
           </div>
           
@@ -197,11 +197,11 @@ export default function ScholarshipApplyPage() {
           
           <h2 className="font-heading text-2xl font-bold mb-4">You already have an existing scholarship application.</h2>
           
-          <p className="text-[#b9cacb] mb-6">
+          <p className="text-neutral-500 mb-6">
             Reference Number: <span className="text-neutral-900 font-bold">{existingApplication.referenceNumber}</span>
           </p>
           
-          <p className="text-[#b9cacb] mb-8">
+          <p className="text-neutral-500 mb-8">
             Please use the Check Application Status page to monitor your application.
           </p>
           
@@ -226,13 +226,13 @@ export default function ScholarshipApplyPage() {
             <span className="hidden sm:inline">Back to Scholarship Info</span>
           </Link>
           <div className="mb-8">
-            <div className="font-mono text-sm text-[#b9cacb] mb-2">
+            <div className="font-mono text-sm text-neutral-500 mb-2">
               Step {step} of 4
             </div>
           </div>
           <div className="mb-8">
             <h1 className="font-heading text-3xl font-bold mb-2">Scholarship Application</h1>
-            <p className="text-[#b9cacb]">Complete all steps to be considered for the {formattedFullValue} scholarship.</p>
+            <p className="text-neutral-500">Complete all steps to be considered for the {formattedFullValue} scholarship.</p>
           </div>
 
         {/* Progress Bar */}
@@ -255,31 +255,31 @@ export default function ScholarshipApplyPage() {
               
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">Full Name *</label>
+                  <label className="text-sm font-mono text-neutral-500">Full Name *</label>
                   <input required name="full_name" value={formData.full_name} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">Email Address *</label>
+                  <label className="text-sm font-mono text-neutral-500">Email Address *</label>
                   <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">Phone Number *</label>
+                  <label className="text-sm font-mono text-neutral-500">Phone Number *</label>
                   <input required name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">WhatsApp Number *</label>
+                  <label className="text-sm font-mono text-neutral-500">WhatsApp Number *</label>
                   <input required name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">Country *</label>
+                  <label className="text-sm font-mono text-neutral-500">Country *</label>
                   <input required name="country" value={formData.country} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">State/City *</label>
+                  <label className="text-sm font-mono text-neutral-500">State/City *</label>
                   <input required name="state" value={formData.state} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">Current Occupation/Role *</label>
+                  <label className="text-sm font-mono text-neutral-500">Current Occupation/Role *</label>
                   <input required name="occupation" value={formData.occupation} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
               </div>
@@ -292,7 +292,7 @@ export default function ScholarshipApplyPage() {
               
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">What is your experience with AI tools? *</label>
+                  <label className="text-sm font-mono text-neutral-500">What is your experience with AI tools? *</label>
                   <select required name="ai_experience" value={formData.ai_experience} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors appearance-none">
                     <option value="">Select experience level</option>
                     <option value="None">None - Complete beginner</option>
@@ -303,7 +303,7 @@ export default function ScholarshipApplyPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">What is your experience with automation tools (Zapier, Make, n8n)? *</label>
+                  <label className="text-sm font-mono text-neutral-500">What is your experience with automation tools (Zapier, Make, n8n)? *</label>
                   <select required name="automation_experience" value={formData.automation_experience} onChange={handleChange} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors appearance-none">
                     <option value="">Select experience level</option>
                     <option value="None">None - Have never used them</option>
@@ -334,22 +334,22 @@ export default function ScholarshipApplyPage() {
               
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">Why do you want to learn AI Automation? *</label>
+                  <label className="text-sm font-mono text-neutral-500">Why do you want to learn AI Automation? *</label>
                   <textarea required name="motivation" value={formData.motivation} onChange={handleChange} rows={4} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" placeholder="Share your main motivation..." />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">What is your specific goal for the next 6 months? *</label>
+                  <label className="text-sm font-mono text-neutral-500">What is your specific goal for the next 6 months? *</label>
                   <textarea required name="goals" value={formData.goals} onChange={handleChange} rows={3} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" placeholder="e.g., Get a job, start an agency, automate my business..." />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">How will this scholarship impact you? *</label>
+                  <label className="text-sm font-mono text-neutral-500">How will this scholarship impact you? *</label>
                   <textarea required name="impact" value={formData.impact} onChange={handleChange} rows={3} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-mono text-[#b9cacb]">Why should we select you out of hundreds of applicants? *</label>
+                  <label className="text-sm font-mono text-neutral-500">Why should we select you out of hundreds of applicants? *</label>
                   <textarea required name="why_you" value={formData.why_you} onChange={handleChange} rows={3} className="w-full bg-[#c0c4c9] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" />
                 </div>
               </div>
@@ -361,11 +361,11 @@ export default function ScholarshipApplyPage() {
               <h2 className="font-heading text-xl font-bold border-b border-neutral-200 pb-4 mb-6 text-[#10b981]">4. Final Commitment</h2>
               
               <div className="space-y-4">
-                <p className="text-[#b9cacb] mb-6">Please read and agree to the following conditions before submitting your application.</p>
+                <p className="text-neutral-500 mb-6">Please read and agree to the following conditions before submitting your application.</p>
 
                 <div className="p-6 border border-[#3b494b] bg-[#1a1c20] space-y-4">
                   <h3 className="font-bold text-neutral-900 mb-2">Scholarship Terms</h3>
-                  <ul className="list-disc list-inside space-y-2 text-sm text-[#b9cacb]">
+                  <ul className="list-disc list-inside space-y-2 text-sm text-neutral-500">
                     <li>I understand that the full value of this training is {formattedFullValue}.</li>
                     <li>If selected, I agree to pay a non-refundable Commitment Fee of {formattedCommitmentFee}.</li>
                     <li>I commit to attending sessions, completing assignments, and finishing the capstone project.</li>
@@ -387,7 +387,7 @@ export default function ScholarshipApplyPage() {
               <button
                 type="button"
                 onClick={prevStep}
-                className="flex items-center gap-2 px-6 py-3 border border-[#3b494b] font-mono text-sm uppercase text-[#b9cacb] hover:bg-[#1a1c20] transition-colors"
+                className="flex items-center gap-2 px-6 py-3 border border-[#3b494b] font-mono text-sm uppercase text-neutral-500 hover:bg-[#1a1c20] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Previous
               </button>

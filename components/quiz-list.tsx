@@ -31,8 +31,8 @@ export function QuizList() {
   if (quizzes.length === 0) {
     return (
       <div className="text-center py-12 border border-neutral-200 bg-[#c0c4c9] rounded-xl">
-        <BookOpen className="h-12 w-12 text-[#b9cacb] mx-auto mb-4" />
-        <p className="font-mono text-sm text-[#b9cacb]">No quizzes available yet. Check back soon!</p>
+        <BookOpen className="h-12 w-12 text-neutral-500 mx-auto mb-4" />
+        <p className="font-mono text-sm text-neutral-500">No quizzes available yet. Check back soon!</p>
       </div>
     )
   }
@@ -50,13 +50,13 @@ export function QuizList() {
                 <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] font-mono text-xs rounded">
                   {quiz.phase}
                 </span>
-                <span className="px-2 py-1 bg-[#1f2229] text-[#b9cacb] font-mono text-xs rounded">
+                <span className="px-2 py-1 bg-[#1f2229] text-neutral-500 font-mono text-xs rounded">
                   Week {quiz.week_number}
                 </span>
               </div>
               <h3 className="font-heading text-xl font-bold text-neutral-900 mb-2">{quiz.title}</h3>
               {quiz.description && (
-                <p className="font-mono text-sm text-[#b9cacb]">{quiz.description}</p>
+                <p className="font-mono text-sm text-neutral-500">{quiz.description}</p>
               )}
             </div>
           </div>
@@ -86,7 +86,7 @@ export function QuizList() {
             ) : (
               <a
                 href="/sign-in"
-                className="flex items-center gap-2 bg-[#1f2229] text-[#b9cacb] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#3b494b] transition-colors text-sm"
+                className="flex items-center gap-2 bg-[#1f2229] text-neutral-500 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#3b494b] transition-colors text-sm"
               >
                 <Lock className="h-4 w-4" />
                 Sign in to Start

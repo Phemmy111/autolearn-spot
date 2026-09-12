@@ -162,7 +162,7 @@ export default function AssignmentsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'submitted':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#c0c4c9] text-[#b9cacb] border border-[#3b494b]">Submitted</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#c0c4c9] text-neutral-500 border border-[#3b494b]">Submitted</span>;
       case 'approved':
         return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#0f4c3c] text-[#10b981] border border-[#10b981]">Approved</span>;
       case 'needs_revision':
@@ -179,7 +179,7 @@ export default function AssignmentsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2] flex items-center justify-center">
-        <div className="font-mono text-sm text-[#b9cacb]">Loading assignments...</div>
+        <div className="font-mono text-sm text-neutral-500">Loading assignments...</div>
       </div>
     );
   }
@@ -200,7 +200,7 @@ export default function AssignmentsPage() {
           <span className="text-[#10b981]">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </Link>
-        <div className="font-mono text-xs uppercase text-[#b9cacb]">
+        <div className="font-mono text-xs uppercase text-neutral-500">
           Assignments
         </div>
       </nav>
@@ -210,7 +210,7 @@ export default function AssignmentsPage() {
 
         {assignments.length === 0 ? (
           <div className="border border-[#3b494b] bg-[#c0c4c9] p-8 text-center">
-            <p className="font-mono text-sm text-[#b9cacb]">No assignments available yet.</p>
+            <p className="font-mono text-sm text-neutral-500">No assignments available yet.</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -235,16 +235,16 @@ export default function AssignmentsPage() {
                         {assignment.title}
                       </h2>
                       {assignment.description && (
-                        <p className="mb-4 font-mono text-sm text-[#b9cacb]">
+                        <p className="mb-4 font-mono text-sm text-neutral-500">
                           {assignment.description}
                         </p>
                       )}
                       {assignment.instructions && (
-                        <div className="mb-4 font-mono text-sm text-[#b9cacb] whitespace-pre-line">
+                        <div className="mb-4 font-mono text-sm text-neutral-500 whitespace-pre-line">
                           {assignment.instructions}
                         </div>
                       )}
-                      <div className="flex flex-wrap gap-4 text-xs font-mono text-[#b9cacb]">
+                      <div className="flex flex-wrap gap-4 text-xs font-mono text-neutral-500">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
                           <span>Due: {formatDate(assignment.due_date)}</span>
@@ -275,14 +275,14 @@ export default function AssignmentsPage() {
                                 setSelectedFile(null);
                                 setFilePreview(null);
                               }}
-                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#10b981] hover:text-[#10b981]"
+                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs uppercase text-neutral-500 transition hover:border-[#10b981] hover:text-[#10b981]"
                             >
                               <Edit className="h-4 w-4" />
                               Edit Submission
                             </button>
                           )}
                           {submission.ai_score !== null && (
-                            <div className="text-center font-mono text-xs text-[#b9cacb]">
+                            <div className="text-center font-mono text-xs text-neutral-500">
                               Score: <span className="text-[#10b981]">{submission.ai_score}</span>/{assignment.max_score}
                             </div>
                           )}
@@ -314,7 +314,7 @@ export default function AssignmentsPage() {
               </h2>
               <button
                 onClick={() => setViewingSubmission(null)}
-                className="text-[#b9cacb] hover:text-neutral-900 transition-colors"
+                className="text-neutral-500 hover:text-neutral-900 transition-colors"
               >
                 ✕
               </button>
@@ -327,14 +327,14 @@ export default function AssignmentsPage() {
 
             {/* Status */}
             <div className="mb-4">
-              <span className="font-mono text-xs uppercase text-[#b9cacb] mr-2">Status:</span>
+              <span className="font-mono text-xs uppercase text-neutral-500 mr-2">Status:</span>
               {getStatusBadge(viewingSubmission.submission.status)}
             </div>
 
             {/* Screenshot preview */}
             {viewingSubmission.submission.screenshot_url && (
               <div className="mb-4">
-                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Screenshot:</p>
+                <p className="font-mono text-xs uppercase text-neutral-500 mb-2">Screenshot:</p>
                 <a
                   href={viewingSubmission.submission.screenshot_url}
                   target="_blank"
@@ -346,7 +346,7 @@ export default function AssignmentsPage() {
                     alt="Submission screenshot"
                     className="max-h-48 rounded border border-[#3b494b] group-hover:border-[#10b981] transition-colors"
                   />
-                  <span className="block mt-1 font-mono text-xs text-[#b9cacb] group-hover:text-[#10b981] transition-colors">
+                  <span className="block mt-1 font-mono text-xs text-neutral-500 group-hover:text-[#10b981] transition-colors">
                     Click to open full image ↗
                   </span>
                 </a>
@@ -356,7 +356,7 @@ export default function AssignmentsPage() {
             {/* Live URL */}
             {viewingSubmission.submission.live_url && (
               <div className="mb-4">
-                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Submitted URL:</p>
+                <p className="font-mono text-xs uppercase text-neutral-500 mb-2">Submitted URL:</p>
                 <a
                   href={viewingSubmission.submission.live_url}
                   target="_blank"
@@ -372,7 +372,7 @@ export default function AssignmentsPage() {
             {/* Notes */}
             {viewingSubmission.submission.notes && (
               <div className="mb-4 border-t border-[#3b494b] pt-4">
-                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Notes:</p>
+                <p className="font-mono text-xs uppercase text-neutral-500 mb-2">Notes:</p>
                 <p className="font-mono text-sm text-[#e2e8e2] whitespace-pre-line">
                   {viewingSubmission.submission.notes}
                 </p>
@@ -381,7 +381,7 @@ export default function AssignmentsPage() {
 
             {/* Submission date */}
             <div className="mb-4 border-t border-[#3b494b] pt-4">
-              <p className="font-mono text-xs uppercase text-[#b9cacb] mb-1">Submitted:</p>
+              <p className="font-mono text-xs uppercase text-neutral-500 mb-1">Submitted:</p>
               <p className="font-mono text-sm text-[#e2e8e2]">
                 {formatDate(viewingSubmission.submission.created_at)}
               </p>
@@ -390,10 +390,10 @@ export default function AssignmentsPage() {
             {/* Score */}
             {viewingSubmission.submission.ai_score !== null && (
               <div className="mb-4">
-                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-1">Score:</p>
+                <p className="font-mono text-xs uppercase text-neutral-500 mb-1">Score:</p>
                 <p className="font-mono text-lg text-[#10b981] font-bold">
                   {viewingSubmission.submission.ai_score}
-                  <span className="text-sm text-[#b9cacb] font-normal">
+                  <span className="text-sm text-neutral-500 font-normal">
                     /{viewingSubmission.assignment.max_score}
                   </span>
                 </p>
@@ -403,7 +403,7 @@ export default function AssignmentsPage() {
             {/* Feedback */}
             {viewingSubmission.submission.ai_feedback && (
               <div className="mb-4 border-t border-[#3b494b] pt-4">
-                <p className="font-mono text-xs uppercase text-[#b9cacb] mb-2">Feedback:</p>
+                <p className="font-mono text-xs uppercase text-neutral-500 mb-2">Feedback:</p>
                 <p className="font-mono text-sm text-[#e2e8e2] whitespace-pre-line">
                   {viewingSubmission.submission.ai_feedback}
                 </p>
@@ -415,7 +415,7 @@ export default function AssignmentsPage() {
              !viewingSubmission.submission.live_url &&
              !viewingSubmission.submission.notes && (
               <div className="mb-4 border border-[#3b494b] bg-[#c0c4c9] p-4 text-center">
-                <p className="font-mono text-sm text-[#b9cacb]">No submission data available.</p>
+                <p className="font-mono text-sm text-neutral-500">No submission data available.</p>
               </div>
             )}
 
@@ -423,7 +423,7 @@ export default function AssignmentsPage() {
             <div className="flex justify-end pt-4 border-t border-[#3b494b]">
               <button
                 onClick={() => setViewingSubmission(null)}
-                className="font-mono text-sm text-[#b9cacb] hover:text-neutral-900 px-4 py-2 border border-[#3b494b] hover:border-[#10b981] transition-colors"
+                className="font-mono text-sm text-neutral-500 hover:text-neutral-900 px-4 py-2 border border-[#3b494b] hover:border-[#10b981] transition-colors"
               >
                 Close
               </button>
@@ -448,18 +448,18 @@ export default function AssignmentsPage() {
                   setSelectedFile(null);
                   setFilePreview(null);
                 }}
-                className="text-[#b9cacb] hover:text-neutral-900 transition-colors"
+                className="text-neutral-500 hover:text-neutral-900 transition-colors"
               >
                 ✕
               </button>
             </div>
-            <p className="mb-6 font-mono text-sm text-[#b9cacb]">
+            <p className="mb-6 font-mono text-sm text-neutral-500">
               {selectedAssignment.title}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-neutral-500">
                   Submission URL
                 </label>
                 <input
@@ -469,13 +469,13 @@ export default function AssignmentsPage() {
                   placeholder="https://github.com/..."
                   className="w-full border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#10b981] focus:outline-none"
                 />
-                <p className="mt-2 font-mono text-xs text-[#b9cacb]">
+                <p className="mt-2 font-mono text-xs text-neutral-500">
                   GitHub, n8n JSON, Google Drive, Loom, YouTube, or any valid URL
                 </p>
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-neutral-500">
                   Screenshot
                 </label>
                 <div className="border-2 border-dashed border-[#3b494b] bg-[#c0c4c9] p-4 text-center">
@@ -507,8 +507,8 @@ export default function AssignmentsPage() {
                         htmlFor="screenshot"
                         className="flex flex-col items-center gap-2 cursor-pointer"
                       >
-                        <Upload className="h-8 w-8 text-[#b9cacb]" />
-                        <span className="font-mono text-xs text-[#b9cacb]">
+                        <Upload className="h-8 w-8 text-neutral-500" />
+                        <span className="font-mono text-xs text-neutral-500">
                           Click to upload screenshot
                         </span>
                         <span className="font-mono text-xs text-[#6b7b7c]">
@@ -521,7 +521,7 @@ export default function AssignmentsPage() {
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
+                <label className="mb-2 block font-mono text-xs uppercase text-neutral-500">
                   Notes
                 </label>
                 <textarea
@@ -543,7 +543,7 @@ export default function AssignmentsPage() {
                     setSelectedFile(null);
                     setFilePreview(null);
                   }}
-                  className="font-mono text-sm text-[#b9cacb] hover:text-neutral-900 px-4 py-2"
+                  className="font-mono text-sm text-neutral-500 hover:text-neutral-900 px-4 py-2"
                 >
                   Cancel
                 </button>

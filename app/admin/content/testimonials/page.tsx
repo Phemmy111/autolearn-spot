@@ -352,7 +352,7 @@ export default function AdminTestimonialsPage() {
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
+                className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -365,7 +365,7 @@ export default function AdminTestimonialsPage() {
                   type="text"
                   value={formData.studentName}
                   onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -375,7 +375,7 @@ export default function AdminTestimonialsPage() {
                     type="text"
                     value={formData.cohort}
                     onChange={(e) => setFormData({ ...formData, cohort: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
                 <div>
@@ -384,7 +384,7 @@ export default function AdminTestimonialsPage() {
                     type="text"
                     value={formData.course}
                     onChange={(e) => setFormData({ ...formData, course: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -398,7 +398,7 @@ export default function AdminTestimonialsPage() {
                       value="image"
                       checked={formData.mediaType === 'image'}
                       onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
-                      className="w-4 h-4 border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                      className="w-4 h-4 border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                     />
                     <span className="text-sm text-neutral-600">Image</span>
                   </label>
@@ -409,7 +409,7 @@ export default function AdminTestimonialsPage() {
                       value="video"
                       checked={formData.mediaType === 'video'}
                       onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
-                      className="w-4 h-4 border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                      className="w-4 h-4 border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                     />
                     <span className="text-sm text-neutral-600">Video</span>
                   </label>
@@ -420,7 +420,7 @@ export default function AdminTestimonialsPage() {
                   {formData.mediaType === 'image' ? 'Image/Screenshot *' : 'Video *'}
                 </label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                     <Upload className="h-4 w-4 text-neutral-600" />
                     <span className="text-sm text-neutral-600">
                       {formData.mediaFile 
@@ -442,7 +442,7 @@ export default function AdminTestimonialsPage() {
                     />
                   </label>
                   {formData.mediaFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                       <span className="text-xs text-neutral-600 truncate">{formData.mediaFile.name}</span>
                       <button
                         type="button"
@@ -454,7 +454,7 @@ export default function AdminTestimonialsPage() {
                     </div>
                   )}
                   {formData.mediaUrl && !formData.mediaFile && (
-                    <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="p-2 bg-white border border-neutral-200 rounded">
                       {formData.mediaType === 'image' ? (
                         <img src={formData.mediaUrl} alt="Preview" className="w-full h-24 object-cover rounded mb-2" />
                       ) : (
@@ -475,7 +475,7 @@ export default function AdminTestimonialsPage() {
                 <div>
                   <label className="block text-sm font-medium text-neutral-600 mb-2">Thumbnail/Poster (Optional)</label>
                   <div className="space-y-3">
-                    <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                       <Upload className="h-4 w-4 text-neutral-600" />
                       <span className="text-sm text-neutral-600">
                         {formData.thumbnailFile ? formData.thumbnailFile.name : 'Upload Thumbnail (PNG/JPG)'}
@@ -493,7 +493,7 @@ export default function AdminTestimonialsPage() {
                       />
                     </label>
                     {formData.thumbnailFile && (
-                      <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                      <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                         <span className="text-xs text-neutral-600 truncate">{formData.thumbnailFile.name}</span>
                         <button
                           type="button"
@@ -505,7 +505,7 @@ export default function AdminTestimonialsPage() {
                       </div>
                     )}
                     {formData.thumbnailUrl && !formData.thumbnailFile && (
-                      <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
+                      <div className="p-2 bg-white border border-neutral-200 rounded">
                         <img src={formData.thumbnailUrl} alt="Thumbnail" className="w-full h-24 object-cover rounded mb-2" />
                         <button
                           type="button"
@@ -522,7 +522,7 @@ export default function AdminTestimonialsPage() {
               <div>
                 <label className="block text-sm font-medium text-neutral-600 mb-2">Profile Picture (Optional)</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                     <Upload className="h-4 w-4 text-neutral-600" />
                     <span className="text-sm text-neutral-600">
                       {formData.profileImageFile ? formData.profileImageFile.name : 'Upload Profile Picture (PNG/JPG/WebP)'}
@@ -540,7 +540,7 @@ export default function AdminTestimonialsPage() {
                     />
                   </label>
                   {formData.profileImageFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                       <span className="text-xs text-neutral-600 truncate">{formData.profileImageFile.name}</span>
                       <button
                         type="button"
@@ -552,7 +552,7 @@ export default function AdminTestimonialsPage() {
                     </div>
                   )}
                   {formData.profileImageUrl && !formData.profileImageFile && (
-                    <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="p-2 bg-white border border-neutral-200 rounded">
                       <img src={formData.profileImageUrl} alt="Profile" className="w-16 h-16 object-cover rounded-full mb-2" />
                       <button
                         type="button"
@@ -578,7 +578,7 @@ export default function AdminTestimonialsPage() {
                     }
                   }}
                   placeholder="https://linkedin.com/in/username"
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
                 <p className="text-xs text-neutral-500 mt-1">Must start with http:// or https://</p>
               </div>
@@ -588,7 +588,7 @@ export default function AdminTestimonialsPage() {
                   value={formData.caption}
                   onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -597,7 +597,7 @@ export default function AdminTestimonialsPage() {
                   type="number"
                   value={formData.displayOrder}
                   onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="flex items-center gap-4">
@@ -606,7 +606,7 @@ export default function AdminTestimonialsPage() {
                     type="checkbox"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Featured</span>
                 </label>
@@ -615,7 +615,7 @@ export default function AdminTestimonialsPage() {
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Enabled</span>
                 </label>
@@ -640,7 +640,7 @@ export default function AdminTestimonialsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 bg-[#070B12] text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                  className="flex-1 px-4 py-3 bg-white text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
                 >
                   Cancel
                 </button>

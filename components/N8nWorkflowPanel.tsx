@@ -70,7 +70,7 @@ function WorkflowNode({
       <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8] sm:text-[11px]">
         {node.label}
       </h3>
-      <p className="mt-1 font-mono text-[10px] text-[#b9cacb]">{node.detail}</p>
+      <p className="mt-1 font-mono text-[10px] text-neutral-500">{node.detail}</p>
     </div>
   )
 }

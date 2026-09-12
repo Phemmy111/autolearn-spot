@@ -56,7 +56,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
       <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-[#c0c4c9]/95 px-4 backdrop-blur sm:px-6">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-[#b9cacb] transition hover:text-[#10b981]"
+          className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-neutral-500 transition hover:text-[#10b981]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
@@ -71,7 +71,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
           <h1 className="font-heading text-2xl font-bold uppercase text-neutral-900 sm:text-3xl">
             {video.title}
           </h1>
-          <p className="mt-3 max-w-3xl font-mono text-sm leading-relaxed text-[#b9cacb]">
+          <p className="mt-3 max-w-3xl font-mono text-sm leading-relaxed text-neutral-500">
             {video.description}
           </p>
         </div>

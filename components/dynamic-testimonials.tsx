@@ -122,7 +122,7 @@ export function DynamicTestimonialsSection() {
                   </a>
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-[#1f2229] border-2 border-neutral-200 flex items-center justify-center">
-                    <span className="text-[#b9cacb] text-sm font-semibold">
+                    <span className="text-neutral-500 text-sm font-semibold">
                       {(testimonial.student_name || 'S')[0].toUpperCase()}
                     </span>
                   </div>
@@ -132,13 +132,13 @@ export function DynamicTestimonialsSection() {
                 )}
               </div>
               {(testimonial.cohort || testimonial.course) && (
-                <p className="text-xs text-[#b9cacb] mb-2">
+                <p className="text-xs text-neutral-500 mb-2">
                   {testimonial.cohort && `${testimonial.cohort} `}
                   {testimonial.course && `• ${testimonial.course}`}
                 </p>
               )}
               {testimonial.caption && (
-                <p className="text-sm text-[#b9cacb] line-clamp-3">{testimonial.caption}</p>
+                <p className="text-sm text-neutral-500 line-clamp-3">{testimonial.caption}</p>
               )}
               {testimonial.featured && (
                 <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/10 text-yellow-400 text-xs rounded-full">

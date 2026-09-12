@@ -103,7 +103,7 @@ export default function HistoryPage() {
         <div className="flex max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-neutral-200 bg-[#c0c4c9] p-8 text-center shadow-xl">
           <AlertCircle className="h-12 w-12 text-red-500" />
           <h2 className="font-heading text-xl font-bold text-neutral-900">Oops</h2>
-          <p className="font-mono text-sm text-[#b9cacb]">{error}</p>
+          <p className="font-mono text-sm text-neutral-500">{error}</p>
         </div>
       </div>
     )
@@ -115,7 +115,7 @@ export default function HistoryPage() {
         <div className="flex flex-col items-center justify-center text-center p-12 border border-neutral-200 bg-[#c0c4c9] rounded-xl shadow-xl">
           <History className="h-16 w-16 text-[#3b494b] mb-4" />
           <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">No History Yet</h2>
-          <p className="font-mono text-sm text-[#b9cacb]">You haven't completed any quizzes or assignments yet.</p>
+          <p className="font-mono text-sm text-neutral-500">You haven't completed any quizzes or assignments yet.</p>
         </div>
       </div>
     )
@@ -135,7 +135,7 @@ export default function HistoryPage() {
     } else {
       switch (entry.status) {
         case 'submitted':
-          return <span className="text-[#b9cacb] uppercase text-xs font-bold">Submitted</span>
+          return <span className="text-neutral-500 uppercase text-xs font-bold">Submitted</span>
         case 'approved':
           return <span className="text-emerald-400 uppercase text-xs font-bold">Approved</span>
         case 'needs_revision':
@@ -180,12 +180,12 @@ export default function HistoryPage() {
       <div className="mb-10 text-center">
         <History className="mx-auto h-16 w-16 text-[#10b981] drop-shadow-[0_0_15px_rgba(0,240,255,0.5)] mb-4" />
         <h1 className="font-heading text-4xl font-bold uppercase text-neutral-900 mb-2">History</h1>
-        <p className="font-mono text-sm text-[#b9cacb]">Review your past quiz and assignment submissions.</p>
+        <p className="font-mono text-sm text-neutral-500">Review your past quiz and assignment submissions.</p>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-neutral-200 bg-[#c0c4c9] shadow-2xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm font-mono text-[#b9cacb]">
+          <table className="w-full text-left text-sm font-mono text-neutral-500">
             <thead className="bg-[#c0c4c9] text-xs uppercase text-[#5d5f63]">
               <tr>
                 <th scope="col" className="px-6 py-4">Type</th>

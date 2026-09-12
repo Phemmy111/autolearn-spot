@@ -66,7 +66,7 @@ export default function NotificationSettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#c0c4c9] p-8">
-        <p className="font-mono text-sm text-[#b9cacb]">Loading settings...</p>
+        <p className="font-mono text-sm text-neutral-500">Loading settings...</p>
       </div>
     )
   }
@@ -77,13 +77,13 @@ export default function NotificationSettingsPage() {
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Link>
           <h1 className="font-heading text-3xl font-bold uppercase text-neutral-900 mb-2">Notification Settings</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">
+          <p className="font-mono text-sm text-neutral-500">
             Choose what updates you want to receive and how you receive them.
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function NotificationSettingsPage() {
             <div className="flex items-center justify-between py-3 border-b border-[#3b494b]/50">
               <div>
                 <p className="font-bold text-neutral-900">Email Notifications</p>
-                <p className="text-xs text-[#b9cacb] mt-1">Receive important updates via email</p>
+                <p className="text-xs text-neutral-500 mt-1">Receive important updates via email</p>
               </div>
               <button 
                 onClick={() => handleToggle('email_notifications')}
@@ -108,7 +108,7 @@ export default function NotificationSettingsPage() {
             <div className="flex items-center justify-between py-3">
               <div>
                 <p className="font-bold text-neutral-900">In-App Notifications</p>
-                <p className="text-xs text-[#b9cacb] mt-1">Receive updates in the dashboard bell</p>
+                <p className="text-xs text-neutral-500 mt-1">Receive updates in the dashboard bell</p>
               </div>
               <button disabled className="w-12 h-6 rounded-full bg-[#10b981] opacity-50 relative cursor-not-allowed">
                 <div className="absolute top-1 w-4 h-4 rounded-full bg-white left-7"></div>
@@ -133,7 +133,7 @@ export default function NotificationSettingsPage() {
                 />
                 <div>
                   <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Announcements</p>
-                  <p className="text-xs text-[#b9cacb] mt-1">Instructor announcements and updates</p>
+                  <p className="text-xs text-neutral-500 mt-1">Instructor announcements and updates</p>
                 </div>
               </label>
 
@@ -149,7 +149,7 @@ export default function NotificationSettingsPage() {
                 />
                 <div>
                   <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Assignments</p>
-                  <p className="text-xs text-[#b9cacb] mt-1">New assignments and grading reviews</p>
+                  <p className="text-xs text-neutral-500 mt-1">New assignments and grading reviews</p>
                 </div>
               </label>
 
@@ -165,7 +165,7 @@ export default function NotificationSettingsPage() {
                 />
                 <div>
                   <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Quizzes</p>
-                  <p className="text-xs text-[#b9cacb] mt-1">New quizzes available and reminders</p>
+                  <p className="text-xs text-neutral-500 mt-1">New quizzes available and reminders</p>
                 </div>
               </label>
 
@@ -181,7 +181,7 @@ export default function NotificationSettingsPage() {
                 />
                 <div>
                   <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Live Classes</p>
-                  <p className="text-xs text-[#b9cacb] mt-1">Upcoming live classes and links</p>
+                  <p className="text-xs text-neutral-500 mt-1">Upcoming live classes and links</p>
                 </div>
               </label>
             </div>

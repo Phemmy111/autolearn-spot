@@ -198,7 +198,7 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
                       >
                         Preview Complete
                       </h3>
-                      <p className="mb-6 font-mono text-sm text-[#b9cacb] max-w-md text-center leading-relaxed">
+                      <p className="mb-6 font-mono text-sm text-neutral-500 max-w-md text-center leading-relaxed">
                         You&apos;ve reached the end of the preview. Enroll now to unlock the full
                         course, live deployments, and get certified.
                       </p>

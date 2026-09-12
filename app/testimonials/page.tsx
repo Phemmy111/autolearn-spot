@@ -65,14 +65,14 @@ export default function TestimonialsPage() {
       {/* Header */}
       <div className="border-b border-neutral-200 bg-[#c0c4c9]/50 backdrop-blur-xl">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-neutral-900 transition-colors mb-4">
+          <Link href="/" className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-900 transition-colors mb-4">
             <ArrowLeft className="h-5 w-5" />
             Back to Home
           </Link>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#e2e2e8] mb-2">
             Real Students. Real Results.
           </h1>
-          <p className="text-lg text-[#b9cacb] max-w-2xl">
+          <p className="text-lg text-neutral-500 max-w-2xl">
             See experiences from learners who have mastered AI automation with {settings.siteName}
           </p>
         </div>
@@ -132,7 +132,7 @@ export default function TestimonialsPage() {
                       </a>
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-[#1f2229] border-2 border-neutral-200 flex items-center justify-center">
-                        <span className="text-[#b9cacb] text-sm font-semibold">
+                        <span className="text-neutral-500 text-sm font-semibold">
                           {(testimonial.student_name || 'S')[0].toUpperCase()}
                         </span>
                       </div>
@@ -142,7 +142,7 @@ export default function TestimonialsPage() {
                         <h3 className="text-xl font-semibold text-[#e2e2e8]">{testimonial.student_name}</h3>
                       )}
                       {(testimonial.cohort || testimonial.course) && (
-                        <p className="text-sm text-[#b9cacb]">
+                        <p className="text-sm text-neutral-500">
                           {testimonial.cohort && `${testimonial.cohort} `}
                           {testimonial.course && `• ${testimonial.course}`}
                         </p>
@@ -150,7 +150,7 @@ export default function TestimonialsPage() {
                     </div>
                   </div>
                   {testimonial.caption && (
-                    <p className="text-[#b9cacb] leading-relaxed text-lg">"{testimonial.caption}"</p>
+                    <p className="text-neutral-500 leading-relaxed text-lg">"{testimonial.caption}"</p>
                   )}
                   <div className="mt-4">
                     <span className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500/10 text-yellow-400 text-sm rounded-full">
@@ -220,7 +220,7 @@ export default function TestimonialsPage() {
                       </a>
                     ) : (
                       <div className="w-12 h-12 rounded-full bg-[#1f2229] border-2 border-neutral-200 flex items-center justify-center">
-                        <span className="text-[#b9cacb] text-xs font-semibold">
+                        <span className="text-neutral-500 text-xs font-semibold">
                           {(testimonial.student_name || 'S')[0].toUpperCase()}
                         </span>
                       </div>
@@ -230,20 +230,20 @@ export default function TestimonialsPage() {
                     )}
                   </div>
                   {(testimonial.cohort || testimonial.course) && (
-                    <p className="text-xs text-[#b9cacb] mb-2">
+                    <p className="text-xs text-neutral-500 mb-2">
                       {testimonial.cohort && `${testimonial.cohort} `}
                       {testimonial.course && `• ${testimonial.course}`}
                     </p>
                   )}
                   {testimonial.caption && (
-                    <p className="text-sm text-[#b9cacb] line-clamp-3">{testimonial.caption}</p>
+                    <p className="text-sm text-neutral-500 line-clamp-3">{testimonial.caption}</p>
                   )}
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-[#b9cacb]">No testimonials available yet.</p>
+              <p className="text-neutral-500">No testimonials available yet.</p>
             </div>
           )}
         </div>
@@ -252,7 +252,7 @@ export default function TestimonialsPage() {
       {/* Footer */}
       <footer className="border-t border-neutral-200 bg-[#c0c4c9]/50 backdrop-blur-xl py-8">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8 text-center">
-          <p className="text-[#b9cacb] text-sm">
+          <p className="text-neutral-500 text-sm">
             © {new Date().getFullYear()} {settings.siteName}. All rights reserved.
           </p>
         </div>

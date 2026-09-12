@@ -152,13 +152,13 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
       
       {/* Legend */}
       <div className="px-6 py-4 flex gap-6 bg-[#c0c4c9] border-b border-neutral-200">
-        <div className="flex items-center gap-2 font-mono text-xs text-[#b9cacb]">
+        <div className="flex items-center gap-2 font-mono text-xs text-neutral-500">
           <div className="w-3 h-3 bg-emerald-400 rounded-sm"></div> Easiest (≥80%)
         </div>
-        <div className="flex items-center gap-2 font-mono text-xs text-[#b9cacb]">
+        <div className="flex items-center gap-2 font-mono text-xs text-neutral-500">
           <div className="w-3 h-3 bg-amber-400 rounded-sm"></div> Moderate (40-80%)
         </div>
-        <div className="flex items-center gap-2 font-mono text-xs text-[#b9cacb]">
+        <div className="flex items-center gap-2 font-mono text-xs text-neutral-500">
           <div className="w-3 h-3 bg-red-400 rounded-sm"></div> Hard (≤40%)
         </div>
       </div>

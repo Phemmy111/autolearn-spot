@@ -12,6 +12,47 @@ async function getAuthorId(): Promise<string> {
   throw result;
 }
 
+/** Validate product completeness before submission */
+export function validateProductCompleteness(product: Partial<LearningProduct>): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (!product.title || product.title.trim() === '') {
+    errors.push('Product title is required');
+  }
+
+  if (!product.description || product.description.trim() === '') {
+    errors.push('Product description is required');
+  }
+
+  if (!product.skill_id) {
+    errors.push('Skill selection is required');
+  }
+
+  if (!product.product_type) {
+    errors.push('Product type is required');
+  }
+
+  if (product.price === undefined || product.price === null) {
+    errors.push('Price is required');
+  }
+
+  if (!product.currency) {
+    errors.push('Currency is required');
+  }
+
+  if (!product.access_duration_days) {
+    errors.push('Access duration is required');
+  }
+
+  // Check if product has at least one lesson (if lessons table is populated)
+  // This will be validated in the submit endpoint after we add lesson support
+
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 /** Create a new product as DRAFT */
 export async function createProduct(data: Omit<LearningProduct, 'id' | 'author_id' | 'status' | 'created_at' | 'updated_at'>): Promise<LearningProduct | null> {
   const authorId = await getAuthorId();

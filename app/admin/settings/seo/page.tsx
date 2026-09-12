@@ -124,7 +124,7 @@ export default function AdminSeoSettingsPage() {
                   type="text"
                   value={settings.siteTitle}
                   onChange={(e) => setSettings({ ...settings, siteTitle: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -133,7 +133,7 @@ export default function AdminSeoSettingsPage() {
                   value={settings.metaDescription}
                   onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function AdminSeoSettingsPage() {
                   type="text"
                   value={settings.ogTitle}
                   onChange={(e) => setSettings({ ...settings, ogTitle: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -161,7 +161,7 @@ export default function AdminSeoSettingsPage() {
                   value={settings.ogDescription}
                   onChange={(e) => setSettings({ ...settings, ogDescription: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -170,7 +170,7 @@ export default function AdminSeoSettingsPage() {
                   type="url"
                   value={settings.ogImage}
                   onChange={(e) => setSettings({ ...settings, ogImage: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
               </div>
@@ -188,7 +188,7 @@ export default function AdminSeoSettingsPage() {
               <select
                 value={settings.twitterCardType}
                 onChange={(e) => setSettings({ ...settings, twitterCardType: e.target.value })}
-                className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
               >
                 <option value="summary_large_image">Summary Large Image</option>
                 <option value="summary">Summary</option>

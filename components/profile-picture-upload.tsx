@@ -89,11 +89,11 @@ export function ProfilePictureUpload({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-[#1f2229]">
-            <Camera className="h-8 w-8 text-[#b9cacb]" />
+            <Camera className="h-8 w-8 text-neutral-500" />
           </div>
         )}
         
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="absolute inset-0 bg-neutral-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
@@ -121,8 +121,8 @@ export function ProfilePictureUpload({
 
       {showLabel && (
         <div className="text-center">
-          <p className="text-sm text-[#b9cacb]">Profile Picture</p>
-          <p className="text-xs text-[#b9cacb]/60">JPG, PNG (max 5MB)</p>
+          <p className="text-sm text-neutral-500">Profile Picture</p>
+          <p className="text-xs text-neutral-500/60">JPG, PNG (max 5MB)</p>
         </div>
       )}
     </div>

@@ -235,7 +235,7 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
               <div className="flex items-center gap-1">
                 <button
                   onClick={handleClearChat}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#c0c4c9] hover:text-[#b9cacb]"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#c0c4c9] hover:text-neutral-500"
                   type="button"
                   title="Clear conversation"
                 >
@@ -243,7 +243,7 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#c0c4c9] hover:text-[#b9cacb]"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#c0c4c9] hover:text-neutral-500"
                   type="button"
                   aria-label="Close"
                 >
@@ -280,7 +280,7 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
                             // We'll just set and let the user click send, or we trigger handleSend
                           }, 50)
                         }}
-                        className="w-full text-left border border-neutral-200 bg-[#c0c4c9] rounded-xl px-4 py-3 text-xs text-[#b9cacb] font-mono transition hover:border-[#7c3aed]/50 hover:bg-[#c0c4c9] hover:text-[#e2e8e2]"
+                        className="w-full text-left border border-neutral-200 bg-[#c0c4c9] rounded-xl px-4 py-3 text-xs text-neutral-500 font-mono transition hover:border-[#7c3aed]/50 hover:bg-[#c0c4c9] hover:text-[#e2e8e2]"
                         type="button"
                       >
                         <MessageCircle className="inline h-3.5 w-3.5 mr-2 text-[#7c3aed]" />

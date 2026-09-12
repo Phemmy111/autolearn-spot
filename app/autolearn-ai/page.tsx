@@ -28,7 +28,7 @@ export default function AutolearnAIPage() {
       <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
-          <p className="text-[#b9cacb]">Loading ALEX...</p>
+          <p className="text-neutral-500">Loading ALEX...</p>
         </div>
       </div>
     )
@@ -49,11 +49,11 @@ export default function AutolearnAIPage() {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-neutral-900">ALEX</h1>
-              <p className="text-xs text-[#b9cacb]">AutoLearn Intelligence & Execution Agent</p>
+              <p className="text-xs text-neutral-500">AutoLearn Intelligence & Execution Agent</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-[#b9cacb]">
+            <span className="text-sm text-neutral-500">
               {user?.firstName} {user?.lastName}
             </span>
           </div>

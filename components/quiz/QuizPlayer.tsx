@@ -81,7 +81,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
     return (
       <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-[#c0c4c9] p-8 rounded-xl shadow-xl">
         <h2 className="font-heading text-3xl font-bold text-neutral-900 mb-4">{quiz.title}</h2>
-        <p className="text-[#b9cacb] font-mono text-sm mb-6">{quiz.description}</p>
+        <p className="text-neutral-500 font-mono text-sm mb-6">{quiz.description}</p>
         <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[#10b981]">
           <div><strong>Duration:</strong> {quiz.duration} mins</div>
           <div><strong>Pass Mark:</strong> {quiz.passMark}%</div>
@@ -106,7 +106,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
       <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-[#c0c4c9] p-8 rounded-xl shadow-xl">
         <CheckCircle className="h-16 w-16 text-emerald-400 mx-auto mb-4" />
         <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Quiz Submitted Successfully</h2>
-        <p className="text-[#b9cacb] font-mono text-sm mb-6">Waiting for grading... Your results will be available shortly.</p>
+        <p className="text-neutral-500 font-mono text-sm mb-6">Waiting for grading... Your results will be available shortly.</p>
         <a href="/dashboard" className="text-[#10b981] hover:underline font-mono text-sm">
           Return to Dashboard
         </a>
@@ -150,7 +150,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
         <button
           onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
           disabled={currentIndex === 0}
-          className="flex items-center gap-2 text-[#b9cacb] hover:text-neutral-900 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
+          className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Previous
         </button>

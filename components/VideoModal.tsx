@@ -34,7 +34,7 @@ export function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProps) {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 bg-black/50 hover:bg-black/70 rounded-lg transition-colors"
+          className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 bg-neutral-50 hover:bg-black/70 rounded-lg transition-colors"
         >
           <X className="h-4 w-4 text-neutral-900" />
         </button>
@@ -54,7 +54,7 @@ export function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProps) {
           {/* Mute button overlay */}
           <button
             onClick={toggleMute}
-            className="absolute bottom-4 right-4 flex items-center justify-center w-10 h-10 bg-black/50 hover:bg-black/70 rounded-lg transition-colors"
+            className="absolute bottom-4 right-4 flex items-center justify-center w-10 h-10 bg-neutral-50 hover:bg-black/70 rounded-lg transition-colors"
             title={isMuted ? "Unmute" : "Mute"}
           >
             {isMuted ? (

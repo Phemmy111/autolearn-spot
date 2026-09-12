@@ -64,7 +64,7 @@ export function Leaderboard() {
     if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-400" />
     if (rank === 2) return <Medal className="h-6 w-6 text-gray-300" />
     if (rank === 3) return <Award className="h-6 w-6 text-amber-600" />
-    return <span className="font-mono text-sm font-bold text-[#b9cacb]">#{rank}</span>
+    return <span className="font-mono text-sm font-bold text-neutral-500">#{rank}</span>
   }
 
   const getRankClass = (rank: number) => {
@@ -83,7 +83,7 @@ export function Leaderboard() {
 
       {leaderboard.length === 0 ? (
         <div className="text-center py-12 border border-neutral-200 bg-[#c0c4c9] rounded-xl">
-          <p className="font-mono text-sm text-[#b9cacb]">No quiz results yet. Be the first to complete a quiz!</p>
+          <p className="font-mono text-sm text-neutral-500">No quiz results yet. Be the first to complete a quiz!</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -108,7 +108,7 @@ export function Leaderboard() {
               </div>
               <div className="text-right">
                 <p className="font-mono text-lg font-bold text-[#10b981]">{entry.score} pts</p>
-                <div className="text-xs text-[#b9cacb] space-y-1">
+                <div className="text-xs text-neutral-500 space-y-1">
                   <p>Assignments: {Math.round(entry.assignment_score || 0)}%</p>
                   <p>Quizzes: {Math.round(entry.quiz_score || 0)}%</p>
                   <p>Video: {Math.round(entry.video_completion || 0)}%</p>

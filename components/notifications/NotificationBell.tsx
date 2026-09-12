@@ -107,7 +107,7 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={toggleDropdown}
-        className="relative p-2 text-[#b9cacb] hover:text-neutral-900 transition-colors rounded-full hover:bg-[#c0c4c9]"
+        className="relative p-2 text-neutral-500 hover:text-neutral-900 transition-colors rounded-full hover:bg-[#c0c4c9]"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" />

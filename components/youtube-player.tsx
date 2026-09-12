@@ -317,7 +317,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         </div>
         <div>
           <p className="font-mono text-sm font-semibold text-red-400">{error}</p>
-          <p className="mt-1 font-mono text-xs text-[#b9cacb]">
+          <p className="mt-1 font-mono text-xs text-neutral-500">
             Video ID: {videoId}
           </p>
         </div>
@@ -404,7 +404,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       {isLoading && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#c0c4c9]">
           <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
-          <p className="font-mono text-xs uppercase tracking-widest text-[#b9cacb]">
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
             Loading video…
           </p>
         </div>
@@ -439,7 +439,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Rewind button */}
           <button
             onClick={handleRewind}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
             title="Rewind 10s"
           >
             <Rewind className="h-5 w-5" />
@@ -460,7 +460,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Fast forward button */}
           <button
             onClick={handleFastForward}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
             title="Fast forward 10s"
           >
             <FastForward className="h-5 w-5" />

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createProduct, listOwnProducts } from '@/lib/product-service';
+import { createProduct, listOwnProducts, deleteProduct } from '@/lib/product-service';
 import { requireAuthor } from '@/lib/author';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +43,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, product });
   } catch (err: any) {
     console.error('[POST /api/author/products] error:', err);
+    return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/author/products/[id]
+ * Delete a DRAFT product
+ */
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAuthor();
+    const { id } = await params;
+    const success = await deleteProduct(id);
+    if (!success) {
+      return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    console.error('[DELETE /api/author/products/[id]] error:', err);
     return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 });
   }
 }

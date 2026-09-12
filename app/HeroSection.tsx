@@ -95,7 +95,7 @@ export function HeroSection() {
               {settings.heroHeadline}
             </h1>
 
-            <p className="text-sm sm:text-base lg:text-lg text-[#b9cacb] leading-relaxed animate-slide-up animate-stagger-3">
+            <p className="text-sm sm:text-base lg:text-lg text-neutral-500 leading-relaxed animate-slide-up animate-stagger-3">
               {settings.heroSubheadline}
             </p>
 
@@ -145,7 +145,7 @@ export function HeroSection() {
                       <button
                         onClick={toggleMute}
                         aria-label={isMuted ? "Unmute workflow showcase" : "Mute workflow showcase"}
-                        className="absolute bottom-3 right-3 flex items-center justify-center w-8 h-8 hover:bg-black/20 transition-colors focus:outline-none focus:ring-2 focus:ring-[#00f0ff]/50 rounded-lg"
+                        className="absolute bottom-3 right-3 flex items-center justify-center w-8 h-8 hover:bg-neutral-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#00f0ff]/50 rounded-lg"
                         title={isMuted ? "Unmute" : "Mute"}
                       >
                         {isMuted ? (

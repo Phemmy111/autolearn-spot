@@ -15,7 +15,7 @@ export function AnimatedScholarshipSection() {
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8] mb-2">
                 Need Financial Support?
               </h2>
-              <p className="text-sm sm:text-base text-[#b9cacb]">
+              <p className="text-sm sm:text-base text-neutral-500">
                 Apply for our scholarship programme and get trained at a reduced rate.
               </p>
             </div>

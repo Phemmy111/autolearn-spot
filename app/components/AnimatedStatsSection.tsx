@@ -23,7 +23,7 @@ export function AnimatedStatsSection() {
               style={{ transitionDelay: `${index * 0.1}s` }}
             >
               <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#10b981] stat-counter">{stat.value}</div>
-              <div className="text-xs sm:text-sm text-[#b9cacb] mt-1 sm:mt-2">{stat.label}</div>
+              <div className="text-xs sm:text-sm text-neutral-500 mt-1 sm:mt-2">{stat.label}</div>
             </div>
           ))}
         </div>

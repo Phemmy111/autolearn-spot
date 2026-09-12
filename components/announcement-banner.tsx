@@ -67,7 +67,7 @@ export function AnnouncementBanner() {
         </div>
         <button
           onClick={handleDismiss}
-          className="ml-4 text-[#b9cacb] hover:text-neutral-900 transition-colors"
+          className="ml-4 text-neutral-500 hover:text-neutral-900 transition-colors"
           aria-label="Dismiss announcement"
         >
           <X className="h-4 w-4" />

@@ -67,7 +67,7 @@ export function EnrollmentSection() {
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-4 sm:mb-6">
               {settings.enrollmentPageHeadline}
             </h2>
-            <p className="text-sm text-[#b9cacb] mb-4 sm:mb-6">
+            <p className="text-sm text-neutral-500 mb-4 sm:mb-6">
               {settings.enrollmentPageDescription}
             </p>
             <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--brand-primary)] mb-4 sm:mb-6">
@@ -83,7 +83,7 @@ export function EnrollmentSection() {
                   </span>
                 </div>
                 {cohort.start_date && (
-                  <p className="text-sm sm:text-base text-[#b9cacb]">
+                  <p className="text-sm sm:text-base text-neutral-500">
                     Starts <span className="text-[var(--brand-primary)] font-semibold">{formatDate(cohort.start_date)}</span>
                   </p>
                 )}
@@ -106,7 +106,7 @@ export function EnrollmentSection() {
               {feeLoading ? 'Loading...' : `${settings.enrollmentButtonText} — ₦${fee.toLocaleString()}`}
             </Link>
             
-            <p className="text-center text-xs sm:text-sm text-[#b9cacb] mt-3 sm:mt-4">
+            <p className="text-center text-xs sm:text-sm text-neutral-500 mt-3 sm:mt-4">
               Secure payment powered by Paystack
             </p>
           </div>
@@ -134,7 +134,7 @@ export function EnrollmentSection() {
                       </div>
                       <div className="flex-1">
                         <h4 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-1 sm:mb-2">{item.title}</h4>
-                        <p className="text-sm text-[#b9cacb]">{item.description}</p>
+                        <p className="text-sm text-neutral-500">{item.description}</p>
                       </div>
                     </div>
                   </div>

@@ -38,7 +38,7 @@ export function CohortCard() {
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-[#10b981] flex-shrink-0" />
             <div>
-              <p className="text-[10px] sm:text-xs text-[#b9cacb] uppercase tracking-wider">Starts</p>
+              <p className="text-[10px] sm:text-xs text-neutral-500 uppercase tracking-wider">Starts</p>
               <p className="text-sm sm:text-base font-semibold text-[#10b981]">
                 {formattedDate}
               </p>

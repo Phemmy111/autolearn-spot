@@ -87,7 +87,7 @@ export function ToolsCarousel() {
                   <Icon className="h-11 w-11 sm:h-12 sm:w-12" />
                 </div>
                 <h3 className="mt-10 font-heading text-2xl font-semibold text-[#e2e2e8] sm:text-3xl">{tool.title}</h3>
-                <p className="mt-3 font-mono text-sm text-[#b9cacb] sm:text-base">{tool.body}</p>
+                <p className="mt-3 font-mono text-sm text-neutral-500 sm:text-base">{tool.body}</p>
               </div>
               <button
                 className="w-full border border-neutral-200 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[#10b981] transition hover:border-[#10b981]/80 hover:bg-[#10b981]/10"

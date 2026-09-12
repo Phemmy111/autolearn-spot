@@ -68,7 +68,7 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
   return (
     <div className="mb-10 border border-neutral-200 bg-[#c0c4c9] p-5">
       <div className="flex items-center justify-between mb-3">
-        <span className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#b9cacb]">
+        <span className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-neutral-500">
           Your Progress
         </span>
         <span className="font-mono text-xs font-bold text-[#10b981]">

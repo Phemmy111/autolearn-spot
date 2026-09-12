@@ -91,7 +91,7 @@ export default function StudentAnalyticsPage() {
     <div className="container mx-auto py-8 space-y-6">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Your Progress</h1>
-        <p className="text-[#b9cacb]">
+        <p className="text-neutral-500">
           Track your learning journey across videos, assignments, and quizzes
         </p>
       </div>
@@ -102,7 +102,7 @@ export default function StudentAnalyticsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-2xl text-neutral-900">Overall Progress</CardTitle>
-              <CardDescription className="text-[#b9cacb]">Your combined progress across all activities</CardDescription>
+              <CardDescription className="text-neutral-500">Your combined progress across all activities</CardDescription>
             </div>
             <Badge className={`${getStatusColor(analytics.overallProgress.status)} text-neutral-900`}>
               {getStatusLabel(analytics.overallProgress.status)}
@@ -113,7 +113,7 @@ export default function StudentAnalyticsPage() {
           <div className="flex items-center justify-between">
             <span className="text-4xl font-bold text-neutral-900">{analytics.overallProgress.percentage}%</span>
             {analytics.overallProgress.estimatedCompletionDate && (
-              <div className="flex items-center text-sm text-[#b9cacb]">
+              <div className="flex items-center text-sm text-neutral-500">
                 <Clock className="mr-2 h-4 w-4" />
                 Est. completion: {new Date(analytics.overallProgress.estimatedCompletionDate).toLocaleDateString()}
               </div>
@@ -125,7 +125,7 @@ export default function StudentAnalyticsPage() {
           <div className="space-y-3 pt-4 border-t border-neutral-200">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[#b9cacb]">Videos</span>
+                <span className="text-neutral-500">Videos</span>
                 <span className="text-neutral-900 font-semibold">{analytics.videoProgress.percentage}%</span>
               </div>
               <div className="h-2 bg-[#1f2229] rounded-full overflow-hidden">
@@ -137,7 +137,7 @@ export default function StudentAnalyticsPage() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[#b9cacb]">Assignments</span>
+                <span className="text-neutral-500">Assignments</span>
                 <span className="text-neutral-900 font-semibold">{analytics.assignmentProgress.percentage}%</span>
               </div>
               <div className="h-2 bg-[#1f2229] rounded-full overflow-hidden">
@@ -149,7 +149,7 @@ export default function StudentAnalyticsPage() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[#b9cacb]">Quizzes</span>
+                <span className="text-neutral-500">Quizzes</span>
                 <span className="text-neutral-900 font-semibold">{analytics.quizProgress.percentage}%</span>
               </div>
               <div className="h-2 bg-[#1f2229] rounded-full overflow-hidden">
@@ -179,7 +179,7 @@ export default function StudentAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-neutral-900">{analytics.videoProgress.completed}/{analytics.videoProgress.total}</div>
-            <p className="text-xs text-[#b9cacb]">
+            <p className="text-xs text-neutral-500">
               {analytics.videoProgress.percentage}% complete
             </p>
           </CardContent>
@@ -192,7 +192,7 @@ export default function StudentAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-neutral-900">{analytics.assignmentProgress.submitted}/{analytics.assignmentProgress.total}</div>
-            <p className="text-xs text-[#b9cacb]">
+            <p className="text-xs text-neutral-500">
               Avg score: {analytics.assignmentProgress.averageScore}%
             </p>
           </CardContent>
@@ -205,7 +205,7 @@ export default function StudentAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-neutral-900">{analytics.quizProgress.completed}/{analytics.quizProgress.total}</div>
-            <p className="text-xs text-[#b9cacb]">
+            <p className="text-xs text-neutral-500">
               Pass rate: {analytics.quizProgress.passRate}%
             </p>
           </CardContent>
@@ -218,7 +218,7 @@ export default function StudentAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-neutral-900">{analytics.totalScore}</div>
-            <p className="text-xs text-[#b9cacb]">
+            <p className="text-xs text-neutral-500">
               Leaderboard points
             </p>
           </CardContent>
@@ -241,12 +241,12 @@ export default function StudentAnalyticsPage() {
                 <BookOpen className="h-5 w-5 text-[#10b981]" />
                 Video Learning Progress
               </CardTitle>
-              <CardDescription className="text-[#b9cacb]">Your video watch completion and engagement</CardDescription>
+              <CardDescription className="text-neutral-500">Your video watch completion and engagement</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="p-6 bg-[#1f2229] rounded-lg">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm text-[#b9cacb]">Overall Completion</span>
+                  <span className="text-sm text-neutral-500">Overall Completion</span>
                   <span className="text-3xl font-bold text-[#10b981]">{analytics.videoProgress.percentage}%</span>
                 </div>
                 <Progress value={analytics.videoProgress.percentage} className="h-4" />
@@ -256,7 +256,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Lessons Completed</p>
+                    <p className="text-sm text-neutral-500">Lessons Completed</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.videoProgress.completed}</p>
                   <p className="text-xs text-[#5d5f63] mt-1">out of {analytics.videoProgress.total} total</p>
@@ -264,7 +264,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Activity className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Average Watch %</p>
+                    <p className="text-sm text-neutral-500">Average Watch %</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.videoProgress.averageWatchPct}%</p>
                   <p className="text-xs text-[#5d5f63] mt-1">engagement rate</p>
@@ -281,12 +281,12 @@ export default function StudentAnalyticsPage() {
                 <FileText className="h-5 w-5 text-[#10b981]" />
                 Assignment Performance
               </CardTitle>
-              <CardDescription className="text-[#b9cacb]">Your assignment submissions and scores</CardDescription>
+              <CardDescription className="text-neutral-500">Your assignment submissions and scores</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="p-6 bg-[#1f2229] rounded-lg">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm text-[#b9cacb]">Submission Rate</span>
+                  <span className="text-sm text-neutral-500">Submission Rate</span>
                   <span className="text-3xl font-bold text-[#10b981]">{analytics.assignmentProgress.percentage}%</span>
                 </div>
                 <Progress value={analytics.assignmentProgress.percentage} className="h-4" />
@@ -296,7 +296,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Trophy className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Average Score</p>
+                    <p className="text-sm text-neutral-500">Average Score</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.assignmentProgress.averageScore}%</p>
                   <p className="text-xs text-[#5d5f63] mt-1">performance</p>
@@ -304,7 +304,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">On-Time Rate</p>
+                    <p className="text-sm text-neutral-500">On-Time Rate</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.assignmentProgress.onTimeRate}%</p>
                   <p className="text-xs text-[#5d5f63] mt-1">punctuality</p>
@@ -312,7 +312,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Activity className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Pending Review</p>
+                    <p className="text-sm text-neutral-500">Pending Review</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.assignmentProgress.pendingReview}</p>
                   <p className="text-xs text-[#5d5f63] mt-1">awaiting feedback</p>
@@ -322,14 +322,14 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-green-500/10 rounded-lg border border-green-500/30">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-4 w-4 text-green-400" />
-                    <p className="text-sm text-[#b9cacb]">Approved</p>
+                    <p className="text-sm text-neutral-500">Approved</p>
                   </div>
                   <p className="text-2xl font-bold text-green-400">{analytics.assignmentProgress.approved}</p>
                 </div>
                 <div className="p-4 bg-orange-500/10 rounded-lg border border-orange-500/30">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertCircle className="h-4 w-4 text-orange-400" />
-                    <p className="text-sm text-[#b9cacb]">Needs Revision</p>
+                    <p className="text-sm text-neutral-500">Needs Revision</p>
                   </div>
                   <p className="text-2xl font-bold text-orange-400">{analytics.assignmentProgress.needsRevision}</p>
                 </div>
@@ -345,12 +345,12 @@ export default function StudentAnalyticsPage() {
                 <Trophy className="h-5 w-5 text-[#10b981]" />
                 Quiz Performance
               </CardTitle>
-              <CardDescription className="text-[#b9cacb]">Your quiz attempts and scores</CardDescription>
+              <CardDescription className="text-neutral-500">Your quiz attempts and scores</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="p-6 bg-[#1f2229] rounded-lg">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm text-[#b9cacb]">Quiz Completion</span>
+                  <span className="text-sm text-neutral-500">Quiz Completion</span>
                   <span className="text-3xl font-bold text-[#10b981]">{analytics.quizProgress.percentage}%</span>
                 </div>
                 <Progress value={analytics.quizProgress.percentage} className="h-4" />
@@ -360,7 +360,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Average Score</p>
+                    <p className="text-sm text-neutral-500">Average Score</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.quizProgress.averageScore}%</p>
                   <p className="text-xs text-[#5d5f63] mt-1">performance</p>
@@ -368,7 +368,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Pass Rate</p>
+                    <p className="text-sm text-neutral-500">Pass Rate</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.quizProgress.passRate}%</p>
                   <p className="text-xs text-[#5d5f63] mt-1">success rate</p>
@@ -376,7 +376,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Trophy className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Quizzes Passed</p>
+                    <p className="text-sm text-neutral-500">Quizzes Passed</p>
                   </div>
                   <p className="text-3xl font-bold text-neutral-900">{analytics.quizProgress.passed}</p>
                   <p className="text-xs text-[#5d5f63] mt-1">completed</p>
@@ -393,7 +393,7 @@ export default function StudentAnalyticsPage() {
                 <Activity className="h-5 w-5 text-[#10b981]" />
                 Recent Activity
               </CardTitle>
-              <CardDescription className="text-[#b9cacb]">Your recent learning activities and engagement</CardDescription>
+              <CardDescription className="text-neutral-500">Your recent learning activities and engagement</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {analytics.lastActivityAt ? (
@@ -402,7 +402,7 @@ export default function StudentAnalyticsPage() {
                     <Clock className="h-5 w-5 text-[#10b981]" />
                     <div>
                       <p className="text-sm font-medium text-neutral-900">Last Activity</p>
-                      <p className="text-xs text-[#b9cacb]">{new Date(analytics.lastActivityAt).toLocaleString()}</p>
+                      <p className="text-xs text-neutral-500">{new Date(analytics.lastActivityAt).toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
@@ -412,7 +412,7 @@ export default function StudentAnalyticsPage() {
                     <AlertCircle className="h-5 w-5 text-orange-400" />
                     <div>
                       <p className="text-sm font-medium text-neutral-900">No Recent Activity</p>
-                      <p className="text-xs text-[#b9cacb]">Start learning to see your activity here</p>
+                      <p className="text-xs text-neutral-500">Start learning to see your activity here</p>
                     </div>
                   </div>
                 </div>
@@ -422,7 +422,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <BookOpen className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Video Progress</p>
+                    <p className="text-sm text-neutral-500">Video Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Progress value={analytics.videoProgress.percentage} className="flex-1 h-2" />
@@ -432,7 +432,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Assignment Progress</p>
+                    <p className="text-sm text-neutral-500">Assignment Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Progress value={analytics.assignmentProgress.percentage} className="flex-1 h-2" />
@@ -442,7 +442,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <Trophy className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Quiz Progress</p>
+                    <p className="text-sm text-neutral-500">Quiz Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Progress value={analytics.quizProgress.percentage} className="flex-1 h-2" />
@@ -452,7 +452,7 @@ export default function StudentAnalyticsPage() {
                 <div className="p-4 bg-[#c0c4c9] rounded-lg border border-neutral-200">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-4 w-4 text-[#10b981]" />
-                    <p className="text-sm text-[#b9cacb]">Overall Progress</p>
+                    <p className="text-sm text-neutral-500">Overall Progress</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Progress value={analytics.overallProgress.percentage} className="flex-1 h-2" />

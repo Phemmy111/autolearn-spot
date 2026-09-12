@@ -186,7 +186,7 @@ export default function PartnerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070B12] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#00F5FF]" />
       </div>
     );
@@ -207,7 +207,7 @@ export default function PartnerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#070B12]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -227,7 +227,7 @@ export default function PartnerDashboard() {
               <div className="hidden md:block h-6 w-px bg-[#1f2229]" />
               <div>
                 <h1 className="text-lg font-bold text-[#e2e2e8]">Partner Dashboard</h1>
-                <p className="text-xs text-[#b9cacb]">
+                <p className="text-xs text-neutral-500">
                   {partner?.type === "student" ? "Student Partner" : 
                    partner?.type === "community" ? "Community Partner" : "Influencer"}
                 </p>
@@ -237,22 +237,22 @@ export default function PartnerDashboard() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => { fetchNotifications(); setShowNotifications(!showNotifications); }}
-                className="relative p-2 hover:bg-[#070B12]/50 rounded-lg transition-colors"
+                className="relative p-2 hover:bg-white/50 rounded-lg transition-colors"
               >
-                <Bell className="h-5 w-5 text-[#b9cacb]" />
+                <Bell className="h-5 w-5 text-neutral-500" />
                 {data?.unreadCount > 0 && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-[#00F5FF] rounded-full" />
                 )}
               </button>
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-[#070B12]/50 hover:bg-[#070B12] rounded-lg transition-colors text-sm text-[#b9cacb]"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-white/50 hover:bg-white rounded-lg transition-colors text-sm text-neutral-500"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
               </button>
               <button
-                className="md:hidden text-[#b9cacb]"
+                className="md:hidden text-neutral-500"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -287,7 +287,7 @@ export default function PartnerDashboard() {
               notifications.map((notif: any) => (
                 <div 
                   key={notif.id} 
-                  className={`p-4 border-b border-neutral-200 cursor-pointer hover:bg-[#070B12]/50 transition-colors ${!notif.read ? 'bg-[#00F5FF]/5' : ''}`}
+                  className={`p-4 border-b border-neutral-200 cursor-pointer hover:bg-white/50 transition-colors ${!notif.read ? 'bg-[#00F5FF]/5' : ''}`}
                   onClick={async () => {
                     if (!notif.read) {
                       await fetch("/api/partners/notifications", {
@@ -301,12 +301,12 @@ export default function PartnerDashboard() {
                   }}
                 >
                   <p className="font-medium text-sm text-[#e2e2e8]">{notif.title}</p>
-                  <p className="text-[#b9cacb] text-xs mt-1">{notif.message}</p>
-                  <p className="text-[#b9cacb] text-xs mt-2">{new Date(notif.created_at).toLocaleString()}</p>
+                  <p className="text-neutral-500 text-xs mt-1">{notif.message}</p>
+                  <p className="text-neutral-500 text-xs mt-2">{new Date(notif.created_at).toLocaleString()}</p>
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-[#b9cacb]">No notifications</div>
+              <div className="p-8 text-center text-neutral-500">No notifications</div>
             )}
           </div>
         </div>
@@ -325,7 +325,7 @@ export default function PartnerDashboard() {
                   className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                     activeTab === item.id
                       ? 'bg-[#00F5FF]/10 text-[#00F5FF]'
-                      : 'text-[#b9cacb] hover:bg-[#070B12]/50'
+                      : 'text-neutral-500 hover:bg-white/50'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -335,7 +335,7 @@ export default function PartnerDashboard() {
             })}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-[#b9cacb] hover:bg-[#070B12]/50"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-neutral-500 hover:bg-white/50"
             >
               <LogOut className="h-5 w-5" />
               Logout
@@ -359,7 +359,7 @@ export default function PartnerDashboard() {
                       className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                         activeTab === item.id
                           ? 'bg-[#00F5FF]/10 text-[#00F5FF]'
-                          : 'text-[#b9cacb] hover:bg-[#070B12]/50'
+                          : 'text-neutral-500 hover:bg-white/50'
                       }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -378,7 +378,7 @@ export default function PartnerDashboard() {
               <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-2">
                 Welcome back, {partner?.name || "Partner"}!
               </h2>
-              <p className="text-[#b9cacb]">Here's your performance overview</p>
+              <p className="text-neutral-500">Here's your performance overview</p>
             </div>
 
             {/* Stats Grid */}
@@ -386,28 +386,28 @@ export default function PartnerDashboard() {
               <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Wallet className="h-4 w-4 text-[#00F5FF]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Available Balance</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Available Balance</span>
                 </div>
                 <div className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</div>
               </div>
               <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-[#e2e2e8]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Pending Earnings</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Pending Earnings</span>
                 </div>
                 <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</div>
               </div>
               <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-4 w-4 text-[#e2e2e8]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Total Earned</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Total Earned</span>
                 </div>
                 <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</div>
               </div>
               <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-[#e2e2e8]" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Total Referrals</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Total Referrals</span>
                 </div>
                 <div className="text-2xl font-bold text-[#e2e2e8]">{stats?.totalRegistrations || 0}</div>
               </div>
@@ -418,12 +418,12 @@ export default function PartnerDashboard() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">Your Referral Link</h3>
-                  <p className="text-sm text-[#b9cacb]">
+                  <p className="text-sm text-neutral-500">
                     Share this unique link with your network. When they enroll in the ₦8,000 course, you earn ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} commission.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <div className="bg-[#070B12]/50 border border-neutral-200 rounded-lg px-4 py-3 font-mono text-sm text-[#b9cacb] truncate flex-1 sm:w-64">
+                  <div className="bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 font-mono text-sm text-neutral-500 truncate flex-1 sm:w-64">
                     {data?.referral?.link || "Generating referral link..."}
                   </div>
                   <button
@@ -437,7 +437,7 @@ export default function PartnerDashboard() {
                   {!data?.referral?.link && (
                     <button
                       onClick={fetchDashboardData}
-                      className="border border-neutral-200 bg-[#070B12] text-[#b9cacb] px-3 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors flex-shrink-0"
+                      className="border border-neutral-200 bg-white text-neutral-500 px-3 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors flex-shrink-0"
                       title="Refresh referral link"
                     >
                       <RefreshCw className="h-4 w-4" />
@@ -477,7 +477,7 @@ export default function PartnerDashboard() {
                         />
                       ))}
                     </div>
-                    <div className="flex justify-between mt-2 text-xs text-[#b9cacb]">
+                    <div className="flex justify-between mt-2 text-xs text-neutral-500">
                       <span>Jan</span>
                       <span>Jun</span>
                       <span>Dec</span>
@@ -492,28 +492,28 @@ export default function PartnerDashboard() {
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-[#b9cacb]">Clicks</span>
+                          <span className="text-neutral-500">Clicks</span>
                           <span className="text-[#e2e2e8]">{data?.referral?.totalClicks || 0}</span>
                         </div>
-                        <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
+                        <div className="h-2 bg-white rounded-full overflow-hidden">
                           <div className="h-full bg-[#00F5FF] rounded-full" style={{ width: `${Math.min((data?.referral?.totalClicks || 0) / 100 * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-[#b9cacb]">Conversions</span>
+                          <span className="text-neutral-500">Conversions</span>
                           <span className="text-[#e2e2e8]">{data?.referral?.totalRegistrations || 0}</span>
                         </div>
-                        <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
+                        <div className="h-2 bg-white rounded-full overflow-hidden">
                           <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min((data?.referral?.totalRegistrations || 0) / (data?.referral?.totalClicks || 1) * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="text-[#b9cacb]">Success Rate</span>
+                          <span className="text-neutral-500">Success Rate</span>
                           <span className="text-[#e2e2e8]">{data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%</span>
                         </div>
-                        <div className="h-2 bg-[#070B12] rounded-full overflow-hidden">
+                        <div className="h-2 bg-white rounded-full overflow-hidden">
                           <div className="h-full bg-green-500 rounded-full" style={{ width: `${data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%` }} />
                         </div>
                       </div>
@@ -530,19 +530,19 @@ export default function PartnerDashboard() {
                   <div className="space-y-4">
                     {data?.recentCommissions && data.recentCommissions.length > 0 ? (
                       data.recentCommissions.slice(0, 5).map((commission: any) => (
-                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
+                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-neutral-200 bg-white/50 rounded-lg">
                           <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
                             <DollarSign className="h-5 w-5 text-[#00F5FF]" />
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-[#e2e2e8]">Commission earned</p>
-                            <p className="text-xs text-[#b9cacb]">₦{commission.amount?.toLocaleString()}</p>
+                            <p className="text-xs text-neutral-500">₦{commission.amount?.toLocaleString()}</p>
                           </div>
-                          <p className="text-xs text-[#b9cacb]">{new Date(commission.created_at).toLocaleDateString()}</p>
+                          <p className="text-xs text-neutral-500">{new Date(commission.created_at).toLocaleDateString()}</p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-[#b9cacb] text-center py-4">No recent activity</p>
+                      <p className="text-sm text-neutral-500 text-center py-4">No recent activity</p>
                     )}
                   </div>
                 </div>
@@ -556,10 +556,10 @@ export default function PartnerDashboard() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-neutral-200">
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Name</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Status</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Date</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-[#b9cacb]">Commission</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-neutral-500">Name</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-neutral-500">Status</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-neutral-500">Date</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-neutral-500">Commission</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -578,13 +578,13 @@ export default function PartnerDashboard() {
                                 {commission.status || 'Pending'}
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-sm text-[#b9cacb]">{new Date(commission.created_at).toLocaleDateString()}</td>
+                            <td className="py-3 px-4 text-sm text-neutral-500">{new Date(commission.created_at).toLocaleDateString()}</td>
                             <td className="py-3 px-4 text-sm text-[#00F5FF]">₦{commission.amount?.toLocaleString()}</td>
                           </tr>
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={4} className="py-4 text-center text-sm text-[#b9cacb]">No referral history yet</td>
+                          <td colSpan={4} className="py-4 text-center text-sm text-neutral-500">No referral history yet</td>
                         </tr>
                       )}
                     </tbody>
@@ -597,24 +597,24 @@ export default function PartnerDashboard() {
               <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
                 <h3 className="font-semibold text-[#e2e2e8] mb-4">Earnings Breakdown</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Available Balance</p>
-                      <p className="text-xs text-[#b9cacb]">Ready for withdrawal</p>
+                      <p className="text-xs text-neutral-500">Ready for withdrawal</p>
                     </div>
                     <p className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Pending Earnings</p>
-                      <p className="text-xs text-[#b9cacb]">Being processed</p>
+                      <p className="text-xs text-neutral-500">Being processed</p>
                     </div>
                     <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Total Earned</p>
-                      <p className="text-xs text-[#b9cacb]">All time earnings</p>
+                      <p className="text-xs text-neutral-500">All time earnings</p>
                     </div>
                     <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</p>
                   </div>
@@ -628,13 +628,13 @@ export default function PartnerDashboard() {
                   <h3 className="font-semibold text-[#e2e2e8] mb-4">Request Withdrawal</h3>
                   <form onSubmit={handleWithdraw} className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-[#b9cacb] block mb-2">Amount (₦)</label>
+                      <label className="text-sm font-medium text-neutral-500 block mb-2">Amount (₦)</label>
                       <input
                         type="number"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
                         min={minWithdrawal}
-                        className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                        className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                         placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
                       />
                     </div>
@@ -672,10 +672,10 @@ export default function PartnerDashboard() {
                   <div className="space-y-4">
                     {data?.withdrawals && data.withdrawals.length > 0 ? (
                       data.withdrawals.map((withdrawal: any) => (
-                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
+                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
                           <div>
                             <p className="text-sm font-medium text-[#e2e2e8]">₦{withdrawal.amount?.toLocaleString()}</p>
-                            <p className="text-xs text-[#b9cacb]">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
+                            <p className="text-xs text-neutral-500">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
                           </div>
                           <span className={`px-3 py-1 text-xs rounded-full ${
                             withdrawal.status === "completed" 
@@ -689,7 +689,7 @@ export default function PartnerDashboard() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-[#b9cacb] text-center py-4">No withdrawal history yet</p>
+                      <p className="text-sm text-neutral-500 text-center py-4">No withdrawal history yet</p>
                     )}
                   </div>
                 </div>
@@ -704,14 +704,14 @@ export default function PartnerDashboard() {
                     data.marketingResources.map((item: any) => {
                       const Icon = FileText; // Default icon, can be customized based on type
                       return (
-                        <div key={item.id} className="border border-neutral-200 bg-[#070B12]/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all">
+                        <div key={item.id} className="border border-neutral-200 bg-white/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all">
                           <div className="flex items-center gap-3 mb-3">
                             <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
                               <Icon className="h-5 w-5 text-[#00F5FF]" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-[#e2e2e8] truncate cursor-pointer hover:text-[#00F5FF]" onClick={() => openMaterialDetail(item)} title={item.name}>{item.name}</p>
-                              <div className="flex items-center gap-2 text-xs text-[#b9cacb]">
+                              <div className="flex items-center gap-2 text-xs text-neutral-500">
                                 <span className="px-2 py-0.5 bg-[#00F5FF]/10 text-[#00F5FF] rounded-full">{item.type?.toUpperCase() || 'FLYER'}</span>
                                 <span>{item.download_count || 0} downloads</span>
                               </div>
@@ -719,7 +719,7 @@ export default function PartnerDashboard() {
                           </div>
                           {item.description && (
                             <div className="mb-3 p-2 bg-[#c0c4c9] rounded-lg">
-                              <p className="text-xs text-[#b9cacb] whitespace-pre-wrap break-words" style={{
+                              <p className="text-xs text-neutral-500 whitespace-pre-wrap break-words" style={{
                                 maxHeight: '60px',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -741,7 +741,7 @@ export default function PartnerDashboard() {
                             </button>
                             <button 
                               onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
-                              className="flex-1 py-2 border border-neutral-200 bg-[#070B12] text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-[#c0c4c9] transition-colors flex items-center justify-center gap-2"
+                              className="flex-1 py-2 border border-neutral-200 bg-white text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-[#c0c4c9] transition-colors flex items-center justify-center gap-2"
                             >
                               <Download className="h-4 w-4" />
                               Download
@@ -751,7 +751,7 @@ export default function PartnerDashboard() {
                       );
                     })
                   ) : (
-                    <p className="text-sm text-[#b9cacb] text-center py-4 col-span-2">No marketing resources available</p>
+                    <p className="text-sm text-neutral-500 text-center py-4 col-span-2">No marketing resources available</p>
                   )}
                 </div>
               </div>
@@ -765,7 +765,7 @@ export default function PartnerDashboard() {
                     <h2 className="text-xl font-bold text-[#e2e2e8]">Material Details</h2>
                     <button
                       onClick={() => setShowMaterialDetailModal(false)}
-                      className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-[#b9cacb] hover:text-[#e2e2e8]"
+                      className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-500 hover:text-[#e2e2e8]"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -780,37 +780,37 @@ export default function PartnerDashboard() {
                     </div>
                     
                     {selectedMaterial.description && (
-                      <div className="bg-[#070B12] p-4 rounded-lg">
+                      <div className="bg-white p-4 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                           <p className="text-sm font-medium text-[#e2e2e8]">Description</p>
                           <button
                             onClick={() => copyTextToClipboard(selectedMaterial.description)}
-                            className="p-1 hover:bg-[#00F5FF]/10 rounded transition-colors text-[#b9cacb] hover:text-[#00F5FF]"
+                            className="p-1 hover:bg-[#00F5FF]/10 rounded transition-colors text-neutral-500 hover:text-[#00F5FF]"
                             title="Copy text"
                           >
                             <Copy className="h-4 w-4" />
                           </button>
                         </div>
-                        <p className="text-sm text-[#b9cacb] whitespace-pre-wrap break-words bg-[#c0c4c9] p-3 rounded-lg max-h-64 overflow-y-auto">
+                        <p className="text-sm text-neutral-500 whitespace-pre-wrap break-words bg-[#c0c4c9] p-3 rounded-lg max-h-64 overflow-y-auto">
                           {selectedMaterial.description}
                         </p>
                       </div>
                     )}
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="bg-[#070B12] p-3 rounded-lg">
-                        <p className="text-[#b9cacb]">Downloads</p>
+                      <div className="bg-white p-3 rounded-lg">
+                        <p className="text-neutral-500">Downloads</p>
                         <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.download_count || 0}</p>
                       </div>
-                      <div className="bg-[#070B12] p-3 rounded-lg">
-                        <p className="text-[#b9cacb]">Category</p>
+                      <div className="bg-white p-3 rounded-lg">
+                        <p className="text-neutral-500">Category</p>
                         <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.category || 'general'}</p>
                       </div>
                     </div>
                     
                     {/* Integrated Preview */}
                     {selectedMaterial.url && (selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-[#070B12] p-4 rounded-lg">
+                      <div className="bg-white p-4 rounded-lg">
                         <p className="text-sm font-medium text-[#e2e2e8] mb-3">Preview</p>
                         <img 
                           src={selectedMaterial.url} 
@@ -818,13 +818,13 @@ export default function PartnerDashboard() {
                           className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => window.open(selectedMaterial.url, '_blank')}
                         />
-                        <p className="text-xs text-[#b9cacb] mt-2 text-center">Click image to open in new tab</p>
+                        <p className="text-xs text-neutral-500 mt-2 text-center">Click image to open in new tab</p>
                       </div>
                     )}
                     
                     {/* File Preview for non-image types */}
                     {selectedMaterial.url && !(selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-[#070B12] p-4 rounded-lg">
+                      <div className="bg-white p-4 rounded-lg">
                         <p className="text-sm font-medium text-[#e2e2e8] mb-3">File Preview</p>
                         <a 
                           href={selectedMaterial.url}
@@ -848,7 +848,7 @@ export default function PartnerDashboard() {
                       </button>
                       <button
                         onClick={() => setShowMaterialDetailModal(false)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#070B12] text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-[#c0c4c9] transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-[#c0c4c9] transition-colors"
                       >
                         Close
                       </button>
@@ -863,28 +863,28 @@ export default function PartnerDashboard() {
                 <h3 className="font-semibold text-[#e2e2e8] mb-4">Profile Settings</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Partner ID</label>
-                    <div className="p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg font-mono text-sm text-[#b9cacb]">
+                    <label className="text-sm font-medium text-neutral-500 block mb-2">Partner ID</label>
+                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg font-mono text-sm text-neutral-500">
                       {partner?.id || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Email</label>
-                    <div className="p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg text-sm text-[#e2e2e8]">
+                    <label className="text-sm font-medium text-neutral-500 block mb-2">Email</label>
+                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg text-sm text-[#e2e2e8]">
                       {partner?.email || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Partner Type</label>
-                    <div className="p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg text-sm text-[#e2e2e8]">
+                    <label className="text-sm font-medium text-neutral-500 block mb-2">Partner Type</label>
+                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg text-sm text-[#e2e2e8]">
                       {partner?.type === "student" ? "Student Partner" : 
                        partner?.type === "community" ? "Community Partner" : 
                        partner?.type === "influencer" ? "Influencer" : "Partner"}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-[#b9cacb] block mb-2">Commission Rate</label>
-                    <div className="p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg text-sm text-[#00F5FF]">
+                    <label className="text-sm font-medium text-neutral-500 block mb-2">Commission Rate</label>
+                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg text-sm text-[#00F5FF]">
                       ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} per referral
                     </div>
                   </div>
@@ -912,22 +912,22 @@ export default function PartnerDashboard() {
                     
                     {bankProfile ? (
                       <div className="space-y-3">
-                        <div className="p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
-                          <p className="text-xs text-[#b9cacb] mb-1">Bank Name</p>
+                        <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg">
+                          <p className="text-xs text-neutral-500 mb-1">Bank Name</p>
                           <p className="text-sm text-[#e2e2e8]">{bankProfile.bank_name}</p>
                         </div>
-                        <div className="p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
-                          <p className="text-xs text-[#b9cacb] mb-1">Account Number</p>
+                        <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg">
+                          <p className="text-xs text-neutral-500 mb-1">Account Number</p>
                           <p className="text-sm text-[#e2e2e8]">{bankProfile.account_number}</p>
                         </div>
-                        <div className="p-3 border border-neutral-200 bg-[#070B12]/50 rounded-lg">
-                          <p className="text-xs text-[#b9cacb] mb-1">Account Name</p>
+                        <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg">
+                          <p className="text-xs text-neutral-500 mb-1">Account Name</p>
                           <p className="text-sm text-[#e2e2e8]">{bankProfile.account_name}</p>
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 border border-dashed border-neutral-200 bg-[#070B12]/30 rounded-lg text-center">
-                        <p className="text-sm text-[#b9cacb] mb-2">No bank details added yet</p>
+                      <div className="p-4 border border-dashed border-neutral-200 bg-white/30 rounded-lg text-center">
+                        <p className="text-sm text-neutral-500 mb-2">No bank details added yet</p>
                         <button
                           onClick={() => setShowBankModal(true)}
                           className="text-xs text-[#00F5FF] hover:text-neutral-900 transition-colors"
@@ -960,7 +960,7 @@ export default function PartnerDashboard() {
               <h2 className="text-xl font-bold text-[#e2e2e8]">{bankProfile ? 'Edit Bank Profile' : 'Setup Bank Profile'}</h2>
               <button
                 onClick={() => setShowBankModal(false)}
-                className="text-[#b9cacb] hover:text-neutral-900 transition-colors"
+                className="text-neutral-500 hover:text-neutral-900 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -989,35 +989,35 @@ export default function PartnerDashboard() {
               }
             }} className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Bank Name</label>
+                <label className="text-sm font-medium text-neutral-500 block mb-2">Bank Name</label>
                 <input
                   type="text"
                   required
                   value={bankFormData.bank_name}
                   onChange={(e) => setBankFormData({...bankFormData, bank_name: e.target.value})}
-                  className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
                   placeholder="Enter bank name"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Account Number</label>
+                <label className="text-sm font-medium text-neutral-500 block mb-2">Account Number</label>
                 <input
                   type="text"
                   required
                   value={bankFormData.account_number}
                   onChange={(e) => setBankFormData({...bankFormData, account_number: e.target.value})}
-                  className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
                   placeholder="Enter account number"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-[#b9cacb] block mb-2">Account Name</label>
+                <label className="text-sm font-medium text-neutral-500 block mb-2">Account Name</label>
                 <input
                   type="text"
                   required
                   value={bankFormData.account_name}
                   onChange={(e) => setBankFormData({...bankFormData, account_name: e.target.value})}
-                  className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
                   placeholder="Enter account name"
                 />
               </div>
@@ -1025,7 +1025,7 @@ export default function PartnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowBankModal(false)}
-                  className="flex-1 py-3 border border-neutral-200 text-[#b9cacb] rounded-lg font-medium hover:bg-[#070B12] transition-colors"
+                  className="flex-1 py-3 border border-neutral-200 text-neutral-500 rounded-lg font-medium hover:bg-white transition-colors"
                 >
                   Cancel
                 </button>

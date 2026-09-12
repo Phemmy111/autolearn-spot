@@ -241,7 +241,7 @@ export default function AdminCertificatesSettingsPage() {
                 <button
                   type="button"
                   onClick={() => setFullScreenDesigner(false)}
-                  className="p-2 bg-[#d1d5db] text-neutral-600 rounded hover:bg-[#2a2e38] transition-colors"
+                  className="p-2 bg-[#d1d5db] text-neutral-600 rounded hover:bg-neutral-200 transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
@@ -298,7 +298,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.title}
                   onChange={(e) => setSettings({ ...settings, title: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -307,7 +307,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.subtitle}
                   onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -316,7 +316,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.bodyText}
                   onChange={(e) => setSettings({ ...settings, bodyText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -325,7 +325,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.course}
                   onChange={(e) => setSettings({ ...settings, course: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -334,7 +334,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.founderName}
                   onChange={(e) => setSettings({ ...settings, founderName: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -343,7 +343,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.signatureText}
                   onChange={(e) => setSettings({ ...settings, signatureText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -352,7 +352,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.footer}
                   onChange={(e) => setSettings({ ...settings, footer: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
@@ -369,7 +369,7 @@ export default function AdminCertificatesSettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-neutral-600 mb-2">Certificate Background</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                     <Upload className="h-4 w-4 text-neutral-600" />
                     <span className="text-sm text-neutral-600">
                       {backgroundFile ? backgroundFile.name : 'Upload Background (PNG/JPG)'}
@@ -385,7 +385,7 @@ export default function AdminCertificatesSettingsPage() {
                     />
                   </label>
                   {backgroundFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                       <span className="text-xs text-neutral-600 truncate">{backgroundFile.name}</span>
                       <button
                         type="button"
@@ -397,7 +397,7 @@ export default function AdminCertificatesSettingsPage() {
                     </div>
                   )}
                   {settings.backgroundUrl && !backgroundFile && (
-                    <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="p-2 bg-white border border-neutral-200 rounded">
                       <img src={settings.backgroundUrl} alt="Background preview" className="w-full h-24 object-cover rounded mb-2" />
                       <button
                         type="button"
@@ -415,7 +415,7 @@ export default function AdminCertificatesSettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-neutral-600 mb-2">Certificate Logo</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                     <Upload className="h-4 w-4 text-neutral-600" />
                     <span className="text-sm text-neutral-600">
                       {logoFile ? logoFile.name : 'Upload Logo (PNG/JPG)'}
@@ -431,7 +431,7 @@ export default function AdminCertificatesSettingsPage() {
                     />
                   </label>
                   {logoFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                       <span className="text-xs text-neutral-600 truncate">{logoFile.name}</span>
                       <button
                         type="button"
@@ -443,7 +443,7 @@ export default function AdminCertificatesSettingsPage() {
                     </div>
                   )}
                   {settings.logoUrl && !logoFile && (
-                    <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="p-2 bg-white border border-neutral-200 rounded">
                       <img src={settings.logoUrl} alt="Logo preview" className="w-full h-24 object-contain rounded mb-2" />
                       <button
                         type="button"
@@ -461,7 +461,7 @@ export default function AdminCertificatesSettingsPage() {
               <div>
                 <label className="block text-sm font-medium text-neutral-600 mb-2">Signature Image</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                     <Upload className="h-4 w-4 text-neutral-600" />
                     <span className="text-sm text-neutral-600">
                       {signatureFile ? signatureFile.name : 'Upload Signature (PNG/JPG)'}
@@ -477,7 +477,7 @@ export default function AdminCertificatesSettingsPage() {
                     />
                   </label>
                   {signatureFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
                       <span className="text-xs text-neutral-600 truncate">{signatureFile.name}</span>
                       <button
                         type="button"
@@ -489,7 +489,7 @@ export default function AdminCertificatesSettingsPage() {
                     </div>
                   )}
                   {settings.signatureUrl && !signatureFile && (
-                    <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
+                    <div className="p-2 bg-white border border-neutral-200 rounded">
                       <img src={settings.signatureUrl} alt="Signature preview" className="w-full h-24 object-contain rounded mb-2" />
                       <button
                         type="button"
@@ -525,7 +525,7 @@ export default function AdminCertificatesSettingsPage() {
                     type="text"
                     value={settings.accentColor}
                     onChange={(e) => setSettings({ ...settings, accentColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -535,7 +535,7 @@ export default function AdminCertificatesSettingsPage() {
                   type="text"
                   value={settings.numberFormat}
                   onChange={(e) => setSettings({ ...settings, numberFormat: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="ALS-{year}-{cohort}-{sequence}"
                 />
                 <p className="text-xs text-neutral-600 mt-1">Variables: {'{year}'}, {'{cohort}'}, {'{sequence}'}</p>
@@ -546,7 +546,7 @@ export default function AdminCertificatesSettingsPage() {
                   id="qrEnabled"
                   checked={settings.qrEnabled === 'true'}
                   onChange={(e) => setSettings({ ...settings, qrEnabled: e.target.checked ? 'true' : 'false' })}
-                  className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
+                  className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
                 />
                 <label htmlFor="qrEnabled" className="text-sm text-neutral-600">Enable QR Code</label>
               </div>
@@ -557,7 +557,7 @@ export default function AdminCertificatesSettingsPage() {
                     type="url"
                     value={settings.qrDestination}
                     onChange={(e) => setSettings({ ...settings, qrDestination: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                     placeholder="https://..."
                   />
                 </div>

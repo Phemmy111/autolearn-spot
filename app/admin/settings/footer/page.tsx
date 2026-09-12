@@ -123,7 +123,7 @@ export default function AdminFooterSettingsPage() {
                   value={settings.description}
                   onChange={(e) => setSettings({ ...settings, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -132,7 +132,7 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.copyrightText}
                   onChange={(e) => setSettings({ ...settings, copyrightText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.privacyLink}
                   onChange={(e) => setSettings({ ...settings, privacyLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -160,7 +160,7 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.termsLink}
                   onChange={(e) => setSettings({ ...settings, termsLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -169,7 +169,7 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.contactLink}
                   onChange={(e) => setSettings({ ...settings, contactLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>

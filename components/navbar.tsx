@@ -35,7 +35,7 @@ export function Navbar() {
         isVisible ? "top-8 opacity-100" : "-top-24 opacity-0"
       }`}
     >
-      <div className="bg-black/50 backdrop-blur-[120px] rounded-full px-8 py-3 flex items-center gap-8 shadow-lg border border-white/10 w-full">
+      <div className="bg-neutral-50 backdrop-blur-[120px] rounded-full px-8 py-3 flex items-center gap-8 shadow-lg border border-white/10 w-full">
         {/* Logo */}
         <div className="flex items-center">
           <Image src="/autolearn-brandmark.png" alt="autoLearn" width={180} height={40} className="h-8 sm:h-9 md:h-10 w-auto" />

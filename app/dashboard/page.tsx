@@ -119,7 +119,7 @@ export default function DashboardPage() {
                         ) : (
                           <Lock className="h-10 w-10 text-neutral-400" />
                         )}
-                        <div className="absolute top-2 right-2 rounded bg-black/50 px-2 py-1 text-xs text-neutral-900 backdrop-blur">
+                        <div className="absolute top-2 right-2 rounded bg-neutral-50 px-2 py-1 text-xs text-neutral-900 backdrop-blur">
                           {video.duration}
                         </div>
                       </div>
