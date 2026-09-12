@@ -50,7 +50,7 @@ export function AnnouncementBanner() {
   };
 
   return (
-    <div className="relative z-50 bg-gradient-to-r from-[#00f0ff]/20 to-[#8b5cf6]/20 border-b border-[#00f0ff]/30">
+    <div className="relative z-50 bg-gradient-to-r from-[#00f0ff]/20 to-[#8b5cf6]/20 border-b border-[#10b981]/30">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
           <p className="text-sm text-[#e2e2e8] font-medium flex-1">
@@ -59,7 +59,7 @@ export function AnnouncementBanner() {
           {activeAnnouncement.cta_text && activeAnnouncement.cta_link && (
             <a
               href={activeAnnouncement.cta_link}
-              className="text-sm text-[#00f0ff] font-semibold hover:underline whitespace-nowrap"
+              className="text-sm text-[#10b981] font-semibold hover:underline whitespace-nowrap"
             >
               {activeAnnouncement.cta_text}
             </a>
@@ -67,7 +67,7 @@ export function AnnouncementBanner() {
         </div>
         <button
           onClick={handleDismiss}
-          className="ml-4 text-[#b9cacb] hover:text-white transition-colors"
+          className="ml-4 text-[#b9cacb] hover:text-neutral-900 transition-colors"
           aria-label="Dismiss announcement"
         >
           <X className="h-4 w-4" />

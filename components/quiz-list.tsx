@@ -23,14 +23,14 @@ export function QuizList() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00f0ff]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#10b981]" />
       </div>
     )
   }
 
   if (quizzes.length === 0) {
     return (
-      <div className="text-center py-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl">
+      <div className="text-center py-12 border border-neutral-200 bg-[#c0c4c9] rounded-xl">
         <BookOpen className="h-12 w-12 text-[#b9cacb] mx-auto mb-4" />
         <p className="font-mono text-sm text-[#b9cacb]">No quizzes available yet. Check back soon!</p>
       </div>
@@ -42,19 +42,19 @@ export function QuizList() {
       {quizzes.map((quiz) => (
         <div
           key={quiz.id}
-          className="group border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#00f0ff]/50"
+          className="group border border-neutral-200 bg-[#c0c4c9] p-6 rounded-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50"
         >
           <div className="flex items-start justify-between mb-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-1 bg-[#00f0ff]/10 text-[#00f0ff] font-mono text-xs rounded">
+                <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] font-mono text-xs rounded">
                   {quiz.phase}
                 </span>
                 <span className="px-2 py-1 bg-[#1f2229] text-[#b9cacb] font-mono text-xs rounded">
                   Week {quiz.week_number}
                 </span>
               </div>
-              <h3 className="font-heading text-xl font-bold text-white mb-2">{quiz.title}</h3>
+              <h3 className="font-heading text-xl font-bold text-neutral-900 mb-2">{quiz.title}</h3>
               {quiz.description && (
                 <p className="font-mono text-sm text-[#b9cacb]">{quiz.description}</p>
               )}
@@ -78,7 +78,7 @@ export function QuizList() {
             {userId ? (
               <a
                 href={`/quiz/${quiz.id}`}
-                className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
+                className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
               >
                 <Play className="h-4 w-4" />
                 Start Quiz

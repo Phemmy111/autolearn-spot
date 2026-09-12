@@ -85,7 +85,7 @@ export default function ApplicationDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F4F5F7] text-gray-900 font-sans">
+      <div className="flex items-center justify-center min-h-screen bg-[#d1d5db] text-gray-900 font-sans">
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );
@@ -93,7 +93,7 @@ export default function ApplicationDetailPage() {
 
   if (!app) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#F4F5F7] text-gray-900 font-sans">
+      <div className="flex items-center justify-center min-h-screen bg-[#d1d5db] text-gray-900 font-sans">
         <p className="text-lg text-gray-600">Application not found.</p>
       </div>
     );
@@ -189,7 +189,7 @@ export default function ApplicationDetailPage() {
   };
 
   return (
-    <div className="min-h-screen pb-12 text-gray-900 font-sans bg-[#F4F5F7]">
+    <div className="min-h-screen pb-12 text-gray-900 font-sans bg-[#d1d5db]">
       {/* Top Bar */}
       <header className="h-16 bg-white border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
@@ -236,19 +236,19 @@ export default function ApplicationDetailPage() {
             <>
               <button
                 onClick={() => handleAction('Approve')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-neutral-900 font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
               >
                 <CheckCircle2 className="h-4 w-4" /> Approve
               </button>
               <button
                 onClick={() => handleAction('Reject')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-neutral-900 font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm"
               >
                 <XCircle className="h-4 w-4" /> Reject
               </button>
               <button
                 onClick={() => handleAction('Request Changes')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-neutral-900 font-medium rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
               >
                 <AlertTriangle className="h-4 w-4" /> Request Changes
               </button>

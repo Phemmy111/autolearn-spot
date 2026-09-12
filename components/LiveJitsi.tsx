@@ -29,7 +29,7 @@ export default function LiveJitsi({ roomName, userName, onReady }: LiveJitsiProp
             const jitsiUrl = `https://meet.jit.si/${roomName}?config.startWithAudioMuted=false&config.startWithVideoMuted=false&userInfo.displayName=${encodeURIComponent(userName)}`;
             window.open(jitsiUrl, '_blank');
           }}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="px-4 py-2 bg-blue-600 text-neutral-900 rounded hover:bg-blue-700"
         >
           Open Live Class Again
         </button>

@@ -48,7 +48,7 @@ export function TopSkillsGrid() {
   ];
 
   return (
-    <section className="bg-[#e5e9ed] py-20">
+    <section className="bg-[#d1d5db] py-20">
       <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>

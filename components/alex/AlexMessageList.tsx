@@ -277,13 +277,13 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Headings
     h1: ({ children }: any) => (
-      <h1 className="text-xl font-bold text-white mt-6 mb-3">{children}</h1>
+      <h1 className="text-xl font-bold text-neutral-900 mt-6 mb-3">{children}</h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="text-lg font-semibold text-white mt-5 mb-2">{children}</h2>
+      <h2 className="text-lg font-semibold text-neutral-900 mt-5 mb-2">{children}</h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="text-base font-medium text-white mt-4 mb-2">{children}</h3>
+      <h3 className="text-base font-medium text-neutral-900 mt-4 mb-2">{children}</h3>
     ),
 
     // Paragraphs
@@ -369,7 +369,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                 <Sparkles className="h-8 w-8 text-cyan-400" />
               </div>
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">Welcome to ALEX</h2>
+            <h2 className="text-xl font-bold text-neutral-900 mb-2">Welcome to ALEX</h2>
             <p className="text-slate-400 mb-6">Your AutoLearn Intelligence & Execution Agent</p>
             
             {/* Example Prompts */}
@@ -383,7 +383,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
               >
                 <BookOpen className="h-4 w-4 inline mr-2" />
                 Check my progress
@@ -397,7 +397,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
               >
                 <Lightbulb className="h-4 w-4 inline mr-2" />
                 What should I study next?
@@ -411,7 +411,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
               >
                 <Award className="h-4 w-4 inline mr-2" />
                 My scholarship status
@@ -425,7 +425,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-white transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
               >
                 <Workflow className="h-4 w-4 inline mr-2" />
                 Build automation
@@ -452,7 +452,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
               className={`rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 min-w-0 w-full overflow-x-auto ${
                 message.role === 'user'
                   ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-slate-900 shadow-lg shadow-cyan-500/20 max-w-[85%] sm:max-w-xl mx-2'
-                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-white w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
+                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-neutral-900 w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
               }`}
             >
               <div className="flex flex-col gap-3">
@@ -484,7 +484,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                           {renderArtifactWorkflow((message as any).workflowData)}
                           {/* Also render any text content */}
                           {message.content && (
-                            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-neutral-900 prose-p:text-slate-300 prose-strong:text-neutral-900 prose-code:text-cyan-400 prose-pre:bg-slate-900">
                               <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={MarkdownComponents}
@@ -496,7 +496,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                         </>
                       ) : (
                         <>
-                          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-slate-300 prose-strong:text-white prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-neutral-900 prose-p:text-slate-300 prose-strong:text-neutral-900 prose-code:text-cyan-400 prose-pre:bg-slate-900">
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={MarkdownComponents}
@@ -592,7 +592,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-600/30">
                     <button
                       onClick={() => handleCopyMessage(message.content, message.id)}
-                      className="p-1.5 text-slate-700 hover:text-white transition-colors"
+                      className="p-1.5 text-slate-700 hover:text-neutral-900 transition-colors"
                       title="Copy message"
                     >
                       {copiedCode === message.id ? (
@@ -604,7 +604,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {onEditMessage && (
                       <button
                         onClick={() => handleStartEdit(message.id, message.content)}
-                        className="p-1.5 text-slate-700 hover:text-white transition-colors"
+                        className="p-1.5 text-slate-700 hover:text-neutral-900 transition-colors"
                         title="Edit message"
                       >
                         <Edit2 className="h-4 w-4" />

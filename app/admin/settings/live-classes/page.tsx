@@ -74,25 +74,25 @@ export default function AdminLiveClassesSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#00f0ff] animate-spin" />
+      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-[#0a0c10] flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#d1d5db] flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="border-b border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl flex-shrink-0">
+      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/settings" className="text-[#b9cacb] hover:text-white transition-colors">
+              <Link href="/admin/settings" className="text-neutral-600 hover:text-neutral-900 transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-white">Live Class Settings</h1>
-                <p className="text-sm text-[#b9cacb]">Configure live class schedule and access</p>
+                <h1 className="text-xl font-bold text-neutral-900">Live Class Settings</h1>
+                <p className="text-sm text-neutral-600">Configure live class schedule and access</p>
               </div>
             </div>
           </div>
@@ -117,54 +117,54 @@ export default function AdminLiveClassesSettingsPage() {
           )}
 
           {/* Class Details */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Calendar className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Class Details</h2>
+              <Calendar className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Class Details</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Title</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Title</label>
                 <input
                   type="text"
                   value={settings.title}
                   onChange={(e) => setSettings({ ...settings, title: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Date</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Date</label>
                 <input
                   type="date"
                   value={settings.date}
                   onChange={(e) => setSettings({ ...settings, date: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Time</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Time</label>
                 <input
                   type="time"
                   value={settings.time}
                   onChange={(e) => setSettings({ ...settings, time: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Timezone</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Timezone</label>
                 <input
                   type="text"
                   value={settings.timezone}
                   onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Status</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Status</label>
                 <select
                   value={settings.status}
                   onChange={(e) => setSettings({ ...settings, status: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 >
                   <option value="scheduled">Scheduled</option>
                   <option value="live">Live</option>
@@ -174,40 +174,40 @@ export default function AdminLiveClassesSettingsPage() {
               </div>
             </div>
             <div className="mt-6">
-              <label className="block text-sm font-medium text-[#b9cacb] mb-2">Description</label>
+              <label className="block text-sm font-medium text-neutral-600 mb-2">Description</label>
               <textarea
                 value={settings.description}
                 onChange={(e) => setSettings({ ...settings, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff] resize-none"
+                className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
               />
             </div>
           </div>
 
           {/* Access Settings */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Video className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Access Settings</h2>
+              <Video className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Access Settings</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Meeting URL</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Meeting URL</label>
                 <input
                   type="url"
                   value={settings.url}
                   onChange={(e) => setSettings({ ...settings, url: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Join Button Text</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Join Button Text</label>
                 <input
                   type="text"
                   value={settings.joinButtonText}
                   onChange={(e) => setSettings({ ...settings, joinButtonText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -216,27 +216,27 @@ export default function AdminLiveClassesSettingsPage() {
                   id="countdownEnabled"
                   checked={settings.countdownEnabled === 'true'}
                   onChange={(e) => setSettings({ ...settings, countdownEnabled: e.target.checked ? 'true' : 'false' })}
-                  className="w-4 h-4 rounded border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                  className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
                 />
-                <label htmlFor="countdownEnabled" className="text-sm text-[#b9cacb]">Enable Countdown Timer</label>
+                <label htmlFor="countdownEnabled" className="text-sm text-neutral-600">Enable Countdown Timer</label>
               </div>
             </div>
           </div>
 
           {/* Recording Settings */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Video className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Recording Settings</h2>
+              <Video className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Recording Settings</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Recording URL</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Recording URL</label>
                 <input
                   type="url"
                   value={settings.recordingUrl}
                   onChange={(e) => setSettings({ ...settings, recordingUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
               </div>
@@ -246,9 +246,9 @@ export default function AdminLiveClassesSettingsPage() {
                   id="replayEnabled"
                   checked={settings.replayEnabled === 'true'}
                   onChange={(e) => setSettings({ ...settings, replayEnabled: e.target.checked ? 'true' : 'false' })}
-                  className="w-4 h-4 rounded border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                  className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
                 />
-                <label htmlFor="replayEnabled" className="text-sm text-[#b9cacb]">Enable Replay Access</label>
+                <label htmlFor="replayEnabled" className="text-sm text-neutral-600">Enable Replay Access</label>
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function AdminLiveClassesSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

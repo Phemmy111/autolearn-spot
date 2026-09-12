@@ -58,7 +58,7 @@ const Integrations = () => {
                   alt={integration.title}
                   className="w-14 h-14 object-contain"
                 />
-                <h3 className="mb-2 mt-4 text-lg font-medium text-white">{integration.title}</h3>
+                <h3 className="mb-2 mt-4 text-lg font-medium text-neutral-900">{integration.title}</h3>
                 <p className="text-zinc-400 text-sm leading-relaxed">{integration.description}</p>
               </Card>
             </li>

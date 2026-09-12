@@ -369,31 +369,31 @@ export default function AlexProviderPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 text-[#00f0ff] animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sm text-[#b9cacb]">Loading ALEX providers...</p>
+          <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
+          <p className="font-mono text-sm text-neutral-600">Loading ALEX providers...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[#d1d5db]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-[#b9cacb] hover:text-white">
+            <Link href="/admin" className="text-neutral-600 hover:text-neutral-900">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-white">ALEX Providers</h1>
-              <p className="font-mono text-sm text-[#b9cacb]">Manage ALEX AI providers with fallback and health monitoring</p>
+              <h1 className="font-heading text-4xl font-bold text-neutral-900">ALEX Providers</h1>
+              <p className="font-mono text-sm text-neutral-600">Manage ALEX AI providers with fallback and health monitoring</p>
             </div>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+            className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Provider
@@ -409,7 +409,7 @@ export default function AlexProviderPage() {
 
         <div className="grid gap-4">
           {providers.map((provider) => (
-            <div key={provider.id} className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl">
+            <div key={provider.id} className="border border-neutral-200 bg-white p-6 rounded-xl">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-lg ${
@@ -419,13 +419,13 @@ export default function AlexProviderPage() {
                       ? 'bg-yellow-400/10 border border-yellow-400/50'
                       : provider.health_status === 'unavailable'
                       ? 'bg-red-400/10 border border-red-400/50'
-                      : 'bg-[#00f0ff]/10 border border-[#00f0ff]/50'
+                      : 'bg-[#10b981]/10 border border-[#10b981]/30'
                   }`}>
                     {getProviderIcon(provider.provider_type)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-heading text-lg font-bold text-white">{provider.display_name}</h3>
+                      <h3 className="font-heading text-lg font-bold text-neutral-900">{provider.display_name}</h3>
                       <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-mono ${getHealthColor(provider.health_status)}`}>
                         {getHealthIcon(provider.health_status)}
                         {provider.health_status}
@@ -454,21 +454,21 @@ export default function AlexProviderPage() {
                         </span>
                       )}
                     </div>
-                    <p className="font-mono text-xs text-[#5d5f63] mb-2">
+                    <p className="font-mono text-xs text-neutral-500 mb-2">
                       Type: {provider.provider_type.toUpperCase()} • Priority: {provider.priority}
                     </p>
                     {provider.current_model && (
-                      <p className="font-mono text-xs text-[#b9cacb]">
+                      <p className="font-mono text-xs text-neutral-600">
                         Model: {provider.current_model}
                       </p>
                     )}
                     {provider.latency_ms && (
-                      <p className="font-mono text-xs text-[#5d5f63] mt-1">
+                      <p className="font-mono text-xs text-neutral-500 mt-1">
                         Latency: {provider.latency_ms}ms
                       </p>
                     )}
                     {provider.last_health_check && (
-                      <p className="font-mono text-xs text-[#5d5f63] mt-1">
+                      <p className="font-mono text-xs text-neutral-500 mt-1">
                         Last check: {new Date(provider.last_health_check).toLocaleString()}
                       </p>
                     )}
@@ -477,15 +477,15 @@ export default function AlexProviderPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleEditProvider(provider)}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
                     title="Edit Provider"
                   >
-                    <Edit className="h-4 w-4 text-[#00f0ff]" />
+                    <Edit className="h-4 w-4 text-[#10b981]" />
                   </button>
                   <button
                     onClick={() => handleTestConnection(provider.id)}
                     disabled={testingProvider === provider.id}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
                     title="Test Connection"
                   >
                     <RefreshCw className={`h-4 w-4 text-emerald-400 ${testingProvider === provider.id ? 'animate-spin' : ''}`} />
@@ -493,21 +493,21 @@ export default function AlexProviderPage() {
                   <button
                     onClick={() => handleFetchModels(provider.id)}
                     disabled={fetchingModels === provider.id}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
                     title="Fetch Models"
                   >
-                    <Globe className={`h-4 w-4 text-[#00f0ff] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
+                    <Globe className={`h-4 w-4 text-[#10b981] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
                   </button>
                   <button
                     onClick={() => handleClearApiKey(provider.id)}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
                     title="Clear API Key (to re-enter)"
                   >
                     <Key className="h-4 w-4 text-orange-400" />
                   </button>
                   <button
                     onClick={() => handleToggleActive(provider.id, provider.is_active)}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
                     title={provider.is_active ? 'Deactivate' : 'Activate'}
                   >
                     {provider.is_active ? (
@@ -518,7 +518,7 @@ export default function AlexProviderPage() {
                   </button>
                   <button
                     onClick={() => handleDeleteProvider(provider.id)}
-                    className="p-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
@@ -530,13 +530,13 @@ export default function AlexProviderPage() {
         </div>
 
         {providers.length === 0 && (
-          <div className="text-center py-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl">
+          <div className="text-center py-12 border border-neutral-200 bg-white rounded-xl">
             <Bot className="h-16 w-16 text-[#3b494b] mx-auto mb-4" />
-            <h3 className="font-heading text-xl font-bold text-white mb-2">No ALEX Providers Configured</h3>
-            <p className="font-mono text-sm text-[#b9cacb] mb-4">Add your first ALEX provider to enable AI features</p>
+            <h3 className="font-heading text-xl font-bold text-neutral-900 mb-2">No ALEX Providers Configured</h3>
+            <p className="font-mono text-sm text-neutral-600 mb-4">Add your first ALEX provider to enable AI features</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 mx-auto bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+              className="flex items-center gap-2 mx-auto bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Provider
@@ -546,34 +546,34 @@ export default function AlexProviderPage() {
 
         {showAddModal && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto my-4">
-              <h2 className="font-heading text-2xl font-bold text-white mb-4">Add ALEX Provider</h2>
+            <div className="border border-neutral-200 bg-white p-6 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto my-4">
+              <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-4">Add ALEX Provider</h2>
               <form onSubmit={handleAddProvider}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Provider Name (Internal)</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Provider Name (Internal)</label>
                     <input
                       type="text"
                       value={newProvider.provider_name}
                       onChange={(e) => setNewProvider({ ...newProvider, provider_name: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="alex-primary-groq"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Display Name</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Display Name</label>
                     <input
                       type="text"
                       value={newProvider.display_name}
                       onChange={(e) => setNewProvider({ ...newProvider, display_name: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="ALEX Primary (Groq)"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Provider Type</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Provider Type</label>
                     <select
                       value={newProvider.provider_type}
                       onChange={(e) => {
@@ -584,7 +584,7 @@ export default function AlexProviderPage() {
                           auth_type: type === 'self_hosted' ? 'none' : 'bearer',
                         })
                       }}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                     >
                       <option value="self_hosted">Self-Hosted (Ollama, vLLM)</option>
                       <option value="groq">Groq</option>
@@ -596,12 +596,12 @@ export default function AlexProviderPage() {
                   </div>
                   {newProvider.provider_type !== 'self_hosted' && (
                     <div>
-                      <label className="block font-mono text-xs text-[#b9cacb] mb-2">API Key</label>
+                      <label className="block font-mono text-xs text-neutral-600 mb-2">API Key</label>
                       <input
                         type="password"
                         value={newProvider.api_key}
                         onChange={(e) => setNewProvider({ ...newProvider, api_key: e.target.value })}
-                        className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         placeholder="sk-..."
                         required={newProvider.provider_type !== 'self_hosted'}
                       />
@@ -609,25 +609,25 @@ export default function AlexProviderPage() {
                   )}
                   {(newProvider.provider_type === 'self_hosted' || newProvider.provider_type === 'openai_compatible') && (
                     <div>
-                      <label className="block font-mono text-xs text-[#b9cacb] mb-2">Base URL</label>
+                      <label className="block font-mono text-xs text-neutral-600 mb-2">Base URL</label>
                       <input
                         type="text"
                         value={newProvider.base_url}
                         onChange={(e) => setNewProvider({ ...newProvider, base_url: e.target.value })}
-                        className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         placeholder="http://localhost:11434/v1"
                         required
                       />
                     </div>
                   )}
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Current Model</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={newProvider.current_model}
                         onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
-                        className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        className="flex-1 bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         placeholder="llama3-70b-8192"
                         required
                       />
@@ -636,13 +636,13 @@ export default function AlexProviderPage() {
                           type="button"
                           onClick={handleFetchModelsForNewProvider}
                           disabled={fetchingModels === 'new' || !newProvider.api_key}
-                          className="border border-[#3b494b] text-[#b9cacb] font-mono text-xs px-3 py-2 rounded hover:bg-[#1f2229] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="border border-[#3b494b] text-neutral-600 font-mono text-xs px-3 py-2 rounded hover:bg-[#d1d5db] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {fetchingModels === 'new' ? 'Loading...' : 'Fetch'}
                         </button>
                       )}
                     </div>
-                    <p className="font-mono text-xs text-[#5d5f63] mt-1">
+                    <p className="font-mono text-xs text-neutral-500 mt-1">
                       {newProvider.provider_type === 'groq' && 'Common models: llama3-70b-8192, mixtral-8x7b-32768, gemma-7b-it'}
                       {newProvider.provider_type === 'openai' && 'Common models: gpt-4o-mini, gpt-4o, gpt-3.5-turbo'}
                       {newProvider.provider_type === 'gemini' && 'Use Fetch button to load available Gemini models'}
@@ -651,8 +651,8 @@ export default function AlexProviderPage() {
                       {newProvider.provider_type === 'openai_compatible' && 'Enter your custom model name'}
                     </p>
                     {showModelSelector && availableModels.length > 0 && (
-                      <div className="mt-2 p-2 bg-[#1f2229] border border-[#3b494b] rounded max-h-40 overflow-y-auto">
-                        <p className="font-mono text-xs text-[#b9cacb] mb-2 font-bold">Available Models:</p>
+                      <div className="mt-2 p-2 bg-[#d1d5db] border border-[#3b494b] rounded max-h-40 overflow-y-auto">
+                        <p className="font-mono text-xs text-neutral-600 mb-2 font-bold">Available Models:</p>
                         {availableModels.map((model) => (
                           <button
                             key={model}
@@ -661,7 +661,7 @@ export default function AlexProviderPage() {
                               setNewProvider({ ...newProvider, current_model: model })
                               setShowModelSelector(false)
                             }}
-                            className="block w-full text-left px-2 py-1 font-mono text-xs text-[#b9cacb] hover:bg-[#2a2d35] hover:text-white rounded transition-colors"
+                            className="block w-full text-left px-2 py-1 font-mono text-xs text-neutral-600 hover:bg-[#2a2d35] hover:text-neutral-900 rounded transition-colors"
                           >
                             {model}
                           </button>
@@ -670,23 +670,23 @@ export default function AlexProviderPage() {
                     )}
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Priority (Lower = Higher Priority)</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Priority (Lower = Higher Priority)</label>
                     <input
                       type="number"
                       value={newProvider.priority}
                       onChange={(e) => setNewProvider({ ...newProvider, priority: parseInt(e.target.value) || 1 })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Request Timeout (ms)</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Request Timeout (ms)</label>
                     <input
                       type="number"
                       value={newProvider.request_timeout}
                       onChange={(e) => setNewProvider({ ...newProvider, request_timeout: parseInt(e.target.value) || 30000 })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1000"
                       required
                     />
@@ -697,9 +697,9 @@ export default function AlexProviderPage() {
                       id="fallbackEnabled"
                       checked={newProvider.fallback_enabled}
                       onChange={(e) => setNewProvider({ ...newProvider, fallback_enabled: e.target.checked })}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                      className="w-4 h-4 rounded border-[#3b494b] bg-[#d1d5db]"
                     />
-                    <label htmlFor="fallbackEnabled" className="font-mono text-xs text-[#b9cacb]">
+                    <label htmlFor="fallbackEnabled" className="font-mono text-xs text-neutral-600">
                       Enable as fallback provider
                     </label>
                   </div>
@@ -709,9 +709,9 @@ export default function AlexProviderPage() {
                       id="visionFallback"
                       checked={newProvider.is_vision_fallback || false}
                       onChange={(e) => setNewProvider({ ...newProvider, is_vision_fallback: e.target.checked })}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                      className="w-4 h-4 rounded border-[#3b494b] bg-[#d1d5db]"
                     />
-                    <label htmlFor="visionFallback" className="font-mono text-xs text-[#b9cacb]">
+                    <label htmlFor="visionFallback" className="font-mono text-xs text-neutral-600">
                       <Eye className="h-3 w-3 inline mr-1 text-purple-400" />
                       Use as vision fallback (for image analysis)
                     </label>
@@ -721,13 +721,13 @@ export default function AlexProviderPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 border border-[#3b494b] text-[#b9cacb] font-mono text-sm px-4 py-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-[#d1d5db] transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-[#00f0ff] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
+                    className="flex-1 bg-[#10b981] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
                   >
                     Add Provider
                   </button>
@@ -739,26 +739,26 @@ export default function AlexProviderPage() {
 
         {showEditModal && editingProvider && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="border border-[#1f2229] bg-[#0c0e12] p-6 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto my-4">
-              <h2 className="font-heading text-2xl font-bold text-white mb-4">Edit Provider</h2>
+            <div className="border border-neutral-200 bg-white p-6 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto my-4">
+              <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-4">Edit Provider</h2>
               <form onSubmit={handleUpdateProvider}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Display Name</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Display Name</label>
                     <input
                       type="text"
                       value={editingProvider.display_name}
                       onChange={(e) => setEditingProvider({ ...editingProvider, display_name: e.target.value })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       required
                     />
                   </div>
                   {editingProvider.provider_type !== 'self_hosted' && (
                     <div>
-                      <label className="block font-mono text-xs text-[#b9cacb] mb-2">API Key</label>
+                      <label className="block font-mono text-xs text-neutral-600 mb-2">API Key</label>
                       {!showApiKeyInput ? (
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm">
+                          <div className="flex-1 bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm">
                             ✓ Configured
                           </div>
                           <button
@@ -767,7 +767,7 @@ export default function AlexProviderPage() {
                               setShowApiKeyInput(true)
                               setEditApiKey('')
                             }}
-                            className="px-3 py-2 bg-[#1f2229] border border-[#3b494b] text-[#b9cacb] font-mono text-xs rounded hover:bg-[#2a2d35] transition-colors"
+                            className="px-3 py-2 bg-[#d1d5db] border border-[#3b494b] text-neutral-600 font-mono text-xs rounded hover:bg-[#2a2d35] transition-colors"
                           >
                             Replace Key
                           </button>
@@ -780,7 +780,7 @@ export default function AlexProviderPage() {
                             onChange={(e) => {
                               setEditApiKey(e.target.value)
                             }}
-                            className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                            className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                             placeholder="Enter new API key"
                           />
                           <button
@@ -789,7 +789,7 @@ export default function AlexProviderPage() {
                               setShowApiKeyInput(false)
                               setEditApiKey('')
                             }}
-                            className="mt-2 text-xs text-[#5d5f63] font-mono hover:text-[#b9cacb]"
+                            className="mt-2 text-xs text-neutral-500 font-mono hover:text-neutral-600"
                           >
                             Cancel
                           </button>
@@ -798,13 +798,13 @@ export default function AlexProviderPage() {
                     </div>
                   )}
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Current Model</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Current Model</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={editingProvider.current_model}
                         onChange={(e) => setEditingProvider({ ...editingProvider, current_model: e.target.value })}
-                        className="flex-1 bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                        className="flex-1 bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         placeholder="Enter model ID or fetch from provider"
                         required={editingProvider.provider_type !== 'self_hosted'}
                       />
@@ -812,15 +812,15 @@ export default function AlexProviderPage() {
                         type="button"
                         onClick={() => handleFetchModels(editingProvider.id)}
                         disabled={fetchingModels === editingProvider.id}
-                        className="px-3 py-2 bg-[#00f0ff] text-black font-bold font-mono text-xs rounded hover:bg-white transition-colors"
+                        className="px-3 py-2 bg-[#10b981] text-black font-bold font-mono text-xs rounded hover:bg-white transition-colors"
                         title="Fetch Models"
                       >
                         {fetchingModels === editingProvider.id ? 'Loading...' : 'Fetch Models'}
                       </button>
                     </div>
                     {showModelSelector && availableModels.length > 0 && (
-                      <div className="mt-2 p-2 bg-[#1f2229] border border-[#3b494b] rounded max-h-40 overflow-y-auto">
-                        <p className="font-mono text-xs text-[#b9cacb] mb-2 font-bold">Available Models:</p>
+                      <div className="mt-2 p-2 bg-[#d1d5db] border border-[#3b494b] rounded max-h-40 overflow-y-auto">
+                        <p className="font-mono text-xs text-neutral-600 mb-2 font-bold">Available Models:</p>
                         {availableModels.map((model) => (
                           <button
                             key={model}
@@ -829,7 +829,7 @@ export default function AlexProviderPage() {
                               setEditingProvider({ ...editingProvider, current_model: model })
                               setShowModelSelector(false)
                             }}
-                            className="block w-full text-left px-2 py-1 font-mono text-xs text-[#b9cacb] hover:bg-[#2a2d35] rounded mb-1"
+                            className="block w-full text-left px-2 py-1 font-mono text-xs text-neutral-600 hover:bg-[#2a2d35] rounded mb-1"
                           >
                             {model}
                           </button>
@@ -838,23 +838,23 @@ export default function AlexProviderPage() {
                     )}
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Priority (Lower = Higher Priority)</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Priority (Lower = Higher Priority)</label>
                     <input
                       type="number"
                       value={editingProvider.priority}
                       onChange={(e) => setEditingProvider({ ...editingProvider, priority: parseInt(e.target.value) || 1 })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-xs text-[#b9cacb] mb-2">Request Timeout (ms)</label>
+                    <label className="block font-mono text-xs text-neutral-600 mb-2">Request Timeout (ms)</label>
                     <input
                       type="number"
                       value={editingProvider.request_timeout}
                       onChange={(e) => setEditingProvider({ ...editingProvider, request_timeout: parseInt(e.target.value) || 30000 })}
-                      className="w-full bg-[#1f2229] border border-[#3b494b] rounded px-4 py-2 text-white font-mono text-sm focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1000"
                       required
                     />
@@ -865,9 +865,9 @@ export default function AlexProviderPage() {
                       id="editFallbackEnabled"
                       checked={editingProvider.fallback_enabled}
                       onChange={(e) => setEditingProvider({ ...editingProvider, fallback_enabled: e.target.checked })}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                      className="w-4 h-4 rounded border-[#3b494b] bg-[#d1d5db]"
                     />
-                    <label htmlFor="editFallbackEnabled" className="font-mono text-xs text-[#b9cacb]">
+                    <label htmlFor="editFallbackEnabled" className="font-mono text-xs text-neutral-600">
                       Enable as fallback provider
                     </label>
                   </div>
@@ -877,9 +877,9 @@ export default function AlexProviderPage() {
                       id="editVisionFallback"
                       checked={editingProvider.is_vision_fallback || false}
                       onChange={(e) => setEditingProvider({ ...editingProvider, is_vision_fallback: e.target.checked })}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-[#1f2229]"
+                      className="w-4 h-4 rounded border-[#3b494b] bg-[#d1d5db]"
                     />
-                    <label htmlFor="editVisionFallback" className="font-mono text-xs text-[#b9cacb]">
+                    <label htmlFor="editVisionFallback" className="font-mono text-xs text-neutral-600">
                       <Eye className="h-3 w-3 inline mr-1 text-purple-400" />
                       Use as vision fallback (for image analysis)
                     </label>
@@ -894,13 +894,13 @@ export default function AlexProviderPage() {
                       setEditApiKey('')
                       setShowModelSelector(false)
                     }}
-                    className="flex-1 border border-[#3b494b] text-[#b9cacb] font-mono text-sm px-4 py-2 rounded hover:bg-[#1f2229] transition-colors"
+                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-[#d1d5db] transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-[#00f0ff] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
+                    className="flex-1 bg-[#10b981] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-white transition-colors"
                   >
                     Save Changes
                   </button>

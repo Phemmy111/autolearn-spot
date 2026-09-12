@@ -530,7 +530,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         <div className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between safe-area-top">
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-neutral-900 transition-colors"
             aria-label="Open conversations"
           >
             <Menu className="h-5 w-5" />
@@ -538,20 +538,20 @@ export function AlexChat({ userId }: AlexChatProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.location.href = '/'}
-              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-neutral-900 transition-colors"
               aria-label="Go to homepage"
             >
               <Home className="h-4 w-4" />
             </button>
             <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
-              <Bot className="h-4 w-4 text-white" />
+              <Bot className="h-4 w-4 text-neutral-900" />
             </div>
-            <span className="font-semibold text-white text-sm">ALEX</span>
+            <span className="font-semibold text-neutral-900 text-sm">ALEX</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-neutral-900 transition-colors"
               aria-label="Settings"
             >
               <Settings className="h-5 w-5" />
@@ -598,27 +598,27 @@ export function AlexChat({ userId }: AlexChatProps) {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => window.location.href = '/'}
-                  className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-xl hover:bg-slate-800"
+                  className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-neutral-900 transition-colors rounded-xl hover:bg-slate-800"
                   aria-label="Go to homepage"
                 >
                   <Home className="h-5 w-5" />
                 </button>
                 <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
-                  <Bot className="h-5 w-5 text-white" />
+                  <Bot className="h-5 w-5 text-neutral-900" />
                 </div>
-                <span className="font-semibold text-white">ALEX</span>
+                <span className="font-semibold text-neutral-900">ALEX</span>
               </div>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setIsSettingsOpen(true)}
-                  className="text-slate-400 hover:text-white transition-colors flex items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-800"
+                  className="text-slate-400 hover:text-neutral-900 transition-colors flex items-center justify-center w-8 h-8 rounded-lg hover:bg-slate-800"
                   title="Personal AI Settings"
                 >
                   <Settings className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="text-sm text-slate-400 hover:text-white transition-colors"
+                  className="text-sm text-slate-400 hover:text-neutral-900 transition-colors"
                 >
                   {isSidebarOpen ? 'Hide' : 'Show'} conversations
                 </button>

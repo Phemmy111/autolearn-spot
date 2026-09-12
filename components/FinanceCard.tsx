@@ -14,7 +14,7 @@ export const FinanceCard: React.FC<FinanceCardProps> = ({ title, value, icon, fo
         {icon && <div className="text-2xl text-primary-500">{icon}</div>}
         <h3 className="text-sm font-medium text-gray-300 uppercase">{title}</h3>
       </div>
-      <p className="mt-4 text-3xl font-bold text-white">{value}</p>
+      <p className="mt-4 text-3xl font-bold text-neutral-900">{value}</p>
       {footer && <div className="mt-4">{footer}</div>}
     </div>
   );

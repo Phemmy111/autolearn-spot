@@ -47,11 +47,11 @@ export function Navbar() {
           <div className="flex items-center justify-between rounded-full border border-zinc-700">
             <ResourcesDropdown />
             <ToolsDropdown />
-            <Link href="/live-class" className="px-4 py-2 rounded hover:bg-gray-800 transition text-white ml-4">Live Class</Link>
+            <Link href="/live-class" className="px-4 py-2 rounded hover:bg-gray-800 transition text-neutral-900 ml-4">Live Class</Link>
           </div>
           <Link
             href="/contact"
-            className="px-[18px] py-[10px] rounded-full border border-[#5100fd] bg-[#5100fd]/50 text-white font-medium hover:scale-105 transition-transform duration-500"
+            className="px-[18px] py-[10px] rounded-full border border-[#5100fd] bg-[#5100fd]/50 text-neutral-900 font-medium hover:scale-105 transition-transform duration-500"
           >
             Enroll Now
           </Link>

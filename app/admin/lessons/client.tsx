@@ -190,7 +190,7 @@ export default function LessonSchedulerClient() {
 
     return (
       <div key={weekNumber} className="mb-8">
-        <h3 className="mb-4 font-mono text-lg font-semibold text-[#00f0ff] uppercase tracking-wider">
+        <h3 className="mb-4 font-mono text-lg font-semibold text-[#10b981] uppercase tracking-wider">
           Week {weekNumber}
         </h3>
         <div className="space-y-3">
@@ -203,16 +203,16 @@ export default function LessonSchedulerClient() {
                 key={lesson.id}
                 className={`border ${
                   isEditing
-                    ? 'border-[#00f0ff] bg-[#00f0ff]/5'
+                    ? 'border-[#10b981] bg-[#10b981]/5'
                     : isAvailable
-                      ? 'border-[#3b494b] bg-[#1a1d24]'
-                      : 'border-[#1f2229] bg-[#111317] opacity-60'
+                      ? 'border-[#3b494b] bg-[#d1d5db]'
+                      : 'border-neutral-200 bg-neutral-50 opacity-60'
                 } rounded-lg p-4 transition-colors`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="font-mono text-xs text-[#b9cacb]">
+                      <span className="font-mono text-xs text-neutral-600">
                         Session {lesson.session_number}
                       </span>
                       {isAvailable ? (
@@ -227,31 +227,31 @@ export default function LessonSchedulerClient() {
                         </div>
                       )}
                     </div>
-                    <h4 className="font-semibold text-white mb-1">{lesson.title}</h4>
-                    <p className="text-sm text-[#b9cacb] line-clamp-2 mb-2">
+                    <h4 className="font-semibold text-neutral-900 mb-1">{lesson.title}</h4>
+                    <p className="text-sm text-neutral-600 line-clamp-2 mb-2">
                       {lesson.description}
                     </p>
                     {isEditing ? (
-                      <div className="space-y-3 mt-4 border-t border-[#1f2229] pt-4">
+                      <div className="space-y-3 mt-4 border-t border-neutral-200 pt-4">
                         <div>
-                          <label className="block text-xs font-mono text-[#b9cacb] mb-2">
+                          <label className="block text-xs font-mono text-neutral-600 mb-2">
                             Release Date & Time
                           </label>
                           <input
                             type="datetime-local"
                             value={editData?.available_at?.slice(0, 16) || ''}
                             onChange={(e) => setEditData({ ...editData!, available_at: e.target.value + ':00Z' })}
-                            className="w-full bg-[#111317] border border-[#3b494b] rounded px-3 py-2 text-white text-sm focus:border-[#00f0ff] focus:outline-none"
+                            className="w-full bg-neutral-50 border border-[#3b494b] rounded px-3 py-2 text-neutral-900 text-sm focus:border-[#10b981] focus:outline-none"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-mono text-[#b9cacb] mb-2">
+                          <label className="block text-xs font-mono text-neutral-600 mb-2">
                             Release Day
                           </label>
                           <select
                             value={editData?.release_day || 'monday'}
                             onChange={(e) => setEditData({ ...editData!, release_day: e.target.value })}
-                            className="w-full bg-[#111317] border border-[#3b494b] rounded px-3 py-2 text-white text-sm focus:border-[#00f0ff] focus:outline-none"
+                            className="w-full bg-neutral-50 border border-[#3b494b] rounded px-3 py-2 text-neutral-900 text-sm focus:border-[#10b981] focus:outline-none"
                           >
                             <option value="monday">Monday</option>
                             <option value="wednesday">Wednesday</option>
@@ -262,13 +262,13 @@ export default function LessonSchedulerClient() {
                           <button
                             onClick={saveEdit}
                             disabled={saving}
-                            className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 bg-[#10b981] text-black font-bold px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {saving ? 'Saving...' : <><Save className="h-4 w-4" /> <span>Save</span></>}
                           </button>
                           <button
                             onClick={cancelEditing}
-                            className="flex items-center gap-2 border border-[#1f2229] text-[#b9cacb] px-4 py-2 rounded hover:bg-[#1a1d24] transition-colors"
+                            className="flex items-center gap-2 border border-neutral-200 text-neutral-600 px-4 py-2 rounded hover:bg-[#d1d5db] transition-colors"
                           >
                             <X className="h-4 w-4" /> Cancel
                           </button>
@@ -284,17 +284,17 @@ export default function LessonSchedulerClient() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-4 mt-3">
-                        <div className="flex items-center gap-2 text-xs text-[#b9cacb]">
+                        <div className="flex items-center gap-2 text-xs text-neutral-600">
                           <Calendar className="h-4 w-4" />
                           <span>{formatDate(lesson.available_at, timezone)}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-[#b9cacb]">
+                        <div className="flex items-center gap-2 text-xs text-neutral-600">
                           <Clock className="h-4 w-4" />
                           <span className="capitalize">{lesson.release_day}</span>
                         </div>
                         <button
                           onClick={() => startEditing(lesson)}
-                          className="ml-auto text-xs font-mono text-[#00f0ff] hover:underline"
+                          className="ml-auto text-xs font-mono text-[#10b981] hover:underline"
                         >
                           Edit Schedule
                         </button>
@@ -313,14 +313,14 @@ export default function LessonSchedulerClient() {
   return (
     <div>
       {/* Cohort Selector */}
-      <div className="mb-8 border border-[#1f2229] bg-[#0c0e12] rounded-lg p-6">
-        <label className="block text-sm font-mono text-[#b9cacb] mb-3">
+      <div className="mb-8 border border-neutral-200 bg-white rounded-lg p-6">
+        <label className="block text-sm font-mono text-neutral-600 mb-3">
           Select Cohort
         </label>
         <select
           value={selectedCohort || ''}
           onChange={(e) => setSelectedCohort(e.target.value)}
-          className="w-full bg-[#111317] border border-[#3b494b] rounded px-4 py-3 text-white focus:border-[#00f0ff] focus:outline-none"
+          className="w-full bg-neutral-50 border border-[#3b494b] rounded px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
         >
           <option value="">-- Select a cohort --</option>
           {cohorts.map((cohort) => (
@@ -334,15 +334,15 @@ export default function LessonSchedulerClient() {
       {/* Lessons Display */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="text-[#b9cacb]">Loading lessons...</div>
+          <div className="text-neutral-600">Loading lessons...</div>
         </div>
       ) : selectedCohort && lessons.length > 0 ? (
-        <div className="border border-[#1f2229] bg-[#0c0e12] rounded-lg p-6">
+        <div className="border border-neutral-200 bg-white rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-heading text-xl font-bold text-white">
+            <h2 className="font-heading text-xl font-bold text-neutral-900">
               {getSelectedCohort()?.name} - Schedule
             </h2>
-            <div className="text-xs text-[#b9cacb]">
+            <div className="text-xs text-neutral-600">
               Timezone: {getCohortTimezone()}
             </div>
           </div>
@@ -352,17 +352,17 @@ export default function LessonSchedulerClient() {
           ))}
         </div>
       ) : selectedCohort && lessons.length === 0 ? (
-        <div className="border border-[#1f2229] bg-[#0c0e12] rounded-lg p-12 text-center">
-          <AlertCircle className="h-12 w-12 text-[#b9cacb] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">No Lessons Found</h3>
-          <p className="text-sm text-[#b9cacb]">
+        <div className="border border-neutral-200 bg-white rounded-lg p-12 text-center">
+          <AlertCircle className="h-12 w-12 text-neutral-600 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">No Lessons Found</h3>
+          <p className="text-sm text-neutral-600">
             This cohort has no lessons configured. Add lessons to manage their release schedule.
           </p>
         </div>
       ) : (
-        <div className="border border-[#1f2229] bg-[#0c0e12] rounded-lg p-12 text-center">
-          <h3 className="text-lg font-semibold text-white mb-2">Select a Cohort</h3>
-          <p className="text-sm text-[#b9cacb]">
+        <div className="border border-neutral-200 bg-white rounded-lg p-12 text-center">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-2">Select a Cohort</h3>
+          <p className="text-sm text-neutral-600">
             Choose a cohort above to view and manage its lesson schedule.
           </p>
         </div>

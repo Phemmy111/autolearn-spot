@@ -152,7 +152,7 @@ export function AlexArchitectureApproval({
         <button
           onClick={handleApprove}
           disabled={disabled || isApproving || !architecture.platform}
-          className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-neutral-900 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Check className="h-4 w-4" />
           <span>{isApproving ? 'Generating...' : 'Approve & Generate'}</span>

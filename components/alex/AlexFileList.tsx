@@ -60,7 +60,7 @@ export function AlexFileList({ files, onRemoveFile, isMobile }: AlexFileListProp
               <button
                 type="button"
                 onClick={() => onRemoveFile(file.id)}
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-slate-400 hover:text-neutral-900 transition-colors"
                 title="Remove file"
               >
                 <X className="h-4 w-4" />

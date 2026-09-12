@@ -61,18 +61,18 @@ export default function LiveScheduleAdmin() {
   }
 
   return (
-    <section className="min-h-screen bg-[#0a0c10]">
+    <section className="min-h-screen bg-[#d1d5db]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-white mb-4">Live Class Schedule</h1>
-          <p className="font-mono text-sm text-[#b9cacb]">Configure live class schedule settings</p>
+          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4">Live Class Schedule</h1>
+          <p className="font-mono text-sm text-neutral-600">Configure live class schedule settings</p>
         </div>
         
         {schedule ? (
@@ -84,7 +84,7 @@ export default function LiveScheduleAdmin() {
                 name="day"
                 value={schedule.day}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-white"
+                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-neutral-900"
               />
             </label>
             <label className="block">
@@ -94,7 +94,7 @@ export default function LiveScheduleAdmin() {
                 name="startTime"
                 value={schedule.startTime}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-white"
+                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-neutral-900"
               />
             </label>
             <label className="block">
@@ -104,7 +104,7 @@ export default function LiveScheduleAdmin() {
                 name="durationMinutes"
                 value={schedule.durationMinutes}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-white"
+                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-neutral-900"
               />
             </label>
             <label className="block">
@@ -114,10 +114,10 @@ export default function LiveScheduleAdmin() {
                 name="roomPrefix"
                 value={schedule.roomPrefix}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-white"
+                className="mt-1 block w-full rounded bg-gray-800 border-gray-700 text-neutral-900"
               />
             </label>
-            <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            <button type="submit" className="px-4 py-2 bg-indigo-600 text-neutral-900 rounded hover:bg-indigo-700">
               Save Schedule
             </button>
             {status && <p className="mt-2 text-sm text-gray-400">{status}</p>}

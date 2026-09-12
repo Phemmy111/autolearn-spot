@@ -8,7 +8,7 @@ export function AnimatedTestimonialsSection() {
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
 
   return (
-    <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-[#0c0e12]">
+    <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-[#c0c4c9]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className={`text-center mb-4 sm:mb-6 lg:mb-8 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">

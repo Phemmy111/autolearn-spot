@@ -212,7 +212,7 @@ export default function AuthorApplyPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Get Started</h2>
             <p className="text-gray-500 mb-8 font-medium">You can apply as an author without signing in, or create an account to track your application status.</p>
             <div className="space-y-4">
-              <button onClick={() => setShowAuthPrompt(false)} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+              <button onClick={() => setShowAuthPrompt(false)} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-neutral-900 font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
                 <Sparkles className="w-5 h-5" /> Apply Without Account
               </button>
               <button onClick={() => router.push('/sign-up')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-indigo-600 text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors">
@@ -254,7 +254,7 @@ export default function AuthorApplyPage() {
                 <span className="font-medium">{new Date(existingApplication.submitted_at).toLocaleDateString()}</span>
               </p>
             </div>
-            <button onClick={() => router.push('/')} className="w-full px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mb-3">
+            <button onClick={() => router.push('/')} className="w-full px-6 py-3.5 bg-indigo-600 text-neutral-900 font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mb-3">
               Return to Home
             </button>
             <button 
@@ -293,9 +293,14 @@ export default function AuthorApplyPage() {
             </p>
             <div className="space-y-3">
               {!isSignedIn && (
-                <button onClick={() => router.push('/sign-up?redirect=/author')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
-                  <UserPlus className="w-5 h-5" /> Create Account to Track Status
-                </button>
+                <>
+                  <button onClick={() => router.push('/sign-up?redirect=/author')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                    <UserPlus className="w-5 h-5" /> Create Account
+                  </button>
+                  <button onClick={() => router.push('/sign-in?redirect=/author')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-indigo-600 text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 transition-colors">
+                    <LogIn className="w-5 h-5" /> Login
+                  </button>
+                </>
               )}
               <button onClick={() => router.push('/')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors">
                 Return to Home <ArrowRight className="w-5 h-5" />
@@ -413,7 +418,7 @@ export default function AuthorApplyPage() {
                   {/* ─── Section 1: Personal Information ─── */}
                   <div className="group">
                     <div className="flex items-center gap-3 mb-6">
-                      <span className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">1</span>
+                      <span className="w-8 h-8 bg-indigo-600 text-neutral-900 rounded-full flex items-center justify-center text-sm font-bold shadow-md">1</span>
                       <h3 className="text-xl font-bold text-gray-900">Personal Information</h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ml-0 lg:ml-11">
@@ -457,7 +462,7 @@ export default function AuthorApplyPage() {
                   {/* ─── Section 2: Professional Information ─── */}
                   <div className="group">
                     <div className="flex items-center gap-3 mb-6">
-                      <span className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">2</span>
+                      <span className="w-8 h-8 bg-indigo-600 text-neutral-900 rounded-full flex items-center justify-center text-sm font-bold shadow-md">2</span>
                       <h3 className="text-xl font-bold text-gray-900">Professional Information</h3>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ml-0 lg:ml-11">
@@ -490,7 +495,7 @@ export default function AuthorApplyPage() {
                   {/* ─── Section 3: Areas of Expertise ─── */}
                   <div className="group">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">3</span>
+                      <span className="w-8 h-8 bg-indigo-600 text-neutral-900 rounded-full flex items-center justify-center text-sm font-bold shadow-md">3</span>
                       <h3 className="text-xl font-bold text-gray-900">Areas of Expertise</h3>
                     </div>
                     <div className="ml-0 lg:ml-11">
@@ -517,7 +522,7 @@ export default function AuthorApplyPage() {
                   {/* ─── Section 4: About You ─── */}
                   <div className="group">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">4</span>
+                      <span className="w-8 h-8 bg-indigo-600 text-neutral-900 rounded-full flex items-center justify-center text-sm font-bold shadow-md">4</span>
                       <h3 className="text-xl font-bold text-gray-900">About You</h3>
                     </div>
                     <div className="ml-0 lg:ml-11">
@@ -539,7 +544,7 @@ export default function AuthorApplyPage() {
                   {/* ─── Section 5: Upload Supporting Documents ─── */}
                   <div className="group">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">5</span>
+                      <span className="w-8 h-8 bg-indigo-600 text-neutral-900 rounded-full flex items-center justify-center text-sm font-bold shadow-md">5</span>
                       <h3 className="text-xl font-bold text-gray-900">Upload Supporting Documents</h3>
                     </div>
                     <div className="ml-0 lg:ml-11">
@@ -606,7 +611,7 @@ export default function AuthorApplyPage() {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/40 hover:-translate-y-0.5"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-indigo-600 text-neutral-900 font-bold rounded-xl hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/40 hover:-translate-y-0.5"
                     >
                       {isSubmitting ? (
                         <><Loader2 className="w-5 h-5 animate-spin" /> Submitting...</>
@@ -629,7 +634,7 @@ export default function AuthorApplyPage() {
               
               <div className="flex items-center gap-3 mb-6 relative z-10">
                 <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-                  <Users className="w-6 h-6 text-white" />
+                  <Users className="w-6 h-6 text-neutral-900" />
                 </div>
                 <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">Why Become an Author?</h3>
               </div>
@@ -664,7 +669,7 @@ export default function AuthorApplyPage() {
               
               <div className="flex items-center gap-3 mb-8 relative z-10">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-md">
-                  <Zap className="w-6 h-6 text-white" />
+                  <Zap className="w-6 h-6 text-neutral-900" />
                 </div>
                 <h3 className="text-xl font-extrabold text-gray-900 tracking-tight">How It Works</h3>
               </div>

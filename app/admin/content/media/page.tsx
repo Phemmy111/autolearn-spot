@@ -108,28 +108,28 @@ export default function AdminMediaPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#00f0ff] animate-spin" />
+      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[#d1d5db]">
       {/* Header */}
-      <div className="border-b border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/content" className="text-[#b9cacb] hover:text-white transition-colors">
+              <Link href="/admin/content" className="text-neutral-600 hover:text-neutral-900 transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-white">Media Library</h1>
-                <p className="text-sm text-[#b9cacb]">Manage uploaded media files</p>
+                <h1 className="text-xl font-bold text-neutral-900">Media Library</h1>
+                <p className="text-sm text-neutral-600">Manage uploaded media files</p>
               </div>
             </div>
-            <label className="flex items-center gap-2 px-4 py-2 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors cursor-pointer">
+            <label className="flex items-center gap-2 px-4 py-2 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors cursor-pointer">
               {isUploading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -172,7 +172,7 @@ export default function AdminMediaPage() {
         {/* Files Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {files.map((file) => (
-            <div key={file.id} className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl overflow-hidden">
+            <div key={file.id} className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
               {/* Preview */}
               <div className="aspect-video bg-[#070B12] flex items-center justify-center relative">
                 {file.type.startsWith('image/') ? (
@@ -182,27 +182,27 @@ export default function AdminMediaPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : file.type.startsWith('video/') ? (
-                  <Video className="h-12 w-12 text-[#5d5f63]" />
+                  <Video className="h-12 w-12 text-neutral-500" />
                 ) : (
-                  <ImageIcon className="h-12 w-12 text-[#5d5f63]" />
+                  <ImageIcon className="h-12 w-12 text-neutral-500" />
                 )}
               </div>
 
               {/* Info */}
               <div className="p-4">
-                <p className="text-sm font-medium text-white truncate mb-2" title={file.name}>
+                <p className="text-sm font-medium text-neutral-900 truncate mb-2" title={file.name}>
                   {file.name}
                 </p>
                 <div className="space-y-1 mb-3">
-                  <p className="text-xs text-[#5d5f63]">{formatFileSize(file.size)}</p>
-                  <p className="text-xs text-[#5d5f63]">{formatDate(file.created_at)}</p>
+                  <p className="text-xs text-neutral-500">{formatFileSize(file.size)}</p>
+                  <p className="text-xs text-neutral-500">{formatDate(file.created_at)}</p>
                 </div>
 
                 {/* Actions */}
                 <div className="flex gap-2">
                   <button
                     onClick={() => copyToClipboard(file.publicUrl)}
-                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-[#070B12] border border-[#1f2229] rounded text-xs text-[#b9cacb] hover:text-white hover:border-[#00f0ff] transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 bg-[#070B12] border border-neutral-200 rounded text-xs text-neutral-600 hover:text-neutral-900 hover:border-[#10b981] transition-colors"
                   >
                     {copiedUrl === file.publicUrl ? (
                       <>
@@ -218,7 +218,7 @@ export default function AdminMediaPage() {
                   </button>
                   <button
                     onClick={() => handleDelete(file.name)}
-                    className="p-1.5 bg-[#070B12] border border-[#1f2229] rounded text-[#b9cacb] hover:text-red-400 hover:border-red-400 transition-colors"
+                    className="p-1.5 bg-[#070B12] border border-neutral-200 rounded text-neutral-600 hover:text-red-400 hover:border-red-400 transition-colors"
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
@@ -229,8 +229,8 @@ export default function AdminMediaPage() {
         </div>
 
         {files.length === 0 && (
-          <div className="text-center py-12 text-[#b9cacb]">
-            <ImageIcon className="h-12 w-12 mx-auto mb-4 text-[#5d5f63]" />
+          <div className="text-center py-12 text-neutral-600">
+            <ImageIcon className="h-12 w-12 mx-auto mb-4 text-neutral-500" />
             <p>No media files yet</p>
             <p className="text-sm mt-2">Click "Upload File" to add your first media file</p>
           </div>

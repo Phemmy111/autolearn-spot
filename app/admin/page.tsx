@@ -46,7 +46,7 @@ export default async function AdminPage() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/admin/quizzes/new"
-              className="flex items-center gap-2 bg-[#10b981] text-white font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#059669] transition-colors text-sm shadow-sm"
+              className="flex items-center gap-2 bg-[#10b981] text-neutral-900 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#059669] transition-colors text-sm shadow-sm"
             >
               <Plus className="h-4 w-4" />
               New Quiz

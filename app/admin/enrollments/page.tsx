@@ -125,21 +125,21 @@ export default async function AdminEnrollmentsPage() {
   // Looking at our webhook, Paystack sends in kobo, so / 100 is correct for NGN display.
   
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[#d1d5db]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-[#b9cacb] hover:text-white font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin Dashboard
           </Link>
           <div className="flex items-center gap-3">
-            <Users className="h-8 w-8 text-[#00f0ff]" />
-            <h1 className="font-heading text-4xl font-bold text-white">Enrollments</h1>
+            <Users className="h-8 w-8 text-[#10b981]" />
+            <h1 className="font-heading text-4xl font-bold text-neutral-900">Enrollments</h1>
           </div>
-          <p className="font-mono text-sm text-[#b9cacb] max-w-2xl mt-4">
+          <p className="font-mono text-sm text-neutral-600 max-w-2xl mt-4">
             Manage student enrollments, view payments, and resync webhook data.
           </p>
         </div>

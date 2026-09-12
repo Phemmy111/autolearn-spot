@@ -31,20 +31,20 @@ export default async function VideoDebugPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[#d1d5db]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-10">
           <Link
             href="/admin"
-            className="mb-4 flex items-center gap-2 font-mono text-sm text-[#b9cacb] transition hover:text-white"
+            className="mb-4 flex items-center gap-2 font-mono text-sm text-neutral-600 transition hover:text-neutral-900"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
           </Link>
-          <h1 className="font-heading text-3xl font-bold text-white">
+          <h1 className="font-heading text-3xl font-bold text-neutral-900">
             Video Engine Debug
           </h1>
-          <p className="mt-2 font-mono text-sm text-[#b9cacb]">
+          <p className="mt-2 font-mono text-sm text-neutral-600">
             Validate provider, video ID, thumbnail, and playback for all 12 lessons.
             Super Admin only.
           </p>

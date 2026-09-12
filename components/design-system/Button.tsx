@@ -20,8 +20,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ...props 
   }, ref) => {
     const variants = {
-      primary: 'bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-500',
-      secondary: 'bg-purple-600 text-white hover:bg-purple-700 focus:ring-purple-500',
+      primary: 'bg-sky-600 text-neutral-900 hover:bg-sky-700 focus:ring-sky-500',
+      secondary: 'bg-purple-600 text-neutral-900 hover:bg-purple-700 focus:ring-purple-500',
       outline: 'border-2 border-sky-600 text-sky-600 hover:bg-sky-50 focus:ring-sky-500',
       ghost: 'text-neutral-700 hover:bg-neutral-100 focus:ring-neutral-500',
       link: 'text-sky-600 hover:text-sky-700 underline-offset-4 hover:underline',

@@ -67,7 +67,7 @@ const BENEFITS = [
 
 function PartnersFooter() {
   return (
-    <footer className="border-t border-[#1f2229] bg-[#070B12] py-12 sm:py-16">
+    <footer className="border-t border-neutral-200 bg-[#070B12] py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
           <div className="md:col-span-2">
@@ -174,7 +174,7 @@ function PartnersFooter() {
           </div>
         </div>
         
-        <div className="border-t border-[#1f2229] pt-8 text-center">
+        <div className="border-t border-neutral-200 pt-8 text-center">
           <p className="text-sm text-[#b9cacb]">
             © 2026 AutoLearn Spot. All Rights Reserved.
           </p>
@@ -295,7 +295,7 @@ export default function PartnerApplicationPage() {
       <div className="min-h-screen bg-[#070B12] flex flex-col">
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full">
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 text-center">
+            <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 text-center">
               <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-full mx-auto mb-6">
                 <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-[#00F5FF]" />
               </div>
@@ -320,7 +320,7 @@ export default function PartnerApplicationPage() {
   return (
     <div className="min-h-screen bg-[#070B12]">
       {/* Header */}
-      <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl">
+      <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
@@ -373,7 +373,7 @@ export default function PartnerApplicationPage() {
                 return (
                   <div
                     key={benefit.title}
-                    className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all duration-300"
+                    className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all duration-300"
                   >
                     <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg mb-3">
                       <Icon className="h-5 w-5 text-[#00F5FF]" />
@@ -386,7 +386,7 @@ export default function PartnerApplicationPage() {
             </div>
 
             {/* Commission Info */}
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-6">
+            <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-6">
               <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-[#00F5FF]" />
                 Commission Structure
@@ -409,7 +409,7 @@ export default function PartnerApplicationPage() {
           </div>
 
           {/* Right Column - Application Form */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+          <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
             <h2 className="text-xl font-bold text-[#e2e2e8] mb-6">Partner Application</h2>
             
             {error && (
@@ -431,7 +431,7 @@ export default function PartnerApplicationPage() {
                     required
                     type="text"
                     name="full_name"
-                    className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -442,7 +442,7 @@ export default function PartnerApplicationPage() {
                     required
                     type="email"
                     name="email"
-                    className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -454,7 +454,7 @@ export default function PartnerApplicationPage() {
                       required
                       type="tel"
                       name="phone"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="0801 234 5678"
                     />
                   </div>
@@ -464,7 +464,7 @@ export default function PartnerApplicationPage() {
                       required
                       type="tel"
                       name="whatsapp"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="0801 234 5678"
                     />
                   </div>
@@ -476,7 +476,7 @@ export default function PartnerApplicationPage() {
                     <select
                       required
                       name="state"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     >
                       <option value="">Select your state</option>
                       {NIGERIAN_STATES.map((state) => (
@@ -491,7 +491,7 @@ export default function PartnerApplicationPage() {
                     <select
                       required
                       name="occupation"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     >
                       <option value="">Select your occupation</option>
                       {OCCUPATIONS.map((occupation) => (
@@ -515,7 +515,7 @@ export default function PartnerApplicationPage() {
                   <input
                     type="text"
                     name="organization"
-                    className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="Your organization or institution"
                   />
                 </div>
@@ -525,7 +525,7 @@ export default function PartnerApplicationPage() {
                   <input
                     type="url"
                     name="website"
-                    className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                     placeholder="https://yourwebsite.com"
                   />
                 </div>
@@ -543,7 +543,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="facebook"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="facebook.com/yourprofile"
                     />
                   </div>
@@ -552,7 +552,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="instagram"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="instagram.com/yourprofile"
                     />
                   </div>
@@ -561,7 +561,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="tiktok"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="tiktok.com/@yourprofile"
                     />
                   </div>
@@ -570,7 +570,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="youtube"
-                      className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                       placeholder="youtube.com/@yourchannel"
                     />
                   </div>
@@ -589,7 +589,7 @@ export default function PartnerApplicationPage() {
                     required
                     name="motivation"
                     rows={4}
-                    className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
                     placeholder="Tell us why you're interested in becoming a partner..."
                   />
                 </div>
@@ -600,7 +600,7 @@ export default function PartnerApplicationPage() {
                     required
                     name="promotion_method"
                     rows={4}
-                    className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
                     placeholder="Describe your promotion strategy..."
                   />
                 </div>
@@ -610,7 +610,7 @@ export default function PartnerApplicationPage() {
                   <textarea
                     name="experience"
                     rows={3}
-                    className="w-full bg-[#070B12]/50 border border-[#1f2229] rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-[#070B12]/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
                     placeholder="Any previous experience with partnerships or marketing..."
                   />
                 </div>
@@ -623,7 +623,7 @@ export default function PartnerApplicationPage() {
                     type="checkbox"
                     checked={agreed}
                     onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-1 w-4 h-4 border border-[#1f2229] bg-[#070B12]/50 rounded focus:outline-none focus:border-[#00F5FF]"
+                    className="mt-1 w-4 h-4 border border-neutral-200 bg-[#070B12]/50 rounded focus:outline-none focus:border-[#00F5FF]"
                   />
                   <span className="text-sm text-[#b9cacb]">
                     I agree to the partner program terms and conditions. I understand that commission payments are subject to successful student enrollments and a 7-day holding period.

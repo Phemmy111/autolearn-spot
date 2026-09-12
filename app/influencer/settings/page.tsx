@@ -62,16 +62,16 @@ export default function InfluencerSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c0e12] flex items-center justify-center text-white">
+      <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center text-neutral-900">
         <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900">
       {/* Header */}
-      <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/influencer/dashboard" className="text-[#b9cacb] hover:text-purple-400 transition-colors">
@@ -93,7 +93,7 @@ export default function InfluencerSettingsPage() {
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6 mb-6">
+        <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 mb-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-purple-400 mb-6">
             Profile
           </h2>
@@ -125,27 +125,27 @@ export default function InfluencerSettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6">
+        <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-purple-400 mb-6">
             Account Information
           </h2>
           
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-3 border-b border-[#1f2229]">
+            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
               <span className="text-[#b9cacb]">Email</span>
-              <span className="text-white">{userData?.user?.email || ''}</span>
+              <span className="text-neutral-900">{userData?.user?.email || ''}</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-[#1f2229]">
+            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
               <span className="text-[#b9cacb]">Partner Type</span>
-              <span className="text-white">Influencer</span>
+              <span className="text-neutral-900">Influencer</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-[#1f2229]">
+            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
               <span className="text-[#b9cacb]">Platform</span>
-              <span className="text-white">{userData?.user?.platform || 'instagram'}</span>
+              <span className="text-neutral-900">{userData?.user?.platform || 'instagram'}</span>
             </div>
             <div className="flex justify-between items-center py-3">
               <span className="text-[#b9cacb]">Commission Rate</span>
-              <span className="text-white">₦{(userData?.user?.commission_rate || 2000).toLocaleString()}/referral</span>
+              <span className="text-neutral-900">₦{(userData?.user?.commission_rate || 2000).toLocaleString()}/referral</span>
             </div>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function InfluencerSettingsPage() {
         <div className="mt-6 flex justify-end">
           <button 
             onClick={handleLogout}
-            className="font-mono text-xs uppercase px-4 py-2 border border-[#1f2229] rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-[#b9cacb]"
+            className="font-mono text-xs uppercase px-4 py-2 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-[#b9cacb]"
           >
             <LogOut className="h-3 w-3" /> Logout
           </button>

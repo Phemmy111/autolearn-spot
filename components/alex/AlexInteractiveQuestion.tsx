@@ -147,7 +147,7 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
                 `}
               >
                 {isRecommended && (
-                  <div className="absolute -top-2 -right-2 bg-cyan-500 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                  <div className="absolute -top-2 -right-2 bg-cyan-500 text-neutral-900 text-xs px-2 py-0.5 rounded-full font-medium">
                     Recommended
                   </div>
                 )}
@@ -176,7 +176,7 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 disabled || selectedValues.length === 0
                   ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                  : 'bg-cyan-500 hover:bg-cyan-600 text-white'
+                  : 'bg-cyan-500 hover:bg-cyan-600 text-neutral-900'
               }`}
             >
               Submit Selection

@@ -73,14 +73,14 @@ export function ScholarshipSettingsClient() {
 
   if (loading) {
     return (
-      <div className="border border-[#1f2229] bg-[#0c0e12] rounded-lg p-6">
-        <p className="text-[#b9cacb]">Loading settings...</p>
+      <div className="border border-neutral-200 bg-white rounded-lg p-6">
+        <p className="text-neutral-600">Loading settings...</p>
       </div>
     );
   }
 
   return (
-    <div className="border border-[#1f2229] bg-[#0c0e12] rounded-lg p-6">
+    <div className="border border-neutral-200 bg-white rounded-lg p-6">
       {message && (
         <div className={`mb-4 p-3 rounded border ${
           message.type === 'success'
@@ -109,10 +109,10 @@ export function ScholarshipSettingsClient() {
             type="number"
             value={settings.commitmentFee}
             onChange={(e) => setSettings({ ...settings, commitmentFee: parseInt(e.target.value) || 0 })}
-            className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="5000"
           />
-          <p className="text-xs text-[#5d5f63] mt-1">Amount scholarship applicants pay as commitment fee</p>
+          <p className="text-xs text-neutral-500 mt-1">Amount scholarship applicants pay as commitment fee</p>
         </div>
 
         {/* Full Value */}
@@ -125,10 +125,10 @@ export function ScholarshipSettingsClient() {
             type="number"
             value={settings.fullValue}
             onChange={(e) => setSettings({ ...settings, fullValue: parseInt(e.target.value) || 0 })}
-            className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="8000"
           />
-          <p className="text-xs text-[#5d5f63] mt-1">Original course value displayed to applicants</p>
+          <p className="text-xs text-neutral-500 mt-1">Original course value displayed to applicants</p>
         </div>
 
         {/* Payment URL */}
@@ -141,10 +141,10 @@ export function ScholarshipSettingsClient() {
             type="url"
             value={settings.paymentUrl}
             onChange={(e) => setSettings({ ...settings, paymentUrl: e.target.value })}
-            className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="https://paystack.shop/pay/..."
           />
-          <p className="text-xs text-[#5d5f63] mt-1">Payment link sent to accepted scholarship applicants</p>
+          <p className="text-xs text-neutral-500 mt-1">Payment link sent to accepted scholarship applicants</p>
         </div>
 
         {/* Is Open Toggle */}
@@ -156,12 +156,12 @@ export function ScholarshipSettingsClient() {
           <select
             value={settings.isOpen.toString()}
             onChange={(e) => setSettings({ ...settings, isOpen: e.target.value === 'true' })}
-            className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
           >
             <option value="true">Open - Accepting applications</option>
             <option value="false">Closed - Not accepting applications</option>
           </select>
-          <p className="text-xs text-[#5d5f63] mt-1">Master toggle to enable/disable scholarship applications</p>
+          <p className="text-xs text-neutral-500 mt-1">Master toggle to enable/disable scholarship applications</p>
         </div>
 
         {/* General WhatsApp */}
@@ -174,10 +174,10 @@ export function ScholarshipSettingsClient() {
             type="url"
             value={settings.generalWhatsApp}
             onChange={(e) => setSettings({ ...settings, generalWhatsApp: e.target.value })}
-            className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="https://chat.whatsapp.com/..."
           />
-          <p className="text-xs text-[#5d5f63] mt-1">WhatsApp group for all scholarship applicants</p>
+          <p className="text-xs text-neutral-500 mt-1">WhatsApp group for all scholarship applicants</p>
         </div>
 
         {/* Paid WhatsApp */}
@@ -190,19 +190,19 @@ export function ScholarshipSettingsClient() {
             type="url"
             value={settings.paidWhatsApp}
             onChange={(e) => setSettings({ ...settings, paidWhatsApp: e.target.value })}
-            className="w-full bg-[#0a0c10] border border-[#3b494b] px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="https://chat.whatsapp.com/..."
           />
-          <p className="text-xs text-[#5d5f63] mt-1">WhatsApp group for paid scholarship students</p>
+          <p className="text-xs text-neutral-500 mt-1">WhatsApp group for paid scholarship students</p>
         </div>
 
         {/* Save Button */}
-        <div className="pt-4 border-t border-[#1f2229]">
+        <div className="pt-4 border-t border-neutral-200">
           <button
             type="button"
             onClick={saveSettings}
             disabled={saving}
-            className="flex items-center gap-2 bg-[#00f0ff] text-[#00363a] px-6 py-2 font-mono text-sm font-semibold uppercase tracking-wider hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-[#10b981] text-[#00363a] px-6 py-2 font-mono text-sm font-semibold uppercase tracking-wider hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="h-4 w-4" />
             {saving ? 'Saving...' : 'Save Settings'}

@@ -58,7 +58,7 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
 
   if (isLoading) {
     return (
-      <div className="mb-10 border border-[#1f2229] bg-[#0c0e12] p-5 animate-pulse">
+      <div className="mb-10 border border-neutral-200 bg-[#c0c4c9] p-5 animate-pulse">
         <div className="h-4 w-1/3 bg-[#1f2229] mb-3"></div>
         <div className="h-2 w-full bg-[#1f2229]"></div>
       </div>
@@ -66,23 +66,23 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
   }
 
   return (
-    <div className="mb-10 border border-[#1f2229] bg-[#0c0e12] p-5">
+    <div className="mb-10 border border-neutral-200 bg-[#c0c4c9] p-5">
       <div className="flex items-center justify-between mb-3">
         <span className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#b9cacb]">
           Your Progress
         </span>
-        <span className="font-mono text-xs font-bold text-[#00f0ff]">
+        <span className="font-mono text-xs font-bold text-[#10b981]">
           {count} of {totalVideos} completed ({pct}%)
         </span>
       </div>
       <div className="relative h-2 w-full overflow-hidden bg-[#1f2229]">
         <div
-          className="absolute inset-y-0 left-0 bg-[#00f0ff] transition-all duration-700 ease-out"
+          className="absolute inset-y-0 left-0 bg-[#10b981] transition-all duration-700 ease-out"
           style={{ width: `${pct}%` }}
         />
         {/* Glow effect */}
         <div
-          className="absolute inset-y-0 left-0 bg-[#00f0ff] blur-sm opacity-50 transition-all duration-700 ease-out"
+          className="absolute inset-y-0 left-0 bg-[#10b981] blur-sm opacity-50 transition-all duration-700 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -118,7 +118,7 @@ export function CompletedBadge({ videoId }: { videoId: string }) {
   if (!isDone) return null
 
   return (
-    <div className="absolute top-2 left-2 flex items-center gap-1 rounded bg-emerald-500/90 px-2 py-1 font-mono text-[10px] font-bold uppercase text-white backdrop-blur">
+    <div className="absolute top-2 left-2 flex items-center gap-1 rounded bg-emerald-500/90 px-2 py-1 font-mono text-[10px] font-bold uppercase text-neutral-900 backdrop-blur">
       <CheckCircle className="h-3 w-3" />
       Done
     </div>

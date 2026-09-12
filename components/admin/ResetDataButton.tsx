@@ -41,7 +41,7 @@ export function ResetDataButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 border border-red-500/50 bg-red-50 text-red-600 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-red-500 hover:text-white transition-colors text-sm shadow-sm"
+        className="flex items-center gap-2 border border-red-500/50 bg-red-50 text-red-600 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-red-500 hover:text-neutral-900 transition-colors text-sm shadow-sm"
       >
         <AlertTriangle className="h-4 w-4" />
         Super Admin Reset

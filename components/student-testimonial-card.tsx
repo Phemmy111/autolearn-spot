@@ -30,11 +30,11 @@ export function StudentTestimonialCard({
   };
 
   return (
-    <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+    <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]">
       <div className="flex items-start gap-4 mb-4">
         <div className="relative">
           {image ? (
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#00f0ff]/30">
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#10b981]/30">
               <Image
                 src={image}
                 alt={name}
@@ -44,14 +44,14 @@ export function StudentTestimonialCard({
               />
             </div>
           ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-[#00f0ff]/5 border-2 border-[#00f0ff]/30 flex items-center justify-center">
-              <span className="text-[#00f0ff] font-semibold text-lg">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-[#00f0ff]/5 border-2 border-[#10b981]/30 flex items-center justify-center">
+              <span className="text-[#10b981] font-semibold text-lg">
                 {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
               </span>
             </div>
           )}
           {verified && (
-            <div className="absolute -bottom-1 -right-1 bg-[#00f0ff] rounded-full p-1">
+            <div className="absolute -bottom-1 -right-1 bg-[#10b981] rounded-full p-1">
               <CheckCircle className="h-3 w-3 text-[#00363a]" />
             </div>
           )}

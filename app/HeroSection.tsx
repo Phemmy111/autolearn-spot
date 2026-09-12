@@ -140,7 +140,7 @@ export function HeroSection() {
                         muted
                         playsInline
                         loop
-                        className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_rgba(0,240,255,0.1)]"
+                        className="w-full h-auto rounded-xl border border-neutral-200 shadow-[0_0_40px_rgba(0,240,255,0.1)]"
                       />
                       <button
                         onClick={toggleMute}
@@ -149,9 +149,9 @@ export function HeroSection() {
                         title={isMuted ? "Unmute" : "Mute"}
                       >
                         {isMuted ? (
-                          <VolumeX className="h-4 w-4 text-white" />
+                          <VolumeX className="h-4 w-4 text-neutral-900" />
                         ) : (
-                          <Volume2 className="h-4 w-4 text-white" />
+                          <Volume2 className="h-4 w-4 text-neutral-900" />
                         )}
                       </button>
                     </div>
@@ -159,7 +159,7 @@ export function HeroSection() {
                     <img
                       src={workflowShowcase[0].video_url}
                       alt="Workflow showcase"
-                      className="w-full h-auto rounded-xl border border-[#1f2229] shadow-[0_0_40px_var(--brand-primary-soft)]"
+                      className="w-full h-auto rounded-xl border border-neutral-200 shadow-[0_0_40px_var(--brand-primary-soft)]"
                     />
                   )}
                   <div className="absolute -top-4 -right-4 w-20 h-20 bg-[var(--brand-primary)]/20 rounded-full blur-2xl" />

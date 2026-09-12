@@ -2,11 +2,11 @@ import { SignUp } from '@clerk/nextjs'
 
 export default function SignUpPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#111317] px-4">
+    <main className="flex min-h-screen items-center justify-center bg-[#c0c4c9] px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#00f0ff]">Student Portal</p>
-          <h1 className="mt-2 font-heading text-2xl font-bold uppercase text-white">Create Account</h1>
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#10b981]">Student Portal</p>
+          <h1 className="mt-2 font-heading text-2xl font-bold uppercase text-neutral-900">Create Account</h1>
           <p className="mt-2 font-mono text-sm text-[#b9cacb]">Join AutoLearn Spot to access your curriculum</p>
         </div>
         <SignUp
@@ -22,17 +22,17 @@ export default function SignUpPage() {
               fontFamily: 'monospace',
             },
             elements: {
-              card: 'bg-[#1a1d24] border border-[#3b494b] shadow-none rounded-none',
-              headerTitle: 'text-white font-mono',
+              card: 'bg-[#c0c4c9] border border-[#3b494b] shadow-none rounded-none',
+              headerTitle: 'text-neutral-900 font-mono',
               headerSubtitle: 'text-[#b9cacb] font-mono text-xs',
-              formButtonPrimary: 'bg-[#00f0ff] text-black font-mono font-bold uppercase hover:bg-[#00d4e0] rounded-none',
-              formFieldInput: 'bg-[#111317] border border-[#3b494b] text-white font-mono rounded-none focus:border-[#00f0ff]',
+              formButtonPrimary: 'bg-[#10b981] text-black font-mono font-bold uppercase hover:bg-[#00d4e0] rounded-none',
+              formFieldInput: 'bg-[#c0c4c9] border border-[#3b494b] text-neutral-900 font-mono rounded-none focus:border-[#10b981]',
               formFieldLabel: 'text-[#b9cacb] font-mono text-xs uppercase',
-              footerActionLink: 'text-[#00f0ff] font-mono hover:text-[#00d4e0]',
+              footerActionLink: 'text-[#10b981] font-mono hover:text-[#00d4e0]',
               identityPreviewText: 'text-[#e2e8e2]',
               dividerLine: 'bg-[#3b494b]',
               dividerText: 'text-[#5d5f63] font-mono text-xs',
-              socialButtonsBlockButton: 'border border-[#3b494b] bg-[#111317] text-white font-mono hover:bg-[#1a1d24] rounded-none',
+              socialButtonsBlockButton: 'border border-[#3b494b] bg-[#c0c4c9] text-neutral-900 font-mono hover:bg-[#c0c4c9] rounded-none',
               socialButtonsBlockButtonText: 'text-[#e2e8e2] font-mono text-xs',
             },
           }}

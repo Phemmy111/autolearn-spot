@@ -100,7 +100,7 @@ export default function AdminAuthorsPage() {
               Manage creators, review applications, monitor performance, and manage author activity across the marketplace.
             </p>
           </div>
-          <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
+          <button className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-neutral-900 font-bold text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">
             <Plus className="h-4 w-4" /> Add Author
           </button>
         </div>

@@ -68,7 +68,7 @@ export default function DashboardPage() {
               </p>
               <a
                 href={`/dashboard/video/${nextLesson.id}`}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-white text-sm font-medium rounded hover:bg-sky-700 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 text-neutral-900 text-sm font-medium rounded hover:bg-sky-700 transition-colors"
               >
                 <PlayCircle className="h-4 w-4" />
                 Watch Now
@@ -119,7 +119,7 @@ export default function DashboardPage() {
                         ) : (
                           <Lock className="h-10 w-10 text-neutral-400" />
                         )}
-                        <div className="absolute top-2 right-2 rounded bg-black/50 px-2 py-1 text-xs text-white backdrop-blur">
+                        <div className="absolute top-2 right-2 rounded bg-black/50 px-2 py-1 text-xs text-neutral-900 backdrop-blur">
                           {video.duration}
                         </div>
                       </div>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                           <div className="mt-auto flex items-center justify-between">
                             <a
                               href={`/dashboard/video/${video.id}`}
-                              className="inline-flex items-center justify-center border border-sky-600 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-600 rounded hover:bg-sky-600 hover:text-white transition-colors"
+                              className="inline-flex items-center justify-center border border-sky-600 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-600 rounded hover:bg-sky-600 hover:text-neutral-900 transition-colors"
                             >
                               Watch Session
                             </a>

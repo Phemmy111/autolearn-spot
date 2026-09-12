@@ -177,25 +177,25 @@ export default function AdminTestimonialsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#00f0ff] animate-spin" />
+      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[#d1d5db]">
       {/* Header */}
-      <div className="border-b border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/content" className="text-[#b9cacb] hover:text-white transition-colors">
+              <Link href="/admin/content" className="text-neutral-600 hover:text-neutral-900 transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-white">Testimonials</h1>
-                <p className="text-sm text-[#b9cacb]">Manage student testimonials (WhatsApp screenshots)</p>
+                <h1 className="text-xl font-bold text-neutral-900">Testimonials</h1>
+                <p className="text-sm text-neutral-600">Manage student testimonials (WhatsApp screenshots)</p>
               </div>
             </div>
             <button
@@ -220,7 +220,7 @@ export default function AdminTestimonialsPage() {
                 });
                 setShowModal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Testimonial
@@ -248,18 +248,18 @@ export default function AdminTestimonialsPage() {
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <div key={item.id} className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+            <div key={item.id} className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   {item.profile_image_url ? (
                     <img
                       src={item.profile_image_url}
                       alt={item.student_name || 'Student'}
-                      className="w-10 h-10 rounded-full object-cover border border-[#1f2229]"
+                      className="w-10 h-10 rounded-full object-cover border border-neutral-200"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-[#1f2229] flex items-center justify-center">
-                      <MessageSquare className="h-5 w-5 text-[#b9cacb]" />
+                    <div className="w-10 h-10 rounded-full bg-[#d1d5db] flex items-center justify-center">
+                      <MessageSquare className="h-5 w-5 text-neutral-600" />
                     </div>
                   )}
                   <div className="flex items-center gap-2">
@@ -278,16 +278,16 @@ export default function AdminTestimonialsPage() {
                 </span>
               </div>
               {item.student_name && (
-                <h3 className="text-lg font-semibold text-white mb-1">{item.student_name}</h3>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-1">{item.student_name}</h3>
               )}
               {(item.cohort || item.course) && (
-                <p className="text-xs text-[#b9cacb] mb-2">
+                <p className="text-xs text-neutral-600 mb-2">
                   {item.cohort && `${item.cohort} `}
                   {item.course && `• ${item.course}`}
                 </p>
               )}
               {item.caption && (
-                <p className="text-sm text-[#b9cacb] mb-4 line-clamp-2">{item.caption}</p>
+                <p className="text-sm text-neutral-600 mb-4 line-clamp-2">{item.caption}</p>
               )}
               {(item.screenshot_url || item.media_url) && (
                 <div className="mb-4">
@@ -309,7 +309,7 @@ export default function AdminTestimonialsPage() {
               )}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#5d5f63]">Order: {item.display_order}</span>
+                  <span className="text-xs text-neutral-500">Order: {item.display_order}</span>
                   <span className={`text-xs px-2 py-1 rounded-full ${item.media_type === 'video' ? 'bg-purple-500/10 text-purple-400' : 'bg-blue-500/10 text-blue-400'}`}>
                     {item.media_type === 'video' ? 'Video' : 'Image'}
                   </span>
@@ -317,13 +317,13 @@ export default function AdminTestimonialsPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="p-2 hover:bg-[#00f0ff]/10 rounded-lg transition-colors text-[#b9cacb] hover:text-[#00f0ff]"
+                    className="p-2 hover:bg-[#10b981]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-[#b9cacb] hover:text-red-400"
+                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-neutral-600 hover:text-red-400"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -334,8 +334,8 @@ export default function AdminTestimonialsPage() {
         </div>
 
         {items.length === 0 && (
-          <div className="text-center py-12 text-[#b9cacb]">
-            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-[#5d5f63]" />
+          <div className="text-center py-12 text-neutral-600">
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-neutral-500" />
             <p>No testimonials yet</p>
             <p className="text-sm mt-2">Click "Add Testimonial" to add your first student testimonial</p>
           </div>
@@ -345,14 +345,14 @@ export default function AdminTestimonialsPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-[#0c0e12] border border-[#1f2229] rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-[#1f2229] flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">
+          <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-neutral-900">
                 {editingItem ? 'Edit Testimonial' : 'Add Testimonial'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-[#b9cacb] hover:text-white"
+                className="p-2 hover:bg-[#070B12] rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -360,36 +360,36 @@ export default function AdminTestimonialsPage() {
 
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Student Name (Optional)</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Student Name (Optional)</label>
                 <input
                   type="text"
                   value={formData.studentName}
                   onChange={(e) => setFormData({ ...formData, studentName: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Cohort (Optional)</label>
+                  <label className="block text-sm font-medium text-neutral-600 mb-2">Cohort (Optional)</label>
                   <input
                     type="text"
                     value={formData.cohort}
                     onChange={(e) => setFormData({ ...formData, cohort: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Course (Optional)</label>
+                  <label className="block text-sm font-medium text-neutral-600 mb-2">Course (Optional)</label>
                   <input
                     type="text"
                     value={formData.course}
                     onChange={(e) => setFormData({ ...formData, course: e.target.value })}
-                    className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                    className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Media Type</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Media Type</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -398,9 +398,9 @@ export default function AdminTestimonialsPage() {
                       value="image"
                       checked={formData.mediaType === 'image'}
                       onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
-                      className="w-4 h-4 border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                      className="w-4 h-4 border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
                     />
-                    <span className="text-sm text-[#b9cacb]">Image</span>
+                    <span className="text-sm text-neutral-600">Image</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -409,20 +409,20 @@ export default function AdminTestimonialsPage() {
                       value="video"
                       checked={formData.mediaType === 'video'}
                       onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
-                      className="w-4 h-4 border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                      className="w-4 h-4 border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
                     />
-                    <span className="text-sm text-[#b9cacb]">Video</span>
+                    <span className="text-sm text-neutral-600">Video</span>
                   </label>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">
+                <label className="block text-sm font-medium text-neutral-600 mb-2">
                   {formData.mediaType === 'image' ? 'Image/Screenshot *' : 'Video *'}
                 </label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
-                    <Upload className="h-4 w-4 text-[#b9cacb]" />
-                    <span className="text-sm text-[#b9cacb]">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <Upload className="h-4 w-4 text-neutral-600" />
+                    <span className="text-sm text-neutral-600">
                       {formData.mediaFile 
                         ? formData.mediaFile.name 
                         : formData.mediaType === 'image' 
@@ -442,8 +442,8 @@ export default function AdminTestimonialsPage() {
                     />
                   </label>
                   {formData.mediaFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
-                      <span className="text-xs text-[#b9cacb] truncate">{formData.mediaFile.name}</span>
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                      <span className="text-xs text-neutral-600 truncate">{formData.mediaFile.name}</span>
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, mediaFile: null, mediaUrl: '' })}
@@ -454,7 +454,7 @@ export default function AdminTestimonialsPage() {
                     </div>
                   )}
                   {formData.mediaUrl && !formData.mediaFile && (
-                    <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                    <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
                       {formData.mediaType === 'image' ? (
                         <img src={formData.mediaUrl} alt="Preview" className="w-full h-24 object-cover rounded mb-2" />
                       ) : (
@@ -473,11 +473,11 @@ export default function AdminTestimonialsPage() {
               </div>
               {formData.mediaType === 'video' && (
                 <div>
-                  <label className="block text-sm font-medium text-[#b9cacb] mb-2">Thumbnail/Poster (Optional)</label>
+                  <label className="block text-sm font-medium text-neutral-600 mb-2">Thumbnail/Poster (Optional)</label>
                   <div className="space-y-3">
-                    <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
-                      <Upload className="h-4 w-4 text-[#b9cacb]" />
-                      <span className="text-sm text-[#b9cacb]">
+                    <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                      <Upload className="h-4 w-4 text-neutral-600" />
+                      <span className="text-sm text-neutral-600">
                         {formData.thumbnailFile ? formData.thumbnailFile.name : 'Upload Thumbnail (PNG/JPG)'}
                       </span>
                       <input
@@ -493,8 +493,8 @@ export default function AdminTestimonialsPage() {
                       />
                     </label>
                     {formData.thumbnailFile && (
-                      <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
-                        <span className="text-xs text-[#b9cacb] truncate">{formData.thumbnailFile.name}</span>
+                      <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                        <span className="text-xs text-neutral-600 truncate">{formData.thumbnailFile.name}</span>
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, thumbnailFile: null, thumbnailUrl: '' })}
@@ -505,7 +505,7 @@ export default function AdminTestimonialsPage() {
                       </div>
                     )}
                     {formData.thumbnailUrl && !formData.thumbnailFile && (
-                      <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                      <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
                         <img src={formData.thumbnailUrl} alt="Thumbnail" className="w-full h-24 object-cover rounded mb-2" />
                         <button
                           type="button"
@@ -520,11 +520,11 @@ export default function AdminTestimonialsPage() {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Profile Picture (Optional)</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Profile Picture (Optional)</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
-                    <Upload className="h-4 w-4 text-[#b9cacb]" />
-                    <span className="text-sm text-[#b9cacb]">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <Upload className="h-4 w-4 text-neutral-600" />
+                    <span className="text-sm text-neutral-600">
                       {formData.profileImageFile ? formData.profileImageFile.name : 'Upload Profile Picture (PNG/JPG/WebP)'}
                     </span>
                     <input
@@ -540,8 +540,8 @@ export default function AdminTestimonialsPage() {
                     />
                   </label>
                   {formData.profileImageFile && (
-                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-[#1f2229] rounded">
-                      <span className="text-xs text-[#b9cacb] truncate">{formData.profileImageFile.name}</span>
+                    <div className="flex items-center justify-between p-2 bg-[#070B12] border border-neutral-200 rounded">
+                      <span className="text-xs text-neutral-600 truncate">{formData.profileImageFile.name}</span>
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, profileImageFile: null, profileImageUrl: '' })}
@@ -552,7 +552,7 @@ export default function AdminTestimonialsPage() {
                     </div>
                   )}
                   {formData.profileImageUrl && !formData.profileImageFile && (
-                    <div className="p-2 bg-[#070B12] border border-[#1f2229] rounded">
+                    <div className="p-2 bg-[#070B12] border border-neutral-200 rounded">
                       <img src={formData.profileImageUrl} alt="Profile" className="w-16 h-16 object-cover rounded-full mb-2" />
                       <button
                         type="button"
@@ -566,7 +566,7 @@ export default function AdminTestimonialsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Social Profile URL (Optional)</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Social Profile URL (Optional)</label>
                 <input
                   type="url"
                   value={formData.socialProfileUrl}
@@ -578,26 +578,26 @@ export default function AdminTestimonialsPage() {
                     }
                   }}
                   placeholder="https://linkedin.com/in/username"
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
-                <p className="text-xs text-[#5d5f63] mt-1">Must start with http:// or https://</p>
+                <p className="text-xs text-neutral-500 mt-1">Must start with http:// or https://</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Caption (Optional)</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Caption (Optional)</label>
                 <textarea
                   value={formData.caption}
                   onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff] resize-none"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Display Order</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Display Order</label>
                 <input
                   type="number"
                   value={formData.displayOrder}
                   onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="flex items-center gap-4">
@@ -606,25 +606,25 @@ export default function AdminTestimonialsPage() {
                     type="checkbox"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 rounded border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
                   />
-                  <span className="text-sm text-[#b9cacb]">Featured</span>
+                  <span className="text-sm text-neutral-600">Featured</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 rounded border-[#1f2229] bg-[#070B12] text-[#00f0ff] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-[#070B12] text-[#10b981] focus:ring-[#00f0ff]"
                   />
-                  <span className="text-sm text-[#b9cacb]">Enabled</span>
+                  <span className="text-sm text-neutral-600">Enabled</span>
                 </label>
               </div>
-              <div className="flex gap-3 pt-4 border-t border-[#1f2229]">
+              <div className="flex gap-3 pt-4 border-t border-neutral-200">
                 <button
                   type="submit"
                   disabled={isUploading}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUploading ? (
                     <>
@@ -640,7 +640,7 @@ export default function AdminTestimonialsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 bg-[#070B12] text-white border border-[#1f2229] rounded-lg font-medium hover:bg-[#0c0e12] transition-colors"
+                  className="flex-1 px-4 py-3 bg-[#070B12] text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
                 >
                   Cancel
                 </button>

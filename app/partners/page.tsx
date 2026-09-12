@@ -138,7 +138,7 @@ function HeroSection() {
           </div>
 
           <div className="relative order-2 md:order-2 mt-8 md:mt-0">
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
+            <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
               <div className="absolute inset-0 bg-[#00F5FF]/5 rounded-2xl blur-xl" />
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -151,25 +151,25 @@ function HeroSection() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
-                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-neutral-200 bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Available Balance</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#00F5FF]">₦24,500</div>
                   </div>
-                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-neutral-200 bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Pending Earnings</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">₦7,500</div>
                   </div>
-                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-neutral-200 bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Total Referrals</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">127</div>
                   </div>
-                  <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
+                  <div className="border border-neutral-200 bg-[#070B12]/50 rounded-lg p-2 sm:p-3">
                     <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-1">Successful Enrollments</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">89</div>
                   </div>
                 </div>
 
-                <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-lg p-2 sm:p-3 lg:p-4">
+                <div className="border border-neutral-200 bg-[#070B12]/50 rounded-lg p-2 sm:p-3 lg:p-4">
                   <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb] mb-2">Monthly Earnings</div>
                   <div className="h-16 sm:h-20 lg:h-24 flex items-end gap-1">
                     {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
@@ -194,7 +194,7 @@ function HeroSection() {
 
 function TrustSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#c0c4c9]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
@@ -224,7 +224,7 @@ function TrustSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#c0c4c9]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
@@ -233,7 +233,7 @@ function HowItWorksSection() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {HOW_IT_WORKS.map((item, index) => (
-            <div key={index} className="border border-[#1f2229] bg-[#070B12]/50 rounded-xl p-4 sm:p-5 lg:p-6">
+            <div key={index} className="border border-neutral-200 bg-[#070B12]/50 rounded-xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-base sm:text-lg font-bold text-[#00F5FF]">
                   {item.step}
@@ -260,7 +260,7 @@ function TestimonialsSection() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {PARTNER_TESTIMONIALS.map((testimonial, index) => (
-            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
+            <div key={index} className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden flex-shrink-0">
                   <Image
@@ -292,14 +292,14 @@ function TestimonialsSection() {
 
 function ActivityFeedSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#c0c4c9]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
           <p className="text-sm sm:text-base text-[#b9cacb]">Real-time partner activity</p>
         </div>
         
-        <div className="border border-[#1f2229] bg-[#070B12]/50 rounded-2xl p-4 sm:p-5 lg:p-6">
+        <div className="border border-neutral-200 bg-[#070B12]/50 rounded-2xl p-4 sm:p-5 lg:p-6">
           <div className="space-y-2 sm:space-y-3 lg:space-y-4">
             {ACTIVITY_FEED.map((activity, index) => (
               <div key={index} className="flex items-center gap-3 text-sm text-[#b9cacb]">
@@ -323,9 +323,9 @@ function LeaderboardSection() {
           <p className="text-sm sm:text-base text-[#b9cacb]">Leaderboard of this month</p>
         </div>
         
-        <div className="border border-[#1f2229] bg-[#0c0e12]/50 rounded-2xl overflow-hidden">
+        <div className="border border-neutral-200 bg-[#c0c4c9]/50 rounded-2xl overflow-hidden">
           {LEADERBOARD.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 sm:p-4 lg:p-5 border-b border-[#1f2229] last:border-b-0">
+            <div key={index} className="flex items-center justify-between p-3 sm:p-4 lg:p-5 border-b border-neutral-200 last:border-b-0">
               <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
                 <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-[#00F5FF]/30 bg-[#00F5FF]/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-[#00F5FF]">
                   {item.rank}
@@ -369,7 +369,7 @@ function FAQSection() {
   ];
   
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[#0c0e12]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[#c0c4c9]">
       <div className="max-w-3xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
@@ -380,7 +380,7 @@ function FAQSection() {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-[#1f2229] bg-[#070B12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
+              className="border border-neutral-200 bg-[#070B12]/80 backdrop-blur-xl rounded-xl overflow-hidden"
             >
               <button
                 className="w-full px-4 sm:px-5 lg:px-6 py-3 sm:py-4 text-left flex items-center justify-between"
@@ -404,7 +404,7 @@ function FAQSection() {
 
 function PartnersFooter() {
   return (
-    <footer className="border-t border-[#1f2229] bg-[#070B12] py-6 sm:py-8 lg:py-12">
+    <footer className="border-t border-neutral-200 bg-[#070B12] py-6 sm:py-8 lg:py-12">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
@@ -511,7 +511,7 @@ function PartnersFooter() {
           </div>
         </div>
         
-        <div className="border-t border-[#1f2229] pt-8 text-center">
+        <div className="border-t border-neutral-200 pt-8 text-center">
           <p className="text-sm text-[#b9cacb]">
             © 2026 AutoLearn Spot. All Rights Reserved.
           </p>

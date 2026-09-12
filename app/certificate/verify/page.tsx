@@ -22,27 +22,27 @@ function CertificateVerifyContent() {
 
   return (
     <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center p-4">
-      <div className="border border-[#1f2229] bg-[#0c0e12] p-8 max-w-lg w-full">
+      <div className="border border-neutral-200 bg-[#c0c4c9] p-8 max-w-lg w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/50 mb-4">
             <CheckCircle className="h-8 w-8 text-emerald-400" />
           </div>
-          <h1 className="font-heading text-2xl font-bold text-white mb-2">Certificate Verified</h1>
+          <h1 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Certificate Verified</h1>
           <p className="font-mono text-xs text-[#b9cacb] uppercase tracking-wider">
             Autolearn Spot • Powered by Moon Space Network
           </p>
         </div>
 
         {/* Certificate Details */}
-        <div className="border border-[#1f2229] bg-[#111317] p-6 space-y-4 mb-6">
+        <div className="border border-neutral-200 bg-[#c0c4c9] p-6 space-y-4 mb-6">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Recipient</p>
-            <p className="text-lg text-white font-semibold">{decodeURIComponent(name)}</p>
+            <p className="text-lg text-neutral-900 font-semibold">{decodeURIComponent(name)}</p>
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Course</p>
-            <p className="text-[#00f0ff] font-semibold">n8n Automation</p>
+            <p className="text-[#10b981] font-semibold">n8n Automation</p>
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Completion Date</p>
@@ -66,7 +66,7 @@ function CertificateVerifyContent() {
         <div className="text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 font-mono text-xs text-[#00f0ff] hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 font-mono text-xs text-[#10b981] hover:text-neutral-900 transition-colors"
           >
             <ExternalLink className="h-3 w-3" />
             Visit Autolearn Spot

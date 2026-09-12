@@ -39,7 +39,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
           <div className="p-6">
             <Link href="/" className="flex items-center gap-2 mb-8">
               <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
+                <BookOpen className="w-5 h-5 text-neutral-900" />
               </div>
               <span className="font-heading text-lg font-bold text-neutral-900">
                 AutoLearn Spot
@@ -96,7 +96,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
           </button>
           <Link href="/" className="flex items-center gap-2">
             <div className="w-6 h-6 bg-sky-600 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-white" />
+              <BookOpen className="w-4 h-4 text-neutral-900" />
             </div>
             <span className="font-heading text-base font-bold text-neutral-900">
               AutoLearn Spot

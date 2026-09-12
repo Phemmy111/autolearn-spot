@@ -154,10 +154,10 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
               >
                 {isOpen && (
                   <>
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[#00f0ff]" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[#10b981]" />
                     <button
                       aria-label="Close"
-                      className="absolute -right-3 -top-3 z-[110] flex h-8 w-8 items-center justify-center rounded-full border border-[#00f0ff]/50 bg-[#0c0e12] text-[#00f0ff] transition hover:border-[#00f0ff] hover:bg-[#00f0ff] hover:text-black sm:-right-4 sm:-top-4 sm:h-10 sm:w-10"
+                      className="absolute -right-3 -top-3 z-[110] flex h-8 w-8 items-center justify-center rounded-full border border-[#10b981]/50 bg-[#c0c4c9] text-[#10b981] transition hover:border-[#10b981] hover:bg-[#10b981] hover:text-black sm:-right-4 sm:-top-4 sm:h-10 sm:w-10"
                       onClick={handleClose}
                       type="button"
                     >
@@ -166,7 +166,7 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
                   </>
                 )}
 
-                <div className={isOpen ? 'relative aspect-video w-full bg-[#111317]' : ''}>
+                <div className={isOpen ? 'relative aspect-video w-full bg-[#c0c4c9]' : ''}>
                   {/* THE single iframe — ref never changes */}
                   <iframe
                     ref={iframeRef}
@@ -191,10 +191,10 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
                   {/* Lock overlay after 90 seconds */}
                   {isOpen && isLocked && (
                     <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#050505]/90 backdrop-blur-md animate-in fade-in duration-500">
-                      <Lock className="mb-4 h-12 w-12 text-[#00f0ff] opacity-80" />
+                      <Lock className="mb-4 h-12 w-12 text-[#10b981] opacity-80" />
                       <h3
                         id={modalTitleId}
-                        className="mb-2 font-heading text-2xl font-bold uppercase text-white"
+                        className="mb-2 font-heading text-2xl font-bold uppercase text-neutral-900"
                       >
                         Preview Complete
                       </h3>
@@ -202,7 +202,7 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
                         You&apos;ve reached the end of the preview. Enroll now to unlock the full
                         course, live deployments, and get certified.
                       </p>
-                      <EnrollModal className="corner-accent relative inline-flex h-12 w-full max-w-xs items-center justify-center border border-[#00f0ff] bg-[#00f0ff] px-8 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff]">
+                      <EnrollModal className="corner-accent relative inline-flex h-12 w-full max-w-xs items-center justify-center border border-[#10b981] bg-[#10b981] px-8 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-[#dbfcff]">
                         Enroll Now to Unlock
                       </EnrollModal>
                     </div>

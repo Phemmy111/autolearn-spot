@@ -151,25 +151,25 @@ export default function AdminLandingSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#00f0ff] animate-spin" />
+      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[#d1d5db]">
       {/* Header */}
-      <div className="border-b border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/settings" className="text-[#b9cacb] hover:text-white transition-colors">
+              <Link href="/admin/settings" className="text-neutral-600 hover:text-neutral-900 transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-white">Landing Page Settings</h1>
-                <p className="text-sm text-[#b9cacb]">Configure hero section and landing page content</p>
+                <h1 className="text-xl font-bold text-neutral-900">Landing Page Settings</h1>
+                <p className="text-sm text-neutral-600">Configure hero section and landing page content</p>
               </div>
             </div>
           </div>
@@ -194,101 +194,101 @@ export default function AdminLandingSettingsPage() {
           )}
 
           {/* Hero Content */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Layout className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Hero Content</h2>
+              <Layout className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Hero Content</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Headline</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Headline</label>
                 <input
                   type="text"
                   value={settings.headline}
                   onChange={(e) => setSettings({ ...settings, headline: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Subheadline</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Subheadline</label>
                 <textarea
                   value={settings.subheadline}
                   onChange={(e) => setSettings({ ...settings, subheadline: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff] resize-none"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Badge Text</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Badge Text</label>
                 <input
                   type="text"
                   value={settings.badge}
                   onChange={(e) => setSettings({ ...settings, badge: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* CTA Buttons */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Layout className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Call-to-Action Buttons</h2>
+              <Layout className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Call-to-Action Buttons</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Primary CTA Text</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Primary CTA Text</label>
                 <input
                   type="text"
                   value={settings.primaryCtaText}
                   onChange={(e) => setSettings({ ...settings, primaryCtaText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Primary CTA Link</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Primary CTA Link</label>
                 <input
                   type="text"
                   value={settings.primaryCtaLink}
                   onChange={(e) => setSettings({ ...settings, primaryCtaLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Secondary CTA Text</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Secondary CTA Text</label>
                 <input
                   type="text"
                   value={settings.secondaryCtaText}
                   onChange={(e) => setSettings({ ...settings, secondaryCtaText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Secondary CTA Link</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Secondary CTA Link</label>
                 <input
                   type="text"
                   value={settings.secondaryCtaLink}
                   onChange={(e) => setSettings({ ...settings, secondaryCtaLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Hero Media */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <PanelsTopLeft className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Hero Media</h2>
+              <PanelsTopLeft className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Hero Media</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Media Type</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Media Type</label>
                 <select
                   value={settings.mediaType}
                   onChange={(e) => setSettings({ ...settings, mediaType: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 >
                   <option value="workflow_panel">N8n Workflow Panel</option>
                   <option value="video">Video</option>
@@ -298,22 +298,22 @@ export default function AdminLandingSettingsPage() {
               {settings.mediaType === 'video' && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Video URL</label>
+                    <label className="block text-sm font-medium text-neutral-600 mb-2">Video URL</label>
                     <input
                       type="url"
                       value={settings.videoUrl}
                       onChange={(e) => setSettings({ ...settings, videoUrl: e.target.value })}
-                      className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                       placeholder="https://..."
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Or Upload Video</label>
-                    <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
-                      <Video className="h-5 w-5 text-[#00f0ff]" />
+                    <label className="block text-sm font-medium text-neutral-600 mb-2">Or Upload Video</label>
+                    <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                      <Video className="h-5 w-5 text-[#10b981]" />
                       <div className="flex-1">
-                        <p className="text-sm text-white">{videoFile ? videoFile.name : 'Choose video file...'}</p>
-                        <p className="text-xs text-[#b9cacb]">MP4, WebM, MOV (max 50MB)</p>
+                        <p className="text-sm text-neutral-900">{videoFile ? videoFile.name : 'Choose video file...'}</p>
+                        <p className="text-xs text-neutral-600">MP4, WebM, MOV (max 50MB)</p>
                       </div>
                       <input
                         type="file"
@@ -329,22 +329,22 @@ export default function AdminLandingSettingsPage() {
               {settings.mediaType === 'image' && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Image URL</label>
+                    <label className="block text-sm font-medium text-neutral-600 mb-2">Image URL</label>
                     <input
                       type="url"
                       value={settings.imageUrl}
                       onChange={(e) => setSettings({ ...settings, imageUrl: e.target.value })}
-                      className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                      className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                       placeholder="https://..."
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#b9cacb] mb-2">Or Upload Image</label>
-                    <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
-                      <Image className="h-5 w-5 text-[#00f0ff]" />
+                    <label className="block text-sm font-medium text-neutral-600 mb-2">Or Upload Image</label>
+                    <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                      <Image className="h-5 w-5 text-[#10b981]" />
                       <div className="flex-1">
-                        <p className="text-sm text-white">{imageFile ? imageFile.name : 'Choose image file...'}</p>
-                        <p className="text-xs text-[#b9cacb]">PNG, JPG, WebP (max 5MB)</p>
+                        <p className="text-sm text-neutral-900">{imageFile ? imageFile.name : 'Choose image file...'}</p>
+                        <p className="text-xs text-neutral-600">PNG, JPG, WebP (max 5MB)</p>
                       </div>
                       <input
                         type="file"
@@ -361,30 +361,30 @@ export default function AdminLandingSettingsPage() {
           </div>
 
           {/* Preview Video for Watch Preview Button */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Video className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Preview Video</h2>
+              <Video className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Preview Video</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Preview Video URL</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Preview Video URL</label>
                 <input
                   type="url"
                   value={settings.previewVideoUrl}
                   onChange={(e) => setSettings({ ...settings, previewVideoUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
-                <p className="text-xs text-[#b9cacb] mt-1">This video will play when users click "Watch Preview" on the landing page</p>
+                <p className="text-xs text-neutral-600 mt-1">This video will play when users click "Watch Preview" on the landing page</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Or Upload Preview Video</label>
-                <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-[#1f2229] rounded-lg cursor-pointer hover:border-[#00f0ff] transition-colors">
-                  <Video className="h-5 w-5 text-[#00f0ff]" />
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Or Upload Preview Video</label>
+                <label className="flex items-center gap-3 p-4 bg-[#070B12] border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <Video className="h-5 w-5 text-[#10b981]" />
                   <div className="flex-1">
-                    <p className="text-sm text-white">{previewVideoFile ? previewVideoFile.name : 'Choose preview video file...'}</p>
-                    <p className="text-xs text-[#b9cacb]">MP4, WebM, MOV (max 50MB)</p>
+                    <p className="text-sm text-neutral-900">{previewVideoFile ? previewVideoFile.name : 'Choose preview video file...'}</p>
+                    <p className="text-xs text-neutral-600">MP4, WebM, MOV (max 50MB)</p>
                   </div>
                   <input
                     type="file"
@@ -403,7 +403,7 @@ export default function AdminLandingSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

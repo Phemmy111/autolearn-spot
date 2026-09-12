@@ -51,8 +51,8 @@ function getActiveProvider(lesson: LessonManifest, v2: boolean): { provider: str
 
 function StatusBadge({ status, label }: { status: ValidationStatus; label?: string }) {
   const map = {
-    idle: { icon: <AlertCircle className="h-4 w-4 text-[#b9cacb]" />, text: label ?? 'Pending', color: 'text-[#b9cacb]' },
-    checking: { icon: <Loader2 className="h-4 w-4 animate-spin text-[#00f0ff]" />, text: 'Checking…', color: 'text-[#00f0ff]' },
+    idle: { icon: <AlertCircle className="h-4 w-4 text-neutral-600" />, text: label ?? 'Pending', color: 'text-neutral-600' },
+    checking: { icon: <Loader2 className="h-4 w-4 animate-spin text-[#10b981]" />, text: 'Checking…', color: 'text-[#10b981]' },
     ok: { icon: <CheckCircle2 className="h-4 w-4 text-emerald-400" />, text: label ?? 'OK', color: 'text-emerald-400' },
     fallback: { icon: <AlertCircle className="h-4 w-4 text-amber-400" />, text: 'Fallback', color: 'text-amber-400' },
     error: { icon: <XCircle className="h-4 w-4 text-red-400" />, text: 'Error', color: 'text-red-400' },
@@ -70,7 +70,7 @@ function ProviderBadge({ provider }: { provider: string }) {
     youtube: 'bg-red-500/20 text-red-300 border-red-500/30',
     vimeo: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     vdocipher: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-    none: 'bg-[#1f2229] text-[#b9cacb] border-[#3b494b]',
+    none: 'bg-[#d1d5db] text-neutral-600 border-[#3b494b]',
   }
   const cls = colors[provider] ?? colors.none
   return (
@@ -158,13 +158,13 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
   return (
     <div className="space-y-6">
       {/* Engine Toggle Card */}
-      <div className="flex flex-col gap-4 border border-[#1f2229] bg-[#0c0e12] p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 border border-neutral-200 bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="font-mono text-xs uppercase tracking-widest text-[#b9cacb]">Video Engine</p>
-          <p className="mt-1 text-lg font-bold text-white">
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-600">Video Engine</p>
+          <p className="mt-1 text-lg font-bold text-neutral-900">
             {v2Enabled ? '🎬 V2 — YouTube Iframe API' : '📼 V1 — Legacy (Vimeo / VdoCipher)'}
           </p>
-          <p className="mt-1 font-mono text-xs text-[#b9cacb]">
+          <p className="mt-1 font-mono text-xs text-neutral-600">
             Toggle persists in localStorage. Affects this browser tab only. No redeployment required.
           </p>
         </div>
@@ -173,8 +173,8 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
             onClick={handleToggle}
             className={`flex items-center gap-2 border px-5 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider transition-all ${
               v2Enabled
-                ? 'border-[#00f0ff] bg-[#00f0ff]/10 text-[#00f0ff] hover:bg-[#00f0ff]/20'
-                : 'border-[#3b494b] bg-[#111317] text-[#b9cacb] hover:border-[#00f0ff] hover:text-[#00f0ff]'
+                ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981] hover:bg-[#10b981]/20'
+                : 'border-[#3b494b] bg-neutral-50 text-neutral-600 hover:border-[#10b981] hover:text-[#10b981]'
             }`}
           >
             {v2Enabled ? (
@@ -187,7 +187,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
           <button
             onClick={runValidation}
             disabled={validating}
-            className="flex items-center gap-2 border border-[#3b494b] bg-[#111317] px-5 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider text-[#e2e2e8] transition-all hover:border-[#00f0ff] disabled:opacity-50"
+            className="flex items-center gap-2 border border-[#3b494b] bg-neutral-50 px-5 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider text-[#e2e2e8] transition-all hover:border-[#10b981] disabled:opacity-50"
           >
             {validating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
             Validate All
@@ -205,17 +205,17 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
       )}
 
       {/* Lesson Table */}
-      <div className="overflow-x-auto border border-[#1f2229]">
+      <div className="overflow-x-auto border border-neutral-200">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[#1f2229] bg-[#0c0e12]">
-              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-[#b9cacb]">Lesson</th>
-              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-[#b9cacb]">Provider</th>
-              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-[#b9cacb]">Video ID</th>
-              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-[#b9cacb]">Thumbnail</th>
-              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-[#b9cacb]">Playback</th>
-              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-[#b9cacb]">Notes</th>
-              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-[#b9cacb]">Preview</th>
+            <tr className="border-b border-neutral-200 bg-white">
+              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Lesson</th>
+              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Provider</th>
+              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Video ID</th>
+              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Thumbnail</th>
+              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Playback</th>
+              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Notes</th>
+              <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Preview</th>
             </tr>
           </thead>
           <tbody>
@@ -227,20 +227,20 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
               return (
                 <tr
                   key={lesson.id}
-                  className={`border-b border-[#1f2229] transition-colors hover:bg-[#0c0e12] ${i % 2 === 0 ? 'bg-[#111317]' : 'bg-[#0e1014]'}`}
+                  className={`border-b border-neutral-200 transition-colors hover:bg-white ${i % 2 === 0 ? 'bg-neutral-50' : 'bg-[#0e1014]'}`}
                 >
                   <td className="px-4 py-3">
-                    <div className="font-mono text-xs text-[#b9cacb]">W{lesson.week}</div>
-                    <div className="max-w-[200px] truncate font-mono text-sm font-semibold text-white">
+                    <div className="font-mono text-xs text-neutral-600">W{lesson.week}</div>
+                    <div className="max-w-[200px] truncate font-mono text-sm font-semibold text-neutral-900">
                       {lesson.title}
                     </div>
-                    <div className="font-mono text-[10px] text-[#5d5f63]">{lesson.id}</div>
+                    <div className="font-mono text-[10px] text-neutral-500">{lesson.id}</div>
                   </td>
                   <td className="px-4 py-3">
                     <ProviderBadge provider={val?.activeProvider ?? provider} />
                   </td>
                   <td className="px-4 py-3">
-                    <span className="font-mono text-xs text-[#b9cacb]">
+                    <span className="font-mono text-xs text-neutral-600">
                       {val?.activeVideoId ?? videoId ?? '—'}
                     </span>
                   </td>
@@ -273,7 +273,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
                     <StatusBadge status={val?.playbackStatus ?? 'idle'} />
                   </td>
                   <td className="px-4 py-3">
-                    <span className="font-mono text-xs text-[#b9cacb]">
+                    <span className="font-mono text-xs text-neutral-600">
                       {val?.notes || '—'}
                     </span>
                   </td>
@@ -281,13 +281,13 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
                     {videoId ? (
                       <button
                         onClick={() => setPreviewLesson(lesson)}
-                        className="flex items-center gap-1.5 border border-[#3b494b] px-3 py-1.5 font-mono text-xs font-semibold uppercase text-[#00f0ff] transition-all hover:border-[#00f0ff] hover:bg-[#00f0ff]/10"
+                        className="flex items-center gap-1.5 border border-[#3b494b] px-3 py-1.5 font-mono text-xs font-semibold uppercase text-[#10b981] transition-all hover:border-[#10b981] hover:bg-[#10b981]/10"
                       >
                         <Play className="h-3 w-3" />
                         Test
                       </button>
                     ) : (
-                      <span className="font-mono text-xs text-[#5d5f63]">No video</span>
+                      <span className="font-mono text-xs text-neutral-500">No video</span>
                     )}
                   </td>
                 </tr>
@@ -300,19 +300,19 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
       {/* Playback Preview Modal */}
       {previewLesson && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-3xl border border-[#3b494b] bg-[#0c0e12]">
-            <div className="flex items-center justify-between border-b border-[#1f2229] px-5 py-3">
+          <div className="w-full max-w-3xl border border-[#3b494b] bg-white">
+            <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3">
               <div>
-                <p className="font-mono text-xs uppercase tracking-widest text-[#b9cacb]">
+                <p className="font-mono text-xs uppercase tracking-widest text-neutral-600">
                   Preview — {v2Enabled ? 'YouTube V2' : 'Legacy'}
                 </p>
-                <p className="mt-0.5 font-mono text-sm font-semibold text-white">
+                <p className="mt-0.5 font-mono text-sm font-semibold text-neutral-900">
                   {previewLesson.title}
                 </p>
               </div>
               <button
                 onClick={() => setPreviewLesson(null)}
-                className="rounded border border-[#3b494b] p-1.5 text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                className="rounded border border-[#3b494b] p-1.5 text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -343,22 +343,22 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
                   )
                 }
                 return (
-                  <div className="flex h-full items-center justify-center font-mono text-sm text-[#b9cacb]">
+                  <div className="flex h-full items-center justify-center font-mono text-sm text-neutral-600">
                     Preview not available for {provider} provider.
                   </div>
                 )
               })()}
             </div>
-            <div className="flex items-center justify-between border-t border-[#1f2229] px-5 py-3">
-              <span className="font-mono text-xs text-[#b9cacb]">
-                Provider: <strong className="text-white">{getActiveProvider(previewLesson, v2Enabled).provider}</strong>
-                {' '}• ID: <strong className="text-white">{getActiveProvider(previewLesson, v2Enabled).videoId}</strong>
+            <div className="flex items-center justify-between border-t border-neutral-200 px-5 py-3">
+              <span className="font-mono text-xs text-neutral-600">
+                Provider: <strong className="text-neutral-900">{getActiveProvider(previewLesson, v2Enabled).provider}</strong>
+                {' '}• ID: <strong className="text-neutral-900">{getActiveProvider(previewLesson, v2Enabled).videoId}</strong>
               </span>
               <a
                 href={`/dashboard/video/${previewLesson.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-xs text-[#00f0ff] transition hover:underline"
+                className="font-mono text-xs text-[#10b981] transition hover:underline"
               >
                 Open full lesson page →
               </a>

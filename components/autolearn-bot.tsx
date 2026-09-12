@@ -178,11 +178,11 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
       aria-label="Open Autolearn Bot"
     >
       {/* Tooltip */}
-      <span className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#1a1d24] border border-[#3b494b] text-[#e2e8e2] text-xs font-mono px-3 py-2 rounded-lg shadow-lg whitespace-nowrap mr-2">
+      <span className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#c0c4c9] border border-[#3b494b] text-[#e2e8e2] text-xs font-mono px-3 py-2 rounded-lg shadow-lg whitespace-nowrap mr-2">
         Ask Autolearn Bot 🤖
       </span>
       <span
-        className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-white shadow-[0_4px_20px_rgba(124,58,237,0.4)] transition-all duration-300 hover:scale-110 hover:shadow-[0_6px_28px_rgba(124,58,237,0.55)] ${showPulse ? 'animate-bounce' : ''}`}
+        className={`relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-neutral-900 shadow-[0_4px_20px_rgba(124,58,237,0.4)] transition-all duration-300 hover:scale-110 hover:shadow-[0_6px_28px_rgba(124,58,237,0.55)] ${showPulse ? 'animate-bounce' : ''}`}
       >
         <Bot className="h-7 w-7" />
         {/* Online indicator */}
@@ -212,14 +212,14 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
           />
 
           {/* Chat window */}
-          <div className="relative flex flex-col w-full sm:w-[420px] h-[85vh] sm:h-[600px] max-h-[85vh] rounded-2xl border border-[#3b494b] bg-[#0c0e12] shadow-[0_30px_100px_rgba(124,58,237,0.15)] overflow-hidden">
+          <div className="relative flex flex-col w-full sm:w-[420px] h-[85vh] sm:h-[600px] max-h-[85vh] rounded-2xl border border-[#3b494b] bg-[#c0c4c9] shadow-[0_30px_100px_rgba(124,58,237,0.15)] overflow-hidden">
             {/* Glow accent */}
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#a855f7] to-transparent" />
 
             {/* ── Header ── */}
-            <div className="flex items-center justify-between border-b border-[#1f2229] bg-[#111317] px-4 py-3">
+            <div className="flex items-center justify-between border-b border-neutral-200 bg-[#c0c4c9] px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-neutral-900">
                   <Bot className="h-5 w-5" />
                 </div>
                 <div>
@@ -235,7 +235,7 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
               <div className="flex items-center gap-1">
                 <button
                   onClick={handleClearChat}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#1a1d24] hover:text-[#b9cacb]"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#c0c4c9] hover:text-[#b9cacb]"
                   type="button"
                   title="Clear conversation"
                 >
@@ -243,7 +243,7 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#1a1d24] hover:text-[#b9cacb]"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5d5f63] transition hover:bg-[#c0c4c9] hover:text-[#b9cacb]"
                   type="button"
                   aria-label="Close"
                 >
@@ -280,7 +280,7 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
                             // We'll just set and let the user click send, or we trigger handleSend
                           }, 50)
                         }}
-                        className="w-full text-left border border-[#1f2229] bg-[#111317] rounded-xl px-4 py-3 text-xs text-[#b9cacb] font-mono transition hover:border-[#7c3aed]/50 hover:bg-[#1a1d24] hover:text-[#e2e8e2]"
+                        className="w-full text-left border border-neutral-200 bg-[#c0c4c9] rounded-xl px-4 py-3 text-xs text-[#b9cacb] font-mono transition hover:border-[#7c3aed]/50 hover:bg-[#c0c4c9] hover:text-[#e2e8e2]"
                         type="button"
                       >
                         <MessageCircle className="inline h-3.5 w-3.5 mr-2 text-[#7c3aed]" />
@@ -300,12 +300,12 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       msg.role === 'user'
-                        ? 'bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-white rounded-br-md'
-                        : 'bg-[#1a1d24] border border-[#1f2229] text-[#e2e8e2] rounded-bl-md'
+                        ? 'bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-neutral-900 rounded-br-md'
+                        : 'bg-[#c0c4c9] border border-neutral-200 text-[#e2e8e2] rounded-bl-md'
                     }`}
                   >
                     <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                    <p className={`text-[10px] mt-1.5 ${msg.role === 'user' ? 'text-white/50' : 'text-[#5d5f63]'}`}>
+                    <p className={`text-[10px] mt-1.5 ${msg.role === 'user' ? 'text-neutral-900/50' : 'text-[#5d5f63]'}`}>
                       {formatTime(msg.timestamp)}
                     </p>
                   </div>
@@ -315,7 +315,7 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
               {/* Loading indicator */}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-[#1a1d24] border border-[#1f2229] rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl rounded-bl-md px-4 py-3">
                     <div className="flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin text-[#a855f7]" />
                       <span className="text-xs text-[#5d5f63] font-mono">Thinking...</span>
@@ -328,8 +328,8 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
             </div>
 
             {/* ── Input area ── */}
-            <div className="border-t border-[#1f2229] bg-[#111317] px-3 py-3">
-              <div className="flex items-end gap-2 rounded-xl border border-[#1f2229] bg-[#0c0e12] px-3 py-2 focus-within:border-[#7c3aed]/50 transition-colors">
+            <div className="border-t border-neutral-200 bg-[#c0c4c9] px-3 py-3">
+              <div className="flex items-end gap-2 rounded-xl border border-neutral-200 bg-[#c0c4c9] px-3 py-2 focus-within:border-[#7c3aed]/50 transition-colors">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -345,8 +345,8 @@ export function AutolearnBot({ context = 'landing' }: { context?: 'landing' | 'd
                   disabled={!input.trim() || isLoading}
                   className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-all ${
                     input.trim() && !isLoading
-                      ? 'bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-white hover:opacity-90 shadow-[0_2px_12px_rgba(124,58,237,0.3)]'
-                      : 'bg-[#1a1d24] text-[#5d5f63] cursor-not-allowed'
+                      ? 'bg-gradient-to-br from-[#7c3aed] to-[#a855f7] text-neutral-900 hover:opacity-90 shadow-[0_2px_12px_rgba(124,58,237,0.3)]'
+                      : 'bg-[#c0c4c9] text-[#5d5f63] cursor-not-allowed'
                   }`}
                   type="button"
                   aria-label="Send message"

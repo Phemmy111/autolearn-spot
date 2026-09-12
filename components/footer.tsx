@@ -19,7 +19,7 @@ async function FooterContent() {
   ])
 
   return (
-    <footer className="relative z-20 border-t border-neutral-300/50 bg-[#e5e9ed]">
+    <footer className="relative z-20 border-t border-neutral-300/50 bg-[#d1d5db]">
       <div className="container mx-auto px-6 lg:px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}

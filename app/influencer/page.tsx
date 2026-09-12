@@ -41,12 +41,12 @@ export default function InfluencerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">
         <div className="w-full max-w-md">
-          <Link href="/" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-white mb-8 transition-colors">
+          <Link href="/" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-neutral-900 mb-8 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to Home
           </Link>
           
@@ -87,7 +87,7 @@ export default function InfluencerLoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-4 py-3 rounded-xl bg-purple-500 text-white font-bold hover:bg-purple-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 py-3 rounded-xl bg-purple-500 text-neutral-900 font-bold hover:bg-purple-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSubmitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Authenticating...</> : "Sign In"}
               </button>

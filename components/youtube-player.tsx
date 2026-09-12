@@ -311,7 +311,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 bg-[#0c0e12] p-8 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-4 bg-[#c0c4c9] p-8 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
           <AlertCircle className="h-8 w-8 text-red-400" />
         </div>
@@ -328,7 +328,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             markedCompleteRef.current = false
             hasResumedRef.current = false
           }}
-          className="flex items-center gap-2 border border-[#3b494b] bg-[#111317] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#00f0ff] transition-colors hover:border-[#00f0ff] hover:bg-[#1a1d24]"
+          className="flex items-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#10b981] transition-colors hover:border-[#10b981] hover:bg-[#c0c4c9]"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Retry
@@ -402,8 +402,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       onContextMenu={(e) => e.preventDefault()}
     >
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#0c0e12]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" />
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#c0c4c9]">
+          <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
           <p className="font-mono text-xs uppercase tracking-widest text-[#b9cacb]">
             Loading video…
           </p>
@@ -425,7 +425,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Show play/pause icon briefly on state change */}
           {!isPlaying && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#00f0ff]/90 shadow-lg shadow-[#00f0ff]/30">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#10b981]/90 shadow-lg shadow-[#00f0ff]/30">
                 <Play className="h-10 w-10 text-black ml-1" />
               </div>
             </div>
@@ -439,7 +439,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Rewind button */}
           <button
             onClick={handleRewind}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition-all hover:bg-[#00f0ff] hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
             title="Rewind 10s"
           >
             <Rewind className="h-5 w-5" />
@@ -452,7 +452,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             onClick={handleSeek}
           >
             <div
-              className="h-full bg-[#00f0ff] transition-all duration-300"
+              className="h-full bg-[#10b981] transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -460,7 +460,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Fast forward button */}
           <button
             onClick={handleFastForward}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white transition-all hover:bg-[#00f0ff] hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
             title="Fast forward 10s"
           >
             <FastForward className="h-5 w-5" />

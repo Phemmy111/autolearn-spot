@@ -41,17 +41,17 @@ export default function AmbassadorLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">
         <div className="w-full max-w-md">
-          <Link href="/ambassador" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-white mb-8 transition-colors">
+          <Link href="/ambassador" className="inline-flex items-center gap-2 text-[#b9cacb] hover:text-neutral-900 mb-8 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
           </Link>
           
           <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#00f0ff]/10 blur-3xl rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#10b981]/10 blur-3xl rounded-full pointer-events-none" />
             
             <h1 className="text-2xl font-bold mb-2">Ambassador Login</h1>
             <p className="text-[#b9cacb] mb-8 text-sm">Welcome back. Enter your credentials to access your dashboard.</p>
@@ -67,7 +67,7 @@ export default function AmbassadorLoginPage() {
                 <label className="text-sm font-medium text-[#b9cacb]">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#b9cacb]" />
-                  <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="you@example.com" />
+                  <input required type="email" name="email" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="you@example.com" />
                 </div>
               </div>
               
@@ -77,14 +77,14 @@ export default function AmbassadorLoginPage() {
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#b9cacb]" />
-                  <input required type="password" name="password" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#00f0ff] transition-colors" placeholder="••••••••" />
+                  <input required type="password" name="password" className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="••••••••" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-4 py-3 rounded-xl bg-[#00f0ff] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 py-3 rounded-xl bg-[#10b981] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSubmitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Authenticating...</> : "Sign In"}
               </button>

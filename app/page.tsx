@@ -62,7 +62,7 @@ async function TestimonialsSection() {
 
 function ContactSection() {
   return (
-    <section className="py-16 sm:py-24 bg-[#e5e9ed] border-t border-neutral-300/50">
+    <section className="py-16 sm:py-24 bg-[#d1d5db] border-t border-neutral-300/50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 mb-4">
@@ -131,7 +131,7 @@ export default async function Page() {
   const publishedProducts = await getPublishedProducts();
 
   return (
-    <main className="relative min-h-screen bg-[#e5e9ed]">
+    <main className="relative min-h-screen bg-[#d1d5db]">
       <MarketplaceNavigation />
       <AnnouncementBanner />
       

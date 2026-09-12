@@ -62,23 +62,23 @@ export default function AmbassadorSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0c0e12] flex items-center justify-center text-white">
-        <Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" />
+      <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center text-neutral-900">
+        <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0e12] text-white">
+    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900">
       {/* Header */}
-      <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/ambassador/dashboard" className="text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/ambassador/dashboard" className="text-[#b9cacb] hover:text-[#10b981] transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-[#00f0ff]" />
+              <Settings className="h-5 w-5 text-[#10b981]" />
               <h1 className="font-mono text-sm font-bold uppercase tracking-[0.18em]">Settings</h1>
             </div>
           </div>
@@ -93,8 +93,8 @@ export default function AmbassadorSettingsPage() {
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6 mb-6">
-          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#00f0ff] mb-6">
+        <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 mb-6">
+          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Profile
           </h2>
           
@@ -125,27 +125,27 @@ export default function AmbassadorSettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-[#111317] border border-[#1f2229] rounded-2xl p-6">
-          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#00f0ff] mb-6">
+        <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6">
+          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Account Information
           </h2>
           
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-3 border-b border-[#1f2229]">
+            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
               <span className="text-[#b9cacb]">Email</span>
-              <span className="text-white">{userData?.user?.email || ''}</span>
+              <span className="text-neutral-900">{userData?.user?.email || ''}</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-[#1f2229]">
+            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
               <span className="text-[#b9cacb]">Partner Type</span>
-              <span className="text-white">Community Partner</span>
+              <span className="text-neutral-900">Community Partner</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-[#1f2229]">
+            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
               <span className="text-[#b9cacb]">Phone</span>
-              <span className="text-white">{userData?.user?.phone || 'Not set'}</span>
+              <span className="text-neutral-900">{userData?.user?.phone || 'Not set'}</span>
             </div>
             <div className="flex justify-between items-center py-3">
               <span className="text-[#b9cacb]">Commission Rate</span>
-              <span className="text-white">₦{(userData?.user?.commission_rate || 1500).toLocaleString()}/referral</span>
+              <span className="text-neutral-900">₦{(userData?.user?.commission_rate || 1500).toLocaleString()}/referral</span>
             </div>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function AmbassadorSettingsPage() {
         <div className="mt-6 flex justify-end">
           <button 
             onClick={handleLogout}
-            className="font-mono text-xs uppercase px-4 py-2 border border-[#1f2229] rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-[#b9cacb]"
+            className="font-mono text-xs uppercase px-4 py-2 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-[#b9cacb]"
           >
             <LogOut className="h-3 w-3" /> Logout
           </button>

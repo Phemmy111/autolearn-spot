@@ -178,7 +178,7 @@ function EnrollForm() {
     return (
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin" />
           <span className="text-[#b9cacb]">Loading...</span>
         </div>
       </div>
@@ -188,11 +188,11 @@ function EnrollForm() {
   if (enrollmentSettings.enrollmentOpen === 'false') {
     return (
       <div className="min-h-screen bg-[#050505]">
-        <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl">
+        <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <Link href="/" className="flex items-center gap-2 group">
-                <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff] group-hover:border-[#00f0ff] transition-colors">
+                <div className="flex items-center justify-center w-8 h-8 border border-[#10b981]/60 bg-[#10b981]/10 text-[#10b981] group-hover:border-[#10b981] transition-colors">
                   <Star className="h-4 w-4" />
                 </div>
                 <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
@@ -201,7 +201,7 @@ function EnrollForm() {
               </Link>
               <Link 
                 href="/" 
-                className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+                className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
@@ -223,7 +223,7 @@ function EnrollForm() {
             </p>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-white transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-white transition-colors"
             >
               Return to Home
             </Link>
@@ -236,11 +236,11 @@ function EnrollForm() {
   return (
     <div className="min-h-screen bg-[#050505]">
       {/* Header */}
-      <header className="border-b border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl">
+      <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="flex items-center justify-center w-8 h-8 border border-[#00f0ff]/60 bg-[#00f0ff]/10 text-[#00f0ff] group-hover:border-[#00f0ff] transition-colors">
+              <div className="flex items-center justify-center w-8 h-8 border border-[#10b981]/60 bg-[#10b981]/10 text-[#10b981] group-hover:border-[#10b981] transition-colors">
                 <Star className="h-4 w-4" />
               </div>
               <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
@@ -249,7 +249,7 @@ function EnrollForm() {
             </Link>
             <Link 
               href="/" 
-              className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#00f0ff] transition-colors"
+              className="flex items-center gap-2 text-sm text-[#b9cacb] hover:text-[#10b981] transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -262,8 +262,8 @@ function EnrollForm() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         {/* Announcement Banner */}
         {enrollmentSettings.enrollmentAnnouncement && (
-          <div className="mb-8 bg-[#00f0ff]/10 border border-[#00f0ff]/30 rounded-xl p-4">
-            <p className="text-sm text-[#00f0ff] font-medium">{enrollmentSettings.enrollmentAnnouncement}</p>
+          <div className="mb-8 bg-[#10b981]/10 border border-[#10b981]/30 rounded-xl p-4">
+            <p className="text-sm text-[#10b981] font-medium">{enrollmentSettings.enrollmentAnnouncement}</p>
           </div>
         )}
 
@@ -271,9 +271,9 @@ function EnrollForm() {
           {/* Left Column - Form */}
           <div>
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 border border-[#00f0ff]/60 bg-[#00f0ff]/10 px-3 py-1 mb-4">
-                <Star className="h-4 w-4 text-[#00f0ff]" />
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+              <div className="inline-flex items-center gap-2 border border-[#10b981]/60 bg-[#10b981]/10 px-3 py-1 mb-4">
+                <Star className="h-4 w-4 text-[#10b981]" />
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#10b981]">
                   Direct Enrollment
                 </span>
               </div>
@@ -304,10 +304,10 @@ function EnrollForm() {
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="e.g., Chioma Adeleke"
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.fullName 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                       required
                     />
@@ -328,10 +328,10 @@ function EnrollForm() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="e.g., chioma@gmail.com"
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.email 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                       required
                     />
@@ -352,10 +352,10 @@ function EnrollForm() {
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       placeholder="e.g., 08012345678"
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.phoneNumber 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                       required
                     />
@@ -376,7 +376,7 @@ function EnrollForm() {
                       value={formData.whatsappNumber}
                       onChange={handleChange}
                       placeholder="e.g., 08012345678"
-                      className="mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] border-[#1f2229] focus:border-[#00f0ff]"
+                      className="mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] border-neutral-200 focus:border-[#10b981]"
                     />
                   </label>
                 </div>
@@ -390,10 +390,10 @@ function EnrollForm() {
                       name="state"
                       value={formData.state}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.state 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                       required
                     >
@@ -451,10 +451,10 @@ function EnrollForm() {
                       name="occupation"
                       value={formData.occupation}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.occupation 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                       required
                     >
@@ -485,10 +485,10 @@ function EnrollForm() {
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.gender 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                       required
                     >
@@ -512,10 +512,10 @@ function EnrollForm() {
                       name="referralSource"
                       value={formData.referralSource}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-[#10151b] ${
                         errors.referralSource 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                       required
                     >
@@ -548,10 +548,10 @@ function EnrollForm() {
                       value={formData.referralCode}
                       onChange={handleChange}
                       placeholder="Enter referral code"
-                      className={`mt-2 h-12 w-full border bg-[#0c0e12] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
+                      className={`mt-2 h-12 w-full border bg-[#c0c4c9] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-[#10151b] ${
                         errors.referralCode 
                           ? 'border-red-500 focus:border-red-500' 
-                          : 'border-[#1f2229] focus:border-[#00f0ff]'
+                          : 'border-neutral-200 focus:border-[#10b981]'
                       }`}
                     />
                     {errors.referralCode && (
@@ -570,7 +570,7 @@ function EnrollForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 bg-[#00f0ff] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 bg-[#10b981] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
@@ -588,33 +588,33 @@ function EnrollForm() {
           <div className="space-y-8">
             {/* Cohort Information */}
             {(enrollmentSettings.currentCohortName || enrollmentSettings.currentCohortNumber || enrollmentSettings.cohortStartDate || enrollmentSettings.cohortEndDate || enrollmentSettings.enrollmentDeadline) && (
-              <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Calendar className="h-5 w-5 text-[#00f0ff]" />
+                  <Calendar className="h-5 w-5 text-[#10b981]" />
                   <h2 className="text-xl font-semibold text-[#e2e2e8]">Cohort Information</h2>
                 </div>
                 <div className="space-y-3">
                   {enrollmentSettings.currentCohortName && (
                     <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Cohort:</strong> {enrollmentSettings.currentCohortName}</span>
                     </div>
                   )}
                   {enrollmentSettings.currentCohortNumber && (
                     <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Number:</strong> {enrollmentSettings.currentCohortNumber}</span>
                     </div>
                   )}
                   {enrollmentSettings.cohortStartDate && (
                     <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Start Date:</strong> {new Date(enrollmentSettings.cohortStartDate).toLocaleDateString()}</span>
                     </div>
                   )}
                   {enrollmentSettings.cohortEndDate && (
                     <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                      <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                       <span><strong className="text-[#e2e2e8]">End Date:</strong> {new Date(enrollmentSettings.cohortEndDate).toLocaleDateString()}</span>
                     </div>
                   )}
@@ -628,32 +628,32 @@ function EnrollForm() {
               </div>
             )}
 
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Program Details</h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">4-Week Program</p>
                     <p className="text-xs text-[#b9cacb]">Hands-on n8n automation training</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">Live Sessions</p>
                     <p className="text-xs text-[#b9cacb]">Every Saturday, 2 hours</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">10+ Real Projects</p>
                     <p className="text-xs text-[#b9cacb]">Build production-ready workflows</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-[#00f0ff] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="h-5 w-5 text-[#10b981] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-[#e2e2e8]">Certificate</p>
                     <p className="text-xs text-[#b9cacb]">Verified credential upon completion</p>
@@ -662,35 +662,35 @@ function EnrollForm() {
               </div>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">What You'll Learn</h2>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>n8n Fundamentals & Setup</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>AI-Powered Workflows</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>Deployment on Railway</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-[#b9cacb]">
-                  <div className="h-1.5 w-1.5 bg-[#00f0ff] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-[#10b981] rounded-full" />
                   <span>Capstone Project</span>
                 </div>
               </div>
             </div>
 
-            <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Investment</h2>
               <div className="text-center">
                 {feeLoading ? (
                   <div className="text-4xl font-bold text-[#b9cacb] mb-2">Loading...</div>
                 ) : (
-                  <div className="text-4xl font-bold text-[#00f0ff] mb-2">₦{fee.toLocaleString()}</div>
+                  <div className="text-4xl font-bold text-[#10b981] mb-2">₦{fee.toLocaleString()}</div>
                 )}
                 <p className="text-sm text-[#b9cacb] mb-4">One-time payment</p>
                 <div className="flex items-center justify-center gap-2 text-xs text-[#b9cacb]">
@@ -718,7 +718,7 @@ export default function EnrollPage() {
     <Suspense fallback={
       <div className="min-h-screen bg-[#050505] flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
+          <div className="h-8 w-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin" />
           <span className="text-[#b9cacb]">Loading...</span>
         </div>
       </div>

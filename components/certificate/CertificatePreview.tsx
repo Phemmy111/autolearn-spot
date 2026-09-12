@@ -102,9 +102,9 @@ export function CertificatePreview({
   }, []);
 
   return (
-    <div className="bg-[#0c0e12] border border-[#1f2229] rounded-xl p-6">
+    <div className="bg-[#c0c4c9] border border-neutral-200 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-2 h-2 bg-[#00f0ff] rounded-full animate-pulse" />
+        <div className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
         <h3 className="text-sm font-semibold text-[#b9cacb]">Live Preview</h3>
       </div>
       
@@ -137,16 +137,16 @@ export function CertificatePreview({
         </div>
         
         {/* Preview watermark */}
-        <div className="absolute top-4 right-4 px-3 py-1 bg-black/50 backdrop-blur-sm rounded text-xs text-[#b9cacb] border border-[#1f2229]">
+        <div className="absolute top-4 right-4 px-3 py-1 bg-black/50 backdrop-blur-sm rounded text-xs text-[#b9cacb] border border-neutral-200">
           PREVIEW
         </div>
       </div>
       
-      <div className="mt-4 p-3 bg-[#070B12] border border-[#1f2229] rounded-lg">
+      <div className="mt-4 p-3 bg-[#070B12] border border-neutral-200 rounded-lg">
         <p className="text-xs text-[#b9cacb]">
-          <span className="text-[#00f0ff]">Student:</span> John Doe • 
-          <span className="text-[#00f0ff]">Course:</span> {course || "n8n Automation"} • 
-          <span className="text-[#00f0ff]"> Certificate ID:</span> ALS-2026-DEMO-001
+          <span className="text-[#10b981]">Student:</span> John Doe • 
+          <span className="text-[#10b981]">Course:</span> {course || "n8n Automation"} • 
+          <span className="text-[#10b981]"> Certificate ID:</span> ALS-2026-DEMO-001
         </p>
       </div>
     </div>

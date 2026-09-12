@@ -139,7 +139,7 @@ export default function LiveClassPage() {
                 <p className="text-xl font-mono mt-2">Starts in: {countdown}</p>
               )}
               <button
-                className="mt-6 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow hover:scale-105 transform transition"
+                className="mt-6 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-neutral-900 rounded-lg shadow hover:scale-105 transform transition"
                 onClick={handleJoin}
                 disabled={!isLive}
               >
@@ -159,7 +159,7 @@ export default function LiveClassPage() {
                 href={settings.recordingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg shadow hover:scale-105 transform transition"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-neutral-900 rounded-lg shadow hover:scale-105 transform transition"
               >
                 Watch Recording
               </a>

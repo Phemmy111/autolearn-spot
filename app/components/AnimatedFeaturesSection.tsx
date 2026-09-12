@@ -30,11 +30,11 @@ export function AnimatedFeaturesSection() {
             return (
               <div
                 key={feature.title}
-                className={`border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00f0ff]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)] card-enhanced reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+                className={`border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)] card-enhanced reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
                 style={{ transitionDelay: `${0.1 + index * 0.1}s` }}
               >
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00f0ff]/60 bg-[#00f0ff]/10 rounded-xl mb-3 sm:mb-4">
-                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#00f0ff]" />
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#10b981]/60 bg-[#10b981]/10 rounded-xl mb-3 sm:mb-4">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#10b981]" />
                 </div>
                 <h3 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>
                 <p className="text-sm text-[#b9cacb]">{feature.description}</p>

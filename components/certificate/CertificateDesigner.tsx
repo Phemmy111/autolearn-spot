@@ -930,10 +930,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
   return (
     <div className="flex flex-col h-screen bg-[#0a0c10]">
       {/* Top Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#0c0e12] border-b border-[#1f2229]">
+      <div className="flex items-center justify-between px-4 py-2 bg-[#c0c4c9] border-b border-neutral-200">
         <div className="flex items-center gap-3">
-          <Layers className="h-5 w-5 text-[#00f0ff]" />
-          <h2 className="text-lg font-semibold text-white">Certificate Designer v2.0</h2>
+          <Layers className="h-5 w-5 text-[#10b981]" />
+          <h2 className="text-lg font-semibold text-neutral-900">Certificate Designer v2.0</h2>
           {unsavedChanges && (
             <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded">
               Unsaved changes
@@ -945,7 +945,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             </span>
           )}
           {selectedElements.length > 1 && (
-            <span className="px-2 py-1 bg-[#00f0ff]/20 text-[#00f0ff] text-xs rounded">
+            <span className="px-2 py-1 bg-[#10b981]/20 text-[#10b981] text-xs rounded">
               {selectedElements.length} selected
             </span>
           )}
@@ -1002,7 +1002,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           <button
             type="button"
             onClick={() => setShowGrid(!showGrid)}
-            className={`p-2 rounded transition-colors ${showGrid ? 'bg-[#00f0ff]/20 text-[#00f0ff]' : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'}`}
+            className={`p-2 rounded transition-colors ${showGrid ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'}`}
             title="Toggle Grid"
           >
             <LayoutGrid className="h-4 w-4" />
@@ -1010,7 +1010,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           <button
             type="button"
             onClick={() => setSnapToGrid(!snapToGrid)}
-            className={`p-2 rounded transition-colors ${snapToGrid ? 'bg-[#00f0ff]/20 text-[#00f0ff]' : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'}`}
+            className={`p-2 rounded transition-colors ${snapToGrid ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'}`}
             title="Toggle Snap to Grid"
           >
             <Layers className="h-4 w-4" />
@@ -1049,7 +1049,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               type="button"
               onClick={onSave}
               disabled={isSaving}
-              className="flex items-center gap-2 px-3 py-2 bg-[#00f0ff] text-[#00363a] text-sm rounded font-medium hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-3 py-2 bg-[#10b981] text-[#00363a] text-sm rounded font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>
@@ -1071,10 +1071,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Elements */}
         <div 
-          className={`bg-[#0c0e12] border-r border-[#1f2229] flex flex-col ${leftSidebarCollapsed ? 'w-12' : ''}`}
+          className={`bg-[#c0c4c9] border-r border-neutral-200 flex flex-col ${leftSidebarCollapsed ? 'w-12' : ''}`}
           style={{ width: leftSidebarCollapsed ? 48 : leftSidebarWidth }}
         >
-          <div className="flex items-center justify-between p-2 border-b border-[#1f2229]">
+          <div className="flex items-center justify-between p-2 border-b border-neutral-200">
             <button
               type="button"
               onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
@@ -1084,7 +1084,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             </button>
             {!leftSidebarCollapsed && (
               <div 
-                className="w-2 h-8 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff] rounded"
+                className="w-2 h-8 bg-[#1f2229] cursor-col-resize hover:bg-[#10b981] rounded"
                 onMouseDown={(e) => handlePanelResizeStart('left', e)}
               />
             )}
@@ -1100,24 +1100,24 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     onClick={() => handleAddElement('text')}
                     className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
                   >
-                    <Type className="h-4 w-4 text-[#00f0ff]" />
-                    <span className="text-sm text-white">Text</span>
+                    <Type className="h-4 w-4 text-[#10b981]" />
+                    <span className="text-sm text-neutral-900">Text</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAddElement('image')}
                     className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
                   >
-                    <Image className="h-4 w-4 text-[#00f0ff]" />
-                    <span className="text-sm text-white">Image</span>
+                    <Image className="h-4 w-4 text-[#10b981]" />
+                    <span className="text-sm text-neutral-900">Image</span>
                   </button>
                   <label className={`w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left cursor-pointer ${uploadingImage || readOnly ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {uploadingImage ? (
-                      <Loader2 className="h-4 w-4 text-[#00f0ff] animate-spin" />
+                      <Loader2 className="h-4 w-4 text-[#10b981] animate-spin" />
                     ) : (
-                      <Upload className="h-4 w-4 text-[#00f0ff]" />
+                      <Upload className="h-4 w-4 text-[#10b981]" />
                     )}
-                    <span className="text-sm text-white">{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
+                    <span className="text-sm text-neutral-900">{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -1134,44 +1134,44 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     onClick={() => handleAddElement('shape')}
                     className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
                   >
-                    <Square className="h-4 w-4 text-[#00f0ff]" />
-                    <span className="text-sm text-white">Shape</span>
+                    <Square className="h-4 w-4 text-[#10b981]" />
+                    <span className="text-sm text-neutral-900">Shape</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAddElement('qrCode')}
                     className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
                   >
-                    <QrCode className="h-4 w-4 text-[#00f0ff]" />
-                    <span className="text-sm text-white">QR Code</span>
+                    <QrCode className="h-4 w-4 text-[#10b981]" />
+                    <span className="text-sm text-neutral-900">QR Code</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAddElement('logo')}
                     className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
                   >
-                    <Award className="h-4 w-4 text-[#00f0ff]" />
-                    <span className="text-sm text-white">Logo</span>
+                    <Award className="h-4 w-4 text-[#10b981]" />
+                    <span className="text-sm text-neutral-900">Logo</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => handleAddElement('signature')}
                     className="w-full flex items-center gap-3 p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
                   >
-                    <PenTool className="h-4 w-4 text-[#00f0ff]" />
-                    <span className="text-sm text-white">Signature</span>
+                    <PenTool className="h-4 w-4 text-[#10b981]" />
+                    <span className="text-sm text-neutral-900">Signature</span>
                   </button>
                 </div>
               </div>
               
               {/* Templates */}
-              <div className="border-t border-[#1f2229] pt-4">
+              <div className="border-t border-neutral-200 pt-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-semibold text-[#b9cacb] uppercase tracking-wider">Templates</h3>
                   <button
                     type="button"
                     onClick={() => setShowTemplates(!showTemplates)}
-                    className="text-[#b9cacb] hover:text-white"
+                    className="text-[#b9cacb] hover:text-neutral-900"
                   >
                     {showTemplates ? <ChevronDown className="h-4 w-4 rotate-180" /> : <ChevronDown className="h-4 w-4" />}
                   </button>
@@ -1185,7 +1185,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                         onClick={() => handleLoadTemplate(template.layout)}
                         className="w-full p-3 bg-[#1f2229] rounded-lg hover:bg-[#2a2e38] transition-colors text-left"
                       >
-                        <div className="text-sm text-white">{template.name}</div>
+                        <div className="text-sm text-neutral-900">{template.name}</div>
                         <div className="text-xs text-[#b9cacb]">{template.description}</div>
                       </button>
                     ))}
@@ -1221,7 +1221,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             }}
           >
             <div 
-              className="relative bg-[#0a0c10] border border-[#1f2229]"
+              className="relative bg-[#0a0c10] border border-neutral-200"
               style={{ 
                 width: `${CANVAS_WIDTH}px`,
                 height: `${CANVAS_HEIGHT}px`,
@@ -1250,14 +1250,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
               {alignmentGuides.horizontal.map((y, index) => (
                 <div
                   key={`h-${index}`}
-                  className="absolute left-0 right-0 bg-[#00f0ff] pointer-events-none"
+                  className="absolute left-0 right-0 bg-[#10b981] pointer-events-none"
                   style={{ top: y, height: '1px', opacity: 0.5 }}
                 />
               ))}
               {alignmentGuides.vertical.map((x, index) => (
                 <div
                   key={`v-${index}`}
-                  className="absolute top-0 bottom-0 bg-[#00f0ff] pointer-events-none"
+                  className="absolute top-0 bottom-0 bg-[#10b981] pointer-events-none"
                   style={{ left: x, width: '1px', opacity: 0.5 }}
                 />
               ))}
@@ -1307,7 +1307,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           onMouseDown={(e) => {
                             e.stopPropagation()
                           }}
-                          className="w-full h-full bg-transparent text-white resize-none outline-none"
+                          className="w-full h-full bg-transparent text-neutral-900 resize-none outline-none"
                           style={{
                             fontFamily: element.style?.fontFamily || 'Roboto',
                             fontSize: element.style?.fontSize || 12,
@@ -1368,42 +1368,42 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                       <>
                         {/* Resize handles */}
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nwse-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-nwse-resize"
                           style={{ top: -4, left: -4 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'nw')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ns-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-ns-resize"
                           style={{ top: -4, left: '50%', transform: 'translateX(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'n')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nesw-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-nesw-resize"
                           style={{ top: -4, right: -4 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'ne')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ew-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-ew-resize"
                           style={{ top: '50%', right: -4, transform: 'translateY(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'e')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nwse-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-nwse-resize"
                           style={{ bottom: -4, right: -4 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'se')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ns-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-ns-resize"
                           style={{ bottom: -4, left: '50%', transform: 'translateX(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 's')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-nesw-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-nesw-resize"
                           style={{ bottom: -4, left: -4 }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'sw')}
                         />
                         <div
-                          className="absolute w-2 h-2 bg-[#00f0ff] cursor-ew-resize"
+                          className="absolute w-2 h-2 bg-[#10b981] cursor-ew-resize"
                           style={{ top: '50%', left: -4, transform: 'translateY(-50%)' }}
                           onMouseDown={(e) => handleElementMouseDown(e, element, 'w')}
                         />
@@ -1416,7 +1416,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           </div>
 
           {/* Canvas Controls */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-[#0c0e12] border border-[#1f2229] rounded-lg px-4 py-2">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-[#c0c4c9] border border-neutral-200 rounded-lg px-4 py-2">
             {validationMode && validationErrors.length > 0 && (
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-red-500/20 border border-red-500/50 rounded-lg p-3 min-w-[300px]">
                 <div className="flex items-center justify-between mb-2">
@@ -1439,7 +1439,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             <button
               type="button"
               onClick={handleZoomOut}
-              className="p-1 text-[#b9cacb] hover:text-white"
+              className="p-1 text-[#b9cacb] hover:text-neutral-900"
             >
               <ZoomOut className="h-4 w-4" />
             </button>
@@ -1455,14 +1455,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             <button
               type="button"
               onClick={handleZoomIn}
-              className="p-1 text-[#b9cacb] hover:text-white"
+              className="p-1 text-[#b9cacb] hover:text-neutral-900"
             >
               <ZoomIn className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={handleFitToScreen}
-              className="p-1 text-[#b9cacb] hover:text-white"
+              className="p-1 text-[#b9cacb] hover:text-neutral-900"
               title="Fit to Screen"
             >
               <Maximize2 className="h-4 w-4" />
@@ -1472,10 +1472,10 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
 
         {/* Right Sidebar - Properties */}
         <div 
-          className={`bg-[#0c0e12] border-l border-[#1f2229] flex flex-col ${rightSidebarCollapsed ? 'w-12' : ''}`}
+          className={`bg-[#c0c4c9] border-l border-neutral-200 flex flex-col ${rightSidebarCollapsed ? 'w-12' : ''}`}
           style={{ width: rightSidebarCollapsed ? 48 : rightSidebarWidth }}
         >
-          <div className="flex items-center justify-between p-2 border-b border-[#1f2229]">
+          <div className="flex items-center justify-between p-2 border-b border-neutral-200">
             <button
               type="button"
               onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}
@@ -1485,7 +1485,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
             </button>
             {!rightSidebarCollapsed && (
               <div 
-                className="w-2 h-8 bg-[#1f2229] cursor-col-resize hover:bg-[#00f0ff] rounded"
+                className="w-2 h-8 bg-[#1f2229] cursor-col-resize hover:bg-[#10b981] rounded"
                 onMouseDown={(e) => handlePanelResizeStart('right', e)}
               />
             )}
@@ -1494,7 +1494,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
           {!rightSidebarCollapsed && (
             <div className="flex flex-col h-full">
               {/* Tabs */}
-              <div className="flex border-b border-[#1f2229] shrink-0">
+              <div className="flex border-b border-neutral-200 shrink-0">
                 {[
                   { id: 'position', label: 'Position', icon: <Move className="h-4 w-4" /> },
                   { id: 'style', label: 'Style', icon: <Settings className="h-4 w-4" /> },
@@ -1507,7 +1507,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                     onClick={() => setActiveTab(tab.id as any)}
                     className={`flex-1 flex items-center justify-center gap-1 p-2 text-sm transition-colors ${
                       activeTab === tab.id 
-                        ? 'bg-[#00f0ff]/20 text-[#00f0ff] border-b-2 border-[#00f0ff]' 
+                        ? 'bg-[#10b981]/20 text-[#10b981] border-b-2 border-[#10b981]' 
                         : 'text-[#b9cacb] hover:bg-[#1f2229]'
                     }`}
                   >
@@ -1523,14 +1523,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                   <>
                     {/* Element Header */}
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-semibold text-white">{selectedElementData.id}</h3>
+                      <h3 className="text-sm font-semibold text-neutral-900">{selectedElementData.id}</h3>
                       <div className="flex gap-1">
                         <button
                           type="button"
                           onClick={() => handleToggleVisible(selectedElementData.id)}
                           className={`p-1.5 rounded transition-colors ${
                             selectedElementData.visible !== false 
-                              ? 'bg-[#00f0ff]/20 text-[#00f0ff] hover:bg-[#00f0ff]/30' 
+                              ? 'bg-[#10b981]/20 text-[#10b981] hover:bg-[#10b981]/30' 
                               : 'bg-[#1f2229] text-[#b9cacb] hover:bg-[#2a2e38]'
                           }`}
                           title={selectedElementData.visible !== false ? 'Hide' : 'Show'}
@@ -1577,7 +1577,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                   onLayoutChange(updatedLayout)
                                 }
                               }}
-                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1594,7 +1594,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                   onLayoutChange(updatedLayout)
                                 }
                               }}
-                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1613,7 +1613,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                   onLayoutChange(updatedLayout)
                                 }
                               }}
-                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1630,7 +1630,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                   onLayoutChange(updatedLayout)
                                 }
                               }}
-                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1648,7 +1648,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                 onLayoutChange(updatedLayout)
                               }
                             }}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           />
                         </div>
@@ -1678,14 +1678,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               type="color"
                               value={selectedElementData.style?.background || '#000000'}
                               onChange={(e) => handleStyleChange('background', e.target.value)}
-                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              className="h-8 w-10 rounded border border-neutral-200 cursor-pointer"
                               disabled={readOnly}
                             />
                             <input
                               type="text"
                               value={selectedElementData.style?.background || '#000000'}
                               onChange={(e) => handleStyleChange('background', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1701,7 +1701,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               handleStyleChange('borderWidth', width)
                               handleStyleChange('border', width > 0 ? `${width}px solid ${color}` : 'none')
                             }}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                             min="0"
                             step="1"
@@ -1719,7 +1719,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                 handleStyleChange('borderColor', color)
                                 handleStyleChange('border', width > 0 ? `${width}px solid ${color}` : 'none')
                               }}
-                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              className="h-8 w-10 rounded border border-neutral-200 cursor-pointer"
                               disabled={readOnly}
                             />
                             <input
@@ -1731,7 +1731,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                 handleStyleChange('borderColor', color)
                                 handleStyleChange('border', width > 0 ? `${width}px solid ${color}` : 'none')
                               }}
-                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1756,7 +1756,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                   onLayoutChange(updatedLayout)
                                 }
                               }}
-                              className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white resize-none"
+                              className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900 resize-none"
                               disabled={readOnly}
                               rows={2}
                             />
@@ -1765,7 +1765,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                         {selectedElementData.binding && (
                           <div>
                             <label className="block text-xs text-[#b9cacb] mb-1">Dynamic Binding</label>
-                            <div className="px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-[#b9cacb]">
+                            <div className="px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-[#b9cacb]">
                               {selectedElementData.binding}
                             </div>
                           </div>
@@ -1775,7 +1775,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           <select
                             value={selectedElementData.style?.fontFamily || 'Roboto'}
                             onChange={(e) => handleStyleChange('fontFamily', e.target.value)}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           >
                             <option value="Roboto">Roboto</option>
@@ -1794,7 +1794,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             type="number"
                             value={selectedElementData.style?.fontSize || 12}
                             onChange={(e) => handleStyleChange('fontSize', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           />
                         </div>
@@ -1803,7 +1803,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           <select
                             value={selectedElementData.style?.fontWeight || 400}
                             onChange={(e) => handleStyleChange('fontWeight', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           >
                             <option value={300}>Light</option>
@@ -1819,7 +1819,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           <select
                             value={selectedElementData.style?.fontStyle || 'normal'}
                             onChange={(e) => handleStyleChange('fontStyle', e.target.value)}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           >
                             <option value="normal">Normal</option>
@@ -1831,7 +1831,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           <select
                             value={selectedElementData.style?.textTransform || 'none'}
                             onChange={(e) => handleStyleChange('textTransform', e.target.value)}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           >
                             <option value="none">None</option>
@@ -1847,14 +1847,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               type="color"
                               value={selectedElementData.style?.color || '#ffffff'}
                               onChange={(e) => handleStyleChange('color', e.target.value)}
-                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              className="h-8 w-10 rounded border border-neutral-200 cursor-pointer"
                               disabled={readOnly}
                             />
                             <input
                               type="text"
                               value={selectedElementData.style?.color || '#ffffff'}
                               onChange={(e) => handleStyleChange('color', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1865,7 +1865,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             type="text"
                             value={selectedElementData.style?.textShadow ?? '0 2px 8px rgba(0,0,0,0.78)'}
                             onChange={(e) => handleStyleChange('textShadow', e.target.value)}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                             placeholder="0 2px 8px rgba(0,0,0,0.78)"
                           />
@@ -1876,7 +1876,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             type="number"
                             value={selectedElementData.style?.outlineWidth || 0}
                             onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                             min="0"
                             step="0.5"
@@ -1889,14 +1889,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               type="color"
                               value={selectedElementData.style?.outlineColor || '#ffffff'}
                               onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              className="h-8 w-10 rounded border border-neutral-200 cursor-pointer"
                               disabled={readOnly}
                             />
                             <input
                               type="text"
                               value={selectedElementData.style?.outlineColor || '#ffffff'}
                               onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1911,8 +1911,8 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                                 onClick={() => handleStyleChange('textAlign', align)}
                                 className={`flex-1 p-2 rounded border ${
                                   selectedElementData.style?.textAlign === align
-                                    ? 'bg-[#00f0ff] border-[#00f0ff] text-[#00363a]'
-                                    : 'bg-[#070B12] border-[#1f2229] text-[#b9cacb] hover:border-[#00f0ff]'
+                                    ? 'bg-[#10b981] border-[#10b981] text-[#00363a]'
+                                    : 'bg-[#070B12] border-neutral-200 text-[#b9cacb] hover:border-[#10b981]'
                                 }`}
                                 disabled={readOnly}
                               >
@@ -1930,7 +1930,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             step="0.1"
                             value={selectedElementData.style?.lineHeight || 1}
                             onChange={(e) => handleStyleChange('lineHeight', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           />
                         </div>
@@ -1941,7 +1941,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             step="0.5"
                             value={selectedElementData.style?.letterSpacing || 0}
                             onChange={(e) => handleStyleChange('letterSpacing', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           />
                         </div>
@@ -1952,7 +1952,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             step="0.1"
                             value={selectedElementData.style?.lineHeight || 1}
                             onChange={(e) => handleStyleChange('lineHeight', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                           />
                         </div>
@@ -1962,7 +1962,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                             type="number"
                             value={selectedElementData.style?.outlineWidth || 0}
                             onChange={(e) => handleStyleChange('outlineWidth', Number(e.target.value))}
-                            className="w-full px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                            className="w-full px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                             disabled={readOnly}
                             min="0"
                             step="0.5"
@@ -1975,14 +1975,14 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               type="color"
                               value={selectedElementData.style?.outlineColor || '#ffffff'}
                               onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                              className="h-8 w-10 rounded border border-[#1f2229] cursor-pointer"
+                              className="h-8 w-10 rounded border border-neutral-200 cursor-pointer"
                               disabled={readOnly}
                             />
                             <input
                               type="text"
                               value={selectedElementData.style?.outlineColor || '#ffffff'}
                               onChange={(e) => handleStyleChange('outlineColor', e.target.value)}
-                              className="flex-1 px-3 py-2 bg-[#070B12] border border-[#1f2229] rounded text-sm text-white"
+                              className="flex-1 px-3 py-2 bg-[#070B12] border border-neutral-200 rounded text-sm text-neutral-900"
                               disabled={readOnly}
                             />
                           </div>
@@ -1997,7 +1997,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                           <div
                             key={element.id}
                             className={`flex items-center gap-2 p-2 rounded cursor-pointer ${
-                              selectedElement === element.id ? 'bg-[#00f0ff]/20' : 'hover:bg-[#1f2229]'
+                              selectedElement === element.id ? 'bg-[#10b981]/20' : 'hover:bg-[#1f2229]'
                             } ${element.visible === false ? 'opacity-50' : ''}`}
                             onClick={() => handleSelectElement(element.id)}
                           >
@@ -2009,7 +2009,7 @@ export function CertificateDesigner({ layout, onLayoutChange, settings, readOnly
                               }}
                               className={`p-1 rounded transition-colors ${
                                 element.visible !== false 
-                                  ? 'text-[#00f0ff] hover:bg-[#00f0ff]/20' 
+                                  ? 'text-[#10b981] hover:bg-[#10b981]/20' 
                                   : 'text-[#b9cacb] hover:bg-[#1f2229]'
                               }`}
                               title={element.visible !== false ? 'Hide' : 'Show'}

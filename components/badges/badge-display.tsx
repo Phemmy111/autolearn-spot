@@ -106,7 +106,7 @@ export function BadgeGrid({ userBadges, showLocked = false }: BadgeGridProps) {
             title={`${badge.name}: ${badge.description}`}
           >
             <div className="text-3xl mb-2 text-center">{badge.icon}</div>
-            <h3 className="font-semibold text-white text-sm text-center mb-1">{badge.name}</h3>
+            <h3 className="font-semibold text-neutral-900 text-sm text-center mb-1">{badge.name}</h3>
             <p className="text-xs text-[#b9cacb] text-center">{badge.description}</p>
             
             {isEarned && userBadge && (

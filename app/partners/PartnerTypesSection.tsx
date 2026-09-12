@@ -57,7 +57,7 @@ export function PartnerTypesSection() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {partnerTypes.map((type, index) => (
-            <div key={index} className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00F5FF]/50 transition-colors">
+            <div key={index} className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00F5FF]/50 transition-colors">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#b9cacb]">Commission</span>
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#00F5FF]">{type.commission}</div>

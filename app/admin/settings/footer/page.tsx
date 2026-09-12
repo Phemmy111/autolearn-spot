@@ -68,25 +68,25 @@ export default function AdminFooterSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 text-[#00f0ff] animate-spin" />
+      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10]">
+    <div className="min-h-screen bg-[#d1d5db]">
       {/* Header */}
-      <div className="border-b border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/settings" className="text-[#b9cacb] hover:text-white transition-colors">
+              <Link href="/admin/settings" className="text-neutral-600 hover:text-neutral-900 transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-white">Footer Settings</h1>
-                <p className="text-sm text-[#b9cacb]">Configure footer content and links</p>
+                <h1 className="text-xl font-bold text-neutral-900">Footer Settings</h1>
+                <p className="text-sm text-neutral-600">Configure footer content and links</p>
               </div>
             </div>
           </div>
@@ -111,65 +111,65 @@ export default function AdminFooterSettingsPage() {
           )}
 
           {/* Footer Content */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <FileText className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Footer Content</h2>
+              <FileText className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Footer Content</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Description</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Description</label>
                 <textarea
                   value={settings.description}
                   onChange={(e) => setSettings({ ...settings, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff] resize-none"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Copyright Text</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Copyright Text</label>
                 <input
                   type="text"
                   value={settings.copyrightText}
                   onChange={(e) => setSettings({ ...settings, copyrightText: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Footer Links */}
-          <div className="border border-[#1f2229] bg-[#0c0e12]/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <FileText className="h-5 w-5 text-[#00f0ff]" />
-              <h2 className="text-lg font-semibold text-white">Footer Links</h2>
+              <FileText className="h-5 w-5 text-[#10b981]" />
+              <h2 className="text-lg font-semibold text-neutral-900">Footer Links</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Privacy Policy Link</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Privacy Policy Link</label>
                 <input
                   type="text"
                   value={settings.privacyLink}
                   onChange={(e) => setSettings({ ...settings, privacyLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Terms of Service Link</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Terms of Service Link</label>
                 <input
                   type="text"
                   value={settings.termsLink}
                   onChange={(e) => setSettings({ ...settings, termsLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#b9cacb] mb-2">Contact Link</label>
+                <label className="block text-sm font-medium text-neutral-600 mb-2">Contact Link</label>
                 <input
                   type="text"
                   value={settings.contactLink}
                   onChange={(e) => setSettings({ ...settings, contactLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-[#070B12] border border-[#1f2229] rounded-lg text-sm text-white focus:outline-none focus:border-[#00f0ff]"
+                  className="w-full px-4 py-2 bg-[#070B12] border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function AdminFooterSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#00f0ff] text-[#00363a] rounded-lg font-medium hover:bg-[#00f0ff]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

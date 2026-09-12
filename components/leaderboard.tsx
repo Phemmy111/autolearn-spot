@@ -55,7 +55,7 @@ export function Leaderboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00f0ff]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#10b981]" />
       </div>
     )
   }
@@ -71,18 +71,18 @@ export function Leaderboard() {
     if (rank === 1) return 'border-yellow-400/30 bg-yellow-400/5'
     if (rank === 2) return 'border-gray-300/30 bg-gray-300/5'
     if (rank === 3) return 'border-amber-600/30 bg-amber-600/5'
-    return 'border-[#1f2229] bg-[#0c0e12]'
+    return 'border-neutral-200 bg-[#c0c4c9]'
   }
 
   return (
     <div className="w-full">
       <div className="flex items-center gap-3 mb-6">
-        <TrendingUp className="h-6 w-6 text-[#00f0ff]" />
-        <h2 className="font-heading text-2xl font-bold text-white">Leaderboard</h2>
+        <TrendingUp className="h-6 w-6 text-[#10b981]" />
+        <h2 className="font-heading text-2xl font-bold text-neutral-900">Leaderboard</h2>
       </div>
 
       {leaderboard.length === 0 ? (
-        <div className="text-center py-12 border border-[#1f2229] bg-[#0c0e12] rounded-xl">
+        <div className="text-center py-12 border border-neutral-200 bg-[#c0c4c9] rounded-xl">
           <p className="font-mono text-sm text-[#b9cacb]">No quiz results yet. Be the first to complete a quiz!</p>
         </div>
       ) : (
@@ -90,7 +90,7 @@ export function Leaderboard() {
           {leaderboard.map((entry, index) => (
             <div
               key={entry.id}
-              className={`group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#00f0ff]/50 hover:bg-[#111317] ${getRankClass(index + 1)}`}
+              className={`group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50 hover:bg-[#c0c4c9] ${getRankClass(index + 1)}`}
               aria-label={`Rank ${index + 1}: ${entry.name} with ${entry.score} points and ${entry.percentage}% average`}
             >
               <div className="flex items-center gap-4 mb-3 sm:mb-0">
@@ -98,7 +98,7 @@ export function Leaderboard() {
                   {getRankIcon(index + 1)}
                 </div>
                 <div className="flex-1">
-                  <p className="font-heading font-semibold text-white">{entry.name}</p>
+                  <p className="font-heading font-semibold text-neutral-900">{entry.name}</p>
                   {entry.badges && entry.badges.length > 0 && (
                     <div className="mt-1">
                       <BadgeDisplay userBadges={entry.badges} maxDisplay={3} size="sm" showTooltip={false} />
@@ -107,7 +107,7 @@ export function Leaderboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-mono text-lg font-bold text-[#00f0ff]">{entry.score} pts</p>
+                <p className="font-mono text-lg font-bold text-[#10b981]">{entry.score} pts</p>
                 <div className="text-xs text-[#b9cacb] space-y-1">
                   <p>Assignments: {Math.round(entry.assignment_score || 0)}%</p>
                   <p>Quizzes: {Math.round(entry.quiz_score || 0)}%</p>

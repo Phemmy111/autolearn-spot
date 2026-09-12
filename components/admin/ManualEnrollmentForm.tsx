@@ -95,7 +95,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label htmlFor="email" className="block font-mono text-sm text-[#b9cacb]">
+          <label htmlFor="email" className="block font-mono text-sm text-neutral-600">
             Student Email <span className="text-red-400">*</span>
           </label>
           <input
@@ -106,12 +106,12 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="student@example.com"
             value={formData.email}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="cohortId" className="block font-mono text-sm text-[#b9cacb]">
+          <label htmlFor="cohortId" className="block font-mono text-sm text-neutral-600">
             Cohort <span className="text-red-400">*</span>
           </label>
           <select
@@ -120,7 +120,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             required
             value={formData.cohortId}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded"
           >
             <option value="">Select a cohort</option>
             {cohorts.map((c) => (
@@ -132,7 +132,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="firstName" className="block font-mono text-sm text-[#b9cacb]">
+          <label htmlFor="firstName" className="block font-mono text-sm text-neutral-600">
             First Name <span className="text-red-400">*</span>
           </label>
           <input
@@ -143,12 +143,12 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="John"
             value={formData.firstName}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="lastName" className="block font-mono text-sm text-[#b9cacb]">
+          <label htmlFor="lastName" className="block font-mono text-sm text-neutral-600">
             Last Name <span className="text-red-400">*</span>
           </label>
           <input
@@ -159,12 +159,12 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="Doe"
             value={formData.lastName}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="fullName" className="block font-mono text-sm text-[#b9cacb]">
+          <label htmlFor="fullName" className="block font-mono text-sm text-neutral-600">
             Full Name (Auto-generated)
           </label>
           <input
@@ -174,12 +174,12 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="John Doe"
             value={formData.fullName}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="clerkUserId" className="block font-mono text-sm text-[#b9cacb]">
+          <label htmlFor="clerkUserId" className="block font-mono text-sm text-neutral-600">
             Clerk User ID (Optional)
           </label>
           <input
@@ -189,12 +189,12 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             placeholder="user_2..."
             value={formData.clerkUserId}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="status" className="block font-mono text-sm text-[#b9cacb]">
+          <label htmlFor="status" className="block font-mono text-sm text-neutral-600">
             Status
           </label>
           <select
@@ -202,7 +202,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded"
+            className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded"
           >
             <option value="active">Active (Access Granted)</option>
             <option value="inactive">Inactive (Access Denied)</option>
@@ -211,7 +211,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="reason" className="block font-mono text-sm text-[#b9cacb]">
+        <label htmlFor="reason" className="block font-mono text-sm text-neutral-600">
           Reason / Notes (Optional)
         </label>
         <textarea
@@ -221,7 +221,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
           placeholder="e.g. Scholarship Student, Staff Account"
           value={formData.reason}
           onChange={handleChange}
-          className="w-full bg-[#1a1d24] border border-[#3b494b] px-4 py-2 font-mono text-sm text-white focus:outline-none focus:border-[#00f0ff] rounded resize-none"
+          className="w-full bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] rounded resize-none"
         />
       </div>
 
@@ -229,7 +229,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex items-center gap-2 bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
         >
           {isSubmitting ? (
             <>

@@ -162,9 +162,9 @@ export default function AssignmentsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'submitted':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#1a1d24] text-[#b9cacb] border border-[#3b494b]">Submitted</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#c0c4c9] text-[#b9cacb] border border-[#3b494b]">Submitted</span>;
       case 'approved':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#0f4c3c] text-[#00f0ff] border border-[#00f0ff]">Approved</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#0f4c3c] text-[#10b981] border border-[#10b981]">Approved</span>;
       case 'needs_revision':
         return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#4c1a1a] text-[#ff6b6b] border border-[#ff6b6b]">Needs Revision</span>;
       default:
@@ -178,7 +178,7 @@ export default function AssignmentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#111317] text-[#e2e8e2] flex items-center justify-center">
+      <div className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2] flex items-center justify-center">
         <div className="font-mono text-sm text-[#b9cacb]">Loading assignments...</div>
       </div>
     );
@@ -186,18 +186,18 @@ export default function AssignmentsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#111317] text-[#e2e8e2] flex items-center justify-center">
+      <div className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2] flex items-center justify-center">
         <div className="font-mono text-sm text-[#ff6b6b]">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e8e2]">
+    <main className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2]">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
-        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-white" href="/dashboard">
-          <span className="text-[#00f0ff]">//</span>
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#c0c4c9]/95 px-4 backdrop-blur sm:px-6">
+        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-neutral-900" href="/dashboard">
+          <span className="text-[#10b981]">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
         </Link>
         <div className="font-mono text-xs uppercase text-[#b9cacb]">
@@ -206,10 +206,10 @@ export default function AssignmentsPage() {
       </nav>
 
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <h1 className="mb-8 font-heading text-3xl font-bold uppercase text-white">Assignments</h1>
+        <h1 className="mb-8 font-heading text-3xl font-bold uppercase text-neutral-900">Assignments</h1>
 
         {assignments.length === 0 ? (
-          <div className="border border-[#3b494b] bg-[#1a1d24] p-8 text-center">
+          <div className="border border-[#3b494b] bg-[#c0c4c9] p-8 text-center">
             <p className="font-mono text-sm text-[#b9cacb]">No assignments available yet.</p>
           </div>
         ) : (
@@ -221,17 +221,17 @@ export default function AssignmentsPage() {
               return (
                 <div
                   key={assignment.id}
-                  className="border border-[#3b494b] bg-[#1a1d24] p-6"
+                  className="border border-[#3b494b] bg-[#c0c4c9] p-6"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="font-mono text-xs uppercase text-[#00f0ff]">
+                        <span className="font-mono text-xs uppercase text-[#10b981]">
                           Week {assignment.week_number}
                         </span>
                         {submission && getStatusBadge(submission.status)}
                       </div>
-                      <h2 className="mb-2 font-heading text-xl font-bold text-white">
+                      <h2 className="mb-2 font-heading text-xl font-bold text-neutral-900">
                         {assignment.title}
                       </h2>
                       {assignment.description && (
@@ -261,7 +261,7 @@ export default function AssignmentsPage() {
                           {/* View Submission button */}
                           <button
                             onClick={() => openViewModal(assignment, submission)}
-                            className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff]/10 px-4 py-2 font-mono text-xs uppercase text-[#00f0ff] transition hover:bg-[#00f0ff]/20 hover:border-[#00f0ff]"
+                            className="flex items-center justify-center gap-2 border border-[#10b981] bg-[#10b981]/10 px-4 py-2 font-mono text-xs uppercase text-[#10b981] transition hover:bg-[#10b981]/20 hover:border-[#10b981]"
                           >
                             <Eye className="h-4 w-4" />
                             View Submission
@@ -275,7 +275,7 @@ export default function AssignmentsPage() {
                                 setSelectedFile(null);
                                 setFilePreview(null);
                               }}
-                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#0c0e12] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#00f0ff] hover:text-[#00f0ff]"
+                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs uppercase text-[#b9cacb] transition hover:border-[#10b981] hover:text-[#10b981]"
                             >
                               <Edit className="h-4 w-4" />
                               Edit Submission
@@ -283,14 +283,14 @@ export default function AssignmentsPage() {
                           )}
                           {submission.ai_score !== null && (
                             <div className="text-center font-mono text-xs text-[#b9cacb]">
-                              Score: <span className="text-[#00f0ff]">{submission.ai_score}</span>/{assignment.max_score}
+                              Score: <span className="text-[#10b981]">{submission.ai_score}</span>/{assignment.max_score}
                             </div>
                           )}
                         </>
                       ) : (
                         <button
                           onClick={() => setSelectedAssignment(assignment)}
-                          className="flex items-center justify-center gap-2 border border-[#00f0ff] bg-[#00f0ff] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
+                          className="flex items-center justify-center gap-2 border border-[#10b981] bg-[#10b981] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
                         >
                           Submit Assignment
                         </button>
@@ -307,21 +307,21 @@ export default function AssignmentsPage() {
       {/* View Submission Modal */}
       {viewingSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-[#c0c4c9] p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-xl font-bold text-white">
+              <h2 className="font-heading text-xl font-bold text-neutral-900">
                 Submission Details
               </h2>
               <button
                 onClick={() => setViewingSubmission(null)}
-                className="text-[#b9cacb] hover:text-white transition-colors"
+                className="text-[#b9cacb] hover:text-neutral-900 transition-colors"
               >
                 ✕
               </button>
             </div>
 
             {/* Assignment title */}
-            <p className="mb-6 font-mono text-sm text-[#00f0ff]">
+            <p className="mb-6 font-mono text-sm text-[#10b981]">
               {viewingSubmission.assignment.title}
             </p>
 
@@ -344,9 +344,9 @@ export default function AssignmentsPage() {
                   <img
                     src={viewingSubmission.submission.screenshot_url}
                     alt="Submission screenshot"
-                    className="max-h-48 rounded border border-[#3b494b] group-hover:border-[#00f0ff] transition-colors"
+                    className="max-h-48 rounded border border-[#3b494b] group-hover:border-[#10b981] transition-colors"
                   />
-                  <span className="block mt-1 font-mono text-xs text-[#b9cacb] group-hover:text-[#00f0ff] transition-colors">
+                  <span className="block mt-1 font-mono text-xs text-[#b9cacb] group-hover:text-[#10b981] transition-colors">
                     Click to open full image ↗
                   </span>
                 </a>
@@ -361,7 +361,7 @@ export default function AssignmentsPage() {
                   href={viewingSubmission.submission.live_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 font-mono text-sm text-[#00f0ff] hover:text-white transition-colors break-all"
+                  className="flex items-center gap-2 font-mono text-sm text-[#10b981] hover:text-neutral-900 transition-colors break-all"
                 >
                   <ExternalLink className="h-4 w-4 flex-shrink-0" />
                   {viewingSubmission.submission.live_url}
@@ -391,7 +391,7 @@ export default function AssignmentsPage() {
             {viewingSubmission.submission.ai_score !== null && (
               <div className="mb-4">
                 <p className="font-mono text-xs uppercase text-[#b9cacb] mb-1">Score:</p>
-                <p className="font-mono text-lg text-[#00f0ff] font-bold">
+                <p className="font-mono text-lg text-[#10b981] font-bold">
                   {viewingSubmission.submission.ai_score}
                   <span className="text-sm text-[#b9cacb] font-normal">
                     /{viewingSubmission.assignment.max_score}
@@ -414,7 +414,7 @@ export default function AssignmentsPage() {
             {!viewingSubmission.submission.screenshot_url &&
              !viewingSubmission.submission.live_url &&
              !viewingSubmission.submission.notes && (
-              <div className="mb-4 border border-[#3b494b] bg-[#1a1d24] p-4 text-center">
+              <div className="mb-4 border border-[#3b494b] bg-[#c0c4c9] p-4 text-center">
                 <p className="font-mono text-sm text-[#b9cacb]">No submission data available.</p>
               </div>
             )}
@@ -423,7 +423,7 @@ export default function AssignmentsPage() {
             <div className="flex justify-end pt-4 border-t border-[#3b494b]">
               <button
                 onClick={() => setViewingSubmission(null)}
-                className="font-mono text-sm text-[#b9cacb] hover:text-white px-4 py-2 border border-[#3b494b] hover:border-[#00f0ff] transition-colors"
+                className="font-mono text-sm text-[#b9cacb] hover:text-neutral-900 px-4 py-2 border border-[#3b494b] hover:border-[#10b981] transition-colors"
               >
                 Close
               </button>
@@ -435,9 +435,9 @@ export default function AssignmentsPage() {
       {/* Submission Modal */}
       {selectedAssignment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-[#1f2229] bg-[#0c0e12] p-6 shadow-2xl">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-[#c0c4c9] p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-xl font-bold text-white">
+              <h2 className="font-heading text-xl font-bold text-neutral-900">
                 Submit Assignment
               </h2>
               <button
@@ -448,7 +448,7 @@ export default function AssignmentsPage() {
                   setSelectedFile(null);
                   setFilePreview(null);
                 }}
-                className="text-[#b9cacb] hover:text-white transition-colors"
+                className="text-[#b9cacb] hover:text-neutral-900 transition-colors"
               >
                 ✕
               </button>
@@ -467,7 +467,7 @@ export default function AssignmentsPage() {
                   value={submissionUrl}
                   onChange={(e) => setSubmissionUrl(e.target.value)}
                   placeholder="https://github.com/..."
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#10b981] focus:outline-none"
                 />
                 <p className="mt-2 font-mono text-xs text-[#b9cacb]">
                   GitHub, n8n JSON, Google Drive, Loom, YouTube, or any valid URL
@@ -478,7 +478,7 @@ export default function AssignmentsPage() {
                 <label className="mb-2 block font-mono text-xs uppercase text-[#b9cacb]">
                   Screenshot
                 </label>
-                <div className="border-2 border-dashed border-[#3b494b] bg-[#1a1d24] p-4 text-center">
+                <div className="border-2 border-dashed border-[#3b494b] bg-[#c0c4c9] p-4 text-center">
                   {filePreview ? (
                     <div className="relative">
                       <img
@@ -489,7 +489,7 @@ export default function AssignmentsPage() {
                       <button
                         type="button"
                         onClick={handleRemoveFile}
-                        className="absolute top-2 right-2 bg-[#ff6b6b] text-white rounded-full p-1 hover:bg-[#ff4444]"
+                        className="absolute top-2 right-2 bg-[#ff6b6b] text-neutral-900 rounded-full p-1 hover:bg-[#ff4444]"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -529,7 +529,7 @@ export default function AssignmentsPage() {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Any additional notes..."
                   rows={3}
-                  className="w-full border border-[#3b494b] bg-[#1a1d24] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#00f0ff] focus:outline-none resize-none"
+                  className="w-full border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#10b981] focus:outline-none resize-none"
                 />
               </div>
 
@@ -543,14 +543,14 @@ export default function AssignmentsPage() {
                     setSelectedFile(null);
                     setFilePreview(null);
                   }}
-                  className="font-mono text-sm text-[#b9cacb] hover:text-white px-4 py-2"
+                  className="font-mono text-sm text-[#b9cacb] hover:text-neutral-900 px-4 py-2"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || uploading}
-                  className="bg-[#00f0ff] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {uploading ? 'Uploading...' : submitting ? 'Submitting...' : 'Submit'}
                 </button>
@@ -562,8 +562,8 @@ export default function AssignmentsPage() {
 
       {/* Toast */}
       {showToast && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 border border-[#00f0ff] bg-[#0c0e12] px-6 py-4 shadow-2xl">
-          <CheckCircle className="h-5 w-5 text-[#00f0ff]" />
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 border border-[#10b981] bg-[#c0c4c9] px-6 py-4 shadow-2xl">
+          <CheckCircle className="h-5 w-5 text-[#10b981]" />
           <span className="font-mono text-sm text-[#e2e8e2]">{toastMessage}</span>
         </div>
       )}

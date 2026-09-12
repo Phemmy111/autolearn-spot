@@ -24,7 +24,7 @@ export function CohortCard() {
   const formattedDate = formatDate(cohort.start_date);
 
   return (
-    <div className="border border-[#1f2229] bg-[#0c0e12]/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 lg:p-6 animate-scale-in">
+    <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 lg:p-6 animate-scale-in">
       <div className="space-y-3 sm:space-y-4">
         {/* Cohort Name */}
         <div>
@@ -36,10 +36,10 @@ export function CohortCard() {
         {/* Start Date */}
         {formattedDate && (
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-[#00f0ff] flex-shrink-0" />
+            <Calendar className="h-4 w-4 text-[#10b981] flex-shrink-0" />
             <div>
               <p className="text-[10px] sm:text-xs text-[#b9cacb] uppercase tracking-wider">Starts</p>
-              <p className="text-sm sm:text-base font-semibold text-[#00f0ff]">
+              <p className="text-sm sm:text-base font-semibold text-[#10b981]">
                 {formattedDate}
               </p>
             </div>
@@ -47,9 +47,9 @@ export function CohortCard() {
         )}
 
         {/* Duration Badge */}
-        <div className="inline-flex items-center gap-2 border border-[#00f0ff]/40 bg-[#00f0ff]/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg">
-          <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#00f0ff] flex-shrink-0" />
-          <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#00f0ff]">
+        <div className="inline-flex items-center gap-2 border border-[#10b981]/40 bg-[#10b981]/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg">
+          <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#10b981] flex-shrink-0" />
+          <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#10b981]">
             4-Week Hands-On Training
           </span>
         </div>

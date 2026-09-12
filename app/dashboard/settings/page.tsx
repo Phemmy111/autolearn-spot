@@ -41,31 +41,31 @@ export default function SettingsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-[#111317] flex items-center justify-center text-[#e2e8e2]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#00f0ff]" />
+      <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center text-[#e2e8e2]">
+        <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     )
   }
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-[#111317] flex items-center justify-center text-[#e2e8e2]">
+      <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center text-[#e2e8e2]">
         <p className="text-[#b9cacb]">Please sign in to access settings</p>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e8e2]">
+    <main className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2]">
       {/* Header */}
-      <div className="border-b border-[#3b494b] bg-[#111317]/95 backdrop-blur">
+      <div className="border-b border-[#3b494b] bg-[#c0c4c9]/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-[#b9cacb] hover:text-[#00f0ff] transition-colors">
+            <Link href="/dashboard" className="text-[#b9cacb] hover:text-[#10b981] transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-2">
-              <Settings className="h-5 w-5 text-[#00f0ff]" />
+              <Settings className="h-5 w-5 text-[#10b981]" />
               <h1 className="font-mono text-sm font-bold uppercase tracking-[0.18em]">Settings</h1>
             </div>
           </div>
@@ -80,8 +80,8 @@ export default function SettingsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-[#1a1d24] border border-[#3b494b] rounded-2xl p-6 mb-6">
-          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#00f0ff] mb-6">
+        <div className="bg-[#c0c4c9] border border-[#3b494b] rounded-2xl p-6 mb-6">
+          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Profile
           </h2>
           
@@ -104,8 +104,8 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-[#1a1d24] border border-[#3b494b] rounded-2xl p-6">
-          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#00f0ff] mb-6">
+        <div className="bg-[#c0c4c9] border border-[#3b494b] rounded-2xl p-6">
+          <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Account Information
           </h2>
           

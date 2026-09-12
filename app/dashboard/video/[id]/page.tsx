@@ -52,11 +52,11 @@ export default async function VideoPage({ params }: VideoPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[#111317] text-[#e2e2e8]">
-      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-[#111317]/95 px-4 backdrop-blur sm:px-6">
+    <main className="min-h-screen bg-[#c0c4c9] text-[#e2e2e8]">
+      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-[#c0c4c9]/95 px-4 backdrop-blur sm:px-6">
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-[#b9cacb] transition hover:text-[#00f0ff]"
+          className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-[#b9cacb] transition hover:text-[#10b981]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
@@ -65,10 +65,10 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <div className="mb-8">
-          <span className="mb-2 inline-block font-mono text-[10px] uppercase tracking-wider text-[#00f0ff]">
+          <span className="mb-2 inline-block font-mono text-[10px] uppercase tracking-wider text-[#10b981]">
             Week {video.week} • {video.duration}
           </span>
-          <h1 className="font-heading text-2xl font-bold uppercase text-white sm:text-3xl">
+          <h1 className="font-heading text-2xl font-bold uppercase text-neutral-900 sm:text-3xl">
             {video.title}
           </h1>
           <p className="mt-3 max-w-3xl font-mono text-sm leading-relaxed text-[#b9cacb]">
@@ -89,8 +89,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
         {/* Resources Section */}
         {video.resources && video.resources.length > 0 && (
-          <div className="mt-12 border border-[#1f2229] bg-[#0c0e12] p-6 sm:p-8">
-            <h2 className="mb-6 font-mono text-lg font-semibold uppercase tracking-wider text-[#00f0ff]">
+          <div className="mt-12 border border-neutral-200 bg-[#c0c4c9] p-6 sm:p-8">
+            <h2 className="mb-6 font-mono text-lg font-semibold uppercase tracking-wider text-[#10b981]">
               Session Resources
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -100,9 +100,9 @@ export default async function VideoPage({ params }: VideoPageProps) {
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 border border-[#3b494b] bg-[#111317] p-4 transition-colors hover:border-[#00f0ff] hover:bg-[#1a1d24]"
+                  className="flex items-center gap-4 border border-[#3b494b] bg-[#c0c4c9] p-4 transition-colors hover:border-[#10b981] hover:bg-[#c0c4c9]"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#00f0ff]/10 text-[#00f0ff]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#10b981]/10 text-[#10b981]">
                     <Download className="h-5 w-5" />
                   </div>
                   <span className="font-mono text-sm font-semibold text-[#e2e2e8]">
