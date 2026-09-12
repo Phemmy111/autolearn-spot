@@ -64,37 +64,37 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-100 text-gray-900 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Create New Product</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-4xl mx-auto p-6 md:p-10 bg-white rounded-2xl shadow-sm border border-neutral-200">
+      <h1 className="text-2xl font-bold text-neutral-900 mb-8">Create New Product</h1>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block font-medium">Title</label>
-          <input required className="w-full border p-2 rounded" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Title</label>
+          <input required className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
-          <label className="block font-medium">Short Description</label>
-          <textarea required className="w-full border p-2 rounded" value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} />
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Short Description</label>
+          <textarea required className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} />
         </div>
         <div>
-          <label className="block font-medium">Full Description</label>
-          <textarea required className="w-full border p-2 rounded" rows={5} value={fullDesc} onChange={(e) => setFullDesc(e.target.value)} />
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Full Description</label>
+          <textarea required className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" rows={5} value={fullDesc} onChange={(e) => setFullDesc(e.target.value)} />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <div><label className="block font-medium">Product Type</label><input required className="w-full border p-2 rounded" value={productType} onChange={(e) => setProductType(e.target.value)} /></div>
-          <div><label className="block font-medium">Category</label><input required className="w-full border p-2 rounded" value={category} onChange={(e) => setCategory(e.target.value)} /></div>
-          <div><label className="block font-medium">Skill ID</label><input required className="w-full border p-2 rounded" value={skill} onChange={(e) => setSkill(e.target.value)} /></div>
-          <div><label className="block font-medium">Difficulty</label><input required className="w-full border p-2 rounded" value={difficulty} onChange={(e) => setDifficulty(e.target.value)} /></div>
+          <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Product Type</label><input required className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={productType} onChange={(e) => setProductType(e.target.value)} /></div>
+          <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Category</label><input required className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={category} onChange={(e) => setCategory(e.target.value)} /></div>
+          <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Skill ID</label><input required className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => setSkill(e.target.value)} /></div>
+          <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Difficulty</label><input required className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={difficulty} onChange={(e) => setDifficulty(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-3 gap-4">
-          <div><label className="block font-medium">Price (₦)</label><input type="number" min="0" className="w-full border p-2 rounded" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
-          <div><label className="block font-medium">Currency</label><input className="w-full border p-2 rounded" value={currency} onChange={(e) => setCurrency(e.target.value)} /></div>
-          <div><label className="block font-medium">Access Duration (days)</label><input type="number" min="0" className="w-full border p-2 rounded" value={accessDuration} onChange={(e) => setAccessDuration(e.target.value)} /></div>
+          <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Price (₦)</label><input type="number" min="0" className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
+          <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Currency</label><input className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={currency} onChange={(e) => setCurrency(e.target.value)} /></div>
+          <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Access Duration (days)</label><input type="number" min="0" className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={accessDuration} onChange={(e) => setAccessDuration(e.target.value)} /></div>
         </div>
-        <div><label className="block font-medium">Learning Outcomes</label><textarea className="w-full border p-2 rounded" value={learningOutcomes} onChange={(e) => setLearningOutcomes(e.target.value)} /></div>
-        <div><label className="block font-medium">Requirements</label><textarea className="w-full border p-2 rounded" value={requirements} onChange={(e) => setRequirements(e.target.value)} /></div>
-        <div><label className="block font-medium">Target Audience</label><textarea className="w-full border p-2 rounded" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} /></div>
-        <div><label className="block font-medium">Thumbnail (optional)</label><input type="file" accept="image/*" onChange={(e) => setThumbnailFile(e.target.files?.[0] ?? null)} /></div>
-        <button type="submit" disabled={submitting} className="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">
+        <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Learning Outcomes</label><textarea className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={learningOutcomes} onChange={(e) => setLearningOutcomes(e.target.value)} /></div>
+        <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Requirements</label><textarea className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={requirements} onChange={(e) => setRequirements(e.target.value)} /></div>
+        <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Target Audience</label><textarea className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} /></div>
+        <div><label className="block text-sm font-semibold text-neutral-700 mb-1.5">Thumbnail (optional)</label><input type="file" accept="image/*" onChange={(e) => setThumbnailFile(e.target.files?.[0] ?? null)} /></div>
+        <button type="submit" disabled={submitting} className="w-full sm:w-auto px-8 py-3 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
           {submitting ? 'Creating…' : 'Create Product'}
         </button>
       </form>

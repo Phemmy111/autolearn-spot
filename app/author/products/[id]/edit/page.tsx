@@ -73,32 +73,32 @@ export default function EditProductPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-100 text-gray-900 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Edit Product</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-4xl mx-auto p-6 md:p-10 bg-white rounded-2xl shadow-sm border border-neutral-200">
+      <h1 className="text-2xl font-bold text-neutral-900 mb-8">Edit Product</h1>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block font-medium">Title</label>
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Title</label>
           <input
             required
-            className="w-full border p-2 rounded"
+            className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
             value={product.title || ''}
             onChange={(e) => handleChange('title', e.target.value)}
           />
         </div>
         <div>
-          <label className="block font-medium">Short Description</label>
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Short Description</label>
           <textarea
             required
-            className="w-full border p-2 rounded"
+            className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
             value={product.short_description || ''}
             onChange={(e) => handleChange('short_description', e.target.value)}
           />
         </div>
         <div>
-          <label className="block font-medium">Full Description</label>
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Full Description</label>
           <textarea
             required
-            className="w-full border p-2 rounded"
+            className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
             rows={5}
             value={product.full_description || ''}
             onChange={(e) => handleChange('full_description', e.target.value)}
@@ -106,37 +106,37 @@ export default function EditProductPage() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block font-medium">Product Type</label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Product Type</label>
             <input
               required
-              className="w-full border p-2 rounded"
+              className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
               value={product.product_type || ''}
               onChange={(e) => handleChange('product_type', e.target.value)}
             />
           </div>
           <div>
-            <label className="block font-medium">Category</label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Category</label>
             <input
               required
-              className="w-full border p-2 rounded"
+              className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
               value={product.category || ''}
               onChange={(e) => handleChange('category', e.target.value)}
             />
           </div>
           <div>
-            <label className="block font-medium">Skill ID</label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Skill ID</label>
             <input
               required
-              className="w-full border p-2 rounded"
+              className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
               value={product.skill_id || ''}
               onChange={(e) => handleChange('skill_id', e.target.value)}
             />
           </div>
           <div>
-            <label className="block font-medium">Difficulty</label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Difficulty</label>
             <input
               required
-              className="w-full border p-2 rounded"
+              className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
               value={product.difficulty || ''}
               onChange={(e) => handleChange('difficulty', e.target.value)}
             />
@@ -144,60 +144,60 @@ export default function EditProductPage() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block font-medium">Price (₦)</label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Price (₦)</label>
             <input
               type="number"
               min="0"
-              className="w-full border p-2 rounded"
+              className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
               value={product.price ?? 0}
               onChange={(e) => handleChange('price', Number(e.target.value))}
             />
           </div>
           <div>
-            <label className="block font-medium">Currency</label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Currency</label>
             <input
-              className="w-full border p-2 rounded"
+              className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
               value={product.currency || ''}
               onChange={(e) => handleChange('currency', e.target.value)}
             />
           </div>
           <div>
-            <label className="block font-medium">Access Duration (days)</label>
+            <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Access Duration (days)</label>
             <input
               type="number"
               min="0"
-              className="w-full border p-2 rounded"
+              className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
               value={product.access_duration_days ?? 0}
               onChange={(e) => handleChange('access_duration_days', Number(e.target.value))}
             />
           </div>
         </div>
         <div>
-          <label className="block font-medium">Learning Outcomes</label>
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Learning Outcomes</label>
           <textarea
-            className="w-full border p-2 rounded"
+            className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
             value={product.learning_outcomes || ''}
             onChange={(e) => handleChange('learning_outcomes', e.target.value)}
           />
         </div>
         <div>
-          <label className="block font-medium">Requirements</label>
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Requirements</label>
           <textarea
-            className="w-full border p-2 rounded"
+            className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
             value={product.requirements || ''}
             onChange={(e) => handleChange('requirements', e.target.value)}
           />
         </div>
         <div>
-          <label className="block font-medium">Target Audience</label>
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Target Audience</label>
           <textarea
-            className="w-full border p-2 rounded"
+            className="w-full bg-white border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
             value={product.target_audience || ''}
             onChange={(e) => handleChange('target_audience', e.target.value)}
           />
         </div>
         <div>
-          <label className="block font-medium">Thumbnail (optional - replace)</label>
+          <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Thumbnail (optional - replace)</label>
           <input
             type="file"
             accept="image/*"
@@ -207,7 +207,7 @@ export default function EditProductPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700"
+          className="w-full sm:w-auto px-8 py-3 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
         >
           {submitting ? 'Saving…' : 'Save Changes'}
         </button>
