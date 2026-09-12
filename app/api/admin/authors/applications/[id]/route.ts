@@ -38,8 +38,47 @@ export async function GET(
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
 
+    // Generate signed URLs for documents to bypass RLS restrictions
+    const signedUrls: any = {};
+    
+    if (application.cv_url) {
+      try {
+        const { data: signedUrlData } = await supabaseAdmin
+          .storage
+          .from('author-documents')
+          .createSignedUrl(application.cv_url, 60 * 60); // 1 hour expiry
+        signedUrls.cv = signedUrlData.signedUrl;
+      } catch (error) {
+        console.error('[Admin Application Details] Error generating signed URL for CV:', error);
+      }
+    }
+    
+    if (application.portfolio_samples_url) {
+      try {
+        const { data: signedUrlData } = await supabaseAdmin
+          .storage
+          .from('author-documents')
+          .createSignedUrl(application.portfolio_samples_url, 60 * 60);
+        signedUrls.portfolio = signedUrlData.signedUrl;
+      } catch (error) {
+        console.error('[Admin Application Details] Error generating signed URL for portfolio:', error);
+      }
+    }
+    
+    if (application.id_document_url) {
+      try {
+        const { data: signedUrlData } = await supabaseAdmin
+          .storage
+          .from('author-documents')
+          .createSignedUrl(application.id_document_url, 60 * 60);
+        signedUrls.id = signedUrlData.signedUrl;
+      } catch (error) {
+        console.error('[Admin Application Details] Error generating signed URL for ID:', error);
+      }
+    }
+
     console.log('[Admin Application Details] Successfully fetched application:', application.id);
-    return NextResponse.json({ application });
+    return NextResponse.json({ application, signedUrls });
   } catch (error) {
     console.error('[Admin Application Details] Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

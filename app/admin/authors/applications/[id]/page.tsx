@@ -20,6 +20,7 @@ export default function ApplicationDetailPage() {
   
   const [app, setApp] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [signedUrls, setSignedUrls] = useState<any>(null);
 
   React.useEffect(() => {
     async function fetchApplication() {
@@ -40,6 +41,8 @@ export default function ApplicationDetailPage() {
         
         if (data.application) {
           const appData = data.application;
+          const signedUrlsData = data.signedUrls || {};
+          
           setApp({
             id: appData.id,
             name: appData.full_name,
@@ -57,14 +60,15 @@ export default function ApplicationDetailPage() {
             bio: appData.bio || 'Not provided',
             motivation: appData.motivation || 'Not provided',
             documents: {
-              cv: appData.cv_url || '#',
-              portfolio: appData.portfolio_samples_url || '#',
-              id: appData.id_document_url || '#' 
+              cv: signedUrlsData.cv || appData.cv_url || '#',
+              portfolio: signedUrlsData.portfolio || appData.portfolio_samples_url || '#',
+              id: signedUrlsData.id || appData.id_document_url || '#' 
             },
             status: appData.status === 'SUBMITTED' || appData.status === 'UNDER_REVIEW' ? 'Pending Review' : 
                     appData.status === 'APPROVED' ? 'Approved' : 'Rejected',
             submittedAt: appData.submitted_at
           });
+          setSignedUrls(signedUrlsData);
         } else {
           setApp(null);
         }
@@ -301,11 +305,6 @@ export default function ApplicationDetailPage() {
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Upload className="h-5 w-5 text-gray-500" /> Documents
             </h2>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-amber-800">
-                <strong>Note:</strong> Document access requires RLS policy configuration. Configure storage bucket policies in Supabase Dashboard → Storage → author-documents → Policies.
-              </p>
-            </div>
             <ul className="space-y-3">
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
