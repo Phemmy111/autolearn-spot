@@ -10,6 +10,10 @@ export async function POST(request: Request) {
     // This enables the unauthenticated application flow
     const { userId } = await auth();
     
+    // Debug: List available buckets
+    const { data: buckets } = await supabaseAdmin.storage.listBuckets();
+    console.log('[Upload] Available storage buckets:', buckets?.map(b => b.name));
+    
     const formData = await request.formData();
     const cvFile = formData.get('cvFile') as File | null;
     const portfolioFile = formData.get('portfolioFile') as File | null;
@@ -31,6 +35,9 @@ export async function POST(request: Request) {
 
       const fileExt = cvFile.name.split('.').pop();
       const fileName = `author-documents/cv-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      console.log('[Upload] Attempting to upload CV to bucket: author-documents');
+      console.log('[Upload] File name:', fileName);
 
       const { error: uploadError } = await supabaseAdmin
         .storage
