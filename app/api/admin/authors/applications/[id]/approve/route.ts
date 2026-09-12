@@ -69,11 +69,15 @@ export async function POST(
       });
     }
 
+    // For unauthenticated applications, store email for later account linking
+    // clerk_user_id will be null until user creates account
+    const clerkUserId = application.user_id || null;
+
     // Create new author profile
     const { data: author, error: authorError } = await supabaseAdmin
       .from('authors')
       .insert({
-        clerk_user_id: application.user_id,
+        clerk_user_id: clerkUserId,
         display_name: application.full_name,
         email: application.email,
         bio: application.bio,
