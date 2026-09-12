@@ -64,7 +64,6 @@ export default function AuthorApplyPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingApplication, setExistingApplication] = useState<any>(null);
   const [showReapplyOption, setShowReapplyOption] = useState(false);
-  const [existingApplication, setExistingApplication] = useState<any>(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(!isSignedIn);
 
   const [formData, setFormData] = useState<FormData>({

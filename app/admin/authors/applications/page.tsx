@@ -222,8 +222,8 @@ export default function AdminApplicationsPage() {
                         </button>
                       </td>
                     </tr>
-                  ))}
-
+                  ))
+                )}
 
               </tbody>
             </table>
