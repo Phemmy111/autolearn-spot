@@ -301,6 +301,11 @@ export default function ApplicationDetailPage() {
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Upload className="h-5 w-5 text-gray-500" /> Documents
             </h2>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-amber-800">
+                <strong>Note:</strong> Document access requires RLS policy configuration. Configure storage bucket policies in Supabase Dashboard → Storage → author-documents → Policies.
+              </p>
+            </div>
             <ul className="space-y-3">
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
