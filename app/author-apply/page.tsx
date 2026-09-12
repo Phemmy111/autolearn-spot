@@ -63,6 +63,8 @@ export default function AuthorApplyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingApplication, setExistingApplication] = useState<any>(null);
+  const [showReapplyOption, setShowReapplyOption] = useState(false);
+  const [existingApplication, setExistingApplication] = useState<any>(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(!isSignedIn);
 
   const [formData, setFormData] = useState<FormData>({
@@ -167,6 +169,7 @@ export default function AuthorApplyPage() {
           cvUrl,
           portfolioUrl,
           idUrl,
+          allowReapplication: showReapplyOption,
         }),
       });
 
@@ -181,7 +184,13 @@ export default function AuthorApplyPage() {
           }, 2000);
         }
       } else {
-        alert(data.error || 'Failed to submit application');
+        // Check if this is a duplicate application error
+        if (data.error.includes('already exists') && data.existingApplication) {
+          setExistingApplication(data.existingApplication);
+          setShowReapplyOption(true);
+        } else {
+          alert(data.error || 'Failed to submit application');
+        }
       }
     } catch (error) {
       console.error('Error submitting application:', error);
@@ -246,8 +255,17 @@ export default function AuthorApplyPage() {
                 <span className="font-medium">{new Date(existingApplication.submitted_at).toLocaleDateString()}</span>
               </p>
             </div>
-            <button onClick={() => router.push('/')} className="w-full px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg">
+            <button onClick={() => router.push('/')} className="w-full px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mb-3">
               Return to Home
+            </button>
+            <button 
+              onClick={() => {
+                setShowReapplyOption(true);
+                setExistingApplication(null);
+              }}
+              className="w-full px-6 py-3.5 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors border border-indigo-200 shadow-sm"
+            >
+              Apply for Different Person
             </button>
           </div>
         </div>

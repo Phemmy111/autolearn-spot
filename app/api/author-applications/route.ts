@@ -44,12 +44,22 @@ export async function POST(request: NextRequest) {
       .or(`user_id.eq.${userIdentifier},email.eq.${email}`)
       .single();
 
-    if (existingApplication) {
+    if (existingApplication && !body.allowReapplication) {
       return NextResponse.json(
-        { error: 'An application with this email or user already exists' },
+        { 
+          error: 'An application with this email or user already exists',
+          existingApplication: {
+            id: existingApplication.id,
+            status: existingApplication.status,
+            submittedAt: existingApplication.submitted_at
+          }
+        },
         { status: 400 }
       );
     }
+
+    // If allowReapplication is true, we'll create a new application even if one exists
+    // This handles the case where someone wants to apply for another person using the same device
 
     // Create new application
     const { data: application, error } = await supabaseAdmin

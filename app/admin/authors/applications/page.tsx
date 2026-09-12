@@ -32,6 +32,8 @@ export default function AdminApplicationsPage() {
         const res = await fetch(`/api/admin/authors/applications?${params.toString()}`);
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
+        console.log('[Admin Applications] API Response:', data);
+        
         if (data.applications) {
           const mappedApps = data.applications.map((app: any) => ({
             id: app.id,
@@ -52,8 +54,12 @@ export default function AdminApplicationsPage() {
             setPagination(data.pagination);
           }
         } else {
+          console.log('[Admin Applications] No applications found in response');
           setApplications([]);
         }
+      } catch (error) {
+        console.error('[Admin Applications] Error fetching applications:', error);
+        setApplications([]);
       } finally {
         setLoading(false);
       }
@@ -216,8 +222,8 @@ export default function AdminApplicationsPage() {
                         </button>
                       </td>
                     </tr>
-                  ))
-                )}
+                  ))}
+
 
               </tbody>
             </table>

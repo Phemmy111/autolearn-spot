@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { getFormation } from './marketplace/particleFormations'
 
 function hasWebGLSupport() {
   const canvas = document.createElement('canvas')
@@ -132,7 +133,7 @@ export function ThreeAiBackground() {
     })
     const particleMaterial = new THREE.PointsMaterial({
       color: soft,
-      size: 0.028,
+      size: 0.008,
       transparent: true,
       opacity: 0.44,
       depthWrite: false,
@@ -216,69 +217,91 @@ export function ThreeAiBackground() {
       root.add(line)
     })
 
-    const particlePositions = new Float32Array(120 * 3)
-
-    for (let i = 0; i < 120; i++) {
-      const stride = i * 3
-      particlePositions[stride] = (Math.random() - 0.5) * 6.4
-      particlePositions[stride + 1] = (Math.random() - 0.5) * 4
-      particlePositions[stride + 2] = (Math.random() - 0.5) * 2.8
+    const PARTICLE_COUNT = 1200;
+    // Random initial positions
+    const randomPositions = new Float32Array(PARTICLE_COUNT * 3);
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const stride = i * 3;
+      randomPositions[stride] = (Math.random() - 0.5) * 6.4;
+      randomPositions[stride + 1] = (Math.random() - 0.5) * 4;
+      randomPositions[stride + 2] = (Math.random() - 0.5) * 2.8;
     }
 
-    const particleGeometry = new THREE.BufferGeometry()
-    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3))
-    const particles = new THREE.Points(particleGeometry, particleMaterial)
-    root.add(particles)
-
-    const resize = () => {
-      const width = mount.clientWidth
-      const height = mount.clientHeight
-      renderer.setSize(width, height, false)
-      camera.aspect = width / Math.max(height, 1)
-      camera.updateProjectionMatrix()
-
-      const isSmall = width < 720
-      root.position.set(isSmall ? -0.12 : -0.48, isSmall ? -0.55 : -0.25, 0)
-      root.scale.setScalar(isSmall ? 0.78 : 1.08)
+    // Collect target positions from block letters (autoText and learnText voxels)
+    const targetPositions = new Float32Array(PARTICLE_COUNT * 3);
+    const voxels: THREE.Object3D[] = [];
+    autoText.traverse((obj) => { if (obj.type === 'Mesh') voxels.push(obj); });
+    learnText.traverse((obj) => { if (obj.type === 'Mesh') voxels.push(obj); });
+    const voxelCount = voxels.length;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const src = voxels[i % voxelCount] as THREE.Mesh;
+      const pos = src.position;
+      const stride = i * 3;
+      targetPositions[stride] = pos.x;
+      targetPositions[stride + 1] = pos.y;
+      targetPositions[stride + 2] = pos.z;
     }
 
-    const resizeObserver = new ResizeObserver(resize)
-    resizeObserver.observe(mount)
-    resize()
+    // Initialise particle positions with random positions
+    const particlePositions = new Float32Array(PARTICLE_COUNT * 3);
+    particlePositions.set(randomPositions);
 
-    let frameId = 0
-    const startedAt = performance.now()
+    const particleGeometry = new THREE.BufferGeometry();
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    root.add(particles);
+
+    // Animation parameters
+    const cycleDuration = 8; // seconds for full write+erase cycle
 
     const animate = () => {
-      const elapsed = (performance.now() - startedAt) / 1000
+      const elapsed = (performance.now() - startedAt) / 1000;
+      const t = (elapsed % cycleDuration) / cycleDuration;
+      const progress = t < 0.5 ? t * 2 : (1 - t) * 2; // 0→1→0
 
-      root.rotation.y = Math.sin(elapsed * 0.18) * 0.06
-      root.rotation.x = Math.cos(elapsed * 0.16) * 0.04
-      letterGroup.rotation.y = Math.sin(elapsed * 0.32) * 0.035
-      autoText.rotation.y = -0.05 + Math.sin(elapsed * 0.7) * 0.055
-      autoText.rotation.x = Math.cos(elapsed * 0.48) * 0.025
-      autoText.position.z = 0.08 + Math.sin(elapsed * 0.9) * 0.12
-      learnText.rotation.y = 0.04 + Math.cos(elapsed * 0.64) * 0.055
-      learnText.rotation.x = Math.sin(elapsed * 0.52) * 0.025
-      learnText.position.z = 0.08 + Math.cos(elapsed * 0.82) * 0.12
-      core.rotation.x = elapsed * 0.18
-      core.rotation.y = elapsed * 0.24
-      particles.rotation.z = elapsed * 0.018
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const stride = i * 3;
+        const r0 = randomPositions[stride];
+        const r1 = randomPositions[stride + 1];
+        const r2 = randomPositions[stride + 2];
+        const tx = targetPositions[stride];
+        const ty = targetPositions[stride + 1];
+        const tz = targetPositions[stride + 2];
+        particlePositions[stride] = r0 * (1 - progress) + tx * progress;
+        particlePositions[stride + 1] = r1 * (1 - progress) + ty * progress;
+        particlePositions[stride + 2] = r2 * (1 - progress) + tz * progress;
+      }
+      particleGeometry.attributes.position.needsUpdate = true;
 
+      // existing rotations etc.
+      root.rotation.y = Math.sin(elapsed * 0.18) * 0.06;
+      root.rotation.x = Math.cos(elapsed * 0.16) * 0.04;
+      letterGroup.rotation.y = Math.sin(elapsed * 0.32) * 0.035;
+      autoText.rotation.y = -0.05 + Math.sin(elapsed * 0.7) * 0.055;
+      autoText.rotation.x = Math.cos(elapsed * 0.48) * 0.025;
+      autoText.position.z = 0.08 + Math.sin(elapsed * 0.9) * 0.12;
+      learnText.rotation.y = 0.04 + Math.cos(elapsed * 0.64) * 0.055;
+      learnText.rotation.x = Math.sin(elapsed * 0.52) * 0.025;
+      learnText.position.z = 0.08 + Math.cos(elapsed * 0.82) * 0.12;
+      core.rotation.x = elapsed * 0.18;
+      core.rotation.y = elapsed * 0.24;
+      particles.rotation.z = elapsed * 0.018;
       rings.forEach((ring, index) => {
-        ring.rotation.z = elapsed * (0.14 + index * 0.055)
-      })
-
+        ring.rotation.z = elapsed * (0.14 + index * 0.055);
+      });
       neuralNodes.forEach((node, index) => {
-        const pulse = 1 + Math.sin(elapsed * 1.4 + index) * 0.22
-        node.scale.setScalar(pulse)
-      })
+        const pulse = 1 + Math.sin(elapsed * 1.4 + index) * 0.22;
+        node.scale.setScalar(pulse);
+      });
 
-      renderer.render(scene, camera)
-      frameId = window.requestAnimationFrame(animate)
-    }
+      renderer.render(scene, camera);
+      frameId = window.requestAnimationFrame(animate);
+    };
 
-    animate()
+    // replace original animate definition
+    // (the previous animate function will be overwritten by this block)
+    // Start animation
+    animate();
 
     return () => {
       window.cancelAnimationFrame(frameId)
