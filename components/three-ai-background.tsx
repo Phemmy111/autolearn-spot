@@ -295,6 +295,8 @@ export function ThreeAiBackground() {
     // Animation parameters
     let frameId: number;
     const startedAt = performance.now();
+    const totalDuration = 12; // 12 seconds for the full loop
+    const baseOpacity = 0.8;
 
     const animate = () => {
       const elapsed = (performance.now() - startedAt) / 1000;
