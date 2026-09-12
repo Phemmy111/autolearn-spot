@@ -73,7 +73,7 @@ export default function EditProductPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gray-100 min-h-screen">
+    <div className="max-w-4xl mx-auto p-6 bg-gray-100 text-gray-900 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Edit Product</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
