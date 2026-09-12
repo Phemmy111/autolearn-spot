@@ -301,14 +301,19 @@ export default function ApplicationDetailPage() {
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Upload className="h-5 w-5 text-gray-500" /> Documents
             </h2>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-amber-800">
+                <strong>Note:</strong> Document storage bucket not yet configured. Documents cannot be viewed until the storage bucket is created in Supabase Dashboard.
+              </p>
+            </div>
             <ul className="space-y-3">
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-gray-500" />
                   <span className="text-sm font-medium text-gray-900">Curriculum Vitae (CV)</span>
                 </div>
-                {app.documents.cv && app.documents.cv !== '#' ? (
-                  <a href={app.documents.cv} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+                {app.documents.cv && app.documents.cv !== '#' && app.documents.cv !== 'Not provided' ? (
+                  <span className="text-sm text-gray-400 italic">Storage not configured</span>
                 ) : (
                   <span className="text-sm text-gray-400 italic">Not provided</span>
                 )}
@@ -318,8 +323,8 @@ export default function ApplicationDetailPage() {
                   <FileText className="h-5 w-5 text-gray-500" />
                   <span className="text-sm font-medium text-gray-900">Portfolio Samples</span>
                 </div>
-                {app.documents.portfolio && app.documents.portfolio !== '#' ? (
-                  <a href={app.documents.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">Download</a>
+                {app.documents.portfolio && app.documents.portfolio !== '#' && app.documents.portfolio !== 'Not provided' ? (
+                  <span className="text-sm text-gray-400 italic">Storage not configured</span>
                 ) : (
                   <span className="text-sm text-gray-400 italic">Not provided</span>
                 )}
@@ -329,8 +334,8 @@ export default function ApplicationDetailPage() {
                   <FileText className="h-5 w-5 text-gray-500" />
                   <span className="text-sm font-medium text-gray-900">ID Document</span>
                 </div>
-                {app.documents.id && app.documents.id !== '#' ? (
-                  <a href={app.documents.id} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
+                {app.documents.id && app.documents.id !== '#' && app.documents.id !== 'Not provided' ? (
+                  <span className="text-sm text-gray-400 italic">Storage not configured</span>
                 ) : (
                   <span className="text-sm text-gray-400 italic">Not provided</span>
                 )}
