@@ -254,10 +254,15 @@ export default function AuthorApplyPage() {
                 <span className="font-medium">{new Date(existingApplication.submitted_at).toLocaleDateString()}</span>
               </p>
             </div>
-            <button onClick={() => router.push('/')} className="w-full px-6 py-3.5 bg-indigo-600 text-neutral-900 font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mb-3">
+            <button onClick={() => router.push('/')} className="w-full px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg mb-3">
               Return to Home
             </button>
-            <button 
+            {(existingApplication.status === 'APPROVED' || existingApplication.status === 'ACTIVE') && (
+              <button onClick={() => router.push('/author-sign-in')} className="w-full px-6 py-3.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-md hover:shadow-lg mb-3">
+                Login to Author Dashboard
+              </button>
+            )}
+            <button
               onClick={() => {
                 setShowReapplyOption(true);
                 setExistingApplication(null);
