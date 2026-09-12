@@ -129,17 +129,41 @@ export class EmailService {
     name: string,
     loginUrl?: string
   ): Promise<boolean> {
+    // Use production URL if not provided
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com';
+    const authorLoginUrl = `${baseUrl}/author-sign-in`;
+    const authorAuthUrl = `${baseUrl}/author-auth`;
+
     const template: EmailTemplate = {
       to: email,
       subject: 'Congratulations! Your Application is Approved - AutoLearn Spot',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #10B981;">Congratulations! Your Application is Approved</h2>
-          <p>Hi ${name},</p>
-          <p>We are pleased to inform you that your application to become an author on AutoLearn Spot has been approved!</p>
-          <p>You can now access the author portal and start creating your courses.</p>
-          ${loginUrl ? `<p><a href="${loginUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Access Author Portal</a></p>` : ''}
-          <p>If you have any questions, please don't hesitate to reach out.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">Congratulations! 🎉</h2>
+          <p>Dear ${name},</p>
+          <p>We are pleased to inform you that your application to become an author on AutoLearn Spot has been <strong>approved</strong>!</p>
+
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="margin-top: 0;">Your Author Account Details</h3>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Status:</strong> Active Author</p>
+          </div>
+
+          <p><strong>How to Log In:</strong></p>
+          <ol>
+            <li>Visit the <a href="${authorLoginUrl}" style="color: #4F46E5;">Author Login Page</a></li>
+            <li>Enter your email address (${email})</li>
+            <li>If you created an account during application, use your existing password</li>
+            <li>If you haven't created an account yet, click "Create Account" first</li>
+          </ol>
+
+          <p><strong>Quick Links:</strong></p>
+          <p><a href="${authorLoginUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Log In to Author Portal</a></p>
+          <p><a href="${authorAuthUrl}" style="color: #4F46E5;">Author Portal Home</a></p>
+
+          <p>You can now access the author dashboard and start creating your courses!</p>
+          <p>If you have any questions or need assistance, please don't hesitate to reach out.</p>
+
           <p>Best regards,<br>The AutoLearn Spot Team</p>
         </div>
       `,

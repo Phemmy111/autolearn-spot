@@ -143,8 +143,7 @@ export async function POST(
     try {
       await EmailService.sendApplicationApproved(
         application.email,
-        application.full_name,
-        `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/author`
+        application.full_name
       );
       console.log('[Admin Approval] Approval email sent to:', application.email);
     } catch (emailError) {
