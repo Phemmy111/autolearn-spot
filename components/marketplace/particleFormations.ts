@@ -50,10 +50,74 @@ function generateWavePoints(count: number, width: number, height: number): Point
   return points;
 }
 
+// Cache for text points to avoid expensive canvas operations on every frame
+const textCache: Record<string, Point[]> = {};
+
+function generateTextPoints(text: string, count: number, width: number, height: number): Point[] {
+  const cacheKey = `${text}-${width}x${height}`;
+  if (textCache[cacheKey] && textCache[cacheKey].length > 0) {
+    return stretchToCount(textCache[cacheKey], count);
+  }
+
+  const canvas = document.createElement('canvas');
+  // Use a smaller canvas for sampling to keep performance good
+  const w = Math.min(width, 800);
+  const h = Math.min(height, 600);
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return generateCirclePoints(count, width, height); // fallback
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = 'black';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // Adjust font size based on text length and canvas width
+  const fontSize = Math.min(w / (text.length * 0.6), h / 2);
+  ctx.font = `bold ${fontSize}px sans-serif`;
+  ctx.fillText(text, w / 2, h / 2);
+
+  const imgData = ctx.getImageData(0, 0, w, h).data;
+  const points: Point[] = [];
+  
+  // Sample pixels (step by 2 or 3 to reduce points)
+  for (let y = 0; y < h; y += 2) {
+    for (let x = 0; x < w; x += 2) {
+      const alpha = imgData[(y * w + x) * 4 + 3];
+      if (alpha > 128) {
+        // Map back to actual canvas dimensions
+        points.push({
+          x: x * (width / w),
+          y: y * (height / h)
+        });
+      }
+    }
+  }
+
+  if (points.length === 0) return generateCirclePoints(count, width, height); // fallback
+
+  // Shuffle points to make them distribute more randomly
+  for (let i = points.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [points[i], points[j]] = [points[j], points[i]];
+  }
+
+  textCache[cacheKey] = points;
+  return stretchToCount(points, count);
+}
+
+function stretchToCount(points: Point[], count: number): Point[] {
+  const result: Point[] = [];
+  for (let i = 0; i < count; i++) {
+    result.push(points[i % points.length]);
+  }
+  return result;
+}
+
 /**
  * Returns an array of target points for the requested formation.
- * Supported formations: "circle", "star", "wave".
- * If an unknown name is supplied, it falls back to a circle.
+ * Supported formations: text strings or legacy "circle", "star", "wave".
  */
 export function getFormation(name: string, width: number, height: number, count: number): Point[] {
   switch (name) {
@@ -62,7 +126,8 @@ export function getFormation(name: string, width: number, height: number, count:
     case 'wave':
       return generateWavePoints(count, width, height);
     case 'circle':
-    default:
       return generateCirclePoints(count, width, height);
+    default:
+      return generateTextPoints(name, count, width, height);
   }
 }

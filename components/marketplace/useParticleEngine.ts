@@ -9,18 +9,18 @@ export interface Particle {
   size: number;
   color: string;
   opacity: number;
+  baseOpacity: number;
 }
 
 // Configuration constants – tweak for performance / look
-const COLORS = ['#059669', '#0d9488', '#0284c7', '#6366f1', '#475569', '#10b981'];
-const FORMATIONS = ['circle', 'star', 'wave'] as const;
-const FORMATION_DURATION_MS = 12000; // 12 s per shape
-const EASE_FACTOR = 0.07; // how quickly particles move toward target
-const MAX_PARTICLES_DENSITY = 6000; // area / divisor (higher = fewer particles)
+const COLORS = ['#111111', '#222222', '#333333', '#444444', '#555555'];
+const FORMATIONS = ['Auto', 'Learn', 'Spot', 'AutoLearnSpot'] as const;
+const FORMATION_DURATION_MS = 3000; // 3s per word phase
+const EASE_FACTOR = 0.05; // how quickly particles move toward target
+const MAX_PARTICLES_DENSITY = 700; // lower = more particles (uncountable)
 
 export function useParticleEngine(width: number, height: number) {
   const [particles, setParticles] = useState<Particle[]>([]);
-  const formationIdx = useRef(0);
   const lastTimeRef = useRef<number>(0);
 
   // Initialize particles when canvas size becomes known
@@ -32,49 +32,49 @@ export function useParticleEngine(width: number, height: number) {
       init.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.random() * 3 + 1,
+        size: Math.random() * 1.5 + 0.5, // very small
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        opacity: Math.random() * 0.5 + 0.5,
+        opacity: 0,
+        baseOpacity: Math.random() * 0.15 + 0.1, // low opacity for background feel
       });
     }
     setParticles(init);
   }, [width, height]);
 
-  // Cycle through formations on a timer
+  // Animation loop
   useEffect(() => {
-    const interval = setInterval(() => {
-      formationIdx.current = (formationIdx.current + 1) % FORMATIONS.length;
-    }, FORMATION_DURATION_MS);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Animation loop – update particle positions toward current formation targets
-  useEffect(() => {
-    if (width === 0 || height === 0) return;
+    if (width === 0 || height === 0 || particles.length === 0) return;
     let animId: number;
     const loop = (time: number) => {
       if (!lastTimeRef.current) lastTimeRef.current = time;
       const dt = time - lastTimeRef.current;
       lastTimeRef.current = time;
 
-      // Determine target points for current formation
-      const formationName = FORMATIONS[formationIdx.current];
-      const targetPoints = getFormation(
-        formationName,
-        width,
-        height,
-        particles.length,
-      );
+      const totalDuration = FORMATIONS.length * FORMATION_DURATION_MS;
+      const globalTime = time % totalDuration;
+      const formationIdx = Math.floor(globalTime / FORMATION_DURATION_MS);
+      const phaseTime = globalTime % FORMATION_DURATION_MS;
+      const phaseProgress = phaseTime / FORMATION_DURATION_MS;
 
-      // Update each particle toward its assigned target point (index modulo length)
+      // Smooth opacity fading: fades down briefly at the transition, fades up in the middle
+      const fade = Math.sin(phaseProgress * Math.PI);
+
+      const formationName = FORMATIONS[formationIdx];
+      const targetPoints = getFormation(formationName, width, height, particles.length);
+
       const updated = particles.map((p, i) => {
         const target = targetPoints[i % targetPoints.length];
         const dx = target.x - p.x;
         const dy = target.y - p.y;
-        // Simple easing movement – scaled by dt to keep speed consistent
+        
+        // Easing movement
         const nx = p.x + dx * EASE_FACTOR * (dt / 16);
         const ny = p.y + dy * EASE_FACTOR * (dt / 16);
-        return { ...p, x: nx, y: ny };
+        
+        // Update opacity to fade in and out per word
+        const op = p.baseOpacity * (fade * 0.8 + 0.2);
+
+        return { ...p, x: nx, y: ny, opacity: op };
       });
 
       setParticles(updated);
@@ -82,7 +82,7 @@ export function useParticleEngine(width: number, height: number) {
     };
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, [particles, width, height]);
+  }, [particles.length, width, height]);
 
   return particles;
 }

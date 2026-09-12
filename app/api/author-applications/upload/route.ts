@@ -54,12 +54,20 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to upload CV' }, { status: 500 });
       }
 
-      const { data: { publicUrl } } = supabaseAdmin
-        .storage
-        .from('author-documents')
-        .getPublicUrl(fileName);
+      let cvUrl = null;
+      try {
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('author-documents')
+          .getPublicUrl(fileName);
+        cvUrl = publicUrl;
+      } catch (urlError) {
+        console.error('[Upload] Error getting public URL for CV:', urlError);
+        // If bucket doesn't exist, we still store the file but won't have a public URL
+        cvUrl = `author-documents/${fileName}`;
+      }
 
-      result.cvUrl = publicUrl;
+      result.cvUrl = cvUrl;
     }
 
     // Handle Portfolio upload
@@ -99,12 +107,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to upload portfolio' }, { status: 500 });
       }
 
-      const { data: { publicUrl } } = supabaseAdmin
-        .storage
-        .from('author-documents')
-        .getPublicUrl(fileName);
+      let portfolioUrl = null;
+      try {
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('author-documents')
+          .getPublicUrl(fileName);
+        portfolioUrl = publicUrl;
+      } catch (urlError) {
+        console.error('[Upload] Error getting public URL for portfolio:', urlError);
+        portfolioUrl = `author-documents/${fileName}`;
+      }
 
-      result.portfolioUrl = publicUrl;
+      result.portfolioUrl = portfolioUrl;
     }
 
     // Handle ID Document upload
@@ -144,12 +159,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed to upload ID document' }, { status: 500 });
       }
 
-      const { data: { publicUrl } } = supabaseAdmin
-        .storage
-        .from('author-documents')
-        .getPublicUrl(fileName);
+      let idUrl = null;
+      try {
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('author-documents')
+          .getPublicUrl(fileName);
+        idUrl = publicUrl;
+      } catch (urlError) {
+        console.error('[Upload] Error getting public URL for ID:', urlError);
+        idUrl = `author-documents/${fileName}`;
+      }
 
-      result.idUrl = publicUrl;
+      result.idUrl = idUrl;
     }
 
     return NextResponse.json({ success: true, ...result });
