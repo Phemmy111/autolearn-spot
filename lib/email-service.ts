@@ -133,6 +133,7 @@ export class EmailService {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearnspot.com';
     const authorLoginUrl = `${baseUrl}/author-sign-in`;
     const authorAuthUrl = `${baseUrl}/author-auth`;
+    const signUpUrl = `${baseUrl}/sign-up?redirect=/author`;
 
     const template: EmailTemplate = {
       to: email,
@@ -149,16 +150,28 @@ export class EmailService {
             <p><strong>Status:</strong> Active Author</p>
           </div>
 
-          <p><strong>How to Log In:</strong></p>
+          <p><strong>How to Access Your Author Dashboard:</strong></p>
+
+          <p><strong>Scenario 1: You created an account during application</strong></p>
           <ol>
             <li>Visit the <a href="${authorLoginUrl}" style="color: #4F46E5;">Author Login Page</a></li>
             <li>Enter your email address (${email})</li>
-            <li>If you created an account during application, use your existing password</li>
-            <li>If you haven't created an account yet, click "Create Account" first</li>
+            <li>Enter the password you created during sign-up</li>
+            <li>You will be redirected to your author dashboard</li>
+          </ol>
+
+          <p><strong>Scenario 2: You haven't created an account yet</strong></p>
+          <ol>
+            <li>First, <a href="${signUpUrl}" style="color: #4F46E5;">Create Your Account</a></li>
+            <li>Use your email address (${email})</li>
+            <li>Create a secure password</li>
+            <li>After sign-up, visit the <a href="${authorLoginUrl}" style="color: #4F46E5;">Author Login Page</a></li>
+            <li>Log in with your new credentials</li>
           </ol>
 
           <p><strong>Quick Links:</strong></p>
           <p><a href="${authorLoginUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Log In to Author Portal</a></p>
+          <p><a href="${signUpUrl}" style="background-color: #6B7280; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Create Account</a></p>
           <p><a href="${authorAuthUrl}" style="color: #4F46E5;">Author Portal Home</a></p>
 
           <p>You can now access the author dashboard and start creating your courses!</p>
