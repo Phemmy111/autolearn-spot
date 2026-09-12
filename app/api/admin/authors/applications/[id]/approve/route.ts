@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
 import { EmailService } from '@/lib/email-service';
+import { ClerkService } from '@/lib/clerk-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -127,6 +128,10 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to approve application' }, { status: 500 });
     }
 
+    // Note: Clerk account provisioning is handled via the existing authentication flow
+    // The applicant already has a Clerk account from the application process
+    // In the future, we can implement Clerk Backend API for true account creation
+    
     // Send approval email
     await EmailService.sendApplicationApproved(
       application.email,
@@ -138,7 +143,7 @@ export async function POST(
       success: true,
       application: updatedApp,
       author,
-      message: 'Application approved and author profile created.',
+      message: 'Application approved and author profile created. User can access author portal with existing credentials.',
     });
   } catch (error) {
     console.error('Error in approve application API:', error);

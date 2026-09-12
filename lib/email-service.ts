@@ -2,10 +2,10 @@
  * Email Notification Service
  * 
  * This service handles sending emails for author application status changes
- * and other author-related notifications.
- * 
- * TODO: Integrate with an email provider (Resend, SendGrid, or Supabase Email)
+ * and other author-related notifications using Nodemailer.
  */
+
+import nodemailer from 'nodemailer';
 
 interface EmailTemplate {
   to: string;
@@ -15,29 +15,89 @@ interface EmailTemplate {
 }
 
 export class EmailService {
+  private static transporter: nodemailer.Transporter | null = null;
+
+  /**
+   * Initialize email transporter
+   */
+  private static getTransporter(): nodemailer.Transporter {
+    if (!this.transporter) {
+      // Check which email provider to use
+      const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
+      
+      if (emailProvider === 'resend') {
+        // Resend API integration
+        this.transporter = nodemailer.createTransport({
+          host: 'smtp.resend.com',
+          port: 587,
+          secure: false,
+          auth: {
+            user: 'resend',
+            pass: process.env.RESEND_API_KEY,
+          },
+        });
+      } else if (emailProvider === 'sendgrid') {
+        // SendGrid integration
+        this.transporter = nodemailer.createTransport({
+          host: 'smtp.sendgrid.net',
+          port: 587,
+          secure: false,
+          auth: {
+            user: 'apikey',
+            pass: process.env.SENDGRID_API_KEY,
+          },
+        });
+      } else {
+        // Default SMTP configuration (works with Gmail, Outlook, custom SMTP)
+        this.transporter = nodemailer.createTransport({
+          host: process.env.SMTP_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.SMTP_PORT || '587'),
+          secure: process.env.SMTP_SECURE === 'true',
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASSWORD,
+          },
+        });
+      }
+    }
+    
+    return this.transporter;
+  }
+
   /**
    * Send an email
-   * TODO: Integrate with actual email provider
    */
   private static async sendEmail(template: EmailTemplate): Promise<boolean> {
     try {
-      // TODO: Replace with actual email provider integration
-      // Examples:
-      // - Resend: await resend.emails.send({ ... })
-      // - SendGrid: await sgMail.send({ ... })
-      // - Supabase: await supabaseAdmin.auth.admin.sendEmail({ ... })
-
-      console.log('[EmailService] Sending email:', {
+      const transporter = this.getTransporter();
+      
+      const mailOptions = {
+        from: process.env.EMAIL_FROM || 'AutoLearn Spot <noreply@autolearnspot.com>',
         to: template.to,
         subject: template.subject,
-      });
+        html: template.html,
+        text: template.text,
+      };
 
-      // For now, just log the email
-      console.log('[EmailService] Email content:', template.html);
+      const info = await transporter.sendMail(mailOptions);
+      
+      console.log('[EmailService] Email sent successfully:', {
+        to: template.to,
+        subject: template.subject,
+        messageId: info.messageId,
+      });
 
       return true;
     } catch (error) {
       console.error('[EmailService] Failed to send email:', error);
+      
+      // Fallback to logging if email fails
+      console.log('[EmailService] Email fallback (logging):', {
+        to: template.to,
+        subject: template.subject,
+        html: template.html,
+      });
+      
       return false;
     }
   }

@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { auth } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
+    // Allow both authenticated and unauthenticated file uploads
+    // This enables the unauthenticated application flow
+    const { userId } = await auth();
+    
     const formData = await request.formData();
     const cvFile = formData.get('cvFile') as File | null;
     const portfolioFile = formData.get('portfolioFile') as File | null;
@@ -37,6 +42,15 @@ export async function POST(request: Request) {
 
       if (uploadError) {
         console.error('[POST /api/author-applications/upload] CV upload error:', uploadError);
+        
+        // Check if it's an RLS/permission error
+        if (uploadError.message?.includes('permission') || uploadError.message?.includes('policy')) {
+          return NextResponse.json({ 
+            error: 'Storage permission error. Please configure RLS policies for author-documents bucket.',
+            details: uploadError.message 
+          }, { status: 403 });
+        }
+        
         return NextResponse.json({ error: 'Failed to upload CV' }, { status: 500 });
       }
 
@@ -73,6 +87,15 @@ export async function POST(request: Request) {
 
       if (uploadError) {
         console.error('[POST /api/author-applications/upload] Portfolio upload error:', uploadError);
+        
+        // Check if it's an RLS/permission error
+        if (uploadError.message?.includes('permission') || uploadError.message?.includes('policy')) {
+          return NextResponse.json({ 
+            error: 'Storage permission error. Please configure RLS policies for author-documents bucket.',
+            details: uploadError.message 
+          }, { status: 403 });
+        }
+        
         return NextResponse.json({ error: 'Failed to upload portfolio' }, { status: 500 });
       }
 
@@ -109,6 +132,15 @@ export async function POST(request: Request) {
 
       if (uploadError) {
         console.error('[POST /api/author-applications/upload] ID upload error:', uploadError);
+        
+        // Check if it's an RLS/permission error
+        if (uploadError.message?.includes('permission') || uploadError.message?.includes('policy')) {
+          return NextResponse.json({ 
+            error: 'Storage permission error. Please configure RLS policies for author-documents bucket.',
+            details: uploadError.message 
+          }, { status: 403 });
+        }
+        
         return NextResponse.json({ error: 'Failed to upload ID document' }, { status: 500 });
       }
 

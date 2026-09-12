@@ -1,0 +1,55 @@
+-- Configure RLS policies for author-documents storage bucket
+-- This migration sets up proper access control for author document uploads
+-- 
+-- IMPORTANT: This migration requires database owner permissions.
+-- If you get "must be owner of table objects" error, use one of these alternatives:
+-- 1. Run this in Supabase Dashboard SQL Editor (uses service role automatically)
+-- 2. Configure RLS manually in Supabase Dashboard → Storage → author-documents → Policies
+-- 3. Contact Supabase support for owner permissions
+--
+-- ALTERNATIVE: If you can't run this migration, the file upload API will still work
+-- because it uses the service role client (supabaseAdmin) which bypasses RLS restrictions.
+
+-- For manual configuration in Supabase Dashboard, create these policies:
+--
+-- Policy 1: Public Read Access
+-- Name: "Public read access to author documents"
+-- Allowed operation: SELECT
+-- Target roles: public, authenticated
+-- Policy definition: bucket_id = 'author-documents'
+--
+-- Policy 2: Authenticated Insert
+-- Name: "Authenticated insert to author documents"  
+-- Allowed operation: INSERT
+-- Target roles: authenticated
+-- Policy definition: bucket_id = 'author-documents'
+--
+-- Policy 3: Service Role Full Access
+-- Name: "Service role full access"
+-- Allowed operation: ALL
+-- Target roles: service_role
+-- Policy definition: (true) USING (true) WITH CHECK (true)
+
+-- If you have owner permissions, uncomment and run the following:
+
+-- ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- 
+-- DROP POLICY IF EXISTS "Public read access to author documents" ON storage.objects;
+-- DROP POLICY IF EXISTS "Authenticated insert to author documents" ON storage.objects;
+-- DROP POLICY IF EXISTS "Service role full access" ON storage.objects;
+-- 
+-- CREATE POLICY "Public read access to author documents"
+-- ON storage.objects FOR SELECT
+-- TO public
+-- USING (bucket_id = 'author-documents');
+-- 
+-- CREATE POLICY "Authenticated insert to author documents"
+-- ON storage.objects FOR INSERT
+-- TO authenticated
+-- WITH CHECK (bucket_id = 'author-documents');
+-- 
+-- CREATE POLICY "Service role full access"
+-- ON storage.objects FOR ALL
+-- TO service_role
+-- USING (true)
+-- WITH CHECK (true);

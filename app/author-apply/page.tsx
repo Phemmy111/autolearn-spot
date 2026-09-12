@@ -63,6 +63,7 @@ export default function AuthorApplyPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingApplication, setExistingApplication] = useState<any>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(!isSignedIn);
 
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -122,6 +123,32 @@ export default function AuthorApplyPage() {
     setIsSubmitting(true);
 
     try {
+      // Upload files first if they exist
+      let cvUrl = null;
+      let portfolioUrl = null;
+      let idUrl = null;
+
+      if (cvFile || portfolioFile || idFile) {
+        const uploadFormData = new FormData();
+        if (cvFile) uploadFormData.append('cvFile', cvFile);
+        if (portfolioFile) uploadFormData.append('portfolioFile', portfolioFile);
+        if (idFile) uploadFormData.append('idFile', idFile);
+
+        const uploadResponse = await fetch('/api/author-applications/upload', {
+          method: 'POST',
+          body: uploadFormData,
+        });
+
+        const uploadData = await uploadResponse.json();
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.error || 'Failed to upload files');
+        }
+
+        cvUrl = uploadData.cvUrl || null;
+        portfolioUrl = uploadData.portfolioUrl || null;
+        idUrl = uploadData.idUrl || null;
+      }
+
       const response = await fetch('/api/author-applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -137,12 +164,22 @@ export default function AuthorApplyPage() {
           expertiseArea: formData.expertiseAreas.join(', '),
           bio: formData.bio,
           whyBecomeAuthor: formData.bio,
+          cvUrl,
+          portfolioUrl,
+          idUrl,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
         setIsSubmitted(true);
+        
+        // If unauthenticated and requires auth, redirect to sign up
+        if (data.requiresAuth) {
+          setTimeout(() => {
+            router.push('/sign-up?redirect=/author');
+          }, 2000);
+        }
       } else {
         alert(data.error || 'Failed to submit application');
       }
@@ -154,8 +191,8 @@ export default function AuthorApplyPage() {
     }
   };
 
-  /* ───── Sign-in prompt ───── */
-  if (!isSignedIn) {
+  /* ───── Sign-in prompt (modal style) ───── */
+  if (showAuthPrompt && !isSignedIn) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-lg w-full text-center">
@@ -165,12 +202,15 @@ export default function AuthorApplyPage() {
               <GraduationCap className="w-8 h-8 text-indigo-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Get Started</h2>
-            <p className="text-gray-500 mb-8 font-medium">Sign in or create an account to apply as an author.</p>
+            <p className="text-gray-500 mb-8 font-medium">You can apply as an author without signing in, or create an account to track your application status.</p>
             <div className="space-y-4">
-              <button onClick={() => router.push('/sign-up')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+              <button onClick={() => setShowAuthPrompt(false)} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                <Sparkles className="w-5 h-5" /> Apply Without Account
+              </button>
+              <button onClick={() => router.push('/sign-up')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-indigo-600 text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors">
                 <UserPlus className="w-5 h-5" /> Create Account
               </button>
-              <button onClick={() => router.push('/sign-in')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-indigo-600 text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors">
+              <button onClick={() => router.push('/sign-in')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors">
                 <LogIn className="w-5 h-5" /> Sign In
               </button>
             </div>
@@ -228,10 +268,22 @@ export default function AuthorApplyPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-3">Application Submitted!</h1>
             <p className="text-gray-600 mb-8 font-medium leading-relaxed">
               Thank you for your interest in becoming an instructor. We&apos;ll review your application and get back to you within 3–5 business days.
+              {!isSignedIn && (
+                <span className="block mt-3 text-indigo-600">
+                  Create an account to track your application status and get updates.
+                </span>
+              )}
             </p>
-            <button onClick={() => router.push('/')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
-              Return to Home <ArrowRight className="w-5 h-5" />
-            </button>
+            <div className="space-y-3">
+              {!isSignedIn && (
+                <button onClick={() => router.push('/sign-up?redirect=/author')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                  <UserPlus className="w-5 h-5" /> Create Account to Track Status
+                </button>
+              )}
+              <button onClick={() => router.push('/')} className="w-full flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors">
+                Return to Home <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -339,7 +391,7 @@ export default function AuthorApplyPage() {
 
                 <hr className="my-8 border-gray-100" />
 
-                <form onSubmit={handleSubmit} className="space-y-12">
+                <form id="application-form" onSubmit={handleSubmit} className="space-y-12">
 
                   {/* ─── Section 1: Personal Information ─── */}
                   <div className="group">

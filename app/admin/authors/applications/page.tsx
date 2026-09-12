@@ -8,7 +8,6 @@ import {
   Filter, MoreHorizontal, FileText, CheckCircle2,
   XCircle, Clock, SearchIcon
 } from 'lucide-react';
-import { useAuth } from '@clerk/nextjs';
 
 export default function AdminApplicationsPage() {
   const router = useRouter();
@@ -30,12 +29,14 @@ export default function AdminApplicationsPage() {
             name: app.full_name,
             avatar: app.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
             email: app.email,
-            expertise: app.expertise_area || 'Not specified',
+            expertise: app.expertise && Array.isArray(app.expertise) && app.expertise.length > 0 
+              ? app.expertise[0] 
+              : app.professional_title || 'Not specified',
             status: app.status === 'SUBMITTED' || app.status === 'UNDER_REVIEW' ? 'Pending Review' : 
                     app.status === 'APPROVED' ? 'Approved' : 'Rejected',
             date: new Date(app.submitted_at).toLocaleDateString(),
-            experience: 'Not specified', // Missing from DB schema usually or not in query
-            documents: (app.portfolio_link ? 1 : 0) + (app.resume_link ? 1 : 0) || 1
+            experience: app.years_of_experience || 'Not specified',
+            documents: (app.portfolio_samples_url ? 1 : 0) + (app.cv_url ? 1 : 0) + (app.id_document_url ? 1 : 0) || 0
           }));
           setApplications(mappedApps);
         } else {

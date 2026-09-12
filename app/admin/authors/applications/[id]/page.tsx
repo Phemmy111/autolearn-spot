@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -77,20 +77,22 @@ export default function ApplicationDetailPage() {
             id: appData.id,
             name: appData.full_name,
             avatar: appData.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
-            email: appData.email,
-            phone: 'Not provided', 
-            location: 'Not provided',
-            linkedin: appData.linkedin_link || '#',
-            portfolio: appData.portfolio_link || '#',
-            professionalTitle: appData.expertise_area || 'Not specified',
-            experience: 'Not specified',
-            skills: ['Not specified'],
+            email: appData.email || 'Not provided',
+            phone: appData.phone || 'Not provided', 
+            location: appData.location || 'Not provided',
+            linkedin: appData.linkedin_profile || '#',
+            portfolio: appData.website_portfolio || appData.portfolio_url || '#',
+            professionalTitle: appData.professional_title || 'Not specified',
+            experience: appData.years_of_experience || 'Not specified',
+            skills: appData.expertise && Array.isArray(appData.expertise) && appData.expertise.length > 0 
+              ? appData.expertise 
+              : ['Not specified'],
             bio: appData.bio || 'Not provided',
-            motivation: appData.why_become_author || 'Not provided',
+            motivation: appData.motivation || 'Not provided',
             documents: {
-              cv: appData.resume_link || '#',
-              portfolio: appData.portfolio_link || '#',
-              id: '#' 
+              cv: appData.cv_url || '#',
+              portfolio: appData.portfolio_samples_url || '#',
+              id: appData.id_document_url || '#' 
             },
             status: appData.status === 'SUBMITTED' || appData.status === 'UNDER_REVIEW' ? 'Pending Review' : 
                     appData.status === 'APPROVED' ? 'Approved' : 'Rejected',
@@ -132,9 +134,87 @@ export default function ApplicationDetailPage() {
     Rejected: 'bg-red-50 text-red-700 border-red-100',
   };
 
-  const handleAction = (action: string) => {
-    // Placeholder – in production trigger API calls.
-    alert(`${action} action triggered for ${app.name}`);
+  const handleAction = async (action: string) => {
+    try {
+      if (action === 'Approve') {
+        const response = await fetch(`/api/admin/authors/applications/${id}/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ admin_review_note: 'Approved via admin portal' })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          alert(`Application approved successfully! Author profile created.`);
+          // Refresh the application data
+          const res = await fetch(`/api/admin/authors/applications/${id}`);
+          const newData = await res.json();
+          if (newData.application) {
+            const appData = newData.application;
+            setApp(prev => ({
+              ...prev,
+              status: 'Approved',
+            }));
+          }
+        } else {
+          alert('Failed to approve application');
+        }
+      } else if (action === 'Reject') {
+        const reason = prompt('Please provide a reason for rejection:');
+        if (reason) {
+          const response = await fetch(`/api/admin/authors/applications/${id}/decline`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ admin_review_note: reason })
+          });
+          
+          if (response.ok) {
+            alert('Application declined successfully');
+            // Refresh the application data
+            const res = await fetch(`/api/admin/authors/applications/${id}`);
+            const newData = await res.json();
+            if (newData.application) {
+              setApp(prev => ({
+                ...prev,
+                status: 'Rejected',
+              }));
+            }
+          } else {
+            alert('Failed to decline application');
+          }
+        }
+      } else if (action === 'Request Changes') {
+        const note = prompt('Please describe the changes needed:');
+        if (note) {
+          const response = await fetch(`/api/admin/authors/applications/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              status: 'UNDER_REVIEW',
+              admin_review_note: note 
+            })
+          });
+          
+          if (response.ok) {
+            alert('Request for changes sent successfully');
+            // Refresh the application data
+            const res = await fetch(`/api/admin/authors/applications/${id}`);
+            const newData = await res.json();
+            if (newData.application) {
+              setApp(prev => ({
+                ...prev,
+                status: 'Pending Review',
+              }));
+            }
+          } else {
+            alert('Failed to request changes');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error handling action:', error);
+      alert('An error occurred while processing your request');
+    }
   };
 
   return (

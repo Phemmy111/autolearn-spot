@@ -6,10 +6,7 @@ import { EmailService } from '@/lib/email-service';
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+    
     const body = await request.json();
     const {
       fullName,
@@ -36,16 +33,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already has an application
+    // For unauthenticated applications, use email as a temporary identifier
+    // For authenticated applications, use the Clerk user ID
+    const userIdentifier = userId || email;
+    
+    // Check if application already exists (by email for unauthenticated, by user_id for authenticated)
     const { data: existingApplication } = await supabaseAdmin
       .from('author_applications')
       .select('*')
-      .eq('user_id', userId)
+      .or(`user_id.eq.${userIdentifier},email.eq.${email}`)
       .single();
 
     if (existingApplication) {
       return NextResponse.json(
-        { error: 'You already have an application pending or approved' },
+        { error: 'An application with this email or user already exists' },
         { status: 400 }
       );
     }
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
     const { data: application, error } = await supabaseAdmin
       .from('author_applications')
       .insert({
-        user_id: userId,
+        user_id: userId || null, // null for unauthenticated applications
         full_name: fullName,
         email,
         phone,
@@ -88,7 +89,14 @@ export async function POST(request: NextRequest) {
     await EmailService.sendApplicationSubmitted(email, fullName);
 
     return NextResponse.json(
-      { success: true, application },
+      { 
+        success: true, 
+        application,
+        requiresAuth: !userId, // Indicate if user needs to authenticate later
+        message: !userId 
+          ? 'Application submitted successfully. Please create an account to track your application status.' 
+          : 'Application submitted successfully.'
+      },
       { status: 201 }
     );
   } catch (error) {
@@ -103,6 +111,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
+    
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
