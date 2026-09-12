@@ -40,7 +40,7 @@ export default function AdminApplicationsPage() {
           }));
           setApplications(mappedApps);
         } else {
-          setApplications(sampleApplications);
+          setApplications([]);
         }
       } finally {
         setLoading(false);
@@ -48,63 +48,6 @@ export default function AdminApplicationsPage() {
     }
     fetchApplications();
   }, []);
-  const sampleApplications = [
-    {
-      id: 'app_1',
-      name: 'Daniel Williams',
-      avatar: 'DW',
-      email: 'daniel@example.com',
-      expertise: 'Marketing Director',
-      status: 'Pending Review',
-      date: 'Today, 10:45 AM',
-      experience: '10+ years',
-      documents: 3
-    },
-    {
-      id: 'app_2',
-      name: 'Jessica Taylor',
-      avatar: 'JT',
-      email: 'jessica.t@example.com',
-      expertise: 'UI/UX Designer',
-      status: 'Pending Review',
-      date: 'Yesterday, 2:15 PM',
-      experience: '4-5 years',
-      documents: 2
-    },
-    {
-      id: 'app_3',
-      name: 'Oluwaseun Adeyemi',
-      avatar: 'OA',
-      email: 'seun.a@example.com',
-      expertise: 'Mobile Developer',
-      status: 'Pending Review',
-      date: 'Oct 12, 2023',
-      experience: '2-3 years',
-      documents: 3
-    },
-    {
-      id: 'app_4',
-      name: 'Elena Rodriguez',
-      avatar: 'ER',
-      email: 'elena.r@example.com',
-      expertise: 'Data Analyst',
-      status: 'Approved',
-      date: 'Oct 10, 2023',
-      experience: '6-10 years',
-      documents: 3
-    },
-    {
-      id: 'app_5',
-      name: 'Michael Chen',
-      avatar: 'MC',
-      email: 'm.chen@example.com',
-      expertise: 'Cloud Architect',
-      status: 'Rejected',
-      date: 'Oct 09, 2023',
-      experience: '0-1 years',
-      documents: 1
-    }
-  ];
 
   return (
     <div className="min-h-screen pb-12 text-gray-900 font-sans">

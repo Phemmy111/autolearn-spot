@@ -77,7 +77,7 @@ const navigation: NavSection[] = [
     title: 'Authors',
     items: [
       { label: 'All Authors', href: '/admin/authors', icon: UserCheck, activeMatch: '/admin/authors' },
-      { label: 'Applications', href: '/admin/authors/applications', icon: UserPlus, badge: '5' },
+      { label: 'Applications', href: '/admin/authors/applications', icon: UserPlus },
     ],
   },
   {
