@@ -1,4 +1,5 @@
-"use client";\nimport { useState } from 'react';
+"use client";
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadThumbnail } from '@/lib/supabase-upload';
 
