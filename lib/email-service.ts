@@ -253,4 +253,66 @@ export class EmailService {
 
     return this.sendEmail(template);
   }
+
+  /**
+   * Send founder notification when someone applies
+   */
+  static async sendFounderNotification(
+    applicantData: {
+      fullName: string;
+      email: string;
+      phone: string;
+      location: string;
+      professionalTitle: string;
+      yearsOfExperience: number;
+      linkedinProfile?: string;
+      websitePortfolio?: string;
+      expertise: string[];
+      bio: string;
+    }
+  ): Promise<boolean> {
+    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
+    
+    const expertiseList = applicantData.expertise
+      .map(exp => `<li>${exp}</li>`)
+      .join('');
+
+    const template: EmailTemplate = {
+      to: founderEmail,
+      subject: `New Author Application: ${applicantData.fullName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #4F46E5;">New Author Application Received</h2>
+          <p>A new author application has been submitted on AutoLearn Spot.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Applicant Details</h3>
+            
+            <p><strong>Name:</strong> ${applicantData.fullName}</p>
+            <p><strong>Email:</strong> ${applicantData.email}</p>
+            <p><strong>Phone:</strong> ${applicantData.phone}</p>
+            <p><strong>Location:</strong> ${applicantData.location}</p>
+            <p><strong>Professional Title:</strong> ${applicantData.professionalTitle}</p>
+            <p><strong>Years of Experience:</strong> ${applicantData.yearsOfExperience}</p>
+            
+            ${applicantData.linkedinProfile ? `<p><strong>LinkedIn:</strong> <a href="${applicantData.linkedinProfile}">${applicantData.linkedinProfile}</a></p>` : ''}
+            ${applicantData.websitePortfolio ? `<p><strong>Website/Portfolio:</strong> <a href="${applicantData.websitePortfolio}">${applicantData.websitePortfolio}</a></p>` : ''}
+            
+            <p><strong>Expertise Areas:</strong></p>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+              ${expertiseList}
+            </ul>
+            
+            <p><strong>Bio:</strong></p>
+            <p style="font-style: italic; color: #6b7280;">${applicantData.bio}</p>
+          </div>
+          
+          <p>Please review this application in the admin portal to approve or decline it.</p>
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
 }

@@ -18,6 +18,7 @@ import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero'
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid'
 import { FeatureStrip } from '@/components/marketplace/FeatureStrip'
 import { TopSkillsGrid } from '@/components/marketplace/TopSkillsGrid'
+import { ParticleBackground } from '@/components/marketplace/ParticleBackground'
 
 import './page.css'
 
@@ -131,7 +132,11 @@ export default async function Page() {
   const publishedProducts = await getPublishedProducts();
 
   return (
-    <main className="min-h-screen bg-[#e5e9ed]">
+    <main className="relative min-h-screen bg-[#e5e9ed]">
+      {/* Full-page animated starfield */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <ParticleBackground />
+      </div>
       <MarketplaceNavigation />
       <AnnouncementBanner />
       

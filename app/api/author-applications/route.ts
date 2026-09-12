@@ -85,8 +85,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send application submitted email
+    // Send application submitted email to applicant
     await EmailService.sendApplicationSubmitted(email, fullName);
+
+    // Send notification to founder
+    await EmailService.sendFounderNotification({
+      fullName,
+      email,
+      phone,
+      location,
+      professionalTitle,
+      yearsOfExperience,
+      linkedinProfile,
+      websitePortfolio: portfolioLink,
+      expertise: expertiseArea.split(', '),
+      bio,
+    });
 
     return NextResponse.json(
       { 
