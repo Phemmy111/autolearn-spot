@@ -35,20 +35,23 @@ export default function AdminApplicationsPage() {
         console.log('[Admin Applications] API Response:', data);
         
         if (data.applications) {
-          const mappedApps = data.applications.map((app: any) => ({
-            id: app.id,
-            name: app.full_name,
-            avatar: app.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
-            email: app.email,
-            expertise: app.expertise && Array.isArray(app.expertise) && app.expertise.length > 0 
-              ? app.expertise[0] 
-              : app.professional_title || 'Not specified',
-            status: app.status === 'SUBMITTED' || app.status === 'UNDER_REVIEW' ? 'Pending Review' : 
-                    app.status === 'APPROVED' ? 'Approved' : 'Rejected',
-            date: new Date(app.submitted_at).toLocaleDateString(),
-            experience: app.years_of_experience || 'Not specified',
-            documents: (app.portfolio_samples_url ? 1 : 0) + (app.cv_url ? 1 : 0) + (app.id_document_url ? 1 : 0) || 0
-          }));
+          const mappedApps = data.applications.map((app: any) => {
+            console.log('[Admin Applications] Mapping application:', { id: app.id, name: app.full_name });
+            return {
+              id: app.id,
+              name: app.full_name,
+              avatar: app.full_name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
+              email: app.email,
+              expertise: app.expertise && Array.isArray(app.expertise) && app.expertise.length > 0 
+                ? app.expertise[0] 
+                : app.professional_title || 'Not specified',
+              status: app.status === 'SUBMITTED' || app.status === 'UNDER_REVIEW' ? 'Pending Review' : 
+                      app.status === 'APPROVED' ? 'Approved' : 'Rejected',
+              date: new Date(app.submitted_at).toLocaleDateString(),
+              experience: app.years_of_experience || 'Not specified',
+              documents: (app.portfolio_samples_url ? 1 : 0) + (app.cv_url ? 1 : 0) + (app.id_document_url ? 1 : 0) || 0
+            };
+          });
           setApplications(mappedApps);
           if (data.pagination) {
             setPagination(data.pagination);

@@ -13,16 +13,30 @@ import {
 export default function ApplicationDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { id } = params as { id: string };
+  const id = params.id as string;
+  
+  console.log('[Application Detail Page] Params:', params);
+  console.log('[Application Detail Page] ID from params:', id);
+  
   const [app, setApp] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
     async function fetchApplication() {
+      if (!id) {
+        console.error('[Application Detail Page] No ID provided');
+        setLoading(false);
+        return;
+      }
+
+      console.log('[Application Detail Page] Fetching application with ID:', id);
+      
       try {
         const res = await fetch(`/api/admin/authors/applications/${id}`);
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
+        
+        console.log('[Application Detail Page] API Response:', data);
         
         if (data.application) {
           const appData = data.application;
@@ -61,9 +75,8 @@ export default function ApplicationDetailPage() {
         setLoading(false);
       }
     }
-    if (id) {
-      fetchApplication();
-    }
+    
+    fetchApplication();
   }, [id]);
 
   if (loading) {

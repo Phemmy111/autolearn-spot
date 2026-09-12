@@ -98,7 +98,7 @@ export function ThreeAiBackground() {
       return
     }
 
-    renderer.setClearColor(0x000000, 0)
+    renderer.setClearColor(0x1a1a1a, 1) // dark gray background
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
     mount.appendChild(renderer.domElement)
 
@@ -111,8 +111,17 @@ export function ThreeAiBackground() {
     scene.add(root)
 
     const cyan = new THREE.Color('#00f0ff')
-    const soft = new THREE.Color('#dbfcff')
+    const particleGray = new THREE.Color('#222222') // dark gray particles
     const darkLine = new THREE.Color('#3b494b')
+
+    const resizeObserver = new ResizeObserver(() => {
+      const width = mount.clientWidth
+      const height = mount.clientHeight
+      renderer.setSize(width, height)
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+    })
+    resizeObserver.observe(mount)
 
     const textMaterial = new THREE.MeshBasicMaterial({
       color: cyan,
@@ -132,7 +141,7 @@ export function ThreeAiBackground() {
       opacity: 0.32,
     })
     const particleMaterial = new THREE.PointsMaterial({
-      color: soft,
+      color: particleGray,
       size: 0.008,
       transparent: true,
       opacity: 0.44,
