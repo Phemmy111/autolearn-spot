@@ -148,6 +148,18 @@ export default function NewProductPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      // Determine if the entered skill is a custom free‑text entry
+      const isCustomSkill = skill && (!availableSkills || availableSkills.length === 0 || !availableSkills.some(s => s.id === skill));
+      const structuredDescriptionWithCustom = isCustomSkill ? JSON.stringify({
+        short_description: shortDesc,
+        full_description: fullDesc,
+        category,
+        difficulty,
+        learning_outcomes: learningOutcomes,
+        requirements,
+        target_audience: targetAudience,
+        custom_skill: skill,
+      }) : structuredDescription;
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Failed to create product');
@@ -233,7 +245,7 @@ export default function NewProductPage() {
                     {availableSkills.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 ) : (
-                  <div className="p-3 bg-neutral-100 rounded-lg text-sm text-neutral-500">No skills found for this category.</div>
+                  <input type="text" placeholder="Enter custom skill" className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => setSkill(e.target.value)} />
                 )
               ) : (
                 <div className="p-3 bg-neutral-100 border border-neutral-200 rounded-lg text-sm text-neutral-500">Select a category first</div>
