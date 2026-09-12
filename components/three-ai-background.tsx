@@ -110,41 +110,49 @@ export function ThreeAiBackground() {
     root.position.set(0, 0, 0)
     scene.add(root)
 
-    const cyan = new THREE.Color('#00f0ff')
-    const particleGray = new THREE.Color('#222222') // dark gray particles
-    const darkLine = new THREE.Color('#3b494b')
+    const brandGreen = new THREE.Color('#10b981') // emerald-500 brand green
+    const cyan = new THREE.Color('#10b981') // swap cyan with brand green
+    const darkLine = new THREE.Color('#194a38') // darker green for lines
 
     const resizeObserver = new ResizeObserver(() => {
       const width = mount.clientWidth
       const height = mount.clientHeight
       renderer.setSize(width, height)
       camera.aspect = width / height
+      
+      // Responsive scaling for mobile: zoom out so the words fit on screen
+      if (width < 768) {
+        camera.position.z = 14; 
+      } else {
+        camera.position.z = 8;
+      }
+      
       camera.updateProjectionMatrix()
     })
     resizeObserver.observe(mount)
 
     const textMaterial = new THREE.MeshBasicMaterial({
-      color: cyan,
+      color: brandGreen,
       transparent: true,
-      opacity: 0.23,
+      opacity: 0.1, // faint text material
       depthWrite: false,
     })
     const textEdgeMaterial = new THREE.LineBasicMaterial({
-      color: cyan,
+      color: brandGreen,
       transparent: true,
-      opacity: 0.66,
+      opacity: 0.2, // fainter edges
     })
     const coreMaterial = new THREE.MeshBasicMaterial({
-      color: cyan,
+      color: brandGreen,
       wireframe: true,
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.15,
     })
     const particleMaterial = new THREE.PointsMaterial({
-      color: particleGray,
-      size: 0.008,
+      color: brandGreen,
+      size: 0.007,
       transparent: true,
-      opacity: 0.44,
+      opacity: 0.3,
       depthWrite: false,
     })
     const linkMaterial = new THREE.LineBasicMaterial({
@@ -296,7 +304,7 @@ export function ThreeAiBackground() {
     let frameId: number;
     const startedAt = performance.now();
     const totalDuration = 12; // 12 seconds for the full loop
-    const baseOpacity = 0.8;
+    const baseOpacity = 0.35; // Lower opacity to make it background-like
 
     const animate = () => {
       const elapsed = (performance.now() - startedAt) / 1000;
