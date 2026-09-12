@@ -61,6 +61,7 @@ export async function POST(request: Request) {
           .from('author-documents')
           .getPublicUrl(fileName);
         cvUrl = publicUrl;
+        console.log('[Upload] CV public URL generated:', cvUrl);
       } catch (urlError) {
         console.error('[Upload] Error getting public URL for CV:', urlError);
         // If bucket doesn't exist, we still store the file but won't have a public URL

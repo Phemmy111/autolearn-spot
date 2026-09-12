@@ -18,7 +18,7 @@ import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero'
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid'
 import { FeatureStrip } from '@/components/marketplace/FeatureStrip'
 import { TopSkillsGrid } from '@/components/marketplace/TopSkillsGrid'
-import { ParticleBackground } from '@/components/marketplace/ParticleBackground'
+import { ThreeAiBackground } from '@/components/three-ai-background'
 
 import './page.css'
 
@@ -133,9 +133,9 @@ export default async function Page() {
 
   return (
     <main className="relative min-h-screen bg-[#e5e9ed]">
-      {/* Full-page animated starfield */}
+      {/* Full-page 3D AI Background */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <ParticleBackground />
+        <ThreeAiBackground />
       </div>
       <MarketplaceNavigation />
       <AnnouncementBanner />
