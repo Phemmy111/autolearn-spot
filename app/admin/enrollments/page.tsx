@@ -125,7 +125,7 @@ export default async function AdminEnrollmentsPage() {
   // Looking at our webhook, Paystack sends in kobo, so / 100 is correct for NGN display.
   
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <Link

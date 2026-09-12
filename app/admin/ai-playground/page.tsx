@@ -129,7 +129,7 @@ export default function AIPlaygroundPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/admin" className="text-neutral-600 hover:text-neutral-900">
@@ -144,12 +144,12 @@ export default function AIPlaygroundPage() {
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Input Panel */}
           <div className="space-y-4">
-            <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
               <label className="block font-mono text-xs text-neutral-600 mb-2">Provider</label>
               <select
                 value={selectedProvider}
                 onChange={(e) => handleProviderChange(e.target.value)}
-                className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
               >
                 <option value="">Select a provider</option>
                 {providers.map((provider) => (
@@ -160,7 +160,7 @@ export default function AIPlaygroundPage() {
               </select>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <label className="block font-mono text-xs text-neutral-600">Model</label>
                 <button
@@ -174,7 +174,7 @@ export default function AIPlaygroundPage() {
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                 disabled={!selectedProvider}
               >
                 <option value="">Select a model</option>
@@ -186,12 +186,12 @@ export default function AIPlaygroundPage() {
               </select>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
               <label className="block font-mono text-xs text-neutral-600 mb-2">Prompt</label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-3 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] min-h-[200px] resize-y"
+                className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-3 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] min-h-[200px] resize-y"
                 placeholder="Enter your prompt here..."
               />
             </div>
@@ -199,7 +199,7 @@ export default function AIPlaygroundPage() {
             <button
               onClick={handleSend}
               disabled={loading || !prompt.trim() || !selectedProvider || !selectedModel}
-              className="w-full flex items-center justify-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -216,7 +216,7 @@ export default function AIPlaygroundPage() {
           </div>
 
           {/* Output Panel */}
-          <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+          <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
             <div className="flex items-center justify-between mb-4">
               <label className="block font-mono text-xs text-neutral-600">Response</label>
               {response && (
@@ -238,7 +238,7 @@ export default function AIPlaygroundPage() {
                 </button>
               )}
             </div>
-            <div className="bg-[#d1d5db] rounded p-4 min-h-[400px]">
+            <div className="bg-gray-100] rounded p-4 min-h-[400px]">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
@@ -265,7 +265,7 @@ export default function AIPlaygroundPage() {
         </div>
 
         {providers.length === 0 && (
-          <div className="mt-8 text-center py-12 border border-neutral-200 bg-white rounded-xl">
+          <div className="mt-8 text-center py-12 border border-neutral-200 bg-gray-100 rounded-xl">
             <Bot className="h-16 w-16 text-[#3b494b] mx-auto mb-4" />
             <h3 className="font-heading text-xl font-bold text-neutral-900 mb-2">No AI Providers Configured</h3>
             <p className="font-mono text-sm text-neutral-600 mb-4">
@@ -273,7 +273,7 @@ export default function AIPlaygroundPage() {
             </p>
             <Link
               href="/admin/ai-providers"
-              className="inline-flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+              className="inline-flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
             >
               <Settings className="h-4 w-4" />
               Configure Providers

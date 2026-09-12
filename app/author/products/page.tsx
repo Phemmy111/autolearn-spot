@@ -115,7 +115,7 @@ export default function AuthorProductsPage() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status
                 ? 'bg-sky-600 text-white'
-                : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+                : 'bg-gray-100 text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
             }`}
           >
             {status.replace('_', ' ')}
@@ -125,7 +125,7 @@ export default function AuthorProductsPage() {
 
       {/* Products Grid */}
       {products.length === 0 ? (
-        <div className="bg-white border border-neutral-200 rounded-lg p-12 text-center">
+        <div className="bg-gray-100 border border-neutral-200 rounded-lg p-12 text-center">
           <Package className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-neutral-900 mb-2">No products yet</h3>
           <p className="text-neutral-600 mb-4">
@@ -148,7 +148,7 @@ export default function AuthorProductsPage() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="bg-white border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+              className="bg-gray-100 border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Thumbnail */}
               <div className="aspect-video bg-neutral-100 flex items-center justify-center">

@@ -83,7 +83,7 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
         },
         backgroundColor: '#0c0e12',
         titleColor: '#b9cacb',
-        bodyColor: '#ffffff',
+        bodyColor: '#f5f5f5',
         borderColor: '#00f0ff',
         borderWidth: 1,
       }
@@ -136,14 +136,14 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
   }
 
   return (
-    <div className="border border-neutral-200 bg-[#c0c4c9] rounded-xl overflow-hidden mb-8">
-      <div className="p-6 border-b border-neutral-200 bg-[#c0c4c9] flex justify-between items-center">
+    <div className="border border-neutral-200 bg-gray-100] rounded-xl overflow-hidden mb-8">
+      <div className="p-6 border-b border-neutral-200 bg-gray-100] flex justify-between items-center">
         <h2 className="font-heading text-xl font-bold text-neutral-900">
           Success Rate per Question
         </h2>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#10b981]/10 text-[#10b981] border border-[#10b981] font-mono text-xs font-bold uppercase hover:bg-[#10b981] hover:text-black transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-gray-100]/10 text-[#10b981] border border-[#10b981] font-mono text-xs font-bold uppercase hover:bg-gray-100] hover:text-black transition-colors"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -151,7 +151,7 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
       </div>
       
       {/* Legend */}
-      <div className="px-6 py-4 flex gap-6 bg-[#c0c4c9] border-b border-neutral-200">
+      <div className="px-6 py-4 flex gap-6 bg-gray-100] border-b border-neutral-200">
         <div className="flex items-center gap-2 font-mono text-xs text-neutral-500">
           <div className="w-3 h-3 bg-emerald-400 rounded-sm"></div> Easiest (≥80%)
         </div>

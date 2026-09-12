@@ -52,8 +52,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[#c0c4c9] text-[#e2e2e8]">
-      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-[#c0c4c9]/95 px-4 backdrop-blur sm:px-6">
+    <main className="min-h-screen bg-gray-100] text-[#e2e2e8]">
+      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-gray-100]/95 px-4 backdrop-blur sm:px-6">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-neutral-500 transition hover:text-[#10b981]"
@@ -89,7 +89,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
         {/* Resources Section */}
         {video.resources && video.resources.length > 0 && (
-          <div className="mt-12 border border-neutral-200 bg-[#c0c4c9] p-6 sm:p-8">
+          <div className="mt-12 border border-neutral-200 bg-gray-100] p-6 sm:p-8">
             <h2 className="mb-6 font-mono text-lg font-semibold uppercase tracking-wider text-[#10b981]">
               Session Resources
             </h2>
@@ -100,9 +100,9 @@ export default async function VideoPage({ params }: VideoPageProps) {
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 border border-[#3b494b] bg-[#c0c4c9] p-4 transition-colors hover:border-[#10b981] hover:bg-[#c0c4c9]"
+                  className="flex items-center gap-4 border border-[#3b494b] bg-gray-100] p-4 transition-colors hover:border-[#10b981] hover:bg-gray-100]"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#10b981]/10 text-[#10b981]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-gray-100]/10 text-[#10b981]">
                     <Download className="h-5 w-5" />
                   </div>
                   <span className="font-mono text-sm font-semibold text-[#e2e2e8]">

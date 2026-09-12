@@ -108,14 +108,14 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#10b981]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
@@ -138,7 +138,7 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
         <div className="mb-6">
           <Link
             href={`/admin/quizzes/${id}/questions/new`}
-            className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
+            className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
           >
             <Plus className="h-4 w-4" />
             Add Question
@@ -146,7 +146,7 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
         </div>
 
         {questions.length === 0 ? (
-          <div className="text-center py-12 border border-neutral-200 bg-white rounded-xl">
+          <div className="text-center py-12 border border-neutral-200 bg-gray-100 rounded-xl">
             <p className="font-mono text-sm text-neutral-600">No questions yet. Add your first question!</p>
           </div>
         ) : (
@@ -154,7 +154,7 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
             {questions.map((question, index) => (
               <div
                 key={question.id}
-                className="border border-neutral-200 bg-white p-4 rounded-xl hover:border-[#10b981]/30 transition-all"
+                className="border border-neutral-200 bg-gray-100 p-4 rounded-xl hover:border-[#10b981]/30 transition-all"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex flex-col gap-1 pt-1">
@@ -178,13 +178,13 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-gray-100]/10 text-[#10b981] font-mono text-xs rounded">
                         Q{index + 1}
                       </span>
-                      <span className="px-2 py-1 bg-[#d1d5db] text-neutral-600 font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-gray-100] text-neutral-600 font-mono text-xs rounded">
                         {question.question_type}
                       </span>
-                      <span className="px-2 py-1 bg-[#d1d5db] text-neutral-600 font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-gray-100] text-neutral-600 font-mono text-xs rounded">
                         {question.points} pts
                       </span>
                     </div>

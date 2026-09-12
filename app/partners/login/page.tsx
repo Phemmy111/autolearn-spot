@@ -45,7 +45,7 @@ export default function PartnerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
@@ -67,7 +67,7 @@ export default function PartnerLoginPage() {
           </p>
         </div>
 
-        <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+        <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
           {error && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
               {error}
@@ -109,7 +109,7 @@ export default function PartnerLoginPage() {
                 required
                 type="email"
                 name="email"
-                className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                className="w-full bg-gray-100/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="your@email.com"
               />
             </div>
@@ -120,7 +120,7 @@ export default function PartnerLoginPage() {
                 required
                 type="password"
                 name="password"
-                className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                className="w-full bg-gray-100/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="••••••••"
               />
             </div>
@@ -128,7 +128,7 @@ export default function PartnerLoginPage() {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="w-full py-4 rounded-xl border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl border border-[#00F5FF] bg-gray-100] text-[#070B12] font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

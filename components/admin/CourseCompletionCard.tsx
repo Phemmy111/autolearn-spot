@@ -72,7 +72,7 @@ export function CourseCompletionCard() {
   };
 
   return (
-    <div className="border border-neutral-200 bg-white p-6 rounded-xl hover:border-[#10b981]/30 transition-all">
+    <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl hover:border-[#10b981]/30 transition-all">
       <h2 className="font-heading text-xl font-bold text-neutral-900 mb-4">Course Completion Settings</h2>
       <div className="flex flex-col gap-4">
         <select
@@ -105,7 +105,7 @@ export function CourseCompletionCard() {
               Certificate Enabled
             </label>
             <button
-              className="mt-2 flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
+              className="mt-2 flex items-center gap-2 bg-gray-100] text-black font-bold uppercase px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
               onClick={handleSave}
               disabled={saving}
             >

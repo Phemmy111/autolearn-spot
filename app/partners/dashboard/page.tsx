@@ -186,7 +186,7 @@ export default function PartnerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#00F5FF]" />
       </div>
     );
@@ -207,9 +207,9 @@ export default function PartnerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-neutral-200 bg-gray-100]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
@@ -224,7 +224,7 @@ export default function PartnerDashboard() {
                   AutoLearn Spot
                 </span>
               </Link>
-              <div className="hidden md:block h-6 w-px bg-[#1f2229]" />
+              <div className="hidden md:block h-6 w-px bg-gray-100]" />
               <div>
                 <h1 className="text-lg font-bold text-[#e2e2e8]">Partner Dashboard</h1>
                 <p className="text-xs text-neutral-500">
@@ -237,16 +237,16 @@ export default function PartnerDashboard() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => { fetchNotifications(); setShowNotifications(!showNotifications); }}
-                className="relative p-2 hover:bg-white/50 rounded-lg transition-colors"
+                className="relative p-2 hover:bg-gray-100/50 rounded-lg transition-colors"
               >
                 <Bell className="h-5 w-5 text-neutral-500" />
                 {data?.unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-[#00F5FF] rounded-full" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-gray-100] rounded-full" />
                 )}
               </button>
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-white/50 hover:bg-white rounded-lg transition-colors text-sm text-neutral-500"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-100/50 hover:bg-gray-100 rounded-lg transition-colors text-sm text-neutral-500"
               >
                 <LogOut className="h-4 w-4" />
                 Logout
@@ -264,7 +264,7 @@ export default function PartnerDashboard() {
 
       {/* Notification Dropdown */}
       {showNotifications && (
-        <div className="absolute top-20 right-4 sm:right-6 w-96 bg-[#c0c4c9] border border-neutral-200 rounded-2xl shadow-xl z-50">
+        <div className="absolute top-20 right-4 sm:right-6 w-96 bg-gray-100] border border-neutral-200 rounded-2xl shadow-xl z-50">
           <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
             <h3 className="font-bold text-[#e2e2e8]">Notifications</h3>
             <button
@@ -287,7 +287,7 @@ export default function PartnerDashboard() {
               notifications.map((notif: any) => (
                 <div 
                   key={notif.id} 
-                  className={`p-4 border-b border-neutral-200 cursor-pointer hover:bg-white/50 transition-colors ${!notif.read ? 'bg-[#00F5FF]/5' : ''}`}
+                  className={`p-4 border-b border-neutral-200 cursor-pointer hover:bg-gray-100/50 transition-colors ${!notif.read ? 'bg-gray-100]/5' : ''}`}
                   onClick={async () => {
                     if (!notif.read) {
                       await fetch("/api/partners/notifications", {
@@ -314,7 +314,7 @@ export default function PartnerDashboard() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-neutral-200 bg-[#c0c4c9]">
+        <div className="md:hidden border-t border-neutral-200 bg-gray-100]">
           <div className="px-4 py-4 space-y-3">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -324,8 +324,8 @@ export default function PartnerDashboard() {
                   onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
                   className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                     activeTab === item.id
-                      ? 'bg-[#00F5FF]/10 text-[#00F5FF]'
-                      : 'text-neutral-500 hover:bg-white/50'
+                      ? 'bg-gray-100]/10 text-[#00F5FF]'
+                      : 'text-neutral-500 hover:bg-gray-100/50'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -335,7 +335,7 @@ export default function PartnerDashboard() {
             })}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-neutral-500 hover:bg-white/50"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-neutral-500 hover:bg-gray-100/50"
             >
               <LogOut className="h-5 w-5" />
               Logout
@@ -348,7 +348,7 @@ export default function PartnerDashboard() {
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="hidden lg:block">
-            <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sticky top-24">
+            <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-4 sticky top-24">
               <nav className="space-y-2">
                 {navItems.map((item) => {
                   const Icon = item.icon;
@@ -358,8 +358,8 @@ export default function PartnerDashboard() {
                       onClick={() => setActiveTab(item.id)}
                       className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
                         activeTab === item.id
-                          ? 'bg-[#00F5FF]/10 text-[#00F5FF]'
-                          : 'text-neutral-500 hover:bg-white/50'
+                          ? 'bg-gray-100]/10 text-[#00F5FF]'
+                          : 'text-neutral-500 hover:bg-gray-100/50'
                       }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -383,28 +383,28 @@ export default function PartnerDashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Wallet className="h-4 w-4 text-[#00F5FF]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Available Balance</span>
                 </div>
                 <div className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-[#e2e2e8]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Pending Earnings</span>
                 </div>
                 <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-4 w-4 text-[#e2e2e8]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Total Earned</span>
                 </div>
                 <div className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.lifetimeEarnings?.toLocaleString() || 0}</div>
               </div>
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-xl p-4">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Users className="h-4 w-4 text-[#e2e2e8]" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Total Referrals</span>
@@ -423,13 +423,13 @@ export default function PartnerDashboard() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <div className="bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 font-mono text-sm text-neutral-500 truncate flex-1 sm:w-64">
+                  <div className="bg-gray-100/50 border border-neutral-200 rounded-lg px-4 py-3 font-mono text-sm text-neutral-500 truncate flex-1 sm:w-64">
                     {data?.referral?.link || "Generating referral link..."}
                   </div>
                   <button
                     onClick={handleCopyLink}
                     disabled={!data?.referral?.link}
-                    className="border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="border border-[#00F5FF] bg-gray-100] text-[#070B12] px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied!" : "Copy"}
@@ -437,7 +437,7 @@ export default function PartnerDashboard() {
                   {!data?.referral?.link && (
                     <button
                       onClick={fetchDashboardData}
-                      className="border border-neutral-200 bg-white text-neutral-500 px-3 py-3 rounded-lg font-medium hover:bg-[#1f2229] transition-colors flex-shrink-0"
+                      className="border border-neutral-200 bg-gray-100 text-neutral-500 px-3 py-3 rounded-lg font-medium hover:bg-gray-100] transition-colors flex-shrink-0"
                       title="Refresh referral link"
                     >
                       <RefreshCw className="h-4 w-4" />
@@ -452,7 +452,7 @@ export default function PartnerDashboard() {
               <>
                 {/* Charts Section */}
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+                  <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                     <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
                       <Activity className="h-5 w-5 text-[#00F5FF]" />
                       Monthly Earnings
@@ -463,7 +463,7 @@ export default function PartnerDashboard() {
                         return (
                           <div
                             key={i}
-                            className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
+                            className="flex-1 bg-gray-100]/20 rounded-t transition-all hover:bg-gray-100]/40"
                             style={{ height: `${height}%` }}
                             title={`Commission ${i + 1}: ₦${commission.amount}`}
                           />
@@ -471,7 +471,7 @@ export default function PartnerDashboard() {
                       }) || [15, 25, 20, 35, 30, 45, 40, 55, 50, 65, 60, 75].map((height, i) => (
                         <div
                           key={i}
-                          className="flex-1 bg-[#00F5FF]/20 rounded-t transition-all hover:bg-[#00F5FF]/40"
+                          className="flex-1 bg-gray-100]/20 rounded-t transition-all hover:bg-gray-100]/40"
                           style={{ height: `${height}%` }}
                           title={`Month ${i + 1}: ₦${height * 100}`}
                         />
@@ -484,7 +484,7 @@ export default function PartnerDashboard() {
                     </div>
                   </div>
 
-                  <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+                  <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                     <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
                       <MousePointerClick className="h-5 w-5 text-[#00F5FF]" />
                       Referral Performance
@@ -495,8 +495,8 @@ export default function PartnerDashboard() {
                           <span className="text-neutral-500">Clicks</span>
                           <span className="text-[#e2e2e8]">{data?.referral?.totalClicks || 0}</span>
                         </div>
-                        <div className="h-2 bg-white rounded-full overflow-hidden">
-                          <div className="h-full bg-[#00F5FF] rounded-full" style={{ width: `${Math.min((data?.referral?.totalClicks || 0) / 100 * 100, 100)}%` }} />
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-gray-100] rounded-full" style={{ width: `${Math.min((data?.referral?.totalClicks || 0) / 100 * 100, 100)}%` }} />
                         </div>
                       </div>
                       <div>
@@ -504,7 +504,7 @@ export default function PartnerDashboard() {
                           <span className="text-neutral-500">Conversions</span>
                           <span className="text-[#e2e2e8]">{data?.referral?.totalRegistrations || 0}</span>
                         </div>
-                        <div className="h-2 bg-white rounded-full overflow-hidden">
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min((data?.referral?.totalRegistrations || 0) / (data?.referral?.totalClicks || 1) * 100, 100)}%` }} />
                         </div>
                       </div>
@@ -513,7 +513,7 @@ export default function PartnerDashboard() {
                           <span className="text-neutral-500">Success Rate</span>
                           <span className="text-[#e2e2e8]">{data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%</span>
                         </div>
-                        <div className="h-2 bg-white rounded-full overflow-hidden">
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div className="h-full bg-green-500 rounded-full" style={{ width: `${data?.referral?.totalClicks > 0 ? Math.round((data?.referral?.totalRegistrations || 0) / data?.referral?.totalClicks * 100) : 0}%` }} />
                         </div>
                       </div>
@@ -522,7 +522,7 @@ export default function PartnerDashboard() {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+                <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                   <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
                     <History className="h-5 w-5 text-[#00F5FF]" />
                     Recent Activity
@@ -530,8 +530,8 @@ export default function PartnerDashboard() {
                   <div className="space-y-4">
                     {data?.recentCommissions && data.recentCommissions.length > 0 ? (
                       data.recentCommissions.slice(0, 5).map((commission: any) => (
-                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-neutral-200 bg-white/50 rounded-lg">
-                          <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
+                        <div key={commission.id} className="flex items-center gap-4 p-3 border border-neutral-200 bg-gray-100/50 rounded-lg">
+                          <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-gray-100]/10 rounded-lg">
                             <DollarSign className="h-5 w-5 text-[#00F5FF]" />
                           </div>
                           <div className="flex-1">
@@ -550,7 +550,7 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "referrals" && (
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                 <h3 className="font-semibold text-[#e2e2e8] mb-4">Referral History</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -594,24 +594,24 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "earnings" && (
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                 <h3 className="font-semibold text-[#e2e2e8] mb-4">Earnings Breakdown</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-gray-100/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Available Balance</p>
                       <p className="text-xs text-neutral-500">Ready for withdrawal</p>
                     </div>
                     <p className="text-2xl font-bold text-[#00F5FF]">₦{stats?.availableEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-gray-100/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Pending Earnings</p>
                       <p className="text-xs text-neutral-500">Being processed</p>
                     </div>
                     <p className="text-2xl font-bold text-[#e2e2e8]">₦{stats?.pendingEarnings?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 border border-neutral-200 bg-gray-100/50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-[#e2e2e8]">Total Earned</p>
                       <p className="text-xs text-neutral-500">All time earnings</p>
@@ -624,7 +624,7 @@ export default function PartnerDashboard() {
 
             {activeTab === "withdrawals" && (
               <div className="space-y-6">
-                <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+                <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                   <h3 className="font-semibold text-[#e2e2e8] mb-4">Request Withdrawal</h3>
                   <form onSubmit={handleWithdraw} className="space-y-4">
                     <div>
@@ -634,7 +634,7 @@ export default function PartnerDashboard() {
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
                         min={minWithdrawal}
-                        className="w-full bg-white/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                        className="w-full bg-gray-100/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                         placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
                       />
                     </div>
@@ -642,7 +642,7 @@ export default function PartnerDashboard() {
                       <button
                         type="button"
                         onClick={() => setShowBankModal(true)}
-                        className="w-full py-3 border border-[#00F5FF] bg-[#00F5FF]/10 text-[#00F5FF] rounded-xl font-semibold hover:bg-[#00F5FF]/20 transition-colors"
+                        className="w-full py-3 border border-[#00F5FF] bg-gray-100]/10 text-[#00F5FF] rounded-xl font-semibold hover:bg-gray-100]/20 transition-colors"
                       >
                         Setup Bank Profile
                       </button>
@@ -650,7 +650,7 @@ export default function PartnerDashboard() {
                     <button
                       disabled={isWithdrawing || !bankProfile}
                       type="submit"
-                      className="w-full py-3 border border-[#00F5FF] bg-[#00F5FF] text-[#070B12] rounded-xl font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-3 border border-[#00F5FF] bg-gray-100] text-[#070B12] rounded-xl font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isWithdrawing ? (
                         <>
@@ -667,12 +667,12 @@ export default function PartnerDashboard() {
                   </form>
                 </div>
 
-                <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+                <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                   <h3 className="font-semibold text-[#e2e2e8] mb-4">Withdrawal History</h3>
                   <div className="space-y-4">
                     {data?.withdrawals && data.withdrawals.length > 0 ? (
                       data.withdrawals.map((withdrawal: any) => (
-                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-neutral-200 bg-white/50 rounded-lg">
+                        <div key={withdrawal.id} className="flex items-center justify-between p-4 border border-neutral-200 bg-gray-100/50 rounded-lg">
                           <div>
                             <p className="text-sm font-medium text-[#e2e2e8]">₦{withdrawal.amount?.toLocaleString()}</p>
                             <p className="text-xs text-neutral-500">{new Date(withdrawal.created_at).toLocaleDateString()}</p>
@@ -697,28 +697,28 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "marketing" && (
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                 <h3 className="font-semibold text-[#e2e2e8] mb-4">Marketing Kit</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {data?.marketingResources && data.marketingResources.length > 0 ? (
                     data.marketingResources.map((item: any) => {
                       const Icon = FileText; // Default icon, can be customized based on type
                       return (
-                        <div key={item.id} className="border border-neutral-200 bg-white/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all">
+                        <div key={item.id} className="border border-neutral-200 bg-gray-100/50 rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-[#00F5FF]/10 rounded-lg">
+                            <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-gray-100]/10 rounded-lg">
                               <Icon className="h-5 w-5 text-[#00F5FF]" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-[#e2e2e8] truncate cursor-pointer hover:text-[#00F5FF]" onClick={() => openMaterialDetail(item)} title={item.name}>{item.name}</p>
                               <div className="flex items-center gap-2 text-xs text-neutral-500">
-                                <span className="px-2 py-0.5 bg-[#00F5FF]/10 text-[#00F5FF] rounded-full">{item.type?.toUpperCase() || 'FLYER'}</span>
+                                <span className="px-2 py-0.5 bg-gray-100]/10 text-[#00F5FF] rounded-full">{item.type?.toUpperCase() || 'FLYER'}</span>
                                 <span>{item.download_count || 0} downloads</span>
                               </div>
                             </div>
                           </div>
                           {item.description && (
-                            <div className="mb-3 p-2 bg-[#c0c4c9] rounded-lg">
+                            <div className="mb-3 p-2 bg-gray-100] rounded-lg">
                               <p className="text-xs text-neutral-500 whitespace-pre-wrap break-words" style={{
                                 maxHeight: '60px',
                                 overflow: 'hidden',
@@ -734,14 +734,14 @@ export default function PartnerDashboard() {
                           <div className="flex gap-2">
                             <button 
                               onClick={() => openMaterialDetail(item)}
-                              className="flex-1 py-2 border border-[#00F5FF]/60 bg-[#00F5FF]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-[#00F5FF]/20 transition-colors flex items-center justify-center gap-2"
+                              className="flex-1 py-2 border border-[#00F5FF]/60 bg-gray-100]/10 text-[#00F5FF] rounded-lg text-sm font-medium hover:bg-gray-100]/20 transition-colors flex items-center justify-center gap-2"
                             >
                               <Eye className="h-4 w-4" />
                               View Details
                             </button>
                             <button 
                               onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
-                              className="flex-1 py-2 border border-neutral-200 bg-white text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-[#c0c4c9] transition-colors flex items-center justify-center gap-2"
+                              className="flex-1 py-2 border border-neutral-200 bg-gray-100 text-[#e2e2e8] rounded-lg text-sm font-medium hover:bg-gray-100] transition-colors flex items-center justify-center gap-2"
                             >
                               <Download className="h-4 w-4" />
                               Download
@@ -760,12 +760,12 @@ export default function PartnerDashboard() {
             {/* Material Detail Modal */}
             {selectedMaterial && showMaterialDetailModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="bg-gray-100] border border-neutral-200 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                   <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                     <h2 className="text-xl font-bold text-[#e2e2e8]">Material Details</h2>
                     <button
                       onClick={() => setShowMaterialDetailModal(false)}
-                      className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-500 hover:text-[#e2e2e8]"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-500 hover:text-[#e2e2e8]"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -774,35 +774,35 @@ export default function PartnerDashboard() {
                   <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.name}</h3>
-                      <span className="px-3 py-1 bg-[#00F5FF]/10 text-[#00F5FF] rounded-full text-xs font-medium">
+                      <span className="px-3 py-1 bg-gray-100]/10 text-[#00F5FF] rounded-full text-xs font-medium">
                         {selectedMaterial.type?.toUpperCase() || 'FLYER'}
                       </span>
                     </div>
                     
                     {selectedMaterial.description && (
-                      <div className="bg-white p-4 rounded-lg">
+                      <div className="bg-gray-100 p-4 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                           <p className="text-sm font-medium text-[#e2e2e8]">Description</p>
                           <button
                             onClick={() => copyTextToClipboard(selectedMaterial.description)}
-                            className="p-1 hover:bg-[#00F5FF]/10 rounded transition-colors text-neutral-500 hover:text-[#00F5FF]"
+                            className="p-1 hover:bg-gray-100]/10 rounded transition-colors text-neutral-500 hover:text-[#00F5FF]"
                             title="Copy text"
                           >
                             <Copy className="h-4 w-4" />
                           </button>
                         </div>
-                        <p className="text-sm text-neutral-500 whitespace-pre-wrap break-words bg-[#c0c4c9] p-3 rounded-lg max-h-64 overflow-y-auto">
+                        <p className="text-sm text-neutral-500 whitespace-pre-wrap break-words bg-gray-100] p-3 rounded-lg max-h-64 overflow-y-auto">
                           {selectedMaterial.description}
                         </p>
                       </div>
                     )}
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="bg-white p-3 rounded-lg">
+                      <div className="bg-gray-100 p-3 rounded-lg">
                         <p className="text-neutral-500">Downloads</p>
                         <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.download_count || 0}</p>
                       </div>
-                      <div className="bg-white p-3 rounded-lg">
+                      <div className="bg-gray-100 p-3 rounded-lg">
                         <p className="text-neutral-500">Category</p>
                         <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.category || 'general'}</p>
                       </div>
@@ -810,7 +810,7 @@ export default function PartnerDashboard() {
                     
                     {/* Integrated Preview */}
                     {selectedMaterial.url && (selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-white p-4 rounded-lg">
+                      <div className="bg-gray-100 p-4 rounded-lg">
                         <p className="text-sm font-medium text-[#e2e2e8] mb-3">Preview</p>
                         <img 
                           src={selectedMaterial.url} 
@@ -824,7 +824,7 @@ export default function PartnerDashboard() {
                     
                     {/* File Preview for non-image types */}
                     {selectedMaterial.url && !(selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' || selectedMaterial.type?.includes('image')) && (
-                      <div className="bg-white p-4 rounded-lg">
+                      <div className="bg-gray-100 p-4 rounded-lg">
                         <p className="text-sm font-medium text-[#e2e2e8] mb-3">File Preview</p>
                         <a 
                           href={selectedMaterial.url}
@@ -841,14 +841,14 @@ export default function PartnerDashboard() {
                     <div className="flex gap-3 pt-4 border-t border-neutral-200">
                       <button
                         onClick={() => window.open(`/api/partners/marketing/download/${selectedMaterial.id}`, '_blank')}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-medium hover:bg-[#00F5FF]/90 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
                       >
                         <Download className="h-4 w-4" />
                         Download
                       </button>
                       <button
                         onClick={() => setShowMaterialDetailModal(false)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-[#c0c4c9] transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-100] transition-colors"
                       >
                         Close
                       </button>
@@ -859,24 +859,24 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "settings" && (
-              <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
                 <h3 className="font-semibold text-[#e2e2e8] mb-4">Profile Settings</h3>
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-neutral-500 block mb-2">Partner ID</label>
-                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg font-mono text-sm text-neutral-500">
+                    <div className="p-3 border border-neutral-200 bg-gray-100/50 rounded-lg font-mono text-sm text-neutral-500">
                       {partner?.id || "N/A"}
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-neutral-500 block mb-2">Email</label>
-                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg text-sm text-[#e2e2e8]">
+                    <div className="p-3 border border-neutral-200 bg-gray-100/50 rounded-lg text-sm text-[#e2e2e8]">
                       {partner?.email || "N/A"}
                     </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-neutral-500 block mb-2">Partner Type</label>
-                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg text-sm text-[#e2e2e8]">
+                    <div className="p-3 border border-neutral-200 bg-gray-100/50 rounded-lg text-sm text-[#e2e2e8]">
                       {partner?.type === "student" ? "Student Partner" : 
                        partner?.type === "community" ? "Community Partner" : 
                        partner?.type === "influencer" ? "Influencer" : "Partner"}
@@ -884,7 +884,7 @@ export default function PartnerDashboard() {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-neutral-500 block mb-2">Commission Rate</label>
-                    <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg text-sm text-[#00F5FF]">
+                    <div className="p-3 border border-neutral-200 bg-gray-100/50 rounded-lg text-sm text-[#00F5FF]">
                       ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} per referral
                     </div>
                   </div>
@@ -912,21 +912,21 @@ export default function PartnerDashboard() {
                     
                     {bankProfile ? (
                       <div className="space-y-3">
-                        <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg">
+                        <div className="p-3 border border-neutral-200 bg-gray-100/50 rounded-lg">
                           <p className="text-xs text-neutral-500 mb-1">Bank Name</p>
                           <p className="text-sm text-[#e2e2e8]">{bankProfile.bank_name}</p>
                         </div>
-                        <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg">
+                        <div className="p-3 border border-neutral-200 bg-gray-100/50 rounded-lg">
                           <p className="text-xs text-neutral-500 mb-1">Account Number</p>
                           <p className="text-sm text-[#e2e2e8]">{bankProfile.account_number}</p>
                         </div>
-                        <div className="p-3 border border-neutral-200 bg-white/50 rounded-lg">
+                        <div className="p-3 border border-neutral-200 bg-gray-100/50 rounded-lg">
                           <p className="text-xs text-neutral-500 mb-1">Account Name</p>
                           <p className="text-sm text-[#e2e2e8]">{bankProfile.account_name}</p>
                         </div>
                       </div>
                     ) : (
-                      <div className="p-4 border border-dashed border-neutral-200 bg-white/30 rounded-lg text-center">
+                      <div className="p-4 border border-dashed border-neutral-200 bg-gray-100/30 rounded-lg text-center">
                         <p className="text-sm text-neutral-500 mb-2">No bank details added yet</p>
                         <button
                           onClick={() => setShowBankModal(true)}
@@ -940,7 +940,7 @@ export default function PartnerDashboard() {
                   
                   <button
                     onClick={handleContactSupport}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-neutral-900 rounded-lg font-medium hover:bg-[#25D366]/90 transition-colors mt-4"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-neutral-900 rounded-lg font-medium hover:bg-gray-100]/90 transition-colors mt-4"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Contact Support via WhatsApp
@@ -955,7 +955,7 @@ export default function PartnerDashboard() {
       {/* Bank Profile Modal */}
       {showBankModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 sm:p-8 w-full max-w-md">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 sm:p-8 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-[#e2e2e8]">{bankProfile ? 'Edit Bank Profile' : 'Setup Bank Profile'}</h2>
               <button
@@ -995,7 +995,7 @@ export default function PartnerDashboard() {
                   required
                   value={bankFormData.bank_name}
                   onChange={(e) => setBankFormData({...bankFormData, bank_name: e.target.value})}
-                  className="w-full bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-gray-100/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
                   placeholder="Enter bank name"
                 />
               </div>
@@ -1006,7 +1006,7 @@ export default function PartnerDashboard() {
                   required
                   value={bankFormData.account_number}
                   onChange={(e) => setBankFormData({...bankFormData, account_number: e.target.value})}
-                  className="w-full bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-gray-100/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
                   placeholder="Enter account number"
                 />
               </div>
@@ -1017,7 +1017,7 @@ export default function PartnerDashboard() {
                   required
                   value={bankFormData.account_name}
                   onChange={(e) => setBankFormData({...bankFormData, account_name: e.target.value})}
-                  className="w-full bg-white/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
+                  className="w-full bg-gray-100/50 border border-neutral-200 rounded-lg px-4 py-3 text-[#e2e2e8] focus:outline-none focus:border-[#00F5FF] transition-colors"
                   placeholder="Enter account name"
                 />
               </div>
@@ -1025,14 +1025,14 @@ export default function PartnerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowBankModal(false)}
-                  className="flex-1 py-3 border border-neutral-200 text-neutral-500 rounded-lg font-medium hover:bg-white transition-colors"
+                  className="flex-1 py-3 border border-neutral-200 text-neutral-500 rounded-lg font-medium hover:bg-gray-100 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingBank}
-                  className="flex-1 py-3 bg-[#00F5FF] text-[#070B12] rounded-lg font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-gray-100] text-[#070B12] rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSavingBank ? 'Saving...' : 'Save Profile'}
                 </button>

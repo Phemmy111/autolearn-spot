@@ -137,12 +137,12 @@
   color-scheme: light;
   --background: #f5f5f5; /* Light gray as default background */
   --foreground: #0a0a0a;
-  --card: #ffffff; /* White for elevated cards/containers */
+  --card: #f5f5f5; /* White for elevated cards/containers */
   --card-foreground: #0a0a0a;
-  --popover: #ffffff;
+  --popover: #f5f5f5;
   --popover-foreground: #0a0a0a;
   --primary: #0066cc;
-  --primary-foreground: #ffffff;
+  --primary-foreground: #f5f5f5;
   --secondary: #e5e5e5;
   --secondary-foreground: #0a0a0a;
   --muted: #f5f5f5;
@@ -158,10 +158,10 @@
   --chart-3: #003d7a;
   --chart-4: #002951;
   --chart-5: #001428;
-  --sidebar: #ffffff;
+  --sidebar: #f5f5f5;
   --sidebar-foreground: #0a0a0a;
   --sidebar-primary: #0066cc;
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground: #f5f5f5;
   --sidebar-accent: #e5e5e5;
   --sidebar-accent-foreground: #0a0a0a;
   --sidebar-border: #e5e5e5;

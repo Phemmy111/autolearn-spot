@@ -79,7 +79,7 @@ export const colors = {
   },
   
   warning: {
-    50: '#fffbeb',
+    50: '#f5f5f5beb',
     100: '#fef3c7',
     200: '#fde68a',
     300: '#fcd34d',
@@ -137,7 +137,7 @@ export const surfaces = {
   primary: '#f5f5f5', // Light gray as default background (design studio configurable)
   secondary: '#fafafa',
   tertiary: '#f0f0f0',
-  elevated: '#ffffff', // White for elevated cards/containers
+  elevated: '#f5f5f5', // White for elevated cards/containers
   overlay: 'rgba(0, 0, 0, 0.5)',
   backdrop: 'rgba(255, 255, 255, 0.8)',
 };
@@ -364,7 +364,7 @@ export const durations = {
 export const components = {
   // Card styles
   card: {
-    base: 'bg-white border border-neutral-200 rounded-lg',
+    base: 'bg-gray-100 border border-neutral-200 rounded-lg',
     hover: 'hover:shadow-md hover:border-neutral-300',
     interactive: 'cursor-pointer transition-all duration-200',
     elevated: 'shadow-sm',
@@ -391,7 +391,7 @@ export const components = {
   
   // Input styles
   input: {
-    base: 'flex w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors',
+    base: 'flex w-full rounded-lg border border-neutral-300 bg-gray-100 px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors',
     sizes: {
       sm: 'px-2 py-1 text-xs',
       base: 'px-3 py-2 text-sm',
@@ -439,7 +439,7 @@ export const components = {
   modal: {
     base: 'fixed inset-0 z-50 flex items-center justify-center',
     backdrop: 'fixed inset-0 bg-black/50 backdrop-blur-sm',
-    content: 'bg-white rounded-lg shadow-xl max-w-lg w-full mx-4',
+    content: 'bg-gray-100 rounded-lg shadow-xl max-w-lg w-full mx-4',
     header: 'px-6 py-4 border-b border-neutral-200',
     body: 'px-6 py-4',
     footer: 'px-6 py-4 border-t border-neutral-200',
@@ -493,7 +493,7 @@ export const components = {
   // Toast styles
   toast: {
     base: 'fixed bottom-4 right-4 z-50 max-w-sm',
-    item: 'bg-white border border-neutral-200 rounded-lg shadow-lg p-4 mb-2',
+    item: 'bg-gray-100 border border-neutral-200 rounded-lg shadow-lg p-4 mb-2',
     variants: {
       success: 'border-l-4 border-success-500',
       error: 'border-l-4 border-error-500',
@@ -512,7 +512,7 @@ export const components = {
   
   // Stat card styles
   statCard: {
-    base: 'bg-white border border-neutral-200 rounded-lg p-6',
+    base: 'bg-gray-100 border border-neutral-200 rounded-lg p-6',
     label: 'text-sm font-medium text-neutral-600 mb-1',
     value: 'text-2xl font-bold text-neutral-900',
     change: 'text-sm font-medium',
@@ -524,7 +524,7 @@ export const components = {
   dropdown: {
     base: 'relative',
     trigger: 'inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors',
-    menu: 'absolute right-0 mt-2 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg z-50',
+    menu: 'absolute right-0 mt-2 w-56 bg-gray-100 border border-neutral-200 rounded-lg shadow-lg z-50',
     item: 'px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 cursor-pointer',
     divider: 'border-t border-neutral-200 my-1',
   },
@@ -647,7 +647,7 @@ export const breakpoints = {
 export const components = {
   // Card styles
   card: {
-    base: 'bg-white border border-neutral-200 rounded-lg shadow-sm',
+    base: 'bg-gray-100 border border-neutral-200 rounded-lg shadow-sm',
     hover: 'hover:shadow-md hover:border-neutral-300',
     interactive: 'cursor-pointer transition-all duration-200',
   },
@@ -670,7 +670,7 @@ export const components = {
   
   // Input styles
   input: {
-    base: 'flex w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed',
+    base: 'flex w-full rounded-lg border border-neutral-300 bg-gray-100 px-3 py-2 text-sm placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed',
     sizes: {
       sm: 'px-2 py-1 text-xs',
       base: 'px-3 py-2 text-sm',

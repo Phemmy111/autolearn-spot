@@ -218,20 +218,20 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
       {/* Toast notification */}
       {toast && (
         <div className={`fixed top-4 right-4 px-4 py-2 font-mono text-sm font-bold rounded ${
-          toast.type === 'success' ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]' : 'bg-red-500/20 text-red-400 border border-red-500'
+          toast.type === 'success' ? 'bg-gray-100]/20 text-[#10b981] border border-[#10b981]' : 'bg-red-500/20 text-red-400 border border-red-500'
         }`}>
           {toast.message}
         </div>
       )}
 
       {/* Current Enrollment Cohort Section */}
-      <div className="bg-[#d1d5db] border border-[#3b494b] p-6 rounded">
+      <div className="bg-gray-100] border border-[#3b494b] p-6 rounded">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-heading text-lg font-bold text-neutral-900">Current Enrollment Cohort</h2>
           <div className="flex gap-2">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 bg-[#10b981] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-[#10b981]/80 transition-colors"
+              className="inline-flex items-center gap-2 bg-gray-100] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Create Cohort
@@ -291,23 +291,23 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-[#d1d5db] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-gray-100] border border-[#3b494b] p-4 rounded text-center">
           <div className="text-neutral-600 font-mono text-xs uppercase">Total Paid</div>
           <div className="text-2xl font-bold text-[#10b981] mt-1">{summary.paid}</div>
         </div>
-        <div className="bg-[#d1d5db] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-gray-100] border border-[#3b494b] p-4 rounded text-center">
           <div className="text-neutral-600 font-mono text-xs uppercase">Payment Pending</div>
           <div className="text-2xl font-bold text-yellow-400 mt-1">{summary.pending}</div>
         </div>
-        <div className="bg-[#d1d5db] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-gray-100] border border-[#3b494b] p-4 rounded text-center">
           <div className="text-neutral-600 font-mono text-xs uppercase">Expired</div>
           <div className="text-2xl font-bold text-gray-400 mt-1">{summary.expired}</div>
         </div>
-        <div className="bg-[#d1d5db] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-gray-100] border border-[#3b494b] p-4 rounded text-center">
           <div className="text-neutral-600 font-mono text-xs uppercase">Payment Failed</div>
           <div className="text-2xl font-bold text-red-400 mt-1">{summary.failed}</div>
         </div>
-        <div className="bg-[#d1d5db] border border-[#3b494b] p-4 rounded text-center">
+        <div className="bg-gray-100] border border-[#3b494b] p-4 rounded text-center">
           <div className="text-neutral-600 font-mono text-xs uppercase">Revenue</div>
           <div className="text-2xl font-bold text-[#10b981] mt-1">₦{summary.revenue.toLocaleString()}</div>
         </div>
@@ -322,13 +322,13 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
             placeholder="Search email or reference..." 
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-[#d1d5db] border border-[#3b494b] pl-10 pr-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-100] border border-[#3b494b] pl-10 pr-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
           />
         </div>
         <select 
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+          className="bg-gray-100] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
         >
           <option value="all">All Statuses</option>
           <option value="Enrolled">Enrolled</option>
@@ -340,7 +340,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
         <select 
           value={cohortFilter}
           onChange={e => setCohortFilter(e.target.value)}
-          className="bg-[#d1d5db] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+          className="bg-gray-100] border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
         >
           <option value="all">All Cohorts</option>
           {cohorts.map((c: { id: string; name: string; status: string }) => (
@@ -350,9 +350,9 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto border border-[#3b494b] bg-[#d1d5db] rounded">
+      <div className="overflow-x-auto border border-[#3b494b] bg-gray-100] rounded">
         <table className="w-full text-left font-mono text-sm">
-          <thead className="bg-[#d1d5db] border-b border-[#3b494b] text-neutral-600">
+          <thead className="bg-gray-100] border-b border-[#3b494b] text-neutral-600">
             <tr>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
@@ -366,7 +366,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
           </thead>
           <tbody>
             {filtered.map((en: any) => (
-              <tr key={en.id} className="border-b border-[#3b494b]/50 hover:bg-[#d1d5db]/50">
+              <tr key={en.id} className="border-b border-[#3b494b]/50 hover:bg-gray-100]/50">
                 <td className="px-4 py-3 text-neutral-900">{en.full_name || (en.first_name ? `${en.first_name} ${en.last_name || ''}`.trim() : 'N/A')}</td>
                 <td className="px-4 py-3 text-neutral-600">{en.email}</td>
                 <td className="px-4 py-3 text-neutral-500">{en.phone_number || en.whatsapp_number || 'N/A'}</td>
@@ -377,7 +377,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                 </td>
                 <td className="px-4 py-3">
                   <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] uppercase font-bold ${
-                    en.display_status === 'Enrolled' ? 'bg-[#10b981]/10 text-[#10b981]' :
+                    en.display_status === 'Enrolled' ? 'bg-gray-100]/10 text-[#10b981]' :
                     en.display_status === 'Payment Pending' ? 'bg-yellow-400/10 text-yellow-400' :
                     en.display_status === 'Expired' ? 'bg-gray-400/10 text-gray-400' :
                     en.display_status === 'Payment Failed' ? 'bg-red-400/10 text-red-400' :
@@ -442,33 +442,33 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
       {/* Create Cohort Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#d1d5db] border border-[#3b494b] p-6 rounded max-w-md w-full mx-4">
+          <div className="bg-gray-100] border border-[#3b494b] p-6 rounded max-w-md w-full mx-4">
             <h3 className="font-heading text-xl font-bold text-neutral-900 mb-4">Create New Cohort</h3>
             <form onSubmit={handleCreateCohort}>
               <div className="space-y-4">
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Cohort Name</label>
-                  <input name="name" required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="name" required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Slug</label>
-                  <input name="slug" required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="slug" required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Registration Fee (₦)</label>
-                  <input name="price_ngn" type="number" required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="price_ngn" type="number" required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Start Date</label>
-                  <input name="start_date" type="date" className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="start_date" type="date" className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">End Date</label>
-                  <input name="end_date" type="date" className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="end_date" type="date" className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Status</label>
-                  <select name="status" required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]">
+                  <select name="status" required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]">
                     <option value="draft">Draft</option>
                     <option value="upcoming">Upcoming</option>
                     <option value="active">Active</option>
@@ -478,13 +478,13 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Timezone</label>
-                  <input name="timezone" defaultValue="Africa/Lagos" className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="timezone" defaultValue="Africa/Lagos" className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div className="flex gap-2 pt-4">
                   <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-600 hover:text-neutral-900 hover:border-white transition-colors">
                     Cancel
                   </button>
-                  <button type="submit" className="flex-1 bg-[#10b981] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-[#10b981]/80 transition-colors">
+                  <button type="submit" className="flex-1 bg-gray-100] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors">
                     Create Cohort
                   </button>
                 </div>
@@ -497,13 +497,13 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
       {/* Manage Cohorts Modal */}
       {showManageModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#d1d5db] border border-[#3b494b] p-6 rounded max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-100] border border-[#3b494b] p-6 rounded max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
             <h3 className="font-heading text-xl font-bold text-neutral-900 mb-4">Manage Cohorts</h3>
             <div className="space-y-4 mb-4">
               {cohorts.map((cohort: any) => {
                 const studentCount = getCohortStudentCount(cohort.id);
                 return (
-                  <div key={cohort.id} className="bg-[#d1d5db] border border-[#3b494b] p-4 rounded">
+                  <div key={cohort.id} className="bg-gray-100] border border-[#3b494b] p-4 rounded">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <div className="text-neutral-900 font-bold text-lg">{cohort.name}</div>
@@ -583,7 +583,7 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                   setShowManageModal(false);
                   setShowCreateModal(true);
                 }}
-                className="flex-1 bg-[#10b981] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-[#10b981]/80 transition-colors"
+                className="flex-1 bg-gray-100] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors"
               >
                 Create New Cohort
               </button>
@@ -595,33 +595,33 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
       {/* Edit Cohort Modal */}
       {showEditModal && editingCohort && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#d1d5db] border border-[#3b494b] p-6 rounded max-w-md w-full mx-4">
+          <div className="bg-gray-100] border border-[#3b494b] p-6 rounded max-w-md w-full mx-4">
             <h3 className="font-heading text-xl font-bold text-neutral-900 mb-4">Edit Cohort</h3>
             <form onSubmit={handleEditCohort}>
               <div className="space-y-4">
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Cohort Name</label>
-                  <input name="name" defaultValue={editingCohort.name} required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="name" defaultValue={editingCohort.name} required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Slug</label>
-                  <input name="slug" defaultValue={editingCohort.slug} required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="slug" defaultValue={editingCohort.slug} required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Registration Fee (₦)</label>
-                  <input name="price_ngn" type="number" defaultValue={editingCohort.price_ngn} required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="price_ngn" type="number" defaultValue={editingCohort.price_ngn} required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Start Date</label>
-                  <input name="start_date" type="date" defaultValue={editingCohort.start_date?.split('T')[0]} className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="start_date" type="date" defaultValue={editingCohort.start_date?.split('T')[0]} className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">End Date</label>
-                  <input name="end_date" type="date" defaultValue={editingCohort.end_date?.split('T')[0]} className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="end_date" type="date" defaultValue={editingCohort.end_date?.split('T')[0]} className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Status</label>
-                  <select name="status" defaultValue={editingCohort.status} required className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]">
+                  <select name="status" defaultValue={editingCohort.status} required className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]">
                     <option value="draft">Draft</option>
                     <option value="upcoming">Upcoming</option>
                     <option value="active">Active</option>
@@ -631,13 +631,13 @@ export function EnrollmentsTable({ initialEnrollments, cohorts, summary, current
                 </div>
                 <div>
                   <label className="block text-neutral-600 font-mono text-xs uppercase mb-1">Timezone</label>
-                  <input name="timezone" defaultValue={editingCohort.timezone || 'Africa/Lagos'} className="w-full bg-[#d1d5db] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
+                  <input name="timezone" defaultValue={editingCohort.timezone || 'Africa/Lagos'} className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]" />
                 </div>
                 <div className="flex gap-2 pt-4">
                   <button type="button" onClick={() => setShowEditModal(false)} className="flex-1 border border-[#3b494b] px-4 py-2 font-mono text-sm text-neutral-600 hover:text-neutral-900 hover:border-white transition-colors">
                     Cancel
                   </button>
-                  <button type="submit" className="flex-1 bg-[#10b981] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-[#10b981]/80 transition-colors">
+                  <button type="submit" className="flex-1 bg-gray-100] text-[#0a0c10] px-4 py-2 font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors">
                     Save Changes
                   </button>
                 </div>

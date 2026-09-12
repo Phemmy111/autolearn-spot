@@ -54,7 +54,7 @@ export default function NewQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
@@ -86,7 +86,7 @@ export default function NewQuizPage() {
                 value={formData.title}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 placeholder="e.g., Week 1: n8n Fundamentals Quiz"
               />
             </div>
@@ -100,7 +100,7 @@ export default function NewQuizPage() {
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
-                className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
                 placeholder="Brief description of what this quiz covers..."
               />
             </div>
@@ -118,7 +118,7 @@ export default function NewQuizPage() {
                   min="1"
                   max="12"
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 />
               </div>
 
@@ -131,7 +131,7 @@ export default function NewQuizPage() {
                   value={formData.phase}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 >
                   <option value="WEEK_1">WEEK_1</option>
                   <option value="WEEK_2">WEEK_2</option>
@@ -153,7 +153,7 @@ export default function NewQuizPage() {
                   onChange={handleChange}
                   min="1"
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 />
               </div>
 
@@ -169,7 +169,7 @@ export default function NewQuizPage() {
                   min="0"
                   max="100"
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 />
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function NewQuizPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {loading ? 'Creating...' : 'Create Quiz'}

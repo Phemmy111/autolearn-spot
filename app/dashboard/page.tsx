@@ -58,7 +58,7 @@ export default function DashboardPage() {
 
       {/* Continue Learning */}
       {nextLesson && (
-        <div className="p-6 bg-white border border-neutral-200 rounded-lg">
+        <div className="p-6 bg-gray-100 border border-neutral-200 rounded-lg">
           <div className="flex items-start gap-4">
             <PlayCircle className="h-8 w-8 text-sky-600 flex-shrink-0 mt-1" />
             <div className="flex-1">
@@ -107,7 +107,7 @@ export default function DashboardPage() {
                       key={video.id}
                       className={`group relative flex flex-col overflow-hidden border rounded-lg ${
                         available
-                          ? 'border-neutral-200 bg-white hover:border-sky-300'
+                          ? 'border-neutral-200 bg-gray-100 hover:border-sky-300'
                           : 'border-neutral-100 bg-neutral-50 opacity-60'
                       } transition-colors`}
                     >

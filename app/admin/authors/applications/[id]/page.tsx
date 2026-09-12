@@ -85,7 +85,7 @@ export default function ApplicationDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#d1d5db] text-gray-900 font-sans">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100] text-gray-900 font-sans">
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );
@@ -93,7 +93,7 @@ export default function ApplicationDetailPage() {
 
   if (!app) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#d1d5db] text-gray-900 font-sans">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100] text-gray-900 font-sans">
         <p className="text-lg text-gray-600">Application not found.</p>
       </div>
     );
@@ -189,9 +189,9 @@ export default function ApplicationDetailPage() {
   };
 
   return (
-    <div className="min-h-screen pb-12 text-gray-900 font-sans bg-[#d1d5db]">
+    <div className="min-h-screen pb-12 text-gray-900 font-sans bg-gray-100]">
       {/* Top Bar */}
-      <header className="h-16 bg-white border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+      <header className="h-16 bg-gray-100 border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
           <Link href="/admin/authors" className="hover:text-gray-800 transition-colors">Admin</Link>
           <ArrowLeft className="h-4 w-4 text-gray-400" />
@@ -259,7 +259,7 @@ export default function ApplicationDetailPage() {
         {/* Sections Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Personal Information */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Users className="h-5 w-5 text-gray-500" /> Personal Information
             </h2>
@@ -273,7 +273,7 @@ export default function ApplicationDetailPage() {
           </section>
 
           {/* Professional Information */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <UserCheck className="h-5 w-5 text-gray-500" /> Professional Information
             </h2>
@@ -292,7 +292,7 @@ export default function ApplicationDetailPage() {
           </section>
 
           {/* About & Motivation */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
+          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <FileText className="h-5 w-5 text-gray-500" /> About / Motivation
             </h2>
@@ -301,7 +301,7 @@ export default function ApplicationDetailPage() {
           </section>
 
           {/* Documents */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
+          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
             <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <Upload className="h-5 w-5 text-gray-500" /> Documents
             </h2>

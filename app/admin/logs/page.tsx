@@ -99,7 +99,7 @@ export default function AuditLogsPage() {
 
   const getEventTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
-      user_activity: 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/30',
+      user_activity: 'bg-gray-100]/20 text-[#10b981] border border-[#10b981]/30',
       admin_activity: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
       scholarship_lifecycle: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
       payment: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
@@ -110,7 +110,7 @@ export default function AuditLogsPage() {
   };
   
   return (
-    <div className="min-h-screen bg-[#d1d5db] p-6">
+    <div className="min-h-screen bg-gray-100] p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-neutral-900 mb-2">Audit Logs</h1>
         <p className="text-neutral-600">Monitor and track all system activities</p>
@@ -119,19 +119,19 @@ export default function AuditLogsPage() {
       {/* Statistics Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white border border-neutral-200 p-4 rounded-lg">
+          <div className="bg-gray-100 border border-neutral-200 p-4 rounded-lg">
             <div className="text-2xl font-bold text-neutral-900">{stats.total}</div>
             <div className="text-neutral-600">Total Events</div>
           </div>
-          <div className="bg-white border border-neutral-200 p-4 rounded-lg">
+          <div className="bg-gray-100 border border-neutral-200 p-4 rounded-lg">
             <div className="text-2xl font-bold text-green-400">{stats.byStatus.success || 0}</div>
             <div className="text-neutral-600">Successful</div>
           </div>
-          <div className="bg-white border border-neutral-200 p-4 rounded-lg">
+          <div className="bg-gray-100 border border-neutral-200 p-4 rounded-lg">
             <div className="text-2xl font-bold text-red-400">{stats.byStatus.failure || 0}</div>
             <div className="text-neutral-600">Failed</div>
           </div>
-          <div className="bg-white border border-neutral-200 p-4 rounded-lg">
+          <div className="bg-gray-100 border border-neutral-200 p-4 rounded-lg">
             <div className="text-2xl font-bold text-yellow-400">{stats.byStatus.warning || 0}</div>
             <div className="text-neutral-600">Warnings</div>
           </div>
@@ -139,7 +139,7 @@ export default function AuditLogsPage() {
       )}
       
       {/* Filters */}
-      <div className="bg-white border border-neutral-200 p-4 rounded-lg mb-6">
+      <div className="bg-gray-100 border border-neutral-200 p-4 rounded-lg mb-6">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-neutral-900 mb-1">Event Type</label>
@@ -209,13 +209,13 @@ export default function AuditLogsPage() {
           <div className="flex items-end gap-2">
             <button
               onClick={handleSearch}
-              className="bg-[#10b981] text-black px-4 py-2 rounded hover:bg-white font-mono text-xs uppercase font-bold"
+              className="bg-gray-100] text-black px-4 py-2 rounded hover:bg-gray-100 font-mono text-xs uppercase font-bold"
             >
               Search
             </button>
             <button
               onClick={clearFilters}
-              className="bg-[#d1d5db] text-neutral-600 px-4 py-2 rounded hover:bg-neutral-50 border border-neutral-200"
+              className="bg-gray-100] text-neutral-600 px-4 py-2 rounded hover:bg-neutral-50 border border-neutral-200"
             >
               Clear
             </button>
@@ -231,7 +231,7 @@ export default function AuditLogsPage() {
       </div>
       
       {/* Logs Table */}
-      <div className="bg-white border border-neutral-200 rounded-lg overflow-hidden">
+      <div className="bg-gray-100 border border-neutral-200 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-neutral-50">

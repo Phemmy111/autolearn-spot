@@ -32,7 +32,7 @@ export default async function AdminScholarshipPage() {
   const notSelected = applications.filter(a => a.status === 'Not Selected').length;
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12 flex justify-between items-end">
           <div>
@@ -54,36 +54,36 @@ export default async function AdminScholarshipPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-          <div className="border border-neutral-200 bg-white p-4 text-center">
+          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
             <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Total</p>
             <p className="text-3xl font-bold text-neutral-900">{total}</p>
           </div>
-          <div className="border border-neutral-200 bg-white p-4 text-center">
+          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
             <FileText className="w-5 h-5 text-neutral-600 mx-auto mb-2" />
             <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Submitted</p>
             <p className="text-xl font-bold text-neutral-600">{submitted}</p>
           </div>
-          <div className="border border-neutral-200 bg-white p-4 text-center">
+          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
             <Search className="w-5 h-5 text-[#10b981] mx-auto mb-2" />
             <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Under Review</p>
             <p className="text-xl font-bold text-[#10b981]">{underReview}</p>
           </div>
-          <div className="border border-neutral-200 bg-white p-4 text-center">
+          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
             <Clock className="w-5 h-5 text-yellow-400 mx-auto mb-2" />
             <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Shortlisted</p>
             <p className="text-xl font-bold text-yellow-400">{shortlisted}</p>
           </div>
-          <div className="border border-neutral-200 bg-white p-4 text-center">
+          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
             <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-2" />
             <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Accepted</p>
             <p className="text-xl font-bold text-green-400">{accepted}</p>
           </div>
-          <div className="border border-neutral-200 bg-white p-4 text-center">
+          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
             <Calendar className="w-5 h-5 text-orange-400 mx-auto mb-2" />
             <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Waitlisted</p>
             <p className="text-xl font-bold text-orange-400">{waitlisted}</p>
           </div>
-          <div className="border border-neutral-200 bg-white p-4 text-center">
+          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
             <AlertCircle className="w-5 h-5 text-red-400 mx-auto mb-2" />
             <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Not Selected</p>
             <p className="text-xl font-bold text-red-400">{notSelected}</p>

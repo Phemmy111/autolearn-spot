@@ -77,7 +77,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center bg-[#050505] overflow-hidden">
+    <section className="relative min-h-screen flex items-center bg-gray-100] overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
 

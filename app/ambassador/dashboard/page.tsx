@@ -80,7 +80,7 @@ export default function AmbassadorDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center text-neutral-900">
         <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     );
@@ -88,7 +88,7 @@ export default function AmbassadorDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#c0c4c9] flex flex-col items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-gray-100] flex flex-col items-center justify-center text-neutral-900">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
         <p>{error}</p>
         <button onClick={() => router.push("/ambassador/login")} className="mt-4 text-[#10b981] hover:underline">
@@ -99,9 +99,9 @@ export default function AmbassadorDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-100] text-neutral-900 overflow-x-hidden">
       {/* Topbar */}
-      <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-neutral-200 bg-gray-100]/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase">
             <span className="text-[#10b981]">//</span>
@@ -113,7 +113,7 @@ export default function AmbassadorDashboard() {
             </div>
             <Link 
               href="/ambassador/settings"
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-100] transition-colors flex items-center gap-2 text-neutral-500"
             >
               Settings
             </Link>
@@ -122,7 +122,7 @@ export default function AmbassadorDashboard() {
                 document.cookie = "growth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 router.push("/ambassador/login");
               }}
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-100] transition-colors flex items-center gap-2 text-neutral-500"
             >
               <LogOut className="h-3 w-3" /> Logout
             </button>
@@ -143,7 +143,7 @@ export default function AmbassadorDashboard() {
             </div>
             <button 
               onClick={handleCopyLink}
-              className="bg-[#10b981] text-black px-4 py-3 rounded-lg font-bold hover:bg-white transition-colors flex-shrink-0 flex items-center gap-2"
+              className="bg-gray-100] text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors flex-shrink-0 flex items-center gap-2"
             >
               {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied" : "Copy"}
@@ -153,7 +153,7 @@ export default function AmbassadorDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <MousePointerClick className="h-5 w-5" />
@@ -163,7 +163,7 @@ export default function AmbassadorDashboard() {
             <h3 className="text-2xl font-bold">{data.totalClicks}</h3>
           </div>
           
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
                 <Users className="h-5 w-5" />
@@ -173,7 +173,7 @@ export default function AmbassadorDashboard() {
             <h3 className="text-2xl font-bold">{data.totalRegistrations}</h3>
           </div>
 
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
                 <Clock className="h-5 w-5" />
@@ -183,10 +183,10 @@ export default function AmbassadorDashboard() {
             <h3 className="text-2xl font-bold text-yellow-400">₦{data.earnings.pendingEarnings.toLocaleString()}</h3>
           </div>
 
-          <div className="bg-[#c0c4c9] border border-[#10b981]/30 rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#10b981]/5 blur-3xl rounded-full" />
+          <div className="bg-gray-100] border border-[#10b981]/30 rounded-2xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-100]/5 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-10 h-10 rounded-full bg-[#10b981]/10 flex items-center justify-center text-[#10b981]">
+              <div className="w-10 h-10 rounded-full bg-gray-100]/10 flex items-center justify-center text-[#10b981]">
                 <Wallet className="h-5 w-5" />
               </div>
             </div>
@@ -199,7 +199,7 @@ export default function AmbassadorDashboard() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Recent Activity */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6">
+            <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
               <h3 className="text-lg font-bold mb-6">Recent Commissions</h3>
               {data.commissions.length > 0 ? (
                 <div className="overflow-x-auto">
@@ -220,7 +220,7 @@ export default function AmbassadorDashboard() {
                           <td className="py-4 font-medium text-neutral-900">₦{comm.amount.toLocaleString()}</td>
                           <td className="py-4">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              comm.status === 'available' ? 'bg-[#10b981]/10 text-[#10b981]' :
+                              comm.status === 'available' ? 'bg-gray-100]/10 text-[#10b981]' :
                               comm.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
                               comm.status === 'paid' ? 'bg-green-500/10 text-green-400' :
                               'bg-gray-500/10 text-gray-400'
@@ -242,16 +242,16 @@ export default function AmbassadorDashboard() {
           </div>
 
           {/* Withdrawal Panel */}
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 flex flex-col h-fit">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 flex flex-col h-fit">
             <h3 className="text-lg font-bold mb-6">Withdraw Funds</h3>
             
-            <div className="bg-[#c0c4c9] rounded-xl p-4 mb-6 border border-neutral-200">
+            <div className="bg-gray-100] rounded-xl p-4 mb-6 border border-neutral-200">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-neutral-500">Available</span>
                 <span className="font-bold text-[#10b981]">₦{data.earnings.availableEarnings.toLocaleString()}</span>
               </div>
-              <div className="w-full bg-[#1f2229] h-2 rounded-full overflow-hidden">
-                <div className="bg-[#10b981] h-full" style={{ width: `${Math.min(100, (data.earnings.availableEarnings / 2000) * 100)}%` }} />
+              <div className="w-full bg-gray-100] h-2 rounded-full overflow-hidden">
+                <div className="bg-gray-100] h-full" style={{ width: `${Math.min(100, (data.earnings.availableEarnings / 2000) * 100)}%` }} />
               </div>
               <p className="text-xs text-neutral-500 mt-2 text-right">Min. ₦2,000</p>
             </div>
@@ -267,7 +267,7 @@ export default function AmbassadorDashboard() {
                     max={data.earnings.availableEarnings}
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    className="w-full bg-[#c0c4c9] border border-neutral-200 rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#10b981] transition-colors"
+                    className="w-full bg-gray-100] border border-neutral-200 rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#10b981] transition-colors"
                     placeholder="Amount"
                   />
                 </div>
@@ -275,7 +275,7 @@ export default function AmbassadorDashboard() {
               <button
                 type="submit"
                 disabled={isWithdrawing || !withdrawAmount || Number(withdrawAmount) > data.earnings.availableEarnings}
-                className="w-full py-3 rounded-xl bg-[#10b981] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl bg-gray-100] text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isWithdrawing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRightLeft className="h-4 w-4" />}
                 Withdraw

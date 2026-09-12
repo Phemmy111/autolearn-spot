@@ -151,16 +151,16 @@ export default function AdminLandingSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -194,7 +194,7 @@ export default function AdminLandingSettingsPage() {
           )}
 
           {/* Hero Content */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Layout className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Hero Content</h2>
@@ -206,7 +206,7 @@ export default function AdminLandingSettingsPage() {
                   type="text"
                   value={settings.headline}
                   onChange={(e) => setSettings({ ...settings, headline: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -215,7 +215,7 @@ export default function AdminLandingSettingsPage() {
                   value={settings.subheadline}
                   onChange={(e) => setSettings({ ...settings, subheadline: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -224,14 +224,14 @@ export default function AdminLandingSettingsPage() {
                   type="text"
                   value={settings.badge}
                   onChange={(e) => setSettings({ ...settings, badge: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* CTA Buttons */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Layout className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Call-to-Action Buttons</h2>
@@ -243,7 +243,7 @@ export default function AdminLandingSettingsPage() {
                   type="text"
                   value={settings.primaryCtaText}
                   onChange={(e) => setSettings({ ...settings, primaryCtaText: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -252,7 +252,7 @@ export default function AdminLandingSettingsPage() {
                   type="text"
                   value={settings.primaryCtaLink}
                   onChange={(e) => setSettings({ ...settings, primaryCtaLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -261,7 +261,7 @@ export default function AdminLandingSettingsPage() {
                   type="text"
                   value={settings.secondaryCtaText}
                   onChange={(e) => setSettings({ ...settings, secondaryCtaText: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -270,14 +270,14 @@ export default function AdminLandingSettingsPage() {
                   type="text"
                   value={settings.secondaryCtaLink}
                   onChange={(e) => setSettings({ ...settings, secondaryCtaLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Hero Media */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <PanelsTopLeft className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Hero Media</h2>
@@ -288,7 +288,7 @@ export default function AdminLandingSettingsPage() {
                 <select
                   value={settings.mediaType}
                   onChange={(e) => setSettings({ ...settings, mediaType: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 >
                   <option value="workflow_panel">N8n Workflow Panel</option>
                   <option value="video">Video</option>
@@ -303,13 +303,13 @@ export default function AdminLandingSettingsPage() {
                       type="url"
                       value={settings.videoUrl}
                       onChange={(e) => setSettings({ ...settings, videoUrl: e.target.value })}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                       placeholder="https://..."
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-neutral-600 mb-2">Or Upload Video</label>
-                    <label className="flex items-center gap-3 p-4 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <label className="flex items-center gap-3 p-4 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                       <Video className="h-5 w-5 text-[#10b981]" />
                       <div className="flex-1">
                         <p className="text-sm text-neutral-900">{videoFile ? videoFile.name : 'Choose video file...'}</p>
@@ -334,13 +334,13 @@ export default function AdminLandingSettingsPage() {
                       type="url"
                       value={settings.imageUrl}
                       onChange={(e) => setSettings({ ...settings, imageUrl: e.target.value })}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                       placeholder="https://..."
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-neutral-600 mb-2">Or Upload Image</label>
-                    <label className="flex items-center gap-3 p-4 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <label className="flex items-center gap-3 p-4 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                       <Image className="h-5 w-5 text-[#10b981]" />
                       <div className="flex-1">
                         <p className="text-sm text-neutral-900">{imageFile ? imageFile.name : 'Choose image file...'}</p>
@@ -361,7 +361,7 @@ export default function AdminLandingSettingsPage() {
           </div>
 
           {/* Preview Video for Watch Preview Button */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Video className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Preview Video</h2>
@@ -373,14 +373,14 @@ export default function AdminLandingSettingsPage() {
                   type="url"
                   value={settings.previewVideoUrl}
                   onChange={(e) => setSettings({ ...settings, previewVideoUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
                 <p className="text-xs text-neutral-600 mt-1">This video will play when users click "Watch Preview" on the landing page</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-neutral-600 mb-2">Or Upload Preview Video</label>
-                <label className="flex items-center gap-3 p-4 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                <label className="flex items-center gap-3 p-4 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                   <Video className="h-5 w-5 text-[#10b981]" />
                   <div className="flex-1">
                     <p className="text-sm text-neutral-900">{previewVideoFile ? previewVideoFile.name : 'Choose preview video file...'}</p>
@@ -403,7 +403,7 @@ export default function AdminLandingSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

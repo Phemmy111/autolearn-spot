@@ -92,7 +92,7 @@ export default function AICostControlsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
           <p className="font-mono text-sm text-neutral-600">Loading cost controls...</p>
@@ -102,7 +102,7 @@ export default function AICostControlsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -117,7 +117,7 @@ export default function AICostControlsPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -149,7 +149,7 @@ export default function AICostControlsPage() {
 
         <div className="grid gap-6">
           {/* Enable/Disable */}
-          <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Zap className="h-6 w-6 text-[#10b981]" />
@@ -165,13 +165,13 @@ export default function AICostControlsPage() {
                   onChange={(e) => setControls({ ...controls, enabled: e.target.checked })}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-[#3b494b] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#10b981]" />
+                <div className="w-11 h-6 bg-gray-100] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-100 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-100]" />
               </label>
             </div>
           </div>
 
           {/* Token Limits */}
-          <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <DollarSign className="h-6 w-6 text-[#10b981]" />
               <div>
@@ -187,7 +187,7 @@ export default function AICostControlsPage() {
                   value={controls.max_tokens}
                   onChange={(e) => setControls({ ...controls, max_tokens: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
+                  className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
                 />
               </div>
               <div>
@@ -200,14 +200,14 @@ export default function AICostControlsPage() {
                   value={controls.temperature}
                   onChange={(e) => setControls({ ...controls, temperature: parseFloat(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
+                  className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
                 />
               </div>
             </div>
           </div>
 
           {/* Request Limits */}
-          <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <Clock className="h-6 w-6 text-[#10b981]" />
               <div>
@@ -223,7 +223,7 @@ export default function AICostControlsPage() {
                   value={controls.daily_request_limit}
                   onChange={(e) => setControls({ ...controls, daily_request_limit: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
+                  className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
                 />
               </div>
               <div>
@@ -233,14 +233,14 @@ export default function AICostControlsPage() {
                   value={controls.monthly_request_limit}
                   onChange={(e) => setControls({ ...controls, monthly_request_limit: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
+                  className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
                 />
               </div>
             </div>
           </div>
 
           {/* Retry and Timeout */}
-          <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <Settings className="h-6 w-6 text-[#10b981]" />
               <div>
@@ -256,7 +256,7 @@ export default function AICostControlsPage() {
                   value={controls.max_retries}
                   onChange={(e) => setControls({ ...controls, max_retries: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
+                  className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
                 />
               </div>
               <div>
@@ -266,7 +266,7 @@ export default function AICostControlsPage() {
                   value={controls.request_timeout_ms}
                   onChange={(e) => setControls({ ...controls, request_timeout_ms: parseInt(e.target.value) || 0 })}
                   disabled={!controls.enabled}
-                  className="w-full bg-[#d1d5db] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
+                  className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] disabled:opacity-50"
                 />
               </div>
             </div>

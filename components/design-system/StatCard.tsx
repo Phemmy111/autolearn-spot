@@ -25,7 +25,7 @@ export function StatCard({
   };
 
   return (
-    <div className="bg-white border border-neutral-200 rounded-lg p-6">
+    <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm font-medium text-neutral-600 mb-1">

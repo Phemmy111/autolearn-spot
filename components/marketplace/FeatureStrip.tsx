@@ -25,7 +25,7 @@ export function FeatureStrip() {
   ];
 
   return (
-    <section className="bg-[#edf0f4] py-16 border-b border-neutral-200/40 relative z-20">
+    <section className="bg-gray-100] py-16 border-b border-neutral-200/40 relative z-20">
       <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {features.map((feature, index) => (

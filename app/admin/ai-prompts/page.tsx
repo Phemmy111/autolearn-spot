@@ -137,14 +137,14 @@ export default function AIPromptsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <div className="text-neutral-600 font-mono">Loading...</div>
       </div>
     )
   }
 
   return (
-    <section className="min-h-screen bg-[#d1d5db]">
+    <section className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -158,7 +158,7 @@ export default function AIPromptsPage() {
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors"
+            className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Prompt
@@ -174,13 +174,13 @@ export default function AIPromptsPage() {
 
         <div className="grid gap-4">
           {prompts.map((prompt) => (
-            <div key={prompt.id} className="border border-neutral-200 bg-white p-6 rounded-xl">
+            <div key={prompt.id} className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-lg ${
                     prompt.is_active 
                       ? 'bg-emerald-400/10 border border-emerald-400/50' 
-                      : 'bg-[#d1d5db] border border-[#2a2d36]'
+                      : 'bg-gray-100] border border-[#2a2d36]'
                   }`}>
                     <MessageSquare className="h-5 w-5 text-neutral-600" />
                   </div>
@@ -193,7 +193,7 @@ export default function AIPromptsPage() {
                           Active
                         </span>
                       )}
-                      <span className="px-2 py-0.5 rounded-full bg-[#d1d5db] border border-[#2a2d36] text-xs font-mono text-neutral-600">
+                      <span className="px-2 py-0.5 rounded-full bg-gray-100] border border-[#2a2d36] text-xs font-mono text-neutral-600">
                         v{prompt.version}
                       </span>
                     </div>
@@ -208,7 +208,7 @@ export default function AIPromptsPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleCopy(prompt.content, prompt.id)}
-                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
+                    className="p-2 rounded hover:bg-gray-100] transition-colors"
                     title="Copy Content"
                   >
                     {copiedId === prompt.id ? (
@@ -220,7 +220,7 @@ export default function AIPromptsPage() {
                   {!prompt.is_active && (
                     <button
                       onClick={() => handleSetActive(prompt.id)}
-                      className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
+                      className="p-2 rounded hover:bg-gray-100] transition-colors"
                       title="Set as Active"
                     >
                       <Star className="h-4 w-4 text-yellow-400" />
@@ -228,7 +228,7 @@ export default function AIPromptsPage() {
                   )}
                   <button
                     onClick={() => handleDelete(prompt.id)}
-                    className="p-2 rounded hover:bg-[#d1d5db] transition-colors"
+                    className="p-2 rounded hover:bg-gray-100] transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
@@ -239,7 +239,7 @@ export default function AIPromptsPage() {
           ))}
 
           {prompts.length === 0 && (
-            <div className="border border-neutral-200 bg-white p-12 rounded-xl text-center">
+            <div className="border border-neutral-200 bg-gray-100 p-12 rounded-xl text-center">
               <MessageSquare className="h-12 w-12 text-neutral-500 mx-auto mb-4" />
               <p className="font-mono text-sm text-neutral-600">No AI prompts configured yet</p>
               <p className="font-mono text-xs text-neutral-500 mt-2">
@@ -252,7 +252,7 @@ export default function AIPromptsPage() {
         {/* Add Prompt Modal */}
         {showAddModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white border border-neutral-200 rounded-xl p-6 w-full max-w-2xl mx-4">
+            <div className="bg-gray-100 border border-neutral-200 rounded-xl p-6 w-full max-w-2xl mx-4">
               <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-6">Add New Prompt</h2>
               <form onSubmit={handleAddPrompt}>
                 <div className="space-y-4">
@@ -264,7 +264,7 @@ export default function AIPromptsPage() {
                       type="text"
                       value={newPrompt.name}
                       onChange={(e) => setNewPrompt({ ...newPrompt, name: e.target.value })}
-                      className="w-full bg-[#d1d5db] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981]"
                       placeholder="Quiz Generation Prompt"
                     />
                   </div>
@@ -275,7 +275,7 @@ export default function AIPromptsPage() {
                     <select
                       value={newPrompt.prompt_type}
                       onChange={(e) => setNewPrompt({ ...newPrompt, prompt_type: e.target.value })}
-                      className="w-full bg-[#d1d5db] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981]"
                     >
                       <option value="quiz_generation">Quiz Generation</option>
                       <option value="question_generation">Question Generation</option>
@@ -289,7 +289,7 @@ export default function AIPromptsPage() {
                     <textarea
                       value={newPrompt.content}
                       onChange={(e) => setNewPrompt({ ...newPrompt, content: e.target.value })}
-                      className="w-full bg-[#d1d5db] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981] h-48"
+                      className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981] h-48"
                       placeholder="Enter your prompt instructions here..."
                     />
                   </div>
@@ -304,7 +304,7 @@ export default function AIPromptsPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 rounded-lg bg-[#10b981] text-black font-bold font-mono text-sm hover:bg-white transition-colors"
+                    className="px-6 py-2 rounded-lg bg-gray-100] text-black font-bold font-mono text-sm hover:bg-gray-100 transition-colors"
                   >
                     Add Prompt
                   </button>

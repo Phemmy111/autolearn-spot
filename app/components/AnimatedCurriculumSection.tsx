@@ -39,7 +39,7 @@ export function AnimatedCurriculumSection() {
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
 
   return (
-    <section ref={sectionRef} id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-[#c0c4c9]">
+    <section ref={sectionRef} id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-gray-100]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className={`text-center mb-4 sm:mb-6 lg:mb-8 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
@@ -56,21 +56,21 @@ export function AnimatedCurriculumSection() {
               key={week.step}
               className={`border ${
                 week.active 
-                  ? 'border-[#10b981] bg-[#10b981]/5' 
-                  : 'border-neutral-200 bg-[#050505]/80'
+                  ? 'border-[#10b981] bg-gray-100]/5' 
+                  : 'border-neutral-200 bg-gray-100]/80'
               } backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#10b981]/50 transition-all duration-300 card-enhanced reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
               style={{ transitionDelay: `${0.1 + index * 0.1}s` }}
             >
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${
                   week.active 
-                    ? 'bg-[#10b981] text-[#00363a]' 
-                    : 'bg-[#1f2229] text-[#10b981]'
+                    ? 'bg-gray-100] text-[#00363a]' 
+                    : 'bg-gray-100] text-[#10b981]'
                 }`}>
                   <span className="text-lg sm:text-xl font-bold">{week.step}</span>
                 </div>
                 {week.active && (
-                  <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] text-xs font-mono uppercase tracking-wider">
+                  <span className="px-2 py-1 bg-gray-100]/10 text-[#10b981] text-xs font-mono uppercase tracking-wider">
                     Current
                   </span>
                 )}

@@ -197,7 +197,7 @@ export function CertificateTemplate({
                   fontSize: element.style?.fontSize || 12,
                   fontWeight: element.style?.fontWeight || 400,
                   fontStyle: element.style?.fontStyle || 'normal',
-                  color: element.style?.color || '#ffffff',
+                  color: element.style?.color || '#f5f5f5',
                   textAlign: element.style?.textAlign || 'left',
                   lineHeight: element.style?.lineHeight || 1,
                   letterSpacing: element.style?.letterSpacing || 0,
@@ -207,7 +207,7 @@ export function CertificateTemplate({
                   maxWidth: element.style?.maxWidth || '100%',
                   textTransform: element.style?.textTransform || 'none',
                   ...(element.style?.outlineWidth && element.style?.outlineWidth > 0 ? {
-                    WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#ffffff'}`,
+                    WebkitTextStroke: `${element.style.outlineWidth}px ${element.style.outlineColor || '#f5f5f5'}`,
                     paintOrder: 'stroke',
                   } : {}),
                 }}
@@ -236,7 +236,7 @@ export function CertificateTemplate({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  background: element.style?.background || '#ffffff',
+                  background: element.style?.background || '#f5f5f5',
                   padding: 3,
                   borderRadius: element.style?.borderRadius || 2,
                   opacity: element.style?.opacity || 0.84,

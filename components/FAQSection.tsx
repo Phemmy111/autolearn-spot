@@ -60,7 +60,7 @@ export default function FAQSection() {
 
   if (isLoading) {
     return (
-      <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-[#edf0f4]">
+      <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-gray-100]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-4 sm:mb-6 lg:mb-8">
@@ -70,7 +70,7 @@ export default function FAQSection() {
             </div>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="border border-neutral-300/50 bg-white rounded-xl h-20 animate-pulse" />
+                <div key={i} className="border border-neutral-300/50 bg-gray-100 rounded-xl h-20 animate-pulse" />
               ))}
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function FAQSection() {
   }
 
   return (
-    <section id="faq" className="py-16 sm:py-24 bg-[#edf0f4] border-t border-neutral-300/50">
+    <section id="faq" className="py-16 sm:py-24 bg-gray-100] border-t border-neutral-300/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8 sm:mb-12">
@@ -97,7 +97,7 @@ export default function FAQSection() {
             {faqs.map((faq, index) => (
               <div
                 key={faq.id}
-                className="border border-neutral-300/50 bg-white rounded-xl overflow-hidden shadow-sm"
+                className="border border-neutral-300/50 bg-gray-100 rounded-xl overflow-hidden shadow-sm"
               >
                 <button
                   className="w-full px-5 sm:px-6 py-4 text-left flex items-center justify-between hover:bg-neutral-50 transition-colors"

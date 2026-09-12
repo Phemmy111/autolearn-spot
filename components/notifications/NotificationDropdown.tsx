@@ -134,8 +134,8 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
   const hasUnread = deliveries.some(d => d.status === 'unread')
 
   return (
-    <div className="absolute right-0 top-12 mt-2 w-80 sm:w-96 rounded-xl border border-[#3b494b] bg-[#c0c4c9] shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]">
-      <div className="flex items-center justify-between border-b border-[#3b494b] bg-[#c0c4c9] p-4">
+    <div className="absolute right-0 top-12 mt-2 w-80 sm:w-96 rounded-xl border border-[#3b494b] bg-gray-100] shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="flex items-center justify-between border-b border-[#3b494b] bg-gray-100] p-4">
         <h3 className="font-heading text-lg font-bold text-neutral-900">Notifications</h3>
         <div className="flex items-center gap-2">
           {hasUnread && (
@@ -171,7 +171,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
               return (
                 <div 
                   key={delivery.id} 
-                  className={`p-4 transition-colors hover:bg-[#c0c4c9] ${isUnread ? 'bg-[#c0c4c9]' : 'bg-[#0a0c10]'}`}
+                  className={`p-4 transition-colors hover:bg-gray-100] ${isUnread ? 'bg-gray-100]' : 'bg-gray-100]'}`}
                   onClick={() => {
                     if (isUnread) markAsRead(notification.id)
                   }}
@@ -197,7 +197,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                         <div className="mt-2">
                           <Link 
                             href={notification.action_url}
-                            className="inline-block px-3 py-1 bg-[#c0c4c9] border border-[#3b494b] text-[#10b981] hover:bg-[#10b981] hover:text-black font-mono text-xs rounded transition-colors"
+                            className="inline-block px-3 py-1 bg-gray-100] border border-[#3b494b] text-[#10b981] hover:bg-gray-100] hover:text-black font-mono text-xs rounded transition-colors"
                             onClick={(e) => {
                               if (isUnread) markAsRead(notification.id)
                             }}
@@ -208,7 +208,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                       )}
                     </div>
                     {isUnread && (
-                      <div className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-[#10b981]"></div>
+                      <div className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-gray-100]"></div>
                     )}
                   </div>
                 </div>
@@ -218,7 +218,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
         )}
       </div>
 
-      <div className="border-t border-[#3b494b] bg-[#c0c4c9] p-3">
+      <div className="border-t border-[#3b494b] bg-gray-100] p-3">
         <Link 
           href="/dashboard/settings/notifications" 
           onClick={onClose}

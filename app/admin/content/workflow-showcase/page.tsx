@@ -165,16 +165,16 @@ export default function AdminWorkflowShowcasePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -205,7 +205,7 @@ export default function AdminWorkflowShowcasePage() {
                 setPosterFile(null);
                 setShowModal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Item
@@ -233,7 +233,7 @@ export default function AdminWorkflowShowcasePage() {
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <div key={item.id} className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+            <div key={item.id} className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <span className={`text-xs px-2 py-1 rounded-full ${item.media_type === 'video' ? 'bg-purple-500/10 text-purple-400' : 'bg-blue-500/10 text-blue-400'}`}>
@@ -271,7 +271,7 @@ export default function AdminWorkflowShowcasePage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="p-2 hover:bg-[#10b981]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
+                    className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
@@ -299,14 +299,14 @@ export default function AdminWorkflowShowcasePage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-xl font-bold text-neutral-900">
                 {editingItem ? 'Edit Item' : 'Add Workflow Item'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -319,7 +319,7 @@ export default function AdminWorkflowShowcasePage() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   required
                 />
               </div>
@@ -329,7 +329,7 @@ export default function AdminWorkflowShowcasePage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -337,7 +337,7 @@ export default function AdminWorkflowShowcasePage() {
                 <select
                   value={formData.mediaType}
                   onChange={(e) => setFormData({ ...formData, mediaType: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 >
                   <option value="video">Video</option>
                   <option value="image">Image</option>
@@ -348,7 +348,7 @@ export default function AdminWorkflowShowcasePage() {
                   {formData.mediaType === 'video' ? 'Video File or URL' : 'Image File or URL'}
                 </label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                     <Upload className="h-4 w-4 text-neutral-600" />
                     <span className="text-sm text-neutral-600">
                       {mediaFile ? mediaFile.name : `Upload ${formData.mediaType === 'video' ? 'Video (MP4)' : 'Image (PNG/JPG)'}`}
@@ -367,7 +367,7 @@ export default function AdminWorkflowShowcasePage() {
                     />
                   </label>
                   {mediaFile && (
-                    <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
+                    <div className="flex items-center justify-between p-2 bg-gray-100 border border-neutral-200 rounded">
                       <span className="text-xs text-neutral-600 truncate">{mediaFile.name}</span>
                       <button
                         type="button"
@@ -386,7 +386,7 @@ export default function AdminWorkflowShowcasePage() {
                       type="url"
                       value={formData.videoUrl}
                       onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                       placeholder="https://..."
                     />
                   )}
@@ -397,7 +397,7 @@ export default function AdminWorkflowShowcasePage() {
                   <div>
                     <label className="block text-sm font-medium text-neutral-600 mb-2">Thumbnail (Optional)</label>
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                      <label className="flex items-center gap-2 px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                         <Upload className="h-4 w-4 text-neutral-600" />
                         <span className="text-sm text-neutral-600">
                           {thumbnailFile ? thumbnailFile.name : 'Upload Thumbnail (PNG/JPG)'}
@@ -416,7 +416,7 @@ export default function AdminWorkflowShowcasePage() {
                         />
                       </label>
                       {thumbnailFile && (
-                        <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
+                        <div className="flex items-center justify-between p-2 bg-gray-100 border border-neutral-200 rounded">
                           <span className="text-xs text-neutral-600 truncate">{thumbnailFile.name}</span>
                           <button
                             type="button"
@@ -435,7 +435,7 @@ export default function AdminWorkflowShowcasePage() {
                           type="url"
                           value={formData.thumbnailUrl}
                           onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-                          className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                          className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                           placeholder="https://..."
                         />
                       )}
@@ -444,7 +444,7 @@ export default function AdminWorkflowShowcasePage() {
                   <div>
                     <label className="block text-sm font-medium text-neutral-600 mb-2">Poster (Optional)</label>
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2 px-4 py-3 bg-white border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                      <label className="flex items-center gap-2 px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
                         <Upload className="h-4 w-4 text-neutral-600" />
                         <span className="text-sm text-neutral-600">
                           {posterFile ? posterFile.name : 'Upload Poster (PNG/JPG)'}
@@ -463,7 +463,7 @@ export default function AdminWorkflowShowcasePage() {
                         />
                       </label>
                       {posterFile && (
-                        <div className="flex items-center justify-between p-2 bg-white border border-neutral-200 rounded">
+                        <div className="flex items-center justify-between p-2 bg-gray-100 border border-neutral-200 rounded">
                           <span className="text-xs text-neutral-600 truncate">{posterFile.name}</span>
                           <button
                             type="button"
@@ -482,7 +482,7 @@ export default function AdminWorkflowShowcasePage() {
                           type="url"
                           value={formData.posterUrl}
                           onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                          className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                          className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                           placeholder="https://..."
                         />
                       )}
@@ -497,7 +497,7 @@ export default function AdminWorkflowShowcasePage() {
                     type="number"
                     value={formData.displayOrder}
                     onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -507,7 +507,7 @@ export default function AdminWorkflowShowcasePage() {
                     type="checkbox"
                     checked={formData.featured}
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-gray-100 text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Featured</span>
                 </label>
@@ -516,7 +516,7 @@ export default function AdminWorkflowShowcasePage() {
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-gray-100 text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Enabled</span>
                 </label>
@@ -524,14 +524,14 @@ export default function AdminWorkflowShowcasePage() {
               <div className="flex gap-3 pt-4 border-t border-neutral-200">
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
                 >
                   {editingItem ? 'Update' : 'Add'} Item
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 bg-white text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                  className="flex-1 px-4 py-3 bg-gray-100 text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
                 >
                   Cancel
                 </button>

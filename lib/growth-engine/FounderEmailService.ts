@@ -362,7 +362,7 @@ class FounderEmailService {
     const subject = '🚨 Fraud Alert';
     const severityColors = {
       low: '#00ff00',
-      medium: '#ffff00',
+      medium: '#f5f5f5f00',
       high: '#ff9900',
       critical: '#ff0000',
     };

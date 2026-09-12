@@ -17,7 +17,7 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
   }
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-[#c0c4c9] p-6 shadow-2xl">
+    <div className="rounded-xl border border-neutral-200 bg-gray-100] p-6 shadow-2xl">
       {/* Render question text, preserving \n line breaks */}
       <h3 className="mb-6 font-heading text-lg font-semibold text-[#e2e8e2] leading-relaxed whitespace-pre-line">
         {question.question}
@@ -33,12 +33,12 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
                 key={i}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                   isSelected
-                    ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981]'
-                    : 'border-neutral-200 bg-[#c0c4c9] text-neutral-500 hover:border-[#3b494b]'
+                    ? 'border-[#10b981] bg-gray-100]/10 text-[#10b981]'
+                    : 'border-neutral-200 bg-gray-100] text-neutral-500 hover:border-[#3b494b]'
                 }`}
               >
                 <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#10b981]' : 'border-[#5d5f63]'}`}>
-                  {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[#10b981]" />}
+                  {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-gray-100]" />}
                 </div>
                 <span className="font-mono text-sm">{opt}</span>
                 <input
@@ -61,7 +61,7 @@ export function QuestionCard({ question, answer, onChange }: QuestionCardProps) 
             value={answer || ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Type your answer here... (Auto-saves as you type)"
-            className="h-40 w-full resize-y rounded-lg border border-neutral-200 bg-[#c0c4c9] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#10b981] placeholder:text-[#5d5f63]"
+            className="h-40 w-full resize-y rounded-lg border border-neutral-200 bg-gray-100] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#10b981] placeholder:text-[#5d5f63]"
           />
         </div>
       )}

@@ -46,7 +46,7 @@ function WorkflowNode({
 }) {
   return (
     <div
-      className={`workflow-node absolute z-10 w-[108px] border bg-[#c0c4c9] p-3 shadow-[0_12px_30px_rgba(0,0,0,0.28)] sm:w-[132px] ${
+      className={`workflow-node absolute z-10 w-[108px] border bg-gray-100] p-3 shadow-[0_12px_30px_rgba(0,0,0,0.28)] sm:w-[132px] ${
         node.tone === 'active'
           ? 'border-[#10b981] shadow-[0_0_18px_rgba(0,240,255,0.22)]'
           : node.tone === 'brand'
@@ -59,13 +59,13 @@ function WorkflowNode({
         <div
           className={`flex h-8 w-8 items-center justify-center border ${
             node.tone === 'brand'
-              ? 'border-[#10b981]/70 bg-[#10b981]/10 text-[#10b981]'
-              : 'border-[#10b981]/70 bg-[#10b981]/10 text-[#10b981]'
+              ? 'border-[#10b981]/70 bg-gray-100]/10 text-[#10b981]'
+              : 'border-[#10b981]/70 bg-gray-100]/10 text-[#10b981]'
           }`}
         >
-          <div className="h-4 w-4 rounded-full bg-[#10b981]" />
+          <div className="h-4 w-4 rounded-full bg-gray-100]" />
         </div>
-        <span className="workflow-status-dot h-2 w-2 rounded-full bg-[#10b981]" />
+        <span className="workflow-status-dot h-2 w-2 rounded-full bg-gray-100]" />
       </div>
       <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-[#e2e2e8] sm:text-[11px]">
         {node.label}
@@ -77,7 +77,7 @@ function WorkflowNode({
 
 function SVGFallback() {
   return (
-    <div className="relative w-full h-full bg-[#050505]">
+    <div className="relative w-full h-full bg-gray-100]">
       <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(#1f2229_1px,transparent_1px),linear-gradient(90deg,#1f2229_1px,transparent_1px)] [background-size:32px_32px]" />
       <svg className="absolute inset-0 h-full w-full" viewBox="0 0 620 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <path d="M92 185 C170 185 162 112 242 112" fill="none" stroke="#3b494b" strokeWidth="1.5" />
@@ -167,12 +167,12 @@ export function N8nWorkflowPanel() {
   }, [])
 
   return (
-    <div className="relative z-10 w-full border border-neutral-200 bg-[#c0c4c9] rounded-2xl overflow-hidden">
+    <div className="relative z-10 w-full border border-neutral-200 bg-gray-100] rounded-2xl overflow-hidden">
       {/* 16:9 Video Container */}
-      <div className="relative w-full aspect-video bg-[#050505]">
+      <div className="relative w-full aspect-video bg-gray-100]">
         {/* Loading State */}
         {!videoLoaded && !videoError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#050505]">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100]">
             <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
           </div>
         )}

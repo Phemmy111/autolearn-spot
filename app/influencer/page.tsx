@@ -41,7 +41,7 @@ export default function InfluencerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900">
+    <div className="min-h-screen bg-gray-100] text-neutral-900">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">
@@ -50,7 +50,7 @@ export default function InfluencerLoginPage() {
             <ArrowLeft className="h-4 w-4" /> Back to Home
           </Link>
           
-          <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
+          <div className="bg-gray-100/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full pointer-events-none" />
             
             <div className="flex items-center gap-2 mb-4">

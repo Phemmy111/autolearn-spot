@@ -12,7 +12,7 @@ function CertificateVerifyContent() {
 
   if (!name || !date) {
     return (
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center p-4">
         <div className="border border-red-500/30 bg-red-500/10 p-8 text-center max-w-md">
           <p className="text-red-400 font-mono text-sm">Invalid or expired certificate link.</p>
         </div>
@@ -21,8 +21,8 @@ function CertificateVerifyContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center p-4">
-      <div className="border border-neutral-200 bg-[#c0c4c9] p-8 max-w-lg w-full">
+    <div className="min-h-screen bg-gray-100] flex items-center justify-center p-4">
+      <div className="border border-neutral-200 bg-gray-100] p-8 max-w-lg w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/50 mb-4">
@@ -35,7 +35,7 @@ function CertificateVerifyContent() {
         </div>
 
         {/* Certificate Details */}
-        <div className="border border-neutral-200 bg-[#c0c4c9] p-6 space-y-4 mb-6">
+        <div className="border border-neutral-200 bg-gray-100] p-6 space-y-4 mb-6">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Recipient</p>
             <p className="text-lg text-neutral-900 font-semibold">{decodeURIComponent(name)}</p>
@@ -80,7 +80,7 @@ function CertificateVerifyContent() {
 export default function CertificateVerifyPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#0a0c10] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <p className="text-neutral-500 font-mono text-sm">Loading verification...</p>
       </div>
     }>

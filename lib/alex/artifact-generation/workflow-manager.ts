@@ -1937,7 +1937,7 @@ code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: '
 pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
 pre code { background: none; padding: 0; color: inherit; }
 strong { color: #ff6d5a; }
-.note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
+.note { background: #f5f5f53cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
 .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #bdc3c7; color: #7f8c8d; font-size: 12px; }
 </style>
 </head>
@@ -2050,7 +2050,7 @@ Generated: ${new Date().toISOString()}
 body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
 h1 { color: #2c3e50; border-bottom: 3px solid #ff6d5a; padding-bottom: 10px; }
 h2 { color: #34495e; margin-top: 30px; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; }
-.note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
+.note { background: #f5f5f53cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
 </style>
 </head>
 <body>

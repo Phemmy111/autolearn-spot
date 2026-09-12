@@ -70,7 +70,7 @@ function ProviderBadge({ provider }: { provider: string }) {
     youtube: 'bg-red-500/20 text-red-300 border-red-500/30',
     vimeo: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     vdocipher: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-    none: 'bg-[#d1d5db] text-neutral-600 border-[#3b494b]',
+    none: 'bg-gray-100] text-neutral-600 border-[#3b494b]',
   }
   const cls = colors[provider] ?? colors.none
   return (
@@ -158,7 +158,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
   return (
     <div className="space-y-6">
       {/* Engine Toggle Card */}
-      <div className="flex flex-col gap-4 border border-neutral-200 bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 border border-neutral-200 bg-gray-100 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-600">Video Engine</p>
           <p className="mt-1 text-lg font-bold text-neutral-900">
@@ -173,7 +173,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
             onClick={handleToggle}
             className={`flex items-center gap-2 border px-5 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider transition-all ${
               v2Enabled
-                ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981] hover:bg-[#10b981]/20'
+                ? 'border-[#10b981] bg-gray-100]/10 text-[#10b981] hover:bg-gray-100]/20'
                 : 'border-[#3b494b] bg-neutral-50 text-neutral-600 hover:border-[#10b981] hover:text-[#10b981]'
             }`}
           >
@@ -208,7 +208,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
       <div className="overflow-x-auto border border-neutral-200">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-neutral-200 bg-white">
+            <tr className="border-b border-neutral-200 bg-gray-100">
               <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Lesson</th>
               <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Provider</th>
               <th className="px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-neutral-600">Video ID</th>
@@ -227,7 +227,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
               return (
                 <tr
                   key={lesson.id}
-                  className={`border-b border-neutral-200 transition-colors hover:bg-white ${i % 2 === 0 ? 'bg-neutral-50' : 'bg-[#0e1014]'}`}
+                  className={`border-b border-neutral-200 transition-colors hover:bg-gray-100 ${i % 2 === 0 ? 'bg-neutral-50' : 'bg-gray-100]'}`}
                 >
                   <td className="px-4 py-3">
                     <div className="font-mono text-xs text-neutral-600">W{lesson.week}</div>
@@ -281,7 +281,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
                     {videoId ? (
                       <button
                         onClick={() => setPreviewLesson(lesson)}
-                        className="flex items-center gap-1.5 border border-[#3b494b] px-3 py-1.5 font-mono text-xs font-semibold uppercase text-[#10b981] transition-all hover:border-[#10b981] hover:bg-[#10b981]/10"
+                        className="flex items-center gap-1.5 border border-[#3b494b] px-3 py-1.5 font-mono text-xs font-semibold uppercase text-[#10b981] transition-all hover:border-[#10b981] hover:bg-gray-100]/10"
                       >
                         <Play className="h-3 w-3" />
                         Test
@@ -300,7 +300,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
       {/* Playback Preview Modal */}
       {previewLesson && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-3xl border border-[#3b494b] bg-white">
+          <div className="w-full max-w-3xl border border-[#3b494b] bg-gray-100">
             <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-3">
               <div>
                 <p className="font-mono text-xs uppercase tracking-widest text-neutral-600">

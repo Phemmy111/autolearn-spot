@@ -14,7 +14,7 @@ export default function QuizSelector({ quizzes, selectedQuizId }: { quizzes: Qui
   const router = useRouter()
 
   return (
-    <div className="border border-neutral-200 bg-[#c0c4c9] rounded-xl p-6 mb-8">
+    <div className="border border-neutral-200 bg-gray-100] rounded-xl p-6 mb-8">
       <div className="flex items-center gap-4">
         <div className="flex-1 max-w-sm">
           <label htmlFor="quizId" className="block font-mono text-xs text-[#5d5f63] uppercase tracking-wider mb-2">
@@ -24,7 +24,7 @@ export default function QuizSelector({ quizzes, selectedQuizId }: { quizzes: Qui
             id="quizId"
             name="quizId"
             defaultValue={selectedQuizId || ''}
-            className="w-full bg-[#c0c4c9] border border-neutral-200 rounded-lg p-3 text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none"
+            className="w-full bg-gray-100] border border-neutral-200 rounded-lg p-3 text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none"
             onChange={(e) => {
               if (e.target.value) {
                 router.push(`/admin/analytics?quizId=${e.target.value}`)

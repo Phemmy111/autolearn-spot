@@ -89,7 +89,7 @@ export function EnrollmentRequired() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   return (
-    <div className="flex min-h-screen flex-col items-center p-4 sm:p-6 lg:p-10 bg-[#c0c4c9]">
+    <div className="flex min-h-screen flex-col items-center p-4 sm:p-6 lg:p-10 bg-gray-100]">
       {/* Hero Section */}
       <div className="w-full max-w-5xl text-center mb-10 mt-6">
         <h1 className="font-heading text-4xl sm:text-5xl font-bold uppercase text-neutral-900 mb-4">
@@ -109,7 +109,7 @@ export function EnrollmentRequired() {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Option 1 - Join Next Cohort */}
-          <div className="group relative overflow-hidden rounded-xl border border-[#3b494b] bg-[#c0c4c9]/80 backdrop-blur-sm p-6 sm:p-8 transition-all hover:border-[#10b981]/50 hover:shadow-[0_0_30px_rgba(0,240,255,0.1)]">
+          <div className="group relative overflow-hidden rounded-xl border border-[#3b494b] bg-gray-100]/80 backdrop-blur-sm p-6 sm:p-8 transition-all hover:border-[#10b981]/50 hover:shadow-[0_0_30px_rgba(0,240,255,0.1)]">
             <div className="absolute top-0 right-0 p-4 opacity-10">
               <Zap className="h-24 w-24" />
             </div>
@@ -138,7 +138,7 @@ export function EnrollmentRequired() {
                   href="https://paystack.shop/pay/yoksvlq4xn"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto text-center border border-[#10b981] bg-[#10b981]/10 px-8 py-4 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-[#10b981] hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] rounded"
+                  className="w-full sm:w-auto text-center border border-[#10b981] bg-gray-100]/10 px-8 py-4 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-gray-100] hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] rounded"
                 >
                   Pay ₦8,000
                 </Link>
@@ -148,14 +148,14 @@ export function EnrollmentRequired() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Option 2 - Already Paid */}
-            <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/60 backdrop-blur-sm p-6 transition-colors hover:bg-[#c0c4c9]">
+            <div className="rounded-xl border border-[#3b494b] bg-gray-100]/60 backdrop-blur-sm p-6 transition-colors hover:bg-gray-100]">
               <h3 className="font-mono text-lg font-bold text-neutral-900 mb-2">Already completed your payment?</h3>
               <p className="font-mono text-xs text-neutral-500 mb-6">Enter your Paystack payment reference below and we'll verify your payment instantly.</p>
               
               {!showVerifyInput ? (
                 <button
                   onClick={() => setShowVerifyInput(true)}
-                  className="flex w-full items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-xs uppercase text-neutral-500 transition-colors hover:border-[#10b981] hover:text-[#10b981] rounded"
+                  className="flex w-full items-center justify-center gap-2 border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-xs uppercase text-neutral-500 transition-colors hover:border-[#10b981] hover:text-[#10b981] rounded"
                 >
                   <ShieldCheck className="h-4 w-4" /> Verify Payment
                 </button>
@@ -167,7 +167,7 @@ export function EnrollmentRequired() {
                     placeholder="Paystack Ref (e.g. T4891...)"
                     value={reference}
                     onChange={(e) => setReference(e.target.value)}
-                    className="w-full border border-[#3b494b] bg-[#0a0c10] px-3 py-2 font-mono text-sm text-neutral-900 placeholder-[#5d5f63] focus:border-[#10b981] focus:outline-none rounded"
+                    className="w-full border border-[#3b494b] bg-gray-100] px-3 py-2 font-mono text-sm text-neutral-900 placeholder-[#5d5f63] focus:border-[#10b981] focus:outline-none rounded"
                   />
                   <p className="font-mono text-[10px] text-[#5d5f63] mt-1">
                     Your reference usually starts with something like T123ABC... and can be found in your Paystack receipt.
@@ -175,7 +175,7 @@ export function EnrollmentRequired() {
                   <button
                     type="submit"
                     disabled={isVerifying}
-                    className="flex w-full items-center justify-center gap-2 bg-[#e2e8e2] px-4 py-2 font-mono text-xs uppercase text-black hover:bg-white disabled:opacity-50 transition-colors rounded"
+                    className="flex w-full items-center justify-center gap-2 bg-gray-100] px-4 py-2 font-mono text-xs uppercase text-black hover:bg-gray-100 disabled:opacity-50 transition-colors rounded"
                   >
                     {isVerifying ? (
                       <><Loader2 className="h-4 w-4 animate-spin" /> Verifying...</>
@@ -189,7 +189,7 @@ export function EnrollmentRequired() {
                     </div>
                   )}
                   {successMsg && (
-                    <div className="flex flex-col items-center justify-center p-4 border border-[#25D366]/30 bg-[#25D366]/10 rounded transition-opacity duration-500 opacity-100">
+                    <div className="flex flex-col items-center justify-center p-4 border border-[#25D366]/30 bg-gray-100]/10 rounded transition-opacity duration-500 opacity-100">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">✅</span>
                         <span className="font-mono text-sm font-bold text-[#25D366]">Payment Verified!</span>
@@ -202,7 +202,7 @@ export function EnrollmentRequired() {
             </div>
 
             {/* Option 3 - Manually Enrolled */}
-            <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/60 backdrop-blur-sm p-6 transition-colors hover:bg-[#c0c4c9] flex flex-col">
+            <div className="rounded-xl border border-[#3b494b] bg-gray-100]/60 backdrop-blur-sm p-6 transition-colors hover:bg-gray-100] flex flex-col">
               <h3 className="font-mono text-lg font-bold text-neutral-900 mb-2">Manually Enrolled?</h3>
               <p className="font-mono text-xs text-neutral-500 mb-6 flex-grow">
                 Were you enrolled by an administrator? If you've already been added manually but still cannot access your dashboard, contact support.
@@ -212,7 +212,7 @@ export function EnrollmentRequired() {
                 href="https://wa.me/2348120934828" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-2 border border-[#25D366]/30 bg-[#25D366]/10 px-4 py-3 font-mono text-xs uppercase text-[#25D366] transition-all hover:bg-[#25D366] hover:text-[#25D366] hover:border-[#25D366] rounded mt-auto"
+                className="flex w-full items-center justify-center gap-2 border border-[#25D366]/30 bg-gray-100]/10 px-4 py-3 font-mono text-xs uppercase text-[#25D366] transition-all hover:bg-gray-100] hover:text-[#25D366] hover:border-[#25D366] rounded mt-auto"
               >
                 <MessageCircle className="h-4 w-4" /> Contact Support
               </a>
@@ -223,11 +223,11 @@ export function EnrollmentRequired() {
         {/* Right Column: Feature Preview */}
         <div className="space-y-4">
           {/* Current Training Card */}
-          <div className="rounded-xl border border-[#10b981]/30 bg-[#c0c4c9]/60 p-6 backdrop-blur-sm relative overflow-hidden transition-all hover:border-[#10b981]/50">
+          <div className="rounded-xl border border-[#10b981]/30 bg-gray-100]/60 p-6 backdrop-blur-sm relative overflow-hidden transition-all hover:border-[#10b981]/50">
             <h3 className="font-mono text-xs uppercase tracking-widest text-[#10b981] mb-4 flex items-center gap-2">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10b981]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-100] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-100]"></span>
               </span>
               Current Training
             </h3>
@@ -245,14 +245,14 @@ export function EnrollmentRequired() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/40 p-6 backdrop-blur-sm">
+          <div className="rounded-xl border border-[#3b494b] bg-gray-100]/40 p-6 backdrop-blur-sm">
             <h3 className="font-mono text-sm uppercase tracking-widest text-[#10b981] mb-6 border-b border-[#3b494b] pb-2">
               Feature Preview
             </h3>
             <div className="grid gap-3">
               {features.map((feature, i) => (
-                <div key={i} className="flex items-center gap-3 rounded bg-[#c0c4c9] p-3 border border-[#3b494b]/50">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-[#10b981]/10">
+                <div key={i} className="flex items-center gap-3 rounded bg-gray-100] p-3 border border-[#3b494b]/50">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-gray-100]/10">
                     {feature.icon}
                   </div>
                   <span className="font-mono text-sm text-[#e2e8e2]">{feature.title}</span>
@@ -262,7 +262,7 @@ export function EnrollmentRequired() {
           </div>
 
           {/* Option 4 - Sign Out Section */}
-          <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/40 p-6 backdrop-blur-sm text-center">
+          <div className="rounded-xl border border-[#3b494b] bg-gray-100]/40 p-6 backdrop-blur-sm text-center">
             <p className="font-mono text-sm font-bold text-neutral-900 mb-2">Not your account?</p>
             <p className="font-mono text-xs text-neutral-500 mb-1">You are currently signed in as:</p>
             <p className="font-mono text-sm text-[#10b981] mb-4 truncate">
@@ -273,7 +273,7 @@ export function EnrollmentRequired() {
             </p>
             <button
               onClick={() => signOut({ redirectUrl: '/' })}
-              className="inline-flex items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs uppercase text-neutral-500 transition-colors hover:border-red-500 hover:text-red-500 rounded"
+              className="inline-flex items-center justify-center gap-2 border border-[#3b494b] bg-gray-100] px-4 py-2 font-mono text-xs uppercase text-neutral-500 transition-colors hover:border-red-500 hover:text-red-500 rounded"
             >
               <LogOut className="h-3 w-3" /> Sign Out
             </button>
@@ -284,15 +284,15 @@ export function EnrollmentRequired() {
 
       {/* Help Section */}
       <div className="w-full max-w-5xl mt-8">
-        <div className="rounded-xl border border-[#3b494b] bg-[#c0c4c9]/60 backdrop-blur-sm p-6 sm:p-8">
+        <div className="rounded-xl border border-[#3b494b] bg-gray-100]/60 backdrop-blur-sm p-6 sm:p-8">
           <h3 className="font-heading text-2xl font-bold uppercase text-neutral-900 mb-6 text-center">Need Help?</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-            <a href="https://wa.me/2348120934828" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#c0c4c9] p-6 text-center transition-all hover:border-[#10b981]/50 hover:bg-[#c0c4c9]">
+            <a href="https://wa.me/2348120934828" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-gray-100] p-6 text-center transition-all hover:border-[#10b981]/50 hover:bg-gray-100]">
               <MessageCircle className="h-6 w-6 text-[#10b981]" />
               <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">WhatsApp Support</span>
               <span className="text-[10px] text-neutral-500">+234 812 093 4828</span>
             </a>
-            <a href="mailto:autolearnspot@gmail.com" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-[#c0c4c9] p-6 text-center transition-all hover:border-[#10b981]/50 hover:bg-[#c0c4c9]">
+            <a href="mailto:autolearnspot@gmail.com" className="flex flex-col items-center justify-center gap-3 rounded-lg border border-[#3b494b]/50 bg-gray-100] p-6 text-center transition-all hover:border-[#10b981]/50 hover:bg-gray-100]">
               <Mail className="h-6 w-6 text-[#10b981]" />
               <span className="font-mono text-xs text-[#e2e8e2] uppercase tracking-wider">Email Support</span>
               <span className="text-[10px] text-neutral-500">autolearnspot@gmail.com</span>
@@ -302,7 +302,7 @@ export function EnrollmentRequired() {
           <h3 className="font-heading text-xl font-bold uppercase text-neutral-900 mb-6 text-center">Frequently Asked Questions</h3>
           <div className="space-y-4 max-w-3xl mx-auto">
             {faqs.map((faq, index) => (
-              <div key={index} className="border border-[#3b494b]/50 bg-[#c0c4c9] rounded-lg overflow-hidden transition-colors hover:border-[#10b981]/50">
+              <div key={index} className="border border-[#3b494b]/50 bg-gray-100] rounded-lg overflow-hidden transition-colors hover:border-[#10b981]/50">
                 <button
                   onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                   className="flex w-full items-center justify-between p-4 text-left font-mono text-sm font-semibold text-[#e2e8e2] transition-colors focus:outline-none"
@@ -313,7 +313,7 @@ export function EnrollmentRequired() {
                   </span>
                 </button>
                 {openFaqIndex === index && (
-                  <div className="border-t border-[#3b494b]/30 p-4 text-sm text-neutral-500 bg-[#0a0c10]">
+                  <div className="border-t border-[#3b494b]/30 p-4 text-sm text-neutral-500 bg-gray-100]">
                     {faq.answer}
                   </div>
                 )}

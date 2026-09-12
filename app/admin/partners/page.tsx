@@ -490,16 +490,16 @@ export default function AdminPartnersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-neutral-900">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-gray-100 flex">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-neutral-200 bg-white/50 backdrop-blur-xl p-4 flex flex-col">
+      <aside className="w-64 border-r border-neutral-200 bg-gray-100/50 backdrop-blur-xl p-4 flex flex-col">
         <div className="mb-8">
           <h1 className="text-lg font-bold text-[#e2e2e8]">Partner Management</h1>
           <p className="text-xs text-neutral-600">AutoLearn Spot Admin</p>
@@ -514,8 +514,8 @@ export default function AdminPartnersPage() {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
-                    ? 'bg-[#12E6F3]/10 text-[#12E6F3] border border-[#12E6F3]/20'
-                    : 'text-neutral-600 hover:bg-white hover:text-[#e2e2e8]'
+                    ? 'bg-gray-100]/10 text-[#12E6F3] border border-[#12E6F3]/20'
+                    : 'text-neutral-600 hover:bg-gray-100 hover:text-[#e2e2e8]'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -526,7 +526,7 @@ export default function AdminPartnersPage() {
         </nav>
 
         <div className="pt-4 border-t border-neutral-200">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-neutral-600 hover:bg-white hover:text-[#e2e2e8] transition-colors">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-neutral-600 hover:bg-gray-100 hover:text-[#e2e2e8] transition-colors">
             <LogOut className="h-5 w-5" />
             <span className="text-sm font-medium">Logout</span>
           </button>
@@ -549,10 +549,10 @@ export default function AdminPartnersPage() {
                 placeholder="Search partners..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] placeholder-[#b9cacb] focus:outline-none focus:border-[#12E6F3] w-64"
+                className="pl-10 pr-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] placeholder-[#b9cacb] focus:outline-none focus:border-[#12E6F3] w-64"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
                 onClick={() => setShowAddPartnerModal(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -566,9 +566,9 @@ export default function AdminPartnersPage() {
           {overviewCards.map((card) => {
             const Icon = card.icon;
             return (
-              <div key={card.id} className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-4">
+              <div key={card.id} className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center border border-[#12E6F3]/30 bg-[#12E6F3]/10 rounded-lg">
+                  <div className="flex h-10 w-10 items-center justify-center border border-[#12E6F3]/30 bg-gray-100]/10 rounded-lg">
                     <Icon className="h-5 w-5 text-[#12E6F3]" />
                   </div>
                   {card.growth && (
@@ -590,7 +590,7 @@ export default function AdminPartnersPage() {
           <div className="space-y-6">
             {/* Overview Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+              <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Users className="h-8 w-8 text-[#12E6F3]" />
                   <span className="text-xs text-neutral-600">Total</span>
@@ -598,7 +598,7 @@ export default function AdminPartnersPage() {
                 <p className="text-3xl font-bold text-[#e2e2e8]">{partners.length}</p>
                 <p className="text-sm text-neutral-600 mt-1">Active Partners</p>
               </div>
-              <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+              <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Clock className="h-8 w-8 text-yellow-400" />
                   <span className="text-xs text-neutral-600">Pending</span>
@@ -606,7 +606,7 @@ export default function AdminPartnersPage() {
                 <p className="text-3xl font-bold text-[#e2e2e8]">{applications.filter(a => a.status === 'pending').length}</p>
                 <p className="text-sm text-neutral-600 mt-1">Applications</p>
               </div>
-              <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+              <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <DollarSign className="h-8 w-8 text-green-400" />
                   <span className="text-xs text-neutral-600">Total</span>
@@ -614,7 +614,7 @@ export default function AdminPartnersPage() {
                 <p className="text-3xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
                 <p className="text-sm text-neutral-600 mt-1">Commissions</p>
               </div>
-              <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+              <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <TrendingUp className="h-8 w-8 text-blue-400" />
                   <span className="text-xs text-neutral-600">Total</span>
@@ -625,26 +625,26 @@ export default function AdminPartnersPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+            <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
               <h3 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Quick Actions</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button
                   onClick={() => setShowAddPartnerModal(true)}
-                  className="flex items-center gap-3 p-4 bg-[#12E6F3]/10 border border-[#12E6F3]/30 rounded-lg hover:bg-[#12E6F3]/20 transition-colors"
+                  className="flex items-center gap-3 p-4 bg-gray-100]/10 border border-[#12E6F3]/30 rounded-lg hover:bg-gray-100]/20 transition-colors"
                 >
                   <Plus className="h-5 w-5 text-[#12E6F3]" />
                   <span className="text-[#e2e2e8]">Add Partner</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('applications')}
-                  className="flex items-center gap-3 p-4 bg-[#d1d5db] border border-neutral-200 rounded-lg hover:bg-white transition-colors"
+                  className="flex items-center gap-3 p-4 bg-gray-100] border border-neutral-200 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <FileText className="h-5 w-5 text-neutral-600" />
                   <span className="text-[#e2e2e8]">Review Applications</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('marketing')}
-                  className="flex items-center gap-3 p-4 bg-[#d1d5db] border border-neutral-200 rounded-lg hover:bg-white transition-colors"
+                  className="flex items-center gap-3 p-4 bg-gray-100] border border-neutral-200 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <Upload className="h-5 w-5 text-neutral-600" />
                   <span className="text-[#e2e2e8]">Upload Marketing Kit</span>
@@ -653,13 +653,13 @@ export default function AdminPartnersPage() {
             </div>
 
             {/* Recent Activity */}
-            <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+            <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
               <h3 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Recent Activity</h3>
               <div className="space-y-3">
                 {applications.slice(0, 5).map((app) => (
-                  <div key={app.id} className="flex items-center justify-between p-3 bg-white rounded-lg">
+                  <div key={app.id} className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 text-xs">
+                      <div className="h-8 w-8 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
                         {app.full_name?.charAt(0) || '?'}
                       </div>
                       <div>
@@ -683,14 +683,14 @@ export default function AdminPartnersPage() {
 
         {/* Applications Tab */}
         {activeTab === 'applications' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-neutral-200">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Applications</h2>
               <div className="flex items-center gap-2">
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-3 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                  className="px-3 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                 >
                   <option value="all">All Status</option>
                   <option value="pending">Pending</option>
@@ -702,7 +702,7 @@ export default function AdminPartnersPage() {
               
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Passport</th>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Name</th>
@@ -720,9 +720,9 @@ export default function AdminPartnersPage() {
                     </tr>
                   ) : (
                     filteredApplications.map((app) => (
-                      <tr key={app.id} className="border-t border-neutral-200 hover:bg-white/50 transition-colors">
+                      <tr key={app.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors">
                         <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 text-xs">
+                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
                             {app.full_name?.charAt(0) || '?'}
                           </div>
                         </td>
@@ -739,7 +739,7 @@ export default function AdminPartnersPage() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => setSelectedApp(app)}
-                              className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             >
                               <Eye className="h-4 w-4" />
                             </button>
@@ -781,7 +781,7 @@ export default function AdminPartnersPage() {
 
         {/* Student Partners Tab */}
         {activeTab === 'student' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Student Partners</h2>
               <div className="text-sm text-neutral-600">
@@ -791,7 +791,7 @@ export default function AdminPartnersPage() {
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Name</th>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Email</th>
@@ -808,7 +808,7 @@ export default function AdminPartnersPage() {
                     </tr>
                   ) : (
                     partners.filter(p => p.partner_type === 'student').map((p) => (
-                      <tr key={p.id} className="border-t border-neutral-200 hover:bg-white/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
+                      <tr key={p.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
                         <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
                         <td className="p-4 text-sm text-neutral-600">{p.email}</td>
                         <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
@@ -825,7 +825,7 @@ export default function AdminPartnersPage() {
                         <td className="p-4">
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="View Details"
                           >
                             <Eye className="h-4 w-4" />
@@ -842,12 +842,12 @@ export default function AdminPartnersPage() {
 
         {/* Community Partners Tab */}
         {activeTab === 'community' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Community Partners</h2>
               <button
                 onClick={() => setShowAddPartnerModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Add Partner
@@ -856,7 +856,7 @@ export default function AdminPartnersPage() {
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Passport</th>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Name</th>
@@ -874,9 +874,9 @@ export default function AdminPartnersPage() {
                     </tr>
                   ) : (
                     partners.filter(p => p.partner_type === 'community').map((p) => (
-                      <tr key={p.id} className="border-t border-neutral-200 hover:bg-white/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
+                      <tr key={p.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
                         <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 text-xs">
+                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
                             {p.full_name?.charAt(0) || '?'}
                           </div>
                         </td>
@@ -896,7 +896,7 @@ export default function AdminPartnersPage() {
                         <td className="p-4">
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="View Details"
                           >
                             <Eye className="h-4 w-4" />
@@ -913,12 +913,12 @@ export default function AdminPartnersPage() {
 
         {/* Influencer Partners Tab */}
         {activeTab === 'influencer' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Influencer Partners</h2>
               <button
                 onClick={() => setShowAddPartnerModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Add Partner
@@ -927,7 +927,7 @@ export default function AdminPartnersPage() {
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Passport</th>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Name</th>
@@ -945,9 +945,9 @@ export default function AdminPartnersPage() {
                     </tr>
                   ) : (
                     partners.filter(p => p.partner_type === 'influencer').map((p) => (
-                      <tr key={p.id} className="border-t border-neutral-200 hover:bg-white/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
+                      <tr key={p.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
                         <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 text-xs">
+                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
                             {p.full_name?.charAt(0) || '?'}
                           </div>
                         </td>
@@ -967,7 +967,7 @@ export default function AdminPartnersPage() {
                         <td className="p-4">
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-[#12E6F3]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="View Details"
                           >
                             <Eye className="h-4 w-4" />
@@ -984,14 +984,14 @@ export default function AdminPartnersPage() {
 
         {/* Withdrawals Tab */}
         {activeTab === 'withdrawals' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-neutral-200">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Withdrawal Requests</h2>
             </div>
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Partner</th>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Email</th>
@@ -1009,7 +1009,7 @@ export default function AdminPartnersPage() {
                     </tr>
                   ) : (
                     withdrawals.map((withdrawal) => (
-                      <tr key={withdrawal.id} className="border-t border-neutral-200 hover:bg-white/50 transition-colors">
+                      <tr key={withdrawal.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors">
                         <td className="p-4 text-sm text-[#e2e8]">{withdrawal.partners?.full_name || 'Unknown'}</td>
                         <td className="p-4 text-sm text-neutral-600">{withdrawal.partners?.email || 'Unknown'}</td>
                         <td className="p-4 text-sm text-[#12E6F3]">₦{(withdrawal.amount || 0).toLocaleString()}</td>
@@ -1058,12 +1058,12 @@ export default function AdminPartnersPage() {
 
         {/* Marketing Kit Tab */}
         {activeTab === 'marketing' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Marketing Kit</h2>
               <button
                 onClick={() => setShowUploadModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Upload Material
@@ -1080,9 +1080,9 @@ export default function AdminPartnersPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {marketingMaterials.map((material) => (
-                    <div key={material.id} className="border border-neutral-200 bg-white rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors">
+                    <div key={material.id} className="border border-neutral-200 bg-gray-100 rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="h-12 w-12 bg-[#d1d5db] rounded-lg flex items-center justify-center">
+                        <div className="h-12 w-12 bg-gray-100] rounded-lg flex items-center justify-center">
                           <Download className="h-6 w-6 text-[#12E6F3]" />
                         </div>
                         <span className="text-xs text-neutral-600">{material.type.toUpperCase()}</span>
@@ -1094,21 +1094,21 @@ export default function AdminPartnersPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => window.open(`/api/marketing/download/${material.id}`, '_blank')}
-                            className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-1 hover:bg-gray-100]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="Download"
                           >
                             <Download className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => openMaterialPreview(material)}
-                            className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-1 hover:bg-gray-100]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="Preview"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => openMaterialEdit(material)}
-                            className="p-1 hover:bg-[#12E6F3]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-1 hover:bg-gray-100]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="Edit"
                           >
                             <EditIcon className="h-4 w-4" />
@@ -1133,12 +1133,12 @@ export default function AdminPartnersPage() {
         {/* Marketing Upload Modal */}
         {showUploadModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#e2e2e8]">Upload Marketing Material</h2>
                 <button
                   onClick={() => setShowUploadModal(false)}
-                  className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1151,7 +1151,7 @@ export default function AdminPartnersPage() {
                     type="text"
                     value={uploadData.name}
                     onChange={(e) => setUploadData({...uploadData, name: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                   />
                 </div>
                 
@@ -1161,7 +1161,7 @@ export default function AdminPartnersPage() {
                     <select
                       value={uploadData.type}
                       onChange={(e) => setUploadData({...uploadData, type: e.target.value})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     >
                       <option value="flyer">Flyer</option>
                       <option value="video">Video</option>
@@ -1177,7 +1177,7 @@ export default function AdminPartnersPage() {
                     <select
                       value={uploadData.category}
                       onChange={(e) => setUploadData({...uploadData, category: e.target.value})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     >
                       <option value="general">General</option>
                       <option value="whatsapp">WhatsApp</option>
@@ -1194,7 +1194,7 @@ export default function AdminPartnersPage() {
                     value={uploadData.description}
                     onChange={(e) => setUploadData({...uploadData, description: e.target.value})}
                     rows={3}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3] resize-none"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3] resize-none"
                   />
                 </div>
                 
@@ -1229,14 +1229,14 @@ export default function AdminPartnersPage() {
                 <div className="flex items-center gap-3 pt-4 border-t border-neutral-200">
                   <button
                     onClick={handleMarketingUpload}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
                   >
                     <Upload className="h-4 w-4" />
                     Upload
                   </button>
                   <button
                     onClick={() => setShowUploadModal(false)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
                   >
                     Cancel
                   </button>
@@ -1249,12 +1249,12 @@ export default function AdminPartnersPage() {
         {/* Material Preview Modal */}
         {showMaterialPreviewModal && selectedMaterial && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#e2e2e8]">Material Preview</h2>
                 <button
                   onClick={() => setShowMaterialPreviewModal(false)}
-                  className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1263,7 +1263,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.name}</h3>
-                  <span className="px-3 py-1 bg-[#12E6F3]/10 text-[#12E6F3] rounded-full text-xs font-medium">
+                  <span className="px-3 py-1 bg-gray-100]/10 text-[#12E6F3] rounded-full text-xs font-medium">
                     {selectedMaterial.type.toUpperCase()}
                   </span>
                 </div>
@@ -1271,18 +1271,18 @@ export default function AdminPartnersPage() {
                 <p className="text-sm text-neutral-600">{selectedMaterial.description || 'No description'}</p>
                 
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="bg-white p-3 rounded-lg">
+                  <div className="bg-gray-100 p-3 rounded-lg">
                     <p className="text-neutral-600">Downloads</p>
                     <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.download_count || 0}</p>
                   </div>
-                  <div className="bg-white p-3 rounded-lg">
+                  <div className="bg-gray-100 p-3 rounded-lg">
                     <p className="text-neutral-600">Category</p>
                     <p className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.category || 'general'}</p>
                   </div>
                 </div>
                 
                 {selectedMaterial.file_url && (
-                  <div className="bg-white p-4 rounded-lg">
+                  <div className="bg-gray-100 p-4 rounded-lg">
                     <p className="text-sm text-neutral-600 mb-2">Preview</p>
                     {selectedMaterial.type === 'image' || selectedMaterial.type === 'flyer' ? (
                       <img 
@@ -1310,12 +1310,12 @@ export default function AdminPartnersPage() {
         {/* Material Edit Modal */}
         {showMaterialEditModal && selectedMaterial && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#e2e2e8]">Edit Material</h2>
                 <button
                   onClick={() => setShowMaterialEditModal(false)}
-                  className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1328,7 +1328,7 @@ export default function AdminPartnersPage() {
                     type="text"
                     value={editMaterialData.name}
                     onChange={(e) => setEditMaterialData({...editMaterialData, name: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                   />
                 </div>
                 
@@ -1338,7 +1338,7 @@ export default function AdminPartnersPage() {
                     <select
                       value={editMaterialData.type}
                       onChange={(e) => setEditMaterialData({...editMaterialData, type: e.target.value})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     >
                       <option value="flyer">Flyer</option>
                       <option value="video">Video</option>
@@ -1354,7 +1354,7 @@ export default function AdminPartnersPage() {
                     <select
                       value={editMaterialData.category}
                       onChange={(e) => setEditMaterialData({...editMaterialData, category: e.target.value})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     >
                       <option value="general">General</option>
                       <option value="social">Social Media</option>
@@ -1369,7 +1369,7 @@ export default function AdminPartnersPage() {
                   <textarea
                     value={editMaterialData.description}
                     onChange={(e) => setEditMaterialData({...editMaterialData, description: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3] resize-none"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3] resize-none"
                     rows={3}
                   />
                 </div>
@@ -1377,14 +1377,14 @@ export default function AdminPartnersPage() {
                 <div className="flex items-center gap-3 pt-4 border-t border-neutral-200">
                   <button
                     onClick={handleMaterialEdit}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
                   >
                     <CheckCircle className="h-4 w-4" />
                     Save Changes
                   </button>
                   <button
                     onClick={() => setShowMaterialEditModal(false)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
                   >
                     Cancel
                   </button>
@@ -1396,7 +1396,7 @@ export default function AdminPartnersPage() {
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-neutral-200">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Analytics</h2>
             </div>
@@ -1404,7 +1404,7 @@ export default function AdminPartnersPage() {
             <div className="p-6 space-y-6">
               {/* Key Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
                     <Users className="h-8 w-8 text-[#12E6F3]" />
                     <span className="text-xs text-neutral-600">Total</span>
@@ -1412,7 +1412,7 @@ export default function AdminPartnersPage() {
                   <p className="text-3xl font-bold text-[#e2e2e8]">{partners.length}</p>
                   <p className="text-sm text-neutral-600 mt-1">Active Partners</p>
                 </div>
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
                     <DollarSign className="h-8 w-8 text-green-400" />
                     <span className="text-xs text-neutral-600">Total</span>
@@ -1420,7 +1420,7 @@ export default function AdminPartnersPage() {
                   <p className="text-3xl font-bold text-[#e2e2e8]">₦{(partners.reduce((sum, p) => sum + (p.available_earnings || 0), 0)).toLocaleString()}</p>
                   <p className="text-sm text-neutral-600 mt-1">Commissions</p>
                 </div>
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
                     <TrendingUp className="h-8 w-8 text-blue-400" />
                     <span className="text-xs text-neutral-600">Total</span>
@@ -1428,7 +1428,7 @@ export default function AdminPartnersPage() {
                   <p className="text-3xl font-bold text-[#e2e2e8]">{partners.reduce((sum, p) => sum + (p.total_registrations || 0), 0)}</p>
                   <p className="text-sm text-neutral-600 mt-1">Referrals</p>
                 </div>
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
                     <Shield className="h-8 w-8 text-purple-400" />
                     <span className="text-xs text-neutral-600">Active</span>
@@ -1439,47 +1439,47 @@ export default function AdminPartnersPage() {
               </div>
 
               {/* Partner Type Distribution */}
-              <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Partner Type Distribution</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white border border-neutral-200 rounded-lg p-4">
+                  <div className="bg-gray-100 border border-neutral-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-neutral-600">Community Partners</span>
                       <span className="text-sm font-semibold text-[#12E6F3]">
                         {partners.filter(p => p.partner_type === 'community').length}
                       </span>
                     </div>
-                    <div className="w-full bg-[#d1d5db] rounded-full h-2">
+                    <div className="w-full bg-gray-100] rounded-full h-2">
                       <div 
-                        className="bg-[#12E6F3] h-2 rounded-full transition-all"
+                        className="bg-gray-100] h-2 rounded-full transition-all"
                         style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'community').length / partners.length) * 100 : 0}%` }}
                       />
                     </div>
                   </div>
-                  <div className="bg-white border border-neutral-200 rounded-lg p-4">
+                  <div className="bg-gray-100 border border-neutral-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-neutral-600">Influencer Partners</span>
                       <span className="text-sm font-semibold text-[#12E6F3]">
                         {partners.filter(p => p.partner_type === 'influencer').length}
                       </span>
                     </div>
-                    <div className="w-full bg-[#d1d5db] rounded-full h-2">
+                    <div className="w-full bg-gray-100] rounded-full h-2">
                       <div 
-                        className="bg-[#12E6F3] h-2 rounded-full transition-all"
+                        className="bg-gray-100] h-2 rounded-full transition-all"
                         style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'influencer').length / partners.length) * 100 : 0}%` }}
                       />
                     </div>
                   </div>
-                  <div className="bg-white border border-neutral-200 rounded-lg p-4">
+                  <div className="bg-gray-100 border border-neutral-200 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-neutral-600">Student Partners</span>
                       <span className="text-sm font-semibold text-[#12E6F3]">
                         {partners.filter(p => p.partner_type === 'student').length}
                       </span>
                     </div>
-                    <div className="w-full bg-[#d1d5db] rounded-full h-2">
+                    <div className="w-full bg-gray-100] rounded-full h-2">
                       <div 
-                        className="bg-[#12E6F3] h-2 rounded-full transition-all"
+                        className="bg-gray-100] h-2 rounded-full transition-all"
                         style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'student').length / partners.length) * 100 : 0}%` }}
                       />
                     </div>
@@ -1488,16 +1488,16 @@ export default function AdminPartnersPage() {
               </div>
 
               {/* Top Performers */}
-              <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Top Performing Partners</h3>
                 <div className="space-y-3">
                   {partners
                     .sort((a, b) => (b.total_registrations || 0) - (a.total_registrations || 0))
                     .slice(0, 5)
                     .map((partner, index) => (
-                      <div key={partner.id} className="flex items-center justify-between p-4 bg-white rounded-lg">
+                      <div key={partner.id} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg">
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 font-bold">
+                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 font-bold">
                             {index + 1}
                           </div>
                           <div>
@@ -1515,7 +1515,7 @@ export default function AdminPartnersPage() {
               </div>
 
               {/* Earnings Trend */}
-              <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Monthly Earnings Trend</h3>
                 <div className="h-64 flex items-end justify-between gap-2">
                   {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, index) => {
@@ -1523,7 +1523,7 @@ export default function AdminPartnersPage() {
                     return (
                       <div key={month} className="flex-1 flex flex-col items-center gap-2">
                         <div 
-                          className="w-full bg-[#12E6F3] rounded-t-lg transition-all hover:bg-[#12E6F3]/80"
+                          className="w-full bg-gray-100] rounded-t-lg transition-all hover:bg-gray-100]/80"
                           style={{ height: `${heights[index]}%` }}
                         />
                         <span className="text-xs text-neutral-600">{month}</span>
@@ -1538,7 +1538,7 @@ export default function AdminPartnersPage() {
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Partner Program Settings</h2>
               <button
@@ -1547,7 +1547,7 @@ export default function AdminPartnersPage() {
                   localStorage.setItem('partnerSettings', JSON.stringify(settings));
                   alert('Settings saved successfully!');
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
               >
                 <CheckCircle className="h-4 w-4" />
                 Save Settings
@@ -1555,7 +1555,7 @@ export default function AdminPartnersPage() {
             </div>
             
             <div className="p-6 space-y-6">
-              <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Commission Rates</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
@@ -1564,7 +1564,7 @@ export default function AdminPartnersPage() {
                       type="number"
                       value={settings.studentCommission}
                       onChange={(e) => setSettings({...settings, studentCommission: parseInt(e.target.value)})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                   <div>
@@ -1573,7 +1573,7 @@ export default function AdminPartnersPage() {
                       type="number"
                       value={settings.communityCommission}
                       onChange={(e) => setSettings({...settings, communityCommission: parseInt(e.target.value)})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                   <div>
@@ -1582,13 +1582,13 @@ export default function AdminPartnersPage() {
                       type="number"
                       value={settings.influencerCommission}
                       onChange={(e) => setSettings({...settings, influencerCommission: parseInt(e.target.value)})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Payment Settings</h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -1600,7 +1600,7 @@ export default function AdminPartnersPage() {
                       type="number"
                       value={settings.holdingPeriod}
                       onChange={(e) => setSettings({...settings, holdingPeriod: parseInt(e.target.value)})}
-                      className="w-24 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-24 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                   <div className="flex items-center justify-between">
@@ -1613,13 +1613,13 @@ export default function AdminPartnersPage() {
                       type="number"
                       value={settings.minWithdrawal}
                       disabled
-                      className="w-24 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-neutral-500 focus:outline-none cursor-not-allowed"
+                      className="w-24 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-500 focus:outline-none cursor-not-allowed"
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Notification Settings</h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -1657,7 +1657,7 @@ export default function AdminPartnersPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-neutral-200 rounded-lg p-6">
+              <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Program Information</h3>
                 <div className="space-y-4">
                   <div>
@@ -1667,7 +1667,7 @@ export default function AdminPartnersPage() {
                       type="text"
                       value={settings.currentCohort}
                       onChange={(e) => setSettings({...settings, currentCohort: e.target.value})}
-                      className="mt-1 w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="mt-1 w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                   <div>
@@ -1677,7 +1677,7 @@ export default function AdminPartnersPage() {
                       type="number"
                       value={settings.coursePrice}
                       onChange={(e) => setSettings({...settings, coursePrice: parseInt(e.target.value)})}
-                      className="mt-1 w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="mt-1 w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                 </div>
@@ -1687,12 +1687,12 @@ export default function AdminPartnersPage() {
         )}
         {selectedPartner && showPartnerDetailModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#e2e2e8]">Partner Details</h2>
                 <button
                   onClick={() => setShowPartnerDetailModal(false)}
-                  className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1701,7 +1701,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-6">
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 text-2xl">
+                  <div className="h-20 w-20 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-2xl">
                     {selectedPartner.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
@@ -1723,7 +1723,7 @@ export default function AdminPartnersPage() {
                 </div>
 
                 {/* Contact Information */}
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Contact Information</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -1746,7 +1746,7 @@ export default function AdminPartnersPage() {
                 </div>
 
                 {/* Performance Stats */}
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Performance Statistics</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
@@ -1769,7 +1769,7 @@ export default function AdminPartnersPage() {
                 </div>
 
                 {/* Bank Details */}
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Bank Details</h4>
                   {selectedPartner.bankDetails ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1798,12 +1798,12 @@ export default function AdminPartnersPage() {
                 </div>
 
                 {/* Recent Referrals */}
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Recent Referrals</h4>
                   {selectedPartner.recentReferrals && selectedPartner.recentReferrals.length > 0 ? (
                     <div className="space-y-3">
                       {selectedPartner.recentReferrals.map((referral: any) => (
-                        <div key={referral.id} className="flex items-center justify-between p-3 bg-white rounded-lg">
+                        <div key={referral.id} className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
                           <div>
                             <p className="text-sm text-[#e2e2e8]">Referral: {referral.referee_email || referral.referee_id || 'Unknown'}</p>
                             <p className="text-xs text-neutral-600">{new Date(referral.created_at).toLocaleDateString()}</p>
@@ -1829,19 +1829,19 @@ export default function AdminPartnersPage() {
                 </div>
 
                 {/* Email Actions */}
-                <div className="bg-white border border-neutral-200 rounded-lg p-6">
+                <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
                   <h4 className="text-lg font-semibold mb-4 text-[#e2e2e8]">Email Actions</h4>
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleResendEmail(selectedPartner.id, 'welcome')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
                     >
                       <Mail className="h-4 w-4" />
                       Resend Welcome Email
                     </button>
                     <button
                       onClick={() => handleResendEmail(selectedPartner.id, 'admin_notification')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
                     >
                       <Bell className="h-4 w-4" />
                       Resend Admin Notification
@@ -1854,12 +1854,12 @@ export default function AdminPartnersPage() {
         )}
         {selectedApp && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#e2e2e8]">Application Details</h2>
                 <button
                   onClick={() => setSelectedApp(null)}
-                  className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1868,7 +1868,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-6">
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 text-2xl">
+                  <div className="h-20 w-20 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-2xl">
                     {selectedApp.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
@@ -1884,14 +1884,14 @@ export default function AdminPartnersPage() {
 
                 {/* Contact Information */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="border border-neutral-200 bg-white/50 rounded-lg p-4">
+                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Phone className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-neutral-600">Phone</span>
                     </div>
                     <p className="text-sm text-[#e2e2e8]">{selectedApp.phone || 'N/A'}</p>
                   </div>
-                  <div className="border border-neutral-200 bg-white/50 rounded-lg p-4">
+                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <MessageCircle className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-neutral-600">WhatsApp</span>
@@ -1901,7 +1901,7 @@ export default function AdminPartnersPage() {
                 </div>
 
                 {/* Motivation */}
-                <div className="border border-neutral-200 bg-white/50 rounded-lg p-4">
+                <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-4">
                   <h4 className="text-sm font-medium text-[#e2e2e8] mb-2">Motivation</h4>
                   <p className="text-sm text-neutral-600">{selectedApp.motivation || 'N/A'}</p>
                 </div>
@@ -1922,7 +1922,7 @@ export default function AdminPartnersPage() {
                     <XCircle className="h-4 w-4" />
                     Reject
                   </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3]/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-[#12E6F3]/20 transition-colors">
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100]/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-gray-100]/20 transition-colors">
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
                   </button>
@@ -1934,11 +1934,11 @@ export default function AdminPartnersPage() {
 
         {/* Withdrawals Tab */}
         {activeTab === 'withdrawals' && (
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Withdrawal Requests</h2>
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-2 px-3 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] hover:bg-white transition-colors">
+                <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] hover:bg-gray-100 transition-colors">
                   <Download className="h-4 w-4" />
                   Export
                 </button>
@@ -1947,7 +1947,7 @@ export default function AdminPartnersPage() {
             
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-white">
+                <thead className="bg-gray-100">
                   <tr>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Partner</th>
                     <th className="text-left p-4 text-xs font-medium text-neutral-600 uppercase tracking-wider">Amount</th>
@@ -1968,12 +1968,12 @@ export default function AdminPartnersPage() {
         )}
         {selectedApp && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#e2e2e8]">Application Details</h2>
                 <button
                   onClick={() => setSelectedApp(null)}
-                  className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1982,7 +1982,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-6">
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-[#d1d5db] flex items-center justify-center text-neutral-600 text-2xl">
+                  <div className="h-20 w-20 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-2xl">
                     {selectedApp.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
@@ -1998,14 +1998,14 @@ export default function AdminPartnersPage() {
 
                 {/* Contact Information */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="border border-neutral-200 bg-white/50 rounded-lg p-4">
+                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Phone className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-neutral-600">Phone</span>
                     </div>
                     <p className="text-sm text-[#e2e2e8]">{selectedApp.phone || 'N/A'}</p>
                   </div>
-                  <div className="border border-neutral-200 bg-white/50 rounded-lg p-4">
+                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <MessageCircle className="h-4 w-4 text-[#12E6F3]" />
                       <span className="text-xs text-neutral-600">WhatsApp</span>
@@ -2015,7 +2015,7 @@ export default function AdminPartnersPage() {
                 </div>
 
                 {/* Motivation */}
-                <div className="border border-neutral-200 bg-white/50 rounded-lg p-4">
+                <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-4">
                   <h4 className="text-sm font-medium text-[#e2e2e8] mb-2">Motivation</h4>
                   <p className="text-sm text-neutral-600">{selectedApp.motivation || 'N/A'}</p>
                 </div>
@@ -2036,7 +2036,7 @@ export default function AdminPartnersPage() {
                     <XCircle className="h-4 w-4" />
                     Reject
                   </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3]/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-[#12E6F3]/20 transition-colors">
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100]/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-gray-100]/20 transition-colors">
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
                   </button>
@@ -2049,12 +2049,12 @@ export default function AdminPartnersPage() {
         {/* Add Partner Modal */}
         {showAddPartnerModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-[#e2e2e8]">Add Partner Manually</h2>
                 <button
                   onClick={() => setShowAddPartnerModal(false)}
-                  className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-[#e2e2e8]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -2067,7 +2067,7 @@ export default function AdminPartnersPage() {
                     type="text"
                     value={newPartner.full_name}
                     onChange={(e) => setNewPartner({...newPartner, full_name: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                   />
                 </div>
                 
@@ -2077,7 +2077,7 @@ export default function AdminPartnersPage() {
                     type="email"
                     value={newPartner.email}
                     onChange={(e) => setNewPartner({...newPartner, email: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                   />
                 </div>
                 
@@ -2088,7 +2088,7 @@ export default function AdminPartnersPage() {
                       type="tel"
                       value={newPartner.phone}
                       onChange={(e) => setNewPartner({...newPartner, phone: e.target.value})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                   <div>
@@ -2097,7 +2097,7 @@ export default function AdminPartnersPage() {
                       type="tel"
                       value={newPartner.whatsapp}
                       onChange={(e) => setNewPartner({...newPartner, whatsapp: e.target.value})}
-                      className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                      className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                     />
                   </div>
                 </div>
@@ -2107,7 +2107,7 @@ export default function AdminPartnersPage() {
                   <select
                     value={newPartner.partner_type}
                     onChange={(e) => setNewPartner({...newPartner, partner_type: e.target.value, commission_rate: e.target.value === 'influencer' ? 2500 : 1500})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                   >
                     <option value="community">Community Partner</option>
                     <option value="influencer">Influencer</option>
@@ -2121,7 +2121,7 @@ export default function AdminPartnersPage() {
                     type="number"
                     value={newPartner.commission_rate}
                     onChange={(e) => setNewPartner({...newPartner, commission_rate: parseInt(e.target.value)})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                   />
                 </div>
                 
@@ -2131,21 +2131,21 @@ export default function AdminPartnersPage() {
                     type="password"
                     value={newPartner.password}
                     onChange={(e) => setNewPartner({...newPartner, password: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
+                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] focus:outline-none focus:border-[#12E6F3]"
                   />
                 </div>
                 
                 <div className="flex items-center gap-3 pt-4 border-t border-neutral-200">
                   <button
                     onClick={handleAddPartner}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#12E6F3] text-[#070B12] rounded-lg font-medium hover:bg-[#12E6F3]/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
                   >
                     <Plus className="h-4 w-4" />
                     Create Partner
                   </button>
                   <button
                     onClick={() => setShowAddPartnerModal(false)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
                   >
                     Cancel
                   </button>

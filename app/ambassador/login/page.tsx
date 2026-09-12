@@ -41,7 +41,7 @@ export default function AmbassadorLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900">
+    <div className="min-h-screen bg-gray-100] text-neutral-900">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">
@@ -50,8 +50,8 @@ export default function AmbassadorLoginPage() {
             <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
           </Link>
           
-          <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#10b981]/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="bg-gray-100/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gray-100]/10 blur-3xl rounded-full pointer-events-none" />
             
             <h1 className="text-2xl font-bold mb-2">Ambassador Login</h1>
             <p className="text-neutral-500 mb-8 text-sm">Welcome back. Enter your credentials to access your dashboard.</p>
@@ -84,7 +84,7 @@ export default function AmbassadorLoginPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-4 py-3 rounded-xl bg-[#10b981] text-black font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 py-3 rounded-xl bg-gray-100] text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSubmitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Authenticating...</> : "Sign In"}
               </button>

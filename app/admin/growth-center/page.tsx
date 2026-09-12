@@ -135,7 +135,7 @@ export default function AdminGrowthCenter() {
         </div>
         <button 
           onClick={fetchData}
-          className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-gray-100/10 hover:bg-gray-100/20 rounded-lg transition-colors"
         >
           <RefreshCw className="h-4 w-4" />
           Refresh
@@ -192,7 +192,7 @@ export default function AdminGrowthCenter() {
               <p className="text-3xl font-bold">{stats.partners.influencer}</p>
             </div>
             <div className="bg-neutral-50 border border-[#10b981]/20 p-6 rounded-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#10b981]/10 blur-3xl rounded-full" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gray-100]/10 blur-3xl rounded-full" />
               <h3 className="text-sm text-[#10b981] mb-1 relative z-10">Total Partners</h3>
               <p className="text-3xl font-bold relative z-10">{stats.partners.total}</p>
             </div>
@@ -261,7 +261,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'applications' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#d1d5db]/50 border-b border-neutral-200">
+            <thead className="bg-gray-100]/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Applicant</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Contact</th>
@@ -272,7 +272,7 @@ export default function AdminGrowthCenter() {
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {applications.map(app => (
-                <tr key={app.id} className="hover:bg-white/5 transition-colors">
+                <tr key={app.id} className="hover:bg-gray-100/5 transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-medium text-neutral-900">{app.full_name}</p>
                     <p className="text-neutral-600 text-xs">{app.occupation}</p>
@@ -330,7 +330,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'partners' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#d1d5db]/50 border-b border-neutral-200">
+            <thead className="bg-gray-100]/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
@@ -341,7 +341,7 @@ export default function AdminGrowthCenter() {
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {partners.map(partner => (
-                <tr key={partner.id} className="hover:bg-white/5 transition-colors">
+                <tr key={partner.id} className="hover:bg-gray-100/5 transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-medium text-neutral-900">{partner.full_name}</p>
                     <p className="text-neutral-600 text-xs">{partner.email}</p>
@@ -382,7 +382,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'withdrawals' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#d1d5db]/50 border-b border-neutral-200">
+            <thead className="bg-gray-100]/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Amount</th>
@@ -393,7 +393,7 @@ export default function AdminGrowthCenter() {
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {withdrawals.map(withdrawal => (
-                <tr key={withdrawal.id} className="hover:bg-white/5 transition-colors">
+                <tr key={withdrawal.id} className="hover:bg-gray-100/5 transition-colors">
                   <td className="px-6 py-4">
                     <p className="font-medium text-neutral-900">{withdrawal.user_id}</p>
                     <p className="text-neutral-600 text-xs">{withdrawal.user_type}</p>
@@ -444,7 +444,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'fraud' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#d1d5db]/50 border-b border-neutral-200">
+            <thead className="bg-gray-100]/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Severity</th>
@@ -455,9 +455,9 @@ export default function AdminGrowthCenter() {
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {fraudAlerts.map(alert => (
-                <tr key={alert.id} className="hover:bg-white/5 transition-colors">
+                <tr key={alert.id} className="hover:bg-gray-100/5 transition-colors">
                   <td className="px-6 py-4">
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-white/5">
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100/5">
                       {alert.type.replace(/_/g, ' ')}
                     </span>
                   </td>

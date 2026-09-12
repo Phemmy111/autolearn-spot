@@ -68,16 +68,16 @@ export default function AdminFooterSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -111,7 +111,7 @@ export default function AdminFooterSettingsPage() {
           )}
 
           {/* Footer Content */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <FileText className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Footer Content</h2>
@@ -123,7 +123,7 @@ export default function AdminFooterSettingsPage() {
                   value={settings.description}
                   onChange={(e) => setSettings({ ...settings, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -132,14 +132,14 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.copyrightText}
                   onChange={(e) => setSettings({ ...settings, copyrightText: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Footer Links */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <FileText className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Footer Links</h2>
@@ -151,7 +151,7 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.privacyLink}
                   onChange={(e) => setSettings({ ...settings, privacyLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -160,7 +160,7 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.termsLink}
                   onChange={(e) => setSettings({ ...settings, termsLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -169,7 +169,7 @@ export default function AdminFooterSettingsPage() {
                   type="text"
                   value={settings.contactLink}
                   onChange={(e) => setSettings({ ...settings, contactLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
@@ -180,7 +180,7 @@ export default function AdminFooterSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

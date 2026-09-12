@@ -181,7 +181,7 @@ ${report.results.map(result => {
   const journeyTests = rcTestCases.filter(t => t.category === 'journey')
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="mb-8">
           <Link
@@ -196,7 +196,7 @@ ${report.results.map(result => {
         </div>
 
         {!sessionStarted ? (
-          <Card className="bg-white border-neutral-200">
+          <Card className="bg-gray-100 border-neutral-200">
             <CardHeader>
               <CardTitle className="text-neutral-900">Start RC Testing Session</CardTitle>
               <CardDescription className="text-neutral-600">Enter your name to begin testing</CardDescription>
@@ -215,7 +215,7 @@ ${report.results.map(result => {
               <Button
                 onClick={startSession}
                 disabled={!executedBy.trim()}
-                className="w-full bg-[#10b981] text-black hover:bg-white"
+                className="w-full bg-gray-100] text-black hover:bg-gray-100"
               >
                 <Play className="mr-2 h-4 w-4" />
                 Start RC Testing Session
@@ -225,8 +225,8 @@ ${report.results.map(result => {
         ) : (
           <Tabs defaultValue="test-cases" className="space-y-4">
             <TabsList className="bg-neutral-50 border-neutral-200">
-              <TabsTrigger value="test-cases" className="data-[state=active]:bg-[#10b981] data-[state=active]:text-black">Test Cases</TabsTrigger>
-              <TabsTrigger value="report" className="data-[state=active]:bg-[#10b981] data-[state=active]:text-black">Report</TabsTrigger>
+              <TabsTrigger value="test-cases" className="data-[state=active]:bg-gray-100] data-[state=active]:text-black">Test Cases</TabsTrigger>
+              <TabsTrigger value="report" className="data-[state=active]:bg-gray-100] data-[state=active]:text-black">Report</TabsTrigger>
             </TabsList>
 
             <TabsContent value="test-cases" className="space-y-4">
@@ -258,7 +258,7 @@ ${report.results.map(result => {
                   return (
                     <Card
                       key={test.id}
-                      className={`bg-white border-neutral-200 cursor-pointer hover:border-[#10b981]/30 transition-all ${selectedTest === test.id ? 'border-[#10b981]' : ''}`}
+                      className={`bg-gray-100 border-neutral-200 cursor-pointer hover:border-[#10b981]/30 transition-all ${selectedTest === test.id ? 'border-[#10b981]' : ''}`}
                       onClick={() => setSelectedTest(test.id)}
                     >
                       <CardHeader className="pb-3">
@@ -288,7 +288,7 @@ ${report.results.map(result => {
               </div>
 
               {selectedTest && (
-                <Card className="bg-white border-neutral-200">
+                <Card className="bg-gray-100 border-neutral-200">
                   <CardHeader>
                     <CardTitle className="text-neutral-900">Test Execution</CardTitle>
                     <CardDescription className="text-neutral-600">
@@ -399,7 +399,7 @@ ${report.results.map(result => {
             </TabsContent>
 
             <TabsContent value="report" className="space-y-4">
-              <Card className="bg-white border-neutral-200">
+              <Card className="bg-gray-100 border-neutral-200">
                 <CardHeader>
                   <CardTitle className="text-neutral-900">RC Report</CardTitle>
                   <CardDescription className="text-neutral-600">Summary of test execution results</CardDescription>
@@ -408,7 +408,7 @@ ${report.results.map(result => {
                   {!report ? (
                     <Button
                       onClick={generateReport}
-                      className="w-full bg-[#10b981] text-black hover:bg-white"
+                      className="w-full bg-gray-100] text-black hover:bg-gray-100"
                     >
                       <FileText className="mr-2 h-4 w-4" />
                       Generate Report
@@ -476,7 +476,7 @@ ${report.results.map(result => {
 
                       <Button
                         onClick={exportReport}
-                        className="w-full bg-[#10b981] text-black hover:bg-white"
+                        className="w-full bg-gray-100] text-black hover:bg-gray-100"
                       >
                         <Download className="mr-2 h-4 w-4" />
                         Export Report

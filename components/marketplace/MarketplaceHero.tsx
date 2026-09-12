@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export function MarketplaceHero() {
   return (
-    <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden bg-[#d1d5db]">
+    <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden bg-gray-100]">
       {/* Background radial gradient */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#edf0f4] via-[#e5e9ed] to-[#dce1e7]" />
       
@@ -37,14 +37,14 @@ export function MarketplaceHero() {
             <div className="flex flex-col sm:flex-row items-center gap-4 mb-12 animate-in fade-in zoom-in-95 duration-700 delay-700 fill-mode-both">
               <Link 
                 href="#products" 
-                className="group flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 bg-[#10b981] text-neutral-900 font-semibold rounded-full hover:bg-[#059669] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)] hover:shadow-[0_12px_24px_-8px_rgba(16,185,129,0.6)] hover:-translate-y-0.5"
+                className="group flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 bg-gray-100] text-neutral-900 font-semibold rounded-full hover:bg-gray-100] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(16,185,129,0.5)] hover:shadow-[0_12px_24px_-8px_rgba(16,185,129,0.6)] hover:-translate-y-0.5"
               >
                 Explore Marketplace
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/author-apply"
-                className="w-full sm:w-auto px-8 py-4 bg-white border border-neutral-300 text-neutral-700 font-semibold rounded-full hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-300 shadow-sm"
+                className="w-full sm:w-auto px-8 py-4 bg-gray-100 border border-neutral-300 text-neutral-700 font-semibold rounded-full hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-300 shadow-sm"
               >
                 Become a Creator
               </Link>
@@ -88,7 +88,7 @@ export function MarketplaceHero() {
             </div>
 
             {/* Floating Card 1: AI Automation */}
-            <div className="absolute top-[10%] left-0 bg-white/90 backdrop-blur-md p-3 pr-6 rounded-2xl shadow-xl flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
+            <div className="absolute top-[10%] left-0 bg-gray-100/90 backdrop-blur-md p-3 pr-6 rounded-2xl shadow-xl flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
               <div className="w-12 h-12 bg-neutral-900 rounded-xl flex items-center justify-center shadow-inner">
                 <Play className="w-5 h-5 text-neutral-900 ml-0.5" fill="currentColor" />
               </div>
@@ -99,8 +99,8 @@ export function MarketplaceHero() {
             </div>
 
             {/* Floating Card 2: Web Dev */}
-            <div className="absolute top-[35%] -right-4 bg-white/90 backdrop-blur-md p-3 pr-6 rounded-2xl shadow-xl flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default z-20">
-              <div className="w-12 h-12 bg-[#314a7e] rounded-xl flex items-center justify-center shadow-inner">
+            <div className="absolute top-[35%] -right-4 bg-gray-100/90 backdrop-blur-md p-3 pr-6 rounded-2xl shadow-xl flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default z-20">
+              <div className="w-12 h-12 bg-gray-100] rounded-xl flex items-center justify-center shadow-inner">
                 <Code className="w-5 h-5 text-neutral-900" />
               </div>
               <div>
@@ -110,7 +110,7 @@ export function MarketplaceHero() {
             </div>
 
             {/* Floating Card 3: Digital Marketing */}
-            <div className="absolute bottom-[25%] -left-8 bg-white/90 backdrop-blur-md p-3 pr-6 rounded-2xl shadow-xl flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default z-20">
+            <div className="absolute bottom-[25%] -left-8 bg-gray-100/90 backdrop-blur-md p-3 pr-6 rounded-2xl shadow-xl flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default z-20">
               <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-inner">
                 <Megaphone className="w-5 h-5 text-neutral-900" />
               </div>
@@ -121,13 +121,13 @@ export function MarketplaceHero() {
             </div>
 
             {/* Floating Card 4: Progress */}
-            <div className="absolute bottom-[10%] -right-8 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-xl w-48 hover:-translate-y-1 transition-transform cursor-default z-20">
+            <div className="absolute bottom-[10%] -right-8 bg-gray-100/90 backdrop-blur-md p-4 rounded-2xl shadow-xl w-48 hover:-translate-y-1 transition-transform cursor-default z-20">
               <div className="flex justify-between items-end mb-2">
                 <span className="text-sm font-bold text-neutral-900">Your Progress</span>
                 <span className="text-xs font-bold text-neutral-500">68%</span>
               </div>
               <div className="w-full bg-neutral-100 rounded-full h-2">
-                <div className="bg-[#10b981] h-2 rounded-full" style={{ width: '68%' }}></div>
+                <div className="bg-gray-100] h-2 rounded-full" style={{ width: '68%' }}></div>
               </div>
             </div>
 

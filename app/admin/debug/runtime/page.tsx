@@ -164,7 +164,7 @@ export default function RuntimeDebugPage() {
   const JsonDisplay = ({ data, title }: { data: any, title: string }) => (
     <div className="space-y-2">
       <h4 className="font-semibold text-sm text-neutral-600">{title}</h4>
-      <pre className="bg-white p-3 rounded text-xs text-[#10b981] overflow-x-auto whitespace-pre-wrap">
+      <pre className="bg-gray-100 p-3 rounded text-xs text-[#10b981] overflow-x-auto whitespace-pre-wrap">
         {JSON.stringify(data, null, 2)}
       </pre>
     </div>
@@ -182,7 +182,7 @@ export default function RuntimeDebugPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#d1d5db] p-6">
+    <div className="min-h-screen bg-gray-100] p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-neutral-900 mb-2">Runtime Debug Dashboard</h1>
@@ -190,7 +190,7 @@ export default function RuntimeDebugPage() {
         </div>
 
         {/* Student Selector */}
-        <Card className="bg-white border-neutral-200">
+        <Card className="bg-gray-100 border-neutral-200">
           <CardHeader>
             <CardTitle className="text-neutral-900">Select Student</CardTitle>
             <CardDescription className="text-neutral-600">Choose a student to trace runtime data</CardDescription>
@@ -213,7 +213,7 @@ export default function RuntimeDebugPage() {
               <Button 
                 onClick={loadRuntimeData} 
                 disabled={!selectedStudent || loading}
-                className="bg-[#10b981] text-black hover:bg-[#10b981]/90"
+                className="bg-gray-100] text-black hover:bg-gray-100]/90"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Load Runtime Data'}
               </Button>
@@ -232,7 +232,7 @@ export default function RuntimeDebugPage() {
         </Card>
 
         {runtimeData && !runtimeData.sections && (
-          <Card className="bg-white border-neutral-200">
+          <Card className="bg-gray-100 border-neutral-200">
             <CardHeader>
               <CardTitle className="text-neutral-900">Error Loading Runtime Data</CardTitle>
             </CardHeader>
@@ -245,7 +245,7 @@ export default function RuntimeDebugPage() {
         {runtimeData && runtimeData.sections && (
           <>
             {/* SECTION 1: Student Information */}
-            <Card className="bg-white border-neutral-200">
+            <Card className="bg-gray-100 border-neutral-200">
               <CardHeader>
                 <CardTitle className="text-neutral-900">SECTION 1 — Student Information</CardTitle>
               </CardHeader>
@@ -255,7 +255,7 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 2: Assignment Runtime Trace */}
-            <Card className="bg-white border-neutral-200">
+            <Card className="bg-gray-100 border-neutral-200">
               <CardHeader>
                 <CardTitle className="text-neutral-900">SECTION 2 — Assignment Runtime Trace</CardTitle>
               </CardHeader>
@@ -295,7 +295,7 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 3: Lesson Runtime Trace */}
-            <Card className="bg-white border-neutral-200">
+            <Card className="bg-gray-100 border-neutral-200">
               <CardHeader>
                 <CardTitle className="text-neutral-900">SECTION 3 — Lesson Runtime Trace</CardTitle>
               </CardHeader>
@@ -326,7 +326,7 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 4: Quiz Runtime Trace */}
-            <Card className="bg-white border-neutral-200">
+            <Card className="bg-gray-100 border-neutral-200">
               <CardHeader>
                 <CardTitle className="text-neutral-900">SECTION 4 — Quiz Runtime Trace</CardTitle>
               </CardHeader>
@@ -357,7 +357,7 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 5: Overall Progress */}
-            <Card className="bg-white border-neutral-200">
+            <Card className="bg-gray-100 border-neutral-200">
               <CardHeader>
                 <CardTitle className="text-neutral-900">SECTION 5 — Overall Progress</CardTitle>
               </CardHeader>
@@ -376,7 +376,7 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 6: Leaderboard Runtime */}
-            <Card className="bg-white border-neutral-200">
+            <Card className="bg-gray-100 border-neutral-200">
               <CardHeader>
                 <CardTitle className="text-neutral-900">SECTION 6 — Leaderboard Runtime</CardTitle>
               </CardHeader>
@@ -395,7 +395,7 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 7: Leaderboard Database */}
-            <Card className="bg-white border-neutral-200">
+            <Card className="bg-gray-100 border-neutral-200">
               <CardHeader>
                 <CardTitle className="text-neutral-900">SECTION 7 — Leaderboard Database</CardTitle>
               </CardHeader>
@@ -406,7 +406,7 @@ export default function RuntimeDebugPage() {
 
             {/* SECTION 8: Analytics API Comparison */}
             {runtimeData.sections.analyticsApiComparison && (
-              <Card className="bg-white border-neutral-200">
+              <Card className="bg-gray-100 border-neutral-200">
                 <CardHeader>
                   <CardTitle className="text-neutral-900">SECTION 8 — Analytics API Comparison</CardTitle>
                 </CardHeader>
@@ -426,7 +426,7 @@ export default function RuntimeDebugPage() {
 
             {/* SECTION 9: Leaderboard API Comparison */}
             {runtimeData.sections.leaderboardApiComparison && (
-              <Card className="bg-white border-neutral-200">
+              <Card className="bg-gray-100 border-neutral-200">
                 <CardHeader>
                   <CardTitle className="text-neutral-900">SECTION 9 — Leaderboard API Comparison</CardTitle>
                 </CardHeader>
@@ -457,7 +457,7 @@ export default function RuntimeDebugPage() {
 
             {/* SECTION 10: Pipeline Verification */}
             {runtimeData.sections.pipelineVerification && (
-              <Card className="bg-white border-neutral-200">
+              <Card className="bg-gray-100 border-neutral-200">
                 <CardHeader>
                   <CardTitle className="text-neutral-900">SECTION 10 — Pipeline Verification</CardTitle>
                 </CardHeader>

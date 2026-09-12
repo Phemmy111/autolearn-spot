@@ -21,14 +21,14 @@ export default async function AdminResultsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <p className="text-red-400 font-mono">Error loading results: {error.message}</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4">Quiz Results</h1>
@@ -36,11 +36,11 @@ export default async function AdminResultsPage() {
         </div>
 
         {responses && responses.length === 0 ? (
-          <div className="text-center py-12 border border-neutral-200 bg-white rounded-xl">
+          <div className="text-center py-12 border border-neutral-200 bg-gray-100 rounded-xl">
             <p className="font-mono text-sm text-neutral-600">No quiz results yet.</p>
           </div>
         ) : (
-          <div className="border border-neutral-200 bg-white rounded-xl overflow-hidden">
+          <div className="border border-neutral-200 bg-gray-100 rounded-xl overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-neutral-200 bg-neutral-50">

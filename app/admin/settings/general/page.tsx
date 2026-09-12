@@ -79,16 +79,16 @@ export default function AdminGeneralSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -122,7 +122,7 @@ export default function AdminGeneralSettingsPage() {
           )}
 
           {/* Website Identity */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Globe className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Website Identity</h2>
@@ -134,7 +134,7 @@ export default function AdminGeneralSettingsPage() {
                   type="text"
                   value={settings.siteName}
                   onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -143,14 +143,14 @@ export default function AdminGeneralSettingsPage() {
                   type="text"
                   value={settings.siteTagline}
                   onChange={(e) => setSettings({ ...settings, siteTagline: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Brand Colors */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Palette className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Brand Colors</h2>
@@ -169,7 +169,7 @@ export default function AdminGeneralSettingsPage() {
                     type="text"
                     value={settings.primaryColor}
                     onChange={(e) => setSettings({ ...settings, primaryColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -186,7 +186,7 @@ export default function AdminGeneralSettingsPage() {
                     type="text"
                     value={settings.secondaryColor}
                     onChange={(e) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -203,7 +203,7 @@ export default function AdminGeneralSettingsPage() {
                     type="text"
                     value={settings.accentColor}
                     onChange={(e) => setSettings({ ...settings, accentColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function AdminGeneralSettingsPage() {
           </div>
 
           {/* Contact Information */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Mail className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Contact Information</h2>
@@ -223,7 +223,7 @@ export default function AdminGeneralSettingsPage() {
                   type="email"
                   value={settings.supportEmail}
                   onChange={(e) => setSettings({ ...settings, supportEmail: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -232,7 +232,7 @@ export default function AdminGeneralSettingsPage() {
                   type="tel"
                   value={settings.supportPhone}
                   onChange={(e) => setSettings({ ...settings, supportPhone: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -241,7 +241,7 @@ export default function AdminGeneralSettingsPage() {
                   type="tel"
                   value={settings.supportWhatsApp}
                   onChange={(e) => setSettings({ ...settings, supportWhatsApp: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -250,14 +250,14 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.whatsappDirectLink}
                   onChange={(e) => setSettings({ ...settings, whatsappDirectLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Social Links */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <MessageCircle className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Social Links</h2>
@@ -269,7 +269,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.whatsappCommunityLink}
                   onChange={(e) => setSettings({ ...settings, whatsappCommunityLink: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -278,7 +278,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.instagramUrl}
                   onChange={(e) => setSettings({ ...settings, instagramUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -287,7 +287,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.tiktokUrl}
                   onChange={(e) => setSettings({ ...settings, tiktokUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -296,7 +296,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.youtubeUrl}
                   onChange={(e) => setSettings({ ...settings, youtubeUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -305,7 +305,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.facebookUrl}
                   onChange={(e) => setSettings({ ...settings, facebookUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -314,7 +314,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.twitterUrl}
                   onChange={(e) => setSettings({ ...settings, twitterUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -323,7 +323,7 @@ export default function AdminGeneralSettingsPage() {
                   type="url"
                   value={settings.linkedinUrl}
                   onChange={(e) => setSettings({ ...settings, linkedinUrl: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
@@ -334,7 +334,7 @@ export default function AdminGeneralSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

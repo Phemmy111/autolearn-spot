@@ -37,9 +37,9 @@ export default function AdminmarketplacePage() {
   }
 
   return (
-    <div className="min-h-screen p-8 text-gray-900 bg-[#d1d5db]">
+    <div className="min-h-screen p-8 text-gray-900 bg-gray-100]">
       <h1 className="text-3xl font-extrabold mb-6 capitalize">marketplace</h1>
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div className="bg-gray-100 rounded-2xl p-6 shadow-sm border border-gray-100">
         {data.length > 0 ? (
           <ul className="space-y-3">
             {data.map((item, idx) => (

@@ -311,7 +311,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 bg-[#c0c4c9] p-8 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-4 bg-gray-100] p-8 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
           <AlertCircle className="h-8 w-8 text-red-400" />
         </div>
@@ -328,7 +328,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             markedCompleteRef.current = false
             hasResumedRef.current = false
           }}
-          className="flex items-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#10b981] transition-colors hover:border-[#10b981] hover:bg-[#c0c4c9]"
+          className="flex items-center gap-2 border border-[#3b494b] bg-gray-100] px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#10b981] transition-colors hover:border-[#10b981] hover:bg-gray-100]"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Retry
@@ -402,7 +402,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       onContextMenu={(e) => e.preventDefault()}
     >
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#c0c4c9]">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-gray-100]">
           <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
             Loading video…
@@ -425,7 +425,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Show play/pause icon briefly on state change */}
           {!isPlaying && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#10b981]/90 shadow-lg shadow-[#00f0ff]/30">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100]/90 shadow-lg shadow-[#00f0ff]/30">
                 <Play className="h-10 w-10 text-black ml-1" />
               </div>
             </div>
@@ -439,7 +439,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Rewind button */}
           <button
             onClick={handleRewind}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 text-neutral-900 transition-all hover:bg-gray-100] hover:text-black"
             title="Rewind 10s"
           >
             <Rewind className="h-5 w-5" />
@@ -448,11 +448,11 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Progress bar */}
           <div
             ref={progressBarRef}
-            className="flex-1 h-[6px] cursor-pointer bg-white/20 transition-all hover:h-[10px]"
+            className="flex-1 h-[6px] cursor-pointer bg-gray-100/20 transition-all hover:h-[10px]"
             onClick={handleSeek}
           >
             <div
-              className="h-full bg-[#10b981] transition-all duration-300"
+              className="h-full bg-gray-100] transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -460,7 +460,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Fast forward button */}
           <button
             onClick={handleFastForward}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 text-neutral-900 transition-all hover:bg-[#10b981] hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-50 text-neutral-900 transition-all hover:bg-gray-100] hover:text-black"
             title="Fast forward 10s"
           >
             <FastForward className="h-5 w-5" />

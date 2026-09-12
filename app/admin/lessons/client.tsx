@@ -203,9 +203,9 @@ export default function LessonSchedulerClient() {
                 key={lesson.id}
                 className={`border ${
                   isEditing
-                    ? 'border-[#10b981] bg-[#10b981]/5'
+                    ? 'border-[#10b981] bg-gray-100]/5'
                     : isAvailable
-                      ? 'border-[#3b494b] bg-[#d1d5db]'
+                      ? 'border-[#3b494b] bg-gray-100]'
                       : 'border-neutral-200 bg-neutral-50 opacity-60'
                 } rounded-lg p-4 transition-colors`}
               >
@@ -262,13 +262,13 @@ export default function LessonSchedulerClient() {
                           <button
                             onClick={saveEdit}
                             disabled={saving}
-                            className="flex items-center gap-2 bg-[#10b981] text-black font-bold px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 bg-gray-100] text-black font-bold px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {saving ? 'Saving...' : <><Save className="h-4 w-4" /> <span>Save</span></>}
                           </button>
                           <button
                             onClick={cancelEditing}
-                            className="flex items-center gap-2 border border-neutral-200 text-neutral-600 px-4 py-2 rounded hover:bg-[#d1d5db] transition-colors"
+                            className="flex items-center gap-2 border border-neutral-200 text-neutral-600 px-4 py-2 rounded hover:bg-gray-100] transition-colors"
                           >
                             <X className="h-4 w-4" /> Cancel
                           </button>
@@ -313,7 +313,7 @@ export default function LessonSchedulerClient() {
   return (
     <div>
       {/* Cohort Selector */}
-      <div className="mb-8 border border-neutral-200 bg-white rounded-lg p-6">
+      <div className="mb-8 border border-neutral-200 bg-gray-100 rounded-lg p-6">
         <label className="block text-sm font-mono text-neutral-600 mb-3">
           Select Cohort
         </label>
@@ -337,7 +337,7 @@ export default function LessonSchedulerClient() {
           <div className="text-neutral-600">Loading lessons...</div>
         </div>
       ) : selectedCohort && lessons.length > 0 ? (
-        <div className="border border-neutral-200 bg-white rounded-lg p-6">
+        <div className="border border-neutral-200 bg-gray-100 rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-heading text-xl font-bold text-neutral-900">
               {getSelectedCohort()?.name} - Schedule
@@ -352,7 +352,7 @@ export default function LessonSchedulerClient() {
           ))}
         </div>
       ) : selectedCohort && lessons.length === 0 ? (
-        <div className="border border-neutral-200 bg-white rounded-lg p-12 text-center">
+        <div className="border border-neutral-200 bg-gray-100 rounded-lg p-12 text-center">
           <AlertCircle className="h-12 w-12 text-neutral-600 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-neutral-900 mb-2">No Lessons Found</h3>
           <p className="text-sm text-neutral-600">
@@ -360,7 +360,7 @@ export default function LessonSchedulerClient() {
           </p>
         </div>
       ) : (
-        <div className="border border-neutral-200 bg-white rounded-lg p-12 text-center">
+        <div className="border border-neutral-200 bg-gray-100 rounded-lg p-12 text-center">
           <h3 className="text-lg font-semibold text-neutral-900 mb-2">Select a Cohort</h3>
           <p className="text-sm text-neutral-600">
             Choose a cohort above to view and manage its lesson schedule.

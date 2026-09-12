@@ -73,16 +73,16 @@ export default function AdminEnrollmentSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -116,7 +116,7 @@ export default function AdminEnrollmentSettingsPage() {
           )}
 
           {/* Enrollment Status */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Users className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Enrollment Status</h2>
@@ -128,7 +128,7 @@ export default function AdminEnrollmentSettingsPage() {
                   id="enrollmentOpen"
                   checked={settings.open === 'true'}
                   onChange={(e) => setSettings({ ...settings, open: e.target.checked ? 'true' : 'false' })}
-                  className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
+                  className="w-4 h-4 rounded border-neutral-200 bg-gray-100 text-[#10b981] focus:ring-[#00f0ff]"
                 />
                 <label htmlFor="enrollmentOpen" className="text-sm text-neutral-600">Enrollment Open</label>
               </div>
@@ -138,7 +138,7 @@ export default function AdminEnrollmentSettingsPage() {
                   type="text"
                   value={settings.buttonText}
                   onChange={(e) => setSettings({ ...settings, buttonText: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -147,7 +147,7 @@ export default function AdminEnrollmentSettingsPage() {
                   value={settings.announcement}
                   onChange={(e) => setSettings({ ...settings, announcement: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
@@ -156,14 +156,14 @@ export default function AdminEnrollmentSettingsPage() {
                   type="date"
                   value={settings.deadline}
                   onChange={(e) => setSettings({ ...settings, deadline: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Cohort Information */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Calendar className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Cohort Information</h2>
@@ -175,7 +175,7 @@ export default function AdminEnrollmentSettingsPage() {
                   type="text"
                   value={settings.currentCohortName}
                   onChange={(e) => setSettings({ ...settings, currentCohortName: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -184,7 +184,7 @@ export default function AdminEnrollmentSettingsPage() {
                   type="text"
                   value={settings.currentCohortNumber}
                   onChange={(e) => setSettings({ ...settings, currentCohortNumber: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -193,7 +193,7 @@ export default function AdminEnrollmentSettingsPage() {
                   type="date"
                   value={settings.cohortStartDate}
                   onChange={(e) => setSettings({ ...settings, cohortStartDate: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -202,14 +202,14 @@ export default function AdminEnrollmentSettingsPage() {
                   type="date"
                   value={settings.cohortEndDate}
                   onChange={(e) => setSettings({ ...settings, cohortEndDate: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Enrollment Page Content */}
-          <div className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Users className="h-5 w-5 text-[#10b981]" />
               <h2 className="text-lg font-semibold text-neutral-900">Enrollment Page Content</h2>
@@ -221,7 +221,7 @@ export default function AdminEnrollmentSettingsPage() {
                   type="text"
                   value={settings.pageHeadline}
                   onChange={(e) => setSettings({ ...settings, pageHeadline: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
@@ -230,7 +230,7 @@ export default function AdminEnrollmentSettingsPage() {
                   value={settings.pageDescription}
                   onChange={(e) => setSettings({ ...settings, pageDescription: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
             </div>
@@ -241,7 +241,7 @@ export default function AdminEnrollmentSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

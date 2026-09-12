@@ -146,12 +146,12 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (!userId) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-[#c0c4c9] p-8 rounded-xl">
+      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl">
         <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-4">Sign In Required</h2>
         <p className="font-mono text-sm text-neutral-500 mb-6">You need to sign in to take this quiz.</p>
         <Link
           href="/sign-in"
-          className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors"
+          className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-gray-100 transition-colors"
         >
           Sign In
         </Link>
@@ -161,7 +161,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (submitted && result) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-[#c0c4c9] p-8 rounded-xl">
+      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl">
         {result.passed ? (
           <CheckCircle className="h-16 w-16 text-emerald-400 mx-auto mb-4" />
         ) : (
@@ -255,7 +255,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (!started) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-[#c0c4c9] p-8 rounded-xl shadow-xl">
+      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl shadow-xl">
         <h2 className="font-heading text-3xl font-bold text-neutral-900 mb-4">{quiz.title}</h2>
         {quiz.description && (
           <p className="text-neutral-500 font-mono text-sm mb-6">{quiz.description}</p>
@@ -278,7 +278,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         <button
           onClick={startQuiz}
           disabled={questions.length === 0}
-          className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {questions.length === 0 ? 'No Questions Yet' : 'Start Quiz'}
         </button>
@@ -307,14 +307,14 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
         </div>
       </div>
 
-      <div className="w-full bg-[#1f2229] h-1.5 rounded-full mb-8 overflow-hidden">
+      <div className="w-full bg-gray-100] h-1.5 rounded-full mb-8 overflow-hidden">
         <div
-          className="bg-[#10b981] h-full transition-all duration-300"
+          className="bg-gray-100] h-full transition-all duration-300"
           style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
         />
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-[#c0c4c9] p-6 shadow-2xl">
+      <div className="rounded-xl border border-neutral-200 bg-gray-100] p-6 shadow-2xl">
         <h3 className="mb-6 font-heading text-lg font-semibold text-[#e2e8e2] leading-relaxed whitespace-pre-line">
           {currentQ.question_text}
         </h3>
@@ -328,12 +328,12 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                   key={i}
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                     isSelected
-                      ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981]'
-                      : 'border-neutral-200 bg-[#c0c4c9] text-neutral-500 hover:border-[#3b494b]'
+                      ? 'border-[#10b981] bg-gray-100]/10 text-[#10b981]'
+                      : 'border-neutral-200 bg-gray-100] text-neutral-500 hover:border-[#3b494b]'
                   }`}
                 >
                   <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#10b981]' : 'border-[#5d5f63]'}`}>
-                    {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-[#10b981]" />}
+                    {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-gray-100]" />}
                   </div>
                   <span className="font-mono text-sm">{opt}</span>
                   <input
@@ -359,8 +359,8 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
                   key={option}
                   className={`flex-1 cursor-pointer rounded-lg border p-4 text-center transition-colors ${
                     isSelected
-                      ? 'border-[#10b981] bg-[#10b981]/10 text-[#10b981]'
-                      : 'border-neutral-200 bg-[#c0c4c9] text-neutral-500 hover:border-[#3b494b]'
+                      ? 'border-[#10b981] bg-gray-100]/10 text-[#10b981]'
+                      : 'border-neutral-200 bg-gray-100] text-neutral-500 hover:border-[#3b494b]'
                   }`}
                 >
                   <input
@@ -383,7 +383,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
             value={answers[currentQ.id] || ''}
             onChange={(e) => handleAnswer(currentQ.id, e.target.value)}
             placeholder="Type your answer here..."
-            className="h-40 w-full resize-y rounded-lg border border-neutral-200 bg-[#c0c4c9] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#10b981] placeholder:text-[#5d5f63]"
+            className="h-40 w-full resize-y rounded-lg border border-neutral-200 bg-gray-100] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#10b981] placeholder:text-[#5d5f63]"
           />
         )}
       </div>
@@ -401,7 +401,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors disabled:opacity-50"
+            className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
             Submit Quiz
           </button>
@@ -417,7 +417,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-[#c0c4c9] p-8 text-center shadow-2xl">
+          <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-gray-100] p-8 text-center shadow-2xl">
             <h2 className="mb-4 font-heading text-2xl font-bold text-neutral-900">Unanswered Questions</h2>
             <p className="mb-8 font-mono text-sm text-neutral-500">
               You have {questions.filter(q => !answers[q.id]).length} questions left unanswered. Are you sure you want to submit?
@@ -431,7 +431,7 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
               </button>
               <button
                 onClick={confirmSubmit}
-                className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors"
+                className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors"
               >
                 Yes, Submit
               </button>

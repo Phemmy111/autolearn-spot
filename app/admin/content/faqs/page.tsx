@@ -115,16 +115,16 @@ export default function AdminFAQsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -147,7 +147,7 @@ export default function AdminFAQsPage() {
                 });
                 setShowModal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add FAQ
@@ -175,7 +175,7 @@ export default function AdminFAQsPage() {
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <div key={item.id} className="border border-neutral-200 bg-white/50 backdrop-blur-xl rounded-xl p-6">
+            <div key={item.id} className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <HelpCircle className="h-5 w-5 text-[#10b981]" />
@@ -191,7 +191,7 @@ export default function AdminFAQsPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="p-2 hover:bg-[#10b981]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
+                    className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
@@ -219,14 +219,14 @@ export default function AdminFAQsPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
               <h2 className="text-xl font-bold text-neutral-900">
                 {editingItem ? 'Edit FAQ' : 'Add FAQ'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-white rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -239,7 +239,7 @@ export default function AdminFAQsPage() {
                   type="text"
                   value={formData.question}
                   onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                   required
                 />
               </div>
@@ -249,7 +249,7 @@ export default function AdminFAQsPage() {
                   value={formData.answer}
                   onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
                   rows={4}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
                   required
                 />
               </div>
@@ -259,7 +259,7 @@ export default function AdminFAQsPage() {
                   type="number"
                   value={formData.displayOrder}
                   onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="flex items-center gap-4">
@@ -268,7 +268,7 @@ export default function AdminFAQsPage() {
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-white text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-neutral-200 bg-gray-100 text-[#10b981] focus:ring-[#00f0ff]"
                   />
                   <span className="text-sm text-neutral-600">Enabled</span>
                 </label>
@@ -277,7 +277,7 @@ export default function AdminFAQsPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#10b981] text-[#00363a] rounded-lg font-medium hover:bg-[#10b981]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSaving ? (
                     <>
@@ -293,7 +293,7 @@ export default function AdminFAQsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 bg-white text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-white transition-colors"
+                  className="flex-1 px-4 py-3 bg-gray-100 text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
                 >
                   Cancel
                 </button>

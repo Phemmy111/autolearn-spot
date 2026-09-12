@@ -99,7 +99,7 @@ export function DashboardWidgets() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       {/* Resume Learning Widget */}
-      <div className="border border-neutral-200 bg-[#c0c4c9] p-5 flex flex-col">
+      <div className="border border-neutral-200 bg-gray-100] p-5 flex flex-col">
         <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Quick Action</h3>
         {nextVideo ? (
           <>
@@ -107,7 +107,7 @@ export function DashboardWidgets() {
             <p className="text-sm text-[#5d5f63] mb-4 line-clamp-2">{nextVideo.description}</p>
             <Link 
               href={`/dashboard/video/${nextVideo.id}`}
-              className="mt-auto flex items-center justify-center gap-2 border border-[#10b981] bg-[#10b981]/10 py-3 font-mono text-xs font-bold uppercase text-[#10b981] hover:bg-[#10b981] hover:text-black transition-colors"
+              className="mt-auto flex items-center justify-center gap-2 border border-[#10b981] bg-gray-100]/10 py-3 font-mono text-xs font-bold uppercase text-[#10b981] hover:bg-gray-100] hover:text-black transition-colors"
             >
               <PlayCircle className="h-4 w-4" />
               Resume Learning
@@ -123,9 +123,9 @@ export function DashboardWidgets() {
       </div>
 
       {/* Certificate Widget */}
-      <div className="border border-neutral-200 bg-[#c0c4c9] p-5 flex flex-col">
+      <div className="border border-neutral-200 bg-gray-100] p-5 flex flex-col">
         <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Achievement</h3>
-        <div className="flex-1 flex flex-col items-center justify-center text-center border border-dashed border-neutral-200 p-4 bg-[#c0c4c9]">
+        <div className="flex-1 flex flex-col items-center justify-center text-center border border-dashed border-neutral-200 p-4 bg-gray-100]">
           {certLoading ? (
             <Loader2 className="h-8 w-8 animate-spin text-[#3b494b]" />
           ) : canDownloadCert ? (
@@ -144,7 +144,7 @@ export function DashboardWidgets() {
                 <button
                   onClick={() => generateCertificate('png')}
                   disabled={generating}
-                  className="flex-1 flex items-center justify-center gap-2 border border-[#10b981] text-[#10b981] py-3 px-4 rounded font-mono text-[10px] font-bold uppercase tracking-wider hover:bg-[#10b981] hover:text-black transition-colors disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center gap-2 border border-[#10b981] text-[#10b981] py-3 px-4 rounded font-mono text-[10px] font-bold uppercase tracking-wider hover:bg-gray-100] hover:text-black transition-colors disabled:opacity-50"
                 >
                   {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
                   PNG
@@ -181,12 +181,12 @@ export function DashboardWidgets() {
       </div>
 
       {/* Global Resources Placeholder */}
-      <div className="border border-neutral-200 bg-[#c0c4c9] p-5 flex flex-col">
+      <div className="border border-neutral-200 bg-gray-100] p-5 flex flex-col">
         <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Global Resources</h3>
         <div className="flex-1 flex flex-col gap-3">
-          <div className="flex items-center justify-between p-3 border border-neutral-200 bg-[#c0c4c9]">
+          <div className="flex items-center justify-between p-3 border border-neutral-200 bg-gray-100]">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 bg-[#c0c4c9] flex items-center justify-center">
+              <div className="h-8 w-8 bg-gray-100] flex items-center justify-center">
                 <FileText className="h-4 w-4 text-[#5d5f63]" />
               </div>
               <div>
@@ -197,9 +197,9 @@ export function DashboardWidgets() {
             <Lock className="h-4 w-4 text-[#3b494b]" />
           </div>
           
-          <a href="#" className="flex items-center justify-between p-3 border border-neutral-200 bg-[#c0c4c9] hover:border-[#3b494b] transition-colors group cursor-not-allowed pointer-events-none">
+          <a href="#" className="flex items-center justify-between p-3 border border-neutral-200 bg-gray-100] hover:border-[#3b494b] transition-colors group cursor-not-allowed pointer-events-none">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 bg-[#c0c4c9] flex items-center justify-center group-hover:bg-[#3b494b] transition-colors">
+              <div className="h-8 w-8 bg-gray-100] flex items-center justify-center group-hover:bg-gray-100] transition-colors">
                 <ExternalLink className="h-4 w-4 text-[#5d5f63]" />
               </div>
               <div>

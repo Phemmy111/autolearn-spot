@@ -49,7 +49,7 @@ export function ResetDataButton() {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl border border-red-200 bg-white shadow-2xl relative overflow-hidden">
+          <div className="w-full max-w-md rounded-xl border border-red-200 bg-gray-100 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
             
             <button 

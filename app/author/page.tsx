@@ -22,7 +22,7 @@ export default function AuthorDashboardPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="p-6 bg-white border border-neutral-200 rounded-lg">
+        <div className="p-6 bg-gray-100 border border-neutral-200 rounded-lg">
           <div className="flex items-center gap-3 mb-2">
             <Package className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-neutral-600">Products</span>
@@ -30,7 +30,7 @@ export default function AuthorDashboardPage() {
           <p className="text-3xl font-bold text-neutral-900">0</p>
         </div>
 
-        <div className="p-6 bg-white border border-neutral-200 rounded-lg">
+        <div className="p-6 bg-gray-100 border border-neutral-200 rounded-lg">
           <div className="flex items-center gap-3 mb-2">
             <Users className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-neutral-600">Students</span>
@@ -38,7 +38,7 @@ export default function AuthorDashboardPage() {
           <p className="text-3xl font-bold text-neutral-900">0</p>
         </div>
 
-        <div className="p-6 bg-white border border-neutral-200 rounded-lg">
+        <div className="p-6 bg-gray-100 border border-neutral-200 rounded-lg">
           <div className="flex items-center gap-3 mb-2">
             <DollarSign className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-neutral-600">Earnings</span>
@@ -46,7 +46,7 @@ export default function AuthorDashboardPage() {
           <p className="text-3xl font-bold text-neutral-900">₦0</p>
         </div>
 
-        <div className="p-6 bg-white border border-neutral-200 rounded-lg">
+        <div className="p-6 bg-gray-100 border border-neutral-200 rounded-lg">
           <div className="flex items-center gap-3 mb-2">
             <BarChart3 className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-neutral-600">Rating</span>
@@ -63,7 +63,7 @@ export default function AuthorDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             href="/author/products/new"
-            className="p-6 bg-white border border-neutral-200 rounded-lg hover:shadow-md transition-shadow"
+            className="p-6 bg-gray-100 border border-neutral-200 rounded-lg hover:shadow-md transition-shadow"
           >
             <div className="flex items-center gap-3 mb-2">
               <Plus className="w-6 h-6 text-sky-600" />
@@ -80,7 +80,7 @@ export default function AuthorDashboardPage() {
 
           <Link
             href="/author/products"
-            className="p-6 bg-white border border-neutral-200 rounded-lg hover:shadow-md transition-shadow"
+            className="p-6 bg-gray-100 border border-neutral-200 rounded-lg hover:shadow-md transition-shadow"
           >
             <div className="flex items-center gap-3 mb-2">
               <Package className="w-6 h-6 text-sky-600" />
@@ -98,7 +98,7 @@ export default function AuthorDashboardPage() {
       </div>
 
       {/* Empty State for Recent Activity */}
-      <div className="p-8 bg-white border border-neutral-200 rounded-lg">
+      <div className="p-8 bg-gray-100 border border-neutral-200 rounded-lg">
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">
           Recent Activity
         </h2>

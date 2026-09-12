@@ -162,11 +162,11 @@ export default function AssignmentsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'submitted':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#c0c4c9] text-neutral-500 border border-[#3b494b]">Submitted</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-gray-100] text-neutral-500 border border-[#3b494b]">Submitted</span>;
       case 'approved':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#0f4c3c] text-[#10b981] border border-[#10b981]">Approved</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-gray-100] text-[#10b981] border border-[#10b981]">Approved</span>;
       case 'needs_revision':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#4c1a1a] text-[#ff6b6b] border border-[#ff6b6b]">Needs Revision</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-gray-100] text-[#ff6b6b] border border-[#ff6b6b]">Needs Revision</span>;
       default:
         return null;
     }
@@ -178,7 +178,7 @@ export default function AssignmentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] text-[#e2e8e2] flex items-center justify-center">
         <div className="font-mono text-sm text-neutral-500">Loading assignments...</div>
       </div>
     );
@@ -186,16 +186,16 @@ export default function AssignmentsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] text-[#e2e8e2] flex items-center justify-center">
         <div className="font-mono text-sm text-[#ff6b6b]">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#c0c4c9] text-[#e2e8e2]">
+    <main className="min-h-screen bg-gray-100] text-[#e2e8e2]">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-[#c0c4c9]/95 px-4 backdrop-blur sm:px-6">
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-gray-100]/95 px-4 backdrop-blur sm:px-6">
         <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-neutral-900" href="/dashboard">
           <span className="text-[#10b981]">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
@@ -209,7 +209,7 @@ export default function AssignmentsPage() {
         <h1 className="mb-8 font-heading text-3xl font-bold uppercase text-neutral-900">Assignments</h1>
 
         {assignments.length === 0 ? (
-          <div className="border border-[#3b494b] bg-[#c0c4c9] p-8 text-center">
+          <div className="border border-[#3b494b] bg-gray-100] p-8 text-center">
             <p className="font-mono text-sm text-neutral-500">No assignments available yet.</p>
           </div>
         ) : (
@@ -221,7 +221,7 @@ export default function AssignmentsPage() {
               return (
                 <div
                   key={assignment.id}
-                  className="border border-[#3b494b] bg-[#c0c4c9] p-6"
+                  className="border border-[#3b494b] bg-gray-100] p-6"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
@@ -261,7 +261,7 @@ export default function AssignmentsPage() {
                           {/* View Submission button */}
                           <button
                             onClick={() => openViewModal(assignment, submission)}
-                            className="flex items-center justify-center gap-2 border border-[#10b981] bg-[#10b981]/10 px-4 py-2 font-mono text-xs uppercase text-[#10b981] transition hover:bg-[#10b981]/20 hover:border-[#10b981]"
+                            className="flex items-center justify-center gap-2 border border-[#10b981] bg-gray-100]/10 px-4 py-2 font-mono text-xs uppercase text-[#10b981] transition hover:bg-gray-100]/20 hover:border-[#10b981]"
                           >
                             <Eye className="h-4 w-4" />
                             View Submission
@@ -275,7 +275,7 @@ export default function AssignmentsPage() {
                                 setSelectedFile(null);
                                 setFilePreview(null);
                               }}
-                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-[#c0c4c9] px-4 py-2 font-mono text-xs uppercase text-neutral-500 transition hover:border-[#10b981] hover:text-[#10b981]"
+                              className="flex items-center justify-center gap-2 border border-[#3b494b] bg-gray-100] px-4 py-2 font-mono text-xs uppercase text-neutral-500 transition hover:border-[#10b981] hover:text-[#10b981]"
                             >
                               <Edit className="h-4 w-4" />
                               Edit Submission
@@ -290,7 +290,7 @@ export default function AssignmentsPage() {
                       ) : (
                         <button
                           onClick={() => setSelectedAssignment(assignment)}
-                          className="flex items-center justify-center gap-2 border border-[#10b981] bg-[#10b981] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
+                          className="flex items-center justify-center gap-2 border border-[#10b981] bg-gray-100] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-gray-100"
                         >
                           Submit Assignment
                         </button>
@@ -307,7 +307,7 @@ export default function AssignmentsPage() {
       {/* View Submission Modal */}
       {viewingSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-[#c0c4c9] p-6 shadow-2xl">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-gray-100] p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading text-xl font-bold text-neutral-900">
                 Submission Details
@@ -414,7 +414,7 @@ export default function AssignmentsPage() {
             {!viewingSubmission.submission.screenshot_url &&
              !viewingSubmission.submission.live_url &&
              !viewingSubmission.submission.notes && (
-              <div className="mb-4 border border-[#3b494b] bg-[#c0c4c9] p-4 text-center">
+              <div className="mb-4 border border-[#3b494b] bg-gray-100] p-4 text-center">
                 <p className="font-mono text-sm text-neutral-500">No submission data available.</p>
               </div>
             )}
@@ -435,7 +435,7 @@ export default function AssignmentsPage() {
       {/* Submission Modal */}
       {selectedAssignment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-[#c0c4c9] p-6 shadow-2xl">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-gray-100] p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading text-xl font-bold text-neutral-900">
                 Submit Assignment
@@ -467,7 +467,7 @@ export default function AssignmentsPage() {
                   value={submissionUrl}
                   onChange={(e) => setSubmissionUrl(e.target.value)}
                   placeholder="https://github.com/..."
-                  className="w-full border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#10b981] focus:outline-none"
                 />
                 <p className="mt-2 font-mono text-xs text-neutral-500">
                   GitHub, n8n JSON, Google Drive, Loom, YouTube, or any valid URL
@@ -478,7 +478,7 @@ export default function AssignmentsPage() {
                 <label className="mb-2 block font-mono text-xs uppercase text-neutral-500">
                   Screenshot
                 </label>
-                <div className="border-2 border-dashed border-[#3b494b] bg-[#c0c4c9] p-4 text-center">
+                <div className="border-2 border-dashed border-[#3b494b] bg-gray-100] p-4 text-center">
                   {filePreview ? (
                     <div className="relative">
                       <img
@@ -489,7 +489,7 @@ export default function AssignmentsPage() {
                       <button
                         type="button"
                         onClick={handleRemoveFile}
-                        className="absolute top-2 right-2 bg-[#ff6b6b] text-neutral-900 rounded-full p-1 hover:bg-[#ff4444]"
+                        className="absolute top-2 right-2 bg-gray-100] text-neutral-900 rounded-full p-1 hover:bg-gray-100]"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -529,7 +529,7 @@ export default function AssignmentsPage() {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Any additional notes..."
                   rows={3}
-                  className="w-full border border-[#3b494b] bg-[#c0c4c9] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#10b981] focus:outline-none resize-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-[#e2e8e2] focus:border-[#10b981] focus:outline-none resize-none"
                 />
               </div>
 
@@ -550,7 +550,7 @@ export default function AssignmentsPage() {
                 <button
                   type="submit"
                   disabled={submitting || uploading}
-                  className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {uploading ? 'Uploading...' : submitting ? 'Submitting...' : 'Submit'}
                 </button>
@@ -562,7 +562,7 @@ export default function AssignmentsPage() {
 
       {/* Toast */}
       {showToast && (
-        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 border border-[#10b981] bg-[#c0c4c9] px-6 py-4 shadow-2xl">
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 border border-[#10b981] bg-gray-100] px-6 py-4 shadow-2xl">
           <CheckCircle className="h-5 w-5 text-[#10b981]" />
           <span className="font-mono text-sm text-[#e2e8e2]">{toastMessage}</span>
         </div>

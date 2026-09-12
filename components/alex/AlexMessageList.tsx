@@ -462,7 +462,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {message.attached_files.map((file) => (
                       <div
                         key={file.id}
-                        className="flex items-center gap-2 bg-white/20 rounded-lg px-3 py-2"
+                        className="flex items-center gap-2 bg-gray-100/20 rounded-lg px-3 py-2"
                       >
                         {getFileIcon(file.original_filename)}
                         <span className="text-sm text-slate-900 truncate max-w-[150px]">
@@ -542,7 +542,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     <textarea
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="w-full bg-white/20 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
+                      className="w-full bg-gray-100/20 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
                       rows={3}
                       autoFocus
                     />

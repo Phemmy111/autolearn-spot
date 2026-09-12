@@ -7,9 +7,9 @@ export function AnimatedScholarshipSection() {
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
 
   return (
-    <section ref={sectionRef} className="py-4 sm:py-6 lg:py-8 bg-[#050505]">
+    <section ref={sectionRef} className="py-4 sm:py-6 lg:py-8 bg-gray-100]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className={`border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
+        <div className={`border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 lg:gap-8">
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#e2e2e8] mb-2">

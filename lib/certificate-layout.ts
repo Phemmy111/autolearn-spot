@@ -241,7 +241,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       locked: false,
       binding: 'title',
       style: {
-        color: '#ffffff',
+        color: '#f5f5f5',
         fontSize: 24,
         fontWeight: 700,
         fontFamily: 'Roboto',
@@ -291,7 +291,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       locked: false,
       binding: 'studentName',
       style: {
-        color: '#ffffff',
+        color: '#f5f5f5',
         fontSize: 68,
         fontWeight: 400,
         fontFamily: 'GreatVibes',
@@ -315,7 +315,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       locked: false,
       binding: 'bodyText',
       style: {
-        color: '#ffffff',
+        color: '#f5f5f5',
         fontSize: 16,
         fontWeight: 400,
         fontFamily: 'Roboto',
@@ -365,7 +365,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       locked: false,
       binding: 'date',
       style: {
-        color: '#ffffff',
+        color: '#f5f5f5',
         fontSize: 12,
         fontWeight: 500,
         fontFamily: 'Roboto',
@@ -430,7 +430,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       locked: false,
       binding: 'founderName',
       style: {
-        color: '#ffffff',
+        color: '#f5f5f5',
         fontSize: 12,
         fontWeight: 600,
         fontFamily: 'Roboto',
@@ -454,7 +454,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
       locked: false,
       binding: 'qrData',
       style: {
-        background: '#ffffff',
+        background: '#f5f5f5',
         borderRadius: 2,
         opacity: 0.84,
       },

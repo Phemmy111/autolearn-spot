@@ -10,7 +10,7 @@ export default function SkillsPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white border-b border-neutral-200">
+      <div className="bg-gray-100 border-b border-neutral-200">
         <div className="container mx-auto px-6 lg:px-12 py-8">
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">
             Skills

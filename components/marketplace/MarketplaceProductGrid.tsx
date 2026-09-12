@@ -9,9 +9,9 @@ interface MarketplaceProductGridProps {
 export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps) {
   if (!products || products.length === 0) {
     return (
-      <section id="products" className="py-24 bg-[#d1d5db]">
+      <section id="products" className="py-24 bg-gray-100]">
         <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white border border-neutral-300/50 mb-6 shadow-sm">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-100 border border-neutral-300/50 mb-6 shadow-sm">
             <BookOpen className="w-8 h-8 text-neutral-400" />
           </div>
           <h2 className="text-3xl font-heading font-bold text-neutral-900 mb-4 tracking-tight">Curating Excellence</h2>
@@ -26,7 +26,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
   }
 
   return (
-    <section id="products" className="py-20 md:py-32 bg-[#d1d5db] border-t border-neutral-300/50">
+    <section id="products" className="py-20 md:py-32 bg-gray-100] border-t border-neutral-300/50">
       <div className="container mx-auto px-4">
         
         {/* Header & Search/Filter Bar */}
@@ -41,7 +41,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
           </div>
           
           <div className="flex-shrink-0 w-full lg:w-auto">
-            <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-neutral-300/50 shadow-sm">
+            <div className="flex items-center gap-3 bg-gray-100 p-2 rounded-2xl border border-neutral-300/50 shadow-sm">
               <div className="relative flex-1 lg:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                 <input 
@@ -66,7 +66,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
               className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                 i === 0 
                   ? 'bg-neutral-900 text-neutral-900 shadow-md' 
-                  : 'bg-white border border-neutral-300/50 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900'
+                  : 'bg-gray-100 border border-neutral-300/50 text-neutral-600 hover:border-neutral-400 hover:text-neutral-900'
               }`}
             >
               {tab}

@@ -78,7 +78,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
@@ -110,7 +110,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                 onChange={handleChange}
                 rows={3}
                 required
-                className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
                 placeholder="Enter your question here..."
               />
             </div>
@@ -125,7 +125,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.question_type}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 >
                   <option value="multiple_choice">Multiple Choice</option>
                   <option value="true_false">True/False</option>
@@ -144,7 +144,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   onChange={handleChange}
                   min="1"
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 />
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                         value={option}
                         onChange={(e) => handleOptionChange(index, e.target.value)}
                         required
-                        className="flex-1 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                        className="flex-1 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                         placeholder={`Option ${String.fromCharCode(65 + index)}`}
                       />
                       {formData.options.length > 2 && (
@@ -200,7 +200,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 >
                   <option value="">Select correct answer</option>
                   <option value="True">True</option>
@@ -220,7 +220,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                   placeholder="Enter the correct answer"
                 />
               </div>
@@ -236,7 +236,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 >
                   <option value="">Select correct answer</option>
                   {formData.options.map((option, index) => (
@@ -257,7 +257,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
                 value={formData.explanation}
                 onChange={handleChange}
                 rows={2}
-                className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
                 placeholder="Explain why this is the correct answer..."
               />
             </div>
@@ -266,7 +266,7 @@ export default function NewQuestionPage({ params }: { params: Promise<{ id: stri
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {loading ? 'Creating...' : 'Add Question'}

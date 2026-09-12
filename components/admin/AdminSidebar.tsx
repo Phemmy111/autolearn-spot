@@ -233,7 +233,7 @@ export function AdminSidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setMobileMenuOpen(true)}
-        className="lg:hidden fixed top-3 left-4 z-50 p-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:text-gray-900 shadow-sm"
+        className="lg:hidden fixed top-3 left-4 z-50 p-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 hover:text-gray-900 shadow-sm"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -248,7 +248,7 @@ export function AdminSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 z-50 flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-gray-100 border-r border-gray-200 z-50 flex flex-col transition-transform duration-300 ease-in-out ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >

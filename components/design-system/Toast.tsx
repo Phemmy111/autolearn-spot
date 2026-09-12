@@ -38,7 +38,7 @@ export function Toast({
 
   return (
     <div className={cn(
-      'bg-white border border-neutral-200 rounded-lg shadow-lg p-4 mb-2',
+      'bg-gray-100 border border-neutral-200 rounded-lg shadow-lg p-4 mb-2',
       variants[variant]
     )}>
       <div className="flex-1">

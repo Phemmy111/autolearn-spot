@@ -7,7 +7,7 @@ export function AnimatedSocialProofSection() {
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
 
   return (
-    <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-[#050505]">
+    <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-gray-100]">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className={`max-w-md mx-auto reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
           <LiveActivityFeed />

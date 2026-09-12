@@ -30,7 +30,7 @@ export function StudentTestimonialCard({
   };
 
   return (
-    <div className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+    <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]">
       <div className="flex items-start gap-4 mb-4">
         <div className="relative">
           {image ? (
@@ -51,7 +51,7 @@ export function StudentTestimonialCard({
             </div>
           )}
           {verified && (
-            <div className="absolute -bottom-1 -right-1 bg-[#10b981] rounded-full p-1">
+            <div className="absolute -bottom-1 -right-1 bg-gray-100] rounded-full p-1">
               <CheckCircle className="h-3 w-3 text-[#00363a]" />
             </div>
           )}

@@ -199,7 +199,7 @@ export default function AdminAssignmentsPage() {
           <h1 className="font-heading text-3xl font-bold uppercase text-neutral-900">Manage Assignments</h1>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 border border-[#10b981] bg-[#10b981] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
+            className="flex items-center gap-2 border border-[#10b981] bg-gray-100] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-gray-100"
           >
             <Plus className="h-4 w-4" />
             Create Assignment
@@ -207,7 +207,7 @@ export default function AdminAssignmentsPage() {
         </div>
 
         {assignments.length === 0 ? (
-          <div className="border border-[#3b494b] bg-[#d1d5db] p-8 text-center">
+          <div className="border border-[#3b494b] bg-gray-100] p-8 text-center">
             <p className="font-mono text-sm text-neutral-600">No assignments created yet.</p>
           </div>
         ) : (
@@ -215,7 +215,7 @@ export default function AdminAssignmentsPage() {
             {assignments.map((assignment) => (
               <div
                 key={assignment.id}
-                className="border border-[#3b494b] bg-[#d1d5db] p-6"
+                className="border border-[#3b494b] bg-gray-100] p-6"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
@@ -253,14 +253,14 @@ export default function AdminAssignmentsPage() {
                   <div className="flex gap-2">
                     <Link
                       href={`/admin/assignments/${assignment.id}/submissions`}
-                      className="flex items-center gap-2 border border-[#3b494b] bg-white px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
+                      className="flex items-center gap-2 border border-[#3b494b] bg-gray-100 px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
                     >
                       <Users className="h-4 w-4" />
                       Review
                     </Link>
                     <button
                       onClick={() => openEditModal(assignment)}
-                      className="flex items-center gap-2 border border-[#3b494b] bg-white px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
+                      className="flex items-center gap-2 border border-[#3b494b] bg-gray-100 px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
                     >
                       <Edit className="h-4 w-4" />
                       Edit
@@ -268,7 +268,7 @@ export default function AdminAssignmentsPage() {
                     <button
                       onClick={() => handleDelete(assignment.id)}
                       disabled={deletingId === assignment.id}
-                      className="flex items-center gap-2 border border-[#ff6b6b] bg-white px-4 py-2 font-mono text-xs uppercase text-[#ff6b6b] transition hover:bg-[#ff6b6b] hover:text-black disabled:opacity-50"
+                      className="flex items-center gap-2 border border-[#ff6b6b] bg-gray-100 px-4 py-2 font-mono text-xs uppercase text-[#ff6b6b] transition hover:bg-gray-100] hover:text-black disabled:opacity-50"
                     >
                       <Trash2 className="h-4 w-4" />
                       {deletingId === assignment.id ? 'Deleting...' : 'Delete'}
@@ -302,7 +302,7 @@ export default function AdminAssignmentsPage() {
             }
           }}
         >
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-gray-100 p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-heading text-xl font-bold text-neutral-900">
                 {editingAssignment ? 'Edit Assignment' : 'Create Assignment'}
@@ -339,7 +339,7 @@ export default function AdminAssignmentsPage() {
                   onChange={(e) => setFormData({ ...formData, week_number: parseInt(e.target.value) })}
                   min="1"
                   required
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
@@ -352,7 +352,7 @@ export default function AdminAssignmentsPage() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
@@ -364,7 +364,7 @@ export default function AdminAssignmentsPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={2}
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
                 />
               </div>
 
@@ -376,7 +376,7 @@ export default function AdminAssignmentsPage() {
                   value={formData.instructions}
                   onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                   rows={4}
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
                 />
               </div>
 
@@ -388,7 +388,7 @@ export default function AdminAssignmentsPage() {
                   type="datetime-local"
                   value={formData.due_date}
                   onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
@@ -401,7 +401,7 @@ export default function AdminAssignmentsPage() {
                   value={formData.max_score}
                   onChange={(e) => setFormData({ ...formData, max_score: parseInt(e.target.value) })}
                   min="0"
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
@@ -442,7 +442,7 @@ export default function AdminAssignmentsPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : editingAssignment ? 'Update' : 'Create'}
                 </button>

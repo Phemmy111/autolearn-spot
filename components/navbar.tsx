@@ -51,7 +51,7 @@ export function Navbar() {
           </div>
           <Link
             href="/contact"
-            className="px-[18px] py-[10px] rounded-full border border-[#5100fd] bg-[#5100fd]/50 text-neutral-900 font-medium hover:scale-105 transition-transform duration-500"
+            className="px-[18px] py-[10px] rounded-full border border-[#5100fd] bg-gray-100]/50 text-neutral-900 font-medium hover:scale-105 transition-transform duration-500"
           >
             Enroll Now
           </Link>

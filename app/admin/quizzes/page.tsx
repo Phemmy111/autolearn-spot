@@ -21,14 +21,14 @@ export default async function AdminQuizzesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <p className="text-red-400 font-mono">Error loading quizzes: {error.message}</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-12">
           <div className="flex items-center gap-4">
@@ -43,14 +43,14 @@ export default async function AdminQuizzesPage() {
           <div className="flex gap-3">
             <Link
               href="/admin/quizzes/generate"
-              className="flex items-center gap-2 bg-[#10b981]/10 text-[#10b981] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#10b981]/20 transition-colors text-sm border border-[#10b981]/30"
+              className="flex items-center gap-2 bg-gray-100]/10 text-[#10b981] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100]/20 transition-colors text-sm border border-[#10b981]/30"
             >
               <Sparkles className="h-4 w-4" />
               AI Generate
             </Link>
             <Link
               href="/admin/quizzes/new"
-              className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
+              className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
             >
               <Plus className="h-4 w-4" />
               New Quiz
@@ -59,7 +59,7 @@ export default async function AdminQuizzesPage() {
         </div>
 
         {quizzes && quizzes.length === 0 ? (
-          <div className="text-center py-12 border border-neutral-200 bg-white rounded-xl">
+          <div className="text-center py-12 border border-neutral-200 bg-gray-100 rounded-xl">
             <p className="font-mono text-sm text-neutral-600">No quizzes yet. Create your first quiz!</p>
           </div>
         ) : (
@@ -67,15 +67,15 @@ export default async function AdminQuizzesPage() {
             {quizzes?.map((quiz: { id: string; title: string; week_number: number; is_active: boolean; passing_score: number }) => (
               <div
                 key={quiz.id}
-                className="border border-neutral-200 bg-white p-6 rounded-xl hover:border-[#10b981]/30 transition-all"
+                className="border border-neutral-200 bg-gray-100 p-6 rounded-xl hover:border-[#10b981]/30 transition-all"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-gray-100]/10 text-[#10b981] font-mono text-xs rounded">
                         {quiz.phase}
                       </span>
-                      <span className="px-2 py-1 bg-[#d1d5db] text-neutral-600 font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-gray-100] text-neutral-600 font-mono text-xs rounded">
                         Week {quiz.week_number}
                       </span>
                       {!quiz.is_active && (

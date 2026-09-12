@@ -30,7 +30,7 @@ export function QuizList() {
 
   if (quizzes.length === 0) {
     return (
-      <div className="text-center py-12 border border-neutral-200 bg-[#c0c4c9] rounded-xl">
+      <div className="text-center py-12 border border-neutral-200 bg-gray-100] rounded-xl">
         <BookOpen className="h-12 w-12 text-neutral-500 mx-auto mb-4" />
         <p className="font-mono text-sm text-neutral-500">No quizzes available yet. Check back soon!</p>
       </div>
@@ -42,15 +42,15 @@ export function QuizList() {
       {quizzes.map((quiz) => (
         <div
           key={quiz.id}
-          className="group border border-neutral-200 bg-[#c0c4c9] p-6 rounded-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50"
+          className="group border border-neutral-200 bg-gray-100] p-6 rounded-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50"
         >
           <div className="flex items-start justify-between mb-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] font-mono text-xs rounded">
+                <span className="px-2 py-1 bg-gray-100]/10 text-[#10b981] font-mono text-xs rounded">
                   {quiz.phase}
                 </span>
-                <span className="px-2 py-1 bg-[#1f2229] text-neutral-500 font-mono text-xs rounded">
+                <span className="px-2 py-1 bg-gray-100] text-neutral-500 font-mono text-xs rounded">
                   Week {quiz.week_number}
                 </span>
               </div>
@@ -78,7 +78,7 @@ export function QuizList() {
             {userId ? (
               <a
                 href={`/quiz/${quiz.id}`}
-                className="flex items-center gap-2 bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-white transition-colors text-sm"
+                className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
               >
                 <Play className="h-4 w-4" />
                 Start Quiz
@@ -86,7 +86,7 @@ export function QuizList() {
             ) : (
               <a
                 href="/sign-in"
-                className="flex items-center gap-2 bg-[#1f2229] text-neutral-500 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#3b494b] transition-colors text-sm"
+                className="flex items-center gap-2 bg-gray-100] text-neutral-500 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100] transition-colors text-sm"
               >
                 <Lock className="h-4 w-4" />
                 Sign in to Start

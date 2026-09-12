@@ -13,7 +13,7 @@ export default function AuthorAuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-gray-100 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
@@ -45,7 +45,7 @@ export default function AuthorAuthPage() {
 
         {/* Benefits */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-gray-100 rounded-xl p-6 border border-gray-200 shadow-sm">
             <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
               <DollarSign className="w-6 h-6 text-indigo-600" />
             </div>
@@ -55,7 +55,7 @@ export default function AuthorAuthPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-gray-100 rounded-xl p-6 border border-gray-200 shadow-sm">
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
               <Users className="w-6 h-6 text-purple-600" />
             </div>
@@ -65,7 +65,7 @@ export default function AuthorAuthPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <div className="bg-gray-100 rounded-xl p-6 border border-gray-200 shadow-sm">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
               <TrendingUp className="w-6 h-6 text-green-600" />
             </div>
@@ -81,7 +81,7 @@ export default function AuthorAuthPage() {
           {/* Create Account Card */}
           <Link
             href="/author-apply"
-            className="group bg-white rounded-xl p-8 border-2 border-indigo-200 hover:border-indigo-400 shadow-lg hover:shadow-xl transition-all duration-300"
+            className="group bg-gray-100 rounded-xl p-8 border-2 border-indigo-200 hover:border-indigo-400 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 bg-indigo-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-700 transition-colors">
@@ -105,7 +105,7 @@ export default function AuthorAuthPage() {
           {/* Login Card */}
           <Link
             href="/author-sign-in"
-            className="group bg-white rounded-xl p-8 border-2 border-gray-200 hover:border-indigo-400 shadow-lg hover:shadow-xl transition-all duration-300"
+            className="group bg-gray-100 rounded-xl p-8 border-2 border-gray-200 hover:border-indigo-400 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition-colors">

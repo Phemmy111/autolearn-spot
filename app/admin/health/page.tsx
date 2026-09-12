@@ -110,7 +110,7 @@ export default function AdminHealthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
           <p className="font-mono text-sm text-neutral-600">Loading health data...</p>
@@ -121,14 +121,14 @@ export default function AdminHealthPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <div className="text-center border border-red-500/50 bg-red-500/10 p-8 rounded-xl max-w-md">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Error</h2>
           <p className="font-mono text-sm text-neutral-600 mb-4">{error}</p>
           <button
             onClick={fetchHealth}
-            className="flex items-center gap-2 mx-auto bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors"
+            className="flex items-center gap-2 mx-auto bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             Retry
@@ -141,7 +141,7 @@ export default function AdminHealthPage() {
   if (!health) return null
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -156,7 +156,7 @@ export default function AdminHealthPage() {
           <button
             onClick={fetchHealth}
             disabled={refreshing}
-            className="flex items-center gap-2 bg-[#10b981]/10 text-[#10b981] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[#10b981]/20 transition-colors border border-[#10b981]/30 disabled:opacity-50"
+            className="flex items-center gap-2 bg-gray-100]/10 text-[#10b981] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100]/20 transition-colors border border-[#10b981]/30 disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -186,7 +186,7 @@ export default function AdminHealthPage() {
         <div className="mb-8">
           <h2 className="font-heading text-xl font-bold text-neutral-900 mb-4">System Status</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <Database className="h-5 w-5 text-[#10b981]" />
                 {getStatusIcon(health.checks.database.status)}
@@ -195,7 +195,7 @@ export default function AdminHealthPage() {
               <p className="font-mono text-xs text-neutral-500 mt-1">{health.checks.database.message}</p>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <Shield className="h-5 w-5 text-[#10b981]" />
                 {getStatusIcon(health.checks.clerk.status)}
@@ -204,7 +204,7 @@ export default function AdminHealthPage() {
               <p className="font-mono text-xs text-neutral-500 mt-1">{health.checks.clerk.message}</p>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <Zap className="h-5 w-5 text-[#10b981]" />
                 {getStatusIcon(health.checks.openrouter.status)}
@@ -213,7 +213,7 @@ export default function AdminHealthPage() {
               <p className="font-mono text-xs text-neutral-500 mt-1">{health.checks.openrouter.message}</p>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <Server className="h-5 w-5 text-[#10b981]" />
                 {getStatusIcon(health.checks.supabase.status)}
@@ -228,7 +228,7 @@ export default function AdminHealthPage() {
         <div className="mb-8">
           <h2 className="font-heading text-xl font-bold text-neutral-900 mb-4">System Metrics</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
               <div className="flex items-center gap-3 mb-2">
                 <FileText className="h-5 w-5 text-[#10b981]" />
                 <span className="font-mono text-xs text-neutral-500 uppercase">Total Quizzes</span>
@@ -237,7 +237,7 @@ export default function AdminHealthPage() {
               <p className="font-mono text-xs text-neutral-500 mt-1">{health.metrics.activeQuizzes} active</p>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
               <div className="flex items-center gap-3 mb-2">
                 <Users className="h-5 w-5 text-[#10b981]" />
                 <span className="font-mono text-xs text-neutral-500 uppercase">Total Students</span>
@@ -246,7 +246,7 @@ export default function AdminHealthPage() {
               <p className="font-mono text-xs text-neutral-500 mt-1">Registered users</p>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
               <div className="flex items-center gap-3 mb-2">
                 <Activity className="h-5 w-5 text-[#10b981]" />
                 <span className="font-mono text-xs text-neutral-500 uppercase">Submissions Today</span>
@@ -255,7 +255,7 @@ export default function AdminHealthPage() {
               <p className="font-mono text-xs text-neutral-500 mt-1">{health.metrics.totalSubmissions} total</p>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
               <div className="flex items-center gap-3 mb-2">
                 <TrendingUp className="h-5 w-5 text-[#10b981]" />
                 <span className="font-mono text-xs text-neutral-500 uppercase">Avg Response Time</span>
@@ -270,25 +270,25 @@ export default function AdminHealthPage() {
         <div>
           <h2 className="font-heading text-xl font-bold text-neutral-900 mb-4">Performance Metrics</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
               <div className="flex items-center justify-between mb-4">
                 <span className="font-mono text-sm text-neutral-600">Average Score</span>
                 <span className="font-heading text-4xl font-bold text-[#10b981]">{health.metrics.averageScore}%</span>
               </div>
-              <div className="w-full bg-[#d1d5db] rounded-full h-2">
+              <div className="w-full bg-gray-100] rounded-full h-2">
                 <div 
-                  className="bg-[#10b981] h-2 rounded-full transition-all"
+                  className="bg-gray-100] h-2 rounded-full transition-all"
                   style={{ width: `${health.metrics.averageScore}%` }}
                 />
               </div>
             </div>
 
-            <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+            <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
               <div className="flex items-center justify-between mb-4">
                 <span className="font-mono text-sm text-neutral-600">Pass Rate</span>
                 <span className="font-heading text-4xl font-bold text-emerald-400">{health.metrics.passRate}%</span>
               </div>
-              <div className="w-full bg-[#d1d5db] rounded-full h-2">
+              <div className="w-full bg-gray-100] rounded-full h-2">
                 <div 
                   className="bg-emerald-400 h-2 rounded-full transition-all"
                   style={{ width: `${health.metrics.passRate}%` }}

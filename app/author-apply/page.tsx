@@ -204,7 +204,7 @@ export default function AuthorApplyPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-lg w-full text-center">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-10 relative overflow-hidden">
+          <div className="bg-gray-100 rounded-2xl shadow-xl border border-gray-100 p-10 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-indigo-100">
               <GraduationCap className="w-8 h-8 text-indigo-600" />
@@ -236,7 +236,7 @@ export default function AuthorApplyPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 relative overflow-hidden">
+          <div className="bg-gray-100 rounded-2xl shadow-xl border border-gray-100 p-8 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-green-100 shadow-sm">
               <CheckCircle className="w-8 h-8 text-green-600" />
@@ -267,7 +267,7 @@ export default function AuthorApplyPage() {
                 setShowReapplyOption(true);
                 setExistingApplication(null);
               }}
-              className="w-full px-6 py-3.5 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors border border-indigo-200 shadow-sm"
+              className="w-full px-6 py-3.5 bg-gray-100 text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors border border-indigo-200 shadow-sm"
             >
               Apply for Different Person
             </button>
@@ -282,7 +282,7 @@ export default function AuthorApplyPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 relative overflow-hidden">
+          <div className="bg-gray-100 rounded-2xl shadow-xl border border-gray-100 p-8 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-emerald-500"></div>
             <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-green-100 shadow-sm">
               <CheckCircle className="w-8 h-8 text-green-600" />
@@ -355,7 +355,7 @@ export default function AuthorApplyPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white text-indigo-700 text-sm font-bold rounded-full mb-6 border border-indigo-100 shadow-sm animate-float">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-100 text-indigo-700 text-sm font-bold rounded-full mb-6 border border-indigo-100 shadow-sm animate-float">
               <Sparkles className="w-4 h-4 text-indigo-500" />
               Become an Author
             </span>
@@ -372,7 +372,7 @@ export default function AuthorApplyPage() {
             </p>
 
             {/* Stats Row */}
-            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-sm font-bold text-gray-700 bg-white/70 py-4 px-8 rounded-2xl border border-gray-200 backdrop-blur-md shadow-sm animate-float-delayed">
+            <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 text-sm font-bold text-gray-700 bg-gray-100/70 py-4 px-8 rounded-2xl border border-gray-200 backdrop-blur-md shadow-sm animate-float-delayed">
               <div className="flex items-center gap-2 hover:scale-105 transition-transform cursor-default">
                 <Users className="w-5 h-5 text-indigo-600"/> 
                 <span>500+ <span className="font-medium text-gray-500">Active Authors</span></span>
@@ -399,7 +399,7 @@ export default function AuthorApplyPage() {
 
           {/* ── LEFT: Application Form Card ── */}
           <div className="flex-1 min-w-0">
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden relative">
+            <div className="bg-gray-100 rounded-3xl border border-gray-100 shadow-xl overflow-hidden relative">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
               
               <div className="p-6 sm:p-10">
@@ -430,18 +430,18 @@ export default function AuthorApplyPage() {
                       {/* Full Name */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">Full Name <span className="text-red-500">*</span></label>
-                        <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required placeholder="Enter your full name" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
+                        <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required placeholder="Enter your full name" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
                       </div>
                       {/* Email */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">Email Address <span className="text-red-500">*</span></label>
-                        <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="you@example.com" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="you@example.com" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
                       </div>
                       {/* Phone */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">Phone Number <span className="text-red-500">*</span></label>
                         <div className="flex shadow-sm rounded-xl">
-                          <select name="phoneCode" value={formData.phoneCode} onChange={handleChange} className="px-3 py-3 border border-gray-300 rounded-l-xl text-sm font-medium text-gray-900 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 border-r-0 w-24 transition-all">
+                          <select name="phoneCode" value={formData.phoneCode} onChange={handleChange} className="px-3 py-3 border border-gray-300 rounded-l-xl text-sm font-medium text-gray-900 bg-gray-50 focus:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 border-r-0 w-24 transition-all">
                             <option value="+234">+234</option>
                             <option value="+233">+233</option>
                             <option value="+254">+254</option>
@@ -450,13 +450,13 @@ export default function AuthorApplyPage() {
                             <option value="+44">+44</option>
                             <option value="+91">+91</option>
                           </select>
-                          <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required placeholder="Enter your phone number" className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl text-sm font-medium text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                          <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required placeholder="Enter your phone number" className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl text-sm font-medium text-gray-900 bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                         </div>
                       </div>
                       {/* Location */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">Location <span className="text-red-500">*</span></label>
-                        <select name="location" value={formData.location} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none transition-all shadow-sm">
+                        <select name="location" value={formData.location} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none transition-all shadow-sm">
                           <option value="" className="text-gray-400 font-normal">Select your country</option>
                           {COUNTRY_OPTIONS.map(c => <option key={c} value={c} className="text-gray-900">{c}</option>)}
                         </select>
@@ -474,12 +474,12 @@ export default function AuthorApplyPage() {
                       {/* Professional Title */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">Professional Title <span className="text-red-500">*</span></label>
-                        <input type="text" name="professionalTitle" value={formData.professionalTitle} onChange={handleChange} required placeholder="e.g. Software Engineer, Designer" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
+                        <input type="text" name="professionalTitle" value={formData.professionalTitle} onChange={handleChange} required placeholder="e.g. Software Engineer, Designer" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
                       </div>
                       {/* Years of Experience */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">Years of Experience <span className="text-red-500">*</span></label>
-                        <select name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none transition-all shadow-sm">
+                        <select name="yearsOfExperience" value={formData.yearsOfExperience} onChange={handleChange} required className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none transition-all shadow-sm">
                           <option value="" className="text-gray-400 font-normal">Select years of experience</option>
                           {EXPERIENCE_OPTIONS.map(e => <option key={e} value={e} className="text-gray-900">{e}</option>)}
                         </select>
@@ -487,12 +487,12 @@ export default function AuthorApplyPage() {
                       {/* LinkedIn */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">LinkedIn Profile (Optional)</label>
-                        <input type="url" name="linkedinProfile" value={formData.linkedinProfile} onChange={handleChange} placeholder="https://linkedin.com/in/yourname" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
+                        <input type="url" name="linkedinProfile" value={formData.linkedinProfile} onChange={handleChange} placeholder="https://linkedin.com/in/yourname" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
                       </div>
                       {/* Website */}
                       <div>
                         <label className="block text-sm font-bold text-gray-800 mb-2">Website / Portfolio (Optional)</label>
-                        <input type="url" name="websitePortfolio" value={formData.websitePortfolio} onChange={handleChange} placeholder="https://yourwebsite.com" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
+                        <input type="url" name="websitePortfolio" value={formData.websitePortfolio} onChange={handleChange} placeholder="https://yourwebsite.com" className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm" />
                       </div>
                     </div>
                   </div>
@@ -509,7 +509,7 @@ export default function AuthorApplyPage() {
                         {EXPERTISE_OPTIONS.map(area => {
                           const isSelected = formData.expertiseAreas.includes(area);
                           return (
-                            <label key={area} className={`flex items-center gap-2.5 cursor-pointer text-sm font-bold select-none px-4 py-2.5 border-2 rounded-xl transition-all shadow-sm ${isSelected ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}>
+                            <label key={area} className={`flex items-center gap-2.5 cursor-pointer text-sm font-bold select-none px-4 py-2.5 border-2 rounded-xl transition-all shadow-sm ${isSelected ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-gray-200 bg-gray-100 text-gray-700 hover:border-gray-300 hover:bg-gray-50'}`}>
                               <input
                                 type="checkbox"
                                 checked={isSelected}
@@ -541,7 +541,7 @@ export default function AuthorApplyPage() {
                         required
                         rows={5}
                         placeholder="Share your story, expertise and teaching goals..."
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all shadow-sm"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-gray-900 bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -563,7 +563,7 @@ export default function AuthorApplyPage() {
                           onClick={() => cvRef.current?.click()}
                           className="flex flex-col items-center justify-center gap-2.5 p-6 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group/btn cursor-pointer"
                         >
-                          <div className="w-12 h-12 bg-white group-hover/btn:bg-indigo-100 rounded-xl flex items-center justify-center shadow-sm transition-colors">
+                          <div className="w-12 h-12 bg-gray-100 group-hover/btn:bg-indigo-100 rounded-xl flex items-center justify-center shadow-sm transition-colors">
                             <FileText className="w-6 h-6 text-gray-400 group-hover/btn:text-indigo-600 transition-colors" />
                           </div>
                           <div>
@@ -579,7 +579,7 @@ export default function AuthorApplyPage() {
                           onClick={() => portfolioRef.current?.click()}
                           className="flex flex-col items-center justify-center gap-2.5 p-6 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group/btn cursor-pointer"
                         >
-                          <div className="w-12 h-12 bg-white group-hover/btn:bg-indigo-100 rounded-xl flex items-center justify-center shadow-sm transition-colors">
+                          <div className="w-12 h-12 bg-gray-100 group-hover/btn:bg-indigo-100 rounded-xl flex items-center justify-center shadow-sm transition-colors">
                             <Briefcase className="w-6 h-6 text-gray-400 group-hover/btn:text-indigo-600 transition-colors" />
                           </div>
                           <div>
@@ -595,7 +595,7 @@ export default function AuthorApplyPage() {
                           onClick={() => idRef.current?.click()}
                           className="flex flex-col items-center justify-center gap-2.5 p-6 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-center group/btn cursor-pointer"
                         >
-                          <div className="w-12 h-12 bg-white group-hover/btn:bg-indigo-100 rounded-xl flex items-center justify-center shadow-sm transition-colors">
+                          <div className="w-12 h-12 bg-gray-100 group-hover/btn:bg-indigo-100 rounded-xl flex items-center justify-center shadow-sm transition-colors">
                             <Upload className="w-6 h-6 text-gray-400 group-hover/btn:text-indigo-600 transition-colors" />
                           </div>
                           <div>
@@ -634,7 +634,7 @@ export default function AuthorApplyPage() {
           <div className="w-full lg:w-[22rem] xl:w-96 flex-shrink-0 space-y-6">
 
             {/* Why Become an Author */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-8 relative overflow-hidden group">
+            <div className="bg-gray-100 rounded-3xl border border-gray-100 shadow-xl p-8 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
               
               <div className="flex items-center gap-3 mb-6 relative z-10">
@@ -669,7 +669,7 @@ export default function AuthorApplyPage() {
             </div>
 
             {/* How It Works */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-xl p-8 relative overflow-hidden group">
+            <div className="bg-gray-100 rounded-3xl border border-gray-100 shadow-xl p-8 relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-bl-full -mr-8 -mt-8 opacity-50 group-hover:scale-110 transition-transform duration-500 pointer-events-none"></div>
               
               <div className="flex items-center gap-3 mb-8 relative z-10">
@@ -702,7 +702,7 @@ export default function AuthorApplyPage() {
             {/* Already an Author? */}
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl border border-amber-200/60 p-8 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center flex-shrink-0 border border-amber-100 shadow-sm">
+                <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center flex-shrink-0 border border-amber-100 shadow-sm">
                   <Star className="w-7 h-7 text-amber-500" />
                 </div>
                 <div>
@@ -710,7 +710,7 @@ export default function AuthorApplyPage() {
                   <p className="text-xs font-semibold text-amber-700/80 mt-2 leading-relaxed">
                     Log in to your author dashboard to manage your courses, students and earnings.
                   </p>
-                  <Link href="/author" className="inline-flex items-center justify-center gap-2 w-full mt-5 text-sm font-bold text-indigo-700 bg-white px-5 py-3 rounded-xl border border-amber-200/50 shadow-sm hover:shadow-md hover:text-indigo-800 transition-all">
+                  <Link href="/author" className="inline-flex items-center justify-center gap-2 w-full mt-5 text-sm font-bold text-indigo-700 bg-gray-100 px-5 py-3 rounded-xl border border-amber-200/50 shadow-sm hover:shadow-md hover:text-indigo-800 transition-all">
                     Go to Dashboard <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>

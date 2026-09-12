@@ -48,7 +48,7 @@ export function PartnerTypesSection() {
   });
 
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-white">
+    <section className="py-4 sm:py-6 lg:py-8 bg-gray-100">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Choose Your Partner Type</h2>
@@ -57,7 +57,7 @@ export function PartnerTypesSection() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {partnerTypes.map((type, index) => (
-            <div key={index} className="border border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00F5FF]/50 transition-colors">
+            <div key={index} className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#00F5FF]/50 transition-colors">
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Commission</span>
                 <div className="text-lg sm:text-xl lg:text-2xl font-bold text-[#00F5FF]">{type.commission}</div>
@@ -77,7 +77,7 @@ export function PartnerTypesSection() {
               
               <Link
                 href={type.ctaLink}
-                className="block w-full text-center border border-[#00F5FF] bg-[#00F5FF] px-4 py-3 sm:px-5 sm:py-3 lg:px-6 lg:py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
+                className="block w-full text-center border border-[#00F5FF] bg-gray-100] px-4 py-3 sm:px-5 sm:py-3 lg:px-6 lg:py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
               >
                 {type.cta}
               </Link>

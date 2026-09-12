@@ -149,7 +149,7 @@ export default function FounderNotificationsPage() {
               <Bell className="h-8 w-8 text-[#10b981]" />
               <h1 className="text-3xl font-bold">Founder Notifications</h1>
               {unreadCount > 0 && (
-                <span className="bg-[#10b981] text-black px-3 py-1 rounded-full text-sm font-bold">
+                <span className="bg-gray-100] text-black px-3 py-1 rounded-full text-sm font-bold">
                   {unreadCount} unread
                 </span>
               )}
@@ -161,14 +161,14 @@ export default function FounderNotificationsPage() {
             <button
               onClick={markAllAsRead}
               disabled={unreadCount === 0}
-              className="flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-white text-neutral-600 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-100 text-neutral-600 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCircle2 className="h-4 w-4" />
               Mark All Read
             </button>
             <button
               onClick={fetchNotifications}
-              className="flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-white text-neutral-600 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-100 text-neutral-600 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
             >
               <RefreshCw className="h-4 w-4" />
               Refresh
@@ -177,7 +177,7 @@ export default function FounderNotificationsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 bg-white border border-neutral-200 rounded-xl p-4">
+        <div className="flex flex-wrap items-center gap-4 bg-gray-100 border border-neutral-200 rounded-xl p-4">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-neutral-600" />
             <span className="text-sm text-neutral-600">Filter:</span>
@@ -188,8 +188,8 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('all')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'all' 
-                  ? 'bg-[#10b981] text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-[#d1d5db]'
+                  ? 'bg-gray-100] text-black' 
+                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-100]'
               }`}
             >
               All
@@ -198,8 +198,8 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('unread')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'unread' 
-                  ? 'bg-[#10b981] text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-[#d1d5db]'
+                  ? 'bg-gray-100] text-black' 
+                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-100]'
               }`}
             >
               Unread
@@ -208,15 +208,15 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('read')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'read' 
-                  ? 'bg-[#10b981] text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-[#d1d5db]'
+                  ? 'bg-gray-100] text-black' 
+                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-100]'
               }`}
             >
               Read
             </button>
           </div>
 
-          <div className="w-px h-6 bg-[#d1d5db]" />
+          <div className="w-px h-6 bg-gray-100]" />
 
           <select
             value={typeFilter}
@@ -244,15 +244,15 @@ export default function FounderNotificationsPage() {
           <div className="space-y-4">
             {filteredNotifications.map((notification) => {
               const Icon = notificationIcons[notification.notification_type] || Bell;
-              const colorClass = notificationColors[notification.notification_type] || 'text-neutral-600 bg-[#d1d5db]';
+              const colorClass = notificationColors[notification.notification_type] || 'text-neutral-600 bg-gray-100]';
               const isUnread = !notification.read_at;
 
               return (
                 <div
                   key={notification.id}
-                  className={`bg-white border rounded-xl p-6 transition-all ${
+                  className={`bg-gray-100 border rounded-xl p-6 transition-all ${
                     isUnread 
-                      ? 'border-[#10b981]/30 bg-[#10b981]/5' 
+                      ? 'border-[#10b981]/30 bg-gray-100]/5' 
                       : 'border-neutral-200'
                   }`}
                 >
@@ -309,7 +309,7 @@ export default function FounderNotificationsPage() {
             })}
           </div>
         ) : (
-          <div className="bg-white border border-neutral-200 rounded-xl p-12 text-center">
+          <div className="bg-gray-100 border border-neutral-200 rounded-xl p-12 text-center">
             <Bell className="h-16 w-16 mx-auto mb-4 text-neutral-600 opacity-50" />
             <h3 className="text-xl font-semibold mb-2">No notifications</h3>
             <p className="text-neutral-600">

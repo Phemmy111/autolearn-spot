@@ -110,11 +110,11 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'submitted':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#d1d5db] text-neutral-600 border border-[#3b494b]">Submitted</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-gray-100] text-neutral-600 border border-[#3b494b]">Submitted</span>;
       case 'approved':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#0f4c3c] text-[#10b981] border border-[#10b981]">Approved</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-gray-100] text-[#10b981] border border-[#10b981]">Approved</span>;
       case 'needs_revision':
-        return <span className="px-2 py-1 text-xs font-mono uppercase bg-[#4c1a1a] text-[#ff6b6b] border border-[#ff6b6b]">Needs Revision</span>;
+        return <span className="px-2 py-1 text-xs font-mono uppercase bg-gray-100] text-[#ff6b6b] border border-[#ff6b6b]">Needs Revision</span>;
       default:
         return null;
     }
@@ -154,7 +154,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
         <h1 className="mb-8 font-heading text-3xl font-bold uppercase text-neutral-900">Submissions</h1>
 
         {submissions.length === 0 ? (
-          <div className="border border-[#3b494b] bg-[#d1d5db] p-8 text-center">
+          <div className="border border-[#3b494b] bg-gray-100] p-8 text-center">
             <p className="font-mono text-sm text-neutral-600">No submissions yet.</p>
           </div>
         ) : (
@@ -162,7 +162,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
             {submissions.map((submission) => (
               <div
                 key={submission.id}
-                className="border border-[#3b494b] bg-[#d1d5db] p-6"
+                className="border border-[#3b494b] bg-gray-100] p-6"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
@@ -228,7 +228,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                       href={submission.live_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 border border-[#3b494b] bg-white px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
+                      className="flex items-center justify-center gap-2 border border-[#3b494b] bg-gray-100 px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Open Link
@@ -236,7 +236,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                     )}
                     <button
                       onClick={() => openReviewModal(submission)}
-                      className="flex items-center justify-center gap-2 border border-[#10b981] bg-[#10b981] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-white"
+                      className="flex items-center justify-center gap-2 border border-[#10b981] bg-gray-100] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-gray-100"
                     >
                       Review
                     </button>
@@ -251,7 +251,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
       {/* Review Modal */}
       {reviewingSubmission && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-xl border border-neutral-200 bg-white p-8 shadow-2xl">
+          <div className="w-full max-w-lg rounded-xl border border-neutral-200 bg-gray-100 p-8 shadow-2xl">
             <h2 className="mb-4 font-heading text-2xl font-bold text-neutral-900">
               Review Submission
             </h2>
@@ -271,7 +271,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                   min="0"
                   max={reviewingSubmission.assignment.max_score}
                   required
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
                 />
                 <p className="mt-1 font-mono text-xs text-neutral-600">
                   Max: {reviewingSubmission.assignment.max_score}
@@ -285,7 +285,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                 <select
                   value={reviewData.status}
                   onChange={(e) => setReviewData({ ...reviewData, status: e.target.value as 'approved' | 'needs_revision' })}
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
                 >
                   <option value="approved">Approved</option>
                   <option value="needs_revision">Needs Revision</option>
@@ -301,7 +301,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                   onChange={(e) => setReviewData({ ...reviewData, feedback: e.target.value })}
                   rows={4}
                   placeholder="Provide feedback to the student..."
-                  className="w-full border border-[#3b494b] bg-[#d1d5db] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
+                  className="w-full border border-[#3b494b] bg-gray-100] px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
                 />
               </div>
 
@@ -319,7 +319,7 @@ export default function AssignmentSubmissionsPage({ params }: { params: Promise<
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-[#10b981] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : 'Submit Review'}
                 </button>

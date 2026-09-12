@@ -58,15 +58,15 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
 
   if (isLoading) {
     return (
-      <div className="mb-10 border border-neutral-200 bg-[#c0c4c9] p-5 animate-pulse">
-        <div className="h-4 w-1/3 bg-[#1f2229] mb-3"></div>
-        <div className="h-2 w-full bg-[#1f2229]"></div>
+      <div className="mb-10 border border-neutral-200 bg-gray-100] p-5 animate-pulse">
+        <div className="h-4 w-1/3 bg-gray-100] mb-3"></div>
+        <div className="h-2 w-full bg-gray-100]"></div>
       </div>
     )
   }
 
   return (
-    <div className="mb-10 border border-neutral-200 bg-[#c0c4c9] p-5">
+    <div className="mb-10 border border-neutral-200 bg-gray-100] p-5">
       <div className="flex items-center justify-between mb-3">
         <span className="font-mono text-xs font-semibold uppercase tracking-[0.1em] text-neutral-500">
           Your Progress
@@ -75,14 +75,14 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
           {count} of {totalVideos} completed ({pct}%)
         </span>
       </div>
-      <div className="relative h-2 w-full overflow-hidden bg-[#1f2229]">
+      <div className="relative h-2 w-full overflow-hidden bg-gray-100]">
         <div
-          className="absolute inset-y-0 left-0 bg-[#10b981] transition-all duration-700 ease-out"
+          className="absolute inset-y-0 left-0 bg-gray-100] transition-all duration-700 ease-out"
           style={{ width: `${pct}%` }}
         />
         {/* Glow effect */}
         <div
-          className="absolute inset-y-0 left-0 bg-[#10b981] blur-sm opacity-50 transition-all duration-700 ease-out"
+          className="absolute inset-y-0 left-0 bg-gray-100] blur-sm opacity-50 transition-all duration-700 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>

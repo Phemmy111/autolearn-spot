@@ -112,7 +112,7 @@ export default function MaintenancePage() {
   }
 
   const StatusCard = ({ title, value, icon: Icon }: { title: string; value: number | string; icon: any }) => (
-    <div className="border border-neutral-200 bg-white p-4 rounded-xl">
+    <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
       <div className="flex items-center gap-3">
         <Icon className="h-5 w-5 text-[#10b981]" />
         <div>
@@ -138,7 +138,7 @@ export default function MaintenancePage() {
     endpoint: string
     result?: MaintenanceResult
   }) => (
-    <div className="border border-neutral-200 bg-white p-6 rounded-xl">
+    <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
       <div className="flex items-start gap-4 mb-4">
         <Icon className="h-6 w-6 text-[#10b981] mt-1" />
         <div className="flex-1">
@@ -148,7 +148,7 @@ export default function MaintenancePage() {
           <button
             onClick={() => setConfirmDialog(operation)}
             disabled={executing !== null}
-            className="bg-[#10b981] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-[#10b981]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="bg-gray-100] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {executing === operation ? (
               <>
@@ -225,14 +225,14 @@ export default function MaintenancePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <Link
@@ -263,7 +263,7 @@ export default function MaintenancePage() {
               icon={RefreshCw} 
             />
           </div>
-          <div className="mt-4 border border-neutral-200 bg-white p-4 rounded-xl">
+          <div className="mt-4 border border-neutral-200 bg-gray-100 p-4 rounded-xl">
             <p className="font-mono text-xs text-neutral-600">
               Last Analytics Update: <span className="text-neutral-900">{formatDate(status?.lastAnalyticsUpdate || null)}</span>
             </p>
@@ -271,12 +271,12 @@ export default function MaintenancePage() {
         </div>
 
         {/* Cohort Selector */}
-        <div className="mb-8 border border-neutral-200 bg-white p-4 rounded-xl">
+        <div className="mb-8 border border-neutral-200 bg-gray-100 p-4 rounded-xl">
           <label className="font-mono text-sm text-neutral-600 block mb-2">Target Cohort</label>
           <select
             value={selectedCohort}
             onChange={(e) => setSelectedCohort(e.target.value)}
-            className="w-full bg-[#d1d5db] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono text-sm focus:border-[#10b981] focus:outline-none"
+            className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono text-sm focus:border-[#10b981] focus:outline-none"
           >
             <option value="all">All Active Cohorts</option>
             {cohorts.map(cohort => (
@@ -347,7 +347,7 @@ export default function MaintenancePage() {
         {/* Confirmation Dialog */}
         {confirmDialog && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white border border-neutral-200 rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="bg-gray-100 border border-neutral-200 rounded-xl p-6 max-w-md w-full mx-4">
               <div className="flex items-center gap-3 mb-4">
                 <AlertCircle className="h-6 w-6 text-yellow-500" />
                 <h3 className="font-heading text-xl font-bold text-neutral-900">Confirm Maintenance Operation</h3>
@@ -358,7 +358,7 @@ export default function MaintenancePage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDialog(null)}
-                  className="flex-1 border border-neutral-200 bg-white text-neutral-900 px-4 py-2 rounded-lg font-mono text-sm hover:bg-[#d1d5db] transition-colors"
+                  className="flex-1 border border-neutral-200 bg-gray-100 text-neutral-900 px-4 py-2 rounded-lg font-mono text-sm hover:bg-gray-100] transition-colors"
                 >
                   Cancel
                 </button>
@@ -382,7 +382,7 @@ export default function MaintenancePage() {
                     
                     executeMaintenance(confirmDialog, endpoint, cohortBody)
                   }}
-                  className="flex-1 bg-[#10b981] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-[#10b981]/80 transition-colors"
+                  className="flex-1 bg-gray-100] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors"
                 >
                   Confirm
                 </button>

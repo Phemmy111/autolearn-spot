@@ -80,7 +80,7 @@ export default function InfluencerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#c0c4c9] flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center text-neutral-900">
         <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
       </div>
     );
@@ -88,7 +88,7 @@ export default function InfluencerDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#c0c4c9] flex flex-col items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-gray-100] flex flex-col items-center justify-center text-neutral-900">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
         <p>{error}</p>
         <button onClick={() => router.push("/influencer")} className="mt-4 text-purple-400 hover:underline">
@@ -99,9 +99,9 @@ export default function InfluencerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#c0c4c9] text-neutral-900 overflow-x-hidden">
+    <div className="min-h-screen bg-gray-100] text-neutral-900 overflow-x-hidden">
       {/* Topbar */}
-      <header className="border-b border-neutral-200 bg-[#c0c4c9]/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-neutral-200 bg-gray-100]/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase">
             <Star className="text-purple-400 h-4 w-4" />
@@ -113,7 +113,7 @@ export default function InfluencerDashboard() {
             </div>
             <Link 
               href="/influencer/settings"
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-100] transition-colors flex items-center gap-2 text-neutral-500"
             >
               Settings
             </Link>
@@ -122,7 +122,7 @@ export default function InfluencerDashboard() {
                 document.cookie = "growth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 router.push("/influencer");
               }}
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-[#1f2229] transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-100] transition-colors flex items-center gap-2 text-neutral-500"
             >
               <LogOut className="h-3 w-3" /> Logout
             </button>
@@ -157,7 +157,7 @@ export default function InfluencerDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <MousePointerClick className="h-5 w-5" />
@@ -167,7 +167,7 @@ export default function InfluencerDashboard() {
             <h3 className="text-3xl font-bold">{data.totalClicks}</h3>
           </div>
           
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400">
                 <Users className="h-5 w-5" />
@@ -177,7 +177,7 @@ export default function InfluencerDashboard() {
             <h3 className="text-3xl font-bold">{data.totalRegistrations}</h3>
           </div>
 
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
                 <Clock className="h-5 w-5" />
@@ -187,7 +187,7 @@ export default function InfluencerDashboard() {
             <h3 className="text-3xl font-bold text-yellow-400">₦{data.earnings.pendingEarnings.toLocaleString()}</h3>
           </div>
 
-          <div className="bg-[#c0c4c9] border border-purple-500/30 rounded-2xl p-6 relative overflow-hidden">
+          <div className="bg-gray-100] border border-purple-500/30 rounded-2xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
               <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400">
@@ -203,7 +203,7 @@ export default function InfluencerDashboard() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Recent Activity */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6">
+            <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
               <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                 <DollarSign className="text-purple-400 h-5 w-5" /> 
                 Recent Conversions
@@ -221,7 +221,7 @@ export default function InfluencerDashboard() {
                     </thead>
                     <tbody className="text-sm">
                       {data.commissions.map((comm: any) => (
-                        <tr key={comm.id} className="border-b border-neutral-200 last:border-0 hover:bg-white/5 transition-colors">
+                        <tr key={comm.id} className="border-b border-neutral-200 last:border-0 hover:bg-gray-100/5 transition-colors">
                           <td className="py-4">{new Date(comm.created_at).toLocaleDateString()}</td>
                           <td className="py-4 truncate max-w-[150px] text-neutral-500">{comm.referee_email}</td>
                           <td className="py-4 font-bold text-neutral-900">₦{comm.amount.toLocaleString()}</td>
@@ -250,15 +250,15 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Withdrawal Panel */}
-          <div className="bg-[#c0c4c9] border border-neutral-200 rounded-2xl p-6 flex flex-col h-fit">
+          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 flex flex-col h-fit">
             <h3 className="text-lg font-bold mb-6">Request Payout</h3>
             
-            <div className="bg-[#c0c4c9] rounded-xl p-5 mb-6 border border-neutral-200">
+            <div className="bg-gray-100] rounded-xl p-5 mb-6 border border-neutral-200">
               <div className="flex justify-between items-center mb-3">
                 <span className="text-sm text-neutral-500">Available Balance</span>
                 <span className="font-bold text-purple-400 text-lg">₦{data.earnings.availableEarnings.toLocaleString()}</span>
               </div>
-              <div className="w-full bg-[#1f2229] h-2.5 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-100] h-2.5 rounded-full overflow-hidden">
                 <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-full" style={{ width: `${Math.min(100, (data.earnings.availableEarnings / 2000) * 100)}%` }} />
               </div>
               <p className="text-xs text-neutral-500 mt-3 text-right flex items-center justify-end gap-1">
@@ -277,7 +277,7 @@ export default function InfluencerDashboard() {
                     max={data.earnings.availableEarnings}
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    className="w-full bg-[#c0c4c9] border border-neutral-200 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors font-bold text-lg"
+                    className="w-full bg-gray-100] border border-neutral-200 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors font-bold text-lg"
                     placeholder="Amount"
                   />
                 </div>

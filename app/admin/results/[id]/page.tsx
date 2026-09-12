@@ -22,7 +22,7 @@ export default async function AdminParticipantReviewPage({ params }: { params: P
 
   if (responseError || !response) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <p className="text-red-400 font-mono">Submission not found.</p>
       </div>
     )
@@ -37,7 +37,7 @@ export default async function AdminParticipantReviewPage({ params }: { params: P
 
   if (questionsError || !questions) {
     return (
-      <div className="min-h-screen bg-[#d1d5db] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
         <p className="text-red-400 font-mono">Failed to load questions.</p>
       </div>
     )
@@ -46,7 +46,7 @@ export default async function AdminParticipantReviewPage({ params }: { params: P
   const answers = response.answers || {}
 
   return (
-    <div className="min-h-screen bg-[#d1d5db]">
+    <div className="min-h-screen bg-gray-100]">
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <Link
           href="/admin/results"
@@ -57,7 +57,7 @@ export default async function AdminParticipantReviewPage({ params }: { params: P
         </Link>
 
         {/* Header */}
-        <div className="border border-neutral-200 bg-white rounded-xl p-8 mb-8">
+        <div className="border border-neutral-200 bg-gray-100 rounded-xl p-8 mb-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2">

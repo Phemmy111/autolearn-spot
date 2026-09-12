@@ -57,7 +57,7 @@ export default function AdminAuthorsPage() {
     <div className="min-h-screen pb-12 text-gray-900 font-sans">
       
       {/* ─── Top Bar ─── */}
-      <header className="h-16 bg-white border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+      <header className="h-16 bg-gray-100 border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
           <span className="hover:text-gray-800 cursor-pointer transition-colors">Admin</span>
           <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -70,7 +70,7 @@ export default function AdminAuthorsPage() {
             <input 
               type="text" 
               placeholder="Search everywhere..." 
-              className="pl-9 pr-4 py-2 w-64 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="pl-9 pr-4 py-2 w-64 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:bg-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
           
@@ -114,7 +114,7 @@ export default function AdminAuthorsPage() {
             { label: 'Suspended', value: '-', icon: ShieldAlert, trend: 'N/A', color: 'bg-red-50 text-red-600' },
             { label: 'Total Revenue', value: '-', icon: DollarSign, trend: 'N/A', color: 'bg-indigo-50 text-indigo-600' }
           ].map((stat, i) => (
-            <div key={i} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div key={i} className="bg-gray-100 rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">
                 <div className={`p-2.5 rounded-xl ${stat.color}`}>
                   <stat.icon className="h-5 w-5" />
@@ -130,7 +130,7 @@ export default function AdminAuthorsPage() {
         </div>
 
         {/* ─── Author Management Area ─── */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-gray-100 border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
           
           {/* Toolbar */}
           <div className="border-b border-gray-100">
@@ -160,10 +160,10 @@ export default function AdminAuthorsPage() {
               <input 
                 type="text" 
                 placeholder="Search authors..." 
-                className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all"
+                className="w-full pl-9 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all"
               />
             </div>
-            <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-lg hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
+            <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm rounded-lg hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
               <Filter className="h-4 w-4 text-gray-500" /> Filters
             </button>
           </div>
@@ -252,8 +252,8 @@ export default function AdminAuthorsPage() {
           <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500">Showing <span className="font-bold text-gray-700">1</span> to <span className="font-bold text-gray-700">5</span> of <span className="font-bold text-gray-700">1,248</span> authors</span>
             <div className="flex gap-2">
-              <button className="px-3 py-1.5 bg-white border border-gray-200 text-gray-500 font-bold text-sm rounded-lg opacity-50 cursor-not-allowed">Previous</button>
-              <button className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-lg hover:bg-gray-50 shadow-sm transition-colors">Next</button>
+              <button className="px-3 py-1.5 bg-gray-100 border border-gray-200 text-gray-500 font-bold text-sm rounded-lg opacity-50 cursor-not-allowed">Previous</button>
+              <button className="px-3 py-1.5 bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm rounded-lg hover:bg-gray-50 shadow-sm transition-colors">Next</button>
             </div>
           </div>
         </div>

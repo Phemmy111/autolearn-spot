@@ -29,7 +29,7 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
       {/* Desktop Layout */}
       <div className="hidden md:flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-neutral-200 min-h-screen sticky top-0">
+        <aside className="w-64 bg-gray-100 border-r border-neutral-200 min-h-screen sticky top-0">
           <div className="p-6">
             <Link href="/" className="flex items-center gap-2 mb-8">
               <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
@@ -81,7 +81,7 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
       {/* Mobile Layout */}
       <div className="md:hidden">
         {/* Mobile Header */}
-        <header className="bg-white border-b border-neutral-200 px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+        <header className="bg-gray-100 border-b border-neutral-200 px-4 py-4 flex items-center justify-between sticky top-0 z-40">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="text-neutral-600 hover:text-sky-600"
@@ -111,7 +111,7 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
               className="fixed inset-0 bg-black/50 z-40"
               onClick={() => setIsSidebarOpen(false)}
             />
-            <div className="fixed inset-y-0 left-0 w-72 bg-white z-50 p-6 overflow-y-auto">
+            <div className="fixed inset-y-0 left-0 w-72 bg-gray-100 z-50 p-6 overflow-y-auto">
               <div className="flex items-center justify-between mb-8">
                 <span className="font-heading text-lg font-bold text-neutral-900">
                   Menu

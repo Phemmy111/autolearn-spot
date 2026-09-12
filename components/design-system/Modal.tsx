@@ -48,7 +48,7 @@ export function Modal({
         onClick={onClose}
       />
       <div className={cn(
-        'bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 relative z-10',
+        'bg-gray-100 rounded-lg shadow-xl max-w-lg w-full mx-4 relative z-10',
         sizeStyles[size]
       )}>
         {title && (

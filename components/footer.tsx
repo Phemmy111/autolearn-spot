@@ -19,7 +19,7 @@ async function FooterContent() {
   ])
 
   return (
-    <footer className="relative z-20 border-t border-neutral-300/50 bg-[#d1d5db]">
+    <footer className="relative z-20 border-t border-neutral-300/50 bg-gray-100]">
       <div className="container mx-auto px-6 lg:px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
@@ -93,7 +93,7 @@ async function FooterContent() {
                   href={settings.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-white flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
+                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-gray-100 flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
                 >
                   <span className="w-5 h-5 flex items-center justify-center font-bold">FB</span>
                 </a>
@@ -103,7 +103,7 @@ async function FooterContent() {
                   href={settings.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-white flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
+                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-gray-100 flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
                 >
                   <span className="w-5 h-5 flex items-center justify-center font-bold">IG</span>
                 </a>
@@ -113,7 +113,7 @@ async function FooterContent() {
                   href={settings.twitterUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-white flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
+                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-gray-100 flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
                 >
                   <span className="w-5 h-5 flex items-center justify-center font-bold">X</span>
                 </a>
@@ -123,7 +123,7 @@ async function FooterContent() {
                   href={settings.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-white flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
+                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-gray-100 flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
                 >
                   <span className="w-5 h-5 flex items-center justify-center font-bold">IN</span>
                 </a>
@@ -133,14 +133,14 @@ async function FooterContent() {
                   href={settings.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-white flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
+                  className="w-10 h-10 rounded-full border border-neutral-300/50 bg-gray-100 flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
                 >
                   <span className="w-5 h-5 flex items-center justify-center font-bold">YT</span>
                 </a>
               )}
               <a
                 href={`mailto:${settings.supportEmail}`}
-                className="w-10 h-10 rounded-full border border-neutral-300/50 bg-white flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
+                className="w-10 h-10 rounded-full border border-neutral-300/50 bg-gray-100 flex items-center justify-center text-neutral-600 hover:text-[#10b981] hover:border-[#10b981] hover:shadow-sm transition-all"
               >
                 <Mail className="w-5 h-5" />
               </a>

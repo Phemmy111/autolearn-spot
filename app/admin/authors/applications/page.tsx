@@ -74,7 +74,7 @@ export default function AdminApplicationsPage() {
     <div className="min-h-screen pb-12 text-gray-900 font-sans">
       
       {/* ─── Top Bar ─── */}
-      <header className="h-16 bg-white border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+      <header className="h-16 bg-gray-100 border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
           <Link href="/admin/authors" className="hover:text-gray-800 transition-colors">Admin</Link>
           <ChevronRight className="h-4 w-4 text-gray-400" />
@@ -89,7 +89,7 @@ export default function AdminApplicationsPage() {
             <input 
               type="text" 
               placeholder="Search everywhere..." 
-              className="pl-9 pr-4 py-2 w-64 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="pl-9 pr-4 py-2 w-64 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:bg-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
           
@@ -118,9 +118,9 @@ export default function AdminApplicationsPage() {
         </div>
 
         {/* ─── Applications Management Area ─── */}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-gray-100 border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
           
-          <div className="p-5 flex flex-col sm:flex-row gap-4 justify-between items-center bg-white border-b border-gray-100">
+          <div className="p-5 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-100 border-b border-gray-100">
             <div className="relative w-full sm:w-96">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
@@ -128,21 +128,21 @@ export default function AdminApplicationsPage() {
                 placeholder="Search by name, email, or expertise..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all"
+                className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:bg-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all"
               />
             </div>
             <div className="flex gap-3 w-full sm:w-auto">
               <select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="px-4 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="">All Statuses</option>
                 <option value="SUBMITTED">Pending Review</option>
                 <option value="APPROVED">Approved</option>
                 <option value="DECLINED">Rejected</option>
               </select>
-              <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
+              <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
                 <Filter className="h-4 w-4 text-gray-500" /> Filters
               </button>
             </div>
@@ -243,14 +243,14 @@ export default function AdminApplicationsPage() {
             <div className="flex gap-2">
               <button 
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
-                className={`px-3 py-1.5 bg-white border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page <= 1 ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                className={`px-3 py-1.5 bg-gray-100 border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page <= 1 ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
                 disabled={pagination.page <= 1}
               >
                 Previous
               </button>
               <button 
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
-                className={`px-3 py-1.5 bg-white border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page >= pagination.totalPages ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                className={`px-3 py-1.5 bg-gray-100 border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page >= pagination.totalPages ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
                 disabled={pagination.page >= pagination.totalPages}
               >
                 Next

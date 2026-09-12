@@ -42,7 +42,7 @@ export function Dropdown({ trigger, children, align = 'right' }: DropdownProps) 
       </button>
       {isOpen && (
         <div className={cn(
-          'absolute right-0 mt-2 w-56 bg-white border border-neutral-200 rounded-lg shadow-lg z-50',
+          'absolute right-0 mt-2 w-56 bg-gray-100 border border-neutral-200 rounded-lg shadow-lg z-50',
           alignStyles[align]
         )}>
           {children}
