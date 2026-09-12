@@ -67,7 +67,7 @@ export async function createProduct(data: Omit<LearningProduct, 'id' | 'author_i
   const { data: result, error } = await supabaseAdmin.from('learning_products').insert(payload).select().single();
   if (error) {
     console.error('[product-service] create error:', error);
-    return null;
+    throw new Error(error.message);
   }
   return result as LearningProduct;
 }
