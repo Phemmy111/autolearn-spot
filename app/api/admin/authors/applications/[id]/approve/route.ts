@@ -133,11 +133,17 @@ export async function POST(
     // In the future, we can implement Clerk Backend API for true account creation
     
     // Send approval email
-    await EmailService.sendApplicationApproved(
-      application.email,
-      application.full_name,
-      `${process.env.NEXT_PUBLIC_APP_URL}/author`
-    );
+    try {
+      await EmailService.sendApplicationApproved(
+        application.email,
+        application.full_name,
+        `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/author`
+      );
+      console.log('[Admin Approval] Approval email sent to:', application.email);
+    } catch (emailError) {
+      console.error('[Admin Approval] Failed to send approval email:', emailError);
+      // Don't fail the approval if email fails
+    }
 
     return NextResponse.json({
       success: true,

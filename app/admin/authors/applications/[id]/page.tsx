@@ -8,54 +8,7 @@ import {
   Linkedin, Link as LinkIcon, Users, UserCheck, UserPlus, Upload, Loader2, ShieldCheck, AlertTriangle
 } from 'lucide-react';
 
-// Sample data for demonstration – in a real app this would be fetched from the backend.
-const sampleApplications = {
-  app_1: {
-    id: 'app_1',
-    name: 'Daniel Williams',
-    avatar: 'DW',
-    email: 'daniel@example.com',
-    phone: '+1 555‑123‑4567',
-    location: 'New York, USA',
-    linkedin: 'https://linkedin.com/in/daniel-williams',
-    portfolio: 'https://danielw.dev',
-    professionalTitle: 'Marketing Director',
-    experience: '10+ years',
-    skills: ['Digital Marketing', 'SEO', 'Content Strategy'],
-    bio: "Passionate about helping brands grow through data‑driven strategies. Over a decade of experience leading marketing teams and driving ROI.",
-    motivation: "I want to share my expertise with a community of eager learners and help them launch successful careers in marketing.",
-    documents: {
-      cv: '/documents/daniel_cv.pdf',
-      portfolio: '/documents/daniel_portfolio.zip',
-      id: '/documents/daniel_id.jpg',
-    },
-    status: 'Pending Review',
-    submittedAt: '2023-10-12T10:45:00Z',
-  },
-  app_2: {
-    id: 'app_2',
-    name: 'Jessica Taylor',
-    avatar: 'JT',
-    email: 'jessica.t@example.com',
-    phone: '+44 20 7946 0958',
-    location: 'London, UK',
-    linkedin: 'https://linkedin.com/in/jessica-taylor',
-    portfolio: 'https://jessicadesign.co',
-    professionalTitle: 'UI/UX Designer',
-    experience: '4-5 years',
-    skills: ['Figma', 'Prototyping', 'User Research'],
-    bio: "Design‑first mind with a knack for turning complex problems into elegant user experiences.",
-    motivation: "I love teaching design fundamentals and want to empower the next generation of creators.",
-    documents: {
-      cv: '/documents/jessica_cv.pdf',
-      portfolio: '/documents/jessica_portfolio.zip',
-      id: '/documents/jessica_id.png',
-    },
-    status: 'Approved',
-    submittedAt: '2023-10-10T14:20:00Z',
-  },
-  // Additional mock entries can be added here.
-};
+
 
 export default function ApplicationDetailPage() {
   const router = useRouter();
@@ -98,11 +51,12 @@ export default function ApplicationDetailPage() {
                     appData.status === 'APPROVED' ? 'Approved' : 'Rejected',
             submittedAt: appData.submitted_at
           });
+        } else {
+          setApp(null);
         }
       } catch(e) {
-        console.error(e);
-        // Fallback to sample data
-        setApp(sampleApplications[id as keyof typeof sampleApplications] || null);
+        console.error('Error fetching application:', e);
+        setApp(null);
       } finally {
         setLoading(false);
       }

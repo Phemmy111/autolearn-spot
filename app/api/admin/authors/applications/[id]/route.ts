@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
+import { EmailService } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,6 +50,13 @@ export async function PATCH(
     const body = await request.json();
     const { status, admin_review_note } = body;
 
+    // First get the current application data for email sending
+    const { data: currentApplication } = await supabaseAdmin
+      .from('author_applications')
+      .select('*')
+      .eq('id', id)
+      .single();
+
     const { data: application, error } = await supabaseAdmin
       .from('author_applications')
       .update({
@@ -65,8 +73,16 @@ export async function PATCH(
       return NextResponse.json({ error: 'Failed to update application' }, { status: 500 });
     }
 
-    // TODO: Send email notification based on status change
-    // This will be implemented in the email notification service
+    // Send email notification based on status change
+    try {
+      if (status === 'UNDER_REVIEW' && currentApplication) {
+        await EmailService.sendApplicationUnderReview(currentApplication.email, currentApplication.full_name);
+        console.log('[Admin Update] Under review email sent to:', currentApplication.email);
+      }
+    } catch (emailError) {
+      console.error('[Admin Update] Failed to send status change email:', emailError);
+      // Don't fail the update if email fails
+    }
 
     return NextResponse.json({ success: true, application });
   } catch (error) {

@@ -25,37 +25,52 @@ export class EmailService {
       // Check which email provider to use
       const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
       
+      console.log('[EmailService] Initializing email transporter with provider:', emailProvider);
+      
       if (emailProvider === 'resend') {
         // Resend API integration
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+          console.error('[EmailService] RESEND_API_KEY not configured');
+        }
         this.transporter = nodemailer.createTransport({
           host: 'smtp.resend.com',
           port: 587,
           secure: false,
           auth: {
             user: 'resend',
-            pass: process.env.RESEND_API_KEY,
+            pass: apiKey,
           },
         });
       } else if (emailProvider === 'sendgrid') {
         // SendGrid integration
+        const apiKey = process.env.SENDGRID_API_KEY;
+        if (!apiKey) {
+          console.error('[EmailService] SENDGRID_API_KEY not configured');
+        }
         this.transporter = nodemailer.createTransport({
           host: 'smtp.sendgrid.net',
           port: 587,
           secure: false,
           auth: {
             user: 'apikey',
-            pass: process.env.SENDGRID_API_KEY,
+            pass: apiKey,
           },
         });
       } else {
         // Default SMTP configuration (works with Gmail, Outlook, custom SMTP)
+        const smtpUser = process.env.SMTP_USER;
+        const smtpPassword = process.env.SMTP_PASSWORD;
+        if (!smtpUser || !smtpPassword) {
+          console.error('[EmailService] SMTP credentials not configured');
+        }
         this.transporter = nodemailer.createTransport({
           host: process.env.SMTP_HOST || 'smtp.gmail.com',
           port: parseInt(process.env.SMTP_PORT || '587'),
           secure: process.env.SMTP_SECURE === 'true',
           auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASSWORD,
+            user: smtpUser,
+            pass: smtpPassword,
           },
         });
       }
@@ -69,6 +84,39 @@ export class EmailService {
    */
   private static async sendEmail(template: EmailTemplate): Promise<boolean> {
     try {
+      // Check if email provider is configured
+      const emailProvider = process.env.EMAIL_PROVIDER || 'smtp';
+      const hasResendKey = !!process.env.RESEND_API_KEY;
+      const hasSendGridKey = !!process.env.SENDGRID_API_KEY;
+      const hasSmtpCreds = !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD);
+
+      if (emailProvider === 'resend' && !hasResendKey) {
+        console.warn('[EmailService] Email not sent - RESEND_API_KEY not configured');
+        console.log('[EmailService] Email content (would be sent):', {
+          to: template.to,
+          subject: template.subject,
+        });
+        return false;
+      }
+
+      if (emailProvider === 'sendgrid' && !hasSendGridKey) {
+        console.warn('[EmailService] Email not sent - SENDGRID_API_KEY not configured');
+        console.log('[EmailService] Email content (would be sent):', {
+          to: template.to,
+          subject: template.subject,
+        });
+        return false;
+      }
+
+      if (emailProvider === 'smtp' && !hasSmtpCreds) {
+        console.warn('[EmailService] Email not sent - SMTP credentials not configured');
+        console.log('[EmailService] Email content (would be sent):', {
+          to: template.to,
+          subject: template.subject,
+        });
+        return false;
+      }
+
       const transporter = this.getTransporter();
       
       const mailOptions = {
@@ -95,7 +143,6 @@ export class EmailService {
       console.log('[EmailService] Email fallback (logging):', {
         to: template.to,
         subject: template.subject,
-        html: template.html,
       });
       
       return false;

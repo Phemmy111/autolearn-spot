@@ -57,11 +57,17 @@ export async function POST(
     }
 
     // Send decline email
-    await EmailService.sendApplicationDeclined(
-      application.email,
-      application.full_name,
-      admin_review_note
-    );
+    try {
+      await EmailService.sendApplicationDeclined(
+        application.email,
+        application.full_name,
+        admin_review_note
+      );
+      console.log('[Admin Decline] Decline email sent to:', application.email);
+    } catch (emailError) {
+      console.error('[Admin Decline] Failed to send decline email:', emailError);
+      // Don't fail the decline if email fails
+    }
 
     return NextResponse.json({
       success: true,

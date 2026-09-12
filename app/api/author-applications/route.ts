@@ -86,21 +86,33 @@ export async function POST(request: NextRequest) {
     }
 
     // Send application submitted email to applicant
-    await EmailService.sendApplicationSubmitted(email, fullName);
+    try {
+      await EmailService.sendApplicationSubmitted(email, fullName);
+      console.log('[Author Application] Email sent to applicant:', email);
+    } catch (emailError) {
+      console.error('[Author Application] Failed to send email to applicant:', emailError);
+      // Don't fail the application if email fails
+    }
 
     // Send notification to founder
-    await EmailService.sendFounderNotification({
-      fullName,
-      email,
-      phone,
-      location,
-      professionalTitle,
-      yearsOfExperience,
-      linkedinProfile,
-      websitePortfolio: portfolioLink,
-      expertise: expertiseArea.split(', '),
-      bio,
-    });
+    try {
+      await EmailService.sendFounderNotification({
+        fullName,
+        email,
+        phone,
+        location,
+        professionalTitle,
+        yearsOfExperience,
+        linkedinProfile,
+        websitePortfolio: portfolioLink,
+        expertise: expertiseArea.split(', '),
+        bio,
+      });
+      console.log('[Author Application] Founder notification sent');
+    } catch (emailError) {
+      console.error('[Author Application] Failed to send founder notification:', emailError);
+      // Don't fail the application if email fails
+    }
 
     return NextResponse.json(
       { 
