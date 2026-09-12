@@ -165,59 +165,60 @@ export default function AdminApplicationsPage() {
                   </tr>
                 ) : (
                   applications.map((app) => (
-                  <tr key={app.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer" onClick={() => router.push(`/admin/authors/applications/${app.id}`)}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center flex-shrink-0 border border-indigo-200 shadow-sm text-indigo-700 font-bold text-sm">
-                          {app.avatar}
+                    <tr key={app.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer" onClick={() => router.push(`/admin/authors/applications/${app.id}`)}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center flex-shrink-0 border border-indigo-200 shadow-sm text-indigo-700 font-bold text-sm">
+                            {app.avatar}
+                          </div>
+                          <div>
+                            <div className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{app.name}</div>
+                            <div className="text-xs font-medium text-gray-500 mt-0.5">{app.email}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{app.name}</div>
-                          <div className="text-xs font-medium text-gray-500 mt-0.5">{app.email}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-bold text-gray-700">{app.expertise}</div>
+                        <div className="text-xs font-medium text-gray-500 mt-0.5">{app.experience}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md border border-gray-200 text-xs font-bold text-gray-600">
+                          <FileText className="h-3.5 w-3.5" />
+                          {app.documents}
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-bold text-gray-700">{app.expertise}</div>
-                      <div className="text-xs font-medium text-gray-500 mt-0.5">{app.experience}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md border border-gray-200 text-xs font-bold text-gray-600">
-                        <FileText className="h-3.5 w-3.5" />
-                        {app.documents}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-bold text-gray-700">{app.date}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {app.status === 'Approved' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                          <CheckCircle2 className="h-3.5 w-3.5" /> Approved
-                        </span>
-                      )}
-                      {app.status === 'Pending Review' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                          <Clock className="h-3.5 w-3.5" /> Pending
-                        </span>
-                      )}
-                      {app.status === 'Rejected' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
-                          <XCircle className="h-3.5 w-3.5" /> Rejected
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
-                      <button 
-                        onClick={() => router.push(`/admin/authors/applications/${app.id}`)}
-                        className="px-4 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 font-bold text-xs rounded-lg transition-colors border border-blue-100"
-                      >
-                        Review
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-bold text-gray-700">{app.date}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {app.status === 'Approved' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Approved
+                          </span>
+                        )}
+                        {app.status === 'Pending Review' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                            <Clock className="h-3.5 w-3.5" /> Pending
+                          </span>
+                        )}
+                        {app.status === 'Rejected' && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-100">
+                            <XCircle className="h-3.5 w-3.5" /> Rejected
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                          onClick={() => router.push(`/admin/authors/applications/${app.id}`)}
+                          className="px-4 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800 font-bold text-xs rounded-lg transition-colors border border-blue-100"
+                        >
+                          Review
+                        </button>
+                      </td>
+                    </tr>
+                  ))
                 )}
+
               </tbody>
             </table>
           </div>
