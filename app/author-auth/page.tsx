@@ -104,7 +104,7 @@ export default function AuthorAuthPage() {
 
           {/* Login Card */}
           <Link
-            href="/sign-in?redirect=/author"
+            href="/author-sign-in"
             className="group bg-white rounded-xl p-8 border-2 border-gray-200 hover:border-indigo-400 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <div className="flex items-start gap-4">
