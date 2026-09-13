@@ -3,4 +3,5 @@
 
 ALTER TABLE public.quizzes
   ALTER COLUMN week_number DROP NOT NULL,
-  ALTER COLUMN cohort_id DROP NOT NULL;
+  ALTER COLUMN cohort_id DROP NOT NULL,
+  ALTER COLUMN phase DROP NOT NULL;
