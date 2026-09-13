@@ -19,6 +19,9 @@ ALTER TABLE public.lesson_progress DROP CONSTRAINT IF EXISTS lesson_progress_coh
 -- Step 5: Drop the unique constraint that also depends on the old structure
 ALTER TABLE public.lesson_progress DROP CONSTRAINT IF EXISTS lesson_progress_cohort_id_lesson_id_user_id_key;
 
+-- Step 5.5: Drop the lesson_uuid_id foreign key if it exists (from previous failed migration)
+ALTER TABLE public.lesson_progress DROP CONSTRAINT IF EXISTS lesson_progress_lesson_uuid_id_fkey;
+
 -- Step 6: Drop the existing composite primary key
 ALTER TABLE public.lessons DROP CONSTRAINT lessons_pkey;
 
@@ -39,10 +42,11 @@ ALTER TABLE public.lessons
 ALTER TABLE public.lesson_progress ADD COLUMN IF NOT EXISTS lesson_uuid_id UUID;
 
 -- Step 10: Populate lesson_uuid_id by joining with lessons table
+-- Only populate if it's null (in case of re-running migration)
 UPDATE public.lesson_progress lp
 SET lesson_uuid_id = l.uuid_id
 FROM public.lessons l
-WHERE lp.lesson_id = l.id AND lp.cohort_id = l.cohort_id;
+WHERE lp.lesson_uuid_id IS NULL AND lp.lesson_id = l.id AND lp.cohort_id = l.cohort_id;
 
 -- Step 11: Make lesson_uuid_id NOT NULL
 ALTER TABLE public.lesson_progress ALTER COLUMN lesson_uuid_id SET NOT NULL;
@@ -50,13 +54,13 @@ ALTER TABLE public.lesson_progress ALTER COLUMN lesson_uuid_id SET NOT NULL;
 -- Step 12: Recreate the foreign key constraint on lesson_progress
 -- Updated to reference the new uuid_id primary key
 ALTER TABLE public.lesson_progress 
-  ADD CONSTRAINT lesson_progress_lesson_uuid_id_fkey 
+  ADD CONSTRAINT IF NOT EXISTS lesson_progress_lesson_uuid_id_fkey 
   FOREIGN KEY (lesson_uuid_id) REFERENCES public.lessons(uuid_id) ON DELETE CASCADE;
 
 -- Step 13: Recreate the unique constraint without cohort_id
 -- Now it's just (lesson_uuid_id, user_id) to ensure a user can only have one progress record per lesson
 ALTER TABLE public.lesson_progress 
-  ADD CONSTRAINT lesson_progress_lesson_uuid_id_user_id_key 
+  ADD CONSTRAINT IF NOT EXISTS lesson_progress_lesson_uuid_id_user_id_key 
   UNIQUE (lesson_uuid_id, user_id);
 
 -- Add YouTube-specific fields
