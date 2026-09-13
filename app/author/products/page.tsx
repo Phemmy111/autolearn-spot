@@ -92,7 +92,7 @@ export default function AuthorProductsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">Products</h1>
           <p className="text-neutral-600">Manage your learning products</p>
@@ -107,12 +107,13 @@ export default function AuthorProductsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
+        {/* added whitespace-nowrap to buttons below */}
         {['ALL', 'DRAFT', 'PENDING_REVIEW', 'PUBLISHED', 'REJECTED', 'SUSPENDED'].map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`snap-start whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status
                 ? 'bg-sky-600 text-white'
                 : 'bg-gray-100 text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
@@ -180,7 +181,8 @@ export default function AuthorProductsPage() {
                 </p>
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
+        {/* added whitespace-nowrap to buttons below */}
                   {canEdit(product.status) && (
                     <Link
                       href={`/author/products/${product.id}/edit`}
@@ -222,7 +224,7 @@ export default function AuthorProductsPage() {
                   {canDelete(product.status) && (
                     <button
                       onClick={() => handleDelete(product.id)}
-                      className="flex items-center justify-center gap-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm"
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
