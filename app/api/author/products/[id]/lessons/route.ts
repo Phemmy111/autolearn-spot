@@ -88,6 +88,7 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to create lesson' }, { status: 500 })
     }
 
+    // Return the lesson with uuid_id as the id for frontend compatibility
     return NextResponse.json({ success: true, lesson: { ...lesson, id: lesson.uuid_id } })
   } catch (error: any) {
     console.error('[POST /api/author/products/[id]/lessons] Error:', error)

@@ -314,6 +314,14 @@ export async function createProductLesson(productId: string, lessonData: Partial
 
   if (error) {
     console.error('[lesson-service] Error creating product lesson:', error)
+    console.error('[lesson-service] Error details:', JSON.stringify(error, null, 2))
+    return null
+  }
+
+  return data as Lesson | null
+
+  if (error) {
+    console.error('[lesson-service] Error creating product lesson:', error)
     return null
   }
 
