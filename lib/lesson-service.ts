@@ -277,7 +277,7 @@ export async function createProductLesson(productId: string, lessonData: Partial
     .order('order_index', { ascending: false })
     .limit(1)
   
-  const nextOrderIndex = (existingLessons && existingLessons[0]?.order_index ?? 0) + 1
+  const nextOrderIndex = (existingLessons?.[0]?.order_index ?? 0) + 1
 
   const { data, error } = await supabaseAdmin
     .from('lessons')
