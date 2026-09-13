@@ -424,3 +424,26 @@ export function getYouTubeThumbnailUrl(videoId: string, quality: 'default' | 'me
   }
   return `https://img.youtube.com/vi/${videoId}/${qualityMap[quality]}.jpg`
 }
+
+/**
+ * Update lesson unlock configuration
+ */
+export async function updateLessonUnlockConfig(lessonUuidId: string, productId: string, unlockConfig: any): Promise<Lesson | null> {
+  const { data, error } = await supabaseAdmin
+    .from('lessons')
+    .update({
+      unlock_config: unlockConfig,
+      updated_at: new Date().toISOString()
+    })
+    .eq('uuid_id', lessonUuidId)
+    .eq('product_id', productId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('[lesson-service] Error updating lesson unlock config:', error)
+    return null
+  }
+
+  return data as Lesson | null
+}

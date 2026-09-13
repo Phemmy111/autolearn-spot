@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical, FileText, HelpCircle } from 'lucide-react';
 
 interface Lesson {
   uuid_id: string;
@@ -15,8 +15,29 @@ interface Lesson {
   order_index: number;
   status: string;
   is_required: boolean;
+  unlock_config: any;
   created_at: string;
   updated_at: string;
+}
+
+interface Quiz {
+  id: string;
+  title: string;
+  description: string | null;
+  time_limit: number | null;
+  passing_score: number;
+  is_active: boolean;
+}
+
+interface Assignment {
+  id: string;
+  title: string;
+  description: string | null;
+  instructions: string | null;
+  submission_type: string;
+  is_required: boolean;
+  due_date: string | null;
+  max_score: number;
 }
 
 export default function CurriculumPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,6 +50,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const [showAddLesson, setShowAddLesson] = useState(false);
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [saving, setSaving] = useState(false);
+  const [expandedLesson, setExpandedLesson] = useState<string | null>(null);
 
   // New lesson form state
   const [newLessonTitle, setNewLessonTitle] = useState('');
@@ -42,6 +64,24 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const [editYoutubeUrl, setEditYoutubeUrl] = useState('');
   const [editDuration, setEditDuration] = useState('');
   const [editIsRequired, setEditIsRequired] = useState(true);
+
+  // Quiz state
+  const [showAddQuiz, setShowAddQuiz] = useState(false);
+  const [quizLessonId, setQuizLessonId] = useState<string | null>(null);
+  const [newQuizTitle, setNewQuizTitle] = useState('');
+  const [newQuizDescription, setNewQuizDescription] = useState('');
+  const [newQuizTimeLimit, setNewQuizTimeLimit] = useState('');
+  const [newQuizPassingScore, setNewQuizPassingScore] = useState('70');
+
+  // Assignment state
+  const [showAddAssignment, setShowAddAssignment] = useState(false);
+  const [assignmentLessonId, setAssignmentLessonId] = useState<string | null>(null);
+  const [newAssignmentTitle, setNewAssignmentTitle] = useState('');
+  const [newAssignmentDescription, setNewAssignmentDescription] = useState('');
+  const [newAssignmentInstructions, setNewAssignmentInstructions] = useState('');
+  const [newAssignmentType, setNewAssignmentType] = useState('url');
+  const [newAssignmentRequired, setNewAssignmentRequired] = useState(true);
+  const [newAssignmentMaxScore, setNewAssignmentMaxScore] = useState('100');
 
   useEffect(() => {
     fetchLessons();
@@ -218,6 +258,82 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     setEditYoutubeUrl('');
     setEditDuration('');
     setEditIsRequired(true);
+  };
+
+  const handleAddQuiz = async (lessonUuidId: string) => {
+    if (!newQuizTitle.trim()) return;
+
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/author/products/${productId}/lessons/${lessonUuidId}/quizzes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newQuizTitle,
+          description: newQuizDescription,
+          time_limit: newQuizTimeLimit ? parseInt(newQuizTimeLimit) : null,
+          passing_score: parseInt(newQuizPassingScore)
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setNewQuizTitle('');
+        setNewQuizDescription('');
+        setNewQuizTimeLimit('');
+        setNewQuizPassingScore('70');
+        setShowAddQuiz(false);
+        setQuizLessonId(null);
+        // Refresh lesson data to show quiz count
+        fetchLessons();
+      } else {
+        setError(data.error || 'Failed to create quiz');
+      }
+    } catch (err) {
+      setError('Network error creating quiz');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddAssignment = async (lessonUuidId: string) => {
+    if (!newAssignmentTitle.trim()) return;
+
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/author/products/${productId}/lessons/${lessonUuidId}/assignments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newAssignmentTitle,
+          description: newAssignmentDescription,
+          instructions: newAssignmentInstructions,
+          submission_type: newAssignmentType,
+          is_required: newAssignmentRequired,
+          max_score: parseInt(newAssignmentMaxScore)
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setNewAssignmentTitle('');
+        setNewAssignmentDescription('');
+        setNewAssignmentInstructions('');
+        setNewAssignmentType('url');
+        setNewAssignmentRequired(true);
+        setNewAssignmentMaxScore('100');
+        setShowAddAssignment(false);
+        setAssignmentLessonId(null);
+        // Refresh lesson data to show assignment count
+        fetchLessons();
+      } else {
+        setError(data.error || 'Failed to create assignment');
+      }
+    } catch (err) {
+      setError('Network error creating assignment');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -440,6 +556,30 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                           <span>{lesson.duration_label}</span>
                         </div>
                       )}
+
+                      {/* Quiz and Assignment indicators */}
+                      <div className="flex items-center gap-3 mt-2 text-sm text-neutral-500">
+                        <button
+                          onClick={() => {
+                            setQuizLessonId(lesson.uuid_id);
+                            setShowAddQuiz(true);
+                          }}
+                          className="flex items-center gap-1 hover:text-sky-600 transition-colors"
+                        >
+                          <HelpCircle className="w-4 h-4" />
+                          <span>Add Quiz</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setAssignmentLessonId(lesson.uuid_id);
+                            setShowAddAssignment(true);
+                          }}
+                          className="flex items-center gap-1 hover:text-sky-600 transition-colors"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span>Add Assignment</span>
+                        </button>
+                      </div>
                     </div>
 
                     {/* Actions */}
@@ -555,6 +695,215 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 <button
                   type="button"
                   onClick={handleCancelEdit}
+                  className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Quiz Modal */}
+      {showAddQuiz && quizLessonId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-lg w-full">
+            <h3 className="text-lg font-bold text-neutral-900 mb-4">Add Quiz to Lesson</h3>
+            <form onSubmit={(e) => { e.preventDefault(); handleAddQuiz(quizLessonId); }} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                  Quiz Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Lesson 1 Quiz"
+                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  value={newQuizTitle}
+                  onChange={(e) => setNewQuizTitle(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                  Description
+                </label>
+                <textarea
+                  placeholder="Brief description of the quiz..."
+                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  rows={2}
+                  value={newQuizDescription}
+                  onChange={(e) => setNewQuizDescription(e.target.value)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                    Time Limit (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Optional"
+                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    value={newQuizTimeLimit}
+                    onChange={(e) => setNewQuizTimeLimit(e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                    Passing Score (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    value={newQuizPassingScore}
+                    onChange={(e) => setNewQuizPassingScore(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Adding...' : 'Add Quiz'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddQuiz(false);
+                    setQuizLessonId(null);
+                    setNewQuizTitle('');
+                    setNewQuizDescription('');
+                    setNewQuizTimeLimit('');
+                    setNewQuizPassingScore('70');
+                  }}
+                  className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Assignment Modal */}
+      {showAddAssignment && assignmentLessonId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-lg w-full">
+            <h3 className="text-lg font-bold text-neutral-900 mb-4">Add Assignment to Lesson</h3>
+            <form onSubmit={(e) => { e.preventDefault(); handleAddAssignment(assignmentLessonId); }} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                  Assignment Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Project Submission"
+                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  value={newAssignmentTitle}
+                  onChange={(e) => setNewAssignmentTitle(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                  Description
+                </label>
+                <textarea
+                  placeholder="Brief description of the assignment..."
+                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  rows={2}
+                  value={newAssignmentDescription}
+                  onChange={(e) => setNewAssignmentDescription(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                  Instructions
+                </label>
+                <textarea
+                  placeholder="Detailed instructions for students..."
+                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  rows={3}
+                  value={newAssignmentInstructions}
+                  onChange={(e) => setNewAssignmentInstructions(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                  Submission Type
+                </label>
+                <select
+                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  value={newAssignmentType}
+                  onChange={(e) => setNewAssignmentType(e.target.value)}
+                >
+                  <option value="url">URL</option>
+                  <option value="screenshot">Screenshot</option>
+                  <option value="both">Both URL and Screenshot</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                    Max Score
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    value={newAssignmentMaxScore}
+                    onChange={(e) => setNewAssignmentMaxScore(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="newAssignmentRequired"
+                    checked={newAssignmentRequired}
+                    onChange={(e) => setNewAssignmentRequired(e.target.checked)}
+                    className="w-4 h-4 text-sky-600 border-neutral-300 rounded focus:ring-sky-500"
+                  />
+                  <label htmlFor="newAssignmentRequired" className="text-sm text-neutral-700">
+                    Required
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Adding...' : 'Add Assignment'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddAssignment(false);
+                    setAssignmentLessonId(null);
+                    setNewAssignmentTitle('');
+                    setNewAssignmentDescription('');
+                    setNewAssignmentInstructions('');
+                    setNewAssignmentType('url');
+                    setNewAssignmentRequired(true);
+                    setNewAssignmentMaxScore('100');
+                  }}
                   className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
                 >
                   Cancel

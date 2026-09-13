@@ -44,27 +44,10 @@ export default async function DashboardLayout({
 
   // They are enrolled, render the normal dashboard layout/pages
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <nav className="w-64 bg-gray-50 text-neutral-900 p-4">
-        <ul className="space-y-2">
-          <li>
-            <a href="/dashboard" className="block py-2 hover:text-primary-500">Learning</a>
-          </li>
-          <li>
-            <a href="/dashboard/history" className="block py-2 hover:text-primary-500">Purchase History</a>
-          </li>
-          <li>
-            <a href="/certificate/verify" className="block py-2 hover:text-primary-500">Certificates</a>
-          </li>
-          <li>
-            <a href="/dashboard/settings" className="block py-2 hover:text-primary-500">Profile Settings</a>
-          </li>
-          <li className="mt-8 border-t border-gray-700 pt-4">
-            <a href="/author" className="block py-2 text-primary-500 hover:text-primary-400">Author Dashboard →</a>
-          </li>
-        </ul>
-      </nav>
-      <main className="flex-1 p-6">{children}</main>
+    <div className="min-h-screen bg-gray-50">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {children}
+      </main>
     </div>
   );
 }
