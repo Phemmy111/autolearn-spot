@@ -112,7 +112,13 @@ export async function POST(
     
     const nextOrderIndex = (existingAssignments?.[0]?.order_index ?? 0) + 1
 
-    const { data: assignment } = await supabaseAdmin
+    console.log('[ASSIGNMENT CREATE] Inserting assignment with data:', {
+      title: body.title,
+      lesson_id: lessonId,
+      lesson_id_type: typeof lessonId,
+    });
+
+    const { data: assignment, error: insertError } = await supabaseAdmin
       .from('assignments')
       .insert({
         lesson_id: lessonId,
@@ -131,6 +137,11 @@ export async function POST(
       })
       .select()
       .single()
+
+    if (insertError) {
+      console.error('[ASSIGNMENT CREATE] Insert error:', insertError);
+      return NextResponse.json({ error: insertError.message, details: insertError }, { status: 500 })
+    }
 
     if (!assignment) {
       return NextResponse.json({ error: 'Failed to create assignment' }, { status: 500 })
