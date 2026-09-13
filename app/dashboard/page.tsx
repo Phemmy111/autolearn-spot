@@ -113,7 +113,16 @@ export default function DashboardPage() {
                   {c.course.title}
                 </h3>
                 <p className="text-sm text-brand-text/60 line-clamp-2 mb-5 leading-relaxed flex-1">
-                  {c.course.description}
+                  {(() => {
+                    let desc = c.course.description;
+                    try {
+                      if (typeof desc === 'string' && desc.startsWith('{')) {
+                        const obj = JSON.parse(desc);
+                        desc = obj.short_description || obj.description || desc;
+                      }
+                    } catch(e) {}
+                    return desc;
+                  })()}
                 </p>
                 
                 {!isStarted ? (

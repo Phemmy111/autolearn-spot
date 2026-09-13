@@ -121,7 +121,8 @@ export async function GET(request: Request) {
       .from('enrollments')
       .select('profile_picture')
       .eq('clerk_user_id', userId)
-      .single()
+      .limit(1)
+      .maybeSingle()
 
     console.log('[Profile Picture GET] enrollmentError:', enrollmentError)
     console.log('[Profile Picture GET] enrollment:', enrollment)

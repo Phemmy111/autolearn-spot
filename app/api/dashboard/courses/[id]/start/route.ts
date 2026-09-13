@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
@@ -14,7 +14,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const enrollmentId = params.id;
+    const resolvedParams = await params;
+    const enrollmentId = resolvedParams.id;
 
     // Check ownership
     const { data: enrollment, error: fetchError } = await supabaseAdmin
@@ -23,8 +24,11 @@ export async function POST(
       .eq('id', enrollmentId)
       .single();
 
+    console.log('[START COURSE] ID:', enrollmentId, 'User:', userId);
+    console.log('[START COURSE] enrollment:', enrollment, 'error:', fetchError);
+
     if (fetchError || !enrollment) {
-      return NextResponse.json({ error: 'Enrollment not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Enrollment not found', details: fetchError }, { status: 404 });
     }
 
     if (enrollment.clerk_user_id !== userId) {

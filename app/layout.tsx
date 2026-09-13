@@ -53,6 +53,8 @@ export const viewport: Viewport = {
 
 // Test commit to trigger deployment
 
+import { ThemeProvider } from 'next-themes'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -60,11 +62,13 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="h-full">
+      <html lang="en" className="h-full" suppressHydrationWarning>
         <body className="font-sans antialiased h-full bg-brand-bg text-brand-text">
-          <BrandTheming />
-          {children}
-          {process.env.NODE_ENV === 'production' && <Analytics />}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <BrandTheming />
+            {children}
+            {process.env.NODE_ENV === 'production' && <Analytics />}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
