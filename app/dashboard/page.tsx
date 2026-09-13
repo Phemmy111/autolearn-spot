@@ -144,7 +144,7 @@ export default function DashboardPage() {
                     </div>
                     
                     <Link
-                      href={\`/dashboard/course/\${c.course.id}\`}
+                      href={`/dashboard/course/${c.course.id}`}
                       className="w-full inline-flex items-center justify-center bg-[var(--card)] border border-[#10b981]/50 px-4 py-2 text-sm font-semibold text-[#10b981] rounded-xl hover:bg-[#10b981] hover:text-white transition-all shadow-sm"
                     >
                       Continue Learning
