@@ -1,6 +1,11 @@
 -- Phase D: Add RLS policies for author lesson quiz management
 -- This enables authors to create quizzes for their own lessons
 
+-- Make cohort-specific columns nullable for product-based quizzes
+ALTER TABLE public.quizzes
+  ALTER COLUMN week_number DROP NOT NULL,
+  ALTER COLUMN cohort_id DROP NOT NULL;
+
 -- Drop old restrictive policies on quizzes
 DROP POLICY IF EXISTS "No direct inserts on quizzes" ON public.quizzes;
 DROP POLICY IF EXISTS "No direct updates on quizzes" ON public.quizzes;
