@@ -18,7 +18,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           id,
           title,
           status,
-          order_index
+          order_index,
+          youtube_url,
+          youtube_video_id,
+          vimeo_video_id,
+          vdo_cipher_video_id
         )
       `)
       .eq('id', id)

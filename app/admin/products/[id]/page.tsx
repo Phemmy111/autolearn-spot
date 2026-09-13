@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   ArrowLeft, Package, CheckCircle, XCircle, AlertTriangle, 
-  BookOpen, Video, FileText, CheckSquare, Clock
+  BookOpen, Video, FileText, CheckSquare, Clock, PlayCircle, X
 } from 'lucide-react';
 
 export default function AdminProductReviewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -16,6 +16,7 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
   const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [selectedLesson, setSelectedLesson] = useState<any>(null);
 
   useEffect(() => {
     fetchProduct();
@@ -171,17 +172,25 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
               <h2 className="text-lg font-bold text-brand-text mb-4 border-b border-brand-border pb-2">Curriculum ({product.lessons?.length || 0} Lessons)</h2>
               {product.lessons && product.lessons.length > 0 ? (
                 <ul className="space-y-3">
-                  {product.lessons.sort((a: any, b: any) => a.order_index - b.order_index).map((lesson: any, i: number) => (
-                    <li key={lesson.id} className="flex items-center justify-between p-3 border border-brand-border rounded-lg bg-[var(--card)] brightness-95">
-                      <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 flex flex-shrink-0 items-center justify-center bg-sky-100 text-sky-700 rounded-full text-xs font-bold">{i + 1}</span>
-                        <span className="font-medium text-sm text-brand-text">{lesson.title}</span>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${lesson.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {lesson.status === 'PUBLISHED' ? 'Published' : (lesson.status || 'Draft')}
-                      </span>
-                    </li>
-                  ))}
+                  {product.lessons.sort((a: any, b: any) => a.order_index - b.order_index).map((lesson: any, i: number) => {
+                    const hasVideo = !!(lesson.youtube_video_id || lesson.vimeo_video_id || lesson.vdo_cipher_video_id || lesson.youtube_url);
+                    return (
+                      <li 
+                        key={lesson.id} 
+                        onClick={() => hasVideo && setSelectedLesson(lesson)}
+                        className={`flex items-center justify-between p-3 border rounded-lg bg-[var(--card)] brightness-95 ${hasVideo ? 'cursor-pointer hover:border-sky-500 hover:shadow-sm border-brand-border transition-all' : 'border-brand-border'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="w-6 h-6 flex flex-shrink-0 items-center justify-center bg-sky-100 text-sky-700 rounded-full text-xs font-bold">{i + 1}</span>
+                          <span className="font-medium text-sm text-brand-text">{lesson.title}</span>
+                          {hasVideo && <PlayCircle className="w-4 h-4 text-sky-500 ml-1" />}
+                        </div>
+                        <span className={`text-xs px-2 py-1 rounded-full ${lesson.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                          {lesson.status === 'PUBLISHED' ? 'Published' : (lesson.status || 'Draft')}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : (
                 <p className="text-sm text-red-500 italic">No lessons have been added to this product.</p>
@@ -235,6 +244,51 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
         </div>
 
       </div>
+
+      {/* Video Modal */}
+      {selectedLesson && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 z-[100]">
+          <div className="bg-[var(--card)] rounded-xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col border border-brand-border">
+            <div className="flex justify-between items-center p-4 border-b border-brand-border bg-brand-bg">
+              <h3 className="font-bold text-lg text-brand-text truncate pr-4">{selectedLesson.title}</h3>
+              <button 
+                onClick={() => setSelectedLesson(null)}
+                className="p-1 hover:bg-neutral-200 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-brand-text/70" />
+              </button>
+            </div>
+            <div className="w-full aspect-video bg-black flex items-center justify-center">
+              {selectedLesson.youtube_video_id ? (
+                <iframe 
+                  src={`https://www.youtube.com/embed/${selectedLesson.youtube_video_id}?autoplay=1`} 
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              ) : selectedLesson.youtube_url ? (
+                <iframe 
+                  src={selectedLesson.youtube_url.replace('watch?v=', 'embed/')} 
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              ) : selectedLesson.vimeo_video_id ? (
+                <iframe 
+                  src={`https://player.vimeo.com/video/${selectedLesson.vimeo_video_id}?autoplay=1`} 
+                  className="w-full h-full border-0"
+                  allow="autoplay; fullscreen; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              ) : selectedLesson.vdo_cipher_video_id ? (
+                <div className="text-white">VdoCipher Video ID: {selectedLesson.vdo_cipher_video_id} (Requires Player SDK)</div>
+              ) : (
+                <div className="text-white">Unsupported video format or missing ID</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
