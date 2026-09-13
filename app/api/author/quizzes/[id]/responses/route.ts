@@ -47,23 +47,32 @@ export async function GET(
           id,
           title,
           passing_score
-        ),
-        user:users!inner (
-          id,
-          first_name,
-          last_name,
-          email_addresses
         )
       `)
       .eq('quiz_id', id)
-      .order('submitted_at', { ascending: false })
+      .order('completed_at', { ascending: false })
 
     if (error) {
       console.error('[GET /api/author/quizzes/[id]/responses] Error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, responses })
+    // Map inline user_name and user_email to match the frontend expected 'user' object structure
+    const mappedResponses = responses?.map((r: any) => {
+      const nameParts = (r.user_name || '').split(' ');
+      return {
+        ...r,
+        submitted_at: r.completed_at || r.created_at, // Map to what frontend expects
+        user: {
+          id: r.user_id,
+          first_name: nameParts[0] || 'Unknown',
+          last_name: nameParts.slice(1).join(' ') || '',
+          email_addresses: [{ email_address: r.user_email || '' }]
+        }
+      }
+    })
+
+    return NextResponse.json({ success: true, responses: mappedResponses })
   } catch (error: any) {
     console.error('[GET /api/author/quizzes/[id]/responses] Error:', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })

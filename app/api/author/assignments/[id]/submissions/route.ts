@@ -57,7 +57,38 @@ export async function GET(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, submissions })
+    // Resolve user names from enrollments table
+    const userIds = [...new Set(submissions?.map((s: any) => s.user_id).filter(Boolean))]
+    let userMap: Record<string, { name: string; email: string }> = {}
+
+    if (userIds.length > 0) {
+      const { data: enrollments } = await supabaseAdmin
+        .from('enrollments')
+        .select('clerk_user_id, email, full_name, first_name, last_name')
+        .in('clerk_user_id', userIds)
+
+      if (enrollments) {
+        for (const e of enrollments) {
+          if (e.clerk_user_id && !userMap[e.clerk_user_id]) {
+            userMap[e.clerk_user_id] = {
+              name: e.full_name || [e.first_name, e.last_name].filter(Boolean).join(' ') || 'Unknown',
+              email: e.email || ''
+            }
+          }
+        }
+      }
+    }
+
+    const mappedSubmissions = submissions?.map((s: any) => ({
+      ...s,
+      user: {
+        id: s.user_id,
+        name: userMap[s.user_id]?.name || 'Unknown Student',
+        email: userMap[s.user_id]?.email || ''
+      }
+    }))
+
+    return NextResponse.json({ success: true, submissions: mappedSubmissions })
   } catch (error: any) {
     console.error('[GET /api/author/assignments/[id]/submissions] Error:', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })

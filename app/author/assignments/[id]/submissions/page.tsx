@@ -119,10 +119,10 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                       </div>
                       <div>
                         <h3 className="font-semibold text-brand-text">
-                          Student ID: {submission.user_id}
+                          {submission.user?.name || 'Unknown Student'}
                         </h3>
                         <p className="text-sm text-brand-text/70">
-                          Status: {submission.status}
+                          {submission.user?.email || submission.user_id}
                         </p>
                       </div>
                     </div>
