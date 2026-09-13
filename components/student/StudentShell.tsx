@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, BookOpen, Trophy, FileText, Award, Home, LogOut, Settings, Video, History, BarChart3, Gift, Bell, Brain } from 'lucide-react';
+import { Menu, X, BookOpen, Award, Home, LogOut, Settings } from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
 
 /**
@@ -18,14 +18,6 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: 'Dashboard', href: '/student', icon: Home },
     { name: 'My Learning', href: '/dashboard', icon: BookOpen },
-    { name: 'ALEX', href: '/autolearn-ai', icon: Brain },
-    { name: 'Live Class', href: '/live-class', icon: Video },
-    { name: 'Quizzes', href: '/dashboard/quiz', icon: Trophy },
-    { name: 'Assignments', href: '/dashboard/assignments', icon: FileText },
-    { name: 'Leaderboard', href: '/dashboard/leaderboard', icon: Trophy },
-    { name: 'History', href: '/dashboard/history', icon: History },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-    { name: 'Refer and Earn', href: '/dashboard/refer-and-earn', icon: Gift },
     { name: 'Certificates', href: '/dashboard/achievements', icon: Award },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ];
