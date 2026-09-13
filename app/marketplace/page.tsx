@@ -1,60 +1,29 @@
-import { ShoppingBag, Filter, Search } from 'lucide-react';
+import { getPublishedProducts } from '@/lib/public-product-service';
+import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid';
 
 /**
  * Marketplace Landing Page
  * 
- * Clean marketplace listing page with placeholder for products.
- * Will be connected to backend data in future phases.
+ * Displays all published learning products.
  */
-export default function MarketplacePage() {
+export default async function MarketplacePage() {
+  const publishedProducts = await getPublishedProducts();
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-brand-bg">
       {/* Header */}
       <div className="bg-[var(--card)] brightness-95 border-b border-brand-border">
-        <div className="container mx-auto px-6 lg:px-12 py-8">
+        <div className="container mx-auto px-6 lg:px-12 py-8 pt-24">
           <h1 className="text-3xl font-bold text-brand-text mb-2">
             Marketplace
           </h1>
           <p className="text-brand-text/70">
-            Discover premium digital skills courses
+            Discover premium digital skills courses and masterclasses
           </p>
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="bg-brand-bg border-b border-brand-border">
-        <div className="container mx-auto px-6 lg:px-12 py-4">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
-              <input
-                type="text"
-                placeholder="Search courses..."
-                className="w-full pl-10 pr-4 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              />
-            </div>
-            <button className="flex items-center gap-2 px-4 py-2 border border-brand-border rounded-lg hover:bg-[var(--card)] brightness-95 transition-colors">
-              <Filter className="w-5 h-5" />
-              Filters
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Empty State */}
-      <div className="container mx-auto px-6 lg:px-12 py-12">
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 bg-[var(--card)] brightness-95 rounded-full flex items-center justify-center mb-4">
-            <ShoppingBag className="w-8 h-8 text-neutral-400" />
-          </div>
-          <h2 className="text-xl font-semibold text-brand-text mb-2">
-            Marketplace Coming Soon
-          </h2>
-          <p className="text-brand-text/70 max-w-md">
-            We're curating the best digital skills courses for you. Check back soon to discover our premium course offerings.
-          </p>
-        </div>
-      </div>
+      <MarketplaceProductGrid products={publishedProducts} />
     </div>
   );
 }

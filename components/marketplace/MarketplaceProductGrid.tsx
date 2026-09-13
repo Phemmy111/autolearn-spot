@@ -1,3 +1,5 @@
+'use client';
+import { useState } from 'react';
 import { LearningProduct } from '@/types/product';
 import { ProductCard } from './ProductCard';
 import { Search, SlidersHorizontal, BookOpen } from 'lucide-react';
@@ -7,6 +9,24 @@ interface MarketplaceProductGridProps {
 }
 
 export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('All Products');
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (product.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (activeTab === 'All Products') return matchesSearch;
+    
+    const tabMap: Record<string, string> = {
+      'Courses': 'COURSE',
+      'Cohorts': 'COHORT',
+      'Masterclasses': 'MASTERCLASS',
+      'Digital Downloads': 'DIGITAL_DOWNLOAD'
+    };
+    
+    return matchesSearch && product.product_type === tabMap[activeTab];
+  });
   if (!products || products.length === 0) {
     return (
       <section id="products" className="py-24 bg-brand-bg">
@@ -46,9 +66,10 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                 <input 
                   type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..." 
                   className="w-full pl-9 pr-4 py-2.5 bg-brand-bg border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#10b981]/20 transition-all text-brand-text placeholder:text-neutral-400"
-                  disabled
                 />
               </div>
               <button className="flex items-center justify-center p-2.5 bg-[var(--card)] brightness-95 rounded-xl text-brand-text/70 hover:text-brand-text hover:bg-neutral-200 transition-colors">
@@ -60,11 +81,12 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
 
         {/* Tab Navigation (Visual Only) */}
         <div className="flex gap-2 overflow-x-auto pb-6 mb-8 hide-scrollbar scroll-smooth">
-          {['All Products', 'Masterclasses', 'Cohorts', 'Digital Downloads'].map((tab, i) => (
+          {['All Products', 'Courses', 'Masterclasses', 'Cohorts', 'Digital Downloads'].map((tab) => (
             <button 
-              key={tab} 
+              key={tab}
+              onClick={() => setActiveTab(tab)}
               className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                i === 0 
+                activeTab === tab 
                   ? 'bg-neutral-900 text-brand-text shadow-md' 
                   : 'bg-[var(--card)] brightness-95 border border-brand-border/50 text-brand-text/70 hover:border-neutral-400 hover:text-brand-text'
               }`}
@@ -75,11 +97,17 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {filteredProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-brand-text/70 text-lg">No products found matching your search.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 xl:gap-8">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -50,10 +50,10 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
             <span className="ml-1 text-brand-text">4.8</span>
           </div>
           <span className="opacity-50">•</span>
-          <span className="flex items-center gap-1">
+          <Link href={`/creator/${product.author_id}`} className="flex items-center gap-1 hover:text-brand-primary transition-colors">
             <User className="w-3.5 h-3.5" />
             {authorName}
-          </span>
+          </Link>
         </div>
 
         <Link href={`/learning_products/${product.id}`} className="block mb-2.5 group/title">
