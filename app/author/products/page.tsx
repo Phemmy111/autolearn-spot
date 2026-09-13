@@ -181,8 +181,7 @@ export default function AuthorProductsPage() {
                 </p>
 
                 {/* Actions */}
-                <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
-        {/* added whitespace-nowrap to buttons below */}
+                <div className="grid grid-cols-2 gap-2">
                   {canEdit(product.status) && (
                     <Link
                       href={`/author/products/${product.id}/edit`}
