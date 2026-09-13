@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical, FileText, HelpCircle } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical, FileText, HelpCircle, Sparkles } from 'lucide-react';
 
 interface Lesson {
   uuid_id: string;
@@ -73,6 +73,19 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const [newQuizTimeLimit, setNewQuizTimeLimit] = useState('');
   const [newQuizPassingScore, setNewQuizPassingScore] = useState('70');
 
+  // AI Quiz generation state
+  const [showAIGenerate, setShowAIGenerate] = useState(false);
+  const [aiLessonId, setAiLessonId] = useState<string | null>(null);
+  const [aiScript, setAiScript] = useState('');
+  const [aiQuestionCount, setAiQuestionCount] = useState(10);
+  const [aiProviders, setAiProviders] = useState<any[]>([]);
+  const [aiPrompts, setAiPrompts] = useState<any[]>([]);
+  const [selectedProviderId, setSelectedProviderId] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedPromptId, setSelectedPromptId] = useState('');
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [generatedQuiz, setGeneratedQuiz] = useState<any>(null);
+
   // Assignment state
   const [showAddAssignment, setShowAddAssignment] = useState(false);
   const [assignmentLessonId, setAssignmentLessonId] = useState<string | null>(null);
@@ -85,6 +98,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
   useEffect(() => {
     fetchLessons();
+    fetchAIProviders();
+    fetchAIPrompts();
   }, [productId]);
 
   const fetchLessons = async () => {
@@ -336,6 +351,140 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     }
   };
 
+  const fetchAIProviders = async () => {
+    try {
+      const res = await fetch('/api/author/ai-providers');
+      if (res.ok) {
+        const data = await res.json();
+        setAiProviders(data.providers || []);
+        
+        // Auto-select default provider
+        const defaultProvider = data.providers?.find((p: any) => p.is_default);
+        if (defaultProvider) {
+          setSelectedProviderId(defaultProvider.id);
+          setSelectedModel(defaultProvider.default_model || '');
+        } else if (data.providers?.length > 0) {
+          setSelectedProviderId(data.providers[0].id);
+          setSelectedModel(data.providers[0].default_model || '');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch AI providers:', err);
+    }
+  };
+
+  const fetchAIPrompts = async () => {
+    try {
+      const res = await fetch('/api/author/ai-prompts');
+      if (res.ok) {
+        const data = await res.json();
+        const quizPrompts = (data.prompts || []).filter((p: any) => p.prompt_type === 'quiz_generation');
+        setAiPrompts(quizPrompts);
+        
+        // Auto-select active prompt
+        const activePrompt = quizPrompts.find((p: any) => p.is_active);
+        if (activePrompt) {
+          setSelectedPromptId(activePrompt.id);
+        } else if (quizPrompts.length > 0) {
+          setSelectedPromptId(quizPrompts[0].id);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch AI prompts:', err);
+    }
+  };
+
+  const handleAIGenerate = async () => {
+    if (!aiScript.trim()) {
+      setError('Please provide lesson script');
+      return;
+    }
+
+    if (!selectedProviderId) {
+      setError('Please select an AI provider');
+      return;
+    }
+
+    if (!selectedModel) {
+      setError('Please select a model');
+      return;
+    }
+
+    setAiGenerating(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/author/generate-quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          script: aiScript,
+          lessonId: aiLessonId,
+          questionCount: aiQuestionCount,
+          providerId: selectedProviderId,
+          model: selectedModel,
+          promptId: selectedPromptId,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to generate quiz');
+      }
+
+      const data = await res.json();
+      setGeneratedQuiz(data.quiz);
+      setShowAIGenerate(false);
+      setAiScript('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate quiz');
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  const handleSaveGeneratedQuiz = async () => {
+    if (!generatedQuiz || !aiLessonId) return;
+
+    setSaving(true);
+    try {
+      // Create the quiz
+      const res = await fetch(`/api/author/products/${productId}/lessons/${aiLessonId}/quizzes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: generatedQuiz.title,
+          description: generatedQuiz.description,
+          time_limit: 30,
+          passing_score: 70,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create quiz');
+      }
+
+      const quizData = await res.json();
+      const quizId = quizData.quiz.id;
+
+      // Create questions using the existing quiz API
+      for (const question of generatedQuiz.questions) {
+        await fetch(`/api/author/products/${productId}/lessons/${aiLessonId}/quizzes/${quizId}/questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(question),
+        });
+      }
+
+      setGeneratedQuiz(null);
+      fetchLessons();
+    } catch (err: any) {
+      setError(err.message || 'Failed to save quiz');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto p-4 md:p-8">
@@ -568,6 +717,16 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                         >
                           <HelpCircle className="w-4 h-4" />
                           <span>Add Quiz</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setAiLessonId(lesson.uuid_id);
+                            setShowAIGenerate(true);
+                          }}
+                          className="flex items-center gap-1 hover:text-purple-600 transition-colors"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          <span>AI Generate</span>
                         </button>
                         <button
                           onClick={() => {
@@ -910,6 +1069,231 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* AI Quiz Generation Modal */}
+      {showAIGenerate && aiLessonId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-neutral-900 mb-4 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              AI Quiz Generator
+            </h3>
+            
+            {aiProviders.length === 0 && (
+              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  No AI providers configured.{' '}
+                  <a href="/author/ai-providers" className="underline hover:text-yellow-900">
+                    Configure AI providers →
+                  </a>
+                </p>
+              </div>
+            )}
+
+            {aiPrompts.length === 0 && (
+              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  No quiz generation prompts configured.{' '}
+                  <a href="/author/ai-prompts" className="underline hover:text-yellow-900">
+                    Configure AI prompts →
+                  </a>
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                  Lesson Script <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  required
+                  placeholder="Paste your lesson script or content here. The AI will analyze it and generate quiz questions..."
+                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  rows={8}
+                  value={aiScript}
+                  onChange={(e) => setAiScript(e.target.value)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                    Question Count
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    value={aiQuestionCount}
+                    onChange={(e) => setAiQuestionCount(parseInt(e.target.value) || 10)}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                    AI Provider
+                  </label>
+                  <select
+                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    value={selectedProviderId}
+                    onChange={(e) => {
+                      setSelectedProviderId(e.target.value);
+                      const provider = aiProviders.find((p: any) => p.id === e.target.value);
+                      setSelectedModel(provider?.default_model || '');
+                    }}
+                  >
+                    {aiProviders.length === 0 ? (
+                      <option value="">No providers</option>
+                    ) : (
+                      aiProviders.map((provider: any) => (
+                        <option key={provider.id} value={provider.id}>
+                          {provider.name} {provider.is_default && '(Default)'}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                    Model
+                  </label>
+                  <select
+                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                  >
+                    {selectedProviderId ? (
+                      (() => {
+                        const provider = aiProviders.find((p: any) => p.id === selectedProviderId);
+                        const models = provider?.models || [];
+                        if (models.length === 0) {
+                          return <option value="">No models</option>;
+                        }
+                        return models.map((model: string) => (
+                          <option key={model} value={model}>{model}</option>
+                        ));
+                      })()
+                    ) : (
+                      <option value="">Select provider first</option>
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
+                    AI Prompt
+                  </label>
+                  <select
+                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    value={selectedPromptId}
+                    onChange={(e) => setSelectedPromptId(e.target.value)}
+                  >
+                    {aiPrompts.length === 0 ? (
+                      <option value="">No prompts</option>
+                    ) : (
+                      aiPrompts.map((prompt: any) => (
+                        <option key={prompt.id} value={prompt.id}>
+                          {prompt.name} (v{prompt.version}) {prompt.is_active && '(Active)'}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={handleAIGenerate}
+                  disabled={aiGenerating || !aiScript.trim() || aiProviders.length === 0}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {aiGenerating ? 'Generating...' : 'Generate Quiz'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAIGenerate(false);
+                    setAiLessonId(null);
+                    setAiScript('');
+                    setGeneratedQuiz(null);
+                  }}
+                  className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generated Quiz Review Modal */}
+      {generatedQuiz && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-neutral-900 mb-4">Review Generated Quiz</h3>
+            
+            <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <p className="text-sm text-emerald-800">
+                Quiz generated successfully! Review the questions below before saving.
+              </p>
+            </div>
+
+            <div className="border border-neutral-200 bg-neutral-50 p-4 rounded-xl mb-4">
+              <h4 className="font-bold text-neutral-900 mb-2">{generatedQuiz.title}</h4>
+              <p className="text-sm text-neutral-600 mb-2">{generatedQuiz.description}</p>
+              <p className="text-xs text-neutral-500">{generatedQuiz.questions.length} questions</p>
+            </div>
+
+            <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+              {generatedQuiz.questions.map((question: any, index: number) => (
+                <div key={index} className="border border-neutral-200 bg-neutral-50 p-3 rounded-lg">
+                  <p className="text-sm font-medium text-neutral-900 mb-2">Q{index + 1}: {question.question_text}</p>
+                  <p className="text-xs text-neutral-500">Type: {question.question_type} | Points: {question.points}</p>
+                  {question.options && question.options.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {question.options.map((option: string, optIndex: number) => (
+                        <p key={optIndex} className={`text-xs ${option === question.correct_answer ? 'text-emerald-600' : 'text-neutral-600'}`}>
+                          {String.fromCharCode(65 + optIndex)}. {option} {option === question.correct_answer && '✓'}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveGeneratedQuiz}
+                disabled={saving}
+                className="flex-1 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {saving ? 'Saving...' : 'Save Quiz'}
+              </button>
+              <button
+                onClick={() => {
+                  setGeneratedQuiz(null);
+                  setShowAIGenerate(true);
+                }}
+                className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+              >
+                Regenerate
+              </button>
+              <button
+                onClick={() => setGeneratedQuiz(null)}
+                className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+              >
+                Discard
+              </button>
+            </div>
           </div>
         </div>
       )}
