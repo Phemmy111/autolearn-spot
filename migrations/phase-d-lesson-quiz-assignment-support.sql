@@ -2,7 +2,20 @@
 -- This enables quiz and assignment management within lesson editor
 
 -- QUIZZES
--- Add lesson_id column to quizzes table
+-- Drop lesson_id column if it exists with wrong type
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'quizzes'
+    AND column_name = 'lesson_id'
+    AND data_type = 'character varying'
+  ) THEN
+    ALTER TABLE public.quizzes DROP COLUMN lesson_id;
+  END IF;
+END $$;
+
+-- Add lesson_id column to quizzes table (UUID to match lessons.uuid_id - the primary key)
 ALTER TABLE public.quizzes
   ADD COLUMN IF NOT EXISTS lesson_id UUID REFERENCES public.lessons(uuid_id) ON DELETE CASCADE;
 
@@ -10,7 +23,20 @@ ALTER TABLE public.quizzes
 CREATE INDEX IF NOT EXISTS idx_quizzes_lesson_id ON public.quizzes(lesson_id);
 
 -- ASSIGNMENTS
--- Add lesson_id column to assignments table
+-- Drop lesson_id column if it exists with wrong type
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'assignments'
+    AND column_name = 'lesson_id'
+    AND data_type = 'character varying'
+  ) THEN
+    ALTER TABLE public.assignments DROP COLUMN lesson_id;
+  END IF;
+END $$;
+
+-- Add lesson_id column to assignments table (UUID to match lessons.uuid_id - the primary key)
 ALTER TABLE public.assignments
   ADD COLUMN IF NOT EXISTS lesson_id UUID REFERENCES public.lessons(uuid_id) ON DELETE CASCADE;
 

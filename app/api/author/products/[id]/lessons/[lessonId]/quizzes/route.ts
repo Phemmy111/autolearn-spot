@@ -21,7 +21,7 @@ export async function GET(
 
     const { lessonId } = await params
 
-    // Verify lesson ownership
+    // Verify lesson ownership (lessonId is uuid_id)
     const { data: lesson } = await supabaseAdmin
       .from('lessons')
       .select('product_id')
@@ -75,7 +75,7 @@ export async function POST(
     const { lessonId } = await params
     const body = await request.json()
 
-    // Verify lesson ownership
+    // Verify lesson ownership (lessonId is uuid_id)
     const { data: lesson } = await supabaseAdmin
       .from('lessons')
       .select('product_id')
