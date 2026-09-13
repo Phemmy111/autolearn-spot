@@ -27,7 +27,7 @@ export function MarketplaceNavigation() {
   return (
     <>
       {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center justify-between h-16 bg-gray-50 px-6 lg:px-8 sticky top-0 z-50 border-b border-neutral-300/50">
+      <nav className="hidden md:flex items-center justify-between h-16 bg-brand-bg px-6 lg:px-8 sticky top-0 z-50 border-b border-brand-border">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="w-8 h-8 flex items-center justify-center">
             <Image
@@ -86,7 +86,7 @@ export function MarketplaceNavigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="md:hidden sticky top-0 z-50 h-14 bg-gray-50 px-4 border-b border-neutral-300/50">
+      <nav className="md:hidden sticky top-0 z-50 h-14 bg-brand-bg px-4 border-b border-brand-border">
         <div className="flex items-center justify-between h-full">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 flex items-center justify-center">

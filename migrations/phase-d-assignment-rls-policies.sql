@@ -5,6 +5,11 @@ ALTER TABLE public.assignments
   ALTER COLUMN week_number DROP NOT NULL,
   ALTER COLUMN cohort_id DROP NOT NULL;
 
+-- Add user_email column to submissions for display purposes
+ALTER TABLE public.submissions
+  ADD COLUMN IF NOT EXISTS user_email VARCHAR(255),
+  ADD COLUMN IF NOT EXISTS user_name VARCHAR(255);
+
 -- Drop old restrictive policies on submissions (not assignment_submissions)
 DROP POLICY IF EXISTS "No direct inserts on submissions" ON public.submissions;
 DROP POLICY IF EXISTS "No direct updates on submissions" ON public.submissions;

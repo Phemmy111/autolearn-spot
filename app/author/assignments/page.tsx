@@ -30,7 +30,6 @@ interface Assignment {
       title: string
     }
   }
-  submissions: { count: number }[]
 }
 
 export default function AuthorAssignmentsPage() {
@@ -143,10 +142,6 @@ export default function AuthorAssignmentsPage() {
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4" />
                     <span>Max Score: {assignment.max_score}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    <span>Submissions: {assignment.submissions?.[0]?.count || 0}</span>
                   </div>
                 </div>
 

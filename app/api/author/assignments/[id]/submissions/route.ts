@@ -38,7 +38,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Get submissions with user and assignment data
+    // Get submissions with assignment data (user_id is a Clerk user ID, not a foreign key)
     const { data: submissions, error } = await supabaseAdmin
       .from('submissions')
       .select(`
@@ -47,16 +47,10 @@ export async function GET(
           id,
           title,
           max_score
-        ),
-        user:users!inner (
-          id,
-          first_name,
-          last_name,
-          email_addresses
         )
       `)
       .eq('assignment_id', id)
-      .order('submitted_at', { ascending: false })
+      .order('created_at', { ascending: false })
 
     if (error) {
       console.error('[GET /api/author/assignments/[id]/submissions] Error:', error)

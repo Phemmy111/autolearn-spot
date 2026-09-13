@@ -15,20 +15,19 @@ import {
 interface Submission {
   id: string
   score: number | null
-  submitted_at: string
-  submission_url: string | null
-  feedback: string | null
+  created_at: string
+  screenshot_url: string | null
+  live_url: string | null
+  notes: string | null
+  ai_feedback: string | null
+  ai_score: number | null
+  status: string
   assignment: {
     id: string
     title: string
     max_score: number
   }
-  user: {
-    id: string
-    first_name: string | null
-    last_name: string | null
-    email_addresses: Array<{ email_address: string }>
-  }
+  user_id: string
 }
 
 export default function AuthorAssignmentSubmissionsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -120,19 +119,19 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                       </div>
                       <div>
                         <h3 className="font-semibold text-neutral-900">
-                          {submission.user.first_name} {submission.user.last_name}
+                          Student ID: {submission.user_id}
                         </h3>
                         <p className="text-sm text-neutral-600">
-                          {submission.user.email_addresses?.[0]?.email_address}
+                          Status: {submission.status}
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    {submission.score !== null ? (
+                    {submission.ai_score !== null ? (
                       <div className="flex items-center gap-2 justify-end mb-1">
                         <span className="text-2xl font-bold text-gray-900">
-                          {submission.score}/{submission.assignment.max_score}
+                          {submission.ai_score}/{submission.assignment.max_score}
                         </span>
                       </div>
                     ) : (
@@ -144,28 +143,50 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                 <div className="flex items-center gap-2 text-sm text-neutral-600 mb-4">
                   <Clock className="h-4 w-4" />
                   <span>
-                    Submitted: {new Date(submission.submitted_at).toLocaleString()}
+                    Submitted: {new Date(submission.created_at).toLocaleString()}
                   </span>
                 </div>
 
-                {submission.submission_url && (
+                {submission.screenshot_url && (
                   <div className="mb-4">
                     <a
-                      href={submission.submission_url}
+                      href={submission.screenshot_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-sky-600 hover:text-sky-700 text-sm font-medium"
                     >
                       <Download className="h-4 w-4" />
-                      View Submission
+                      View Screenshot
                     </a>
                   </div>
                 )}
 
-                {submission.feedback && (
+                {submission.live_url && (
+                  <div className="mb-4">
+                    <a
+                      href={submission.live_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sky-600 hover:text-sky-700 text-sm font-medium"
+                    >
+                      <Download className="h-4 w-4" />
+                      View Live URL
+                    </a>
+                  </div>
+                )}
+
+                {submission.ai_feedback && (
                   <div className="bg-white border border-neutral-200 p-3 rounded-lg mb-4">
                     <p className="text-sm text-neutral-600">
-                      <span className="font-semibold">Feedback:</span> {submission.feedback}
+                      <span className="font-semibold">AI Feedback:</span> {submission.ai_feedback}
+                    </p>
+                  </div>
+                )}
+
+                {submission.notes && (
+                  <div className="bg-white border border-neutral-200 p-3 rounded-lg mb-4">
+                    <p className="text-sm text-neutral-600">
+                      <span className="font-semibold">Notes:</span> {submission.notes}
                     </p>
                   </div>
                 )}

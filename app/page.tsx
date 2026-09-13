@@ -131,7 +131,7 @@ export default async function Page() {
   const publishedProducts = await getPublishedProducts();
 
   return (
-    <main className="relative min-h-screen bg-gray-50">
+    <main className="relative min-h-screen bg-brand-bg text-brand-text">
       <MarketplaceNavigation />
       <AnnouncementBanner />
       
