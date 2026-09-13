@@ -59,7 +59,7 @@ export default function Navigation() {
   return (
     <>
       {/* Desktop Navigation - Shows on XL screens and above */}
-      <nav className="hidden xl:flex items-center justify-between h-[72px] border-b border-neutral-200 bg-gray-50/95 backdrop-blur-xl px-6 lg:px-8 sticky top-0 z-50">
+      <nav className="hidden xl:flex items-center justify-between h-[72px] border-b border-brand-border bg-brand-bg/95 backdrop-blur-xl px-6 lg:px-8 sticky top-0 z-50">
         <Link href="/" className="flex items-center gap-2 group">
           <Image
             src="/logo.png"
@@ -82,7 +82,7 @@ export default function Navigation() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 {item.name}
               </a>
@@ -90,7 +90,7 @@ export default function Navigation() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 {item.name}
               </Link>
@@ -102,14 +102,14 @@ export default function Navigation() {
             isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Student Login
               </Link>
@@ -119,14 +119,14 @@ export default function Navigation() {
 
         <Link
           href="/enroll"
-          className="border border-[#10b981] bg-gray-50 px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-gray-100 transition-colors"
+          className="border border-[#10b981] bg-brand-bg px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-[var(--card)] brightness-95 transition-colors"
         >
           Enroll Now
         </Link>
       </nav>
 
       {/* Tablet/Smaller Desktop Navigation - Shows hamburger */}
-      <nav className="hidden lg:flex xl:hidden items-center justify-between h-[72px] border-b border-neutral-200 bg-gray-50/95 backdrop-blur-xl px-6 sticky top-0 z-50">
+      <nav className="hidden lg:flex xl:hidden items-center justify-between h-[72px] border-b border-brand-border bg-brand-bg/95 backdrop-blur-xl px-6 sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsOpen(true)}
@@ -156,14 +156,14 @@ export default function Navigation() {
             isSignedIn ? (
               <Link
                 href="/dashboard"
-                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Dashboard
               </Link>
             ) : (
               <Link
                 href="/dashboard"
-                className="text-sm text-neutral-500 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
               >
                 Student Login
               </Link>
@@ -171,7 +171,7 @@ export default function Navigation() {
           )}
           <Link
             href="/enroll"
-            className="border border-[#10b981] bg-gray-50 px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-gray-100 transition-colors"
+            className="border border-[#10b981] bg-brand-bg px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-[var(--card)] brightness-95 transition-colors"
           >
             Enroll Now
           </Link>
@@ -179,7 +179,7 @@ export default function Navigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <nav className="lg:hidden sticky top-0 z-50 h-[64px] border-b border-neutral-200 bg-gray-50/95 backdrop-blur-xl px-4">
+      <nav className="lg:hidden sticky top-0 z-50 h-[64px] border-b border-brand-border bg-brand-bg/95 backdrop-blur-xl px-4">
         <div className="flex items-center justify-between h-full">
           <button
             onClick={() => setIsOpen(true)}
@@ -212,16 +212,16 @@ export default function Navigation() {
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 z-50 w-80 bg-gray-50 border-r border-neutral-200 transform transition-transform duration-300 ease-in-out">
+          <div className="fixed inset-y-0 left-0 z-50 w-80 bg-brand-bg border-r border-brand-border transform transition-transform duration-300 ease-in-out">
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+              <div className="flex items-center justify-between p-4 border-b border-brand-border">
                 <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
                   AutoLearn Spot
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-neutral-500 hover:text-[#10b981] transition-colors"
+                  className="text-brand-text/60 hover:text-[#10b981] transition-colors"
                   aria-label="Close menu"
                 >
                   <X className="h-6 w-6" />
@@ -238,7 +238,7 @@ export default function Navigation() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setIsOpen(false)}
-                      className="block px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-gray-50 rounded-lg transition-colors"
+                      className="block px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-brand-bg rounded-lg transition-colors"
                     >
                       {item.name}
                     </a>
@@ -247,7 +247,7 @@ export default function Navigation() {
                       key={item.name}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className="block px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-gray-50 rounded-lg transition-colors"
+                      className="block px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-brand-bg rounded-lg transition-colors"
                     >
                       {item.name}
                     </Link>
@@ -256,7 +256,7 @@ export default function Navigation() {
               </div>
 
               {/* Divider */}
-              <div className="border-t border-neutral-200" />
+              <div className="border-t border-brand-border" />
 
               {/* Student Login/Dashboard */}
               <div className="px-4 py-3">
@@ -265,7 +265,7 @@ export default function Navigation() {
                     <Link
                       href="/dashboard"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-2 px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-gray-50 rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-brand-bg rounded-lg transition-colors"
                     >
                       <User className="h-5 w-5" />
                       Dashboard
@@ -274,7 +274,7 @@ export default function Navigation() {
                     <Link
                       href="/dashboard"
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-2 px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-gray-50 rounded-lg transition-colors"
+                      className="flex items-center gap-2 px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-brand-bg rounded-lg transition-colors"
                     >
                       <LogIn className="h-5 w-5" />
                       Student Login
@@ -284,14 +284,14 @@ export default function Navigation() {
               </div>
 
               {/* Divider */}
-              <div className="border-t border-neutral-200" />
+              <div className="border-t border-brand-border" />
 
               {/* Partner Login */}
               <div className="px-4 py-3">
                 <Link
                   href="/partners/login"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-gray-50 rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-brand-bg rounded-lg transition-colors"
                 >
                   <User className="h-5 w-5" />
                   Partner Login
@@ -299,14 +299,14 @@ export default function Navigation() {
               </div>
 
               {/* Divider */}
-              <div className="border-t border-neutral-200" />
+              <div className="border-t border-brand-border" />
 
               {/* Enroll Button */}
               <div className="p-4">
                 <Link
                   href="/enroll"
                   onClick={() => setIsOpen(false)}
-                  className="block w-full border border-[#10b981] bg-gray-50 px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-gray-100 transition-colors text-center"
+                  className="block w-full border border-[#10b981] bg-brand-bg px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-[var(--card)] brightness-95 transition-colors text-center"
                 >
                   Enroll Now
                 </Link>

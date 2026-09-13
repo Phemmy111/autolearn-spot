@@ -186,26 +186,26 @@ export default function AuthorAIProvidersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--card)] flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-sky-600 animate-spin mx-auto mb-4" />
-          <p className="text-sm text-neutral-600">Loading AI providers...</p>
+          <p className="text-sm text-brand-text/70">Loading AI providers...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--card)]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/author" className="text-neutral-600 hover:text-neutral-900">
+            <Link href="/author" className="text-brand-text/70 hover:text-brand-text">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-neutral-900">AI Providers</h1>
-              <p className="text-sm text-neutral-600">Configure AI providers for quiz generation</p>
+              <h1 className="text-3xl font-bold text-brand-text">AI Providers</h1>
+              <p className="text-sm text-brand-text/70">Configure AI providers for quiz generation</p>
             </div>
           </div>
           <button
@@ -226,7 +226,7 @@ export default function AuthorAIProvidersPage() {
 
         <div className="grid gap-4">
           {providers.map((provider) => (
-            <div key={provider.id} className="border border-neutral-200 bg-neutral-50 p-6 rounded-xl">
+            <div key={provider.id} className="border border-brand-border bg-brand-bg p-6 rounded-xl">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-lg ${
@@ -238,7 +238,7 @@ export default function AuthorAIProvidersPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold text-neutral-900">{provider.name}</h3>
+                      <h3 className="text-lg font-bold text-brand-text">{provider.name}</h3>
                       {provider.is_default && (
                         <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-xs text-yellow-700">
                           <Star className="h-3 w-3" />
@@ -257,16 +257,16 @@ export default function AuthorAIProvidersPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-neutral-500 mb-2">
+                    <p className="text-xs text-brand-text/60 mb-2">
                       Type: {provider.provider_type.toUpperCase()}
                     </p>
                     {provider.default_model && (
-                      <p className="text-xs text-neutral-600">
+                      <p className="text-xs text-brand-text/70">
                         Default Model: {provider.default_model}
                       </p>
                     )}
                     {provider.models && Array.isArray(provider.models) && provider.models.length > 0 && (
-                      <p className="text-xs text-neutral-500 mt-1">
+                      <p className="text-xs text-brand-text/60 mt-1">
                         {provider.models.length} models available
                       </p>
                     )}
@@ -276,7 +276,7 @@ export default function AuthorAIProvidersPage() {
                   <button
                     onClick={() => handleTestConnection(provider.id)}
                     disabled={testingProvider === provider.id}
-                    className="p-2 rounded hover:bg-white transition-colors"
+                    className="p-2 rounded hover:bg-[var(--card)] transition-colors"
                     title="Test Connection"
                   >
                     <RefreshCw className={`h-4 w-4 text-emerald-500 ${testingProvider === provider.id ? 'animate-spin' : ''}`} />
@@ -284,7 +284,7 @@ export default function AuthorAIProvidersPage() {
                   <button
                     onClick={() => handleFetchModels(provider.id)}
                     disabled={fetchingModels === provider.id}
-                    className="p-2 rounded hover:bg-white transition-colors"
+                    className="p-2 rounded hover:bg-[var(--card)] transition-colors"
                     title="Fetch Models"
                   >
                     <Settings className={`h-4 w-4 text-sky-600 ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
@@ -292,7 +292,7 @@ export default function AuthorAIProvidersPage() {
                   {!provider.is_default && (
                     <button
                       onClick={() => handleSetDefault(provider.id)}
-                      className="p-2 rounded hover:bg-white transition-colors"
+                      className="p-2 rounded hover:bg-[var(--card)] transition-colors"
                       title="Set as Default"
                     >
                       <Star className="h-4 w-4 text-yellow-500" />
@@ -300,7 +300,7 @@ export default function AuthorAIProvidersPage() {
                   )}
                   <button
                     onClick={() => handleDeleteProvider(provider.id)}
-                    className="p-2 rounded hover:bg-white transition-colors"
+                    className="p-2 rounded hover:bg-[var(--card)] transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-red-500" />
@@ -312,10 +312,10 @@ export default function AuthorAIProvidersPage() {
         </div>
 
         {providers.length === 0 && (
-          <div className="text-center py-12 border border-neutral-200 bg-neutral-50 rounded-xl">
+          <div className="text-center py-12 border border-brand-border bg-brand-bg rounded-xl">
             <Bot className="h-16 w-16 text-neutral-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-neutral-900 mb-2">No AI Providers Configured</h3>
-            <p className="text-sm text-neutral-600 mb-4">Add your first AI provider to enable quiz generation</p>
+            <h3 className="text-xl font-bold text-brand-text mb-2">No AI Providers Configured</h3>
+            <p className="text-sm text-brand-text/70 mb-4">Add your first AI provider to enable quiz generation</p>
             <button
               onClick={() => setShowAddModal(true)}
               className="flex items-center gap-2 mx-auto bg-sky-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-sky-700 transition-colors"
@@ -328,8 +328,8 @@ export default function AuthorAIProvidersPage() {
 
         {showAddModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="border border-neutral-200 bg-white p-6 rounded-xl max-w-md w-full mx-4">
-              <h2 className="text-2xl font-bold text-neutral-900 mb-4">Add AI Provider</h2>
+            <div className="border border-brand-border bg-[var(--card)] p-6 rounded-xl max-w-md w-full mx-4">
+              <h2 className="text-2xl font-bold text-brand-text mb-4">Add AI Provider</h2>
               <form onSubmit={handleAddProvider}>
                 <div className="space-y-4">
                   <div>
@@ -338,7 +338,7 @@ export default function AuthorAIProvidersPage() {
                       type="text"
                       value={newProvider.name}
                       onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
-                      className="w-full bg-neutral-50 border border-neutral-300 rounded-lg px-4 py-2 text-neutral-900 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       placeholder="My OpenRouter"
                       required
                     />
@@ -348,7 +348,7 @@ export default function AuthorAIProvidersPage() {
                     <select
                       value={newProvider.provider_type}
                       onChange={(e) => setNewProvider({ ...newProvider, provider_type: e.target.value as ProviderType })}
-                      className="w-full bg-neutral-50 border border-neutral-300 rounded-lg px-4 py-2 text-neutral-900 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                     >
                       <option value="openrouter">OpenRouter</option>
                       <option value="openai">OpenAI</option>
@@ -362,7 +362,7 @@ export default function AuthorAIProvidersPage() {
                       type="password"
                       value={newProvider.api_key}
                       onChange={(e) => setNewProvider({ ...newProvider, api_key: e.target.value })}
-                      className="w-full bg-neutral-50 border border-neutral-300 rounded-lg px-4 py-2 text-neutral-900 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       placeholder="sk-..."
                       required
                     />
@@ -373,7 +373,7 @@ export default function AuthorAIProvidersPage() {
                       type="text"
                       value={newProvider.base_url}
                       onChange={(e) => setNewProvider({ ...newProvider, base_url: e.target.value })}
-                      className="w-full bg-neutral-50 border border-neutral-300 rounded-lg px-4 py-2 text-neutral-900 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       placeholder="https://api.example.com/v1"
                     />
                   </div>
@@ -383,7 +383,7 @@ export default function AuthorAIProvidersPage() {
                       type="text"
                       value={newProvider.default_model}
                       onChange={(e) => setNewProvider({ ...newProvider, default_model: e.target.value })}
-                      className="w-full bg-neutral-50 border border-neutral-300 rounded-lg px-4 py-2 text-neutral-900 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
                       placeholder="anthropic/claude-3.5-sonnet"
                     />
                   </div>
@@ -397,7 +397,7 @@ export default function AuthorAIProvidersPage() {
                           setNewProvider({ ...newProvider, default_model: 'default' })
                         }
                       }}
-                      className="w-4 h-4 rounded border-neutral-300"
+                      className="w-4 h-4 rounded border-brand-border"
                     />
                     <label htmlFor="setDefault" className="text-sm text-neutral-700">
                       Set as default provider
@@ -408,7 +408,7 @@ export default function AuthorAIProvidersPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 border border-neutral-300 text-neutral-600 text-sm px-4 py-2 rounded-lg hover:bg-neutral-50 transition-colors"
+                    className="flex-1 border border-brand-border text-brand-text/70 text-sm px-4 py-2 rounded-lg hover:bg-brand-bg transition-colors"
                   >
                     Cancel
                   </button>

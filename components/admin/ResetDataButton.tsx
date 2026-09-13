@@ -41,7 +41,7 @@ export function ResetDataButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 border border-red-500/50 bg-red-50 text-red-600 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-red-500 hover:text-neutral-900 transition-colors text-sm shadow-sm"
+        className="flex items-center gap-2 border border-red-500/50 bg-red-50 text-red-600 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-red-500 hover:text-brand-text transition-colors text-sm shadow-sm"
       >
         <AlertTriangle className="h-4 w-4" />
         Super Admin Reset
@@ -49,12 +49,12 @@ export function ResetDataButton() {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-xl border border-red-200 bg-gray-100 shadow-2xl relative overflow-hidden">
+          <div className="w-full max-w-md rounded-xl border border-red-200 bg-[var(--card)] brightness-95 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
             
             <button 
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-600 transition-colors"
+              className="absolute top-4 right-4 text-neutral-400 hover:text-brand-text/70 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -62,9 +62,9 @@ export function ResetDataButton() {
             <div className="p-6">
               <div className="flex items-center gap-3 mb-2">
                 <AlertTriangle className="h-8 w-8 text-red-500" />
-                <h3 className="font-heading text-xl font-bold text-neutral-900">Danger Zone</h3>
+                <h3 className="font-heading text-xl font-bold text-brand-text">Danger Zone</h3>
               </div>
-              <p className="text-sm text-neutral-600 mb-6 font-mono">
+              <p className="text-sm text-brand-text/70 mb-6 font-mono">
                 These actions are irreversible. They will permanently delete records from the database.
               </p>
 
@@ -76,7 +76,7 @@ export function ResetDataButton() {
               )}
 
               {success && (
-                <div className="mb-4 rounded bg-emerald-50 p-3 text-sm text-emerald-600 font-mono flex items-start gap-2 border border-emerald-200">
+                <div className="mb-4 rounded bg-emerald-50 p-3 text-sm text-brand-primary font-mono flex items-start gap-2 border border-emerald-200">
                   <CheckCircle2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
                   {success}
                 </div>
@@ -86,11 +86,11 @@ export function ResetDataButton() {
                 <button
                   onClick={() => handleReset('delete_history')}
                   disabled={isDeleting}
-                  className="flex items-center justify-between p-3 rounded-lg border border-neutral-200 hover:border-orange-300 hover:bg-orange-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                  className="flex items-center justify-between p-3 rounded-lg border border-brand-border hover:border-orange-300 hover:bg-orange-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                   <div className="text-left">
-                    <div className="font-bold text-neutral-900 text-sm">Clear Leaderboard & History</div>
-                    <div className="text-xs text-neutral-500 font-mono mt-1">Deletes all student quiz submissions.</div>
+                    <div className="font-bold text-brand-text text-sm">Clear Leaderboard & History</div>
+                    <div className="text-xs text-brand-text/60 font-mono mt-1">Deletes all student quiz submissions.</div>
                   </div>
                   <Trash2 className="h-4 w-4 text-orange-500 opacity-70 group-hover:opacity-100" />
                 </button>
@@ -98,11 +98,11 @@ export function ResetDataButton() {
                 <button
                   onClick={() => handleReset('delete_quizzes')}
                   disabled={isDeleting}
-                  className="flex items-center justify-between p-3 rounded-lg border border-neutral-200 hover:border-orange-300 hover:bg-orange-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
+                  className="flex items-center justify-between p-3 rounded-lg border border-brand-border hover:border-orange-300 hover:bg-orange-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
                 >
                   <div className="text-left">
-                    <div className="font-bold text-neutral-900 text-sm">Delete All Quizzes</div>
-                    <div className="text-xs text-neutral-500 font-mono mt-1">Deletes all quizzes and their questions.</div>
+                    <div className="font-bold text-brand-text text-sm">Delete All Quizzes</div>
+                    <div className="text-xs text-brand-text/60 font-mono mt-1">Deletes all quizzes and their questions.</div>
                   </div>
                   <Trash2 className="h-4 w-4 text-orange-500 opacity-70 group-hover:opacity-100" />
                 </button>
@@ -114,7 +114,7 @@ export function ResetDataButton() {
                 >
                   <div className="text-left">
                     <div className="font-bold text-red-600 text-sm">Reset Everything</div>
-                    <div className="text-xs text-neutral-500 font-mono mt-1">Nukes quizzes, questions, and all history.</div>
+                    <div className="text-xs text-brand-text/60 font-mono mt-1">Nukes quizzes, questions, and all history.</div>
                   </div>
                   <Trash2 className="h-5 w-5 text-red-500 opacity-70 group-hover:opacity-100" />
                 </button>

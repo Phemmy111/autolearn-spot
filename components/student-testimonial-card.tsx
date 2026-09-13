@@ -23,14 +23,14 @@ export function StudentTestimonialCard({
       <Star
         key={i}
         className={`h-4 w-4 ${
-          i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'
+          i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-brand-text/70'
         }`}
       />
     ));
   };
 
   return (
-    <div className="border border-neutral-200/60 shadow-sm bg-gray-50/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(16,185,129,0.08)]">
+    <div className="border border-brand-border/60 shadow-sm bg-brand-bg/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(16,185,129,0.08)]">
       <div className="flex items-start gap-4 mb-4">
         <div className="relative">
           {image ? (
@@ -51,21 +51,21 @@ export function StudentTestimonialCard({
             </div>
           )}
           {verified && (
-            <div className="absolute -bottom-1 -right-1 bg-gray-50 rounded-full p-1">
+            <div className="absolute -bottom-1 -right-1 bg-brand-bg rounded-full p-1">
               <CheckCircle className="h-3 w-3 text-[#00363a]" />
             </div>
           )}
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-neutral-900 text-base">{name}</h3>
-          <p className="text-sm text-neutral-500 mt-1">{school}</p>
+          <h3 className="font-semibold text-brand-text text-base">{name}</h3>
+          <p className="text-sm text-brand-text/60 mt-1">{school}</p>
           <div className="flex items-center gap-1 mt-2">
             {renderStars(rating)}
-            <span className="text-xs text-neutral-500 ml-2">({rating}/5)</span>
+            <span className="text-xs text-brand-text/60 ml-2">({rating}/5)</span>
           </div>
         </div>
       </div>
-      <p className="text-sm text-neutral-500 leading-relaxed">"{testimonial}"</p>
+      <p className="text-sm text-brand-text/60 leading-relaxed">"{testimonial}"</p>
     </div>
   );
 }

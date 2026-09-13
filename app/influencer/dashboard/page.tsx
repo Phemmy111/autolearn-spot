@@ -80,7 +80,7 @@ export default function InfluencerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center text-brand-text">
         <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
       </div>
     );
@@ -88,7 +88,7 @@ export default function InfluencerDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center text-brand-text">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
         <p>{error}</p>
         <button onClick={() => router.push("/influencer")} className="mt-4 text-purple-400 hover:underline">
@@ -99,21 +99,21 @@ export default function InfluencerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-neutral-900 overflow-x-hidden">
+    <div className="min-h-screen bg-brand-bg text-brand-text overflow-x-hidden">
       {/* Topbar */}
-      <header className="border-b border-neutral-200 bg-gray-50/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-brand-border bg-brand-bg/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase">
             <Star className="text-purple-400 h-4 w-4" />
             <span className="underline decoration-purple-500 decoration-2 underline-offset-2">Influencer Partner Portal</span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-sm text-neutral-500 hidden md:block">
-              Welcome, <span className="text-neutral-900 font-medium">{data.user.full_name}</span>
+            <div className="text-sm text-brand-text/60 hidden md:block">
+              Welcome, <span className="text-brand-text font-medium">{data.user.full_name}</span>
             </div>
             <Link 
               href="/influencer/settings"
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-brand-border rounded hover:bg-brand-bg transition-colors flex items-center gap-2 text-brand-text/60"
             >
               Settings
             </Link>
@@ -122,7 +122,7 @@ export default function InfluencerDashboard() {
                 document.cookie = "growth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 router.push("/influencer");
               }}
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-brand-border rounded hover:bg-brand-bg transition-colors flex items-center gap-2 text-brand-text/60"
             >
               <LogOut className="h-3 w-3" /> Logout
             </button>
@@ -139,15 +139,15 @@ export default function InfluencerDashboard() {
               Premium Rate: ₦{(data.user.commission_rate || 2000).toLocaleString()}/referral
             </div>
             <h2 className="text-2xl font-bold mb-2">Your Partner Link</h2>
-            <p className="text-neutral-500 text-sm max-w-xl">Share this unique link with your audience on {data.user.platform || 'social media'}. You earn a premium commission for every enrollment.</p>
+            <p className="text-brand-text/60 text-sm max-w-xl">Share this unique link with your audience on {data.user.platform || 'social media'}. You earn a premium commission for every enrollment.</p>
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="bg-neutral-100 border border-neutral-300 rounded-lg px-4 py-3 font-mono text-sm text-neutral-900/80 truncate flex-1 md:w-64">
+            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-3 font-mono text-sm text-brand-text/80 truncate flex-1 md:w-64">
               {data.shareUrl}
             </div>
             <button 
               onClick={handleCopyLink}
-              className="bg-purple-500 text-neutral-900 px-4 py-3 rounded-lg font-bold hover:bg-purple-400 transition-colors flex-shrink-0 flex items-center gap-2"
+              className="bg-purple-500 text-brand-text px-4 py-3 rounded-lg font-bold hover:bg-purple-400 transition-colors flex-shrink-0 flex items-center gap-2"
             >
               {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied" : "Copy Link"}
@@ -157,37 +157,37 @@ export default function InfluencerDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <MousePointerClick className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Link Clicks</p>
+            <p className="text-sm text-brand-text/60 mb-1">Link Clicks</p>
             <h3 className="text-3xl font-bold">{data.totalClicks}</h3>
           </div>
           
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center text-green-400">
                 <Users className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Converted Students</p>
+            <p className="text-sm text-brand-text/60 mb-1">Converted Students</p>
             <h3 className="text-3xl font-bold">{data.totalRegistrations}</h3>
           </div>
 
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 relative overflow-hidden group hover:border-purple-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
                 <Clock className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Pending Earnings</p>
+            <p className="text-sm text-brand-text/60 mb-1">Pending Earnings</p>
             <h3 className="text-3xl font-bold text-yellow-400">₦{data.earnings.pendingEarnings.toLocaleString()}</h3>
           </div>
 
-          <div className="bg-gray-50 border border-purple-500/30 rounded-2xl p-6 relative overflow-hidden">
+          <div className="bg-brand-bg border border-purple-500/30 rounded-2xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
               <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400">
@@ -195,7 +195,7 @@ export default function InfluencerDashboard() {
               </div>
             </div>
             <p className="text-sm text-purple-400 mb-1 relative z-10">Available to Withdraw</p>
-            <h3 className="text-4xl font-extrabold relative z-10 text-neutral-900">₦{data.earnings.availableEarnings.toLocaleString()}</h3>
+            <h3 className="text-4xl font-extrabold relative z-10 text-brand-text">₦{data.earnings.availableEarnings.toLocaleString()}</h3>
           </div>
         </div>
 
@@ -203,7 +203,7 @@ export default function InfluencerDashboard() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Recent Activity */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+            <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
               <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
                 <DollarSign className="text-purple-400 h-5 w-5" /> 
                 Recent Conversions
@@ -212,7 +212,7 @@ export default function InfluencerDashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="text-sm text-neutral-500 border-b border-neutral-200">
+                      <tr className="text-sm text-brand-text/60 border-b border-brand-border">
                         <th className="pb-3 font-medium">Date</th>
                         <th className="pb-3 font-medium">Student Info</th>
                         <th className="pb-3 font-medium">Commission</th>
@@ -221,10 +221,10 @@ export default function InfluencerDashboard() {
                     </thead>
                     <tbody className="text-sm">
                       {data.commissions.map((comm: any) => (
-                        <tr key={comm.id} className="border-b border-neutral-200 last:border-0 hover:bg-gray-100/5 transition-colors">
+                        <tr key={comm.id} className="border-b border-brand-border last:border-0 hover:bg-[var(--card)] brightness-95/5 transition-colors">
                           <td className="py-4">{new Date(comm.created_at).toLocaleDateString()}</td>
-                          <td className="py-4 truncate max-w-[150px] text-neutral-500">{comm.referee_email}</td>
-                          <td className="py-4 font-bold text-neutral-900">₦{comm.amount.toLocaleString()}</td>
+                          <td className="py-4 truncate max-w-[150px] text-brand-text/60">{comm.referee_email}</td>
+                          <td className="py-4 font-bold text-brand-text">₦{comm.amount.toLocaleString()}</td>
                           <td className="py-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                               comm.status === 'available' ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' :
@@ -241,7 +241,7 @@ export default function InfluencerDashboard() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-12 text-neutral-500 bg-neutral-100 rounded-xl border border-white/5">
+                <div className="text-center py-12 text-brand-text/60 bg-[var(--card)] brightness-95 rounded-xl border border-white/5">
                   <Star className="h-8 w-8 text-purple-500/50 mx-auto mb-3" />
                   <p>Awaiting your first conversion. Share your link to start earning!</p>
                 </div>
@@ -250,34 +250,34 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Withdrawal Panel */}
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 flex flex-col h-fit">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 flex flex-col h-fit">
             <h3 className="text-lg font-bold mb-6">Request Payout</h3>
             
-            <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-neutral-200">
+            <div className="bg-brand-bg rounded-xl p-5 mb-6 border border-brand-border">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm text-neutral-500">Available Balance</span>
+                <span className="text-sm text-brand-text/60">Available Balance</span>
                 <span className="font-bold text-purple-400 text-lg">₦{data.earnings.availableEarnings.toLocaleString()}</span>
               </div>
-              <div className="w-full bg-gray-50 h-2.5 rounded-full overflow-hidden">
+              <div className="w-full bg-brand-bg h-2.5 rounded-full overflow-hidden">
                 <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-full" style={{ width: `${Math.min(100, (data.earnings.availableEarnings / 2000) * 100)}%` }} />
               </div>
-              <p className="text-xs text-neutral-500 mt-3 text-right flex items-center justify-end gap-1">
+              <p className="text-xs text-brand-text/60 mt-3 text-right flex items-center justify-end gap-1">
                 <AlertCircle className="h-3 w-3" /> Minimum payout: ₦2,000
               </p>
             </div>
 
             <form onSubmit={handleWithdraw} className="mt-auto space-y-5">
               <div>
-                <label className="text-sm text-neutral-500 mb-2 block font-medium">Payout Amount</label>
+                <label className="text-sm text-brand-text/60 mb-2 block font-medium">Payout Amount</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 font-bold">₦</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-text/60 font-bold">₦</span>
                   <input
                     type="number"
                     min="1"
                     max={data.earnings.availableEarnings}
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    className="w-full bg-gray-50 border border-neutral-200 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors font-bold text-lg"
+                    className="w-full bg-brand-bg border border-brand-border rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors font-bold text-lg"
                     placeholder="Amount"
                   />
                 </div>
@@ -285,7 +285,7 @@ export default function InfluencerDashboard() {
               <button
                 type="submit"
                 disabled={isWithdrawing || !withdrawAmount || Number(withdrawAmount) > data.earnings.availableEarnings}
-                className="w-full py-3.5 rounded-xl bg-purple-500 text-neutral-900 font-bold hover:bg-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-purple-500 text-brand-text font-bold hover:bg-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isWithdrawing ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRightLeft className="h-5 w-5" />}
                 Submit Payout Request

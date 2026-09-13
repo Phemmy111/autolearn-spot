@@ -45,7 +45,7 @@ export default function PartnerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 sm:p-6">
+    <div className="min-h-screen bg-[var(--card)] brightness-95 flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
@@ -62,12 +62,12 @@ export default function PartnerLoginPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-2">
             Partner Portal
           </h1>
-          <p className="text-neutral-500">
+          <p className="text-brand-text/60">
             Sign in to manage your referrals and earnings
           </p>
         </div>
 
-        <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+        <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
           {error && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
               {error}
@@ -76,7 +76,7 @@ export default function PartnerLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-500">Partner Type</label>
+              <label className="text-sm font-medium text-brand-text/60">Partner Type</label>
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -104,23 +104,23 @@ export default function PartnerLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-500">Email Address</label>
+              <label className="text-sm font-medium text-brand-text/60">Email Address</label>
               <input
                 required
                 type="email"
                 name="email"
-                className="w-full bg-gray-100/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="your@email.com"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-500">Password</label>
+              <label className="text-sm font-medium text-brand-text/60">Password</label>
               <input
                 required
                 type="password"
                 name="password"
-                className="w-full bg-gray-100/50 border border-neutral-200 rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
                 placeholder="••••••••"
               />
             </div>
@@ -128,7 +128,7 @@ export default function PartnerLoginPage() {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="w-full py-4 rounded-xl border border-[#00F5FF] bg-gray-50 text-[#070B12] font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl border border-[#00F5FF] bg-brand-bg text-[#070B12] font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -145,7 +145,7 @@ export default function PartnerLoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/partners/apply" className="text-neutral-500 hover:text-[#00F5FF] text-sm transition-colors inline-flex items-center gap-1">
+            <Link href="/partners/apply" className="text-brand-text/60 hover:text-[#00F5FF] text-sm transition-colors inline-flex items-center gap-1">
               Apply to become a Community Partner
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -153,7 +153,7 @@ export default function PartnerLoginPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-neutral-500 hover:text-[#00F5FF] text-sm transition-colors">
+          <Link href="/" className="text-brand-text/60 hover:text-[#00F5FF] text-sm transition-colors">
             ← Back to AutoLearn Spot
           </Link>
         </div>

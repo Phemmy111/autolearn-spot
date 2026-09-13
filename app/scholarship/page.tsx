@@ -18,15 +18,15 @@ export default async function ScholarshipLandingPage() {
   const formattedCommitmentFee = `₦${settings.commitmentFee.toLocaleString()}`;
 
   return (
-    <main className="min-h-screen bg-gray-50 text-[#e2e2e8] pb-24">
+    <main className="min-h-screen bg-brand-bg text-[#e2e2e8] pb-24">
       <Navigation />
       <div className="pt-24">
         {/* Hero Section */}
         <section className="relative py-16 overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gray-50/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-bg/5 rounded-full blur-[100px] -z-10 pointer-events-none" />
 
           <div className="text-center max-w-3xl mx-auto px-4 sm:px-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#10b981]/30 bg-gray-50/10 text-[#10b981] font-mono text-xs mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#10b981]/30 bg-brand-bg/10 text-[#10b981] font-mono text-xs mb-6">
               <Sparkles className="w-3 h-3" />
               <span>2026 Scholarship Applications Open</span>
             </div>
@@ -38,22 +38,22 @@ export default async function ScholarshipLandingPage() {
               </span>
             </h1>
 
-            <p className="text-lg text-neutral-500 mb-10 max-w-2xl mx-auto">
-              The full value of this hands-on n8n and AI automation training is <strong className="text-neutral-900">{formattedFullValue}</strong>.
+            <p className="text-lg text-brand-text/60 mb-10 max-w-2xl mx-auto">
+              The full value of this hands-on n8n and AI automation training is <strong className="text-brand-text">{formattedFullValue}</strong>.
               Selected scholars only pay a <strong className="text-[#10b981]">{formattedCommitmentFee} Commitment Fee</strong>.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/scholarship/apply"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-[#10b981] bg-gray-50 px-8 py-4 font-mono text-sm font-bold uppercase text-black transition-all hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-[#10b981] bg-brand-bg px-8 py-4 font-mono text-sm font-bold uppercase text-black transition-all hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
               >
                 Apply For Scholarship
                 <ChevronRight className="w-4 h-4" />
               </Link>
               <Link
                 href="#details"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-[#3b494b] bg-transparent px-8 py-4 font-mono text-sm font-bold uppercase text-[#e2e2e8] transition-all hover:bg-gray-50"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 border border-[#3b494b] bg-transparent px-8 py-4 font-mono text-sm font-bold uppercase text-[#e2e2e8] transition-all hover:bg-brand-bg"
               >
                 Learn More
               </Link>
@@ -62,9 +62,9 @@ export default async function ScholarshipLandingPage() {
         </section>
 
         {/* Details Section */}
-        <section id="details" className="px-4 py-16 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-neutral-200">
+        <section id="details" className="px-4 py-16 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-brand-border">
         <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-gray-50 border border-neutral-200 p-8 relative group overflow-hidden">
+          <div className="bg-brand-bg border border-brand-border p-8 relative group overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Trophy className="w-24 h-24 text-[#10b981]" />
             </div>
@@ -72,13 +72,13 @@ export default async function ScholarshipLandingPage() {
               <h3 className="font-heading text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-[#10b981]">//</span> The Value
               </h3>
-              <p className="text-neutral-500 mb-4">
+              <p className="text-brand-text/60 mb-4">
                 This is our premier 4-week training program, normally priced at {formattedFullValue}. It covers everything from n8n basics to deploying production AI agents.
               </p>
             </div>
           </div>
 
-          <div className="bg-gray-50 border border-neutral-200 p-8 relative group overflow-hidden">
+          <div className="bg-brand-bg border border-brand-border p-8 relative group overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <ShieldCheck className="w-24 h-24 text-[#10b981]" />
             </div>
@@ -86,13 +86,13 @@ export default async function ScholarshipLandingPage() {
               <h3 className="font-heading text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-[#10b981]">//</span> The Commitment
               </h3>
-              <p className="text-neutral-500 mb-4">
+              <p className="text-brand-text/60 mb-4">
                 The training is scholarship-supported. If selected, you pay only a {formattedCommitmentFee} commitment fee to cover onboarding, administration, and your MSN certificate.
               </p>
             </div>
           </div>
 
-          <div className="bg-gray-50 border border-neutral-200 p-8 relative group overflow-hidden">
+          <div className="bg-brand-bg border border-brand-border p-8 relative group overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <Zap className="w-24 h-24 text-[#10b981]" />
             </div>
@@ -100,7 +100,7 @@ export default async function ScholarshipLandingPage() {
               <h3 className="font-heading text-xl font-bold mb-4 flex items-center gap-2">
                 <span className="text-[#10b981]">//</span> The Process
               </h3>
-              <ul className="space-y-3 text-neutral-500 font-mono text-sm">
+              <ul className="space-y-3 text-brand-text/60 font-mono text-sm">
                 <li className="flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 text-[#10b981] mt-0.5" />
                   <span>Submit application</span>
@@ -124,38 +124,38 @@ export default async function ScholarshipLandingPage() {
         <h2 className="font-heading text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
         
         <div className="space-y-6">
-          <div className="border border-neutral-200 bg-gray-50 p-6">
+          <div className="border border-brand-border bg-brand-bg p-6">
             <h4 className="font-bold text-lg mb-2">Is the {formattedCommitmentFee} a tuition fee?</h4>
-            <p className="text-neutral-500">No. The training itself is scholarship-supported (valued at {formattedFullValue}). The commitment fee covers onboarding logistics, platform administration, and your final certification.</p>
+            <p className="text-brand-text/60">No. The training itself is scholarship-supported (valued at {formattedFullValue}). The commitment fee covers onboarding logistics, platform administration, and your final certification.</p>
           </div>
           
-          <div className="border border-neutral-200 bg-gray-50 p-6">
+          <div className="border border-brand-border bg-brand-bg p-6">
             <h4 className="font-bold text-lg mb-2">When will I hear back?</h4>
-            <p className="text-neutral-500">Our team reviews applications on a rolling basis. You can expect an update via email and on our status checking portal within 3 days of submission.</p>
+            <p className="text-brand-text/60">Our team reviews applications on a rolling basis. You can expect an update via email and on our status checking portal within 3 days of submission.</p>
           </div>
           
-          <div className="border border-neutral-200 bg-gray-50 p-6">
+          <div className="border border-brand-border bg-brand-bg p-6">
             <h4 className="font-bold text-lg mb-2">What happens if I'm accepted?</h4>
-            <p className="text-neutral-500">You will receive an acceptance email with instructions on how to pay the commitment fee and complete your enrollment to secure your spot.</p>
+            <p className="text-brand-text/60">You will receive an acceptance email with instructions on how to pay the commitment fee and complete your enrollment to secure your spot.</p>
           </div>
         </div>
 
         <div className="mt-12 text-center">
           <Link
             href="/scholarship/apply"
-            className="inline-flex items-center justify-center gap-2 border border-[#10b981] bg-gray-50/10 px-8 py-4 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-gray-50 hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+            className="inline-flex items-center justify-center gap-2 border border-[#10b981] bg-brand-bg/10 px-8 py-4 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-brand-bg hover:text-black hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]"
           >
             Start Your Application Now
           </Link>
         </div>
 
         <div className="mt-8 text-center">
-          <p className="text-neutral-500 mb-3">Join our WhatsApp community for updates:</p>
+          <p className="text-brand-text/60 mb-3">Join our WhatsApp community for updates:</p>
           <a
             href={settings.generalWhatsApp}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 bg-gray-50 text-neutral-900 px-6 py-3 font-mono text-sm font-bold uppercase transition-all hover:bg-gray-50 hover:shadow-[0_0_15px_rgba(37,211,102,0.4)]"
+            className="inline-flex items-center justify-center gap-2 bg-brand-bg text-brand-text px-6 py-3 font-mono text-sm font-bold uppercase transition-all hover:bg-brand-bg hover:shadow-[0_0_15px_rgba(37,211,102,0.4)]"
           >
             Join WhatsApp Group
           </a>

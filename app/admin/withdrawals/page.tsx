@@ -67,11 +67,11 @@ export default function AdminWithdrawalsPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold text-neutral-900">Pending Withdrawals</h1>
+      <h1 className="text-2xl font-bold text-brand-text">Pending Withdrawals</h1>
       {withdrawals.length === 0 ? (
         <p className="text-gray-300">No pending withdrawals.</p>
       ) : (
-        <table className="min-w-full bg-gray-50 rounded-2xl shadow-lg">
+        <table className="min-w-full bg-brand-bg rounded-2xl shadow-lg">
           <thead>
             <tr className="text-left">
               <th className="px-4 py-2 text-gray-400">Author</th>
@@ -92,13 +92,13 @@ export default function AdminWithdrawalsPage() {
                 </td>
                 <td className="px-4 py-2 space-x-2">
                   <button
-                    className="px-3 py-1 bg-green-600 text-neutral-900 rounded hover:bg-green-700"
+                    className="px-3 py-1 bg-brand-primary text-brand-text rounded hover:bg-green-700"
                     onClick={() => openModal(w, "approve")}
                   >
                     Approve
                   </button>
                   <button
-                    className="px-3 py-1 bg-red-600 text-neutral-900 rounded hover:bg-red-700"
+                    className="px-3 py-1 bg-red-600 text-brand-text rounded hover:bg-red-700"
                     onClick={() => openModal(w, "reject")}
                   >
                     Reject

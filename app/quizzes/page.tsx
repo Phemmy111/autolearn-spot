@@ -3,11 +3,11 @@ import { Leaderboard } from '@/components/leaderboard'
 
 export default function QuizzesPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
-          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4">Weekly Quizzes</h1>
-          <p className="font-mono text-sm text-neutral-500 max-w-2xl">
+          <h1 className="font-heading text-4xl font-bold text-brand-text mb-4">Weekly Quizzes</h1>
+          <p className="font-mono text-sm text-brand-text/60 max-w-2xl">
             Test your knowledge with our weekly quizzes. Each quiz covers the material from that week's sessions.
             Complete quizzes to track your progress and climb the leaderboard!
           </p>

@@ -136,14 +136,14 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
   }
 
   return (
-    <div className="border border-neutral-200 bg-gray-50 rounded-xl overflow-hidden mb-8">
-      <div className="p-6 border-b border-neutral-200 bg-gray-50 flex justify-between items-center">
-        <h2 className="font-heading text-xl font-bold text-neutral-900">
+    <div className="border border-brand-border bg-brand-bg rounded-xl overflow-hidden mb-8">
+      <div className="p-6 border-b border-brand-border bg-brand-bg flex justify-between items-center">
+        <h2 className="font-heading text-xl font-bold text-brand-text">
           Success Rate per Question
         </h2>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-3 py-1.5 bg-gray-50/10 text-[#10b981] border border-[#10b981] font-mono text-xs font-bold uppercase hover:bg-gray-50 hover:text-black transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-brand-bg/10 text-[#10b981] border border-[#10b981] font-mono text-xs font-bold uppercase hover:bg-brand-bg hover:text-black transition-colors"
         >
           <Download className="h-4 w-4" />
           Export CSV
@@ -151,14 +151,14 @@ export default function DifficultyChart({ data, quizTitle }: DifficultyChartProp
       </div>
       
       {/* Legend */}
-      <div className="px-6 py-4 flex gap-6 bg-gray-50 border-b border-neutral-200">
-        <div className="flex items-center gap-2 font-mono text-xs text-neutral-500">
+      <div className="px-6 py-4 flex gap-6 bg-brand-bg border-b border-brand-border">
+        <div className="flex items-center gap-2 font-mono text-xs text-brand-text/60">
           <div className="w-3 h-3 bg-emerald-400 rounded-sm"></div> Easiest (≥80%)
         </div>
-        <div className="flex items-center gap-2 font-mono text-xs text-neutral-500">
+        <div className="flex items-center gap-2 font-mono text-xs text-brand-text/60">
           <div className="w-3 h-3 bg-amber-400 rounded-sm"></div> Moderate (40-80%)
         </div>
-        <div className="flex items-center gap-2 font-mono text-xs text-neutral-500">
+        <div className="flex items-center gap-2 font-mono text-xs text-brand-text/60">
           <div className="w-3 h-3 bg-red-400 rounded-sm"></div> Hard (≤40%)
         </div>
       </div>

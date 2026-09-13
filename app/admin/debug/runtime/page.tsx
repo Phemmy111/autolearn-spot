@@ -163,8 +163,8 @@ export default function RuntimeDebugPage() {
 
   const JsonDisplay = ({ data, title }: { data: any, title: string }) => (
     <div className="space-y-2">
-      <h4 className="font-semibold text-sm text-neutral-600">{title}</h4>
-      <pre className="bg-gray-100 p-3 rounded text-xs text-[#10b981] overflow-x-auto whitespace-pre-wrap">
+      <h4 className="font-semibold text-sm text-brand-text/70">{title}</h4>
+      <pre className="bg-[var(--card)] brightness-95 p-3 rounded text-xs text-[#10b981] overflow-x-auto whitespace-pre-wrap">
         {JSON.stringify(data, null, 2)}
       </pre>
     </div>
@@ -174,26 +174,26 @@ export default function RuntimeDebugPage() {
     <div className="space-y-2">
       {stages.map((stage, index) => (
         <div key={index} className="flex items-center gap-2 text-xs font-mono">
-          <span className="text-neutral-600">{stage}</span>
-          {index < stages.length - 1 && <ArrowDown className="w-3 h-3 text-neutral-500" />}
+          <span className="text-brand-text/70">{stage}</span>
+          {index < stages.length - 1 && <ArrowDown className="w-3 h-3 text-brand-text/60" />}
         </div>
       ))}
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-brand-bg p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Runtime Debug Dashboard</h1>
-          <p className="text-neutral-600">Complete runtime data pipeline trace</p>
+          <h1 className="text-2xl font-bold text-brand-text mb-2">Runtime Debug Dashboard</h1>
+          <p className="text-brand-text/70">Complete runtime data pipeline trace</p>
         </div>
 
         {/* Student Selector */}
-        <Card className="bg-gray-100 border-neutral-200">
+        <Card className="bg-[var(--card)] brightness-95 border-brand-border">
           <CardHeader>
-            <CardTitle className="text-neutral-900">Select Student</CardTitle>
-            <CardDescription className="text-neutral-600">Choose a student to trace runtime data</CardDescription>
+            <CardTitle className="text-brand-text">Select Student</CardTitle>
+            <CardDescription className="text-brand-text/70">Choose a student to trace runtime data</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex gap-4 items-center">
@@ -201,7 +201,7 @@ export default function RuntimeDebugPage() {
                 value={selectedStudent} 
                 onChange={(e) => setSelectedStudent(e.target.value)}
                 disabled={studentsLoading}
-                className="w-[400px] bg-neutral-50 border border-neutral-200 text-neutral-900 p-2 rounded"
+                className="w-[400px] bg-brand-bg border border-brand-border text-brand-text p-2 rounded"
               >
                 <option value="">Select a student...</option>
                 {students.map((student) => (
@@ -213,7 +213,7 @@ export default function RuntimeDebugPage() {
               <Button 
                 onClick={loadRuntimeData} 
                 disabled={!selectedStudent || loading}
-                className="bg-gray-50 text-black hover:bg-gray-50/90"
+                className="bg-brand-bg text-black hover:bg-brand-bg/90"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Load Runtime Data'}
               </Button>
@@ -221,7 +221,7 @@ export default function RuntimeDebugPage() {
                 <Button 
                   onClick={exportRuntimeReport}
                   variant="outline"
-                  className="border-neutral-200 text-neutral-900 hover:bg-neutral-50"
+                  className="border-brand-border text-brand-text hover:bg-brand-bg"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Export Runtime Report
@@ -232,12 +232,12 @@ export default function RuntimeDebugPage() {
         </Card>
 
         {runtimeData && !runtimeData.sections && (
-          <Card className="bg-gray-100 border-neutral-200">
+          <Card className="bg-[var(--card)] brightness-95 border-brand-border">
             <CardHeader>
-              <CardTitle className="text-neutral-900">Error Loading Runtime Data</CardTitle>
+              <CardTitle className="text-brand-text">Error Loading Runtime Data</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-neutral-600">Failed to load runtime data. Please check the console for details.</p>
+              <p className="text-brand-text/70">Failed to load runtime data. Please check the console for details.</p>
             </CardContent>
           </Card>
         )}
@@ -245,9 +245,9 @@ export default function RuntimeDebugPage() {
         {runtimeData && runtimeData.sections && (
           <>
             {/* SECTION 1: Student Information */}
-            <Card className="bg-gray-100 border-neutral-200">
+            <Card className="bg-[var(--card)] brightness-95 border-brand-border">
               <CardHeader>
-                <CardTitle className="text-neutral-900">SECTION 1 — Student Information</CardTitle>
+                <CardTitle className="text-brand-text">SECTION 1 — Student Information</CardTitle>
               </CardHeader>
               <CardContent>
                 <JsonDisplay data={runtimeData.sections.studentInfo} title="Raw Enrollment Data" />
@@ -255,13 +255,13 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 2: Assignment Runtime Trace */}
-            <Card className="bg-gray-100 border-neutral-200">
+            <Card className="bg-[var(--card)] brightness-95 border-brand-border">
               <CardHeader>
-                <CardTitle className="text-neutral-900">SECTION 2 — Assignment Runtime Trace</CardTitle>
+                <CardTitle className="text-brand-text">SECTION 2 — Assignment Runtime Trace</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.assignmentRuntime.databaseRows} title="Database Rows (submissions)" />
-                <div className="border-b border-neutral-200 my-4" />
+                <div className="border-b border-brand-border my-4" />
                 <div className="grid grid-cols-2 gap-4">
                   <JsonDisplay data={runtimeData.sections.assignmentRuntime.calculationStages.input} title="INPUT" />
                   <JsonDisplay data={runtimeData.sections.assignmentRuntime.calculationStages.nullFilter} title="Null Filter" />
@@ -272,20 +272,20 @@ export default function RuntimeDebugPage() {
                 </div>
                 <JsonDisplay data={runtimeData.sections.assignmentRuntime.calculationStages.functionOutput} title="Return Object" />
                 <div className="grid grid-cols-3 gap-4 mt-4">
-                  <div className="bg-neutral-50 p-3 rounded border border-neutral-200">
-                    <div className="text-xs text-neutral-600">Average Assignment Score</div>
+                  <div className="bg-brand-bg p-3 rounded border border-brand-border">
+                    <div className="text-xs text-brand-text/70">Average Assignment Score</div>
                     <div className="text-2xl font-bold text-[#10b981]">
                       {runtimeData.sections.assignmentRuntime.calculationStages.functionOutput.averageScore}
                     </div>
                   </div>
-                  <div className="bg-neutral-50 p-3 rounded border border-neutral-200">
-                    <div className="text-xs text-neutral-600">Completed Assignments</div>
+                  <div className="bg-brand-bg p-3 rounded border border-brand-border">
+                    <div className="text-xs text-brand-text/70">Completed Assignments</div>
                     <div className="text-2xl font-bold text-[#10b981]">
                       {runtimeData.sections.assignmentRuntime.calculationStages.functionOutput.approved}
                     </div>
                   </div>
-                  <div className="bg-neutral-50 p-3 rounded border border-neutral-200">
-                    <div className="text-xs text-neutral-600">Assignment Progress</div>
+                  <div className="bg-brand-bg p-3 rounded border border-brand-border">
+                    <div className="text-xs text-brand-text/70">Assignment Progress</div>
                     <div className="text-2xl font-bold text-[#10b981]">
                       {runtimeData.sections.assignmentRuntime.calculationStages.functionOutput.percentage}%
                     </div>
@@ -295,13 +295,13 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 3: Lesson Runtime Trace */}
-            <Card className="bg-gray-100 border-neutral-200">
+            <Card className="bg-[var(--card)] brightness-95 border-brand-border">
               <CardHeader>
-                <CardTitle className="text-neutral-900">SECTION 3 — Lesson Runtime Trace</CardTitle>
+                <CardTitle className="text-brand-text">SECTION 3 — Lesson Runtime Trace</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.lessonRuntime.databaseRows} title="Database Rows (lesson_progress)" />
-                <div className="border-b border-neutral-200 my-4" />
+                <div className="border-b border-brand-border my-4" />
                 <div className="grid grid-cols-2 gap-4">
                   <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.input} title="INPUT" />
                   <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.completedLessons} title="Completed Lessons" />
@@ -309,14 +309,14 @@ export default function RuntimeDebugPage() {
                 <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.completionRate} title="Completion Rate" />
                 <JsonDisplay data={runtimeData.sections.lessonRuntime.calculationStages.functionOutput} title="Return Object" />
                 <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="bg-neutral-50 p-3 rounded border border-neutral-200">
-                    <div className="text-xs text-neutral-600">Video Progress</div>
+                  <div className="bg-brand-bg p-3 rounded border border-brand-border">
+                    <div className="text-xs text-brand-text/70">Video Progress</div>
                     <div className="text-2xl font-bold text-[#10b981]">
                       {runtimeData.sections.lessonRuntime.calculationStages.functionOutput.percentage}%
                     </div>
                   </div>
-                  <div className="bg-neutral-50 p-3 rounded border border-neutral-200">
-                    <div className="text-xs text-neutral-600">Completed Lessons</div>
+                  <div className="bg-brand-bg p-3 rounded border border-brand-border">
+                    <div className="text-xs text-brand-text/70">Completed Lessons</div>
                     <div className="text-2xl font-bold text-[#10b981]">
                       {runtimeData.sections.lessonRuntime.calculationStages.completedLessons.count}
                     </div>
@@ -326,13 +326,13 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 4: Quiz Runtime Trace */}
-            <Card className="bg-gray-100 border-neutral-200">
+            <Card className="bg-[var(--card)] brightness-95 border-brand-border">
               <CardHeader>
-                <CardTitle className="text-neutral-900">SECTION 4 — Quiz Runtime Trace</CardTitle>
+                <CardTitle className="text-brand-text">SECTION 4 — Quiz Runtime Trace</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.quizRuntime.databaseRows} title="Database Rows (quiz_responses)" />
-                <div className="border-b border-neutral-200 my-4" />
+                <div className="border-b border-brand-border my-4" />
                 <div className="grid grid-cols-2 gap-4">
                   <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.input} title="INPUT" />
                   <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.bestScoreSelection} title="Best Score Selection" />
@@ -340,14 +340,14 @@ export default function RuntimeDebugPage() {
                 <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.average} title="Average" />
                 <JsonDisplay data={runtimeData.sections.quizRuntime.calculationStages.functionOutput} title="Return Object" />
                 <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="bg-neutral-50 p-3 rounded border border-neutral-200">
-                    <div className="text-xs text-neutral-600">Quiz Progress</div>
+                  <div className="bg-brand-bg p-3 rounded border border-brand-border">
+                    <div className="text-xs text-brand-text/70">Quiz Progress</div>
                     <div className="text-2xl font-bold text-[#10b981]">
                       {runtimeData.sections.quizRuntime.calculationStages.functionOutput.percentage}%
                     </div>
                   </div>
-                  <div className="bg-neutral-50 p-3 rounded border border-neutral-200">
-                    <div className="text-xs text-neutral-600">Passed Quizzes</div>
+                  <div className="bg-brand-bg p-3 rounded border border-brand-border">
+                    <div className="text-xs text-brand-text/70">Passed Quizzes</div>
                     <div className="text-2xl font-bold text-[#10b981]">
                       {runtimeData.sections.quizRuntime.calculationStages.functionOutput.passed}
                     </div>
@@ -357,17 +357,17 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 5: Overall Progress */}
-            <Card className="bg-gray-100 border-neutral-200">
+            <Card className="bg-[var(--card)] brightness-95 border-brand-border">
               <CardHeader>
-                <CardTitle className="text-neutral-900">SECTION 5 — Overall Progress</CardTitle>
+                <CardTitle className="text-brand-text">SECTION 5 — Overall Progress</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.overallProgress.inputValues} title="Input Values" />
-                <div className="border-b border-neutral-200 my-4" />
+                <div className="border-b border-brand-border my-4" />
                 <JsonDisplay data={runtimeData.sections.overallProgress.calculationStages.weightedFormula} title="Weighted Formula" />
                 <JsonDisplay data={runtimeData.sections.overallProgress.calculationStages.functionOutput} title="Return Object" />
-                <div className="bg-neutral-50 p-3 rounded border border-neutral-200 mt-4">
-                  <div className="text-xs text-neutral-600">Overall Progress</div>
+                <div className="bg-brand-bg p-3 rounded border border-brand-border mt-4">
+                  <div className="text-xs text-brand-text/70">Overall Progress</div>
                   <div className="text-2xl font-bold text-[#10b981]">
                     {runtimeData.sections.overallProgress.calculationStages.functionOutput.percentage}%
                   </div>
@@ -376,13 +376,13 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 6: Leaderboard Runtime */}
-            <Card className="bg-gray-100 border-neutral-200">
+            <Card className="bg-[var(--card)] brightness-95 border-brand-border">
               <CardHeader>
-                <CardTitle className="text-neutral-900">SECTION 6 — Leaderboard Runtime</CardTitle>
+                <CardTitle className="text-brand-text">SECTION 6 — Leaderboard Runtime</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.input} title="INPUT" />
-                <div className="border-b border-neutral-200 my-4" />
+                <div className="border-b border-brand-border my-4" />
                 <div className="grid grid-cols-5 gap-4">
                   <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.assignmentContribution} title="Assignment Contribution" />
                   <JsonDisplay data={runtimeData.sections.leaderboardRuntime.calculationStages.quizContribution} title="Quiz Contribution" />
@@ -395,9 +395,9 @@ export default function RuntimeDebugPage() {
             </Card>
 
             {/* SECTION 7: Leaderboard Database */}
-            <Card className="bg-gray-100 border-neutral-200">
+            <Card className="bg-[var(--card)] brightness-95 border-brand-border">
               <CardHeader>
-                <CardTitle className="text-neutral-900">SECTION 7 — Leaderboard Database</CardTitle>
+                <CardTitle className="text-brand-text">SECTION 7 — Leaderboard Database</CardTitle>
               </CardHeader>
               <CardContent>
                 <JsonDisplay data={runtimeData.sections.leaderboardTable} title="Database Entry" />
@@ -406,9 +406,9 @@ export default function RuntimeDebugPage() {
 
             {/* SECTION 8: Analytics API Comparison */}
             {runtimeData.sections.analyticsApiComparison && (
-              <Card className="bg-gray-100 border-neutral-200">
+              <Card className="bg-[var(--card)] brightness-95 border-brand-border">
                 <CardHeader>
-                  <CardTitle className="text-neutral-900">SECTION 8 — Analytics API Comparison</CardTitle>
+                  <CardTitle className="text-brand-text">SECTION 8 — Analytics API Comparison</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-2 mb-4">
@@ -426,9 +426,9 @@ export default function RuntimeDebugPage() {
 
             {/* SECTION 9: Leaderboard API Comparison */}
             {runtimeData.sections.leaderboardApiComparison && (
-              <Card className="bg-gray-100 border-neutral-200">
+              <Card className="bg-[var(--card)] brightness-95 border-brand-border">
                 <CardHeader>
-                  <CardTitle className="text-neutral-900">SECTION 9 — Leaderboard API Comparison</CardTitle>
+                  <CardTitle className="text-brand-text">SECTION 9 — Leaderboard API Comparison</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-2 mb-4">
@@ -441,7 +441,7 @@ export default function RuntimeDebugPage() {
                   </div>
                   {runtimeData.sections.leaderboardApiComparison.data?.leaderboard && (
                     <div className="mb-4">
-                      <div className="text-sm text-neutral-600 mb-2">Student entry in leaderboard:</div>
+                      <div className="text-sm text-brand-text/70 mb-2">Student entry in leaderboard:</div>
                       <JsonDisplay 
                         data={runtimeData.sections.leaderboardApiComparison.data.leaderboard.find(
                             (entry: any) => entry.user_id === runtimeData.userId
@@ -457,18 +457,18 @@ export default function RuntimeDebugPage() {
 
             {/* SECTION 10: Pipeline Verification */}
             {runtimeData.sections.pipelineVerification && (
-              <Card className="bg-gray-100 border-neutral-200">
+              <Card className="bg-[var(--card)] brightness-95 border-brand-border">
                 <CardHeader>
-                  <CardTitle className="text-neutral-900">SECTION 10 — Pipeline Verification</CardTitle>
+                  <CardTitle className="text-brand-text">SECTION 10 — Pipeline Verification</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-sm text-neutral-600 mb-2">Pipeline Stages</h4>
+                    <h4 className="font-semibold text-sm text-brand-text/70 mb-2">Pipeline Stages</h4>
                     <StageDisplay stages={runtimeData.sections.pipelineVerification.stages} />
                   </div>
                   {runtimeData.sections.pipelineVerification.failures && runtimeData.sections.pipelineVerification.failures.length > 0 && (
                     <>
-                      <div className="border-b border-neutral-200 my-4" />
+                      <div className="border-b border-brand-border my-4" />
                       <div>
                         <h4 className="font-semibold text-sm text-red-400 mb-2">Failures</h4>
                         <JsonDisplay data={runtimeData.sections.pipelineVerification.failures} title="Error Details" />

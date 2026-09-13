@@ -130,17 +130,17 @@ export default function FounderNotificationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <div className="flex items-center gap-3">
           <RefreshCw className="h-6 w-6 animate-spin text-[#10b981]" />
-          <span className="text-neutral-600">Loading notifications...</span>
+          <span className="text-brand-text/70">Loading notifications...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-8 px-4">
+    <div className="min-h-screen bg-brand-bg py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -149,26 +149,26 @@ export default function FounderNotificationsPage() {
               <Bell className="h-8 w-8 text-[#10b981]" />
               <h1 className="text-3xl font-bold">Founder Notifications</h1>
               {unreadCount > 0 && (
-                <span className="bg-gray-50 text-black px-3 py-1 rounded-full text-sm font-bold">
+                <span className="bg-brand-bg text-black px-3 py-1 rounded-full text-sm font-bold">
                   {unreadCount} unread
                 </span>
               )}
             </div>
-            <p className="text-neutral-600">Real-time notifications for important business events</p>
+            <p className="text-brand-text/70">Real-time notifications for important business events</p>
           </div>
           
           <div className="flex items-center gap-3">
             <button
               onClick={markAllAsRead}
               disabled={unreadCount === 0}
-              className="flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-100 text-neutral-600 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 border border-brand-border bg-[var(--card)] brightness-95 text-brand-text/70 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCircle2 className="h-4 w-4" />
               Mark All Read
             </button>
             <button
               onClick={fetchNotifications}
-              className="flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-100 text-neutral-600 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+              className="flex items-center gap-2 px-4 py-2 border border-brand-border bg-[var(--card)] brightness-95 text-brand-text/70 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
             >
               <RefreshCw className="h-4 w-4" />
               Refresh
@@ -177,10 +177,10 @@ export default function FounderNotificationsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 bg-gray-100 border border-neutral-200 rounded-xl p-4">
+        <div className="flex flex-wrap items-center gap-4 bg-[var(--card)] brightness-95 border border-brand-border rounded-xl p-4">
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-neutral-600" />
-            <span className="text-sm text-neutral-600">Filter:</span>
+            <Filter className="h-4 w-4 text-brand-text/70" />
+            <span className="text-sm text-brand-text/70">Filter:</span>
           </div>
           
           <div className="flex items-center gap-2">
@@ -188,8 +188,8 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('all')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'all' 
-                  ? 'bg-gray-50 text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-50'
+                  ? 'bg-brand-bg text-black' 
+                  : 'bg-brand-bg text-brand-text/70 hover:bg-brand-bg'
               }`}
             >
               All
@@ -198,8 +198,8 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('unread')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'unread' 
-                  ? 'bg-gray-50 text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-50'
+                  ? 'bg-brand-bg text-black' 
+                  : 'bg-brand-bg text-brand-text/70 hover:bg-brand-bg'
               }`}
             >
               Unread
@@ -208,20 +208,20 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('read')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'read' 
-                  ? 'bg-gray-50 text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-50'
+                  ? 'bg-brand-bg text-black' 
+                  : 'bg-brand-bg text-brand-text/70 hover:bg-brand-bg'
               }`}
             >
               Read
             </button>
           </div>
 
-          <div className="w-px h-6 bg-gray-50" />
+          <div className="w-px h-6 bg-brand-bg" />
 
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1 text-sm text-neutral-600 focus:border-[#10b981] focus:outline-none"
+            className="bg-brand-bg border border-brand-border rounded-lg px-3 py-1 text-sm text-brand-text/70 focus:border-[#10b981] focus:outline-none"
           >
             <option value="all">All Types</option>
             <option value="new_registration">New Registration</option>
@@ -244,16 +244,16 @@ export default function FounderNotificationsPage() {
           <div className="space-y-4">
             {filteredNotifications.map((notification) => {
               const Icon = notificationIcons[notification.notification_type] || Bell;
-              const colorClass = notificationColors[notification.notification_type] || 'text-neutral-600 bg-gray-50';
+              const colorClass = notificationColors[notification.notification_type] || 'text-brand-text/70 bg-brand-bg';
               const isUnread = !notification.read_at;
 
               return (
                 <div
                   key={notification.id}
-                  className={`bg-gray-100 border rounded-xl p-6 transition-all ${
+                  className={`bg-[var(--card)] brightness-95 border rounded-xl p-6 transition-all ${
                     isUnread 
-                      ? 'border-[#10b981]/30 bg-gray-50/5' 
-                      : 'border-neutral-200'
+                      ? 'border-[#10b981]/30 bg-brand-bg/5' 
+                      : 'border-brand-border'
                   }`}
                 >
                   <div className="flex items-start gap-4">
@@ -265,7 +265,7 @@ export default function FounderNotificationsPage() {
                       <div className="flex items-start justify-between gap-4 mb-2">
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg mb-1">{notification.subject}</h3>
-                          <p className="text-sm text-neutral-600">
+                          <p className="text-sm text-brand-text/70">
                             {new Date(notification.created_at).toLocaleString()}
                           </p>
                         </div>
@@ -274,7 +274,7 @@ export default function FounderNotificationsPage() {
                           {isUnread && (
                             <button
                               onClick={() => markAsRead(notification.id)}
-                              className="p-2 text-neutral-600 hover:text-[#10b981] transition-colors"
+                              className="p-2 text-brand-text/70 hover:text-[#10b981] transition-colors"
                               title="Mark as read"
                             >
                               <CheckCircle2 className="h-4 w-4" />
@@ -282,7 +282,7 @@ export default function FounderNotificationsPage() {
                           )}
                           <button
                             onClick={() => deleteNotification(notification.id)}
-                            className="p-2 text-neutral-600 hover:text-red-400 transition-colors"
+                            className="p-2 text-brand-text/70 hover:text-red-400 transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -291,7 +291,7 @@ export default function FounderNotificationsPage() {
                       </div>
                       
                       <div 
-                        className="text-sm text-neutral-600 mt-3 prose prose-invert max-w-none"
+                        className="text-sm text-brand-text/70 mt-3 prose prose-invert max-w-none"
                         dangerouslySetInnerHTML={{ __html: notification.content }}
                       />
                       
@@ -309,10 +309,10 @@ export default function FounderNotificationsPage() {
             })}
           </div>
         ) : (
-          <div className="bg-gray-100 border border-neutral-200 rounded-xl p-12 text-center">
-            <Bell className="h-16 w-16 mx-auto mb-4 text-neutral-600 opacity-50" />
+          <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-xl p-12 text-center">
+            <Bell className="h-16 w-16 mx-auto mb-4 text-brand-text/70 opacity-50" />
             <h3 className="text-xl font-semibold mb-2">No notifications</h3>
-            <p className="text-neutral-600">
+            <p className="text-brand-text/70">
               {filter === 'unread' 
                 ? 'No unread notifications' 
                 : filter === 'read' 

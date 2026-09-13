@@ -21,15 +21,15 @@ export default function LiveJitsi({ roomName, userName, onReady }: LiveJitsiProp
   }, [roomName, userName, onReady]);
 
   return (
-    <div className="w-full h-[70vh] rounded-lg overflow-hidden flex items-center justify-center bg-gray-100">
+    <div className="w-full h-[70vh] rounded-lg overflow-hidden flex items-center justify-center bg-[var(--card)] brightness-95">
       <div className="text-center">
-        <p className="text-gray-600 mb-4">Live class has been opened in a new tab</p>
+        <p className="text-brand-text/70 mb-4">Live class has been opened in a new tab</p>
         <button
           onClick={() => {
             const jitsiUrl = `https://meet.jit.si/${roomName}?config.startWithAudioMuted=false&config.startWithVideoMuted=false&userInfo.displayName=${encodeURIComponent(userName)}`;
             window.open(jitsiUrl, '_blank');
           }}
-          className="px-4 py-2 bg-blue-600 text-neutral-900 rounded hover:bg-blue-700"
+          className="px-4 py-2 bg-blue-600 text-brand-text rounded hover:bg-blue-700"
         >
           Open Live Class Again
         </button>

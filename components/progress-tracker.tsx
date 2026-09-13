@@ -52,31 +52,31 @@ export function ProgressBar({ totalVideos }: { totalVideos: number }) {
 
   if (isLoading) {
     return (
-      <div className="mb-10 bg-white border border-neutral-200/60 rounded-[20px] p-6 shadow-sm animate-pulse">
-        <div className="h-4 w-32 bg-neutral-100 rounded mb-4"></div>
-        <div className="h-3 w-full bg-neutral-100 rounded-full"></div>
+      <div className="mb-10 bg-[var(--card)] border border-brand-border/60 rounded-[20px] p-6 shadow-sm animate-pulse">
+        <div className="h-4 w-32 bg-[var(--card)] brightness-95 rounded mb-4"></div>
+        <div className="h-3 w-full bg-[var(--card)] brightness-95 rounded-full"></div>
       </div>
     )
   }
 
   return (
-    <div className="mb-10 bg-white border border-neutral-200/60 rounded-[20px] p-6 sm:p-8 shadow-sm">
+    <div className="mb-10 bg-[var(--card)] border border-brand-border/60 rounded-[20px] p-6 sm:p-8 shadow-sm">
       <div className="flex items-end justify-between mb-4">
         <div>
-          <h3 className="font-heading font-bold text-lg text-neutral-900">Your Progress</h3>
-          <p className="text-sm text-neutral-500 mt-1">{count} of {totalVideos} lessons completed</p>
+          <h3 className="font-heading font-bold text-lg text-brand-text">Your Progress</h3>
+          <p className="text-sm text-brand-text/60 mt-1">{count} of {totalVideos} lessons completed</p>
         </div>
         <span className="font-heading font-bold text-2xl text-[#10b981]">
           {pct}%
         </span>
       </div>
-      <div className="relative h-3 w-full overflow-hidden rounded-full bg-neutral-100 border border-neutral-200/50 shadow-inner">
+      <div className="relative h-3 w-full overflow-hidden rounded-full bg-[var(--card)] brightness-95 border border-brand-border/50 shadow-inner">
         <div
           className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#10b981] to-[#34d399] transition-all duration-1000 ease-out"
           style={{ width: `${pct}%` }}
         />
         <div
-          className="absolute inset-y-0 left-0 bg-white/20 transition-all duration-1000 ease-out shimmer-overlay"
+          className="absolute inset-y-0 left-0 bg-[var(--card)]/20 transition-all duration-1000 ease-out shimmer-overlay"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -93,7 +93,7 @@ export function MarkCompleteButton({ videoId }: { videoId: string }) {
       className={`flex items-center justify-center w-10 h-10 rounded-xl border transition-all ${
         isDone 
           ? 'bg-emerald-50 border-emerald-200 text-[#10b981]' 
-          : 'bg-neutral-50 border-neutral-200 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100'
+          : 'bg-brand-bg border-brand-border text-neutral-400 hover:text-brand-text/70 hover:bg-[var(--card)] brightness-95'
       }`}
       title={isDone ? 'Completed' : 'Mark complete'}
     >

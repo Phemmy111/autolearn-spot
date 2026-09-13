@@ -108,7 +108,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
       case 'announcement': return <Megaphone className="h-5 w-5 text-[#10b981]" />
       case 'assignment_review':
       case 'certificate': return <CheckCircle2 className="h-5 w-5 text-[#a855f7]" />
-      default: return <Info className="h-5 w-5 text-neutral-500" />
+      default: return <Info className="h-5 w-5 text-brand-text/60" />
     }
   }
 
@@ -134,19 +134,19 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
   const hasUnread = deliveries.some(d => d.status === 'unread')
 
   return (
-    <div className="absolute right-0 top-12 mt-2 w-80 sm:w-96 rounded-xl border border-[#3b494b] bg-gray-50 shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]">
-      <div className="flex items-center justify-between border-b border-[#3b494b] bg-gray-50 p-4">
-        <h3 className="font-heading text-lg font-bold text-neutral-900">Notifications</h3>
+    <div className="absolute right-0 top-12 mt-2 w-80 sm:w-96 rounded-xl border border-[#3b494b] bg-brand-bg shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="flex items-center justify-between border-b border-[#3b494b] bg-brand-bg p-4">
+        <h3 className="font-heading text-lg font-bold text-brand-text">Notifications</h3>
         <div className="flex items-center gap-2">
           {hasUnread && (
             <button 
               onClick={markAllAsRead}
-              className="text-xs font-mono text-[#10b981] hover:text-neutral-900 transition-colors flex items-center gap-1"
+              className="text-xs font-mono text-[#10b981] hover:text-brand-text transition-colors flex items-center gap-1"
             >
               <Check className="h-3 w-3" /> Mark all read
             </button>
           )}
-          <button onClick={onClose} className="text-neutral-500 hover:text-neutral-900">
+          <button onClick={onClose} className="text-brand-text/60 hover:text-brand-text">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -154,13 +154,13 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
 
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <div className="p-8 text-center text-sm font-mono text-neutral-500">Loading...</div>
+          <div className="p-8 text-center text-sm font-mono text-brand-text/60">Loading...</div>
         ) : error ? (
           <div className="p-8 text-center text-sm font-mono text-[#ff6b6b]">{error}</div>
         ) : deliveries.length === 0 ? (
           <div className="p-8 text-center">
             <Bell className="h-12 w-12 text-[#3b494b] mx-auto mb-3 opacity-50" />
-            <p className="text-sm font-mono text-neutral-500">No notifications yet</p>
+            <p className="text-sm font-mono text-brand-text/60">No notifications yet</p>
           </div>
         ) : (
           <div className="divide-y divide-[#1f2229]">
@@ -171,7 +171,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
               return (
                 <div 
                   key={delivery.id} 
-                  className={`p-4 transition-colors hover:bg-gray-50 ${isUnread ? 'bg-gray-50' : 'bg-gray-50'}`}
+                  className={`p-4 transition-colors hover:bg-brand-bg ${isUnread ? 'bg-brand-bg' : 'bg-brand-bg'}`}
                   onClick={() => {
                     if (isUnread) markAsRead(notification.id)
                   }}
@@ -182,10 +182,10 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <p className={`text-sm font-bold truncate ${isUnread ? 'text-neutral-900' : 'text-neutral-500'}`}>
+                        <p className={`text-sm font-bold truncate ${isUnread ? 'text-brand-text' : 'text-brand-text/60'}`}>
                           {notification.title}
                         </p>
-                        <span className="flex-shrink-0 text-[10px] font-mono text-neutral-500">
+                        <span className="flex-shrink-0 text-[10px] font-mono text-brand-text/60">
                           {formatTimeAgo(notification.created_at)}
                         </span>
                       </div>
@@ -197,7 +197,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                         <div className="mt-2">
                           <Link 
                             href={notification.action_url}
-                            className="inline-block px-3 py-1 bg-gray-50 border border-[#3b494b] text-[#10b981] hover:bg-gray-50 hover:text-black font-mono text-xs rounded transition-colors"
+                            className="inline-block px-3 py-1 bg-brand-bg border border-[#3b494b] text-[#10b981] hover:bg-brand-bg hover:text-black font-mono text-xs rounded transition-colors"
                             onClick={(e) => {
                               if (isUnread) markAsRead(notification.id)
                             }}
@@ -208,7 +208,7 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
                       )}
                     </div>
                     {isUnread && (
-                      <div className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-gray-50"></div>
+                      <div className="flex-shrink-0 mt-1.5 h-2 w-2 rounded-full bg-brand-bg"></div>
                     )}
                   </div>
                 </div>
@@ -218,11 +218,11 @@ export function NotificationDropdown({ onClose, onNotificationsRead }: Notificat
         )}
       </div>
 
-      <div className="border-t border-[#3b494b] bg-gray-50 p-3">
+      <div className="border-t border-[#3b494b] bg-brand-bg p-3">
         <Link 
           href="/dashboard/settings/notifications" 
           onClick={onClose}
-          className="flex items-center justify-center gap-2 text-xs font-mono text-neutral-500 hover:text-neutral-900 transition-colors"
+          className="flex items-center justify-center gap-2 text-xs font-mono text-brand-text/60 hover:text-brand-text transition-colors"
         >
           <Settings className="h-4 w-4" /> Notification Settings
         </Link>

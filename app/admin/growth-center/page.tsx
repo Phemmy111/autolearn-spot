@@ -131,18 +131,18 @@ export default function AdminGrowthCenter() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Growth Center</h1>
-          <p className="text-neutral-600 text-sm">Manage partners, applications, and growth analytics.</p>
+          <p className="text-brand-text/70 text-sm">Manage partners, applications, and growth analytics.</p>
         </div>
         <button 
           onClick={fetchData}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100/10 hover:bg-gray-100/20 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--card)] brightness-95/10 hover:bg-[var(--card)] brightness-95/20 rounded-lg transition-colors"
         >
           <RefreshCw className="h-4 w-4" />
           Refresh
         </button>
       </div>
 
-      <div className="flex border-b border-neutral-200 overflow-x-auto">
+      <div className="flex border-b border-brand-border overflow-x-auto">
         {(['overview', 'applications', 'partners', 'withdrawals', 'fraud'] as const).map(tab => (
           <button
             key={tab}
@@ -150,12 +150,12 @@ export default function AdminGrowthCenter() {
             className={`px-6 py-3 font-medium text-sm capitalize transition-colors border-b-2 whitespace-nowrap ${
               activeTab === tab 
                 ? 'border-[#10b981] text-[#10b981]' 
-                : 'border-transparent text-neutral-600 hover:text-neutral-900 hover:border-white/20'
+                : 'border-transparent text-brand-text/70 hover:text-brand-text hover:border-white/20'
             }`}
           >
             {tab}
             {tab === 'applications' && stats?.applications?.pending > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-red-500 text-neutral-900 text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-red-500 text-brand-text text-xs rounded-full">
                 {stats.applications.pending}
               </span>
             )}
@@ -165,7 +165,7 @@ export default function AdminGrowthCenter() {
               </span>
             )}
             {tab === 'fraud' && stats?.fraud?.openAlerts > 0 && (
-              <span className="ml-2 px-2 py-0.5 bg-red-500 text-neutral-900 text-xs rounded-full">
+              <span className="ml-2 px-2 py-0.5 bg-red-500 text-brand-text text-xs rounded-full">
                 {stats.fraud.openAlerts}
               </span>
             )}
@@ -179,20 +179,20 @@ export default function AdminGrowthCenter() {
         <div className="space-y-6">
           {/* Partner Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
-              <h3 className="text-sm text-neutral-600 mb-1">Student Partners</h3>
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
+              <h3 className="text-sm text-brand-text/70 mb-1">Student Partners</h3>
               <p className="text-3xl font-bold">{stats.partners.student}</p>
             </div>
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
-              <h3 className="text-sm text-neutral-600 mb-1">Community Partners</h3>
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
+              <h3 className="text-sm text-brand-text/70 mb-1">Community Partners</h3>
               <p className="text-3xl font-bold">{stats.partners.community}</p>
             </div>
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
-              <h3 className="text-sm text-neutral-600 mb-1">Influencer Partners</h3>
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
+              <h3 className="text-sm text-brand-text/70 mb-1">Influencer Partners</h3>
               <p className="text-3xl font-bold">{stats.partners.influencer}</p>
             </div>
-            <div className="bg-neutral-50 border border-[#10b981]/20 p-6 rounded-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/10 blur-3xl rounded-full" />
+            <div className="bg-brand-bg border border-[#10b981]/20 p-6 rounded-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-brand-bg/10 blur-3xl rounded-full" />
               <h3 className="text-sm text-[#10b981] mb-1 relative z-10">Total Partners</h3>
               <p className="text-3xl font-bold relative z-10">{stats.partners.total}</p>
             </div>
@@ -200,24 +200,24 @@ export default function AdminGrowthCenter() {
 
           {/* Financial Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <DollarSign className="h-5 w-5 text-green-400" />
-                <h3 className="text-sm text-neutral-600">Total Commissions</h3>
+                <h3 className="text-sm text-brand-text/70">Total Commissions</h3>
               </div>
               <p className="text-2xl font-bold">₦{stats.financial.totalCommissions.toLocaleString()}</p>
             </div>
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <TrendingUp className="h-5 w-5 text-blue-400" />
-                <h3 className="text-sm text-neutral-600">Total Paid Out</h3>
+                <h3 className="text-sm text-brand-text/70">Total Paid Out</h3>
               </div>
               <p className="text-2xl font-bold">₦{stats.financial.totalPaidOut.toLocaleString()}</p>
             </div>
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <Wallet className="h-5 w-5 text-yellow-400" />
-                <h3 className="text-sm text-neutral-600">Available for Payout</h3>
+                <h3 className="text-sm text-brand-text/70">Available for Payout</h3>
               </div>
               <p className="text-2xl font-bold">₦{stats.financial.availableForPayout.toLocaleString()}</p>
             </div>
@@ -225,32 +225,32 @@ export default function AdminGrowthCenter() {
 
           {/* Referral Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <Users className="h-5 w-5 text-purple-400" />
-                <h3 className="text-sm text-neutral-600">Total Referral Clicks</h3>
+                <h3 className="text-sm text-brand-text/70">Total Referral Clicks</h3>
               </div>
               <p className="text-2xl font-bold">{stats.referrals.totalClicks.toLocaleString()}</p>
             </div>
-            <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
+            <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
               <div className="flex items-center gap-3 mb-2">
                 <CheckCircle2 className="h-5 w-5 text-green-400" />
-                <h3 className="text-sm text-neutral-600">Total Registrations</h3>
+                <h3 className="text-sm text-brand-text/70">Total Registrations</h3>
               </div>
               <p className="text-2xl font-bold">{stats.referrals.totalRegistrations.toLocaleString()}</p>
             </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
+          <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
             <h3 className="text-lg font-bold mb-4">Recent Activity (7 Days)</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-neutral-600">New Partner Signups</p>
+                <p className="text-sm text-brand-text/70">New Partner Signups</p>
                 <p className="text-2xl font-bold">{stats.recent.signups}</p>
               </div>
               <div>
-                <p className="text-sm text-neutral-600">Course Purchases</p>
+                <p className="text-sm text-brand-text/70">Course Purchases</p>
                 <p className="text-2xl font-bold">{stats.recent.purchases}</p>
               </div>
             </div>
@@ -259,29 +259,29 @@ export default function AdminGrowthCenter() {
       )}
 
       {!loading && activeTab === 'applications' && (
-        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/50 border-b border-neutral-200">
+            <thead className="bg-brand-bg/50 border-b border-brand-border">
               <tr>
-                <th className="px-6 py-4 font-medium text-neutral-600">Applicant</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Contact</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">State</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Status</th>
-                <th className="px-6 py-4 font-medium text-neutral-600 text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Applicant</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Contact</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">State</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Status</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {applications.map(app => (
-                <tr key={app.id} className="hover:bg-gray-100/5 transition-colors">
+                <tr key={app.id} className="hover:bg-[var(--card)] brightness-95/5 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-neutral-900">{app.full_name}</p>
-                    <p className="text-neutral-600 text-xs">{app.occupation}</p>
+                    <p className="font-medium text-brand-text">{app.full_name}</p>
+                    <p className="text-brand-text/70 text-xs">{app.occupation}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="text-neutral-900">{app.email}</p>
-                    <p className="text-neutral-600 text-xs">{app.phone}</p>
+                    <p className="text-brand-text">{app.email}</p>
+                    <p className="text-brand-text/70 text-xs">{app.phone}</p>
                   </td>
-                  <td className="px-6 py-4 text-neutral-600">{app.state}</td>
+                  <td className="px-6 py-4 text-brand-text/70">{app.state}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       app.status === 'approved' ? 'bg-green-500/10 text-green-400' :
@@ -322,29 +322,29 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {applications.length === 0 && (
-            <div className="p-8 text-center text-neutral-600">No applications found</div>
+            <div className="p-8 text-center text-brand-text/70">No applications found</div>
           )}
         </div>
       )}
 
       {!loading && activeTab === 'partners' && (
-        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/50 border-b border-neutral-200">
+            <thead className="bg-brand-bg/50 border-b border-brand-border">
               <tr>
-                <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Commission</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Earnings</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Status</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Partner</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Type</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Commission</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Earnings</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {partners.map(partner => (
-                <tr key={partner.id} className="hover:bg-gray-100/5 transition-colors">
+                <tr key={partner.id} className="hover:bg-[var(--card)] brightness-95/5 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-neutral-900">{partner.full_name}</p>
-                    <p className="text-neutral-600 text-xs">{partner.email}</p>
+                    <p className="font-medium text-brand-text">{partner.full_name}</p>
+                    <p className="text-brand-text/70 text-xs">{partner.email}</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -357,8 +357,8 @@ export default function AdminGrowthCenter() {
                   </td>
                   <td className="px-6 py-4 font-medium">₦{partner.commission_rate.toLocaleString()}</td>
                   <td className="px-6 py-4">
-                    <p className="text-neutral-900">₦{partner.available_earnings.toLocaleString()} available</p>
-                    <p className="text-neutral-600 text-xs">₦{partner.lifetime_earnings.toLocaleString()} lifetime</p>
+                    <p className="text-brand-text">₦{partner.available_earnings.toLocaleString()} available</p>
+                    <p className="text-brand-text/70 text-xs">₦{partner.lifetime_earnings.toLocaleString()} lifetime</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -374,34 +374,34 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {partners.length === 0 && (
-            <div className="p-8 text-center text-neutral-600">No partners found</div>
+            <div className="p-8 text-center text-brand-text/70">No partners found</div>
           )}
         </div>
       )}
 
       {!loading && activeTab === 'withdrawals' && (
-        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/50 border-b border-neutral-200">
+            <thead className="bg-brand-bg/50 border-b border-brand-border">
               <tr>
-                <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Amount</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Bank Details</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Status</th>
-                <th className="px-6 py-4 font-medium text-neutral-600 text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Partner</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Amount</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Bank Details</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Status</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {withdrawals.map(withdrawal => (
-                <tr key={withdrawal.id} className="hover:bg-gray-100/5 transition-colors">
+                <tr key={withdrawal.id} className="hover:bg-[var(--card)] brightness-95/5 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-neutral-900">{withdrawal.user_id}</p>
-                    <p className="text-neutral-600 text-xs">{withdrawal.user_type}</p>
+                    <p className="font-medium text-brand-text">{withdrawal.user_id}</p>
+                    <p className="text-brand-text/70 text-xs">{withdrawal.user_type}</p>
                   </td>
                   <td className="px-6 py-4 font-bold">₦{withdrawal.amount.toLocaleString()}</td>
                   <td className="px-6 py-4">
-                    <p className="text-neutral-900">{withdrawal.bank_name}</p>
-                    <p className="text-neutral-600 text-xs">{withdrawal.account_number}</p>
+                    <p className="text-brand-text">{withdrawal.bank_name}</p>
+                    <p className="text-brand-text/70 text-xs">{withdrawal.account_number}</p>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -436,28 +436,28 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {withdrawals.length === 0 && (
-            <div className="p-8 text-center text-neutral-600">No withdrawals found</div>
+            <div className="p-8 text-center text-brand-text/70">No withdrawals found</div>
           )}
         </div>
       )}
 
       {!loading && activeTab === 'fraud' && (
-        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/50 border-b border-neutral-200">
+            <thead className="bg-brand-bg/50 border-b border-brand-border">
               <tr>
-                <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Severity</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Description</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Status</th>
-                <th className="px-6 py-4 font-medium text-neutral-600 text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Type</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Severity</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Description</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Status</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {fraudAlerts.map(alert => (
-                <tr key={alert.id} className="hover:bg-gray-100/5 transition-colors">
+                <tr key={alert.id} className="hover:bg-[var(--card)] brightness-95/5 transition-colors">
                   <td className="px-6 py-4">
-                    <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100/5">
+                    <span className="px-2 py-1 rounded text-xs font-medium bg-[var(--card)] brightness-95/5">
                       {alert.type.replace(/_/g, ' ')}
                     </span>
                   </td>
@@ -470,7 +470,7 @@ export default function AdminGrowthCenter() {
                       {alert.severity}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-neutral-600 max-w-md truncate">{alert.description}</td>
+                  <td className="px-6 py-4 text-brand-text/70 max-w-md truncate">{alert.description}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       alert.status === 'open' ? 'bg-red-500/10 text-red-400' :
@@ -498,7 +498,7 @@ export default function AdminGrowthCenter() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-neutral-600 text-xs">Closed</span>
+                      <span className="text-brand-text/70 text-xs">Closed</span>
                     )}
                   </td>
                 </tr>
@@ -506,7 +506,7 @@ export default function AdminGrowthCenter() {
             </tbody>
           </table>
           {fraudAlerts.length === 0 && (
-            <div className="p-8 text-center text-neutral-600">No fraud alerts found</div>
+            <div className="p-8 text-center text-brand-text/70">No fraud alerts found</div>
           )}
         </div>
       )}

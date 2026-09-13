@@ -12,7 +12,7 @@ function CertificateVerifyContent() {
 
   if (!name || !date) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
         <div className="border border-red-500/30 bg-red-500/10 p-8 text-center max-w-md">
           <p className="text-red-400 font-mono text-sm">Invalid or expired certificate link.</p>
         </div>
@@ -21,24 +21,24 @@ function CertificateVerifyContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="border border-neutral-200 bg-gray-50 p-8 max-w-lg w-full">
+    <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4">
+      <div className="border border-brand-border bg-brand-bg p-8 max-w-lg w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/50 mb-4">
             <CheckCircle className="h-8 w-8 text-emerald-400" />
           </div>
-          <h1 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Certificate Verified</h1>
-          <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider">
+          <h1 className="font-heading text-2xl font-bold text-brand-text mb-2">Certificate Verified</h1>
+          <p className="font-mono text-xs text-brand-text/60 uppercase tracking-wider">
             Autolearn Spot • Powered by Moon Space Network
           </p>
         </div>
 
         {/* Certificate Details */}
-        <div className="border border-neutral-200 bg-gray-50 p-6 space-y-4 mb-6">
+        <div className="border border-brand-border bg-brand-bg p-6 space-y-4 mb-6">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Recipient</p>
-            <p className="text-lg text-neutral-900 font-semibold">{decodeURIComponent(name)}</p>
+            <p className="text-lg text-brand-text font-semibold">{decodeURIComponent(name)}</p>
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Course</p>
@@ -46,11 +46,11 @@ function CertificateVerifyContent() {
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Completion Date</p>
-            <p className="text-neutral-500">{decodeURIComponent(date)}</p>
+            <p className="text-brand-text/60">{decodeURIComponent(date)}</p>
           </div>
           <div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-[#5d5f63] mb-1">Issued By</p>
-            <p className="text-neutral-500">Moon Space Network (MSN)</p>
+            <p className="text-brand-text/60">Moon Space Network (MSN)</p>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ function CertificateVerifyContent() {
         <div className="text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 font-mono text-xs text-[#10b981] hover:text-neutral-900 transition-colors"
+            className="inline-flex items-center gap-2 font-mono text-xs text-[#10b981] hover:text-brand-text transition-colors"
           >
             <ExternalLink className="h-3 w-3" />
             Visit Autolearn Spot
@@ -80,8 +80,8 @@ function CertificateVerifyContent() {
 export default function CertificateVerifyPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-neutral-500 font-mono text-sm">Loading verification...</p>
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <p className="text-brand-text/60 font-mono text-sm">Loading verification...</p>
       </div>
     }>
       <CertificateVerifyContent />

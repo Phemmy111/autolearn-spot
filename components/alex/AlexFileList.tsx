@@ -53,14 +53,14 @@ export function AlexFileList({ files, onRemoveFile, isMobile }: AlexFileListProp
               <span className={`text-sm ${isMobile ? 'text-xs' : ''} text-slate-300 truncate max-w-[${isMobile ? '100px' : '150px'}']}`}>
                 {file.original_filename}
               </span>
-              <span className={`text-xs text-slate-500 ${isMobile ? 'hidden' : ''}`}>
+              <span className={`text-xs text-brand-text/60 ${isMobile ? 'hidden' : ''}`}>
                 ({formatFileSize(file.file_size)})
               </span>
               {getStatusIcon(file.status)}
               <button
                 type="button"
                 onClick={() => onRemoveFile(file.id)}
-                className="text-slate-400 hover:text-neutral-900 transition-colors"
+                className="text-slate-400 hover:text-brand-text transition-colors"
                 title="Remove file"
               >
                 <X className="h-4 w-4" />

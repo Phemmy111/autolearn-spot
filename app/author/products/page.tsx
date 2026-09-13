@@ -52,7 +52,7 @@ export default function AuthorProductsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'DRAFT':
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-[var(--card)] brightness-95 text-gray-700';
       case 'PENDING_REVIEW':
         return 'bg-yellow-100 text-yellow-700';
       case 'PUBLISHED':
@@ -62,7 +62,7 @@ export default function AuthorProductsPage() {
       case 'SUSPENDED':
         return 'bg-orange-100 text-orange-700';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-[var(--card)] brightness-95 text-gray-700';
     }
   };
 
@@ -94,8 +94,8 @@ export default function AuthorProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Products</h1>
-          <p className="text-neutral-600">Manage your learning products</p>
+          <h1 className="text-2xl font-bold text-brand-text">Products</h1>
+          <p className="text-brand-text/70">Manage your learning products</p>
         </div>
         <Link
           href="/author/products/new"
@@ -116,7 +116,7 @@ export default function AuthorProductsPage() {
             className={`snap-start whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status
                 ? 'bg-sky-600 text-white'
-                : 'bg-gray-100 text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+                : 'bg-[var(--card)] brightness-95 text-brand-text/70 hover:bg-[var(--card)] brightness-95 border border-brand-border'
             }`}
           >
             {status.replace('_', ' ')}
@@ -126,10 +126,10 @@ export default function AuthorProductsPage() {
 
       {/* Products Grid */}
       {products.length === 0 ? (
-        <div className="bg-gray-100 border border-neutral-200 rounded-lg p-12 text-center">
+        <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-12 text-center">
           <Package className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-neutral-900 mb-2">No products yet</h3>
-          <p className="text-neutral-600 mb-4">
+          <h3 className="text-lg font-semibold text-brand-text mb-2">No products yet</h3>
+          <p className="text-brand-text/70 mb-4">
             {filter === 'ALL'
               ? "You haven't created any learning products yet."
               : `No products with status: ${filter.replace('_', ' ')}`}
@@ -149,10 +149,10 @@ export default function AuthorProductsPage() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="bg-gray-100 border border-neutral-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+              className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Thumbnail */}
-              <div className="aspect-video bg-neutral-100 flex items-center justify-center">
+              <div className="aspect-video bg-[var(--card)] brightness-95 flex items-center justify-center">
                 {product.thumbnail_url ? (
                   <img
                     src={product.thumbnail_url}
@@ -172,11 +172,11 @@ export default function AuthorProductsPage() {
                   </span>
                 </div>
 
-                <h3 className="font-semibold text-neutral-900 mb-1 line-clamp-2">
+                <h3 className="font-semibold text-brand-text mb-1 line-clamp-2">
                   {product.title}
                 </h3>
 
-                <p className="text-sm text-neutral-600 mb-3">
+                <p className="text-sm text-brand-text/70 mb-3">
                   {product.currency} {product.price.toLocaleString()}
                 </p>
 
@@ -185,7 +185,7 @@ export default function AuthorProductsPage() {
                   {canEdit(product.status) && (
                     <Link
                       href={`/author/products/${product.id}/edit`}
-                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors text-sm"
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[var(--card)] brightness-95 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-colors text-sm"
                     >
                       <Edit className="w-4 h-4" />
                       Edit
@@ -194,7 +194,7 @@ export default function AuthorProductsPage() {
 
                   <Link
                     href={`/author/products/${product.id}/curriculum`}
-                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors text-sm"
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[var(--card)] border border-brand-border text-neutral-700 rounded-lg hover:bg-brand-bg transition-colors text-sm"
                   >
                     <BookOpen className="w-4 h-4" />
                     Curriculum
@@ -213,7 +213,7 @@ export default function AuthorProductsPage() {
                   {product.status === 'PUBLISHED' && (
                     <Link
                       href={`/products/${product.slug}`}
-                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-brand-primary text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
                     >
                       <Eye className="w-4 h-4" />
                       View

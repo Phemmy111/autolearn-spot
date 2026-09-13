@@ -203,16 +203,16 @@ export default function LessonSchedulerClient() {
                 key={lesson.id}
                 className={`border ${
                   isEditing
-                    ? 'border-[#10b981] bg-gray-50/5'
+                    ? 'border-[#10b981] bg-brand-bg/5'
                     : isAvailable
-                      ? 'border-[#3b494b] bg-gray-50'
-                      : 'border-neutral-200 bg-neutral-50 opacity-60'
+                      ? 'border-[#3b494b] bg-brand-bg'
+                      : 'border-brand-border bg-brand-bg opacity-60'
                 } rounded-lg p-4 transition-colors`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="font-mono text-xs text-neutral-600">
+                      <span className="font-mono text-xs text-brand-text/70">
                         Session {lesson.session_number}
                       </span>
                       {isAvailable ? (
@@ -227,31 +227,31 @@ export default function LessonSchedulerClient() {
                         </div>
                       )}
                     </div>
-                    <h4 className="font-semibold text-neutral-900 mb-1">{lesson.title}</h4>
-                    <p className="text-sm text-neutral-600 line-clamp-2 mb-2">
+                    <h4 className="font-semibold text-brand-text mb-1">{lesson.title}</h4>
+                    <p className="text-sm text-brand-text/70 line-clamp-2 mb-2">
                       {lesson.description}
                     </p>
                     {isEditing ? (
-                      <div className="space-y-3 mt-4 border-t border-neutral-200 pt-4">
+                      <div className="space-y-3 mt-4 border-t border-brand-border pt-4">
                         <div>
-                          <label className="block text-xs font-mono text-neutral-600 mb-2">
+                          <label className="block text-xs font-mono text-brand-text/70 mb-2">
                             Release Date & Time
                           </label>
                           <input
                             type="datetime-local"
                             value={editData?.available_at?.slice(0, 16) || ''}
                             onChange={(e) => setEditData({ ...editData!, available_at: e.target.value + ':00Z' })}
-                            className="w-full bg-neutral-50 border border-[#3b494b] rounded px-3 py-2 text-neutral-900 text-sm focus:border-[#10b981] focus:outline-none"
+                            className="w-full bg-brand-bg border border-[#3b494b] rounded px-3 py-2 text-brand-text text-sm focus:border-[#10b981] focus:outline-none"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-mono text-neutral-600 mb-2">
+                          <label className="block text-xs font-mono text-brand-text/70 mb-2">
                             Release Day
                           </label>
                           <select
                             value={editData?.release_day || 'monday'}
                             onChange={(e) => setEditData({ ...editData!, release_day: e.target.value })}
-                            className="w-full bg-neutral-50 border border-[#3b494b] rounded px-3 py-2 text-neutral-900 text-sm focus:border-[#10b981] focus:outline-none"
+                            className="w-full bg-brand-bg border border-[#3b494b] rounded px-3 py-2 text-brand-text text-sm focus:border-[#10b981] focus:outline-none"
                           >
                             <option value="monday">Monday</option>
                             <option value="wednesday">Wednesday</option>
@@ -262,13 +262,13 @@ export default function LessonSchedulerClient() {
                           <button
                             onClick={saveEdit}
                             disabled={saving}
-                            className="flex items-center gap-2 bg-gray-50 text-black font-bold px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 bg-brand-bg text-black font-bold px-4 py-2 rounded hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {saving ? 'Saving...' : <><Save className="h-4 w-4" /> <span>Save</span></>}
                           </button>
                           <button
                             onClick={cancelEditing}
-                            className="flex items-center gap-2 border border-neutral-200 text-neutral-600 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-2 border border-brand-border text-brand-text/70 px-4 py-2 rounded hover:bg-brand-bg transition-colors"
                           >
                             <X className="h-4 w-4" /> Cancel
                           </button>
@@ -284,11 +284,11 @@ export default function LessonSchedulerClient() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-4 mt-3">
-                        <div className="flex items-center gap-2 text-xs text-neutral-600">
+                        <div className="flex items-center gap-2 text-xs text-brand-text/70">
                           <Calendar className="h-4 w-4" />
                           <span>{formatDate(lesson.available_at, timezone)}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-neutral-600">
+                        <div className="flex items-center gap-2 text-xs text-brand-text/70">
                           <Clock className="h-4 w-4" />
                           <span className="capitalize">{lesson.release_day}</span>
                         </div>
@@ -313,14 +313,14 @@ export default function LessonSchedulerClient() {
   return (
     <div>
       {/* Cohort Selector */}
-      <div className="mb-8 border border-neutral-200 bg-gray-100 rounded-lg p-6">
-        <label className="block text-sm font-mono text-neutral-600 mb-3">
+      <div className="mb-8 border border-brand-border bg-[var(--card)] brightness-95 rounded-lg p-6">
+        <label className="block text-sm font-mono text-brand-text/70 mb-3">
           Select Cohort
         </label>
         <select
           value={selectedCohort || ''}
           onChange={(e) => setSelectedCohort(e.target.value)}
-          className="w-full bg-neutral-50 border border-[#3b494b] rounded px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+          className="w-full bg-brand-bg border border-[#3b494b] rounded px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
         >
           <option value="">-- Select a cohort --</option>
           {cohorts.map((cohort) => (
@@ -334,15 +334,15 @@ export default function LessonSchedulerClient() {
       {/* Lessons Display */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="text-neutral-600">Loading lessons...</div>
+          <div className="text-brand-text/70">Loading lessons...</div>
         </div>
       ) : selectedCohort && lessons.length > 0 ? (
-        <div className="border border-neutral-200 bg-gray-100 rounded-lg p-6">
+        <div className="border border-brand-border bg-[var(--card)] brightness-95 rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-heading text-xl font-bold text-neutral-900">
+            <h2 className="font-heading text-xl font-bold text-brand-text">
               {getSelectedCohort()?.name} - Schedule
             </h2>
-            <div className="text-xs text-neutral-600">
+            <div className="text-xs text-brand-text/70">
               Timezone: {getCohortTimezone()}
             </div>
           </div>
@@ -352,17 +352,17 @@ export default function LessonSchedulerClient() {
           ))}
         </div>
       ) : selectedCohort && lessons.length === 0 ? (
-        <div className="border border-neutral-200 bg-gray-100 rounded-lg p-12 text-center">
-          <AlertCircle className="h-12 w-12 text-neutral-600 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-neutral-900 mb-2">No Lessons Found</h3>
-          <p className="text-sm text-neutral-600">
+        <div className="border border-brand-border bg-[var(--card)] brightness-95 rounded-lg p-12 text-center">
+          <AlertCircle className="h-12 w-12 text-brand-text/70 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-brand-text mb-2">No Lessons Found</h3>
+          <p className="text-sm text-brand-text/70">
             This cohort has no lessons configured. Add lessons to manage their release schedule.
           </p>
         </div>
       ) : (
-        <div className="border border-neutral-200 bg-gray-100 rounded-lg p-12 text-center">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-2">Select a Cohort</h3>
-          <p className="text-sm text-neutral-600">
+        <div className="border border-brand-border bg-[var(--card)] brightness-95 rounded-lg p-12 text-center">
+          <h3 className="text-lg font-semibold text-brand-text mb-2">Select a Cohort</h3>
+          <p className="text-sm text-brand-text/70">
             Choose a cohort above to view and manage its lesson schedule.
           </p>
         </div>

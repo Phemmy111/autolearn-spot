@@ -102,13 +102,13 @@ export function CertificatePreview({
   }, []);
 
   return (
-    <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
+    <div className="bg-brand-bg border border-brand-border rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-2 h-2 bg-gray-50 rounded-full animate-pulse" />
-        <h3 className="text-sm font-semibold text-neutral-500">Live Preview</h3>
+        <div className="w-2 h-2 bg-brand-bg rounded-full animate-pulse" />
+        <h3 className="text-sm font-semibold text-brand-text/60">Live Preview</h3>
       </div>
       
-      <div ref={containerRef} className="relative w-full aspect-[3/2] bg-gray-50 rounded-lg overflow-hidden">
+      <div ref={containerRef} className="relative w-full aspect-[3/2] bg-brand-bg rounded-lg overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center p-2">
           <div className="w-full h-full flex items-center justify-center">
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'center' }}>
@@ -137,13 +137,13 @@ export function CertificatePreview({
         </div>
         
         {/* Preview watermark */}
-        <div className="absolute top-4 right-4 px-3 py-1 bg-neutral-50 backdrop-blur-sm rounded text-xs text-neutral-500 border border-neutral-200">
+        <div className="absolute top-4 right-4 px-3 py-1 bg-brand-bg backdrop-blur-sm rounded text-xs text-brand-text/60 border border-brand-border">
           PREVIEW
         </div>
       </div>
       
-      <div className="mt-4 p-3 bg-gray-100 border border-neutral-200 rounded-lg">
-        <p className="text-xs text-neutral-500">
+      <div className="mt-4 p-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
+        <p className="text-xs text-brand-text/60">
           <span className="text-[#10b981]">Student:</span> John Doe • 
           <span className="text-[#10b981]">Course:</span> {course || "n8n Automation"} • 
           <span className="text-[#10b981]"> Certificate ID:</span> ALS-2026-DEMO-001

@@ -534,7 +534,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto p-4 md:p-8">
-        <div className="text-center text-neutral-500 py-12">Loading curriculum...</div>
+        <div className="text-center text-brand-text/60 py-12">Loading curriculum...</div>
       </div>
     );
   }
@@ -545,12 +545,12 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-neutral-900">Curriculum</h1>
-            <p className="text-neutral-500 mt-2">Manage your product's lessons and learning content</p>
+            <h1 className="text-3xl font-bold text-brand-text">Curriculum</h1>
+            <p className="text-brand-text/60 mt-2">Manage your product's lessons and learning content</p>
           </div>
           <button
             onClick={() => router.push(`/author/products/${productId}/edit`)}
-            className="px-4 py-2 text-neutral-600 font-semibold text-sm hover:text-neutral-900 transition-colors"
+            className="px-4 py-2 text-brand-text/70 font-semibold text-sm hover:text-brand-text transition-colors"
           >
             Back to Product Details
           </button>
@@ -565,21 +565,21 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <div className="text-3xl font-bold text-neutral-900">{lessons.length}</div>
-          <div className="text-sm text-neutral-500 mt-1">Total Lessons</div>
+        <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6">
+          <div className="text-3xl font-bold text-brand-text">{lessons.length}</div>
+          <div className="text-sm text-brand-text/60 mt-1">Total Lessons</div>
         </div>
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
-          <div className="text-3xl font-bold text-emerald-600">
+        <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6">
+          <div className="text-3xl font-bold text-brand-primary">
             {lessons.filter(l => l.status === 'PUBLISHED').length}
           </div>
-          <div className="text-sm text-neutral-500 mt-1">Published</div>
+          <div className="text-sm text-brand-text/60 mt-1">Published</div>
         </div>
-        <div className="bg-white rounded-xl border border-neutral-200 p-6">
+        <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6">
           <div className="text-3xl font-bold text-amber-600">
             {lessons.filter(l => l.status === 'DRAFT').length}
           </div>
-          <div className="text-sm text-neutral-500 mt-1">Drafts</div>
+          <div className="text-sm text-brand-text/60 mt-1">Drafts</div>
         </div>
       </div>
 
@@ -587,7 +587,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       {!showAddLesson && (
         <button
           onClick={() => setShowAddLesson(true)}
-          className="w-full mb-6 p-4 border-2 border-dashed border-neutral-300 rounded-xl text-neutral-500 hover:border-sky-500 hover:text-sky-600 transition-colors flex items-center justify-center gap-2"
+          className="w-full mb-6 p-4 border-2 border-dashed border-brand-border rounded-xl text-brand-text/60 hover:border-sky-500 hover:text-sky-600 transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-5 h-5" />
           Add New Lesson
@@ -596,8 +596,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
       {/* Add Lesson Form */}
       {showAddLesson && (
-        <div className="bg-white rounded-xl border border-neutral-200 p-6 mb-6 shadow-sm">
-          <h3 className="text-lg font-bold text-neutral-900 mb-4">Add New Lesson</h3>
+        <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 mb-6 shadow-sm">
+          <h3 className="text-lg font-bold text-brand-text mb-4">Add New Lesson</h3>
           <form onSubmit={handleAddLesson} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
@@ -607,7 +607,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 type="text"
                 required
                 placeholder="e.g. Introduction to Web Development"
-                className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                 value={newLessonTitle}
                 onChange={(e) => setNewLessonTitle(e.target.value)}
               />
@@ -619,7 +619,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               </label>
               <textarea
                 placeholder="Brief description of what students will learn..."
-                className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                 rows={3}
                 value={newLessonDescription}
                 onChange={(e) => setNewLessonDescription(e.target.value)}
@@ -633,11 +633,11 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               <input
                 type="url"
                 placeholder="https://www.youtube.com/watch?v=..."
-                className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                 value={newLessonYoutubeUrl}
                 onChange={(e) => setNewLessonYoutubeUrl(e.target.value)}
               />
-              <p className="text-xs text-neutral-500 mt-1.5">YouTube video will be automatically embedded</p>
+              <p className="text-xs text-brand-text/60 mt-1.5">YouTube video will be automatically embedded</p>
             </div>
 
             <div>
@@ -647,7 +647,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               <input
                 type="text"
                 placeholder="e.g. 15 min, 45 min"
-                className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                 value={newLessonDuration}
                 onChange={(e) => setNewLessonDuration(e.target.value)}
               />
@@ -664,7 +664,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               <button
                 type="button"
                 onClick={() => setShowAddLesson(false)}
-                className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
               >
                 Cancel
               </button>
@@ -675,10 +675,10 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
       {/* Lessons List */}
       {lessons.length === 0 ? (
-        <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
+        <div className="bg-[var(--card)] rounded-xl border border-brand-border p-12 text-center">
           <Video className="w-16 h-16 mx-auto text-neutral-300 mb-4" />
-          <h3 className="text-lg font-semibold text-neutral-900 mb-2">No lessons yet</h3>
-          <p className="text-neutral-500 mb-4">Start building your curriculum by adding your first lesson</p>
+          <h3 className="text-lg font-semibold text-brand-text mb-2">No lessons yet</h3>
+          <p className="text-brand-text/60 mb-4">Start building your curriculum by adding your first lesson</p>
           <button
             onClick={() => setShowAddLesson(true)}
             className="px-6 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm"
@@ -691,7 +691,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
           {lessons.map((lesson, index) => (
             <div
               key={lesson.uuid_id}
-              className="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+              className="bg-[var(--card)] rounded-xl border border-brand-border p-4 shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="flex items-start gap-4">
                 {/* Drag Handle */}
@@ -699,7 +699,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   <button
                     onClick={() => handleMoveLesson(lesson.uuid_id, 'up')}
                     disabled={index === 0}
-                    className="p-1 text-neutral-400 hover:text-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-1 text-neutral-400 hover:text-brand-text/70 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <ChevronUp className="w-4 h-4" />
                   </button>
@@ -707,7 +707,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   <button
                     onClick={() => handleMoveLesson(lesson.uuid_id, 'down')}
                     disabled={index === lessons.length - 1}
-                    className="p-1 text-neutral-400 hover:text-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-1 text-neutral-400 hover:text-brand-text/70 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </button>
@@ -718,7 +718,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-medium text-neutral-500">
+                        <span className="text-xs font-medium text-brand-text/60">
                           Lesson {index + 1}
                         </span>
                         <span
@@ -731,29 +731,29 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                           {lesson.status}
                         </span>
                       </div>
-                      <h4 className="text-base font-semibold text-neutral-900 truncate">
+                      <h4 className="text-base font-semibold text-brand-text truncate">
                         {lesson.title}
                       </h4>
                       {lesson.description && (
-                        <p className="text-sm text-neutral-500 mt-1 line-clamp-2">
+                        <p className="text-sm text-brand-text/60 mt-1 line-clamp-2">
                           {lesson.description}
                         </p>
                       )}
                       {lesson.youtube_url && (
-                        <div className="flex items-center gap-2 mt-2 text-sm text-neutral-500">
+                        <div className="flex items-center gap-2 mt-2 text-sm text-brand-text/60">
                           <Video className="w-4 h-4" />
                           <span className="truncate">YouTube video included</span>
                         </div>
                       )}
                       {lesson.duration_label && (
-                        <div className="flex items-center gap-2 mt-1 text-sm text-neutral-500">
+                        <div className="flex items-center gap-2 mt-1 text-sm text-brand-text/60">
                           <Clock className="w-4 h-4" />
                           <span>{lesson.duration_label}</span>
                         </div>
                       )}
 
                       {/* Quiz and Assignment indicators */}
-                      <div className="flex items-center gap-3 mt-2 text-sm text-neutral-500">
+                      <div className="flex items-center gap-3 mt-2 text-sm text-brand-text/60">
                         <button
                           onClick={() => {
                             setQuizLessonId(lesson.uuid_id);
@@ -791,21 +791,21 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleToggleStatus(lesson.uuid_id, lesson.status)}
-                        className="p-2 text-neutral-500 hover:text-sky-600 transition-colors"
+                        className="p-2 text-brand-text/60 hover:text-sky-600 transition-colors"
                         title={lesson.status === 'DRAFT' ? 'Publish' : 'Unpublish'}
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleEditLesson(lesson)}
-                        className="p-2 text-neutral-500 hover:text-sky-600 transition-colors"
+                        className="p-2 text-brand-text/60 hover:text-sky-600 transition-colors"
                         title="Edit"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteLesson(lesson.uuid_id)}
-                        className="p-2 text-neutral-500 hover:text-red-600 transition-colors"
+                        className="p-2 text-brand-text/60 hover:text-red-600 transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -822,8 +822,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       {/* Edit Lesson Modal */}
       {editingLesson && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-neutral-900 mb-4">Edit Lesson</h3>
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-brand-text mb-4">Edit Lesson</h3>
             <form onSubmit={handleSaveEdit} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
@@ -832,7 +832,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 <input
                   type="text"
                   required
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
                 />
@@ -843,7 +843,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   Description
                 </label>
                 <textarea
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   rows={3}
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
@@ -857,7 +857,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 <input
                   type="url"
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   value={editYoutubeUrl}
                   onChange={(e) => setEditYoutubeUrl(e.target.value)}
                 />
@@ -870,7 +870,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 <input
                   type="text"
                   placeholder="e.g. 15 min, 45 min"
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   value={editDuration}
                   onChange={(e) => setEditDuration(e.target.value)}
                 />
@@ -882,7 +882,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   id="editIsRequired"
                   checked={editIsRequired}
                   onChange={(e) => setEditIsRequired(e.target.checked)}
-                  className="w-4 h-4 text-sky-600 border-neutral-300 rounded focus:ring-sky-500"
+                  className="w-4 h-4 text-sky-600 border-brand-border rounded focus:ring-sky-500"
                 />
                 <label htmlFor="editIsRequired" className="text-sm text-neutral-700">
                   Required for completion
@@ -900,7 +900,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                  className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
                 >
                   Cancel
                 </button>
@@ -913,8 +913,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       {/* Add Quiz Modal */}
       {showAddQuiz && quizLessonId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-lg w-full">
-            <h3 className="text-lg font-bold text-neutral-900 mb-4">Add Quiz to Lesson</h3>
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 max-w-lg w-full">
+            <h3 className="text-lg font-bold text-brand-text mb-4">Add Quiz to Lesson</h3>
             <form onSubmit={(e) => { e.preventDefault(); handleAddQuiz(quizLessonId); }} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
@@ -924,7 +924,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   type="text"
                   required
                   placeholder="e.g. Lesson 1 Quiz"
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   value={newQuizTitle}
                   onChange={(e) => setNewQuizTitle(e.target.value)}
                 />
@@ -936,7 +936,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 </label>
                 <textarea
                   placeholder="Brief description of the quiz..."
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   rows={2}
                   value={newQuizDescription}
                   onChange={(e) => setNewQuizDescription(e.target.value)}
@@ -951,7 +951,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   <input
                     type="number"
                     placeholder="Optional"
-                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                     value={newQuizTimeLimit}
                     onChange={(e) => setNewQuizTimeLimit(e.target.value)}
                   />
@@ -965,7 +965,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     type="number"
                     min="0"
                     max="100"
-                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                     value={newQuizPassingScore}
                     onChange={(e) => setNewQuizPassingScore(e.target.value)}
                   />
@@ -990,7 +990,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     setNewQuizTimeLimit('');
                     setNewQuizPassingScore('70');
                   }}
-                  className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                  className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1003,8 +1003,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       {/* Add Assignment Modal */}
       {showAddAssignment && assignmentLessonId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-lg w-full">
-            <h3 className="text-lg font-bold text-neutral-900 mb-4">Add Assignment to Lesson</h3>
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 max-w-lg w-full">
+            <h3 className="text-lg font-bold text-brand-text mb-4">Add Assignment to Lesson</h3>
             <form onSubmit={(e) => { e.preventDefault(); handleAddAssignment(assignmentLessonId); }} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
@@ -1014,7 +1014,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   type="text"
                   required
                   placeholder="e.g. Project Submission"
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   value={newAssignmentTitle}
                   onChange={(e) => setNewAssignmentTitle(e.target.value)}
                 />
@@ -1026,7 +1026,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 </label>
                 <textarea
                   placeholder="Brief description of the assignment..."
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   rows={2}
                   value={newAssignmentDescription}
                   onChange={(e) => setNewAssignmentDescription(e.target.value)}
@@ -1039,7 +1039,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 </label>
                 <textarea
                   placeholder="Detailed instructions for students..."
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   rows={3}
                   value={newAssignmentInstructions}
                   onChange={(e) => setNewAssignmentInstructions(e.target.value)}
@@ -1051,7 +1051,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   Submission Type
                 </label>
                 <select
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   value={newAssignmentType}
                   onChange={(e) => setNewAssignmentType(e.target.value)}
                 >
@@ -1069,7 +1069,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   <input
                     type="number"
                     min="0"
-                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                     value={newAssignmentMaxScore}
                     onChange={(e) => setNewAssignmentMaxScore(e.target.value)}
                   />
@@ -1081,7 +1081,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     id="newAssignmentRequired"
                     checked={newAssignmentRequired}
                     onChange={(e) => setNewAssignmentRequired(e.target.checked)}
-                    className="w-4 h-4 text-sky-600 border-neutral-300 rounded focus:ring-sky-500"
+                    className="w-4 h-4 text-sky-600 border-brand-border rounded focus:ring-sky-500"
                   />
                   <label htmlFor="newAssignmentRequired" className="text-sm text-neutral-700">
                     Required
@@ -1109,7 +1109,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     setNewAssignmentRequired(true);
                     setNewAssignmentMaxScore('100');
                   }}
-                  className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                  className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1122,8 +1122,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       {/* AI Quiz Generation Modal */}
       {showAIGenerate && aiLessonId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-neutral-900 mb-4 flex items-center gap-2">
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-brand-text mb-4 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-purple-600" />
               AI Quiz Generator
             </h3>
@@ -1158,7 +1158,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 <textarea
                   required
                   placeholder="Paste your lesson script or content here. The AI will analyze it and generate quiz questions..."
-                  className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                  className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                   rows={8}
                   value={aiScript}
                   onChange={(e) => setAiScript(e.target.value)}
@@ -1174,7 +1174,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     type="number"
                     min="1"
                     max="50"
-                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                     value={aiQuestionCount}
                     onChange={(e) => setAiQuestionCount(parseInt(e.target.value) || 10)}
                   />
@@ -1185,7 +1185,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     AI Provider
                   </label>
                   <select
-                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                     value={selectedProviderId}
                     onChange={(e) => {
                       setSelectedProviderId(e.target.value);
@@ -1213,7 +1213,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   </label>
                   <div className="flex gap-2">
                     <select
-                      className="flex-1 bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                      className="flex-1 bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                       value={selectedModel}
                       onChange={(e) => setSelectedModel(e.target.value)}
                     >
@@ -1249,7 +1249,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     AI Prompt
                   </label>
                   <select
-                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
                     value={selectedPromptId}
                     onChange={(e) => setSelectedPromptId(e.target.value)}
                   >
@@ -1281,7 +1281,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     setAiScript('');
                     setGeneratedQuiz(null);
                   }}
-                  className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                  className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
                 >
                   Cancel
                 </button>
@@ -1294,8 +1294,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       {/* Generated Quiz Review Modal */}
       {generatedQuiz && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl border border-neutral-200 p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-neutral-900 mb-4">Review Generated Quiz</h3>
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-brand-text mb-4">Review Generated Quiz</h3>
             
             <div className="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
               <p className="text-sm text-emerald-800">
@@ -1303,21 +1303,21 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               </p>
             </div>
 
-            <div className="border border-neutral-200 bg-neutral-50 p-4 rounded-xl mb-4">
-              <h4 className="font-bold text-neutral-900 mb-2">{generatedQuiz.title}</h4>
-              <p className="text-sm text-neutral-600 mb-2">{generatedQuiz.description}</p>
-              <p className="text-xs text-neutral-500">{generatedQuiz.questions.length} questions</p>
+            <div className="border border-brand-border bg-brand-bg p-4 rounded-xl mb-4">
+              <h4 className="font-bold text-brand-text mb-2">{generatedQuiz.title}</h4>
+              <p className="text-sm text-brand-text/70 mb-2">{generatedQuiz.description}</p>
+              <p className="text-xs text-brand-text/60">{generatedQuiz.questions.length} questions</p>
             </div>
 
             <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
               {generatedQuiz.questions.map((question: any, index: number) => (
-                <div key={index} className="border border-neutral-200 bg-neutral-50 p-3 rounded-lg">
-                  <p className="text-sm font-medium text-neutral-900 mb-2">Q{index + 1}: {question.question_text}</p>
-                  <p className="text-xs text-neutral-500">Type: {question.question_type} | Points: {question.points}</p>
+                <div key={index} className="border border-brand-border bg-brand-bg p-3 rounded-lg">
+                  <p className="text-sm font-medium text-brand-text mb-2">Q{index + 1}: {question.question_text}</p>
+                  <p className="text-xs text-brand-text/60">Type: {question.question_type} | Points: {question.points}</p>
                   {question.options && question.options.length > 0 && (
                     <div className="mt-2 space-y-1">
                       {question.options.map((option: string, optIndex: number) => (
-                        <p key={optIndex} className={`text-xs ${option === question.correct_answer ? 'text-emerald-600' : 'text-neutral-600'}`}>
+                        <p key={optIndex} className={`text-xs ${option === question.correct_answer ? 'text-brand-primary' : 'text-brand-text/70'}`}>
                           {String.fromCharCode(65 + optIndex)}. {option} {option === question.correct_answer && '✓'}
                         </p>
                       ))}
@@ -1340,13 +1340,13 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   setGeneratedQuiz(null);
                   setShowAIGenerate(true);
                 }}
-                className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
               >
                 Regenerate
               </button>
               <button
                 onClick={() => setGeneratedQuiz(null)}
-                className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
               >
                 Discard
               </button>

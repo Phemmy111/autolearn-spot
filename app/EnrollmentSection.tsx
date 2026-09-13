@@ -55,7 +55,7 @@ export function EnrollmentSection() {
   };
 
   return (
-    <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-gray-50">
+    <section ref={sectionRef} className="py-6 sm:py-8 lg:py-12 bg-brand-bg">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         {settings.enrollmentAnnouncement && (
           <div className="mb-6 p-4 bg-[var(--brand-primary)]/10 border border-[var(--brand-primary)]/30 rounded-xl text-center">
@@ -63,11 +63,11 @@ export function EnrollmentSection() {
           </div>
         )}
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 lg:gap-12">
-          <div className={`border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
+          <div className={`border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-4 sm:p-6 lg:p-8 xl:p-10 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-4 sm:mb-6">
               {settings.enrollmentPageHeadline}
             </h2>
-            <p className="text-sm text-neutral-500 mb-4 sm:mb-6">
+            <p className="text-sm text-brand-text/60 mb-4 sm:mb-6">
               {settings.enrollmentPageDescription}
             </p>
             <div className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[var(--brand-primary)] mb-4 sm:mb-6">
@@ -75,7 +75,7 @@ export function EnrollmentSection() {
             </div>
 
             {cohort && !cohortLoading && (
-              <div className="mb-6 sm:mb-8 border border-neutral-200 bg-gray-50/60 rounded-xl p-4 sm:p-5">
+              <div className="mb-6 sm:mb-8 border border-brand-border bg-brand-bg/60 rounded-xl p-4 sm:p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Calendar className="h-4 w-4 text-[var(--brand-primary)]" />
                   <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#e2e2e8]">
@@ -83,7 +83,7 @@ export function EnrollmentSection() {
                   </span>
                 </div>
                 {cohort.start_date && (
-                  <p className="text-sm sm:text-base text-neutral-500">
+                  <p className="text-sm sm:text-base text-brand-text/60">
                     Starts <span className="text-[var(--brand-primary)] font-semibold">{formatDate(cohort.start_date)}</span>
                   </p>
                 )}
@@ -106,7 +106,7 @@ export function EnrollmentSection() {
               {feeLoading ? 'Loading...' : `${settings.enrollmentButtonText} — ₦${fee.toLocaleString()}`}
             </Link>
             
-            <p className="text-center text-xs sm:text-sm text-neutral-500 mt-3 sm:mt-4">
+            <p className="text-center text-xs sm:text-sm text-brand-text/60 mt-3 sm:mt-4">
               Secure payment powered by Paystack
             </p>
           </div>
@@ -125,16 +125,16 @@ export function EnrollmentSection() {
                 return (
                   <div
                     key={item.title}
-                    className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 lg:p-6 card-enhanced"
+                    className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 lg:p-6 card-enhanced"
                     style={{ transitionDelay: `${0.3 + index * 0.1}s` }}
                   >
                     <div className="flex items-start gap-3 sm:gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 border border-[#10b981]/60 bg-gray-50/10 rounded-lg flex items-center justify-center">
+                      <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 border border-[#10b981]/60 bg-brand-bg/10 rounded-lg flex items-center justify-center">
                         <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#10b981]" />
                       </div>
                       <div className="flex-1">
                         <h4 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-1 sm:mb-2">{item.title}</h4>
-                        <p className="text-sm text-neutral-500">{item.description}</p>
+                        <p className="text-sm text-brand-text/60">{item.description}</p>
                       </div>
                     </div>
                   </div>

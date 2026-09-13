@@ -32,21 +32,21 @@ export default async function AdminScholarshipPage() {
   const notSelected = applications.filter(a => a.status === 'Not Selected').length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12 flex justify-between items-end">
           <div>
             <Link
               href="/admin"
-              className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
+              className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text font-mono text-sm mb-4"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Admin Dashboard
             </Link>
-            <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4 flex items-center gap-3">
+            <h1 className="font-heading text-4xl font-bold text-brand-text mb-4 flex items-center gap-3">
               <Sparkles className="h-8 w-8 text-[#10b981]" /> Scholarship Applications
             </h1>
-            <p className="font-mono text-sm text-neutral-600 max-w-2xl">
+            <p className="font-mono text-sm text-brand-text/70 max-w-2xl">
               Review and manage applicants for the AutoLearn Spot AI Automation Scholarship Programme.
             </p>
           </div>
@@ -54,38 +54,38 @@ export default async function AdminScholarshipPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
-            <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Total</p>
-            <p className="text-3xl font-bold text-neutral-900">{total}</p>
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 text-center">
+            <p className="text-xs text-brand-text/70 uppercase tracking-wider mb-2 font-mono">Total</p>
+            <p className="text-3xl font-bold text-brand-text">{total}</p>
           </div>
-          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
-            <FileText className="w-5 h-5 text-neutral-600 mx-auto mb-2" />
-            <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Submitted</p>
-            <p className="text-xl font-bold text-neutral-600">{submitted}</p>
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 text-center">
+            <FileText className="w-5 h-5 text-brand-text/70 mx-auto mb-2" />
+            <p className="text-xs text-brand-text/70 uppercase tracking-wider mb-2 font-mono">Submitted</p>
+            <p className="text-xl font-bold text-brand-text/70">{submitted}</p>
           </div>
-          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 text-center">
             <Search className="w-5 h-5 text-[#10b981] mx-auto mb-2" />
-            <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Under Review</p>
+            <p className="text-xs text-brand-text/70 uppercase tracking-wider mb-2 font-mono">Under Review</p>
             <p className="text-xl font-bold text-[#10b981]">{underReview}</p>
           </div>
-          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 text-center">
             <Clock className="w-5 h-5 text-yellow-400 mx-auto mb-2" />
-            <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Shortlisted</p>
+            <p className="text-xs text-brand-text/70 uppercase tracking-wider mb-2 font-mono">Shortlisted</p>
             <p className="text-xl font-bold text-yellow-400">{shortlisted}</p>
           </div>
-          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 text-center">
             <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-2" />
-            <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Accepted</p>
+            <p className="text-xs text-brand-text/70 uppercase tracking-wider mb-2 font-mono">Accepted</p>
             <p className="text-xl font-bold text-green-400">{accepted}</p>
           </div>
-          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 text-center">
             <Calendar className="w-5 h-5 text-orange-400 mx-auto mb-2" />
-            <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Waitlisted</p>
+            <p className="text-xs text-brand-text/70 uppercase tracking-wider mb-2 font-mono">Waitlisted</p>
             <p className="text-xl font-bold text-orange-400">{waitlisted}</p>
           </div>
-          <div className="border border-neutral-200 bg-gray-100 p-4 text-center">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 text-center">
             <AlertCircle className="w-5 h-5 text-red-400 mx-auto mb-2" />
-            <p className="text-xs text-neutral-600 uppercase tracking-wider mb-2 font-mono">Not Selected</p>
+            <p className="text-xs text-brand-text/70 uppercase tracking-wider mb-2 font-mono">Not Selected</p>
             <p className="text-xl font-bold text-red-400">{notSelected}</p>
           </div>
         </div>

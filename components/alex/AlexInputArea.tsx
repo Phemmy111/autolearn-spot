@@ -584,7 +584,7 @@ export function AlexInputArea({
                 <span className="text-sm text-slate-300 truncate max-w-[150px]">
                   {attachedFile.file.name}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-brand-text/60">
                   ({formatFileSize(attachedFile.file.size)})
                 </span>
                 {attachedFile.status === 'uploading' && (
@@ -602,7 +602,7 @@ export function AlexInputArea({
                 <button
                   type="button"
                   onClick={() => removeAttachment(attachedFile.id)}
-                  className="text-slate-400 hover:text-neutral-900 transition-colors"
+                  className="text-slate-400 hover:text-brand-text transition-colors"
                   disabled={attachedFile.status === 'uploading'}
                 >
                   <X className="h-4 w-4" />
@@ -646,7 +646,7 @@ export function AlexInputArea({
                         className={`w-full px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
                           currentMode === mode.value
                             ? 'bg-cyan-500/20 text-cyan-400'
-                            : 'text-slate-300 hover:bg-slate-700/50 hover:text-neutral-900'
+                            : 'text-slate-300 hover:bg-slate-700/50 hover:text-brand-text'
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -693,7 +693,7 @@ export function AlexInputArea({
               placeholder={isMobile ? "Message ALEX..." : "Ask ALEX anything..."}
               disabled={isLoading || isGenerating}
               rows={1}
-              className={`w-full bg-transparent border-none text-neutral-900 placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto ${
+              className={`w-full bg-transparent border-none text-brand-text placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto ${
                 isMobile ? 'min-h-[52px] max-h-[120px] py-3 px-3 text-base' : 'min-h-[44px] max-h-[200px] py-2 px-3 text-sm'
               }`}
               style={{ height: 'auto' }}
@@ -743,10 +743,10 @@ export function AlexInputArea({
               disabled={!content.trim() || isLoading || attachedFiles.some(f => f.status !== 'ready' || !f.uploadedFileId)}
               className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
                 content.trim() && !isLoading && attachedFiles.length > 0 && attachedFiles.every(f => f.status === 'ready' && f.uploadedFileId)
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-neutral-900 shadow-lg shadow-cyan-500/20'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-brand-text shadow-lg shadow-cyan-500/20'
                   : content.trim() && !isLoading && attachedFiles.length === 0
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-neutral-900 shadow-lg shadow-cyan-500/20'
-                  : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-brand-text shadow-lg shadow-cyan-500/20'
+                  : 'bg-slate-700 text-brand-text/60 cursor-not-allowed'
               }`}
               title="Send message"
               aria-label="Send message"

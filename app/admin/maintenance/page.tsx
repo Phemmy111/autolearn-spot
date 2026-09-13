@@ -112,12 +112,12 @@ export default function MaintenancePage() {
   }
 
   const StatusCard = ({ title, value, icon: Icon }: { title: string; value: number | string; icon: any }) => (
-    <div className="border border-neutral-200 bg-gray-100 p-4 rounded-xl">
+    <div className="border border-brand-border bg-[var(--card)] brightness-95 p-4 rounded-xl">
       <div className="flex items-center gap-3">
         <Icon className="h-5 w-5 text-[#10b981]" />
         <div>
-          <p className="font-mono text-xs text-neutral-600">{title}</p>
-          <p className="font-heading text-lg font-bold text-neutral-900">{value}</p>
+          <p className="font-mono text-xs text-brand-text/70">{title}</p>
+          <p className="font-heading text-lg font-bold text-brand-text">{value}</p>
         </div>
       </div>
     </div>
@@ -138,17 +138,17 @@ export default function MaintenancePage() {
     endpoint: string
     result?: MaintenanceResult
   }) => (
-    <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+    <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
       <div className="flex items-start gap-4 mb-4">
         <Icon className="h-6 w-6 text-[#10b981] mt-1" />
         <div className="flex-1">
-          <h3 className="font-heading text-xl font-bold text-neutral-900 mb-2">{title}</h3>
-          <p className="font-mono text-xs text-neutral-600 mb-4">{description}</p>
+          <h3 className="font-heading text-xl font-bold text-brand-text mb-2">{title}</h3>
+          <p className="font-mono text-xs text-brand-text/70 mb-4">{description}</p>
           
           <button
             onClick={() => setConfirmDialog(operation)}
             disabled={executing !== null}
-            className="bg-gray-50 text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-50/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="bg-brand-bg text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-brand-bg/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {executing === operation ? (
               <>
@@ -182,37 +182,37 @@ export default function MaintenancePage() {
                 {result.message}
               </p>
               {result.executionTimeMs && (
-                <p className="font-mono text-xs text-neutral-600 mt-1">
+                <p className="font-mono text-xs text-brand-text/70 mt-1">
                   Execution time: {result.executionTimeMs}ms
                 </p>
               )}
               {result.studentsProcessed !== undefined && (
-                <p className="font-mono text-xs text-neutral-600">
+                <p className="font-mono text-xs text-brand-text/70">
                   Processed: {result.studentsProcessed} | Succeeded: {result.studentsSucceeded || 0} {result.studentsFailed ? `| Failed: ${result.studentsFailed}` : ''}
                 </p>
               )}
               {result.certificatesIssued !== undefined && (
-                <p className="font-mono text-xs text-neutral-600">
+                <p className="font-mono text-xs text-brand-text/70">
                   Certificates issued: {result.certificatesIssued}
                 </p>
               )}
               {result.badgesAwarded !== undefined && (
-                <p className="font-mono text-xs text-neutral-600">
+                <p className="font-mono text-xs text-brand-text/70">
                   Badges awarded: {result.badgesAwarded}
                 </p>
               )}
               {result.analyticsRecalculated !== undefined && (
-                <p className="font-mono text-xs text-neutral-600">
+                <p className="font-mono text-xs text-brand-text/70">
                   Analytics recalculated: {result.analyticsRecalculated}
                 </p>
               )}
               {result.leaderboardEntriesUpdated !== undefined && (
-                <p className="font-mono text-xs text-neutral-600">
+                <p className="font-mono text-xs text-brand-text/70">
                   Leaderboard updated: {result.leaderboardEntriesUpdated}
                 </p>
               )}
               {result.cacheCleared !== undefined && (
-                <p className="font-mono text-xs text-neutral-600">
+                <p className="font-mono text-xs text-brand-text/70">
                   Cache entries cleared: {result.cacheCleared}
                 </p>
               )}
@@ -225,32 +225,32 @@ export default function MaintenancePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4">System Maintenance</h1>
-          <p className="font-mono text-sm text-neutral-600 max-w-2xl">
+          <h1 className="font-heading text-4xl font-bold text-brand-text mb-4">System Maintenance</h1>
+          <p className="font-mono text-sm text-brand-text/70 max-w-2xl">
             Centralized maintenance operations for system health and data integrity
           </p>
         </div>
 
         {/* System Status Panel */}
         <div className="mb-8">
-          <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-4">System Maintenance Status</h2>
+          <h2 className="font-heading text-2xl font-bold text-brand-text mb-4">System Maintenance Status</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <StatusCard title="Active Cohorts" value={status?.activeCohorts || 0} icon={Trophy} />
             <StatusCard title="Total Students" value={status?.totalStudents || 0} icon={BarChart3} />
@@ -263,20 +263,20 @@ export default function MaintenancePage() {
               icon={RefreshCw} 
             />
           </div>
-          <div className="mt-4 border border-neutral-200 bg-gray-100 p-4 rounded-xl">
-            <p className="font-mono text-xs text-neutral-600">
-              Last Analytics Update: <span className="text-neutral-900">{formatDate(status?.lastAnalyticsUpdate || null)}</span>
+          <div className="mt-4 border border-brand-border bg-[var(--card)] brightness-95 p-4 rounded-xl">
+            <p className="font-mono text-xs text-brand-text/70">
+              Last Analytics Update: <span className="text-brand-text">{formatDate(status?.lastAnalyticsUpdate || null)}</span>
             </p>
           </div>
         </div>
 
         {/* Cohort Selector */}
-        <div className="mb-8 border border-neutral-200 bg-gray-100 p-4 rounded-xl">
-          <label className="font-mono text-sm text-neutral-600 block mb-2">Target Cohort</label>
+        <div className="mb-8 border border-brand-border bg-[var(--card)] brightness-95 p-4 rounded-xl">
+          <label className="font-mono text-sm text-brand-text/70 block mb-2">Target Cohort</label>
           <select
             value={selectedCohort}
             onChange={(e) => setSelectedCohort(e.target.value)}
-            className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono text-sm focus:border-[#10b981] focus:outline-none"
+            className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text font-mono text-sm focus:border-[#10b981] focus:outline-none"
           >
             <option value="all">All Active Cohorts</option>
             {cohorts.map(cohort => (
@@ -347,18 +347,18 @@ export default function MaintenancePage() {
         {/* Confirmation Dialog */}
         {confirmDialog && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-gray-100 border border-neutral-200 rounded-xl p-6 max-w-md w-full mx-4">
+            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-xl p-6 max-w-md w-full mx-4">
               <div className="flex items-center gap-3 mb-4">
                 <AlertCircle className="h-6 w-6 text-yellow-500" />
-                <h3 className="font-heading text-xl font-bold text-neutral-900">Confirm Maintenance Operation</h3>
+                <h3 className="font-heading text-xl font-bold text-brand-text">Confirm Maintenance Operation</h3>
               </div>
-              <p className="font-mono text-sm text-neutral-600 mb-6">
+              <p className="font-mono text-sm text-brand-text/70 mb-6">
                 Are you sure you want to execute {confirmDialog}? This operation may take some time depending on the number of students.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDialog(null)}
-                  className="flex-1 border border-neutral-200 bg-gray-100 text-neutral-900 px-4 py-2 rounded-lg font-mono text-sm hover:bg-gray-50 transition-colors"
+                  className="flex-1 border border-brand-border bg-[var(--card)] brightness-95 text-brand-text px-4 py-2 rounded-lg font-mono text-sm hover:bg-brand-bg transition-colors"
                 >
                   Cancel
                 </button>
@@ -382,7 +382,7 @@ export default function MaintenancePage() {
                     
                     executeMaintenance(confirmDialog, endpoint, cohortBody)
                   }}
-                  className="flex-1 bg-gray-50 text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-50/80 transition-colors"
+                  className="flex-1 bg-brand-bg text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-brand-bg/80 transition-colors"
                 >
                   Confirm
                 </button>

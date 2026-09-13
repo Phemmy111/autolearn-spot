@@ -80,7 +80,7 @@ export default function AmbassadorDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center text-brand-text">
         <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     );
@@ -88,7 +88,7 @@ export default function AmbassadorDashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center text-brand-text">
         <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
         <p>{error}</p>
         <button onClick={() => router.push("/ambassador/login")} className="mt-4 text-[#10b981] hover:underline">
@@ -99,21 +99,21 @@ export default function AmbassadorDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-neutral-900 overflow-x-hidden">
+    <div className="min-h-screen bg-brand-bg text-brand-text overflow-x-hidden">
       {/* Topbar */}
-      <header className="border-b border-neutral-200 bg-gray-50/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-brand-border bg-brand-bg/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase">
             <span className="text-[#10b981]">//</span>
             <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">Ambassador Portal</span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-sm text-neutral-500 hidden md:block">
-              Welcome, <span className="text-neutral-900 font-medium">{data.user.full_name}</span>
+            <div className="text-sm text-brand-text/60 hidden md:block">
+              Welcome, <span className="text-brand-text font-medium">{data.user.full_name}</span>
             </div>
             <Link 
               href="/ambassador/settings"
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-brand-border rounded hover:bg-brand-bg transition-colors flex items-center gap-2 text-brand-text/60"
             >
               Settings
             </Link>
@@ -122,7 +122,7 @@ export default function AmbassadorDashboard() {
                 document.cookie = "growth_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 router.push("/ambassador/login");
               }}
-              className="text-xs font-mono uppercase px-3 py-1.5 border border-neutral-200 rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-neutral-500"
+              className="text-xs font-mono uppercase px-3 py-1.5 border border-brand-border rounded hover:bg-brand-bg transition-colors flex items-center gap-2 text-brand-text/60"
             >
               <LogOut className="h-3 w-3" /> Logout
             </button>
@@ -135,15 +135,15 @@ export default function AmbassadorDashboard() {
         <div className="bg-gradient-to-r from-[#00f0ff]/10 to-transparent border border-[#10b981]/20 rounded-2xl p-6 md:p-8 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="w-full md:w-auto">
             <h2 className="text-xl font-bold mb-2">Your Referral Link</h2>
-            <p className="text-neutral-500 text-sm max-w-xl">Share this unique link with your network. When they enroll through it, you earn ₦1,000 commission.</p>
+            <p className="text-brand-text/60 text-sm max-w-xl">Share this unique link with your network. When they enroll through it, you earn ₦1,000 commission.</p>
           </div>
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="bg-neutral-100 border border-neutral-300 rounded-lg px-4 py-3 font-mono text-sm text-neutral-900/80 truncate flex-1 md:w-64">
+            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-3 font-mono text-sm text-brand-text/80 truncate flex-1 md:w-64">
               {data.shareUrl}
             </div>
             <button 
               onClick={handleCopyLink}
-              className="bg-gray-50 text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors flex-shrink-0 flex items-center gap-2"
+              className="bg-brand-bg text-black px-4 py-3 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors flex-shrink-0 flex items-center gap-2"
             >
               {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied" : "Copy"}
@@ -153,40 +153,40 @@ export default function AmbassadorDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <MousePointerClick className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Total Clicks</p>
+            <p className="text-sm text-brand-text/60 mb-1">Total Clicks</p>
             <h3 className="text-2xl font-bold">{data.totalClicks}</h3>
           </div>
           
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
                 <Users className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Registrations</p>
+            <p className="text-sm text-brand-text/60 mb-1">Registrations</p>
             <h3 className="text-2xl font-bold">{data.totalRegistrations}</h3>
           </div>
 
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
                 <Clock className="h-5 w-5" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Pending Earnings</p>
+            <p className="text-sm text-brand-text/60 mb-1">Pending Earnings</p>
             <h3 className="text-2xl font-bold text-yellow-400">₦{data.earnings.pendingEarnings.toLocaleString()}</h3>
           </div>
 
-          <div className="bg-gray-50 border border-[#10b981]/30 rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/5 blur-3xl rounded-full" />
+          <div className="bg-brand-bg border border-[#10b981]/30 rounded-2xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-bg/5 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-10 h-10 rounded-full bg-gray-50/10 flex items-center justify-center text-[#10b981]">
+              <div className="w-10 h-10 rounded-full bg-brand-bg/10 flex items-center justify-center text-[#10b981]">
                 <Wallet className="h-5 w-5" />
               </div>
             </div>
@@ -199,13 +199,13 @@ export default function AmbassadorDashboard() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Recent Activity */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+            <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
               <h3 className="text-lg font-bold mb-6">Recent Commissions</h3>
               {data.commissions.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
-                      <tr className="text-sm text-neutral-500 border-b border-neutral-200">
+                      <tr className="text-sm text-brand-text/60 border-b border-brand-border">
                         <th className="pb-3 font-medium">Date</th>
                         <th className="pb-3 font-medium">Referee</th>
                         <th className="pb-3 font-medium">Amount</th>
@@ -214,13 +214,13 @@ export default function AmbassadorDashboard() {
                     </thead>
                     <tbody className="text-sm">
                       {data.commissions.map((comm: any) => (
-                        <tr key={comm.id} className="border-b border-neutral-200 last:border-0">
+                        <tr key={comm.id} className="border-b border-brand-border last:border-0">
                           <td className="py-4">{new Date(comm.created_at).toLocaleDateString()}</td>
-                          <td className="py-4 truncate max-w-[150px] text-neutral-500">{comm.referee_email}</td>
-                          <td className="py-4 font-medium text-neutral-900">₦{comm.amount.toLocaleString()}</td>
+                          <td className="py-4 truncate max-w-[150px] text-brand-text/60">{comm.referee_email}</td>
+                          <td className="py-4 font-medium text-brand-text">₦{comm.amount.toLocaleString()}</td>
                           <td className="py-4">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              comm.status === 'available' ? 'bg-gray-50/10 text-[#10b981]' :
+                              comm.status === 'available' ? 'bg-brand-bg/10 text-[#10b981]' :
                               comm.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' :
                               comm.status === 'paid' ? 'bg-green-500/10 text-green-400' :
                               'bg-gray-500/10 text-gray-400'
@@ -234,7 +234,7 @@ export default function AmbassadorDashboard() {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-8 text-neutral-500">
+                <div className="text-center py-8 text-brand-text/60">
                   <p>No commissions yet. Start sharing your link!</p>
                 </div>
               )}
@@ -242,32 +242,32 @@ export default function AmbassadorDashboard() {
           </div>
 
           {/* Withdrawal Panel */}
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 flex flex-col h-fit">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 flex flex-col h-fit">
             <h3 className="text-lg font-bold mb-6">Withdraw Funds</h3>
             
-            <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-neutral-200">
+            <div className="bg-brand-bg rounded-xl p-4 mb-6 border border-brand-border">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-neutral-500">Available</span>
+                <span className="text-sm text-brand-text/60">Available</span>
                 <span className="font-bold text-[#10b981]">₦{data.earnings.availableEarnings.toLocaleString()}</span>
               </div>
-              <div className="w-full bg-gray-50 h-2 rounded-full overflow-hidden">
-                <div className="bg-gray-50 h-full" style={{ width: `${Math.min(100, (data.earnings.availableEarnings / 2000) * 100)}%` }} />
+              <div className="w-full bg-brand-bg h-2 rounded-full overflow-hidden">
+                <div className="bg-brand-bg h-full" style={{ width: `${Math.min(100, (data.earnings.availableEarnings / 2000) * 100)}%` }} />
               </div>
-              <p className="text-xs text-neutral-500 mt-2 text-right">Min. ₦2,000</p>
+              <p className="text-xs text-brand-text/60 mt-2 text-right">Min. ₦2,000</p>
             </div>
 
             <form onSubmit={handleWithdraw} className="mt-auto space-y-4">
               <div>
-                <label className="text-sm text-neutral-500 mb-1.5 block">Amount to withdraw</label>
+                <label className="text-sm text-brand-text/60 mb-1.5 block">Amount to withdraw</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500">₦</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-text/60">₦</span>
                   <input
                     type="number"
                     min="1"
                     max={data.earnings.availableEarnings}
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    className="w-full bg-gray-50 border border-neutral-200 rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#10b981] transition-colors"
+                    className="w-full bg-brand-bg border border-brand-border rounded-xl pl-8 pr-4 py-2.5 focus:outline-none focus:border-[#10b981] transition-colors"
                     placeholder="Amount"
                   />
                 </div>
@@ -275,7 +275,7 @@ export default function AmbassadorDashboard() {
               <button
                 type="submit"
                 disabled={isWithdrawing || !withdrawAmount || Number(withdrawAmount) > data.earnings.availableEarnings}
-                className="w-full py-3 rounded-xl bg-gray-50 text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-xl bg-brand-bg text-black font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isWithdrawing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRightLeft className="h-4 w-4" />}
                 Withdraw

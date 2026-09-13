@@ -101,9 +101,9 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--card)]">
         <div className="container mx-auto px-4 py-12">
-          <div className="text-center text-neutral-500 py-12">Loading quiz...</div>
+          <div className="text-center text-brand-text/60 py-12">Loading quiz...</div>
         </div>
       </div>
     )
@@ -111,7 +111,7 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
 
   if (error || !quiz) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--card)]">
         <div className="container mx-auto px-4 py-12">
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             {error || 'Quiz not found'}
@@ -122,22 +122,22 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--card)]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/author/quizzes" className="text-neutral-600 hover:text-neutral-900">
+          <Link href="/author/quizzes" className="text-brand-text/70 hover:text-brand-text">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-neutral-900">{quiz.title}</h1>
-            <p className="text-sm text-neutral-600 mt-1">
+            <h1 className="text-3xl font-bold text-brand-text">{quiz.title}</h1>
+            <p className="text-sm text-brand-text/70 mt-1">
               {quiz.lesson.product.title} → {quiz.lesson.title}
             </p>
           </div>
           <div className="flex gap-2">
             <Link
               href={`/author/products/${quiz.lesson.product.id}/curriculum`}
-              className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+              className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
             >
               Edit in Curriculum
             </Link>
@@ -152,12 +152,12 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         {quiz.description && (
-          <div className="bg-neutral-50 border border-neutral-200 p-4 rounded-lg mb-6">
+          <div className="bg-brand-bg border border-brand-border p-4 rounded-lg mb-6">
             <p className="text-neutral-700">{quiz.description}</p>
           </div>
         )}
 
-        <div className="flex flex-wrap gap-4 mb-6 text-sm text-neutral-600">
+        <div className="flex flex-wrap gap-4 mb-6 text-sm text-brand-text/70">
           {quiz.time_limit && (
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
@@ -173,7 +173,7 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
           </div>
           <div className="flex items-center gap-2">
             {quiz.is_active ? (
-              <span className="flex items-center gap-1 text-green-600">
+              <span className="flex items-center gap-1 text-brand-primary">
                 <CheckCircle2 className="h-4 w-4" />
                 Active
               </span>
@@ -187,11 +187,11 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-neutral-900">Questions</h2>
+          <h2 className="text-xl font-semibold text-brand-text">Questions</h2>
           {quiz.questions.map((question, index) => (
             <div
               key={question.id}
-              className="border border-neutral-200 bg-neutral-50 p-4 rounded-lg"
+              className="border border-brand-border bg-brand-bg p-4 rounded-lg"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
@@ -199,14 +199,14 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
                     <span className="px-2 py-1 bg-sky-50 text-sky-700 text-xs font-semibold rounded">
                       Q{index + 1}
                     </span>
-                    <span className="px-2 py-1 bg-neutral-100 text-neutral-600 text-xs font-semibold rounded capitalize">
+                    <span className="px-2 py-1 bg-[var(--card)] brightness-95 text-brand-text/70 text-xs font-semibold rounded capitalize">
                       {question.question_type.replace('_', ' ')}
                     </span>
                     <span className="px-2 py-1 bg-purple-50 text-purple-700 text-xs font-semibold rounded">
                       {question.points} pts
                     </span>
                   </div>
-                  <p className="font-medium text-neutral-900">{question.question_text}</p>
+                  <p className="font-medium text-brand-text">{question.question_text}</p>
                 </div>
               </div>
 
@@ -218,7 +218,7 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
                       className={`flex items-center gap-2 text-sm ${
                         option === question.correct_answer
                           ? 'text-green-700 bg-green-50'
-                          : 'text-neutral-600'
+                          : 'text-brand-text/70'
                       } p-2 rounded`}
                     >
                       <span className="font-mono">{String.fromCharCode(65 + optIndex)}.</span>
@@ -232,8 +232,8 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
               )}
 
               {question.explanation && (
-                <div className="mt-3 pt-3 border-t border-neutral-200">
-                  <p className="text-sm text-neutral-600">
+                <div className="mt-3 pt-3 border-t border-brand-border">
+                  <p className="text-sm text-brand-text/70">
                     <span className="font-semibold">Explanation:</span> {question.explanation}
                   </p>
                 </div>
@@ -253,7 +253,7 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
           <Link
             href={`/quiz/${quiz.id}?preview=true`}
             target="_blank"
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
           >
             Preview Quiz
           </Link>

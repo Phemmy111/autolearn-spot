@@ -69,25 +69,25 @@ export default function AdminSeoSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
+      <div className="border-b border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/settings" className="text-neutral-600 hover:text-neutral-900 transition-colors">
+              <Link href="/admin/settings" className="text-brand-text/70 hover:text-brand-text transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-neutral-900">SEO & Metadata Settings</h1>
-                <p className="text-sm text-neutral-600">Configure website SEO and social sharing metadata</p>
+                <h1 className="text-xl font-bold text-brand-text">SEO & Metadata Settings</h1>
+                <p className="text-sm text-brand-text/70">Configure website SEO and social sharing metadata</p>
               </div>
             </div>
           </div>
@@ -112,65 +112,65 @@ export default function AdminSeoSettingsPage() {
           )}
 
           {/* Basic SEO */}
-          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Globe className="h-5 w-5 text-[#10b981]" />
-              <h2 className="text-lg font-semibold text-neutral-900">Basic SEO</h2>
+              <h2 className="text-lg font-semibold text-brand-text">Basic SEO</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Site Title</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Site Title</label>
                 <input
                   type="text"
                   value={settings.siteTitle}
                   onChange={(e) => setSettings({ ...settings, siteTitle: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Meta Description</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Meta Description</label>
                 <textarea
                   value={settings.metaDescription}
                   onChange={(e) => setSettings({ ...settings, metaDescription: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
             </div>
           </div>
 
           {/* Open Graph */}
-          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Globe className="h-5 w-5 text-[#10b981]" />
-              <h2 className="text-lg font-semibold text-neutral-900">Open Graph (Social Sharing)</h2>
+              <h2 className="text-lg font-semibold text-brand-text">Open Graph (Social Sharing)</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">OG Title</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">OG Title</label>
                 <input
                   type="text"
                   value={settings.ogTitle}
                   onChange={(e) => setSettings({ ...settings, ogTitle: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">OG Description</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">OG Description</label>
                 <textarea
                   value={settings.ogDescription}
                   onChange={(e) => setSettings({ ...settings, ogDescription: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981] resize-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">OG Image URL</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">OG Image URL</label>
                 <input
                   type="url"
                   value={settings.ogImage}
                   onChange={(e) => setSettings({ ...settings, ogImage: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                   placeholder="https://..."
                 />
               </div>
@@ -178,17 +178,17 @@ export default function AdminSeoSettingsPage() {
           </div>
 
           {/* Twitter Card */}
-          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Globe className="h-5 w-5 text-[#10b981]" />
-              <h2 className="text-lg font-semibold text-neutral-900">Twitter Card</h2>
+              <h2 className="text-lg font-semibold text-brand-text">Twitter Card</h2>
             </div>
             <div>
-              <label className="block text-sm font-medium text-neutral-600 mb-2">Card Type</label>
+              <label className="block text-sm font-medium text-brand-text/70 mb-2">Card Type</label>
               <select
                 value={settings.twitterCardType}
                 onChange={(e) => setSettings({ ...settings, twitterCardType: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
               >
                 <option value="summary_large_image">Summary Large Image</option>
                 <option value="summary">Summary</option>
@@ -201,7 +201,7 @@ export default function AdminSeoSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-gray-50 text-[#00363a] rounded-lg font-medium hover:bg-gray-50/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-brand-bg text-[#00363a] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

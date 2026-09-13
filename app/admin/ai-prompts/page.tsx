@@ -137,28 +137,28 @@ export default function AIPromptsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-neutral-600 font-mono">Loading...</div>
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <div className="text-brand-text/70 font-mono">Loading...</div>
       </div>
     )
   }
 
   return (
-    <section className="min-h-screen bg-gray-50">
+    <section className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-neutral-600 hover:text-neutral-900">
+            <Link href="/admin" className="text-brand-text/70 hover:text-brand-text">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-neutral-900">AI Prompts</h1>
-              <p className="font-mono text-sm text-neutral-600">Manage AI prompts for quiz generation</p>
+              <h1 className="font-heading text-4xl font-bold text-brand-text">AI Prompts</h1>
+              <p className="font-mono text-sm text-brand-text/70">Manage AI prompts for quiz generation</p>
             </div>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 bg-brand-bg text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[var(--card)] brightness-95 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Prompt
@@ -174,33 +174,33 @@ export default function AIPromptsPage() {
 
         <div className="grid gap-4">
           {prompts.map((prompt) => (
-            <div key={prompt.id} className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+            <div key={prompt.id} className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-lg ${
                     prompt.is_active 
                       ? 'bg-emerald-400/10 border border-emerald-400/50' 
-                      : 'bg-gray-50 border border-[#2a2d36]'
+                      : 'bg-brand-bg border border-[#2a2d36]'
                   }`}>
-                    <MessageSquare className="h-5 w-5 text-neutral-600" />
+                    <MessageSquare className="h-5 w-5 text-brand-text/70" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-heading text-lg font-bold text-neutral-900">{prompt.name}</h3>
+                      <h3 className="font-heading text-lg font-bold text-brand-text">{prompt.name}</h3>
                       {prompt.is_active && (
                         <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/50 text-xs font-mono text-emerald-400">
                           <CheckCircle className="h-3 w-3" />
                           Active
                         </span>
                       )}
-                      <span className="px-2 py-0.5 rounded-full bg-gray-50 border border-[#2a2d36] text-xs font-mono text-neutral-600">
+                      <span className="px-2 py-0.5 rounded-full bg-brand-bg border border-[#2a2d36] text-xs font-mono text-brand-text/70">
                         v{prompt.version}
                       </span>
                     </div>
-                    <p className="font-mono text-xs text-neutral-500 mb-2">
+                    <p className="font-mono text-xs text-brand-text/60 mb-2">
                       Type: {prompt.prompt_type}
                     </p>
-                    <p className="font-mono text-sm text-neutral-600 line-clamp-3">
+                    <p className="font-mono text-sm text-brand-text/70 line-clamp-3">
                       {prompt.content}
                     </p>
                   </div>
@@ -208,19 +208,19 @@ export default function AIPromptsPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleCopy(prompt.content, prompt.id)}
-                    className="p-2 rounded hover:bg-gray-50 transition-colors"
+                    className="p-2 rounded hover:bg-brand-bg transition-colors"
                     title="Copy Content"
                   >
                     {copiedId === prompt.id ? (
                       <Check className="h-4 w-4 text-emerald-400" />
                     ) : (
-                      <Copy className="h-4 w-4 text-neutral-600" />
+                      <Copy className="h-4 w-4 text-brand-text/70" />
                     )}
                   </button>
                   {!prompt.is_active && (
                     <button
                       onClick={() => handleSetActive(prompt.id)}
-                      className="p-2 rounded hover:bg-gray-50 transition-colors"
+                      className="p-2 rounded hover:bg-brand-bg transition-colors"
                       title="Set as Active"
                     >
                       <Star className="h-4 w-4 text-yellow-400" />
@@ -228,7 +228,7 @@ export default function AIPromptsPage() {
                   )}
                   <button
                     onClick={() => handleDelete(prompt.id)}
-                    className="p-2 rounded hover:bg-gray-50 transition-colors"
+                    className="p-2 rounded hover:bg-brand-bg transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
@@ -239,10 +239,10 @@ export default function AIPromptsPage() {
           ))}
 
           {prompts.length === 0 && (
-            <div className="border border-neutral-200 bg-gray-100 p-12 rounded-xl text-center">
-              <MessageSquare className="h-12 w-12 text-neutral-500 mx-auto mb-4" />
-              <p className="font-mono text-sm text-neutral-600">No AI prompts configured yet</p>
-              <p className="font-mono text-xs text-neutral-500 mt-2">
+            <div className="border border-brand-border bg-[var(--card)] brightness-95 p-12 rounded-xl text-center">
+              <MessageSquare className="h-12 w-12 text-brand-text/60 mx-auto mb-4" />
+              <p className="font-mono text-sm text-brand-text/70">No AI prompts configured yet</p>
+              <p className="font-mono text-xs text-brand-text/60 mt-2">
                 Add your first prompt to start generating quizzes with AI
               </p>
             </div>
@@ -252,30 +252,30 @@ export default function AIPromptsPage() {
         {/* Add Prompt Modal */}
         {showAddModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-gray-100 border border-neutral-200 rounded-xl p-6 w-full max-w-2xl mx-4">
-              <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-6">Add New Prompt</h2>
+            <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-xl p-6 w-full max-w-2xl mx-4">
+              <h2 className="font-heading text-2xl font-bold text-brand-text mb-6">Add New Prompt</h2>
               <form onSubmit={handleAddPrompt}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block font-mono text-sm text-neutral-600 mb-2">
+                    <label className="block font-mono text-sm text-brand-text/70 mb-2">
                       Name
                     </label>
                     <input
                       type="text"
                       value={newPrompt.name}
                       onChange={(e) => setNewPrompt({ ...newPrompt, name: e.target.value })}
-                      className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text font-mono focus:outline-none focus:border-[#10b981]"
                       placeholder="Quiz Generation Prompt"
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-sm text-neutral-600 mb-2">
+                    <label className="block font-mono text-sm text-brand-text/70 mb-2">
                       Prompt Type
                     </label>
                     <select
                       value={newPrompt.prompt_type}
                       onChange={(e) => setNewPrompt({ ...newPrompt, prompt_type: e.target.value })}
-                      className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text font-mono focus:outline-none focus:border-[#10b981]"
                     >
                       <option value="quiz_generation">Quiz Generation</option>
                       <option value="question_generation">Question Generation</option>
@@ -283,13 +283,13 @@ export default function AIPromptsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block font-mono text-sm text-neutral-600 mb-2">
+                    <label className="block font-mono text-sm text-brand-text/70 mb-2">
                       Content
                     </label>
                     <textarea
                       value={newPrompt.content}
                       onChange={(e) => setNewPrompt({ ...newPrompt, content: e.target.value })}
-                      className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono focus:outline-none focus:border-[#10b981] h-48"
+                      className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-2 text-brand-text font-mono focus:outline-none focus:border-[#10b981] h-48"
                       placeholder="Enter your prompt instructions here..."
                     />
                   </div>
@@ -298,13 +298,13 @@ export default function AIPromptsPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="px-4 py-2 rounded-lg font-mono text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                    className="px-4 py-2 rounded-lg font-mono text-sm text-brand-text/70 hover:text-brand-text transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 rounded-lg bg-gray-50 text-black font-bold font-mono text-sm hover:bg-gray-100 transition-colors"
+                    className="px-6 py-2 rounded-lg bg-brand-bg text-black font-bold font-mono text-sm hover:bg-[var(--card)] brightness-95 transition-colors"
                   >
                     Add Prompt
                   </button>

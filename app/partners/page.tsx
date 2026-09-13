@@ -98,7 +98,7 @@ const LEADERBOARD = [
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center bg-gray-100 overflow-hidden">
+    <section className="relative min-h-screen flex items-center bg-[var(--card)] brightness-95 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
 
@@ -110,11 +110,11 @@ function HeroSection() {
               <span className="text-[#00F5FF]"> Impact More.</span>
             </h1>
 
-            <p className="text-sm sm:text-base lg:text-lg text-neutral-500 leading-relaxed max-w-xl">
+            <p className="text-sm sm:text-base lg:text-lg text-brand-text/60 leading-relaxed max-w-xl">
               Become an AutoLearn Spot Community Partner and earn commissions by referring students to our AI Automation Training.
             </p>
 
-            <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-gray-50/10 px-4 py-2 sm:px-5 sm:py-2.5">
+            <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-brand-bg/10 px-4 py-2 sm:px-5 sm:py-2.5">
               <DollarSign className="h-5 w-5 text-[#00F5FF]" />
               <span className="font-mono text-sm font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
                 Earn up to ₦1,500 for every successful enrollment
@@ -124,13 +124,13 @@ function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/partners/apply"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-gray-50 px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-brand-bg px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
               >
                 Apply as Community Partner
               </Link>
               <Link
                 href="/partners/dashboard"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-gray-50/10 w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-brand-bg/10 w-full sm:w-auto"
               >
                 Partner Dashboard
               </Link>
@@ -138,44 +138,44 @@ function HeroSection() {
           </div>
 
           <div className="relative order-2 md:order-2 mt-8 md:mt-0">
-            <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
-              <div className="absolute inset-0 bg-gray-50/5 rounded-2xl blur-xl" />
+            <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
+              <div className="absolute inset-0 bg-brand-bg/5 rounded-2xl blur-xl" />
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Partner Dashboard Preview</span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60">Partner Dashboard Preview</span>
                   <div className="flex gap-2">
-                    <div className="h-2 w-2 rounded-full bg-gray-50" />
-                    <div className="h-2 w-2 rounded-full bg-gray-50" />
-                    <div className="h-2 w-2 rounded-full bg-gray-50" />
+                    <div className="h-2 w-2 rounded-full bg-brand-bg" />
+                    <div className="h-2 w-2 rounded-full bg-brand-bg" />
+                    <div className="h-2 w-2 rounded-full bg-brand-bg" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
-                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500 mb-1">Available Balance</div>
+                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Available Balance</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#00F5FF]">₦24,500</div>
                   </div>
-                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500 mb-1">Pending Earnings</div>
+                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Pending Earnings</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">₦7,500</div>
                   </div>
-                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500 mb-1">Total Referrals</div>
+                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Total Referrals</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">127</div>
                   </div>
-                  <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500 mb-1">Successful Enrollments</div>
+                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Successful Enrollments</div>
                     <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">89</div>
                   </div>
                 </div>
 
-                <div className="border border-neutral-200 bg-gray-100/50 rounded-lg p-2 sm:p-3 lg:p-4">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500 mb-2">Monthly Earnings</div>
+                <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3 lg:p-4">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-2">Monthly Earnings</div>
                   <div className="h-16 sm:h-20 lg:h-24 flex items-end gap-1">
                     {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
                       <div
                         key={i}
-                        className="flex-1 bg-gray-50/20 rounded-t transition-all hover:bg-gray-50/40"
+                        className="flex-1 bg-brand-bg/20 rounded-t transition-all hover:bg-brand-bg/40"
                         style={{ height: `${height}%` }}
                       />
                     ))}
@@ -183,7 +183,7 @@ function HeroSection() {
                 </div>
               </div>
             </div>
-            <div className="absolute -top-4 -right-4 w-32 h-32 bg-gray-50/20 rounded-full blur-3xl" />
+            <div className="absolute -top-4 -right-4 w-32 h-32 bg-brand-bg/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
           </div>
         </div>
@@ -194,11 +194,11 @@ function HeroSection() {
 
 function TrustSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
+    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
-          <p className="text-sm sm:text-base text-neutral-500">Join our growing community of successful partners</p>
+          <p className="text-sm sm:text-base text-brand-text/60">Join our growing community of successful partners</p>
         </div>
         
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8">
@@ -224,23 +224,23 @@ function TrustSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
+    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
-          <p className="text-sm sm:text-base text-neutral-500">Simple steps to start earning</p>
+          <p className="text-sm sm:text-base text-brand-text/60">Simple steps to start earning</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {HOW_IT_WORKS.map((item, index) => (
-            <div key={index} className="border border-neutral-200 bg-gray-100/50 rounded-xl p-4 sm:p-5 lg:p-6">
+            <div key={index} className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00F5FF]/30 bg-gray-50/10 rounded-lg font-mono text-base sm:text-lg font-bold text-[#00F5FF]">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00F5FF]/30 bg-brand-bg/10 rounded-lg font-mono text-base sm:text-lg font-bold text-[#00F5FF]">
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-sm sm:text-base text-[#e2e2e8]">{item.title}</h3>
               </div>
-              <p className="text-sm text-neutral-500">{item.description}</p>
+              <p className="text-sm text-brand-text/60">{item.description}</p>
             </div>
           ))}
         </div>
@@ -251,16 +251,16 @@ function HowItWorksSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-100">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--card)] brightness-95">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">What Partners Say</h2>
-          <p className="text-sm sm:text-base text-neutral-500">Hear from our successful partners</p>
+          <p className="text-sm sm:text-base text-brand-text/60">Hear from our successful partners</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {PARTNER_TESTIMONIALS.map((testimonial, index) => (
-            <div key={index} className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
+            <div key={index} className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden flex-shrink-0">
                   <Image
@@ -273,7 +273,7 @@ function TestimonialsSection() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm sm:text-base text-[#e2e2e8]">{testimonial.name}</h3>
-                  <p className="text-xs sm:text-sm text-neutral-500">{testimonial.school}</p>
+                  <p className="text-xs sm:text-sm text-brand-text/60">{testimonial.school}</p>
                   <div className="flex gap-1 mt-1">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star key={i} className="h-4 w-4 text-[#00F5FF] fill-current" />
@@ -281,7 +281,7 @@ function TestimonialsSection() {
                   </div>
                 </div>
               </div>
-              <p className="text-sm text-neutral-500 italic">"{testimonial.review}"</p>
+              <p className="text-sm text-brand-text/60 italic">"{testimonial.review}"</p>
             </div>
           ))}
         </div>
@@ -292,18 +292,18 @@ function TestimonialsSection() {
 
 function ActivityFeedSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
+    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
-          <p className="text-sm sm:text-base text-neutral-500">Real-time partner activity</p>
+          <p className="text-sm sm:text-base text-brand-text/60">Real-time partner activity</p>
         </div>
         
-        <div className="border border-neutral-200 bg-gray-100/50 rounded-2xl p-4 sm:p-5 lg:p-6">
+        <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-2xl p-4 sm:p-5 lg:p-6">
           <div className="space-y-2 sm:space-y-3 lg:space-y-4">
             {ACTIVITY_FEED.map((activity, index) => (
-              <div key={index} className="flex items-center gap-3 text-sm text-neutral-500">
-                <div className="h-2 w-2 rounded-full bg-gray-50" />
+              <div key={index} className="flex items-center gap-3 text-sm text-brand-text/60">
+                <div className="h-2 w-2 rounded-full bg-brand-bg" />
                 {activity}
               </div>
             ))}
@@ -316,18 +316,18 @@ function ActivityFeedSection() {
 
 function LeaderboardSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-100">
+    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--card)] brightness-95">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Top Partners</h2>
-          <p className="text-sm sm:text-base text-neutral-500">Leaderboard of this month</p>
+          <p className="text-sm sm:text-base text-brand-text/60">Leaderboard of this month</p>
         </div>
         
-        <div className="border border-neutral-200 bg-gray-50/50 rounded-2xl overflow-hidden">
+        <div className="border border-brand-border bg-brand-bg/50 rounded-2xl overflow-hidden">
           {LEADERBOARD.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 sm:p-4 lg:p-5 border-b border-neutral-200 last:border-b-0">
+            <div key={index} className="flex items-center justify-between p-3 sm:p-4 lg:p-5 border-b border-brand-border last:border-b-0">
               <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-[#00F5FF]/30 bg-gray-50/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-[#00F5FF]">
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-[#00F5FF]/30 bg-brand-bg/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-[#00F5FF]">
                   {item.rank}
                 </div>
                 <span className="text-xs sm:text-sm lg:text-base text-[#e2e2e8]">{item.name}</span>
@@ -369,18 +369,18 @@ function FAQSection() {
   ];
   
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
+    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
       <div className="max-w-3xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
-          <p className="text-sm sm:text-base text-neutral-500">Got questions? We've got answers</p>
+          <p className="text-sm sm:text-base text-brand-text/60">Got questions? We've got answers</p>
         </div>
         
         <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-neutral-200 bg-gray-100/80 backdrop-blur-xl rounded-xl overflow-hidden"
+              className="border border-brand-border bg-[var(--card)] brightness-95/80 backdrop-blur-xl rounded-xl overflow-hidden"
             >
               <button
                 className="w-full px-4 sm:px-5 lg:px-6 py-3 sm:py-4 text-left flex items-center justify-between"
@@ -390,7 +390,7 @@ function FAQSection() {
                 <CheckCircle className={`h-5 w-5 text-[#00F5FF] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
               </button>
               {openIndex === index && (
-                <div className="px-4 sm:px-5 lg:px-6 pb-3 sm:pb-4 text-sm text-neutral-500">
+                <div className="px-4 sm:px-5 lg:px-6 pb-3 sm:pb-4 text-sm text-brand-text/60">
                   {faq.answer}
                 </div>
               )}
@@ -404,7 +404,7 @@ function FAQSection() {
 
 function PartnersFooter() {
   return (
-    <footer className="border-t border-neutral-200 bg-gray-100 py-6 sm:py-8 lg:py-12">
+    <footer className="border-t border-brand-border bg-[var(--card)] brightness-95 py-6 sm:py-8 lg:py-12">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
           <div className="md:col-span-2">
@@ -419,29 +419,29 @@ function PartnersFooter() {
                 AutoLearn Spot
               </span>
             </div>
-            <p className="text-sm text-neutral-500 mb-4">
+            <p className="text-sm text-brand-text/60 mb-4">
               Become a partner and earn commissions while helping others learn valuable AI automation skills.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                 Facebook
               </a>
-              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                 LinkedIn
               </a>
-              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                 Instagram
               </a>
-              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                 TikTok
               </a>
-              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                 YouTube
               </a>
-              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                 X
               </a>
-              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                 WhatsApp
               </a>
             </div>
@@ -456,12 +456,12 @@ function PartnersFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/partners/apply" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners/apply" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   Apply Now
                 </Link>
               </li>
               <li>
-                <Link href="/partners/dashboard" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners/dashboard" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   Partner Dashboard
                 </Link>
               </li>
@@ -472,17 +472,17 @@ function PartnersFooter() {
             <h3 className="font-semibold text-[#e2e2e8] mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/contact" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <Link href="/contact" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <a href={socialLinks.whatsapp.url} className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <a href={socialLinks.whatsapp.url} className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   WhatsApp Support
                 </a>
               </li>
               <li>
-                <Link href="/scholarship" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   Scholarship
                 </Link>
               </li>
@@ -493,17 +493,17 @@ function PartnersFooter() {
             <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <Link href="/" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/partners" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   Partners
                 </Link>
               </li>
               <li>
-                <Link href="/scholarship" className="text-sm text-neutral-500 hover:text-[#00F5FF] transition-colors">
+                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
                   Scholarship
                 </Link>
               </li>
@@ -511,8 +511,8 @@ function PartnersFooter() {
           </div>
         </div>
         
-        <div className="border-t border-neutral-200 pt-8 text-center">
-          <p className="text-sm text-neutral-500">
+        <div className="border-t border-brand-border pt-8 text-center">
+          <p className="text-sm text-brand-text/60">
             © 2026 AutoLearn Spot. All Rights Reserved.
           </p>
         </div>
@@ -539,7 +539,7 @@ function PartnerPage() {
 
 export default function PartnersPage() {
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen bg-[var(--card)] brightness-95">
       <Navigation />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />

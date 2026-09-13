@@ -202,7 +202,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-cyan-400" />
                     <span className="text-sm text-slate-300">{artifact.filename}</span>
-                    <span className="text-xs text-slate-500">({artifact.file_type})</span>
+                    <span className="text-xs text-brand-text/60">({artifact.file_type})</span>
                     {artifact.validation_status === 'valid' && (
                       <CheckCircle className="h-4 w-4 text-green-400" />
                     )}
@@ -277,13 +277,13 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Headings
     h1: ({ children }: any) => (
-      <h1 className="text-xl font-bold text-neutral-900 mt-6 mb-3">{children}</h1>
+      <h1 className="text-xl font-bold text-brand-text mt-6 mb-3">{children}</h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="text-lg font-semibold text-neutral-900 mt-5 mb-2">{children}</h2>
+      <h2 className="text-lg font-semibold text-brand-text mt-5 mb-2">{children}</h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="text-base font-medium text-neutral-900 mt-4 mb-2">{children}</h3>
+      <h3 className="text-base font-medium text-brand-text mt-4 mb-2">{children}</h3>
     ),
 
     // Paragraphs
@@ -369,7 +369,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                 <Sparkles className="h-8 w-8 text-cyan-400" />
               </div>
             </div>
-            <h2 className="text-xl font-bold text-neutral-900 mb-2">Welcome to ALEX</h2>
+            <h2 className="text-xl font-bold text-brand-text mb-2">Welcome to ALEX</h2>
             <p className="text-slate-400 mb-6">Your AutoLearn Intelligence & Execution Agent</p>
             
             {/* Example Prompts */}
@@ -383,7 +383,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
               >
                 <BookOpen className="h-4 w-4 inline mr-2" />
                 Check my progress
@@ -397,7 +397,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
               >
                 <Lightbulb className="h-4 w-4 inline mr-2" />
                 What should I study next?
@@ -411,7 +411,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
               >
                 <Award className="h-4 w-4 inline mr-2" />
                 My scholarship status
@@ -425,7 +425,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-neutral-900 transition-all"
+                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
               >
                 <Workflow className="h-4 w-4 inline mr-2" />
                 Build automation
@@ -451,8 +451,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
             <div
               className={`rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 min-w-0 w-full overflow-x-auto ${
                 message.role === 'user'
-                  ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-slate-900 shadow-lg shadow-cyan-500/20 max-w-[85%] sm:max-w-xl mx-2'
-                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-neutral-900 w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
+                  ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-brand-text shadow-lg shadow-cyan-500/20 max-w-[85%] sm:max-w-xl mx-2'
+                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-brand-text w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
               }`}
             >
               <div className="flex flex-col gap-3">
@@ -462,10 +462,10 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {message.attached_files.map((file) => (
                       <div
                         key={file.id}
-                        className="flex items-center gap-2 bg-gray-100/20 rounded-lg px-3 py-2"
+                        className="flex items-center gap-2 bg-[var(--card)] brightness-95/20 rounded-lg px-3 py-2"
                       >
                         {getFileIcon(file.original_filename)}
-                        <span className="text-sm text-slate-900 truncate max-w-[150px]">
+                        <span className="text-sm text-brand-text truncate max-w-[150px]">
                           {file.original_filename}
                         </span>
                         <span className="text-xs text-slate-700">
@@ -484,7 +484,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                           {renderArtifactWorkflow((message as any).workflowData)}
                           {/* Also render any text content */}
                           {message.content && (
-                            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-neutral-900 prose-p:text-slate-300 prose-strong:text-neutral-900 prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-brand-text prose-p:text-slate-300 prose-strong:text-brand-text prose-code:text-cyan-400 prose-pre:bg-slate-900">
                               <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={MarkdownComponents}
@@ -496,7 +496,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                         </>
                       ) : (
                         <>
-                          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-neutral-900 prose-p:text-slate-300 prose-strong:text-neutral-900 prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-brand-text prose-p:text-slate-300 prose-strong:text-brand-text prose-code:text-cyan-400 prose-pre:bg-slate-900">
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={MarkdownComponents}
@@ -521,7 +521,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                                     <div className="flex items-center gap-2">
                                       <FileText className="h-4 w-4 text-cyan-400" />
                                       <span className="text-sm text-slate-300">{artifact.filename}</span>
-                                      <span className="text-xs text-slate-500">({artifact.file_type})</span>
+                                      <span className="text-xs text-brand-text/60">({artifact.file_type})</span>
                                     </div>
                                     <button
                                       onClick={() => handleDownloadArtifact(artifact.id, artifact.filename, artifact.download_url)}
@@ -542,19 +542,19 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     <textarea
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="w-full bg-gray-100/20 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
+                      className="w-full bg-[var(--card)] brightness-95/20 rounded-lg px-3 py-2 text-brand-text placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
                       rows={3}
                       autoFocus
                     />
                   ) : (
-                    <p className="text-slate-900 leading-relaxed">{message.content}</p>
+                    <p className="text-brand-text leading-relaxed">{message.content}</p>
                   )}
                 </div>
                 {message.role === 'assistant' && (
                   <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-700/50">
                     <button
                       onClick={() => handleCopyMessage(message.content, message.id)}
-                      className="p-1.5 text-slate-500 hover:text-cyan-400 transition-colors"
+                      className="p-1.5 text-brand-text/60 hover:text-cyan-400 transition-colors"
                       title="Copy response"
                     >
                       {copiedCode === message.id ? (
@@ -565,14 +565,14 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     </button>
                     <button
                       onClick={() => handleFeedback(message.id, 'up')}
-                      className={`p-1.5 transition-colors ${feedback[message.id] === 'up' ? 'text-green-400' : 'text-slate-500 hover:text-green-400'}`}
+                      className={`p-1.5 transition-colors ${feedback[message.id] === 'up' ? 'text-green-400' : 'text-brand-text/60 hover:text-green-400'}`}
                       title="Helpful"
                     >
                       <ThumbsUp className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleFeedback(message.id, 'down')}
-                      className={`p-1.5 transition-colors ${feedback[message.id] === 'down' ? 'text-red-400' : 'text-slate-500 hover:text-red-400'}`}
+                      className={`p-1.5 transition-colors ${feedback[message.id] === 'down' ? 'text-red-400' : 'text-brand-text/60 hover:text-red-400'}`}
                       title="Not helpful"
                     >
                       <ThumbsDown className="h-4 w-4" />
@@ -580,7 +580,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {onRegenerateResponse && index === messages.length - 1 && message.role === 'assistant' && (
                       <button
                         onClick={() => onRegenerateResponse(message.id)}
-                        className="p-1.5 text-slate-500 hover:text-cyan-400 transition-colors"
+                        className="p-1.5 text-brand-text/60 hover:text-cyan-400 transition-colors"
                         title="Regenerate response"
                       >
                         <Zap className="h-4 w-4" />
@@ -592,7 +592,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-600/30">
                     <button
                       onClick={() => handleCopyMessage(message.content, message.id)}
-                      className="p-1.5 text-slate-700 hover:text-neutral-900 transition-colors"
+                      className="p-1.5 text-slate-700 hover:text-brand-text transition-colors"
                       title="Copy message"
                     >
                       {copiedCode === message.id ? (
@@ -604,7 +604,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {onEditMessage && (
                       <button
                         onClick={() => handleStartEdit(message.id, message.content)}
-                        className="p-1.5 text-slate-700 hover:text-neutral-900 transition-colors"
+                        className="p-1.5 text-slate-700 hover:text-brand-text transition-colors"
                         title="Edit message"
                       >
                         <Edit2 className="h-4 w-4" />

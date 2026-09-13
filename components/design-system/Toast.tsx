@@ -38,19 +38,19 @@ export function Toast({
 
   return (
     <div className={cn(
-      'bg-gray-100 border border-neutral-200 rounded-lg shadow-lg p-4 mb-2',
+      'bg-[var(--card)] brightness-95 border border-brand-border rounded-lg shadow-lg p-4 mb-2',
       variants[variant]
     )}>
       <div className="flex-1">
-        <h4 className="font-medium text-neutral-900">{title}</h4>
+        <h4 className="font-medium text-brand-text">{title}</h4>
         {description && (
-          <p className="text-sm text-neutral-600 mt-1">{description}</p>
+          <p className="text-sm text-brand-text/70 mt-1">{description}</p>
         )}
       </div>
       {onClose && (
         <button
           onClick={() => onClose(id)}
-          className="ml-4 text-neutral-400 hover:text-neutral-600 transition-colors"
+          className="ml-4 text-neutral-400 hover:text-brand-text/70 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>

@@ -77,7 +77,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center bg-gray-50 overflow-hidden">
+    <section className="relative min-h-screen flex items-center bg-brand-bg overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-[#050505] via-[#0c0e12] to-[#111317]" />
       <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,240,255,0.1)_0%,transparent_50%)]" />
 
@@ -95,7 +95,7 @@ export function HeroSection() {
               {settings.heroHeadline}
             </h1>
 
-            <p className="text-sm sm:text-base lg:text-lg text-neutral-500 leading-relaxed animate-slide-up animate-stagger-3">
+            <p className="text-sm sm:text-base lg:text-lg text-brand-text/60 leading-relaxed animate-slide-up animate-stagger-3">
               {settings.heroSubheadline}
             </p>
 
@@ -140,18 +140,18 @@ export function HeroSection() {
                         muted
                         playsInline
                         loop
-                        className="w-full h-auto rounded-xl border border-neutral-200 shadow-[0_0_40px_rgba(0,240,255,0.1)]"
+                        className="w-full h-auto rounded-xl border border-brand-border shadow-[0_0_40px_rgba(0,240,255,0.1)]"
                       />
                       <button
                         onClick={toggleMute}
                         aria-label={isMuted ? "Unmute workflow showcase" : "Mute workflow showcase"}
-                        className="absolute bottom-3 right-3 flex items-center justify-center w-8 h-8 hover:bg-neutral-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[#00f0ff]/50 rounded-lg"
+                        className="absolute bottom-3 right-3 flex items-center justify-center w-8 h-8 hover:bg-[var(--card)] brightness-95 transition-colors focus:outline-none focus:ring-2 focus:ring-[#00f0ff]/50 rounded-lg"
                         title={isMuted ? "Unmute" : "Mute"}
                       >
                         {isMuted ? (
-                          <VolumeX className="h-4 w-4 text-neutral-900" />
+                          <VolumeX className="h-4 w-4 text-brand-text" />
                         ) : (
-                          <Volume2 className="h-4 w-4 text-neutral-900" />
+                          <Volume2 className="h-4 w-4 text-brand-text" />
                         )}
                       </button>
                     </div>
@@ -159,7 +159,7 @@ export function HeroSection() {
                     <img
                       src={workflowShowcase[0].video_url}
                       alt="Workflow showcase"
-                      className="w-full h-auto rounded-xl border border-neutral-200 shadow-[0_0_40px_var(--brand-primary-soft)]"
+                      className="w-full h-auto rounded-xl border border-brand-border shadow-[0_0_40px_var(--brand-primary-soft)]"
                     />
                   )}
                   <div className="absolute -top-4 -right-4 w-20 h-20 bg-[var(--brand-primary)]/20 rounded-full blur-2xl" />

@@ -38,7 +38,7 @@ export function MarketplaceNavigation() {
               className="object-contain"
             />
           </div>
-          <span className="font-heading text-lg font-bold text-neutral-900">
+          <span className="font-heading text-lg font-bold text-brand-text">
             AutoLearn Spot
           </span>
         </Link>
@@ -48,7 +48,7 @@ export function MarketplaceNavigation() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors flex items-center gap-1.5"
+              className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors flex items-center gap-1.5"
             >
               {item.icon && <item.icon className="w-4 h-4" />}
               {item.name}
@@ -59,26 +59,26 @@ export function MarketplaceNavigation() {
         <div className="flex items-center gap-5">
           <Link
             href="/cart"
-            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors"
           >
             Cart
           </Link>
           <Link
             href="/student"
-            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors flex items-center gap-1.5"
+            className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors flex items-center gap-1.5"
           >
             <User className="w-4 h-4" />
             Student Portal
           </Link>
           <Link
             href="/author-auth"
-            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors"
           >
             Author Studio
           </Link>
           <Link
             href="/admin"
-            className="text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors"
           >
             Admin Portal
           </Link>
@@ -98,14 +98,14 @@ export function MarketplaceNavigation() {
                 className="object-contain"
               />
             </div>
-            <span className="font-heading text-base font-bold text-neutral-900">
+            <span className="font-heading text-base font-bold text-brand-text">
               AutoLearn Spot
             </span>
           </Link>
           
           <button
             onClick={() => setIsOpen(true)}
-            className="text-neutral-600 hover:text-neutral-900 transition-colors"
+            className="text-brand-text/70 hover:text-brand-text transition-colors"
             aria-label="Open menu"
           >
             <Menu className="w-6 h-6" />
@@ -120,16 +120,16 @@ export function MarketplaceNavigation() {
             className="fixed inset-0 z-40 bg-neutral-900/40 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          <div className="fixed inset-y-0 right-0 z-50 w-[80%] max-w-sm bg-gray-50 shadow-2xl transform transition-transform duration-300">
+          <div className="fixed inset-y-0 right-0 z-50 w-[80%] max-w-sm bg-brand-bg shadow-2xl transform transition-transform duration-300">
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-neutral-300/50">
-                <span className="font-heading text-lg font-bold text-neutral-900">
+              <div className="flex items-center justify-between p-4 border-b border-brand-border/50">
+                <span className="font-heading text-lg font-bold text-brand-text">
                   Menu
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-neutral-600 hover:text-neutral-900 transition-colors bg-gray-100/50 p-2 rounded-full"
+                  className="text-brand-text/70 hover:text-brand-text transition-colors bg-[var(--card)] brightness-95/50 p-2 rounded-full"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
@@ -143,27 +143,27 @@ export function MarketplaceNavigation() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-gray-100/50 rounded-xl transition-colors"
+                    className="block px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors"
                   >
                     {item.name}
                   </Link>
                 ))}
               </div>
 
-              <div className="border-t border-neutral-300/50" />
+              <div className="border-t border-brand-border/50" />
 
               {/* Auth & Portal Links */}
               <div className="p-4 space-y-1">
-                <Link href="/cart" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-gray-100/50 rounded-xl transition-colors">
+                <Link href="/cart" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors">
                   Cart
                 </Link>
-                <Link href="/student" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-gray-100/50 rounded-xl transition-colors">
+                <Link href="/student" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors">
                   Student Portal
                 </Link>
-                <Link href="/author-auth" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-gray-100/50 rounded-xl transition-colors">
+                <Link href="/author-auth" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors">
                   Author Studio
                 </Link>
-                <Link href="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-600 hover:text-neutral-900 hover:bg-gray-100/50 rounded-xl transition-colors">
+                <Link href="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors">
                   Admin Portal
                 </Link>
               </div>

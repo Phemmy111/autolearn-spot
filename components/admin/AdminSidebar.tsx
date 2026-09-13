@@ -212,15 +212,15 @@ export function AdminSidebar() {
         className={`group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
           isActive 
             ? 'bg-sky-50 text-sky-700' 
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+            : 'text-brand-text/70 hover:text-brand-text hover:bg-brand-bg'
         }`}
       >
         <div className="flex items-center gap-3">
-          <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-sky-600' : 'text-gray-400 group-hover:text-gray-600 transition-colors'}`} />
+          <Icon className={`h-4 w-4 flex-shrink-0 ${isActive ? 'text-sky-600' : 'text-gray-400 group-hover:text-brand-text/70 transition-colors'}`} />
           <span className="truncate">{item.label}</span>
         </div>
         {item.badge && (
-          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${isActive ? 'bg-sky-100 text-sky-700' : 'bg-gray-100 text-gray-600'}`}>
+          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${isActive ? 'bg-sky-100 text-sky-700' : 'bg-[var(--card)] brightness-95 text-brand-text/70'}`}>
             {item.badge}
           </span>
         )}
@@ -233,7 +233,7 @@ export function AdminSidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setMobileMenuOpen(true)}
-        className="lg:hidden fixed top-3 left-4 z-50 p-2 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 hover:text-gray-900 shadow-sm"
+        className="lg:hidden fixed top-3 left-4 z-50 p-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text/70 hover:text-brand-text shadow-sm"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -248,14 +248,14 @@ export function AdminSidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-gray-100 border-r border-gray-200 z-50 flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-[var(--card)] brightness-95 border-r border-brand-border z-50 flex flex-col transition-transform duration-300 ease-in-out ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Mobile Close Button */}
         <button
           onClick={() => setMobileMenuOpen(false)}
-          className="lg:hidden absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600"
+          className="lg:hidden absolute top-4 right-4 p-2 text-gray-400 hover:text-brand-text/70"
         >
           <X className="h-5 w-5" />
         </button>
@@ -264,7 +264,7 @@ export function AdminSidebar() {
         <div className="h-16 flex items-center px-6 border-b border-gray-100 flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2.5">
             <img src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" className="w-8 h-8 object-contain" />
-            <span className="text-lg font-bold text-gray-900 tracking-tight">AutoLearn Spot</span>
+            <span className="text-lg font-bold text-brand-text tracking-tight">AutoLearn Spot</span>
           </Link>
         </div>
 
@@ -274,7 +274,7 @@ export function AdminSidebar() {
             <div key={section.title} className="space-y-1">
               <button
                 onClick={() => toggleSection(section.title)}
-                className="flex items-center justify-between w-full px-2 py-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
+                className="flex items-center justify-between w-full px-2 py-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider hover:text-brand-text/70 transition-colors"
               >
                 {section.title}
                 {openSections[section.title] !== false ? (
@@ -294,14 +294,14 @@ export function AdminSidebar() {
         </div>
 
         {/* Footer / User Profile */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+        <div className="p-4 border-t border-gray-100 bg-brand-bg/50 flex-shrink-0">
           <div className="flex items-center gap-3 px-2 py-2">
             <div className="h-10 w-10 rounded-full bg-sky-100 flex items-center justify-center border border-sky-200 overflow-hidden flex-shrink-0">
               <span className="text-sm font-bold text-sky-700">AD</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">Admin User</p>
-              <p className="text-xs font-medium text-gray-500 truncate">Super Administrator</p>
+              <p className="text-sm font-bold text-brand-text truncate">Admin User</p>
+              <p className="text-xs font-medium text-brand-text/60 truncate">Super Administrator</p>
             </div>
             <button 
               onClick={() => signOut()}

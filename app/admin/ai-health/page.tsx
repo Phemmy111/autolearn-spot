@@ -85,31 +85,31 @@ export default function AIHealthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sm text-neutral-600">Loading AI health data...</p>
+          <p className="font-mono text-sm text-brand-text/70">Loading AI health data...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-neutral-600 hover:text-neutral-900">
+            <Link href="/admin" className="text-brand-text/70 hover:text-brand-text">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-neutral-900">AI Health Dashboard</h1>
-              <p className="font-mono text-sm text-neutral-600">Monitor AI provider performance and usage</p>
+              <h1 className="font-heading text-4xl font-bold text-brand-text">AI Health Dashboard</h1>
+              <p className="font-mono text-sm text-brand-text/70">Monitor AI provider performance and usage</p>
             </div>
           </div>
           <button
             onClick={fetchHealthData}
-            className="flex items-center gap-2 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 border border-[#3b494b] text-brand-text/70 font-mono text-sm px-4 py-2 rounded hover:bg-brand-bg transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             Refresh
@@ -125,45 +125,45 @@ export default function AIHealthPage() {
 
         {/* Active Provider Status */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <Bot className="h-6 w-6 text-[#10b981]" />
-              <h3 className="font-mono text-xs text-neutral-600 uppercase">Active Provider</h3>
+              <h3 className="font-mono text-xs text-brand-text/70 uppercase">Active Provider</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-neutral-900">
+            <p className="font-heading text-xl font-bold text-brand-text">
               {healthData?.activeProvider?.name || 'None configured'}
             </p>
-            <p className="font-mono text-xs text-neutral-500 mt-1">
+            <p className="font-mono text-xs text-brand-text/60 mt-1">
               {healthData?.activeProvider?.provider_type?.toUpperCase() || ''}
             </p>
           </div>
 
-          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <Zap className="h-6 w-6 text-[#10b981]" />
-              <h3 className="font-mono text-xs text-neutral-600 uppercase">Active Model</h3>
+              <h3 className="font-mono text-xs text-brand-text/70 uppercase">Active Model</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-neutral-900">
+            <p className="font-heading text-xl font-bold text-brand-text">
               {healthData?.activeModel || 'Not set'}
             </p>
           </div>
 
-          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <CheckCircle className="h-6 w-6 text-emerald-400" />
-              <h3 className="font-mono text-xs text-neutral-600 uppercase">Last Success</h3>
+              <h3 className="font-mono text-xs text-brand-text/70 uppercase">Last Success</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-neutral-900">
+            <p className="font-heading text-xl font-bold text-brand-text">
               {formatTime(healthData?.lastSuccessfulRequest || null)}
             </p>
           </div>
 
-          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <XCircle className="h-6 w-6 text-red-400" />
-              <h3 className="font-mono text-xs text-neutral-600 uppercase">Last Failure</h3>
+              <h3 className="font-mono text-xs text-brand-text/70 uppercase">Last Failure</h3>
             </div>
-            <p className="font-heading text-xl font-bold text-neutral-900">
+            <p className="font-heading text-xl font-bold text-brand-text">
               {formatTime(healthData?.lastFailedRequest || null)}
             </p>
           </div>
@@ -171,53 +171,53 @@ export default function AIHealthPage() {
 
         {/* Performance Metrics */}
         <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <Clock className="h-6 w-6 text-[#10b981]" />
-              <h3 className="font-mono text-xs text-neutral-600 uppercase">Avg Response Time</h3>
+              <h3 className="font-mono text-xs text-brand-text/70 uppercase">Avg Response Time</h3>
             </div>
-            <p className="font-heading text-3xl font-bold text-neutral-900">
+            <p className="font-heading text-3xl font-bold text-brand-text">
               {formatResponseTime(healthData?.averageResponseTime || 0)}
             </p>
           </div>
 
-          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <TrendingUp className="h-6 w-6 text-emerald-400" />
-              <h3 className="font-mono text-xs text-neutral-600 uppercase">Success Rate</h3>
+              <h3 className="font-mono text-xs text-brand-text/70 uppercase">Success Rate</h3>
             </div>
-            <p className="font-heading text-3xl font-bold text-neutral-900">
+            <p className="font-heading text-3xl font-bold text-brand-text">
               {healthData?.successRate || 0}%
             </p>
           </div>
 
-          <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
             <div className="flex items-center gap-3 mb-4">
               <Activity className="h-6 w-6 text-[#10b981]" />
-              <h3 className="font-mono text-xs text-neutral-600 uppercase">Requests Today</h3>
+              <h3 className="font-mono text-xs text-brand-text/70 uppercase">Requests Today</h3>
             </div>
-            <p className="font-heading text-3xl font-bold text-neutral-900">
+            <p className="font-heading text-3xl font-bold text-brand-text">
               {healthData?.totalRequestsToday || 0}
             </p>
           </div>
         </div>
 
         {/* Provider Status */}
-        <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl">
-          <h3 className="font-heading text-lg font-bold text-neutral-900 mb-4">Provider Status</h3>
+        <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
+          <h3 className="font-heading text-lg font-bold text-brand-text mb-4">Provider Status</h3>
           <div className="space-y-3">
             {healthData?.providerStatus?.map((provider) => (
               <div
                 key={provider.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-4 bg-brand-bg rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${
                     provider.isActive ? 'bg-emerald-400' : 'bg-red-400'
                   }`} />
                   <div>
-                    <p className="font-mono text-sm text-neutral-900">{provider.name}</p>
-                    <p className="font-mono text-xs text-neutral-500">{provider.type.toUpperCase()}</p>
+                    <p className="font-mono text-sm text-brand-text">{provider.name}</p>
+                    <p className="font-mono text-xs text-brand-text/60">{provider.type.toUpperCase()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -240,12 +240,12 @@ export default function AIHealthPage() {
         </div>
 
         {/* Token Usage */}
-        <div className="mt-8 border border-neutral-200 bg-gray-100 p-6 rounded-xl">
-          <h3 className="font-heading text-lg font-bold text-neutral-900 mb-4">Token Usage Today</h3>
-          <p className="font-heading text-3xl font-bold text-neutral-900">
+        <div className="mt-8 border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl">
+          <h3 className="font-heading text-lg font-bold text-brand-text mb-4">Token Usage Today</h3>
+          <p className="font-heading text-3xl font-bold text-brand-text">
             {healthData?.totalTokensToday?.toLocaleString() || 0}
           </p>
-          <p className="font-mono text-xs text-neutral-500 mt-1">Total tokens used</p>
+          <p className="font-mono text-xs text-brand-text/60 mt-1">Total tokens used</p>
         </div>
       </div>
     </div>

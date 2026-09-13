@@ -30,13 +30,13 @@ async function TestimonialsSection() {
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-brand-bg border-t border-neutral-300/50">
+    <section className="py-16 sm:py-24 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-text mb-4">
             What Our Students Say
           </h2>
-          <p className="text-sm sm:text-base text-neutral-600 mb-6">
+          <p className="text-sm sm:text-base text-brand-text/70 mb-6">
             Real experiences from AutoLearn Spot learners
           </p>
         </div>
@@ -62,13 +62,13 @@ async function TestimonialsSection() {
 
 function ContactSection() {
   return (
-    <section className="py-16 sm:py-24 bg-brand-bg border-t border-neutral-300/50">
+    <section className="py-16 sm:py-24 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-text mb-4">
             Get In Touch
           </h2>
-          <p className="text-sm sm:text-base text-neutral-600">
+          <p className="text-sm sm:text-base text-brand-text/70">
             Have questions? We'd love to hear from you.
           </p>
         </div>
@@ -78,35 +78,35 @@ function ContactSection() {
             href={socialLinks.whatsapp.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="border border-neutral-300/50 bg-brand-bg/80 rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300 text-center shadow-sm"
+            className="border border-brand-border/50 bg-brand-bg/80 rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300 text-center shadow-sm"
           >
             <div className="flex h-12 w-12 items-center justify-center border border-[#10b981]/60 bg-brand-bg/10 rounded-xl mx-auto mb-4">
               <MessageCircle className="h-6 w-6 text-brand-primary" />
             </div>
             <h3 className="text-lg font-semibold text-brand-text mb-2">WhatsApp</h3>
-            <p className="text-sm text-neutral-500">Chat with us directly</p>
+            <p className="text-sm text-brand-text/60">Chat with us directly</p>
           </a>
           
           <Link
             href="/contact"
-            className="border border-neutral-300/50 bg-brand-bg/80 rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300 text-center shadow-sm"
+            className="border border-brand-border/50 bg-brand-bg/80 rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300 text-center shadow-sm"
           >
             <div className="flex h-12 w-12 items-center justify-center border border-[#10b981]/60 bg-brand-bg/10 rounded-xl mx-auto mb-4">
               <Mail className="h-6 w-6 text-brand-primary" />
             </div>
             <h3 className="text-lg font-semibold text-brand-text mb-2">Email</h3>
-            <p className="text-sm text-neutral-500">Send us a message</p>
+            <p className="text-sm text-brand-text/60">Send us a message</p>
           </Link>
           
           <Link
             href="/partners"
-            className="border border-neutral-300/50 bg-brand-bg/80 rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300 text-center shadow-sm"
+            className="border border-brand-border/50 bg-brand-bg/80 rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300 text-center shadow-sm"
           >
             <div className="flex h-12 w-12 items-center justify-center border border-[#10b981]/60 bg-brand-bg/10 rounded-xl mx-auto mb-4">
               <Users className="h-6 w-6 text-brand-primary" />
             </div>
             <h3 className="text-lg font-semibold text-brand-text mb-2">Partners</h3>
-            <p className="text-sm text-neutral-500">Join our partner program</p>
+            <p className="text-sm text-brand-text/60">Join our partner program</p>
           </Link>
         </div>
       </div>

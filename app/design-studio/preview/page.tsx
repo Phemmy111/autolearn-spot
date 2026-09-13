@@ -39,7 +39,7 @@ export default function DesignStudioPreview() {
       <h1 className="text-2xl font-bold mb-4">Design Studio Preview</h1>
       <div style={style} className="p-6 border">
         <p>This box reflects the published design‑studio settings.</p>
-        <pre className="mt-4 bg-gray-100 p-2 rounded">
+        <pre className="mt-4 bg-[var(--card)] brightness-95 p-2 rounded">
           {JSON.stringify(config, null, 2)}
         </pre>
       </div>

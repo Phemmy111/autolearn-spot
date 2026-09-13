@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-[#e2e8e2]">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center text-[#e2e8e2]">
         <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     )
@@ -49,19 +49,19 @@ export default function SettingsPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-[#e2e8e2]">
-        <p className="text-neutral-500">Please sign in to access settings</p>
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center text-[#e2e8e2]">
+        <p className="text-brand-text/60">Please sign in to access settings</p>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 text-[#e2e8e2]">
+    <main className="min-h-screen bg-brand-bg text-[#e2e8e2]">
       {/* Header */}
-      <div className="border-b border-[#3b494b] bg-gray-50/95 backdrop-blur">
+      <div className="border-b border-[#3b494b] bg-brand-bg/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-neutral-500 hover:text-[#10b981] transition-colors">
+            <Link href="/dashboard" className="text-brand-text/60 hover:text-[#10b981] transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ export default function SettingsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-gray-50 border border-[#3b494b] rounded-2xl p-6 mb-6">
+        <div className="bg-brand-bg border border-[#3b494b] rounded-2xl p-6 mb-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Profile
           </h2>
@@ -95,8 +95,8 @@ export default function SettingsPage() {
             
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">{user?.firstName || 'Student'}</h3>
-              <p className="text-neutral-500 text-sm mb-4">{user?.emailAddresses?.[0]?.emailAddress || ''}</p>
-              <p className="text-xs text-neutral-500/60">
+              <p className="text-brand-text/60 text-sm mb-4">{user?.emailAddresses?.[0]?.emailAddress || ''}</p>
+              <p className="text-xs text-brand-text/60/60">
                 Update your profile picture to personalize your dashboard experience.
               </p>
             </div>
@@ -104,22 +104,22 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-gray-50 border border-[#3b494b] rounded-2xl p-6">
+        <div className="bg-brand-bg border border-[#3b494b] rounded-2xl p-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Account Information
           </h2>
           
           <div className="space-y-4">
             <div className="flex justify-between items-center py-3 border-b border-[#3b494b]">
-              <span className="text-neutral-500">Email</span>
+              <span className="text-brand-text/60">Email</span>
               <span className="text-[#e2e8e2]">{user?.emailAddresses?.[0]?.emailAddress || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3 border-b border-[#3b494b]">
-              <span className="text-neutral-500">Name</span>
+              <span className="text-brand-text/60">Name</span>
               <span className="text-[#e2e8e2]">{user?.firstName || 'Student'} {user?.lastName || ''}</span>
             </div>
             <div className="flex justify-between items-center py-3">
-              <span className="text-neutral-500">Username</span>
+              <span className="text-brand-text/60">Username</span>
               <span className="text-[#e2e8e2]">{user?.username || 'Not set'}</span>
             </div>
           </div>

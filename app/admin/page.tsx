@@ -21,12 +21,12 @@ export default async function AdminPage() {
     <div className="p-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-neutral-900 mb-2">Dashboard</h1>
-          <p className="font-mono text-sm text-neutral-600">Overview of AutoLearn Spot platform metrics and activity</p>
+          <h1 className="font-heading text-3xl font-bold text-brand-text mb-2">Dashboard</h1>
+          <p className="font-mono text-sm text-brand-text/70">Overview of AutoLearn Spot platform metrics and activity</p>
         </div>
         <Link
           href="/"
-          className="flex items-center gap-2 bg-gray-100 border border-neutral-200 text-neutral-700 px-4 py-2 rounded-lg hover:bg-neutral-50 transition-colors shadow-sm font-medium text-sm"
+          className="flex items-center gap-2 bg-[var(--card)] brightness-95 border border-brand-border text-neutral-700 px-4 py-2 rounded-lg hover:bg-brand-bg transition-colors shadow-sm font-medium text-sm"
         >
           Back to Home
         </Link>
@@ -41,33 +41,33 @@ export default async function AdminPage() {
           </div>
         )}
 
-        <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl shadow-sm">
-          <h2 className="font-heading text-xl font-bold text-neutral-900 mb-4">Quick Actions</h2>
+        <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl shadow-sm">
+          <h2 className="font-heading text-xl font-bold text-brand-text mb-4">Quick Actions</h2>
           <div className="flex flex-wrap gap-4">
             <Link
               href="/admin/quizzes/new"
-              className="flex items-center gap-2 bg-gray-50 text-neutral-900 font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-50 transition-colors text-sm shadow-sm"
+              className="flex items-center gap-2 bg-brand-bg text-brand-text font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-brand-bg transition-colors text-sm shadow-sm"
             >
               <Plus className="h-4 w-4" />
               New Quiz
             </Link>
             <Link 
               href="/admin/quizzes"
-              className="flex items-center gap-2 border border-neutral-200 bg-neutral-50 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors rounded"
+              className="flex items-center gap-2 border border-brand-border bg-brand-bg px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-brand-text/70 hover:bg-[var(--card)] brightness-95 hover:text-brand-text transition-colors rounded"
             >
               <BookOpen className="h-4 w-4" />
               Quizzes
             </Link>
             <Link 
               href="/admin/leaderboard"
-              className="flex items-center gap-2 border border-neutral-200 bg-neutral-50 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors rounded"
+              className="flex items-center gap-2 border border-brand-border bg-brand-bg px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-brand-text/70 hover:bg-[var(--card)] brightness-95 hover:text-brand-text transition-colors rounded"
             >
               <Trophy className="h-4 w-4" />
               Leaderboard
             </Link>
             <Link 
               href="/admin/analytics"
-              className="flex items-center gap-2 border border-neutral-200 bg-neutral-50 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 transition-colors rounded"
+              className="flex items-center gap-2 border border-brand-border bg-brand-bg px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-brand-text/70 hover:bg-[var(--card)] brightness-95 hover:text-brand-text transition-colors rounded"
             >
               <BarChart3 className="h-4 w-4" />
               Analytics
@@ -77,7 +77,7 @@ export default async function AdminPage() {
             {isSuper && (
               <Link 
                 href="/admin/enrollments/manual"
-                className="flex items-center gap-2 border border-[#10b981]/30 bg-gray-50/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#10b981] hover:bg-gray-50/20 transition-colors rounded"
+                className="flex items-center gap-2 border border-[#10b981]/30 bg-brand-bg/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#10b981] hover:bg-brand-bg/20 transition-colors rounded"
               >
                 <Users className="h-4 w-4" />
                 Manual Enrollment
@@ -86,7 +86,7 @@ export default async function AdminPage() {
             {isSuper && (
               <Link
                 href="/admin/video-debug"
-                className="flex items-center gap-2 border border-[#10b981]/30 bg-gray-50/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#10b981] hover:bg-gray-50/20 transition-colors rounded"
+                className="flex items-center gap-2 border border-[#10b981]/30 bg-brand-bg/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#10b981] hover:bg-brand-bg/20 transition-colors rounded"
               >
                 <Activity className="h-4 w-4" />
                 Video Debug
@@ -94,7 +94,7 @@ export default async function AdminPage() {
             )}
             <Link
               href="/admin/alex-provider"
-              className="flex items-center gap-2 border border-[#10b981]/30 bg-gray-50/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#10b981] hover:bg-gray-50/20 transition-colors rounded"
+              className="flex items-center gap-2 border border-[#10b981]/30 bg-brand-bg/10 px-6 py-2 font-mono text-xs font-bold uppercase tracking-wider text-[#10b981] hover:bg-brand-bg/20 transition-colors rounded"
             >
               <Bot className="h-4 w-4" />
               ALEX Provider

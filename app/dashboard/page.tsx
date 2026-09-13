@@ -48,10 +48,10 @@ export default function DashboardPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-neutral-900 mb-2 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-heading font-extrabold text-brand-text mb-2 tracking-tight">
             My Learning
           </h1>
-          <p className="text-lg text-neutral-500">
+          <p className="text-lg text-brand-text/60">
             Pick up right where you left off.
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
       {/* Continue Learning Card */}
       {nextLesson && (
-        <div className="relative overflow-hidden bg-white border border-neutral-200/60 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8">
+        <div className="relative overflow-hidden bg-[var(--card)] border border-brand-border/60 rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 sm:p-8">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#10b981]/10 rounded-full blur-[80px] -mr-16 -mt-16 pointer-events-none" />
           
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -69,7 +69,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex flex-col justify-center h-16">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-1">Continue Learning</h3>
-                <p className="text-xl font-bold text-neutral-900 line-clamp-1">{nextLesson.title}</p>
+                <p className="text-xl font-bold text-brand-text line-clamp-1">{nextLesson.title}</p>
               </div>
             </div>
             
@@ -90,10 +90,10 @@ export default function DashboardPage() {
       {/* Course Videos */}
       <div className="space-y-12 pt-4">
         <div>
-          <h2 className="text-2xl font-heading font-bold text-neutral-900 mb-2 tracking-tight">
+          <h2 className="text-2xl font-heading font-bold text-brand-text mb-2 tracking-tight">
             Your Curriculum
           </h2>
-          <p className="text-neutral-500 max-w-2xl">
+          <p className="text-brand-text/60 max-w-2xl">
             Videos are released every Monday, Wednesday, and Friday. Complete each session to stay on track.
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function DashboardPage() {
         {weeks.map((week) => (
           <section key={week} className="scroll-mt-8">
             <div className="flex items-center gap-4 mb-6">
-              <h2 className="font-heading font-bold text-xl text-neutral-900">
+              <h2 className="font-heading font-bold text-xl text-brand-text">
                 Week {week}
               </h2>
               <div className="h-px bg-neutral-200 flex-1" />
@@ -115,7 +115,7 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={video.id}
-                      className={`group relative flex flex-col overflow-hidden rounded-[20px] bg-white border border-neutral-200/60 ${
+                      className={`group relative flex flex-col overflow-hidden rounded-[20px] bg-[var(--card)] border border-brand-border/60 ${
                         available
                           ? 'hover:border-[#10b981]/40 hover:shadow-[0_12px_40px_-10px_rgba(0,0,0,0.08)] hover:-translate-y-1'
                           : 'opacity-75 grayscale-[0.5]'
@@ -126,18 +126,18 @@ export default function DashboardPage() {
                       
                       <a 
                         href={available ? `/dashboard/video/${video.id}` : '#'} 
-                        className={`block aspect-video w-full relative overflow-hidden bg-slate-50 border-b border-neutral-100 ${!available && 'cursor-not-allowed'}`}
+                        className={`block aspect-video w-full relative overflow-hidden bg-brand-bg border-b border-neutral-100 ${!available && 'cursor-not-allowed'}`}
                       >
                         {/* Placeholder graphic (subtle pattern) */}
                         <div className="absolute inset-0 opacity-[0.03] mix-blend-multiply bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMGMxLjEgMCAyLS45IDItMnMtLjktMi0yLTItMiAuOS0yIDIgLjkgMiAyIDJ6IiBmaWxsPSIjMDAwIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=')]" />
                         
                         <div className="absolute inset-0 flex items-center justify-center z-10">
                           {available ? (
-                            <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-md shadow-lg flex items-center justify-center text-[#10b981] opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                            <div className="w-12 h-12 rounded-full bg-[var(--card)]/90 backdrop-blur-md shadow-lg flex items-center justify-center text-[#10b981] opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
                               <Play className="h-5 w-5 ml-1 fill-current" />
                             </div>
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-neutral-100/80 backdrop-blur-sm border border-neutral-200/50 flex items-center justify-center text-neutral-400">
+                            <div className="w-12 h-12 rounded-full bg-[var(--card)] brightness-95/80 backdrop-blur-sm border border-brand-border/50 flex items-center justify-center text-neutral-400">
                               <Lock className="h-5 w-5" />
                             </div>
                           )}
@@ -151,12 +151,12 @@ export default function DashboardPage() {
 
                       <div className="flex flex-1 flex-col p-5">
                         <a href={available ? `/dashboard/video/${video.id}` : '#'} className={!available ? 'cursor-not-allowed pointer-events-none' : ''}>
-                          <h3 className={`font-heading font-bold text-lg leading-tight mb-2 group-hover:text-[#10b981] transition-colors ${available ? 'text-neutral-900' : 'text-neutral-600'}`}>
+                          <h3 className={`font-heading font-bold text-lg leading-tight mb-2 group-hover:text-[#10b981] transition-colors ${available ? 'text-brand-text' : 'text-brand-text/70'}`}>
                             {video.title}
                           </h3>
                         </a>
                         
-                        <p className="text-sm text-neutral-500 line-clamp-2 mb-5 leading-relaxed flex-1">
+                        <p className="text-sm text-brand-text/60 line-clamp-2 mb-5 leading-relaxed flex-1">
                           {video.description}
                         </p>
                         
@@ -164,14 +164,14 @@ export default function DashboardPage() {
                           <div className="mt-auto flex items-center justify-between gap-3">
                             <a
                               href={`/dashboard/video/${video.id}`}
-                              className="flex-1 inline-flex items-center justify-center bg-white border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-700 rounded-xl hover:bg-neutral-50 hover:border-neutral-300 transition-all shadow-sm"
+                              className="flex-1 inline-flex items-center justify-center bg-[var(--card)] border border-brand-border px-4 py-2 text-sm font-semibold text-neutral-700 rounded-xl hover:bg-brand-bg hover:border-brand-border transition-all shadow-sm"
                             >
                               Watch
                             </a>
                             <MarkCompleteButton videoId={video.id} />
                           </div>
                         ) : (
-                          <div className="mt-auto flex items-center justify-center gap-2 border border-neutral-200/60 bg-neutral-50 px-4 py-2.5 text-xs font-medium text-neutral-500 rounded-xl">
+                          <div className="mt-auto flex items-center justify-center gap-2 border border-brand-border/60 bg-brand-bg px-4 py-2.5 text-xs font-medium text-brand-text/60 rounded-xl">
                             <Calendar className="h-3.5 w-3.5 opacity-70" /> Unlocks {formatAvailableDate(video.availableAt)}
                           </div>
                         )}

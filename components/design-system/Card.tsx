@@ -25,9 +25,9 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          'bg-gray-100 border border-neutral-200 rounded-lg',
+          'bg-[var(--card)] brightness-95 border border-brand-border rounded-lg',
           variant === 'elevated' && 'shadow-sm',
-          variant === 'interactive' && 'cursor-pointer transition-all duration-200 hover:shadow-md hover:border-neutral-300',
+          variant === 'interactive' && 'cursor-pointer transition-all duration-200 hover:shadow-md hover:border-brand-border',
           paddingStyles[padding],
           className
         )}
@@ -67,7 +67,7 @@ const CardDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLPara
   ({ className, ...props }, ref) => (
     <p
       ref={ref}
-      className={cn('text-sm text-neutral-600', className)}
+      className={cn('text-sm text-brand-text/70', className)}
       {...props}
     />
   )

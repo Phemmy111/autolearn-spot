@@ -30,7 +30,7 @@ export function MarketplaceHero() {
               <span className="inline-block animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 fill-mode-both text-brand-primary">Grow.</span>
             </h1>
             
-            <p className="text-lg md:text-xl text-neutral-600 mb-10 max-w-xl leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500 fill-mode-both">
+            <p className="text-lg md:text-xl text-brand-text/70 mb-10 max-w-xl leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500 fill-mode-both">
               Elevate your career with premium courses, curated digital products, and communities led by industry experts.
             </p>
 
@@ -54,7 +54,7 @@ export function MarketplaceHero() {
             <div className="flex items-center gap-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-900 fill-mode-both">
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-neutral-100 overflow-hidden relative">
+                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-[var(--card)] brightness-95 overflow-hidden relative">
                     <Image 
                       src={`https://i.pravatar.cc/100?img=${i + 10}`} 
                       alt="Student" 
@@ -63,13 +63,13 @@ export function MarketplaceHero() {
                     />
                   </div>
                 ))}
-                <div className="w-10 h-10 rounded-full border-2 border-[#e5e9ed] bg-neutral-200 text-neutral-600 text-xs font-bold flex items-center justify-center relative z-10">
+                <div className="w-10 h-10 rounded-full border-2 border-[#e5e9ed] bg-neutral-200 text-brand-text/70 text-xs font-bold flex items-center justify-center relative z-10">
                   +
                 </div>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-brand-text">Join 50,000+ learners</span>
-                <span className="text-xs font-medium text-neutral-500">Building better futures together</span>
+                <span className="text-xs font-medium text-brand-text/60">Building better futures together</span>
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@ export function MarketplaceHero() {
           {/* Right Column: Visuals */}
           <div className="relative h-[500px] lg:h-[650px] w-full hidden md:block animate-in fade-in zoom-in-95 duration-1000 delay-300 fill-mode-both">
             {/* Main Image Mask/Container */}
-            <div className="absolute right-0 bottom-0 w-[90%] h-[95%] bg-neutral-100 rounded-[32px] overflow-hidden shadow-2xl">
+            <div className="absolute right-0 bottom-0 w-[90%] h-[95%] bg-[var(--card)] brightness-95 rounded-[32px] overflow-hidden shadow-2xl">
                <Image
                  src="https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069&auto=format&fit=crop"
                  alt="Student learning"
@@ -94,7 +94,7 @@ export function MarketplaceHero() {
               </div>
               <div>
                 <p className="text-sm font-bold text-brand-text leading-tight">AI Automation</p>
-                <p className="text-xs text-neutral-500 font-medium">Beginner • 4.8 ★</p>
+                <p className="text-xs text-brand-text/60 font-medium">Beginner • 4.8 ★</p>
               </div>
             </div>
 
@@ -105,18 +105,18 @@ export function MarketplaceHero() {
               </div>
               <div>
                 <p className="text-sm font-bold text-brand-text leading-tight">Web Development</p>
-                <p className="text-xs text-neutral-500 font-medium">Intermediate • 4.9 ★</p>
+                <p className="text-xs text-brand-text/60 font-medium">Intermediate • 4.9 ★</p>
               </div>
             </div>
 
             {/* Floating Card 3: Digital Marketing */}
             <div className="absolute bottom-[25%] -left-8 bg-brand-bg/80 backdrop-blur-lg p-3 pr-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default z-20">
-              <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center shadow-inner">
+              <div className="w-12 h-12 bg-brand-primary rounded-xl flex items-center justify-center shadow-inner">
                 <Megaphone className="w-5 h-5 text-brand-text" />
               </div>
               <div>
                 <p className="text-sm font-bold text-brand-text leading-tight">Digital Marketing</p>
-                <p className="text-xs text-neutral-500 font-medium">Beginner • 4.7 ★</p>
+                <p className="text-xs text-brand-text/60 font-medium">Beginner • 4.7 ★</p>
               </div>
             </div>
 
@@ -124,16 +124,16 @@ export function MarketplaceHero() {
             <div className="absolute bottom-[10%] -right-8 bg-brand-bg/80 backdrop-blur-lg p-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white w-48 hover:-translate-y-1 transition-transform cursor-default z-20">
               <div className="flex justify-between items-end mb-2">
                 <span className="text-sm font-bold text-brand-text">Your Progress</span>
-                <span className="text-xs font-bold text-neutral-500">68%</span>
+                <span className="text-xs font-bold text-brand-text/60">68%</span>
               </div>
-              <div className="w-full bg-neutral-100 rounded-full h-2">
+              <div className="w-full bg-[var(--card)] brightness-95 rounded-full h-2">
                 <div className="bg-brand-bg h-2 rounded-full" style={{ width: '68%' }}></div>
               </div>
             </div>
 
             {/* Hand-drawn text element */}
             <div className="absolute top-[15%] right-[5%] -rotate-6 z-20 hidden lg:block">
-              <p className="font-serif italic text-xl text-neutral-600">
+              <p className="font-serif italic text-xl text-brand-text/70">
                 Better Skills<br/>Bigger Opportunities
               </p>
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="absolute -bottom-6 -right-2 text-neutral-400 -rotate-45" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

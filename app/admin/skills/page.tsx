@@ -37,19 +37,19 @@ export default function AdminskillsPage() {
   }
 
   return (
-    <div className="min-h-screen p-8 text-gray-900 bg-gray-50">
+    <div className="min-h-screen p-8 text-brand-text bg-brand-bg">
       <h1 className="text-3xl font-extrabold mb-6 capitalize">skills</h1>
-      <div className="bg-gray-100 rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div className="bg-[var(--card)] brightness-95 rounded-2xl p-6 shadow-sm border border-gray-100">
         {data.length > 0 ? (
           <ul className="space-y-3">
             {data.map((item, idx) => (
-              <li key={item.id || idx} className="p-4 border rounded-lg bg-gray-50">
+              <li key={item.id || idx} className="p-4 border rounded-lg bg-brand-bg">
                 {JSON.stringify(item)}
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-500">No data found.</p>
+          <p className="text-brand-text/60">No data found.</p>
         )}
       </div>
     </div>

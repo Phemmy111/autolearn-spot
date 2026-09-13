@@ -116,10 +116,10 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
               <p className="text-xs text-slate-400 mt-1">{question.reason}</p>
             )}
             {question.header && (
-              <p className="text-xs text-slate-500 mt-1">{question.header}</p>
+              <p className="text-xs text-brand-text/60 mt-1">{question.header}</p>
             )}
             {question.field && (
-              <p className="text-xs text-slate-500 mt-1">Context: {question.field}</p>
+              <p className="text-xs text-brand-text/60 mt-1">Context: {question.field}</p>
             )}
           </div>
         </div>
@@ -147,7 +147,7 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
                 `}
               >
                 {isRecommended && (
-                  <div className="absolute -top-2 -right-2 bg-cyan-500 text-neutral-900 text-xs px-2 py-0.5 rounded-full font-medium">
+                  <div className="absolute -top-2 -right-2 bg-cyan-500 text-brand-text text-xs px-2 py-0.5 rounded-full font-medium">
                     Recommended
                   </div>
                 )}
@@ -175,8 +175,8 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
               disabled={disabled || selectedValues.length === 0}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 disabled || selectedValues.length === 0
-                  ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                  : 'bg-cyan-500 hover:bg-cyan-600 text-neutral-900'
+                  ? 'bg-slate-700 text-brand-text/60 cursor-not-allowed'
+                  : 'bg-cyan-500 hover:bg-cyan-600 text-brand-text'
               }`}
             >
               Submit Selection
@@ -199,10 +199,10 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
               <p className="text-xs text-slate-400 mt-1">{question.reason}</p>
             )}
             {question.header && (
-              <p className="text-xs text-slate-500 mt-1">{question.header}</p>
+              <p className="text-xs text-brand-text/60 mt-1">{question.header}</p>
             )}
             {question.field && (
-              <p className="text-xs text-slate-500 mt-1">Context: {question.field}</p>
+              <p className="text-xs text-brand-text/60 mt-1">Context: {question.field}</p>
             )}
           </div>
         </div>
@@ -274,10 +274,10 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
             <p className="text-xs text-slate-400 mt-1">{question.reason}</p>
           )}
           {question.header && (
-            <p className="text-xs text-slate-500 mt-1">{question.header}</p>
+            <p className="text-xs text-brand-text/60 mt-1">{question.header}</p>
           )}
           {question.field && (
-            <p className="text-xs text-slate-500 mt-1">Context: {question.field}</p>
+            <p className="text-xs text-brand-text/60 mt-1">Context: {question.field}</p>
           )}
         </div>
       </div>

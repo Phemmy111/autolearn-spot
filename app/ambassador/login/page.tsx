@@ -41,20 +41,20 @@ export default function AmbassadorLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-neutral-900">
+    <div className="min-h-screen bg-brand-bg text-brand-text">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">
         <div className="w-full max-w-md">
-          <Link href="/ambassador" className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-900 mb-8 transition-colors">
+          <Link href="/ambassador" className="inline-flex items-center gap-2 text-brand-text/60 hover:text-brand-text mb-8 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
           </Link>
           
-          <div className="bg-gray-100/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gray-50/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="bg-[var(--card)] brightness-95/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-bg/10 blur-3xl rounded-full pointer-events-none" />
             
             <h1 className="text-2xl font-bold mb-2">Ambassador Login</h1>
-            <p className="text-neutral-500 mb-8 text-sm">Welcome back. Enter your credentials to access your dashboard.</p>
+            <p className="text-brand-text/60 mb-8 text-sm">Welcome back. Enter your credentials to access your dashboard.</p>
             
             {error && (
               <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 mb-6 text-sm">
@@ -64,27 +64,27 @@ export default function AmbassadorLoginPage() {
             
             <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-neutral-500">Email Address</label>
+                <label className="text-sm font-medium text-brand-text/60">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500" />
-                  <input required type="email" name="email" className="w-full bg-neutral-100 border border-neutral-300 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="you@example.com" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-text/60" />
+                  <input required type="email" name="email" className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="you@example.com" />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium text-neutral-500">Password</label>
+                  <label className="text-sm font-medium text-brand-text/60">Password</label>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500" />
-                  <input required type="password" name="password" className="w-full bg-neutral-100 border border-neutral-300 rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="••••••••" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-text/60" />
+                  <input required type="password" name="password" className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#10b981] transition-colors" placeholder="••••••••" />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-4 py-3 rounded-xl bg-gray-50 text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full mt-4 py-3 rounded-xl bg-brand-bg text-black font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isSubmitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Authenticating...</> : "Sign In"}
               </button>

@@ -17,9 +17,9 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
   }).format(product.price);
 
   return (
-    <div className="group flex flex-col bg-white border border-neutral-200/60 rounded-2xl overflow-hidden hover:border-[#10b981]/40 transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1">
+    <div className="group flex flex-col bg-[var(--card)] border border-brand-border/60 rounded-2xl overflow-hidden hover:border-[#10b981]/40 transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1">
       {/* Thumbnail Container */}
-      <Link href={`/learning_products/${product.id}`} className="relative aspect-[4/3] block overflow-hidden bg-neutral-100">
+      <Link href={`/learning_products/${product.id}`} className="relative aspect-[4/3] block overflow-hidden bg-[var(--card)] brightness-95">
         {product.thumbnail_url ? (
           <Image
             src={product.thumbnail_url}
@@ -28,13 +28,13 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
             className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-neutral-400 font-medium text-sm tracking-widest bg-neutral-100">
+          <div className="absolute inset-0 flex items-center justify-center text-neutral-400 font-medium text-sm tracking-widest bg-[var(--card)] brightness-95">
             <BookOpen className="w-8 h-8 opacity-20" />
           </div>
         )}
         
         {/* Category Pill */}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-neutral-900 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm border border-neutral-300/50">
+        <div className="absolute top-3 left-3 bg-[var(--card)]/95 backdrop-blur-md text-brand-text text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm border border-brand-border/50">
           {product.product_type || 'Course'}
         </div>
         
@@ -44,10 +44,10 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
 
       {/* Content Area */}
       <div className="flex flex-col flex-1 p-5">
-        <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium mb-2.5">
+        <div className="flex items-center gap-1.5 text-xs text-brand-text/60 font-medium mb-2.5">
           <div className="flex items-center text-amber-400">
             <Star className="w-3.5 h-3.5 fill-current" />
-            <span className="ml-1 text-neutral-900">4.8</span>
+            <span className="ml-1 text-brand-text">4.8</span>
           </div>
           <span className="opacity-50">•</span>
           <span className="flex items-center gap-1">
@@ -57,20 +57,20 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
         </div>
 
         <Link href={`/learning_products/${product.id}`} className="block mb-2.5 group/title">
-          <h3 className="font-heading font-bold text-lg text-neutral-900 line-clamp-2 leading-[1.3] group-hover/title:text-[#10b981] transition-colors">
+          <h3 className="font-heading font-bold text-lg text-brand-text line-clamp-2 leading-[1.3] group-hover/title:text-[#10b981] transition-colors">
             {product.title}
           </h3>
         </Link>
         
         {product.description && (
-          <p className="text-sm text-neutral-600 line-clamp-2 mb-4 flex-1 leading-relaxed">
+          <p className="text-sm text-brand-text/70 line-clamp-2 mb-4 flex-1 leading-relaxed">
             {product.description}
           </p>
         )}
 
-        <div className="mt-auto pt-4 border-t border-neutral-200">
+        <div className="mt-auto pt-4 border-t border-brand-border">
           <div className="flex items-center justify-between mb-4">
-            <div className="font-bold text-xl text-neutral-900 tracking-tight">
+            <div className="font-bold text-xl text-brand-text tracking-tight">
               {formattedPrice}
             </div>
           </div>

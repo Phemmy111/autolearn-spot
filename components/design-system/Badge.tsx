@@ -15,7 +15,7 @@ const Badge = forwardRef<HTMLDivElement, BadgeProps>(
     ...props 
   }, ref) => {
     const variants = {
-      default: 'bg-neutral-100 text-neutral-800',
+      default: 'bg-[var(--card)] brightness-95 text-brand-text',
       primary: 'bg-sky-100 text-sky-800',
       secondary: 'bg-purple-100 text-purple-800',
       success: 'bg-emerald-100 text-emerald-800',

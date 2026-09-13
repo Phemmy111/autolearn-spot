@@ -19,20 +19,20 @@ export default async function AdminPartnershipSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin Dashboard
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4 flex items-center gap-3">
+          <h1 className="font-heading text-4xl font-bold text-brand-text mb-4 flex items-center gap-3">
             <Users className="h-8 w-8 text-[#10b981]" /> Partnership Settings
           </h1>
-          <p className="font-mono text-sm text-neutral-600 max-w-2xl">
+          <p className="font-mono text-sm text-brand-text/70 max-w-2xl">
             Configure partnership programme settings including minimum withdrawal thresholds.
           </p>
         </div>

@@ -66,24 +66,24 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--card)]">
         <div className="container mx-auto px-4 py-12">
-          <div className="text-center text-neutral-500 py-12">Loading responses...</div>
+          <div className="text-center text-brand-text/60 py-12">Loading responses...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--card)]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Link href={`/author/quizzes/${quizId}`} className="text-neutral-600 hover:text-neutral-900">
+          <Link href={`/author/quizzes/${quizId}`} className="text-brand-text/70 hover:text-brand-text">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-neutral-900">Student Responses</h1>
-            <p className="text-sm text-neutral-600 mt-1">Review quiz submissions and scores</p>
+            <h1 className="text-3xl font-bold text-brand-text">Student Responses</h1>
+            <p className="text-sm text-brand-text/70 mt-1">Review quiz submissions and scores</p>
           </div>
         </div>
 
@@ -94,13 +94,13 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
         )}
 
         {responses.length === 0 ? (
-          <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-12 text-center">
             <div className="flex flex-col items-center gap-4">
-              <div className="p-4 bg-neutral-100 rounded-full">
+              <div className="p-4 bg-[var(--card)] brightness-95 rounded-full">
                 <User className="h-8 w-8 text-neutral-400" />
               </div>
-              <h3 className="text-lg font-semibold text-neutral-900">No responses yet</h3>
-              <p className="text-neutral-500">Students haven't submitted this quiz yet</p>
+              <h3 className="text-lg font-semibold text-brand-text">No responses yet</h3>
+              <p className="text-brand-text/60">Students haven't submitted this quiz yet</p>
             </div>
           </div>
         ) : (
@@ -108,7 +108,7 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
             {responses.map((response) => (
               <div
                 key={response.id}
-                className="border border-neutral-200 bg-neutral-50 p-6 rounded-xl hover:shadow-md transition-shadow"
+                className="border border-brand-border bg-brand-bg p-6 rounded-xl hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -117,10 +117,10 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
                         <User className="h-5 w-5 text-sky-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-neutral-900">
+                        <h3 className="font-semibold text-brand-text">
                           {response.user.first_name} {response.user.last_name}
                         </h3>
-                        <p className="text-sm text-neutral-600">
+                        <p className="text-sm text-brand-text/70">
                           {response.user.email_addresses?.[0]?.email_address}
                         </p>
                       </div>
@@ -129,25 +129,25 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
                   <div className="text-right">
                     <div className="flex items-center gap-2 justify-end mb-1">
                       {response.score >= response.quiz.passing_score ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <CheckCircle2 className="h-5 w-5 text-brand-primary" />
                       ) : (
                         <XCircle className="h-5 w-5 text-red-600" />
                       )}
                       <span className={`text-2xl font-bold ${
                         response.score >= response.quiz.passing_score
-                          ? 'text-green-600'
+                          ? 'text-brand-primary'
                           : 'text-red-600'
                       }`}>
                         {response.score}%
                       </span>
                     </div>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-brand-text/60">
                       Pass: {response.quiz.passing_score}%
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-neutral-600">
+                <div className="flex items-center gap-2 text-sm text-brand-text/70">
                   <Clock className="h-4 w-4" />
                   <span>
                     Submitted: {new Date(response.submitted_at).toLocaleString()}

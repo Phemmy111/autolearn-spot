@@ -77,47 +77,47 @@ export default function AdminPricingSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin Dashboard
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4 flex items-center gap-3">
+          <h1 className="font-heading text-4xl font-bold text-brand-text mb-4 flex items-center gap-3">
             <Settings className="h-8 w-8 text-[#10b981]" />
             Pricing Settings
           </h1>
-          <p className="font-mono text-sm text-neutral-600 max-w-2xl">
+          <p className="font-mono text-sm text-brand-text/70 max-w-2xl">
             Manage the Direct Enrollment course fee. Changes apply to new enrollments only.
           </p>
         </div>
 
         <div className="max-w-2xl">
-          <div className="border border-neutral-200 bg-gray-100 p-8 rounded-xl">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95 p-8 rounded-xl">
             <div className="flex items-center gap-3 mb-6">
               <DollarSign className="h-6 w-6 text-[#10b981]" />
-              <h2 className="font-heading text-2xl font-bold text-neutral-900">Direct Enrollment Fee</h2>
+              <h2 className="font-heading text-2xl font-bold text-brand-text">Direct Enrollment Fee</h2>
             </div>
 
-            <div className="mb-6 p-4 bg-gray-50 border border-neutral-200 rounded-lg">
-              <p className="text-sm text-neutral-600 mb-1">Current Price</p>
+            <div className="mb-6 p-4 bg-brand-bg border border-brand-border rounded-lg">
+              <p className="text-sm text-brand-text/70 mb-1">Current Price</p>
               <p className="text-3xl font-bold text-[#10b981]">₦{fee.toLocaleString()}</p>
             </div>
 
             <form onSubmit={handleSave} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">
                   New Price (₦)
                 </label>
                 <input
@@ -126,10 +126,10 @@ export default function AdminPricingSettingsPage() {
                   onChange={(e) => setNewFee(e.target.value)}
                   min="1"
                   max="1000000"
-                  className="w-full bg-gray-50 border border-neutral-200 p-4 text-neutral-900 text-lg focus:border-[#10b981] focus:outline-none transition-colors rounded-lg"
+                  className="w-full bg-brand-bg border border-brand-border p-4 text-brand-text text-lg focus:border-[#10b981] focus:outline-none transition-colors rounded-lg"
                   placeholder="Enter new price"
                 />
-                <p className="text-xs text-neutral-500 mt-2">
+                <p className="text-xs text-brand-text/60 mt-2">
                   This change will only apply to new enrollments. Existing pending enrollments will remain at their original price.
                 </p>
               </div>
@@ -151,16 +151,16 @@ export default function AdminPricingSettingsPage() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full flex items-center justify-center gap-2 bg-gray-50 text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50 rounded-lg"
+                className="w-full flex items-center justify-center gap-2 bg-brand-bg text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50 rounded-lg"
               >
                 {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save New Price'}
               </button>
             </form>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-50/50 border border-neutral-200 rounded-lg">
+          <div className="mt-6 p-4 bg-brand-bg/50 border border-brand-border rounded-lg">
             <h3 className="font-semibold text-[#e2e2e8] mb-2">Important Notes</h3>
-            <ul className="text-sm text-neutral-600 space-y-1">
+            <ul className="text-sm text-brand-text/70 space-y-1">
               <li>• Changes apply only to new enrollments</li>
               <li>• Existing pending enrollments keep their original price</li>
               <li>• Scholarship payments (₦5,000) are not affected</li>

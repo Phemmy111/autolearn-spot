@@ -115,25 +115,25 @@ export default function AdminFAQsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
+      <div className="border-b border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/content" className="text-neutral-600 hover:text-neutral-900 transition-colors">
+              <Link href="/admin/content" className="text-brand-text/70 hover:text-brand-text transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-neutral-900">FAQs</h1>
-                <p className="text-sm text-neutral-600">Manage frequently asked questions</p>
+                <h1 className="text-xl font-bold text-brand-text">FAQs</h1>
+                <p className="text-sm text-brand-text/70">Manage frequently asked questions</p>
               </div>
             </div>
             <button
@@ -147,7 +147,7 @@ export default function AdminFAQsPage() {
                 });
                 setShowModal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-[#00363a] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-brand-bg text-[#00363a] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add FAQ
@@ -175,7 +175,7 @@ export default function AdminFAQsPage() {
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <div key={item.id} className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
+            <div key={item.id} className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <HelpCircle className="h-5 w-5 text-[#10b981]" />
@@ -184,20 +184,20 @@ export default function AdminFAQsPage() {
                   {item.enabled ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              <h3 className="text-sm font-semibold text-neutral-900 mb-2 line-clamp-2">{item.question}</h3>
-              <p className="text-xs text-neutral-600 mb-4 line-clamp-3">{item.answer}</p>
+              <h3 className="text-sm font-semibold text-brand-text mb-2 line-clamp-2">{item.question}</h3>
+              <p className="text-xs text-brand-text/70 mb-4 line-clamp-3">{item.answer}</p>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-neutral-500">Order: {item.display_order}</span>
+                <span className="text-xs text-brand-text/60">Order: {item.display_order}</span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="p-2 hover:bg-gray-50/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
+                    className="p-2 hover:bg-brand-bg/10 rounded-lg transition-colors text-brand-text/70 hover:text-[#10b981]"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-neutral-600 hover:text-red-400"
+                    className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-brand-text/70 hover:text-red-400"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -208,8 +208,8 @@ export default function AdminFAQsPage() {
         </div>
 
         {items.length === 0 && (
-          <div className="text-center py-12 text-neutral-600">
-            <HelpCircle className="h-12 w-12 mx-auto mb-4 text-neutral-500" />
+          <div className="text-center py-12 text-brand-text/70">
+            <HelpCircle className="h-12 w-12 mx-auto mb-4 text-brand-text/60" />
             <p>No FAQs yet</p>
             <p className="text-sm mt-2">Click "Add FAQ" to add your first FAQ</p>
           </div>
@@ -219,14 +219,14 @@ export default function AdminFAQsPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-gray-100 border border-neutral-200 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-neutral-200 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-neutral-900">
+          <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-brand-border flex items-center justify-between">
+              <h2 className="text-xl font-bold text-brand-text">
                 {editingItem ? 'Edit FAQ' : 'Add FAQ'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-neutral-600 hover:text-neutral-900"
+                className="p-2 hover:bg-[var(--card)] brightness-95 rounded-lg transition-colors text-brand-text/70 hover:text-brand-text"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -234,32 +234,32 @@ export default function AdminFAQsPage() {
 
             <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Question *</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Question *</label>
                 <input
                   type="text"
                   value={formData.question}
                   onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Answer *</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Answer *</label>
                 <textarea
                   value={formData.answer}
                   onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
                   rows={4}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981] resize-none"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981] resize-none"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Display Order</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Display Order</label>
                 <input
                   type="number"
                   value={formData.displayOrder}
                   onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div className="flex items-center gap-4">
@@ -268,16 +268,16 @@ export default function AdminFAQsPage() {
                     type="checkbox"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 rounded border-neutral-200 bg-gray-100 text-[#10b981] focus:ring-[#00f0ff]"
+                    className="w-4 h-4 rounded border-brand-border bg-[var(--card)] brightness-95 text-[#10b981] focus:ring-[#00f0ff]"
                   />
-                  <span className="text-sm text-neutral-600">Enabled</span>
+                  <span className="text-sm text-brand-text/70">Enabled</span>
                 </label>
               </div>
-              <div className="flex gap-3 pt-4 border-t border-neutral-200">
+              <div className="flex gap-3 pt-4 border-t border-brand-border">
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-[#00363a] rounded-lg font-medium hover:bg-gray-50/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg text-[#00363a] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSaving ? (
                     <>
@@ -293,7 +293,7 @@ export default function AdminFAQsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-3 bg-gray-100 text-neutral-900 border border-neutral-200 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                  className="flex-1 px-4 py-3 bg-[var(--card)] brightness-95 text-brand-text border border-brand-border rounded-lg font-medium hover:bg-[var(--card)] brightness-95 transition-colors"
                 >
                   Cancel
                 </button>

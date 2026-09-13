@@ -33,22 +33,22 @@ export default function BankAccountForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl bg-gray-50 p-6 shadow-lg space-y-4">
-      <h2 className="text-lg font-medium text-neutral-900">Update Bank Details</h2>
+    <form onSubmit={handleSubmit} className="rounded-2xl bg-brand-bg p-6 shadow-lg space-y-4">
+      <h2 className="text-lg font-medium text-brand-text">Update Bank Details</h2>
       {error && <p className="text-red-500">{error}</p>}
       <div>
         <label className="block text-sm font-medium text-gray-300">Bank Name</label>
-        <input type="text" required value={bankName} onChange={e => setBankName(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-gray-50 p-2 text-neutral-900" />
+        <input type="text" required value={bankName} onChange={e => setBankName(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-brand-bg p-2 text-brand-text" />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-300">Account Number</label>
-        <input type="text" required value={accountNumber} onChange={e => setAccountNumber(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-gray-50 p-2 text-neutral-900" />
+        <input type="text" required value={accountNumber} onChange={e => setAccountNumber(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-brand-bg p-2 text-brand-text" />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-300">Routing Number</label>
-        <input type="text" required value={routingNumber} onChange={e => setRoutingNumber(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-gray-50 p-2 text-neutral-900" />
+        <input type="text" required value={routingNumber} onChange={e => setRoutingNumber(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-brand-bg p-2 text-brand-text" />
       </div>
-      <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded bg-primary-600 px-4 py-2 text-neutral-900 hover:bg-primary-700 disabled:opacity-50">
+      <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded bg-primary-600 px-4 py-2 text-brand-text hover:bg-primary-700 disabled:opacity-50">
         {loading ? <LoadingSpinner message="Saving..." /> : 'Save'}
       </button>
     </form>

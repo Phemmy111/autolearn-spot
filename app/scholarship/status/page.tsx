@@ -79,7 +79,7 @@ export default function ScholarshipStatusPage() {
   const renderStatusIcon = (status: StatusType) => {
     switch (status) {
       case 'Submitted':
-        return <FileText className="w-16 h-16 text-neutral-500 mx-auto mb-6" />;
+        return <FileText className="w-16 h-16 text-brand-text/60 mx-auto mb-6" />;
       case 'Under Review':
         return <Search className="w-16 h-16 text-[#10b981] mx-auto mb-6 animate-pulse" />;
       case 'Shortlisted':
@@ -91,28 +91,28 @@ export default function ScholarshipStatusPage() {
       case 'Not Selected':
         return <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-6" />;
       default:
-        return <FileText className="w-16 h-16 text-neutral-500 mx-auto mb-6" />;
+        return <FileText className="w-16 h-16 text-brand-text/60 mx-auto mb-6" />;
     }
   };
 
   const getStatusColor = (status: StatusType) => {
     switch (status) {
-      case 'Submitted': return 'text-neutral-500 border-[#3b494b]';
+      case 'Submitted': return 'text-brand-text/60 border-[#3b494b]';
       case 'Under Review': return 'text-[#10b981] border-[#10b981]';
       case 'Shortlisted': return 'text-yellow-400 border-yellow-400';
       case 'Accepted': return 'text-green-400 border-green-400';
       case 'Waitlisted': return 'text-orange-400 border-orange-400';
       case 'Not Selected': return 'text-red-400 border-red-400';
-      default: return 'text-neutral-500 border-[#3b494b]';
+      default: return 'text-brand-text/60 border-[#3b494b]';
     }
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 text-[#e2e2e8] flex flex-col">
+    <main className="min-h-screen bg-brand-bg text-[#e2e2e8] flex flex-col">
       <Navigation />
       <div className="pt-24 flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-neutral-900 mb-8 hover:text-[#10b981] transition-colors" href="/scholarship">
+          <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-brand-text mb-8 hover:text-[#10b981] transition-colors" href="/scholarship">
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Scholarship Info</span>
           </Link>
@@ -124,14 +124,14 @@ export default function ScholarshipStatusPage() {
           )}
 
           {step === 'request' && (
-            <div className="bg-gray-50 border border-neutral-200 p-8 relative overflow-hidden">
+            <div className="bg-brand-bg border border-brand-border p-8 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00f0ff] to-[#00363a]" />
               <div className="text-center mb-8">
-                <div className="w-12 h-12 bg-gray-50/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-12 h-12 bg-brand-bg/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Mail className="w-6 h-6 text-[#10b981]" />
                 </div>
                 <h1 className="font-heading text-2xl font-bold mb-2">Check Application Status</h1>
-                <p className="text-sm text-neutral-500">Enter your email to receive a secure verification code.</p>
+                <p className="text-sm text-brand-text/60">Enter your email to receive a secure verification code.</p>
               </div>
 
               <form onSubmit={handleRequestOTP} className="space-y-4">
@@ -143,13 +143,13 @@ export default function ScholarshipStatusPage() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-gray-50 border border-[#3b494b] p-4 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-center"
+                    className="w-full bg-brand-bg border border-[#3b494b] p-4 text-brand-text focus:border-[#10b981] focus:outline-none transition-colors text-center"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-2 bg-gray-50 text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 bg-brand-bg text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Send Code'}
                 </button>
@@ -158,14 +158,14 @@ export default function ScholarshipStatusPage() {
           )}
 
           {step === 'verify' && (
-            <div className="bg-gray-50 border border-neutral-200 p-8 relative overflow-hidden animate-fade-in-up">
+            <div className="bg-brand-bg border border-brand-border p-8 relative overflow-hidden animate-fade-in-up">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00f0ff] to-[#00363a]" />
               <div className="text-center mb-8">
-                <div className="w-12 h-12 bg-gray-50/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-12 h-12 bg-brand-bg/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <KeyRound className="w-6 h-6 text-[#10b981]" />
                 </div>
                 <h1 className="font-heading text-2xl font-bold mb-2">Enter Verification Code</h1>
-                <p className="text-sm text-neutral-500">We sent a 6-digit code to {email}</p>
+                <p className="text-sm text-brand-text/60">We sent a 6-digit code to {email}</p>
               </div>
 
               <form onSubmit={handleVerifyOTP} className="space-y-4">
@@ -178,20 +178,20 @@ export default function ScholarshipStatusPage() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="w-full bg-gray-50 border border-[#3b494b] p-4 text-neutral-900 text-2xl tracking-[0.5em] focus:border-[#10b981] focus:outline-none transition-colors text-center font-mono"
+                    className="w-full bg-brand-bg border border-[#3b494b] p-4 text-brand-text text-2xl tracking-[0.5em] focus:border-[#10b981] focus:outline-none transition-colors text-center font-mono"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isLoading || otp.length < 5}
-                  className="w-full flex items-center justify-center gap-2 bg-gray-50 text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 bg-brand-bg text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50"
                 >
                   {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify & View Status'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep('request')}
-                  className="w-full text-sm text-neutral-500 hover:text-[#10b981] mt-4 transition-colors"
+                  className="w-full text-sm text-brand-text/60 hover:text-[#10b981] mt-4 transition-colors"
                 >
                   Use a different email
                 </button>
@@ -200,33 +200,33 @@ export default function ScholarshipStatusPage() {
           )}
 
           {step === 'result' && result && (
-            <div className="bg-gray-50 border border-neutral-200 p-8 text-center relative overflow-hidden animate-fade-in-up">
+            <div className="bg-brand-bg border border-brand-border p-8 text-center relative overflow-hidden animate-fade-in-up">
               <div className={`absolute top-0 left-0 w-full h-1 ${
                 result.status === 'Accepted' ? 'bg-green-400' :
-                result.status === 'Under Review' ? 'bg-gray-50' :
+                result.status === 'Under Review' ? 'bg-brand-bg' :
                 result.status === 'Waitlisted' ? 'bg-orange-400' :
                 result.status === 'Not Selected' ? 'bg-red-400' :
                 result.status === 'Shortlisted' ? 'bg-yellow-400' :
-                'bg-gray-50'
+                'bg-brand-bg'
               }`} />
               
               {renderStatusIcon(result.status)}
               
               <h1 className="font-heading text-2xl font-bold mb-2">Hello, {result.full_name}</h1>
-              <p className="text-sm text-neutral-500 mb-6">Here is the current status of your application.</p>
+              <p className="text-sm text-brand-text/60 mb-6">Here is the current status of your application.</p>
               
-              <div className="bg-gray-50 border border-neutral-200 p-6 mb-8">
-                <p className="text-xs text-neutral-500 uppercase tracking-widest mb-1">Status</p>
+              <div className="bg-brand-bg border border-brand-border p-6 mb-8">
+                <p className="text-xs text-brand-text/60 uppercase tracking-widest mb-1">Status</p>
                 <div className={`inline-block border px-4 py-1 rounded-full text-sm font-bold font-mono mb-6 ${getStatusColor(result.status)}`}>
                   {result.status}
                 </div>
                 
-                <p className="text-xs text-neutral-500 uppercase tracking-widest mb-1">Reference Number</p>
-                <p className="font-mono text-lg text-neutral-900">{result.reference_number}</p>
+                <p className="text-xs text-brand-text/60 uppercase tracking-widest mb-1">Reference Number</p>
+                <p className="font-mono text-lg text-brand-text">{result.reference_number}</p>
               </div>
               
               {result.status === 'Submitted' && (
-                <p className="text-sm text-neutral-500">Your application is in our queue and will be reviewed shortly.</p>
+                <p className="text-sm text-brand-text/60">Your application is in our queue and will be reviewed shortly.</p>
               )}
               {result.status === 'Under Review' && (
                 <p className="text-sm text-[#10b981]">Our team is currently reviewing your application. You'll hear from us soon!</p>
@@ -241,12 +241,12 @@ export default function ScholarshipStatusPage() {
                         href={settings.paymentUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full flex items-center justify-center gap-2 bg-gray-50 text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all"
+                        className="block w-full flex items-center justify-center gap-2 bg-brand-bg text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all"
                       >
                         <CreditCard className="w-5 h-5" />
                         Pay Commitment Fee ({formattedCommitmentFee})
                       </a>
-                      <p className="text-xs text-neutral-500 text-center">
+                      <p className="text-xs text-brand-text/60 text-center">
                         Payment verification is automatic. You'll receive a welcome email after successful payment.
                       </p>
                       <button
@@ -261,7 +261,7 @@ export default function ScholarshipStatusPage() {
                           }
                         }}
                         disabled={isLoading}
-                        className="block w-full text-xs text-neutral-500 hover:text-[#10b981] border border-[#3b494b] py-2 transition-colors disabled:opacity-50"
+                        className="block w-full text-xs text-brand-text/60 hover:text-[#10b981] border border-[#3b494b] py-2 transition-colors disabled:opacity-50"
                       >
                         Payment not automatically verified? Click here
                       </button>
@@ -285,7 +285,7 @@ export default function ScholarshipStatusPage() {
                   setOtp('');
                   setResult(null);
                 }}
-                className="w-full text-sm text-neutral-500 hover:text-neutral-900 mt-8 border border-[#3b494b] py-3 transition-colors"
+                className="w-full text-sm text-brand-text/60 hover:text-brand-text mt-8 border border-[#3b494b] py-3 transition-colors"
               >
                 Check Another Application
               </button>

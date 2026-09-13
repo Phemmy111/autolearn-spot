@@ -65,24 +65,24 @@ export default function AuthorQuizzesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--card)]">
         <div className="container mx-auto px-4 py-12">
-          <div className="text-center text-neutral-500 py-12">Loading quizzes...</div>
+          <div className="text-center text-brand-text/60 py-12">Loading quizzes...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--card)]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/author" className="text-neutral-600 hover:text-neutral-900">
+          <Link href="/author" className="text-brand-text/70 hover:text-brand-text">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-neutral-900">Quizzes</h1>
-            <p className="text-sm text-neutral-600">Manage your lesson quizzes and review student responses</p>
+            <h1 className="text-3xl font-bold text-brand-text">Quizzes</h1>
+            <p className="text-sm text-brand-text/70">Manage your lesson quizzes and review student responses</p>
           </div>
         </div>
 
@@ -93,13 +93,13 @@ export default function AuthorQuizzesPage() {
         )}
 
         {quizzes.length === 0 ? (
-          <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-12 text-center">
             <div className="flex flex-col items-center gap-4">
-              <div className="p-4 bg-neutral-100 rounded-full">
+              <div className="p-4 bg-[var(--card)] brightness-95 rounded-full">
                 <Target className="h-8 w-8 text-neutral-400" />
               </div>
-              <h3 className="text-lg font-semibold text-neutral-900">No quizzes yet</h3>
-              <p className="text-neutral-500">Create quizzes for your lessons to test student understanding</p>
+              <h3 className="text-lg font-semibold text-brand-text">No quizzes yet</h3>
+              <p className="text-brand-text/60">Create quizzes for your lessons to test student understanding</p>
               <Link
                 href="/author/products"
                 className="px-6 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
@@ -113,7 +113,7 @@ export default function AuthorQuizzesPage() {
             {quizzes.map((quiz) => (
               <div
                 key={quiz.id}
-                className="border border-neutral-200 bg-neutral-50 p-6 rounded-xl hover:shadow-md transition-shadow"
+                className="border border-brand-border bg-brand-bg p-6 rounded-xl hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -127,17 +127,17 @@ export default function AuthorQuizzesPage() {
                         </span>
                       )}
                     </div>
-                    <h3 className="font-semibold text-neutral-900 mb-1">{quiz.title}</h3>
+                    <h3 className="font-semibold text-brand-text mb-1">{quiz.title}</h3>
                     {quiz.description && (
-                      <p className="text-sm text-neutral-600 mb-2">{quiz.description}</p>
+                      <p className="text-sm text-brand-text/70 mb-2">{quiz.description}</p>
                     )}
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-brand-text/60">
                       Lesson: {quiz.lesson.title}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-4 mb-4 text-sm text-neutral-600">
+                <div className="flex flex-wrap gap-4 mb-4 text-sm text-brand-text/70">
                   {quiz.time_limit && (
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
@@ -167,7 +167,7 @@ export default function AuthorQuizzesPage() {
                   </Link>
                   <Link
                     href={`/author/quizzes/${quiz.id}/responses`}
-                    className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 text-sm font-semibold transition-colors"
+                    className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text text-sm font-semibold transition-colors"
                   >
                     <Users className="h-4 w-4" />
                     Review Responses
@@ -175,7 +175,7 @@ export default function AuthorQuizzesPage() {
                   <Link
                     href={`/quiz/${quiz.id}?preview=true`}
                     target="_blank"
-                    className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 text-sm font-semibold transition-colors"
+                    className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text text-sm font-semibold transition-colors"
                   >
                     <Eye className="h-4 w-4" />
                     Preview

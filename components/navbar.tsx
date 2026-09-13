@@ -35,7 +35,7 @@ export function Navbar() {
         isVisible ? "top-8 opacity-100" : "-top-24 opacity-0"
       }`}
     >
-      <div className="bg-neutral-50 backdrop-blur-[120px] rounded-full px-8 py-3 flex items-center gap-8 shadow-lg border border-white/10 w-full">
+      <div className="bg-brand-bg backdrop-blur-[120px] rounded-full px-8 py-3 flex items-center gap-8 shadow-lg border border-white/10 w-full">
         {/* Logo */}
         <div className="flex items-center">
           <Image src="/autolearn-brandmark.png" alt="autoLearn" width={180} height={40} className="h-8 sm:h-9 md:h-10 w-auto" />
@@ -47,11 +47,11 @@ export function Navbar() {
           <div className="flex items-center justify-between rounded-full border border-zinc-700">
             <ResourcesDropdown />
             <ToolsDropdown />
-            <Link href="/live-class" className="px-4 py-2 rounded hover:bg-gray-800 transition text-neutral-900 ml-4">Live Class</Link>
+            <Link href="/live-class" className="px-4 py-2 rounded hover:bg-gray-800 transition text-brand-text ml-4">Live Class</Link>
           </div>
           <Link
             href="/contact"
-            className="px-[18px] py-[10px] rounded-full border border-[#5100fd] bg-gray-50/50 text-neutral-900 font-medium hover:scale-105 transition-transform duration-500"
+            className="px-[18px] py-[10px] rounded-full border border-[#5100fd] bg-brand-bg/50 text-brand-text font-medium hover:scale-105 transition-transform duration-500"
           >
             Enroll Now
           </Link>

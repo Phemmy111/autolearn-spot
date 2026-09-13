@@ -114,24 +114,24 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--card)] brightness-95] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#10b981]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-[var(--card)] brightness-95]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href={`/admin/quizzes/${id}/questions`}
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Questions
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-2">Edit Question</h1>
+          <h1 className="font-heading text-4xl font-bold text-brand-text mb-2">Edit Question</h1>
         </div>
 
         <div className="max-w-3xl">
@@ -143,7 +143,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block font-mono text-xs text-neutral-600 mb-2 uppercase tracking-wider">
+              <label className="block font-mono text-xs text-brand-text/70 mb-2 uppercase tracking-wider">
                 Question Text
               </label>
               <textarea
@@ -152,13 +152,13 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                 onChange={handleChange}
                 rows={3}
                 required
-                className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block font-mono text-xs text-neutral-600 mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-brand-text/70 mb-2 uppercase tracking-wider">
                   Question Type
                 </label>
                 <select
@@ -166,7 +166,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                   value={formData.question_type}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 >
                   <option value="multiple_choice">Multiple Choice</option>
                   <option value="true_false">True/False</option>
@@ -175,7 +175,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
               </div>
 
               <div>
-                <label className="block font-mono text-xs text-neutral-600 mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-brand-text/70 mb-2 uppercase tracking-wider">
                   Points
                 </label>
                 <input
@@ -185,7 +185,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                   onChange={handleChange}
                   min="1"
                   required
-                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 />
               </div>
             </div>
@@ -193,13 +193,13 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
             {formData.question_type === 'multiple_choice' && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block font-mono text-xs text-neutral-600 uppercase tracking-wider">
+                  <label className="block font-mono text-xs text-brand-text/70 uppercase tracking-wider">
                     Answer Options
                   </label>
                   <button
                     type="button"
                     onClick={addOption}
-                    className="flex items-center gap-1 text-[#10b981] hover:text-neutral-900 font-mono text-xs"
+                    className="flex items-center gap-1 text-[#10b981] hover:text-brand-text font-mono text-xs"
                   >
                     <Plus className="h-3 w-3" />
                     Add Option
@@ -213,7 +213,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                         value={option}
                         onChange={(e) => handleOptionChange(index, e.target.value)}
                         required
-                        className="flex-1 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                        className="flex-1 px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                         placeholder={`Option ${String.fromCharCode(65 + index)}`}
                       />
                       {formData.options.length > 2 && (
@@ -233,7 +233,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
 
             {formData.question_type === 'true_false' && (
               <div>
-                <label className="block font-mono text-xs text-neutral-600 mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-brand-text/70 mb-2 uppercase tracking-wider">
                   Correct Answer
                 </label>
                 <select
@@ -241,7 +241,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 >
                   <option value="">Select correct answer</option>
                   <option value="True">True</option>
@@ -252,7 +252,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
 
             {formData.question_type === 'short_answer' && (
               <div>
-                <label className="block font-mono text-xs text-neutral-600 mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-brand-text/70 mb-2 uppercase tracking-wider">
                   Correct Answer
                 </label>
                 <input
@@ -261,14 +261,14 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 />
               </div>
             )}
 
             {formData.question_type === 'multiple_choice' && (
               <div>
-                <label className="block font-mono text-xs text-neutral-600 mb-2 uppercase tracking-wider">
+                <label className="block font-mono text-xs text-brand-text/70 mb-2 uppercase tracking-wider">
                   Correct Answer
                 </label>
                 <select
@@ -276,7 +276,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                   value={formData.correct_answer}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors"
                 >
                   <option value="">Select correct answer</option>
                   {formData.options.map((option, index) => (
@@ -289,7 +289,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
             )}
 
             <div>
-              <label className="block font-mono text-xs text-neutral-600 mb-2 uppercase tracking-wider">
+              <label className="block font-mono text-xs text-brand-text/70 mb-2 uppercase tracking-wider">
                 Explanation (optional)
               </label>
               <textarea
@@ -297,7 +297,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
                 value={formData.explanation}
                 onChange={handleChange}
                 rows={2}
-                className="w-full px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
+                className="w-full px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-brand-text font-mono text-sm focus:border-[#10b981] outline-none transition-colors resize-y"
               />
             </div>
 
@@ -305,7 +305,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-[var(--card)] brightness-95] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {saving ? 'Saving...' : 'Save Changes'}
@@ -320,7 +320,7 @@ export default function EditQuestionPage({ params }: { params: Promise<{ id: str
               </button>
               <Link
                 href={`/admin/quizzes/${id}/questions`}
-                className="font-mono text-sm text-neutral-600 hover:text-neutral-900 px-6 py-3"
+                className="font-mono text-sm text-brand-text/70 hover:text-brand-text px-6 py-3"
               >
                 Cancel
               </Link>

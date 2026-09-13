@@ -100,10 +100,10 @@ export default function HistoryPage() {
   if (error) {
     return (
       <div className="py-20 flex justify-center">
-        <div className="flex max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-neutral-200 bg-gray-50 p-8 text-center shadow-xl">
+        <div className="flex max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-brand-border bg-brand-bg p-8 text-center shadow-xl">
           <AlertCircle className="h-12 w-12 text-red-500" />
-          <h2 className="font-heading text-xl font-bold text-neutral-900">Oops</h2>
-          <p className="font-mono text-sm text-neutral-500">{error}</p>
+          <h2 className="font-heading text-xl font-bold text-brand-text">Oops</h2>
+          <p className="font-mono text-sm text-brand-text/60">{error}</p>
         </div>
       </div>
     )
@@ -112,10 +112,10 @@ export default function HistoryPage() {
   if (history.length === 0) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <div className="flex flex-col items-center justify-center text-center p-12 border border-neutral-200 bg-gray-50 rounded-xl shadow-xl">
+        <div className="flex flex-col items-center justify-center text-center p-12 border border-brand-border bg-brand-bg rounded-xl shadow-xl">
           <History className="h-16 w-16 text-[#3b494b] mb-4" />
-          <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">No History Yet</h2>
-          <p className="font-mono text-sm text-neutral-500">You haven't completed any quizzes or assignments yet.</p>
+          <h2 className="font-heading text-2xl font-bold text-brand-text mb-2">No History Yet</h2>
+          <p className="font-mono text-sm text-brand-text/60">You haven't completed any quizzes or assignments yet.</p>
         </div>
       </div>
     )
@@ -135,7 +135,7 @@ export default function HistoryPage() {
     } else {
       switch (entry.status) {
         case 'submitted':
-          return <span className="text-neutral-500 uppercase text-xs font-bold">Submitted</span>
+          return <span className="text-brand-text/60 uppercase text-xs font-bold">Submitted</span>
         case 'approved':
           return <span className="text-emerald-400 uppercase text-xs font-bold">Approved</span>
         case 'needs_revision':
@@ -179,14 +179,14 @@ export default function HistoryPage() {
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       <div className="mb-10 text-center">
         <History className="mx-auto h-16 w-16 text-[#10b981] drop-shadow-[0_0_15px_rgba(0,240,255,0.5)] mb-4" />
-        <h1 className="font-heading text-4xl font-bold uppercase text-neutral-900 mb-2">History</h1>
-        <p className="font-mono text-sm text-neutral-500">Review your past quiz and assignment submissions.</p>
+        <h1 className="font-heading text-4xl font-bold uppercase text-brand-text mb-2">History</h1>
+        <p className="font-mono text-sm text-brand-text/60">Review your past quiz and assignment submissions.</p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-neutral-200 bg-gray-50 shadow-2xl">
+      <div className="overflow-hidden rounded-xl border border-brand-border bg-brand-bg shadow-2xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm font-mono text-neutral-500">
-            <thead className="bg-gray-50 text-xs uppercase text-[#5d5f63]">
+          <table className="w-full text-left text-sm font-mono text-brand-text/60">
+            <thead className="bg-brand-bg text-xs uppercase text-[#5d5f63]">
               <tr>
                 <th scope="col" className="px-6 py-4">Type</th>
                 <th scope="col" className="px-6 py-4">Title</th>
@@ -198,16 +198,16 @@ export default function HistoryPage() {
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {history.map((entry, idx) => (
-                <tr key={entry.id} className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? 'bg-gray-50' : 'bg-gray-50'}`}>
+                <tr key={entry.id} className={`hover:bg-brand-bg transition-colors ${idx % 2 === 0 ? 'bg-brand-bg' : 'bg-brand-bg'}`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       {getEntryIcon(entry)}
-                      <span className="uppercase text-xs font-bold text-neutral-900">{entry.type}</span>
+                      <span className="uppercase text-xs font-bold text-brand-text">{entry.type}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col">
-                      <span className="font-bold text-neutral-900">{entry.title}</span>
+                      <span className="font-bold text-brand-text">{entry.title}</span>
                       <span className="text-xs text-[#5d5f63]">{getEntryWeek(entry)}</span>
                     </div>
                   </td>
@@ -226,7 +226,7 @@ export default function HistoryPage() {
                         href={(entry as AssignmentHistoryEntry).live_url!}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[#10b981] hover:text-neutral-900 transition-colors"
+                        className="flex items-center gap-1 text-[#10b981] hover:text-brand-text transition-colors"
                       >
                         <ExternalLink className="h-4 w-4" />
                         <span className="text-xs">View</span>

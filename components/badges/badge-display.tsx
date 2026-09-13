@@ -59,7 +59,7 @@ export function BadgeDisplay({
       ))}
       
       {hiddenCount > 0 && (
-        <Badge className={`${getSizeClasses()} bg-gray-50 border-[#3b494b] text-neutral-500`}>
+        <Badge className={`${getSizeClasses()} bg-brand-bg border-[#3b494b] text-brand-text/60`}>
           +{hiddenCount} more
         </Badge>
       )}
@@ -106,8 +106,8 @@ export function BadgeGrid({ userBadges, showLocked = false }: BadgeGridProps) {
             title={`${badge.name}: ${badge.description}`}
           >
             <div className="text-3xl mb-2 text-center">{badge.icon}</div>
-            <h3 className="font-semibold text-neutral-900 text-sm text-center mb-1">{badge.name}</h3>
-            <p className="text-xs text-neutral-500 text-center">{badge.description}</p>
+            <h3 className="font-semibold text-brand-text text-sm text-center mb-1">{badge.name}</h3>
+            <p className="text-xs text-brand-text/60 text-center">{badge.description}</p>
             
             {isEarned && userBadge && (
               <div className="mt-2 text-xs text-[#5d5f63] text-center">

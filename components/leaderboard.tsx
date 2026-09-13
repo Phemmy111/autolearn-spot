@@ -64,33 +64,33 @@ export function Leaderboard() {
     if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-400" />
     if (rank === 2) return <Medal className="h-6 w-6 text-gray-300" />
     if (rank === 3) return <Award className="h-6 w-6 text-amber-600" />
-    return <span className="font-mono text-sm font-bold text-neutral-500">#{rank}</span>
+    return <span className="font-mono text-sm font-bold text-brand-text/60">#{rank}</span>
   }
 
   const getRankClass = (rank: number) => {
     if (rank === 1) return 'border-yellow-400/30 bg-yellow-400/5'
-    if (rank === 2) return 'border-gray-300/30 bg-gray-300/5'
+    if (rank === 2) return 'border-brand-border/30 bg-gray-300/5'
     if (rank === 3) return 'border-amber-600/30 bg-amber-600/5'
-    return 'border-neutral-200 bg-gray-50'
+    return 'border-brand-border bg-brand-bg'
   }
 
   return (
     <div className="w-full">
       <div className="flex items-center gap-3 mb-6">
         <TrendingUp className="h-6 w-6 text-[#10b981]" />
-        <h2 className="font-heading text-2xl font-bold text-neutral-900">Leaderboard</h2>
+        <h2 className="font-heading text-2xl font-bold text-brand-text">Leaderboard</h2>
       </div>
 
       {leaderboard.length === 0 ? (
-        <div className="text-center py-12 border border-neutral-200 bg-gray-50 rounded-xl">
-          <p className="font-mono text-sm text-neutral-500">No quiz results yet. Be the first to complete a quiz!</p>
+        <div className="text-center py-12 border border-brand-border bg-brand-bg rounded-xl">
+          <p className="font-mono text-sm text-brand-text/60">No quiz results yet. Be the first to complete a quiz!</p>
         </div>
       ) : (
         <div className="space-y-3">
           {leaderboard.map((entry, index) => (
             <div
               key={entry.id}
-              className={`group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50 hover:bg-gray-50 ${getRankClass(index + 1)}`}
+              className={`group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50 hover:bg-brand-bg ${getRankClass(index + 1)}`}
               aria-label={`Rank ${index + 1}: ${entry.name} with ${entry.score} points and ${entry.percentage}% average`}
             >
               <div className="flex items-center gap-4 mb-3 sm:mb-0">
@@ -98,7 +98,7 @@ export function Leaderboard() {
                   {getRankIcon(index + 1)}
                 </div>
                 <div className="flex-1">
-                  <p className="font-heading font-semibold text-neutral-900">{entry.name}</p>
+                  <p className="font-heading font-semibold text-brand-text">{entry.name}</p>
                   {entry.badges && entry.badges.length > 0 && (
                     <div className="mt-1">
                       <BadgeDisplay userBadges={entry.badges} maxDisplay={3} size="sm" showTooltip={false} />
@@ -108,7 +108,7 @@ export function Leaderboard() {
               </div>
               <div className="text-right">
                 <p className="font-mono text-lg font-bold text-[#10b981]">{entry.score} pts</p>
-                <div className="text-xs text-neutral-500 space-y-1">
+                <div className="text-xs text-brand-text/60 space-y-1">
                   <p>Assignments: {Math.round(entry.assignment_score || 0)}%</p>
                   <p>Quizzes: {Math.round(entry.quiz_score || 0)}%</p>
                   <p>Video: {Math.round(entry.video_completion || 0)}%</p>

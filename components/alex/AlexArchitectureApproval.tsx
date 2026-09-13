@@ -70,7 +70,7 @@ export function AlexArchitectureApproval({
         <FileText className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
         <div className="flex-1">
           <h3 className="text-slate-200 font-semibold mb-1">Proposed Architecture</h3>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-brand-text/60">
             Platform: {architecture.platform || 'Not specified'} | Complexity: {architecture.complexity}
           </p>
         </div>
@@ -91,10 +91,10 @@ export function AlexArchitectureApproval({
       {architecture.assumptions.length > 0 && (
         <div className="mb-4">
           <p className="text-xs font-medium text-slate-400 mb-2">Assumptions:</p>
-          <ul className="text-xs text-slate-500 space-y-1">
+          <ul className="text-xs text-brand-text/60 space-y-1">
             {architecture.assumptions.map((assumption, index) => (
               <li key={index} className="flex items-start gap-2">
-                <span className="text-slate-600">•</span>
+                <span className="text-brand-text/70">•</span>
                 <span>{assumption}</span>
               </li>
             ))}
@@ -105,10 +105,10 @@ export function AlexArchitectureApproval({
       {architecture.recommendations.length > 0 && (
         <div className="mb-4">
           <p className="text-xs font-medium text-slate-400 mb-2">Recommendations:</p>
-          <ul className="text-xs text-slate-500 space-y-1">
+          <ul className="text-xs text-brand-text/60 space-y-1">
             {architecture.recommendations.map((rec, index) => (
               <li key={index} className="flex items-start gap-2">
-                <span className="text-slate-600">•</span>
+                <span className="text-brand-text/70">•</span>
                 <span>{rec}</span>
               </li>
             ))}
@@ -152,7 +152,7 @@ export function AlexArchitectureApproval({
         <button
           onClick={handleApprove}
           disabled={disabled || isApproving || !architecture.platform}
-          className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-neutral-900 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-brand-text rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Check className="h-4 w-4" />
           <span>{isApproving ? 'Generating...' : 'Approve & Generate'}</span>

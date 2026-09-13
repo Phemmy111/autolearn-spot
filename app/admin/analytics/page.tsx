@@ -118,18 +118,18 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="mb-12">
           <Link
             href="/admin"
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Admin
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4">Quiz Analytics</h1>
-          <p className="font-mono text-sm text-neutral-600">Analyze question difficulty and student performance</p>
+          <h1 className="font-heading text-4xl font-bold text-brand-text mb-4">Quiz Analytics</h1>
+          <p className="font-mono text-sm text-brand-text/70">Analyze question difficulty and student performance</p>
         </div>
 
         {/* Quiz Selector (Client Component) */}
@@ -137,8 +137,8 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
 
         {/* Analytics Dashboard */}
         {quizId && !analyticsData && (
-          <div className="text-center p-12 border border-neutral-200 bg-gray-100 rounded-xl">
-            <p className="font-mono text-neutral-600">No submissions yet for this quiz.</p>
+          <div className="text-center p-12 border border-brand-border bg-[var(--card)] brightness-95 rounded-xl">
+            <p className="font-mono text-brand-text/70">No submissions yet for this quiz.</p>
           </div>
         )}
 
@@ -146,16 +146,16 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
           <div className="space-y-8">
             {/* Top Level Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl text-center">
-                <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider mb-2">Total Submissions</p>
-                <p className="font-heading text-4xl font-bold text-neutral-900">{analyticsData.totalStudents}</p>
+              <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl text-center">
+                <p className="font-mono text-xs text-brand-text/60 uppercase tracking-wider mb-2">Total Submissions</p>
+                <p className="font-heading text-4xl font-bold text-brand-text">{analyticsData.totalStudents}</p>
               </div>
-              <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl text-center">
-                <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider mb-2">Average Score</p>
+              <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl text-center">
+                <p className="font-mono text-xs text-brand-text/60 uppercase tracking-wider mb-2">Average Score</p>
                 <p className="font-heading text-4xl font-bold text-[#10b981]">{Math.round(analyticsData.averageScore)}%</p>
               </div>
-              <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl text-center">
-                <p className="font-mono text-xs text-neutral-500 uppercase tracking-wider mb-2">Pass Rate</p>
+              <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl text-center">
+                <p className="font-mono text-xs text-brand-text/60 uppercase tracking-wider mb-2">Pass Rate</p>
                 <p className="font-heading text-4xl font-bold text-emerald-400">{Math.round(analyticsData.passRate)}%</p>
               </div>
             </div>
@@ -164,20 +164,20 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
             <DifficultyChart data={analyticsData.questionStats} quizTitle={quizzes?.find(q => q.id === quizId)?.title || 'Quiz'} />
 
             {/* Question breakdown */}
-            <div className="border border-neutral-200 bg-gray-100 rounded-xl overflow-hidden">
-              <div className="p-6 border-b border-neutral-200 bg-neutral-50">
-                <h2 className="font-heading text-xl font-bold text-neutral-900 flex items-center gap-2">
+            <div className="border border-brand-border bg-[var(--card)] brightness-95 rounded-xl overflow-hidden">
+              <div className="p-6 border-b border-brand-border bg-brand-bg">
+                <h2 className="font-heading text-xl font-bold text-brand-text flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-[#10b981]" />
                   Question Difficulty Breakdown
                 </h2>
               </div>
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-neutral-200 bg-gray-100">
-                    <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-neutral-500">Q#</th>
-                    <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-neutral-500">Question Preview</th>
-                    <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-neutral-500">Difficulty</th>
-                    <th className="px-6 py-4 text-right font-mono text-xs uppercase tracking-wider text-neutral-500">Correct Rate</th>
+                  <tr className="border-b border-brand-border bg-[var(--card)] brightness-95">
+                    <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-brand-text/60">Q#</th>
+                    <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-brand-text/60">Question Preview</th>
+                    <th className="px-6 py-4 text-left font-mono text-xs uppercase tracking-wider text-brand-text/60">Difficulty</th>
+                    <th className="px-6 py-4 text-right font-mono text-xs uppercase tracking-wider text-brand-text/60">Correct Rate</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -193,12 +193,12 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
                     }
 
                     return (
-                      <tr key={q.id} className="border-b border-neutral-200 hover:bg-neutral-50 transition-colors">
-                        <td className="px-6 py-4 font-mono text-sm text-neutral-600">
+                      <tr key={q.id} className="border-b border-brand-border hover:bg-brand-bg transition-colors">
+                        <td className="px-6 py-4 font-mono text-sm text-brand-text/70">
                           {i + 1}
                         </td>
                         <td className="px-6 py-4">
-                          <p className="font-mono text-sm text-neutral-900 line-clamp-1 max-w-md">
+                          <p className="font-mono text-sm text-brand-text line-clamp-1 max-w-md">
                             {q.question_text}
                           </p>
                         </td>
@@ -209,10 +209,10 @@ export default async function AdminAnalyticsPage({ searchParams }: { searchParam
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <p className="font-mono text-sm font-bold text-neutral-900">
+                          <p className="font-mono text-sm font-bold text-brand-text">
                             {Math.round(q.successRate)}%
                           </p>
-                          <p className="font-mono text-xs text-neutral-500">
+                          <p className="font-mono text-xs text-brand-text/60">
                             {q.correctCount} / {analyticsData.totalStudents} students
                           </p>
                         </td>

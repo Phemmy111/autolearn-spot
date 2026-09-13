@@ -85,7 +85,7 @@ export default function ApplicationDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100] text-gray-900 font-sans">
+      <div className="flex items-center justify-center min-h-screen bg-[var(--card)] brightness-95] text-brand-text font-sans">
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
       </div>
     );
@@ -93,8 +93,8 @@ export default function ApplicationDetailPage() {
 
   if (!app) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100] text-gray-900 font-sans">
-        <p className="text-lg text-gray-600">Application not found.</p>
+      <div className="flex items-center justify-center min-h-screen bg-[var(--card)] brightness-95] text-brand-text font-sans">
+        <p className="text-lg text-brand-text/70">Application not found.</p>
       </div>
     );
   }
@@ -189,21 +189,21 @@ export default function ApplicationDetailPage() {
   };
 
   return (
-    <div className="min-h-screen pb-12 text-gray-900 font-sans bg-gray-100]">
+    <div className="min-h-screen pb-12 text-brand-text font-sans bg-[var(--card)] brightness-95]">
       {/* Top Bar */}
-      <header className="h-16 bg-gray-100 border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
-        <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
-          <Link href="/admin/authors" className="hover:text-gray-800 transition-colors">Admin</Link>
+      <header className="h-16 bg-[var(--card)] brightness-95 border-b border-brand-border px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+        <div className="flex items-center gap-2 text-sm text-brand-text/60 font-medium">
+          <Link href="/admin/authors" className="hover:text-brand-text transition-colors">Admin</Link>
           <ArrowLeft className="h-4 w-4 text-gray-400" />
-          <Link href="/admin/authors/applications" className="hover:text-gray-800 transition-colors">Applications</Link>
+          <Link href="/admin/authors/applications" className="hover:text-brand-text transition-colors">Applications</Link>
           <ArrowLeft className="h-4 w-4 text-gray-400" />
-          <span className="text-gray-900 font-semibold">{app.name}</span>
+          <span className="text-brand-text font-semibold">{app.name}</span>
         </div>
         <div className="flex items-center gap-3">
-          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors">
+          <button className="p-2 text-gray-400 hover:text-brand-text/70 hover:bg-brand-bg rounded-full transition-colors">
             <Edit2 className="h-5 w-5" />
           </button>
-          <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors" onClick={() => router.back()} title="Back">
+          <button className="p-2 text-gray-400 hover:text-brand-text/70 hover:bg-brand-bg rounded-full transition-colors" onClick={() => router.back()} title="Back">
             <ArrowLeft className="h-5 w-5" />
           </button>
         </div>
@@ -217,8 +217,8 @@ export default function ApplicationDetailPage() {
               {app.avatar}
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold text-gray-900">{app.name}</h1>
-              <p className="text-sm text-gray-500">{app.professionalTitle}</p>
+              <h1 className="text-2xl font-extrabold text-brand-text">{app.name}</h1>
+              <p className="text-sm text-brand-text/60">{app.professionalTitle}</p>
             </div>
           </div>
           <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${statusColors[app.status as keyof typeof statusColors]}`}
@@ -236,19 +236,19 @@ export default function ApplicationDetailPage() {
             <>
               <button
                 onClick={() => handleAction('Approve')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-neutral-900 font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-primary text-brand-text font-medium rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
               >
                 <CheckCircle2 className="h-4 w-4" /> Approve
               </button>
               <button
                 onClick={() => handleAction('Reject')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-neutral-900 font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 text-brand-text font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm"
               >
                 <XCircle className="h-4 w-4" /> Reject
               </button>
               <button
                 onClick={() => handleAction('Request Changes')}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-neutral-900 font-medium rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-brand-text font-medium rounded-lg hover:bg-amber-700 transition-colors shadow-sm"
               >
                 <AlertTriangle className="h-4 w-4" /> Request Changes
               </button>
@@ -259,32 +259,32 @@ export default function ApplicationDetailPage() {
         {/* Sections Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Personal Information */}
-          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Users className="h-5 w-5 text-gray-500" /> Personal Information
+          <section className="bg-[var(--card)] brightness-95 rounded-xl border border-brand-border p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-brand-text mb-4 flex items-center gap-2">
+              <Users className="h-5 w-5 text-brand-text/60" /> Personal Information
             </h2>
             <dl className="grid grid-cols-1 gap-3">
-              <div className="flex justify-between"><dt className="text-sm text-gray-600">Email</dt><dd className="text-sm font-medium text-gray-900">{app.email}</dd></div>
-              <div className="flex justify-between"><dt className="text-sm text-gray-600">Phone</dt><dd className="text-sm font-medium text-gray-900">{app.phone}</dd></div>
-              <div className="flex justify-between"><dt className="text-sm text-gray-600">Location</dt><dd className="text-sm font-medium text-gray-900">{app.location}</dd></div>
-              <div className="flex justify-between items-center"><dt className="text-sm text-gray-600">LinkedIn</dt><dd className="text-sm font-medium text-blue-600 underline"><a href={app.linkedin} target="_blank" rel="noopener noreferrer">Profile</a></dd></div>
-              <div className="flex justify-between items-center"><dt className="text-sm text-gray-600">Portfolio</dt><dd className="text-sm font-medium text-blue-600 underline"><a href={app.portfolio} target="_blank" rel="noopener noreferrer">Site</a></dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-brand-text/70">Email</dt><dd className="text-sm font-medium text-brand-text">{app.email}</dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-brand-text/70">Phone</dt><dd className="text-sm font-medium text-brand-text">{app.phone}</dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-brand-text/70">Location</dt><dd className="text-sm font-medium text-brand-text">{app.location}</dd></div>
+              <div className="flex justify-between items-center"><dt className="text-sm text-brand-text/70">LinkedIn</dt><dd className="text-sm font-medium text-blue-600 underline"><a href={app.linkedin} target="_blank" rel="noopener noreferrer">Profile</a></dd></div>
+              <div className="flex justify-between items-center"><dt className="text-sm text-brand-text/70">Portfolio</dt><dd className="text-sm font-medium text-blue-600 underline"><a href={app.portfolio} target="_blank" rel="noopener noreferrer">Site</a></dd></div>
             </dl>
           </section>
 
           {/* Professional Information */}
-          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <UserCheck className="h-5 w-5 text-gray-500" /> Professional Information
+          <section className="bg-[var(--card)] brightness-95 rounded-xl border border-brand-border p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-brand-text mb-4 flex items-center gap-2">
+              <UserCheck className="h-5 w-5 text-brand-text/60" /> Professional Information
             </h2>
             <dl className="grid grid-cols-1 gap-3">
-              <div className="flex justify-between"><dt className="text-sm text-gray-600">Title</dt><dd className="text-sm font-medium text-gray-900">{app.professionalTitle}</dd></div>
-              <div className="flex justify-between"><dt className="text-sm text-gray-600">Experience</dt><dd className="text-sm font-medium text-gray-900">{app.experience}</dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-brand-text/70">Title</dt><dd className="text-sm font-medium text-brand-text">{app.professionalTitle}</dd></div>
+              <div className="flex justify-between"><dt className="text-sm text-brand-text/70">Experience</dt><dd className="text-sm font-medium text-brand-text">{app.experience}</dd></div>
               <div className="flex flex-col">
-                <dt className="text-sm text-gray-600 mb-1">Skills</dt>
+                <dt className="text-sm text-brand-text/70 mb-1">Skills</dt>
                 <dd className="flex flex-wrap gap-2">
                   {app.skills.map((skill) => (
-                    <span key={skill} className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">{skill}</span>
+                    <span key={skill} className="px-2 py-0.5 bg-[var(--card)] brightness-95 text-gray-700 rounded-full text-xs font-medium border border-brand-border">{skill}</span>
                   ))}
                 </dd>
               </div>
@@ -292,24 +292,24 @@ export default function ApplicationDetailPage() {
           </section>
 
           {/* About & Motivation */}
-          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-gray-500" /> About / Motivation
+          <section className="bg-[var(--card)] brightness-95 rounded-xl border border-brand-border p-6 shadow-sm lg:col-span-2">
+            <h2 className="text-lg font-semibold text-brand-text mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-brand-text/60" /> About / Motivation
             </h2>
             <p className="text-sm text-gray-700 mb-4"><span className="font-medium">Bio:</span> {app.bio}</p>
             <p className="text-sm text-gray-700"><span className="font-medium">Motivation:</span> {app.motivation}</p>
           </section>
 
           {/* Documents */}
-          <section className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm lg:col-span-2">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Upload className="h-5 w-5 text-gray-500" /> Documents
+          <section className="bg-[var(--card)] brightness-95 rounded-xl border border-brand-border p-6 shadow-sm lg:col-span-2">
+            <h2 className="text-lg font-semibold text-brand-text mb-4 flex items-center gap-2">
+              <Upload className="h-5 w-5 text-brand-text/60" /> Documents
             </h2>
             <ul className="space-y-3">
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-900">Curriculum Vitae (CV)</span>
+                  <FileText className="h-5 w-5 text-brand-text/60" />
+                  <span className="text-sm font-medium text-brand-text">Curriculum Vitae (CV)</span>
                 </div>
                 {app.documents.cv && app.documents.cv !== '#' && app.documents.cv !== 'Not provided' ? (
                   <a href={app.documents.cv} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>
@@ -319,8 +319,8 @@ export default function ApplicationDetailPage() {
               </li>
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-900">Portfolio Samples</span>
+                  <FileText className="h-5 w-5 text-brand-text/60" />
+                  <span className="text-sm font-medium text-brand-text">Portfolio Samples</span>
                 </div>
                 {app.documents.portfolio && app.documents.portfolio !== '#' && app.documents.portfolio !== 'Not provided' ? (
                   <a href={app.documents.portfolio} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">Download</a>
@@ -330,8 +330,8 @@ export default function ApplicationDetailPage() {
               </li>
               <li className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-900">ID Document</span>
+                  <FileText className="h-5 w-5 text-brand-text/60" />
+                  <span className="text-sm font-medium text-brand-text">ID Document</span>
                 </div>
                 {app.documents.id && app.documents.id !== '#' && app.documents.id !== 'Not provided' ? (
                   <a href={app.documents.id} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">View</a>

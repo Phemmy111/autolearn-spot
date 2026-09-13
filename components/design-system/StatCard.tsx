@@ -19,19 +19,19 @@ export function StatCard({
   trend = 'neutral' 
 }: StatCardProps) {
   const trendColors = {
-    up: 'text-emerald-600',
+    up: 'text-brand-primary',
     down: 'text-red-600',
-    neutral: 'text-neutral-600',
+    neutral: 'text-brand-text/70',
   };
 
   return (
-    <div className="bg-gray-100 border border-neutral-200 rounded-lg p-6">
+    <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg p-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-neutral-600 mb-1">
+          <p className="text-sm font-medium text-brand-text/70 mb-1">
             {label}
           </p>
-          <p className="text-2xl font-bold text-neutral-900">
+          <p className="text-2xl font-bold text-brand-text">
             {value}
           </p>
         </div>

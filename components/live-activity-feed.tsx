@@ -75,15 +75,15 @@ export function LiveActivityFeed() {
   const currentActivity = activities[currentIndex];
 
   return (
-    <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-xl p-4">
+    <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
-        <div className="h-2 w-2 rounded-full bg-gray-50 animate-pulse" />
+        <div className="h-2 w-2 rounded-full bg-brand-bg animate-pulse" />
         <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#10b981]">
           Live Activity
         </span>
       </div>
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center border border-neutral-200 bg-gray-50 rounded-lg">
+        <div className="flex h-10 w-10 items-center justify-center border border-brand-border bg-brand-bg rounded-lg">
           {getActivityIcon(currentActivity.type)}
         </div>
         <div className="flex-1 min-w-0">

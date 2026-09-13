@@ -165,30 +165,30 @@ export default function AdminAssignmentsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-900 flex items-center justify-center">
-        <div className="font-mono text-sm text-neutral-600">Loading assignments...</div>
+      <div className="min-h-screen bg-brand-bg text-brand-text flex items-center justify-center">
+        <div className="font-mono text-sm text-brand-text/70">Loading assignments...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-900 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg text-brand-text flex items-center justify-center">
         <div className="font-mono text-sm text-[#ff6b6b]">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-neutral-50 text-neutral-900">
+    <main className="min-h-screen bg-brand-bg text-brand-text">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-neutral-50/95 px-4 backdrop-blur sm:px-6">
-        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-neutral-900" href="/admin">
+      <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[#3b494b] bg-brand-bg/95 px-4 backdrop-blur sm:px-6">
+        <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-brand-text" href="/admin">
           <ArrowLeft className="h-4 w-4" />
           <span className="text-[#10b981]">//</span>
           <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">Admin</span>
         </Link>
-        <div className="font-mono text-xs uppercase text-neutral-600">
+        <div className="font-mono text-xs uppercase text-brand-text/70">
           Assignments
         </div>
       </nav>
@@ -196,10 +196,10 @@ export default function AdminAssignmentsPage() {
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6"
 >
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="font-heading text-3xl font-bold uppercase text-neutral-900">Manage Assignments</h1>
+          <h1 className="font-heading text-3xl font-bold uppercase text-brand-text">Manage Assignments</h1>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 border border-[#10b981] bg-gray-50 px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-gray-100"
+            className="flex items-center gap-2 border border-[#10b981] bg-brand-bg px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-[var(--card)] brightness-95"
           >
             <Plus className="h-4 w-4" />
             Create Assignment
@@ -207,15 +207,15 @@ export default function AdminAssignmentsPage() {
         </div>
 
         {assignments.length === 0 ? (
-          <div className="border border-[#3b494b] bg-gray-50 p-8 text-center">
-            <p className="font-mono text-sm text-neutral-600">No assignments created yet.</p>
+          <div className="border border-[#3b494b] bg-brand-bg p-8 text-center">
+            <p className="font-mono text-sm text-brand-text/70">No assignments created yet.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {assignments.map((assignment) => (
               <div
                 key={assignment.id}
-                className="border border-[#3b494b] bg-gray-50 p-6"
+                className="border border-[#3b494b] bg-brand-bg p-6"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
@@ -223,19 +223,19 @@ export default function AdminAssignmentsPage() {
                       <span className="font-mono text-xs uppercase text-[#10b981]">
                         Week {assignment.week_number}
                       </span>
-                      <span className="font-mono text-xs text-neutral-600">
+                      <span className="font-mono text-xs text-brand-text/70">
                         {assignment.cohort.name}
                       </span>
                     </div>
-                    <h2 className="mb-2 font-heading text-xl font-bold text-neutral-900">
+                    <h2 className="mb-2 font-heading text-xl font-bold text-brand-text">
                       {assignment.title}
                     </h2>
                     {assignment.description && (
-                      <p className="mb-4 font-mono text-sm text-neutral-600">
+                      <p className="mb-4 font-mono text-sm text-brand-text/70">
                         {assignment.description}
                       </p>
                     )}
-                    <div className="flex flex-wrap gap-4 text-xs font-mono text-neutral-600">
+                    <div className="flex flex-wrap gap-4 text-xs font-mono text-brand-text/70">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
                         <span>Due: {formatDate(assignment.due_date)}</span>
@@ -253,14 +253,14 @@ export default function AdminAssignmentsPage() {
                   <div className="flex gap-2">
                     <Link
                       href={`/admin/assignments/${assignment.id}/submissions`}
-                      className="flex items-center gap-2 border border-[#3b494b] bg-gray-100 px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
+                      className="flex items-center gap-2 border border-[#3b494b] bg-[var(--card)] brightness-95 px-4 py-2 font-mono text-xs uppercase text-brand-text/70 transition hover:border-[#10b981] hover:text-[#10b981]"
                     >
                       <Users className="h-4 w-4" />
                       Review
                     </Link>
                     <button
                       onClick={() => openEditModal(assignment)}
-                      className="flex items-center gap-2 border border-[#3b494b] bg-gray-100 px-4 py-2 font-mono text-xs uppercase text-neutral-600 transition hover:border-[#10b981] hover:text-[#10b981]"
+                      className="flex items-center gap-2 border border-[#3b494b] bg-[var(--card)] brightness-95 px-4 py-2 font-mono text-xs uppercase text-brand-text/70 transition hover:border-[#10b981] hover:text-[#10b981]"
                     >
                       <Edit className="h-4 w-4" />
                       Edit
@@ -268,7 +268,7 @@ export default function AdminAssignmentsPage() {
                     <button
                       onClick={() => handleDelete(assignment.id)}
                       disabled={deletingId === assignment.id}
-                      className="flex items-center gap-2 border border-[#ff6b6b] bg-gray-100 px-4 py-2 font-mono text-xs uppercase text-[#ff6b6b] transition hover:bg-gray-50 hover:text-black disabled:opacity-50"
+                      className="flex items-center gap-2 border border-[#ff6b6b] bg-[var(--card)] brightness-95 px-4 py-2 font-mono text-xs uppercase text-[#ff6b6b] transition hover:bg-brand-bg hover:text-black disabled:opacity-50"
                     >
                       <Trash2 className="h-4 w-4" />
                       {deletingId === assignment.id ? 'Deleting...' : 'Delete'}
@@ -302,9 +302,9 @@ export default function AdminAssignmentsPage() {
             }
           }}
         >
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-neutral-200 bg-gray-100 p-6 shadow-2xl">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl border border-brand-border bg-[var(--card)] brightness-95 p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-xl font-bold text-neutral-900">
+              <h2 className="font-heading text-xl font-bold text-brand-text">
                 {editingAssignment ? 'Edit Assignment' : 'Create Assignment'}
               </h2>
               <button
@@ -322,7 +322,7 @@ export default function AdminAssignmentsPage() {
                     is_required: true,
                   });
                 }}
-                className="text-neutral-600 hover:text-neutral-900 transition-colors"
+                className="text-brand-text/70 hover:text-brand-text transition-colors"
               >
                 ✕
               </button>
@@ -330,7 +330,7 @@ export default function AdminAssignmentsPage() {
 
             <form onSubmit={editingAssignment ? handleUpdate : handleCreate} className="space-y-4">
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-neutral-600">
+                <label className="mb-2 block font-mono text-xs uppercase text-brand-text/70">
                   Week Number *
                 </label>
                 <input
@@ -339,12 +339,12 @@ export default function AdminAssignmentsPage() {
                   onChange={(e) => setFormData({ ...formData, week_number: parseInt(e.target.value) })}
                   min="1"
                   required
-                  className="w-full border border-[#3b494b] bg-gray-50 px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-brand-bg px-4 py-3 font-mono text-sm text-brand-text focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-neutral-600">
+                <label className="mb-2 block font-mono text-xs uppercase text-brand-text/70">
                   Title *
                 </label>
                 <input
@@ -352,48 +352,48 @@ export default function AdminAssignmentsPage() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
-                  className="w-full border border-[#3b494b] bg-gray-50 px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-brand-bg px-4 py-3 font-mono text-sm text-brand-text focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-neutral-600">
+                <label className="mb-2 block font-mono text-xs uppercase text-brand-text/70">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={2}
-                  className="w-full border border-[#3b494b] bg-gray-50 px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
+                  className="w-full border border-[#3b494b] bg-brand-bg px-4 py-3 font-mono text-sm text-brand-text focus:border-[#10b981] focus:outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-neutral-600">
+                <label className="mb-2 block font-mono text-xs uppercase text-brand-text/70">
                   Instructions
                 </label>
                 <textarea
                   value={formData.instructions}
                   onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                   rows={4}
-                  className="w-full border border-[#3b494b] bg-gray-50 px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none resize-none"
+                  className="w-full border border-[#3b494b] bg-brand-bg px-4 py-3 font-mono text-sm text-brand-text focus:border-[#10b981] focus:outline-none resize-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-neutral-600">
+                <label className="mb-2 block font-mono text-xs uppercase text-brand-text/70">
                   Due Date
                 </label>
                 <input
                   type="datetime-local"
                   value={formData.due_date}
                   onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                  className="w-full border border-[#3b494b] bg-gray-50 px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-brand-bg px-4 py-3 font-mono text-sm text-brand-text focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block font-mono text-xs uppercase text-neutral-600">
+                <label className="mb-2 block font-mono text-xs uppercase text-brand-text/70">
                   Max Score
                 </label>
                 <input
@@ -401,7 +401,7 @@ export default function AdminAssignmentsPage() {
                   value={formData.max_score}
                   onChange={(e) => setFormData({ ...formData, max_score: parseInt(e.target.value) })}
                   min="0"
-                  className="w-full border border-[#3b494b] bg-gray-50 px-4 py-3 font-mono text-sm text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full border border-[#3b494b] bg-brand-bg px-4 py-3 font-mono text-sm text-brand-text focus:border-[#10b981] focus:outline-none"
                 />
               </div>
 
@@ -413,7 +413,7 @@ export default function AdminAssignmentsPage() {
                   onChange={(e) => setFormData({ ...formData, is_required: e.target.checked })}
                   className="h-4 w-4 accent-[#00f0ff]"
                 />
-                <label htmlFor="is_required" className="font-mono text-xs text-neutral-600">
+                <label htmlFor="is_required" className="font-mono text-xs text-brand-text/70">
                   Required for certificate
                 </label>
               </div>
@@ -435,14 +435,14 @@ export default function AdminAssignmentsPage() {
                       is_required: true,
                     });
                   }}
-                  className="font-mono text-sm text-neutral-600 hover:text-neutral-900 px-4 py-2"
+                  className="font-mono text-sm text-brand-text/70 hover:text-brand-text px-4 py-2"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-brand-bg text-black font-bold uppercase tracking-wider font-mono px-4 py-2 rounded hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Saving...' : editingAssignment ? 'Update' : 'Create'}
                 </button>

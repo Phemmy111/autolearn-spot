@@ -86,14 +86,14 @@ function ColorInput({ label, value, onChange, description }: {
   return (
     <div className="group">
       <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
-      {description && <p className="text-xs text-gray-500 mb-2">{description}</p>}
+      {description && <p className="text-xs text-brand-text/60 mb-2">{description}</p>}
       <div className="flex items-center gap-3">
         <div className="relative">
           <input
             type="color"
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-12 h-12 rounded-xl border-2 border-gray-200 cursor-pointer shadow-sm hover:shadow-md transition-shadow appearance-none"
+            className="w-12 h-12 rounded-xl border-2 border-brand-border cursor-pointer shadow-sm hover:shadow-md transition-shadow appearance-none"
             style={{ padding: 0 }}
           />
         </div>
@@ -104,7 +104,7 @@ function ColorInput({ label, value, onChange, description }: {
             onChange={(e) => {
               if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) onChange(e.target.value);
             }}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+            className="w-full px-3 py-2 border border-brand-border rounded-lg text-sm font-mono bg-[var(--card)] focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
             placeholder="#000000"
           />
           <p className="text-[10px] text-gray-400 mt-1">
@@ -123,12 +123,12 @@ function Section({ icon: Icon, title, children, badge }: {
   icon: React.ElementType; title: string; children: React.ReactNode; badge?: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-[var(--card)] rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
         <div className="p-2 rounded-lg bg-green-50">
-          <Icon className="h-5 w-5 text-green-600" />
+          <Icon className="h-5 w-5 text-brand-primary" />
         </div>
-        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+        <h2 className="text-lg font-bold text-brand-text">{title}</h2>
         {badge && (
           <span className="ml-auto text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
             {badge}
@@ -250,8 +250,8 @@ export default function AdminDesignStudioPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-green-600 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Loading Design Studio…</p>
+          <Loader2 className="h-10 w-10 animate-spin text-brand-primary mx-auto mb-3" />
+          <p className="text-brand-text/60 text-sm">Loading Design Studio…</p>
         </div>
       </div>
     );
@@ -262,7 +262,7 @@ export default function AdminDesignStudioPage() {
 
   /* ---- Render ---- */
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       {/* ---- Toast ---- */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-5 py-3 rounded-xl shadow-lg border text-sm font-medium transition-all animate-in slide-in-from-right ${
@@ -276,15 +276,15 @@ export default function AdminDesignStudioPage() {
       )}
 
       {/* ---- Header ---- */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-40">
+      <div className="bg-[var(--card)] border-b border-gray-100 sticky top-0 z-40">
         <div className="px-8 py-5 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-2.5 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/20">
               <Paintbrush className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold text-gray-900">Design Studio</h1>
-              <p className="text-sm text-gray-500 mt-0.5">Customize the look and feel of your platform</p>
+              <h1 className="text-2xl font-extrabold text-brand-text">Design Studio</h1>
+              <p className="text-sm text-brand-text/60 mt-0.5">Customize the look and feel of your platform</p>
             </div>
           </div>
 
@@ -295,12 +295,12 @@ export default function AdminDesignStudioPage() {
               </span>
             )}
 
-            <button onClick={resetToDefaults} className="px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+            <button onClick={resetToDefaults} className="px-4 py-2.5 text-sm font-medium text-brand-text/70 bg-[var(--card)] border border-brand-border rounded-xl hover:bg-brand-bg transition-all flex items-center gap-2">
               <RotateCcw className="h-4 w-4" /> Defaults
             </button>
 
             {isPublished && (
-              <button onClick={resetToPublished} className="px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
+              <button onClick={resetToPublished} className="px-4 py-2.5 text-sm font-medium text-brand-text/70 bg-[var(--card)] border border-brand-border rounded-xl hover:bg-brand-bg transition-all flex items-center gap-2">
                 <RotateCcw className="h-4 w-4" /> Revert
               </button>
             )}
@@ -330,8 +330,8 @@ export default function AdminDesignStudioPage() {
               onClick={() => setActiveTab(id)}
               className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-all ${
                 activeTab === id
-                  ? 'border-green-600 text-green-700 bg-green-50/50'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'border-brand-primary text-green-700 bg-green-50/50'
+                  : 'border-transparent text-brand-text/60 hover:text-gray-700 hover:bg-brand-bg'
               }`}
             >
               <TabIcon className="h-4 w-4" />
@@ -386,7 +386,7 @@ export default function AdminDesignStudioPage() {
                           update('backgroundColor', preset.bg);
                           setHasChanges(true);
                         }}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all text-sm font-medium text-gray-700 bg-white"
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-brand-border hover:border-brand-border hover:shadow-md transition-all text-sm font-medium text-gray-700 bg-[var(--card)]"
                       >
                         <div className="flex -space-x-1">
                           <span className="w-4 h-4 rounded-full border border-white shadow-sm" style={{ background: preset.primary }} />
@@ -407,11 +407,11 @@ export default function AdminDesignStudioPage() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Body Font</label>
-                    <p className="text-xs text-gray-500 mb-2">Applied to paragraphs, labels, and body text</p>
+                    <p className="text-xs text-brand-text/60 mb-2">Applied to paragraphs, labels, and body text</p>
                     <select
                       value={draft.typography}
                       onChange={(e) => update('typography', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
+                      className="w-full px-4 py-3 border border-brand-border rounded-xl bg-[var(--card)] focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
                     >
                       {FONT_OPTIONS.map((f) => (
                         <option key={f} value={f}>{f}</option>
@@ -424,11 +424,11 @@ export default function AdminDesignStudioPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Heading Font</label>
-                    <p className="text-xs text-gray-500 mb-2">Applied to H1–H6 headings</p>
+                    <p className="text-xs text-brand-text/60 mb-2">Applied to H1–H6 headings</p>
                     <select
                       value={draft.headingFont}
                       onChange={(e) => update('headingFont', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
+                      className="w-full px-4 py-3 border border-brand-border rounded-xl bg-[var(--card)] focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
                     >
                       {FONT_OPTIONS.map((f) => (
                         <option key={f} value={f}>{f}</option>
@@ -448,7 +448,7 @@ export default function AdminDesignStudioPage() {
                 <div className="space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Button Border Radius</label>
-                    <p className="text-xs text-gray-500 mb-3">Controls how rounded buttons and inputs appear</p>
+                    <p className="text-xs text-brand-text/60 mb-3">Controls how rounded buttons and inputs appear</p>
                     <div className="flex items-center gap-4">
                       <input
                         type="range"
@@ -459,7 +459,7 @@ export default function AdminDesignStudioPage() {
                         onChange={(e) => update('buttonRadius', Number(e.target.value))}
                         className="flex-1 accent-green-600"
                       />
-                      <span className="text-sm font-mono text-gray-600 w-12 text-right">{draft.buttonRadius}px</span>
+                      <span className="text-sm font-mono text-brand-text/70 w-12 text-right">{draft.buttonRadius}px</span>
                     </div>
                     <div className="flex items-center gap-3 mt-4">
                       {[0, 4, 8, 12, 16, 24].map((r) => (
@@ -469,7 +469,7 @@ export default function AdminDesignStudioPage() {
                           className={`px-4 py-2 text-xs font-medium border transition-all ${
                             draft.buttonRadius === r
                               ? 'border-green-500 bg-green-50 text-green-700'
-                              : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                              : 'border-brand-border bg-[var(--card)] text-brand-text/70 hover:border-brand-border'
                           }`}
                           style={{ borderRadius: `${r}px` }}
                         >
@@ -500,7 +500,7 @@ export default function AdminDesignStudioPage() {
                           borderRadius: `${draft.buttonRadius}px`,
                           fontFamily: draft.typography,
                         }}
-                        className="px-6 py-2.5 text-sm font-semibold border-2 bg-white"
+                        className="px-6 py-2.5 text-sm font-semibold border-2 bg-[var(--card)]"
                       >
                         Outline Button
                       </button>
@@ -526,16 +526,16 @@ export default function AdminDesignStudioPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Logo URL</label>
-                    <p className="text-xs text-gray-500 mb-2">URL to your platform logo (SVG or PNG recommended)</p>
+                    <p className="text-xs text-brand-text/60 mb-2">URL to your platform logo (SVG or PNG recommended)</p>
                     <input
                       type="text"
                       value={draft.logoUrl}
                       onChange={(e) => update('logoUrl', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
+                      className="w-full px-4 py-3 border border-brand-border rounded-xl bg-[var(--card)] focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
                       placeholder="https://example.com/logo.svg"
                     />
                     {draft.logoUrl && (
-                      <div className="mt-3 p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center">
+                      <div className="mt-3 p-4 bg-brand-bg rounded-xl border border-gray-100 flex items-center justify-center">
                         <img src={draft.logoUrl} alt="Logo preview" className="max-h-16 object-contain" />
                       </div>
                     )}
@@ -543,16 +543,16 @@ export default function AdminDesignStudioPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Favicon URL</label>
-                    <p className="text-xs text-gray-500 mb-2">Browser tab icon (32×32 PNG or ICO)</p>
+                    <p className="text-xs text-brand-text/60 mb-2">Browser tab icon (32×32 PNG or ICO)</p>
                     <input
                       type="text"
                       value={draft.faviconUrl}
                       onChange={(e) => update('faviconUrl', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
+                      className="w-full px-4 py-3 border border-brand-border rounded-xl bg-[var(--card)] focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all text-sm"
                       placeholder="https://example.com/favicon.ico"
                     />
                     {draft.faviconUrl && (
-                      <div className="mt-3 p-4 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-center">
+                      <div className="mt-3 p-4 bg-brand-bg rounded-xl border border-gray-100 flex items-center justify-center">
                         <img src={draft.faviconUrl} alt="Favicon preview" className="max-h-8 object-contain" />
                       </div>
                     )}
@@ -629,10 +629,10 @@ export default function AdminDesignStudioPage() {
                 </div>
 
                 {/* Status */}
-                <div className="mt-4 p-3 bg-gray-50 rounded-xl text-xs text-gray-500 space-y-1">
+                <div className="mt-4 p-3 bg-brand-bg rounded-xl text-xs text-brand-text/60 space-y-1">
                   <div className="flex justify-between">
                     <span>Status</span>
-                    <span className={`font-medium ${isPublished ? 'text-green-600' : 'text-amber-600'}`}>
+                    <span className={`font-medium ${isPublished ? 'text-brand-primary' : 'text-amber-600'}`}>
                       {isPublished ? 'Published' : 'Draft only'}
                     </span>
                   </div>

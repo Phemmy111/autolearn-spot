@@ -60,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark h-full">
+      <html lang="en" className="h-full">
         <body className="font-sans antialiased h-full bg-brand-bg text-brand-text">
           <BrandTheming />
           {children}

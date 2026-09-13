@@ -14,7 +14,7 @@ export default function QuizSelector({ quizzes, selectedQuizId }: { quizzes: Qui
   const router = useRouter()
 
   return (
-    <div className="border border-neutral-200 bg-gray-50 rounded-xl p-6 mb-8">
+    <div className="border border-brand-border bg-brand-bg rounded-xl p-6 mb-8">
       <div className="flex items-center gap-4">
         <div className="flex-1 max-w-sm">
           <label htmlFor="quizId" className="block font-mono text-xs text-[#5d5f63] uppercase tracking-wider mb-2">
@@ -24,7 +24,7 @@ export default function QuizSelector({ quizzes, selectedQuizId }: { quizzes: Qui
             id="quizId"
             name="quizId"
             defaultValue={selectedQuizId || ''}
-            className="w-full bg-gray-50 border border-neutral-200 rounded-lg p-3 text-neutral-900 font-mono text-sm focus:border-[#10b981] outline-none"
+            className="w-full bg-brand-bg border border-brand-border rounded-lg p-3 text-brand-text font-mono text-sm focus:border-[#10b981] outline-none"
             onChange={(e) => {
               if (e.target.value) {
                 router.push(`/admin/analytics?quizId=${e.target.value}`)
@@ -39,7 +39,7 @@ export default function QuizSelector({ quizzes, selectedQuizId }: { quizzes: Qui
             ))}
           </select>
         </div>
-        <div className="mt-6 flex items-center gap-2 text-neutral-500 font-mono text-xs">
+        <div className="mt-6 flex items-center gap-2 text-brand-text/60 font-mono text-xs">
           <HelpCircle className="h-4 w-4 text-[#10b981]" />
           <span>Select a quiz to view question difficulty metrics.</span>
         </div>

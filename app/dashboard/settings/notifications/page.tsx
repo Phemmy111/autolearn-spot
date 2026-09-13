@@ -65,64 +65,64 @@ export default function NotificationSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <p className="font-mono text-sm text-neutral-500">Loading settings...</p>
+      <div className="min-h-screen bg-brand-bg p-8">
+        <p className="font-mono text-sm text-brand-text/60">Loading settings...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-[#e2e8e2] p-4 sm:p-8">
+    <div className="min-h-screen bg-brand-bg text-[#e2e8e2] p-4 sm:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-brand-text/60 hover:text-brand-text font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Link>
-          <h1 className="font-heading text-3xl font-bold uppercase text-neutral-900 mb-2">Notification Settings</h1>
-          <p className="font-mono text-sm text-neutral-500">
+          <h1 className="font-heading text-3xl font-bold uppercase text-brand-text mb-2">Notification Settings</h1>
+          <p className="font-mono text-sm text-brand-text/60">
             Choose what updates you want to receive and how you receive them.
           </p>
         </div>
 
         <div className="space-y-6">
-          <div className="border border-[#3b494b] bg-gray-50 p-6 rounded-xl">
-            <h2 className="font-heading text-xl font-bold text-neutral-900 mb-6">Channels</h2>
+          <div className="border border-[#3b494b] bg-brand-bg p-6 rounded-xl">
+            <h2 className="font-heading text-xl font-bold text-brand-text mb-6">Channels</h2>
             
             <div className="flex items-center justify-between py-3 border-b border-[#3b494b]/50">
               <div>
-                <p className="font-bold text-neutral-900">Email Notifications</p>
-                <p className="text-xs text-neutral-500 mt-1">Receive important updates via email</p>
+                <p className="font-bold text-brand-text">Email Notifications</p>
+                <p className="text-xs text-brand-text/60 mt-1">Receive important updates via email</p>
               </div>
               <button 
                 onClick={() => handleToggle('email_notifications')}
-                className={`w-12 h-6 rounded-full transition-colors relative ${preferences.email_notifications ? 'bg-gray-50' : 'bg-gray-50'}`}
+                className={`w-12 h-6 rounded-full transition-colors relative ${preferences.email_notifications ? 'bg-brand-bg' : 'bg-brand-bg'}`}
               >
-                <div className={`absolute top-1 w-4 h-4 rounded-full bg-gray-100 transition-transform ${preferences.email_notifications ? 'left-7' : 'left-1'}`}></div>
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-[var(--card)] brightness-95 transition-transform ${preferences.email_notifications ? 'left-7' : 'left-1'}`}></div>
               </button>
             </div>
             
             <div className="flex items-center justify-between py-3">
               <div>
-                <p className="font-bold text-neutral-900">In-App Notifications</p>
-                <p className="text-xs text-neutral-500 mt-1">Receive updates in the dashboard bell</p>
+                <p className="font-bold text-brand-text">In-App Notifications</p>
+                <p className="text-xs text-brand-text/60 mt-1">Receive updates in the dashboard bell</p>
               </div>
-              <button disabled className="w-12 h-6 rounded-full bg-gray-50 opacity-50 relative cursor-not-allowed">
-                <div className="absolute top-1 w-4 h-4 rounded-full bg-gray-100 left-7"></div>
+              <button disabled className="w-12 h-6 rounded-full bg-brand-bg opacity-50 relative cursor-not-allowed">
+                <div className="absolute top-1 w-4 h-4 rounded-full bg-[var(--card)] brightness-95 left-7"></div>
               </button>
               <span className="sr-only">Always on</span>
             </div>
           </div>
 
-          <div className="border border-[#3b494b] bg-gray-50 p-6 rounded-xl">
-            <h2 className="font-heading text-xl font-bold text-neutral-900 mb-6">Preferences</h2>
+          <div className="border border-[#3b494b] bg-brand-bg p-6 rounded-xl">
+            <h2 className="font-heading text-xl font-bold text-brand-text mb-6">Preferences</h2>
             
             <div className="space-y-4">
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.announcement_notifications ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.announcement_notifications ? 'border-[#10b981] bg-brand-bg/20 text-[#10b981]' : 'border-[#3b494b] bg-brand-bg text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -132,13 +132,13 @@ export default function NotificationSettingsPage() {
                   onChange={() => handleToggle('announcement_notifications')}
                 />
                 <div>
-                  <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Announcements</p>
-                  <p className="text-xs text-neutral-500 mt-1">Instructor announcements and updates</p>
+                  <p className="font-bold text-brand-text group-hover:text-[#10b981] transition-colors">Announcements</p>
+                  <p className="text-xs text-brand-text/60 mt-1">Instructor announcements and updates</p>
                 </div>
               </label>
 
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.assignment_updates ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.assignment_updates ? 'border-[#10b981] bg-brand-bg/20 text-[#10b981]' : 'border-[#3b494b] bg-brand-bg text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -148,13 +148,13 @@ export default function NotificationSettingsPage() {
                   onChange={() => handleToggle('assignment_updates')}
                 />
                 <div>
-                  <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Assignments</p>
-                  <p className="text-xs text-neutral-500 mt-1">New assignments and grading reviews</p>
+                  <p className="font-bold text-brand-text group-hover:text-[#10b981] transition-colors">Assignments</p>
+                  <p className="text-xs text-brand-text/60 mt-1">New assignments and grading reviews</p>
                 </div>
               </label>
 
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.quiz_notifications ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.quiz_notifications ? 'border-[#10b981] bg-brand-bg/20 text-[#10b981]' : 'border-[#3b494b] bg-brand-bg text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -164,13 +164,13 @@ export default function NotificationSettingsPage() {
                   onChange={() => handleToggle('quiz_notifications')}
                 />
                 <div>
-                  <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Quizzes</p>
-                  <p className="text-xs text-neutral-500 mt-1">New quizzes available and reminders</p>
+                  <p className="font-bold text-brand-text group-hover:text-[#10b981] transition-colors">Quizzes</p>
+                  <p className="text-xs text-brand-text/60 mt-1">New quizzes available and reminders</p>
                 </div>
               </label>
 
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.live_class_notifications ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.live_class_notifications ? 'border-[#10b981] bg-brand-bg/20 text-[#10b981]' : 'border-[#3b494b] bg-brand-bg text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -180,8 +180,8 @@ export default function NotificationSettingsPage() {
                   onChange={() => handleToggle('live_class_notifications')}
                 />
                 <div>
-                  <p className="font-bold text-neutral-900 group-hover:text-[#10b981] transition-colors">Live Classes</p>
-                  <p className="text-xs text-neutral-500 mt-1">Upcoming live classes and links</p>
+                  <p className="font-bold text-brand-text group-hover:text-[#10b981] transition-colors">Live Classes</p>
+                  <p className="text-xs text-brand-text/60 mt-1">Upcoming live classes and links</p>
                 </div>
               </label>
             </div>
@@ -191,7 +191,7 @@ export default function NotificationSettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 bg-gray-50 px-6 py-3 font-mono text-sm font-bold uppercase text-black transition hover:bg-gray-100 disabled:opacity-50"
+              className="flex items-center gap-2 bg-brand-bg px-6 py-3 font-mono text-sm font-bold uppercase text-black transition hover:bg-[var(--card)] brightness-95 disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {saving ? 'Saving...' : 'Save Settings'}

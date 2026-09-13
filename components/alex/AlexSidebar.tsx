@@ -126,13 +126,13 @@ export function AlexSidebar({
           <div className="p-4 border-b border-slate-800 flex items-center justify-between pt-safe-area-top">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <MessageSquare className="h-4 w-4 text-neutral-900" />
+                <MessageSquare className="h-4 w-4 text-brand-text" />
               </div>
-              <h2 className="text-sm font-semibold text-neutral-900">Conversations</h2>
+              <h2 className="text-sm font-semibold text-brand-text">Conversations</h2>
             </div>
             <button
               onClick={onToggleSidebar}
-              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-neutral-900 transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-text transition-colors"
               aria-label="Close sidebar"
             >
               <X className="h-4 w-4" />
@@ -142,13 +142,13 @@ export function AlexSidebar({
           {/* Search */}
           <div className="p-4 border-b border-slate-800">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-text/60" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-neutral-900 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+                className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-brand-text placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
               />
             </div>
           </div>
@@ -160,7 +160,7 @@ export function AlexSidebar({
                 onNewConversation()
                 onToggleSidebar()
               }}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-neutral-900 font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-cyan-500/20"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-brand-text font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-cyan-500/20"
             >
               <Plus className="h-4 w-4" />
               New Chat
@@ -172,12 +172,12 @@ export function AlexSidebar({
             {filteredConversations.length === 0 ? (
               <div className="text-center py-8">
                 {searchQuery ? (
-                  <p className="text-sm text-slate-500">No conversations found</p>
+                  <p className="text-sm text-brand-text/60">No conversations found</p>
                 ) : (
                   <>
                     <MessageSquare className="h-8 w-8 text-slate-700 mx-auto mb-2" />
-                    <p className="text-sm text-slate-500">No conversations yet</p>
-                    <p className="text-xs text-slate-600 mt-1">Start a new conversation</p>
+                    <p className="text-sm text-brand-text/60">No conversations yet</p>
+                    <p className="text-xs text-brand-text/70 mt-1">Start a new conversation</p>
                   </>
                 )}
               </div>
@@ -199,13 +199,13 @@ export function AlexSidebar({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-neutral-900 truncate">{conversation.title || 'New Conversation'}</p>
+                      <p className="text-sm font-medium text-brand-text truncate">{conversation.title || 'New Conversation'}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-slate-500 capitalize">
+                        <span className="text-xs text-brand-text/60 capitalize">
                           {conversation.mode.replace('_', ' ')}
                         </span>
-                        <span className="text-xs text-slate-600">•</span>
-                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <span className="text-xs text-brand-text/70">•</span>
+                        <span className="text-xs text-brand-text/60 flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {formatDate(conversation.updated_at)}
                         </span>
@@ -216,7 +216,7 @@ export function AlexSidebar({
                         e.stopPropagation()
                         setShowMenu(showMenu === conversation.id ? null : conversation.id)
                       }}
-                      className={`${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} w-6 h-6 flex items-center justify-center text-slate-500 hover:text-neutral-900 transition-opacity`}
+                      className={`${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} w-6 h-6 flex items-center justify-center text-brand-text/60 hover:text-brand-text transition-opacity`}
                       aria-label="Conversation options"
                     >
                       <MoreVertical className="h-4 w-4" />
@@ -227,7 +227,7 @@ export function AlexSidebar({
                     <div className="absolute right-2 top-10 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-10 py-1 min-w-[140px]">
                       <button
                         onClick={(e) => handleExportConversation(conversation.id, e)}
-                        className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:text-neutral-900 hover:bg-slate-700 flex items-center gap-2"
+                        className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:text-brand-text hover:bg-slate-700 flex items-center gap-2"
                       >
                         <Download className="h-4 w-4" />
                         Export
@@ -275,13 +275,13 @@ export function AlexSidebar({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
-              <MessageSquare className="h-4 w-4 text-neutral-900" />
+              <MessageSquare className="h-4 w-4 text-brand-text" />
             </div>
-            <h2 className="text-sm font-semibold text-neutral-900">Conversations</h2>
+            <h2 className="text-sm font-semibold text-brand-text">Conversations</h2>
           </div>
           <button
             onClick={onToggleSidebar}
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-neutral-900 transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-brand-text transition-colors"
             title="Close sidebar"
             aria-label="Close sidebar"
           >
@@ -291,13 +291,13 @@ export function AlexSidebar({
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-text/60" />
           <input
             type="text"
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-neutral-900 placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
+            className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-brand-text placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
           />
         </div>
       </div>
@@ -306,7 +306,7 @@ export function AlexSidebar({
       <div className="p-4">
         <button
           onClick={onNewConversation}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-neutral-900 font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-cyan-500/20"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-brand-text font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-cyan-500/20"
         >
           <Plus className="h-4 w-4" />
           New Chat
@@ -318,12 +318,12 @@ export function AlexSidebar({
         {filteredConversations.length === 0 ? (
           <div className="text-center py-8">
             {searchQuery ? (
-              <p className="text-sm text-slate-500">No conversations found</p>
+              <p className="text-sm text-brand-text/60">No conversations found</p>
             ) : (
               <>
                 <MessageSquare className="h-8 w-8 text-slate-700 mx-auto mb-2" />
-                <p className="text-sm text-slate-500">No conversations yet</p>
-                <p className="text-xs text-slate-600 mt-1">Start a new conversation</p>
+                <p className="text-sm text-brand-text/60">No conversations yet</p>
+                <p className="text-xs text-brand-text/70 mt-1">Start a new conversation</p>
               </>
             )}
           </div>
@@ -343,13 +343,13 @@ export function AlexSidebar({
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-neutral-900 truncate">{conversation.title || 'New Conversation'}</p>
+                  <p className="text-sm font-medium text-brand-text truncate">{conversation.title || 'New Conversation'}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-slate-500 capitalize">
+                    <span className="text-xs text-brand-text/60 capitalize">
                       {conversation.mode.replace('_', ' ')}
                     </span>
-                    <span className="text-xs text-slate-600">•</span>
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                    <span className="text-xs text-brand-text/70">•</span>
+                    <span className="text-xs text-brand-text/60 flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {formatDate(conversation.updated_at)}
                     </span>
@@ -360,7 +360,7 @@ export function AlexSidebar({
                     e.stopPropagation()
                     setShowMenu(showMenu === conversation.id ? null : conversation.id)
                   }}
-                  className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center text-slate-500 hover:text-neutral-900 transition-opacity"
+                  className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center text-brand-text/60 hover:text-brand-text transition-opacity"
                   aria-label="Conversation options"
                 >
                   <MoreVertical className="h-4 w-4" />
@@ -371,7 +371,7 @@ export function AlexSidebar({
                 <div className="absolute right-2 top-10 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-10 py-1 min-w-[140px]">
                   <button
                     onClick={(e) => handleExportConversation(conversation.id, e)}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:text-neutral-900 hover:bg-slate-700 flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:text-brand-text hover:bg-slate-700 flex items-center gap-2"
                   >
                     <Download className="h-4 w-4" />
                     Export

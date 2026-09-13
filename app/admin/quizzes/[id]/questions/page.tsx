@@ -108,25 +108,25 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--card)] brightness-95] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#10b981]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-[var(--card)] brightness-95]">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
             href="/admin/quizzes"
-            className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 font-mono text-sm mb-4"
+            className="flex items-center gap-2 text-brand-text/70 hover:text-brand-text font-mono text-sm mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Quizzes
           </Link>
-          <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-2">{quiz?.title || 'Quiz'}</h1>
-          <p className="font-mono text-sm text-neutral-600">Manage quiz questions</p>
+          <h1 className="font-heading text-4xl font-bold text-brand-text mb-2">{quiz?.title || 'Quiz'}</h1>
+          <p className="font-mono text-sm text-brand-text/70">Manage quiz questions</p>
         </div>
 
         {error && (
@@ -138,7 +138,7 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
         <div className="mb-6">
           <Link
             href={`/admin/quizzes/${id}/questions/new`}
-            className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors text-sm"
+            className="flex items-center gap-2 bg-[var(--card)] brightness-95] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[var(--card)] brightness-95 transition-colors text-sm"
           >
             <Plus className="h-4 w-4" />
             Add Question
@@ -146,51 +146,51 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
         </div>
 
         {questions.length === 0 ? (
-          <div className="text-center py-12 border border-neutral-200 bg-gray-100 rounded-xl">
-            <p className="font-mono text-sm text-neutral-600">No questions yet. Add your first question!</p>
+          <div className="text-center py-12 border border-brand-border bg-[var(--card)] brightness-95 rounded-xl">
+            <p className="font-mono text-sm text-brand-text/70">No questions yet. Add your first question!</p>
           </div>
         ) : (
           <div className="space-y-3">
             {questions.map((question, index) => (
               <div
                 key={question.id}
-                className="border border-neutral-200 bg-gray-100 p-4 rounded-xl hover:border-[#10b981]/30 transition-all"
+                className="border border-brand-border bg-[var(--card)] brightness-95 p-4 rounded-xl hover:border-[#10b981]/30 transition-all"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex flex-col gap-1 pt-1">
                     <button
                       onClick={() => handleReorder(question.id, Math.max(0, index - 1))}
                       disabled={index === 0}
-                      className="text-neutral-500 hover:text-neutral-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-brand-text/60 hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       ▲
                     </button>
                     <button
                       onClick={() => handleReorder(question.id, Math.min(questions.length - 1, index + 1))}
                       disabled={index === questions.length - 1}
-                      className="text-neutral-500 hover:text-neutral-900 disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="text-brand-text/60 hover:text-brand-text disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       ▼
                     </button>
                   </div>
                   
-                  <GripVertical className="h-5 w-5 text-neutral-500 mt-1" />
+                  <GripVertical className="h-5 w-5 text-brand-text/60 mt-1" />
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="px-2 py-1 bg-gray-100]/10 text-[#10b981] font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-[var(--card)] brightness-95]/10 text-[#10b981] font-mono text-xs rounded">
                         Q{index + 1}
                       </span>
-                      <span className="px-2 py-1 bg-gray-100] text-neutral-600 font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-[var(--card)] brightness-95] text-brand-text/70 font-mono text-xs rounded">
                         {question.question_type}
                       </span>
-                      <span className="px-2 py-1 bg-gray-100] text-neutral-600 font-mono text-xs rounded">
+                      <span className="px-2 py-1 bg-[var(--card)] brightness-95] text-brand-text/70 font-mono text-xs rounded">
                         {question.points} pts
                       </span>
                     </div>
-                    <p className="font-mono text-sm text-neutral-900 line-clamp-2">{question.question_text}</p>
+                    <p className="font-mono text-sm text-brand-text line-clamp-2">{question.question_text}</p>
                     {question.explanation && (
-                      <p className="font-mono text-xs text-neutral-500 mt-2 line-clamp-1">
+                      <p className="font-mono text-xs text-brand-text/60 mt-2 line-clamp-1">
                         Explanation: {question.explanation}
                       </p>
                     )}
@@ -199,7 +199,7 @@ export default function QuizQuestionsPage({ params }: { params: Promise<{ id: st
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/admin/quizzes/${id}/questions/${question.id}`}
-                      className="text-[#10b981] hover:text-neutral-900"
+                      className="text-[#10b981] hover:text-brand-text"
                     >
                       <Edit className="h-4 w-4" />
                     </Link>

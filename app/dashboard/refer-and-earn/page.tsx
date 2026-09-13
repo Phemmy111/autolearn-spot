@@ -140,7 +140,7 @@ export default function StudentPartnerPage() {
 
   if (!isLoaded || status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
         <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     );
@@ -148,10 +148,10 @@ export default function StudentPartnerPage() {
 
   if (status === 'not_partner') {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-brand-bg py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-50 border border-neutral-200 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gray-50/10 blur-3xl rounded-full" />
+          <div className="bg-brand-bg border border-brand-border rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-bg/10 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full" />
             
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-purple-500/20 flex items-center justify-center text-[#10b981] mx-auto mb-8 relative z-10 border border-[#10b981]/30">
@@ -159,31 +159,31 @@ export default function StudentPartnerPage() {
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-4 relative z-10">Complete Your Enrollment</h1>
-            <p className="text-neutral-500 mb-8 max-w-lg mx-auto relative z-10 text-lg">
+            <p className="text-brand-text/60 mb-8 max-w-lg mx-auto relative z-10 text-lg">
               The Student Partner program is automatically activated when you complete your course enrollment. Once enrolled, you'll earn ₦1,500 for every successful referral.
             </p>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8 relative z-10">
-              <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
+              <div className="bg-brand-bg border border-brand-border rounded-xl p-6">
                 <DollarSign className="h-8 w-8 text-[#10b981] mb-3" />
                 <h3 className="font-bold mb-1">₦1,500</h3>
-                <p className="text-sm text-neutral-500">Per successful referral</p>
+                <p className="text-sm text-brand-text/60">Per successful referral</p>
               </div>
-              <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
+              <div className="bg-brand-bg border border-brand-border rounded-xl p-6">
                 <Clock className="h-8 w-8 text-purple-400 mb-3" />
                 <h3 className="font-bold mb-1">7 Days</h3>
-                <p className="text-sm text-neutral-500">Commission holding period</p>
+                <p className="text-sm text-brand-text/60">Commission holding period</p>
               </div>
-              <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
+              <div className="bg-brand-bg border border-brand-border rounded-xl p-6">
                 <TrendingUp className="h-8 w-8 text-green-400 mb-3" />
                 <h3 className="font-bold mb-1">Unlimited</h3>
-                <p className="text-sm text-neutral-500">Earning potential</p>
+                <p className="text-sm text-brand-text/60">Earning potential</p>
               </div>
             </div>
             
             <Link 
               href="/enroll"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gray-50 text-black font-bold rounded-xl hover:bg-gray-100 transition-colors relative z-10"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-brand-bg text-black font-bold rounded-xl hover:bg-[var(--card)] brightness-95 transition-colors relative z-10"
             >
               Complete Enrollment
               <ArrowRight className="h-4 w-4" />
@@ -195,17 +195,17 @@ export default function StudentPartnerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-brand-bg py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Student Partner Dashboard</h1>
-            <p className="text-neutral-500">Track your referrals and earnings</p>
+            <p className="text-brand-text/60">Track your referrals and earnings</p>
           </div>
           <Link 
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-50 text-neutral-500 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-brand-border bg-brand-bg text-brand-text/60 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
             Back to Dashboard
@@ -220,17 +220,17 @@ export default function StudentPartnerPage() {
                 <Share2 className="h-6 w-6 text-[#10b981]" />
                 <h2 className="text-xl font-bold">Your Referral Link</h2>
               </div>
-              <p className="text-neutral-500 text-sm max-w-xl">
+              <p className="text-brand-text/60 text-sm max-w-xl">
                 Share this unique link with your network. When they enroll through it, you earn ₦1,500 commission after their payment is verified.
               </p>
             </div>
             <div className="flex items-center gap-2 w-full lg:w-auto">
-              <div className="bg-neutral-100 border border-neutral-300 rounded-lg px-4 py-3 font-mono text-sm text-neutral-900/80 truncate flex-1 lg:w-80">
+              <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-3 font-mono text-sm text-brand-text/80 truncate flex-1 lg:w-80">
                 {data?.referralLink}
               </div>
               <button 
                 onClick={handleCopyLink}
-                className="bg-gray-50 text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors flex-shrink-0 flex items-center gap-2"
+                className="bg-brand-bg text-black px-4 py-3 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors flex-shrink-0 flex items-center gap-2"
               >
                 {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copied ? "Copied" : "Copy"}
@@ -240,19 +240,19 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Referral Code Card */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <LinkIcon className="h-5 w-5 text-purple-400" />
                 <h2 className="text-lg font-bold">Your Referral Code</h2>
               </div>
-              <p className="text-neutral-500 text-sm">
+              <p className="text-brand-text/60 text-sm">
                 Share this 8-character code. Users can also enter it manually during enrollment.
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="bg-gray-50 border border-neutral-200 rounded-lg px-6 py-3 font-mono text-2xl font-bold text-[#10b981] tracking-wider">
+              <div className="bg-brand-bg border border-brand-border rounded-lg px-6 py-3 font-mono text-2xl font-bold text-[#10b981] tracking-wider">
                 {data?.referralCode}
               </div>
               <button 
@@ -268,68 +268,68 @@ export default function StudentPartnerPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <MousePointerClick className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Total Clicks</p>
+            <p className="text-sm text-brand-text/60 mb-1">Total Clicks</p>
             <h3 className="text-3xl font-bold">{data?.stats?.totalClicks || 0}</h3>
           </div>
           
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
                 <Users className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Registrations</p>
+            <p className="text-sm text-brand-text/60 mb-1">Registrations</p>
             <h3 className="text-3xl font-bold">{data?.stats?.totalRegistrations || 0}</h3>
           </div>
 
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
                 <Clock className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1">Pending Earnings</p>
+            <p className="text-sm text-brand-text/60 mb-1">Pending Earnings</p>
             <h3 className="text-3xl font-bold text-yellow-400">₦{(data?.stats?.pendingEarnings || 0).toLocaleString()}</h3>
           </div>
 
           <div className="bg-gradient-to-br from-[#00f0ff]/10 to-purple-500/10 border border-[#10b981]/30 rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/5 blur-3xl rounded-full" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-bg/5 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-12 h-12 rounded-full bg-gray-50/10 flex items-center justify-center text-[#10b981]">
+              <div className="w-12 h-12 rounded-full bg-brand-bg/10 flex items-center justify-center text-[#10b981]">
                 <Wallet className="h-6 w-6" />
               </div>
             </div>
-            <p className="text-sm text-neutral-500 mb-1 relative z-10">Available Balance</p>
+            <p className="text-sm text-brand-text/60 mb-1 relative z-10">Available Balance</p>
             <h3 className="text-3xl font-bold text-[#10b981] relative z-10">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</h3>
           </div>
         </div>
 
         {/* Recent Referrals */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Recent Referrals</h2>
           
           {data?.recentReferrals && data.recentReferrals.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-neutral-200">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-500">Email</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-500">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-500">Status</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-neutral-500">Commission</th>
+                  <tr className="border-b border-brand-border">
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-brand-text/60">Email</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-brand-text/60">Date</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-brand-text/60">Status</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-brand-text/60">Commission</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.recentReferrals.map((referral: any, index: number) => (
-                    <tr key={index} className="border-b border-neutral-200 last:border-0">
+                    <tr key={index} className="border-b border-brand-border last:border-0">
                       <td className="py-4 px-4 text-sm">{referral.email}</td>
-                      <td className="py-4 px-4 text-sm text-neutral-500">
+                      <td className="py-4 px-4 text-sm text-brand-text/60">
                         {new Date(referral.date).toLocaleDateString()}
                       </td>
                       <td className="py-4 px-4">
@@ -352,7 +352,7 @@ export default function StudentPartnerPage() {
               </table>
             </div>
           ) : (
-            <div className="text-center py-12 text-neutral-500">
+            <div className="text-center py-12 text-brand-text/60">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No referrals yet. Start sharing your link!</p>
             </div>
@@ -360,26 +360,26 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Commission History */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Commission History</h2>
           
           {data?.commissions && data.commissions.length > 0 ? (
             <div className="space-y-4">
               {data.commissions.map((commission: any, index: number) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 border border-neutral-200 rounded-xl">
+                <div key={index} className="flex items-center justify-between p-4 bg-brand-bg border border-brand-border rounded-xl">
                   <div>
                     <p className="font-semibold">{commission.refereeEmail}</p>
-                    <p className="text-sm text-neutral-500">{new Date(commission.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm text-brand-text/60">{new Date(commission.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-[#10b981]">₦{commission.amount.toLocaleString()}</p>
-                    <p className="text-xs text-neutral-500">{commission.status}</p>
+                    <p className="text-xs text-brand-text/60">{commission.status}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-neutral-500">
+            <div className="text-center py-12 text-brand-text/60">
               <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No commissions earned yet. Refer your first student!</p>
             </div>
@@ -387,22 +387,22 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Marketing Kits */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Marketing Kits</h2>
           
           {data?.marketingResources && data.marketingResources.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {data.marketingResources.map((resource: any, index: number) => (
-                <div key={index} className="bg-gray-50 border border-neutral-200 rounded-xl p-4 hover:border-[#10b981]/50 transition-colors">
+                <div key={index} className="bg-brand-bg border border-brand-border rounded-xl p-4 hover:border-[#10b981]/50 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm mb-1">{resource.name}</h3>
-                      <p className="text-xs text-neutral-500 mb-2">{resource.category}</p>
+                      <p className="text-xs text-brand-text/60 mb-2">{resource.category}</p>
                     </div>
                     <FileText className="h-5 w-5 text-[#10b981] flex-shrink-0" />
                   </div>
                   {resource.description && (
-                    <p className="text-xs text-neutral-500 mb-3 line-clamp-2">{resource.description}</p>
+                    <p className="text-xs text-brand-text/60 mb-3 line-clamp-2">{resource.description}</p>
                   )}
                   <div className="flex gap-2">
                     <button
@@ -410,7 +410,7 @@ export default function StudentPartnerPage() {
                         setSelectedMaterial(resource);
                         setShowMaterialModal(true);
                       }}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#10b981] hover:text-neutral-900 transition-colors"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#10b981] hover:text-brand-text transition-colors"
                     >
                       <Eye className="h-3 w-3" />
                       Preview
@@ -419,7 +419,7 @@ export default function StudentPartnerPage() {
                       href={resource.resource_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#10b981] hover:text-neutral-900 transition-colors"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#10b981] hover:text-brand-text transition-colors"
                     >
                       <Download className="h-3 w-3" />
                       Download
@@ -429,7 +429,7 @@ export default function StudentPartnerPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-neutral-500">
+            <div className="text-center py-12 text-brand-text/60">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No marketing kits available yet. Check back soon!</p>
             </div>
@@ -437,7 +437,7 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Bank Details Section */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <CreditCard className="h-6 w-6 text-[#10b981]" />
@@ -454,31 +454,31 @@ export default function StudentPartnerPage() {
                 }
                 setShowBankModal(true);
               }}
-              className="bg-gray-50 text-black px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+              className="bg-brand-bg text-black px-4 py-2 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors"
             >
               {data?.bankProfile ? 'Update Bank Details' : 'Add Bank Details'}
             </button>
           </div>
           
           {data?.bankProfile ? (
-            <div className="bg-gray-50 border border-neutral-200 rounded-xl p-4">
+            <div className="bg-brand-bg border border-brand-border rounded-xl p-4">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm text-neutral-500 mb-1">Bank Name</p>
+                  <p className="text-sm text-brand-text/60 mb-1">Bank Name</p>
                   <p className="font-semibold">{data.bankProfile.bank_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-neutral-500 mb-1">Account Number</p>
+                  <p className="text-sm text-brand-text/60 mb-1">Account Number</p>
                   <p className="font-semibold">{data.bankProfile.account_number}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-neutral-500 mb-1">Account Name</p>
+                  <p className="text-sm text-brand-text/60 mb-1">Account Name</p>
                   <p className="font-semibold">{data.bankProfile.account_name}</p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-neutral-500">
+            <div className="text-center py-8 text-brand-text/60">
               <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No bank details added yet. Add your bank details to withdraw your earnings.</p>
             </div>
@@ -486,20 +486,20 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Withdrawal Section */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-6">
             <Wallet className="h-6 w-6 text-[#10b981]" />
             <h2 className="text-xl font-bold">Withdraw Earnings</h2>
           </div>
           
-          <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6 mb-4">
+          <div className="bg-brand-bg border border-brand-border rounded-xl p-6 mb-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-sm text-neutral-500 mb-1">Available Balance</p>
+                <p className="text-sm text-brand-text/60 mb-1">Available Balance</p>
                 <p className="text-3xl font-bold text-[#10b981]">₦{(data?.stats?.availableBalance || 0).toLocaleString()}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-neutral-500 mb-1">Minimum Withdrawal</p>
+                <p className="text-sm text-brand-text/60 mb-1">Minimum Withdrawal</p>
                 <p className="text-lg font-semibold">₦5,000</p>
               </div>
             </div>
@@ -513,14 +513,14 @@ export default function StudentPartnerPage() {
                   placeholder={`Minimum ₦${minWithdrawal.toLocaleString()}`}
                   min={minWithdrawal}
                   max={data?.stats?.availableBalance || 0}
-                  className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
                   disabled={isWithdrawing}
                 />
               </div>
               <button
                 type="submit"
                 disabled={isWithdrawing || !data?.bankProfile}
-                className="bg-gray-50 text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="bg-brand-bg text-black px-6 py-3 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isWithdrawing ? 'Processing...' : 'Withdraw'}
               </button>
@@ -538,12 +538,12 @@ export default function StudentPartnerPage() {
       {/* Bank Details Modal */}
       {showBankModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">Bank Details</h3>
               <button
                 onClick={() => setShowBankModal(false)}
-                className="text-neutral-500 hover:text-neutral-900 transition-colors"
+                className="text-brand-text/60 hover:text-brand-text transition-colors"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -557,7 +557,7 @@ export default function StudentPartnerPage() {
                   required
                   value={bankFormData.bank_name}
                   onChange={(e) => setBankFormData({ ...bankFormData, bank_name: e.target.value })}
-                  className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
                   placeholder="e.g., Access Bank"
                 />
               </div>
@@ -569,7 +569,7 @@ export default function StudentPartnerPage() {
                   required
                   value={bankFormData.account_number}
                   onChange={(e) => setBankFormData({ ...bankFormData, account_number: e.target.value })}
-                  className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
                   placeholder="e.g., 1234567890"
                 />
               </div>
@@ -581,7 +581,7 @@ export default function StudentPartnerPage() {
                   required
                   value={bankFormData.account_name}
                   onChange={(e) => setBankFormData({ ...bankFormData, account_name: e.target.value })}
-                  className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-brand-bg border border-brand-border rounded-lg px-4 py-3 text-brand-text focus:border-[#10b981] focus:outline-none"
                   placeholder="e.g., John Doe"
                 />
               </div>
@@ -590,14 +590,14 @@ export default function StudentPartnerPage() {
                 <button
                   type="button"
                   onClick={() => setShowBankModal(false)}
-                  className="flex-1 border border-neutral-200 bg-gray-50 text-neutral-500 px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  className="flex-1 border border-brand-border bg-brand-bg text-brand-text/60 px-4 py-3 rounded-lg font-medium hover:bg-brand-bg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingBank}
-                  className="flex-1 bg-gray-50 text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-brand-bg text-black px-4 py-3 rounded-lg font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSavingBank ? 'Saving...' : 'Save Details'}
                 </button>
@@ -610,12 +610,12 @@ export default function StudentPartnerPage() {
       {/* Marketing Material Preview Modal */}
       {showMaterialModal && selectedMaterial && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">{selectedMaterial.resource_name}</h3>
               <button
                 onClick={() => setShowMaterialModal(false)}
-                className="text-neutral-500 hover:text-neutral-900 transition-colors"
+                className="text-brand-text/60 hover:text-brand-text transition-colors"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -630,21 +630,21 @@ export default function StudentPartnerPage() {
                   className="w-full h-auto rounded-lg max-h-96 object-contain cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={() => window.open(selectedMaterial.resource_url, '_blank')}
                 />
-                <p className="text-xs text-neutral-500 mt-2 text-center">Click image to open in new tab</p>
+                <p className="text-xs text-brand-text/60 mt-2 text-center">Click image to open in new tab</p>
               </div>
             )}
             
             {/* Description/Caption */}
             {selectedMaterial.description && (
-              <div className="bg-gray-100 p-4 rounded-lg mb-6">
+              <div className="bg-[var(--card)] brightness-95 p-4 rounded-lg mb-6">
                 <p className="text-sm font-medium text-[#e2e2e8] mb-2">Caption</p>
-                <p className="text-sm text-neutral-500">{selectedMaterial.description}</p>
+                <p className="text-sm text-brand-text/60">{selectedMaterial.description}</p>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(selectedMaterial.description);
                     alert('Caption copied to clipboard!');
                   }}
-                  className="mt-3 text-xs text-[#10b981] hover:text-neutral-900 transition-colors flex items-center gap-1"
+                  className="mt-3 text-xs text-[#10b981] hover:text-brand-text transition-colors flex items-center gap-1"
                 >
                   <Copy className="h-3 w-3" />
                   Copy Caption
@@ -652,19 +652,19 @@ export default function StudentPartnerPage() {
               </div>
             )}
             
-            <div className="flex gap-3 pt-4 border-t border-neutral-200">
+            <div className="flex gap-3 pt-4 border-t border-brand-border">
               <a
                 href={selectedMaterial.resource_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-black rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-brand-bg text-black rounded-lg font-medium hover:bg-[var(--card)] brightness-95 transition-colors"
               >
                 <Download className="h-4 w-4" />
                 Download
               </a>
               <button
                 onClick={() => setShowMaterialModal(false)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 text-[#e2e2e8] border border-brand-border rounded-lg font-medium hover:bg-brand-bg transition-colors"
               >
                 Close
               </button>

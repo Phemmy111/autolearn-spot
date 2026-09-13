@@ -181,8 +181,8 @@ export default function NewProductPage() {
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-900">CREATE NEW PRODUCT</h1>
-        <p className="text-neutral-500 mt-2">Build your learning product...</p>
+        <h1 className="text-3xl font-bold text-brand-text">CREATE NEW PRODUCT</h1>
+        <p className="text-brand-text/60 mt-2">Build your learning product...</p>
       </div>
       
       {error && (
@@ -194,48 +194,48 @@ export default function NewProductPage() {
       <form onSubmit={handleSubmit} className="space-y-8">
         
         {/* SECTION 1 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 md:p-8 space-y-6">
-          <h2 className="text-lg font-bold text-neutral-900 border-b pb-2">SECTION 1: Product Information</h2>
+        <div className="bg-[var(--card)] rounded-2xl shadow-sm border border-brand-border p-6 md:p-8 space-y-6">
+          <h2 className="text-lg font-bold text-brand-text border-b pb-2">SECTION 1: Product Information</h2>
           
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Title <span className="text-red-500">*</span></label>
-            <input required placeholder="e.g. Complete Web Development Bootcamp" className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input required placeholder="e.g. Complete Web Development Bootcamp" className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Short Description</label>
-            <textarea placeholder="A catchy tagline or brief summary..." className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" rows={2} value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} />
+            <textarea placeholder="A catchy tagline or brief summary..." className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" rows={2} value={shortDesc} onChange={(e) => setShortDesc(e.target.value)} />
           </div>
           
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Full Description</label>
-            <textarea required placeholder="Detailed description of your product..." className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" rows={6} value={fullDesc} onChange={(e) => setFullDesc(e.target.value)} />
-            <p className="text-xs text-neutral-500 mt-1.5">Use paragraphs, bullet points, and clear formatting.</p>
+            <textarea required placeholder="Detailed description of your product..." className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" rows={6} value={fullDesc} onChange={(e) => setFullDesc(e.target.value)} />
+            <p className="text-xs text-brand-text/60 mt-1.5">Use paragraphs, bullet points, and clear formatting.</p>
           </div>
         </div>
 
         {/* SECTION 2 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 md:p-8 space-y-6">
-          <h2 className="text-lg font-bold text-neutral-900 border-b pb-2">SECTION 2: Marketplace Classification</h2>
+        <div className="bg-[var(--card)] rounded-2xl shadow-sm border border-brand-border p-6 md:p-8 space-y-6">
+          <h2 className="text-lg font-bold text-brand-text border-b pb-2">SECTION 2: Marketplace Classification</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Product Type <span className="text-red-500">*</span></label>
-              <select required className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={productType} onChange={(e) => setProductType(e.target.value)}>
+              <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={productType} onChange={(e) => setProductType(e.target.value)}>
                 {PRODUCT_TYPES.map(pt => <option key={pt.value} value={pt.value}>{pt.label}</option>)}
               </select>
             </div>
             
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Difficulty <span className="text-red-500">*</span></label>
-              <select required className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+              <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
                 {DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Category <span className="text-red-500">*</span></label>
-              <select required className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={category} onChange={(e) => handleCategoryChange(e.target.value)}>
+              <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={category} onChange={(e) => handleCategoryChange(e.target.value)}>
                 <option value="">[ Select a category ▾ ]</option>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -245,53 +245,53 @@ export default function NewProductPage() {
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Skill <span className="text-red-500">*</span></label>
               {category ? (
                 availableSkills.length > 0 ? (
-                  <select required className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => setSkill(e.target.value)}>
+                  <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => setSkill(e.target.value)}>
                     <option value="">[ Select a skill ▾ ]</option>
                     {availableSkills.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 ) : (
-                  <input type="text" placeholder="Enter custom skill" className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => setSkill(e.target.value)} />
+                  <input type="text" placeholder="Enter custom skill" className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={skill} onChange={(e) => setSkill(e.target.value)} />
                 )
               ) : (
-                <div className="p-3 bg-neutral-100 border border-neutral-200 rounded-lg text-sm text-neutral-500">Select a category first</div>
+                <div className="p-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text/60">Select a category first</div>
               )}
             </div>
           </div>
         </div>
 
         {/* SECTION 3 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 md:p-8 space-y-6">
-          <h2 className="text-lg font-bold text-neutral-900 border-b pb-2">SECTION 3: Pricing & Access</h2>
+        <div className="bg-[var(--card)] rounded-2xl shadow-sm border border-brand-border p-6 md:p-8 space-y-6">
+          <h2 className="text-lg font-bold text-brand-text border-b pb-2">SECTION 3: Pricing & Access</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Price <span className="text-red-500">*</span></label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-500">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-brand-text/60">
                   {currency === 'NGN' ? '₦' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : '£'}
                 </div>
-                <input required type="number" min="0" step="1" className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block w-full pl-8 p-3 transition-colors shadow-sm" value={price} onChange={(e) => setPrice(e.target.value)} />
+                <input required type="number" min="0" step="1" className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block w-full pl-8 p-3 transition-colors shadow-sm" value={price} onChange={(e) => setPrice(e.target.value)} />
               </div>
             </div>
             
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Currency <span className="text-red-500">*</span></label>
-              <select required className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+              <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={currency} onChange={(e) => setCurrency(e.target.value)}>
                 {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Access Duration <span className="text-red-500">*</span></label>
-              <select required className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm mb-2" value={accessDurationType} onChange={(e) => setAccessDurationType(e.target.value)}>
+              <select required className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm mb-2" value={accessDurationType} onChange={(e) => setAccessDurationType(e.target.value)}>
                 {ACCESS_DURATIONS.map(d => (
                   <option key={d} value={d}>{d === 'Custom' ? 'Custom' : `${d} days`}</option>
                 ))}
               </select>
               {accessDurationType === 'Custom' && (
                 <div className="flex items-center gap-2">
-                  <input type="number" min="1" className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-2 transition-colors shadow-sm" value={customAccessDuration} onChange={(e) => setCustomAccessDuration(e.target.value)} placeholder="Days" />
-                  <span className="text-sm text-neutral-600">days</span>
+                  <input type="number" min="1" className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-2 transition-colors shadow-sm" value={customAccessDuration} onChange={(e) => setCustomAccessDuration(e.target.value)} placeholder="Days" />
+                  <span className="text-sm text-brand-text/70">days</span>
                 </div>
               )}
             </div>
@@ -299,8 +299,8 @@ export default function NewProductPage() {
         </div>
 
         {/* SECTION 4 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 md:p-8 space-y-6">
-          <h2 className="text-lg font-bold text-neutral-900 border-b pb-2">SECTION 4: Audience & Learning Goals</h2>
+        <div className="bg-[var(--card)] rounded-2xl shadow-sm border border-brand-border p-6 md:p-8 space-y-6">
+          <h2 className="text-lg font-bold text-brand-text border-b pb-2">SECTION 4: Audience & Learning Goals</h2>
           
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-2">Target Audience</label>
@@ -310,7 +310,7 @@ export default function NewProductPage() {
                   key={aud}
                   type="button"
                   onClick={() => toggleTargetAudience(aud)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors ${targetAudience.includes(aud) ? 'bg-sky-100 border-sky-300 text-sky-800' : 'bg-white border-neutral-300 text-neutral-600 hover:bg-neutral-50'}`}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors ${targetAudience.includes(aud) ? 'bg-sky-100 border-sky-300 text-sky-800' : 'bg-[var(--card)] border-brand-border text-brand-text/70 hover:bg-brand-bg'}`}
                 >
                   {aud} {targetAudience.includes(aud) && '✓'}
                 </button>
@@ -322,14 +322,14 @@ export default function NewProductPage() {
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Learning Outcomes</label>
               <div className="flex gap-2 mb-3">
-                <input type="text" placeholder="e.g. Build responsive websites" className="flex-1 bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-2.5" value={newOutcome} onChange={(e) => setNewOutcome(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addOutcome())} />
-                <button type="button" onClick={addOutcome} className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-semibold rounded-lg border border-neutral-300 transition-colors">
+                <input type="text" placeholder="e.g. Build responsive websites" className="flex-1 bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-2.5" value={newOutcome} onChange={(e) => setNewOutcome(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addOutcome())} />
+                <button type="button" onClick={addOutcome} className="px-4 py-2 bg-[var(--card)] brightness-95 hover:bg-neutral-200 text-neutral-700 text-sm font-semibold rounded-lg border border-brand-border transition-colors">
                   + Add
                 </button>
               </div>
               <ul className="space-y-2">
                 {learningOutcomes.map((outcome, idx) => (
-                  <li key={idx} className="flex justify-between items-center bg-neutral-50 border border-neutral-200 rounded-lg p-2.5 text-sm text-neutral-700">
+                  <li key={idx} className="flex justify-between items-center bg-brand-bg border border-brand-border rounded-lg p-2.5 text-sm text-neutral-700">
                     <span>{outcome}</span>
                     <button type="button" onClick={() => removeOutcome(idx)} className="text-red-500 hover:text-red-700 font-bold px-2">×</button>
                   </li>
@@ -341,14 +341,14 @@ export default function NewProductPage() {
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Requirements</label>
               <div className="flex gap-2 mb-3">
-                <input type="text" placeholder="e.g. Basic computer knowledge" className="flex-1 bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-2.5" value={newRequirement} onChange={(e) => setNewRequirement(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addRequirement())} />
-                <button type="button" onClick={addRequirement} className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-sm font-semibold rounded-lg border border-neutral-300 transition-colors">
+                <input type="text" placeholder="e.g. Basic computer knowledge" className="flex-1 bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-2.5" value={newRequirement} onChange={(e) => setNewRequirement(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addRequirement())} />
+                <button type="button" onClick={addRequirement} className="px-4 py-2 bg-[var(--card)] brightness-95 hover:bg-neutral-200 text-neutral-700 text-sm font-semibold rounded-lg border border-brand-border transition-colors">
                   + Add
                 </button>
               </div>
               <ul className="space-y-2">
                 {requirements.map((req, idx) => (
-                  <li key={idx} className="flex justify-between items-center bg-neutral-50 border border-neutral-200 rounded-lg p-2.5 text-sm text-neutral-700">
+                  <li key={idx} className="flex justify-between items-center bg-brand-bg border border-brand-border rounded-lg p-2.5 text-sm text-neutral-700">
                     <span>{req}</span>
                     <button type="button" onClick={() => removeRequirement(idx)} className="text-red-500 hover:text-red-700 font-bold px-2">×</button>
                   </li>
@@ -360,28 +360,28 @@ export default function NewProductPage() {
         </div>
 
         {/* SECTION 5 */}
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 md:p-8 space-y-6">
-          <h2 className="text-lg font-bold text-neutral-900 border-b pb-2">SECTION 5: Product Appearance</h2>
+        <div className="bg-[var(--card)] rounded-2xl shadow-sm border border-brand-border p-6 md:p-8 space-y-6">
+          <h2 className="text-lg font-bold text-brand-text border-b pb-2">SECTION 5: Product Appearance</h2>
           
           <div>
             <label className="block text-sm font-semibold text-neutral-700 mb-2">Thumbnail (Optional)</label>
-            <div className="flex flex-col sm:flex-row items-center gap-6 p-6 border-2 border-dashed border-neutral-300 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors">
+            <div className="flex flex-col sm:flex-row items-center gap-6 p-6 border-2 border-dashed border-brand-border rounded-xl bg-brand-bg hover:bg-[var(--card)] brightness-95 transition-colors">
               {thumbnailPreview ? (
                 <div className="relative">
-                  <img src={thumbnailPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-neutral-200 shadow-sm" />
+                  <img src={thumbnailPreview} alt="Preview" className="w-32 h-32 object-cover rounded-lg border border-brand-border shadow-sm" />
                   <button type="button" onClick={() => { setThumbnailPreview(null); setThumbnailFile(null); }} className="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs hover:bg-red-200 shadow-sm">✕</button>
                 </div>
               ) : (
-                <div className="w-32 h-32 flex items-center justify-center bg-neutral-200 rounded-lg border border-neutral-300">
+                <div className="w-32 h-32 flex items-center justify-center bg-neutral-200 rounded-lg border border-brand-border">
                   <span className="text-neutral-400 text-xs text-center px-2">Upload product image<br/><br/>PNG/JPG/WEBP</span>
                 </div>
               )}
               <div className="flex-1 text-center sm:text-left">
                 <input type="file" id="thumbnail" accept="image/png, image/jpeg, image/webp" className="hidden" onChange={handleThumbnailChange} />
-                <label htmlFor="thumbnail" className="cursor-pointer inline-flex px-4 py-2 bg-white border border-neutral-300 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-50 transition-colors shadow-sm">
+                <label htmlFor="thumbnail" className="cursor-pointer inline-flex px-4 py-2 bg-[var(--card)] border border-brand-border text-neutral-700 text-sm font-semibold rounded-lg hover:bg-brand-bg transition-colors shadow-sm">
                   Choose Image
                 </label>
-                <p className="mt-2 text-xs text-neutral-500">Recommended size: 1280x720. Max size: 2MB.</p>
+                <p className="mt-2 text-xs text-brand-text/60">Recommended size: 1280x720. Max size: 2MB.</p>
               </div>
             </div>
           </div>
@@ -389,7 +389,7 @@ export default function NewProductPage() {
 
         {/* ACTIONS */}
         <div className="flex flex-col sm:flex-row justify-end items-center gap-4 pt-4">
-          <button type="button" onClick={() => router.push('/author/products')} className="w-full sm:w-auto px-6 py-3 text-neutral-600 font-semibold text-sm hover:text-neutral-900 transition-colors">
+          <button type="button" onClick={() => router.push('/author/products')} className="w-full sm:w-auto px-6 py-3 text-brand-text/70 font-semibold text-sm hover:text-brand-text transition-colors">
             Cancel
           </button>
           <button type="submit" disabled={submitting} className="w-full sm:w-auto px-8 py-3 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">

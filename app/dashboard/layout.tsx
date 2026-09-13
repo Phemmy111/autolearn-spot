@@ -26,10 +26,10 @@ export default async function DashboardLayout({
 
   if (!isEnrolled) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-brand-bg">
         {/* Simple nav bar for unpaid users so they can still sign out */}
-        <nav className="flex h-16 items-center justify-between border-b border-[#3b494b] bg-gray-50 px-4 sm:px-6">
-          <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-neutral-900">
+        <nav className="flex h-16 items-center justify-between border-b border-[#3b494b] bg-brand-bg px-4 sm:px-6">
+          <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-brand-text">
             <span className="text-[#10b981]">//</span>
             <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
           </div>

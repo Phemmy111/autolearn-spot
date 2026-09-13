@@ -71,16 +71,16 @@ export default function AdminApplicationsPage() {
   }, [searchTerm, statusFilter, pagination.page]);
 
   return (
-    <div className="min-h-screen pb-12 text-gray-900 font-sans">
+    <div className="min-h-screen pb-12 text-brand-text font-sans">
       
       {/* ─── Top Bar ─── */}
-      <header className="h-16 bg-gray-100 border-b border-gray-200 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
-        <div className="flex items-center gap-2 text-sm text-gray-500 font-medium">
-          <Link href="/admin/authors" className="hover:text-gray-800 transition-colors">Admin</Link>
+      <header className="h-16 bg-[var(--card)] brightness-95 border-b border-brand-border px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+        <div className="flex items-center gap-2 text-sm text-brand-text/60 font-medium">
+          <Link href="/admin/authors" className="hover:text-brand-text transition-colors">Admin</Link>
           <ChevronRight className="h-4 w-4 text-gray-400" />
-          <Link href="/admin/authors" className="hover:text-gray-800 transition-colors">Authors</Link>
+          <Link href="/admin/authors" className="hover:text-brand-text transition-colors">Authors</Link>
           <ChevronRight className="h-4 w-4 text-gray-400" />
-          <span className="text-gray-900 font-semibold">Applications</span>
+          <span className="text-brand-text font-semibold">Applications</span>
         </div>
 
         <div className="flex items-center gap-4 sm:gap-6">
@@ -89,12 +89,12 @@ export default function AdminApplicationsPage() {
             <input 
               type="text" 
               placeholder="Search everywhere..." 
-              className="pl-9 pr-4 py-2 w-64 bg-gray-50 border border-gray-200 rounded-full text-sm focus:outline-none focus:bg-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="pl-9 pr-4 py-2 w-64 bg-brand-bg border border-brand-border rounded-full text-sm focus:outline-none focus:bg-[var(--card)] brightness-95 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
           
           <div className="flex items-center gap-3">
-            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-full transition-colors relative">
+            <button className="p-2 text-gray-400 hover:text-brand-text/70 hover:bg-brand-bg rounded-full transition-colors relative">
               <Bell className="h-5 w-5" />
             </button>
             <div className="h-8 w-px bg-gray-200 mx-1"></div>
@@ -110,17 +110,17 @@ export default function AdminApplicationsPage() {
         {/* ─── Page Header ─── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Author Applications</h1>
-            <p className="text-sm text-gray-500 mt-1.5 font-medium max-w-xl leading-relaxed">
+            <h1 className="text-3xl font-extrabold text-brand-text tracking-tight">Author Applications</h1>
+            <p className="text-sm text-brand-text/60 mt-1.5 font-medium max-w-xl leading-relaxed">
               Review and process new author applications. Verify credentials and approve qualified creators to join the marketplace.
             </p>
           </div>
         </div>
 
         {/* ─── Applications Management Area ─── */}
-        <div className="bg-gray-100 border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-2xl shadow-sm overflow-hidden">
           
-          <div className="p-5 flex flex-col sm:flex-row gap-4 justify-between items-center bg-gray-100 border-b border-gray-100">
+          <div className="p-5 flex flex-col sm:flex-row gap-4 justify-between items-center bg-[var(--card)] brightness-95 border-b border-gray-100">
             <div className="relative w-full sm:w-96">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
@@ -128,22 +128,22 @@ export default function AdminApplicationsPage() {
                 placeholder="Search by name, email, or expertise..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:bg-gray-100 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all"
+                className="w-full pl-9 pr-4 py-2.5 bg-brand-bg/50 border border-brand-border rounded-xl text-sm font-medium focus:outline-none focus:bg-[var(--card)] brightness-95 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all"
               />
             </div>
             <div className="flex gap-3 w-full sm:w-auto">
               <select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="px-4 py-2.5 bg-[var(--card)] brightness-95 border border-brand-border text-gray-700 font-bold text-sm rounded-xl hover:bg-brand-bg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="">All Statuses</option>
                 <option value="SUBMITTED">Pending Review</option>
                 <option value="APPROVED">Approved</option>
                 <option value="DECLINED">Rejected</option>
               </select>
-              <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm rounded-xl hover:bg-gray-50 shadow-sm transition-colors whitespace-nowrap">
-                <Filter className="h-4 w-4 text-gray-500" /> Filters
+              <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--card)] brightness-95 border border-brand-border text-gray-700 font-bold text-sm rounded-xl hover:bg-brand-bg shadow-sm transition-colors whitespace-nowrap">
+                <Filter className="h-4 w-4 text-brand-text/60" /> Filters
               </button>
             </div>
           </div>
@@ -152,13 +152,13 @@ export default function AdminApplicationsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50/80 border-b border-gray-200">
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Applicant</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Expertise</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Docs</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Submitted</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                <tr className="bg-brand-bg/80 border-b border-brand-border">
+                  <th className="px-6 py-4 text-xs font-bold text-brand-text/60 uppercase tracking-wider">Applicant</th>
+                  <th className="px-6 py-4 text-xs font-bold text-brand-text/60 uppercase tracking-wider">Expertise</th>
+                  <th className="px-6 py-4 text-xs font-bold text-brand-text/60 uppercase tracking-wider text-center">Docs</th>
+                  <th className="px-6 py-4 text-xs font-bold text-brand-text/60 uppercase tracking-wider">Submitted</th>
+                  <th className="px-6 py-4 text-xs font-bold text-brand-text/60 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-xs font-bold text-brand-text/60 uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -167,31 +167,31 @@ export default function AdminApplicationsPage() {
                     <td colSpan={6} className="px-6 py-12 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <FileText className="h-12 w-12 text-gray-300 mb-4" />
-                        <p className="text-gray-500 font-medium">No author applications found</p>
+                        <p className="text-brand-text/60 font-medium">No author applications found</p>
                         <p className="text-gray-400 text-sm mt-1">Applications will appear here when people apply to become authors</p>
                       </div>
                     </td>
                   </tr>
                 ) : (
                   applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-gray-50/50 transition-colors group cursor-pointer" onClick={() => router.push(`/admin/authors/applications/${app.id}`)}>
+                    <tr key={app.id} className="hover:bg-brand-bg/50 transition-colors group cursor-pointer" onClick={() => router.push(`/admin/authors/applications/${app.id}`)}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center flex-shrink-0 border border-indigo-200 shadow-sm text-indigo-700 font-bold text-sm">
                             {app.avatar}
                           </div>
                           <div>
-                            <div className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{app.name}</div>
-                            <div className="text-xs font-medium text-gray-500 mt-0.5">{app.email}</div>
+                            <div className="font-bold text-brand-text group-hover:text-blue-600 transition-colors">{app.name}</div>
+                            <div className="text-xs font-medium text-brand-text/60 mt-0.5">{app.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-bold text-gray-700">{app.expertise}</div>
-                        <div className="text-xs font-medium text-gray-500 mt-0.5">{app.experience}</div>
+                        <div className="text-xs font-medium text-brand-text/60 mt-0.5">{app.experience}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 rounded-md border border-gray-200 text-xs font-bold text-gray-600">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-[var(--card)] brightness-95 rounded-md border border-brand-border text-xs font-bold text-brand-text/70">
                           <FileText className="h-3.5 w-3.5" />
                           {app.documents}
                         </div>
@@ -232,8 +232,8 @@ export default function AdminApplicationsPage() {
             </table>
           </div>
           
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-500">
+          <div className="px-6 py-4 border-t border-gray-100 bg-brand-bg/50 flex items-center justify-between">
+            <span className="text-sm font-medium text-brand-text/60">
               {applications.length > 0 ? (
                 <>Showing <span className="font-bold text-gray-700">{((pagination.page - 1) * pagination.limit) + 1}</span> to <span className="font-bold text-gray-700">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of <span className="font-bold text-gray-700">{pagination.total}</span> applications</>
               ) : (
@@ -243,14 +243,14 @@ export default function AdminApplicationsPage() {
             <div className="flex gap-2">
               <button 
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
-                className={`px-3 py-1.5 bg-gray-100 border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page <= 1 ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                className={`px-3 py-1.5 bg-[var(--card)] brightness-95 border border-brand-border font-bold text-sm rounded-lg transition-colors ${pagination.page <= 1 ? 'text-brand-text/60 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-brand-bg shadow-sm'}`}
                 disabled={pagination.page <= 1}
               >
                 Previous
               </button>
               <button 
                 onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.totalPages, prev.page + 1) }))}
-                className={`px-3 py-1.5 bg-gray-100 border border-gray-200 font-bold text-sm rounded-lg transition-colors ${pagination.page >= pagination.totalPages ? 'text-gray-500 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50 shadow-sm'}`}
+                className={`px-3 py-1.5 bg-[var(--card)] brightness-95 border border-brand-border font-bold text-sm rounded-lg transition-colors ${pagination.page >= pagination.totalPages ? 'text-brand-text/60 opacity-50 cursor-not-allowed' : 'text-gray-700 hover:bg-brand-bg shadow-sm'}`}
                 disabled={pagination.page >= pagination.totalPages}
               >
                 Next

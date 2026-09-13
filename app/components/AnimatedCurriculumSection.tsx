@@ -39,13 +39,13 @@ export function AnimatedCurriculumSection() {
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
 
   return (
-    <section ref={sectionRef} id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-gray-50">
+    <section ref={sectionRef} id="curriculum" className="py-6 sm:py-8 lg:py-12 bg-brand-bg">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className={`text-center mb-4 sm:mb-6 lg:mb-8 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
             Curriculum
           </h2>
-          <p className="text-sm sm:text-base text-neutral-500 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-brand-text/60 max-w-2xl mx-auto">
             A structured 4-week program designed to take you from beginner to certified automation expert
           </p>
         </div>
@@ -56,21 +56,21 @@ export function AnimatedCurriculumSection() {
               key={week.step}
               className={`border ${
                 week.active 
-                  ? 'border-[#10b981] bg-gray-50/5' 
-                  : 'border-neutral-200 bg-gray-50/80'
+                  ? 'border-[#10b981] bg-brand-bg/5' 
+                  : 'border-brand-border bg-brand-bg/80'
               } backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#10b981]/50 transition-all duration-300 card-enhanced reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
               style={{ transitionDelay: `${0.1 + index * 0.1}s` }}
             >
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${
                   week.active 
-                    ? 'bg-gray-50 text-[#00363a]' 
-                    : 'bg-gray-50 text-[#10b981]'
+                    ? 'bg-brand-bg text-[#00363a]' 
+                    : 'bg-brand-bg text-[#10b981]'
                 }`}>
                   <span className="text-lg sm:text-xl font-bold">{week.step}</span>
                 </div>
                 {week.active && (
-                  <span className="px-2 py-1 bg-gray-50/10 text-[#10b981] text-xs font-mono uppercase tracking-wider">
+                  <span className="px-2 py-1 bg-brand-bg/10 text-[#10b981] text-xs font-mono uppercase tracking-wider">
                     Current
                   </span>
                 )}
@@ -79,10 +79,10 @@ export function AnimatedCurriculumSection() {
                 {week.phase}
               </div>
               <h3 className="text-base sm:text-lg font-bold text-[#e2e2e8] mb-2">{week.title}</h3>
-              <p className="text-sm text-neutral-500 mb-3 sm:mb-4">{week.body}</p>
+              <p className="text-sm text-brand-text/60 mb-3 sm:mb-4">{week.body}</p>
               <ul className="space-y-1 sm:space-y-2">
                 {week.items.map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-xs text-neutral-500">
+                  <li key={item} className="flex items-center gap-2 text-xs text-brand-text/60">
                     <CheckCircle className="h-3 w-3 text-[#10b981] flex-shrink-0" />
                     {item}
                   </li>

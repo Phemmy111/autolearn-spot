@@ -154,10 +154,10 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
               >
                 {isOpen && (
                   <>
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gray-50" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-brand-bg" />
                     <button
                       aria-label="Close"
-                      className="absolute -right-3 -top-3 z-[110] flex h-8 w-8 items-center justify-center rounded-full border border-[#10b981]/50 bg-gray-50 text-[#10b981] transition hover:border-[#10b981] hover:bg-gray-50 hover:text-black sm:-right-4 sm:-top-4 sm:h-10 sm:w-10"
+                      className="absolute -right-3 -top-3 z-[110] flex h-8 w-8 items-center justify-center rounded-full border border-[#10b981]/50 bg-brand-bg text-[#10b981] transition hover:border-[#10b981] hover:bg-brand-bg hover:text-black sm:-right-4 sm:-top-4 sm:h-10 sm:w-10"
                       onClick={handleClose}
                       type="button"
                     >
@@ -166,7 +166,7 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
                   </>
                 )}
 
-                <div className={isOpen ? 'relative aspect-video w-full bg-gray-50' : ''}>
+                <div className={isOpen ? 'relative aspect-video w-full bg-brand-bg' : ''}>
                   {/* THE single iframe — ref never changes */}
                   <iframe
                     ref={iframeRef}
@@ -190,19 +190,19 @@ export function PreviewVideoModal({ children, className = '', vimeoVideoId }: Pr
 
                   {/* Lock overlay after 90 seconds */}
                   {isOpen && isLocked && (
-                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gray-50/90 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-brand-bg/90 backdrop-blur-md animate-in fade-in duration-500">
                       <Lock className="mb-4 h-12 w-12 text-[#10b981] opacity-80" />
                       <h3
                         id={modalTitleId}
-                        className="mb-2 font-heading text-2xl font-bold uppercase text-neutral-900"
+                        className="mb-2 font-heading text-2xl font-bold uppercase text-brand-text"
                       >
                         Preview Complete
                       </h3>
-                      <p className="mb-6 font-mono text-sm text-neutral-500 max-w-md text-center leading-relaxed">
+                      <p className="mb-6 font-mono text-sm text-brand-text/60 max-w-md text-center leading-relaxed">
                         You&apos;ve reached the end of the preview. Enroll now to unlock the full
                         course, live deployments, and get certified.
                       </p>
-                      <EnrollModal className="corner-accent relative inline-flex h-12 w-full max-w-xs items-center justify-center border border-[#10b981] bg-gray-50 px-8 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-gray-50">
+                      <EnrollModal className="corner-accent relative inline-flex h-12 w-full max-w-xs items-center justify-center border border-[#10b981] bg-brand-bg px-8 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-brand-bg">
                         Enroll Now to Unlock
                       </EnrollModal>
                     </div>

@@ -90,9 +90,9 @@ export default function AuthorAssignmentDetailPage({ params }: { params: Promise
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--card)]">
         <div className="container mx-auto px-4 py-12">
-          <div className="text-center text-neutral-500 py-12">Loading assignment...</div>
+          <div className="text-center text-brand-text/60 py-12">Loading assignment...</div>
         </div>
       </div>
     )
@@ -100,7 +100,7 @@ export default function AuthorAssignmentDetailPage({ params }: { params: Promise
 
   if (error || !assignment) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--card)]">
         <div className="container mx-auto px-4 py-12">
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
             {error || 'Assignment not found'}
@@ -111,22 +111,22 @@ export default function AuthorAssignmentDetailPage({ params }: { params: Promise
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--card)]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/author/assignments" className="text-neutral-600 hover:text-neutral-900">
+          <Link href="/author/assignments" className="text-brand-text/70 hover:text-brand-text">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-neutral-900">{assignment.title}</h1>
-            <p className="text-sm text-neutral-600 mt-1">
+            <h1 className="text-3xl font-bold text-brand-text">{assignment.title}</h1>
+            <p className="text-sm text-brand-text/70 mt-1">
               {assignment.lesson.product.title} → {assignment.lesson.title}
             </p>
           </div>
           <div className="flex gap-2">
             <Link
               href={`/author/products/${assignment.lesson.product.id}/curriculum`}
-              className="px-4 py-2 bg-neutral-100 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+              className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
             >
               Edit in Curriculum
             </Link>
@@ -141,19 +141,19 @@ export default function AuthorAssignmentDetailPage({ params }: { params: Promise
         </div>
 
         {assignment.description && (
-          <div className="bg-neutral-50 border border-neutral-200 p-4 rounded-lg mb-6">
+          <div className="bg-brand-bg border border-brand-border p-4 rounded-lg mb-6">
             <p className="text-neutral-700">{assignment.description}</p>
           </div>
         )}
 
         {assignment.instructions && (
-          <div className="bg-neutral-50 border border-neutral-200 p-4 rounded-lg mb-6">
-            <h3 className="font-semibold text-neutral-900 mb-2">Instructions</h3>
+          <div className="bg-brand-bg border border-brand-border p-4 rounded-lg mb-6">
+            <h3 className="font-semibold text-brand-text mb-2">Instructions</h3>
             <p className="text-neutral-700 whitespace-pre-line">{assignment.instructions}</p>
           </div>
         )}
 
-        <div className="flex flex-wrap gap-4 mb-6 text-sm text-neutral-600">
+        <div className="flex flex-wrap gap-4 mb-6 text-sm text-brand-text/70">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             <span>Max Score: {assignment.max_score}</span>

@@ -177,25 +177,25 @@ export default function AdminCertificatesSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
+      <div className="border-b border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/settings" className="text-neutral-600 hover:text-neutral-900 transition-colors">
+              <Link href="/admin/settings" className="text-brand-text/70 hover:text-brand-text transition-colors">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-neutral-900">Certificate Settings</h1>
-                <p className="text-sm text-neutral-600">Configure certificate template and design</p>
+                <h1 className="text-xl font-bold text-brand-text">Certificate Settings</h1>
+                <p className="text-sm text-brand-text/70">Configure certificate template and design</p>
               </div>
             </div>
           </div>
@@ -205,14 +205,14 @@ export default function AdminCertificatesSettingsPage() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tab Navigation */}
-        <div className="flex gap-4 mb-8 border-b border-neutral-200 pb-4">
+        <div className="flex gap-4 mb-8 border-b border-brand-border pb-4">
           <button
             type="button"
             onClick={() => setShowDesigner(false)}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               !showDesigner 
                 ? 'text-[#10b981] border-b-2 border-[#10b981]' 
-                : 'text-neutral-600 hover:text-neutral-900'
+                : 'text-brand-text/70 hover:text-brand-text'
             }`}
           >
             Certificate Content
@@ -226,7 +226,7 @@ export default function AdminCertificatesSettingsPage() {
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               showDesigner 
                 ? 'text-[#10b981] border-b-2 border-[#10b981]' 
-                : 'text-neutral-600 hover:text-neutral-900'
+                : 'text-brand-text/70 hover:text-brand-text'
             }`}
           >
             <Layers className="h-4 w-4 inline mr-2" />
@@ -235,17 +235,17 @@ export default function AdminCertificatesSettingsPage() {
         </div>
 
         {fullScreenDesigner && (
-          <div className="fixed inset-0 z-50 bg-gray-50">
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-neutral-200">
+          <div className="fixed inset-0 z-50 bg-brand-bg">
+            <div className="flex items-center justify-between px-4 py-2 bg-[var(--card)] brightness-95 border-b border-brand-border">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setFullScreenDesigner(false)}
-                  className="p-2 bg-gray-50 text-neutral-600 rounded hover:bg-neutral-200 transition-colors"
+                  className="p-2 bg-brand-bg text-brand-text/70 rounded hover:bg-neutral-200 transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
-                <span className="text-sm text-neutral-900">Visual Designer</span>
+                <span className="text-sm text-brand-text">Visual Designer</span>
               </div>
               <div className="flex items-center gap-2">
                 {success && (
@@ -286,92 +286,92 @@ export default function AdminCertificatesSettingsPage() {
             )}
 
           {/* Certificate Content */}
-          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Award className="h-5 w-5 text-[#10b981]" />
-              <h2 className="text-lg font-semibold text-neutral-900">Certificate Content</h2>
+              <h2 className="text-lg font-semibold text-brand-text">Certificate Content</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Title</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Title</label>
                 <input
                   type="text"
                   value={settings.title}
                   onChange={(e) => setSettings({ ...settings, title: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Subtitle</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Subtitle</label>
                 <input
                   type="text"
                   value={settings.subtitle}
                   onChange={(e) => setSettings({ ...settings, subtitle: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Body Text</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Body Text</label>
                 <input
                   type="text"
                   value={settings.bodyText}
                   onChange={(e) => setSettings({ ...settings, bodyText: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Course / Program</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Course / Program</label>
                 <input
                   type="text"
                   value={settings.course}
                   onChange={(e) => setSettings({ ...settings, course: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Founder Name</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Founder Name</label>
                 <input
                   type="text"
                   value={settings.founderName}
                   onChange={(e) => setSettings({ ...settings, founderName: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Signature Text</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Signature Text</label>
                 <input
                   type="text"
                   value={settings.signatureText}
                   onChange={(e) => setSettings({ ...settings, signatureText: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Footer</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Footer</label>
                 <input
                   type="text"
                   value={settings.footer}
                   onChange={(e) => setSettings({ ...settings, footer: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                 />
               </div>
             </div>
           </div>
 
           {/* Media Assets */}
-          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <ImageIcon className="h-5 w-5 text-[#10b981]" />
-              <h2 className="text-lg font-semibold text-neutral-900">Media Assets</h2>
+              <h2 className="text-lg font-semibold text-brand-text">Media Assets</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Background */}
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Certificate Background</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Certificate Background</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
-                    <Upload className="h-4 w-4 text-neutral-600" />
-                    <span className="text-sm text-neutral-600">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <Upload className="h-4 w-4 text-brand-text/70" />
+                    <span className="text-sm text-brand-text/70">
                       {backgroundFile ? backgroundFile.name : 'Upload Background (PNG/JPG)'}
                     </span>
                     <input
@@ -385,8 +385,8 @@ export default function AdminCertificatesSettingsPage() {
                     />
                   </label>
                   {backgroundFile && (
-                    <div className="flex items-center justify-between p-2 bg-gray-100 border border-neutral-200 rounded">
-                      <span className="text-xs text-neutral-600 truncate">{backgroundFile.name}</span>
+                    <div className="flex items-center justify-between p-2 bg-[var(--card)] brightness-95 border border-brand-border rounded">
+                      <span className="text-xs text-brand-text/70 truncate">{backgroundFile.name}</span>
                       <button
                         type="button"
                         onClick={() => setBackgroundFile(null)}
@@ -397,7 +397,7 @@ export default function AdminCertificatesSettingsPage() {
                     </div>
                   )}
                   {settings.backgroundUrl && !backgroundFile && (
-                    <div className="p-2 bg-gray-100 border border-neutral-200 rounded">
+                    <div className="p-2 bg-[var(--card)] brightness-95 border border-brand-border rounded">
                       <img src={settings.backgroundUrl} alt="Background preview" className="w-full h-24 object-cover rounded mb-2" />
                       <button
                         type="button"
@@ -413,11 +413,11 @@ export default function AdminCertificatesSettingsPage() {
               
               {/* Logo */}
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Certificate Logo</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Certificate Logo</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
-                    <Upload className="h-4 w-4 text-neutral-600" />
-                    <span className="text-sm text-neutral-600">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <Upload className="h-4 w-4 text-brand-text/70" />
+                    <span className="text-sm text-brand-text/70">
                       {logoFile ? logoFile.name : 'Upload Logo (PNG/JPG)'}
                     </span>
                     <input
@@ -431,8 +431,8 @@ export default function AdminCertificatesSettingsPage() {
                     />
                   </label>
                   {logoFile && (
-                    <div className="flex items-center justify-between p-2 bg-gray-100 border border-neutral-200 rounded">
-                      <span className="text-xs text-neutral-600 truncate">{logoFile.name}</span>
+                    <div className="flex items-center justify-between p-2 bg-[var(--card)] brightness-95 border border-brand-border rounded">
+                      <span className="text-xs text-brand-text/70 truncate">{logoFile.name}</span>
                       <button
                         type="button"
                         onClick={() => setLogoFile(null)}
@@ -443,7 +443,7 @@ export default function AdminCertificatesSettingsPage() {
                     </div>
                   )}
                   {settings.logoUrl && !logoFile && (
-                    <div className="p-2 bg-gray-100 border border-neutral-200 rounded">
+                    <div className="p-2 bg-[var(--card)] brightness-95 border border-brand-border rounded">
                       <img src={settings.logoUrl} alt="Logo preview" className="w-full h-24 object-contain rounded mb-2" />
                       <button
                         type="button"
@@ -459,11 +459,11 @@ export default function AdminCertificatesSettingsPage() {
               
               {/* Signature */}
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Signature Image</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Signature Image</label>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 px-4 py-3 bg-gray-100 border border-neutral-200 rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
-                    <Upload className="h-4 w-4 text-neutral-600" />
-                    <span className="text-sm text-neutral-600">
+                  <label className="flex items-center gap-2 px-4 py-3 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg cursor-pointer hover:border-[#10b981] transition-colors">
+                    <Upload className="h-4 w-4 text-brand-text/70" />
+                    <span className="text-sm text-brand-text/70">
                       {signatureFile ? signatureFile.name : 'Upload Signature (PNG/JPG)'}
                     </span>
                     <input
@@ -477,8 +477,8 @@ export default function AdminCertificatesSettingsPage() {
                     />
                   </label>
                   {signatureFile && (
-                    <div className="flex items-center justify-between p-2 bg-gray-100 border border-neutral-200 rounded">
-                      <span className="text-xs text-neutral-600 truncate">{signatureFile.name}</span>
+                    <div className="flex items-center justify-between p-2 bg-[var(--card)] brightness-95 border border-brand-border rounded">
+                      <span className="text-xs text-brand-text/70 truncate">{signatureFile.name}</span>
                       <button
                         type="button"
                         onClick={() => setSignatureFile(null)}
@@ -489,7 +489,7 @@ export default function AdminCertificatesSettingsPage() {
                     </div>
                   )}
                   {settings.signatureUrl && !signatureFile && (
-                    <div className="p-2 bg-gray-100 border border-neutral-200 rounded">
+                    <div className="p-2 bg-[var(--card)] brightness-95 border border-brand-border rounded">
                       <img src={settings.signatureUrl} alt="Signature preview" className="w-full h-24 object-contain rounded mb-2" />
                       <button
                         type="button"
@@ -506,39 +506,39 @@ export default function AdminCertificatesSettingsPage() {
           </div>
 
           {/* Design Settings */}
-          <div className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-6">
+          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Award className="h-5 w-5 text-[#10b981]" />
-              <h2 className="text-lg font-semibold text-neutral-900">Design Settings</h2>
+              <h2 className="text-lg font-semibold text-brand-text">Design Settings</h2>
             </div>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Accent Color</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Accent Color</label>
                 <div className="flex gap-2">
                   <input
                     type="color"
                     value={settings.accentColor}
                     onChange={(e) => setSettings({ ...settings, accentColor: e.target.value })}
-                    className="h-10 w-12 rounded border border-neutral-200 cursor-pointer"
+                    className="h-10 w-12 rounded border border-brand-border cursor-pointer"
                   />
                   <input
                     type="text"
                     value={settings.accentColor}
                     onChange={(e) => setSettings({ ...settings, accentColor: e.target.value })}
-                    className="flex-1 px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="flex-1 px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-600 mb-2">Certificate Number Format</label>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Certificate Number Format</label>
                 <input
                   type="text"
                   value={settings.numberFormat}
                   onChange={(e) => setSettings({ ...settings, numberFormat: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                  className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                   placeholder="ALS-{year}-{cohort}-{sequence}"
                 />
-                <p className="text-xs text-neutral-600 mt-1">Variables: {'{year}'}, {'{cohort}'}, {'{sequence}'}</p>
+                <p className="text-xs text-brand-text/70 mt-1">Variables: {'{year}'}, {'{cohort}'}, {'{sequence}'}</p>
               </div>
               <div className="flex items-center gap-3">
                 <input
@@ -546,18 +546,18 @@ export default function AdminCertificatesSettingsPage() {
                   id="qrEnabled"
                   checked={settings.qrEnabled === 'true'}
                   onChange={(e) => setSettings({ ...settings, qrEnabled: e.target.checked ? 'true' : 'false' })}
-                  className="w-4 h-4 rounded border-neutral-200 bg-gray-100 text-[#10b981] focus:ring-[#00f0ff]"
+                  className="w-4 h-4 rounded border-brand-border bg-[var(--card)] brightness-95 text-[#10b981] focus:ring-[#00f0ff]"
                 />
-                <label htmlFor="qrEnabled" className="text-sm text-neutral-600">Enable QR Code</label>
+                <label htmlFor="qrEnabled" className="text-sm text-brand-text/70">Enable QR Code</label>
               </div>
               {settings.qrEnabled === 'true' && (
                 <div>
-                  <label className="block text-sm font-medium text-neutral-600 mb-2">QR Code Destination</label>
+                  <label className="block text-sm font-medium text-brand-text/70 mb-2">QR Code Destination</label>
                   <input
                     type="url"
                     value={settings.qrDestination}
                     onChange={(e) => setSettings({ ...settings, qrDestination: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+                    className="w-full px-4 py-2 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg text-sm text-brand-text focus:outline-none focus:border-[#10b981]"
                     placeholder="https://..."
                   />
                 </div>
@@ -570,7 +570,7 @@ export default function AdminCertificatesSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-gray-50 text-[#00363a] rounded-lg font-medium hover:bg-gray-50/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-brand-bg text-[#00363a] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

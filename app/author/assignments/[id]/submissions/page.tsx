@@ -67,24 +67,24 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--card)]">
         <div className="container mx-auto px-4 py-12">
-          <div className="text-center text-neutral-500 py-12">Loading submissions...</div>
+          <div className="text-center text-brand-text/60 py-12">Loading submissions...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--card)]">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Link href={`/author/assignments/${assignmentId}`} className="text-neutral-600 hover:text-neutral-900">
+          <Link href={`/author/assignments/${assignmentId}`} className="text-brand-text/70 hover:text-brand-text">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-neutral-900">Student Submissions</h1>
-            <p className="text-sm text-neutral-600 mt-1">Review assignment submissions and provide feedback</p>
+            <h1 className="text-3xl font-bold text-brand-text">Student Submissions</h1>
+            <p className="text-sm text-brand-text/70 mt-1">Review assignment submissions and provide feedback</p>
           </div>
         </div>
 
@@ -95,13 +95,13 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
         )}
 
         {submissions.length === 0 ? (
-          <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
+          <div className="bg-[var(--card)] rounded-xl border border-brand-border p-12 text-center">
             <div className="flex flex-col items-center gap-4">
-              <div className="p-4 bg-neutral-100 rounded-full">
+              <div className="p-4 bg-[var(--card)] brightness-95 rounded-full">
                 <User className="h-8 w-8 text-neutral-400" />
               </div>
-              <h3 className="text-lg font-semibold text-neutral-900">No submissions yet</h3>
-              <p className="text-neutral-500">Students haven't submitted this assignment yet</p>
+              <h3 className="text-lg font-semibold text-brand-text">No submissions yet</h3>
+              <p className="text-brand-text/60">Students haven't submitted this assignment yet</p>
             </div>
           </div>
         ) : (
@@ -109,7 +109,7 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
             {submissions.map((submission) => (
               <div
                 key={submission.id}
-                className="border border-neutral-200 bg-neutral-50 p-6 rounded-xl hover:shadow-md transition-shadow"
+                className="border border-brand-border bg-brand-bg p-6 rounded-xl hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -118,10 +118,10 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                         <User className="h-5 w-5 text-sky-600" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-neutral-900">
+                        <h3 className="font-semibold text-brand-text">
                           Student ID: {submission.user_id}
                         </h3>
-                        <p className="text-sm text-neutral-600">
+                        <p className="text-sm text-brand-text/70">
                           Status: {submission.status}
                         </p>
                       </div>
@@ -130,17 +130,17 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                   <div className="text-right">
                     {submission.ai_score !== null ? (
                       <div className="flex items-center gap-2 justify-end mb-1">
-                        <span className="text-2xl font-bold text-gray-900">
+                        <span className="text-2xl font-bold text-brand-text">
                           {submission.ai_score}/{submission.assignment.max_score}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-500">Not graded</span>
+                      <span className="text-sm text-brand-text/60">Not graded</span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-neutral-600 mb-4">
+                <div className="flex items-center gap-2 text-sm text-brand-text/70 mb-4">
                   <Clock className="h-4 w-4" />
                   <span>
                     Submitted: {new Date(submission.created_at).toLocaleString()}
@@ -176,16 +176,16 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                 )}
 
                 {submission.ai_feedback && (
-                  <div className="bg-white border border-neutral-200 p-3 rounded-lg mb-4">
-                    <p className="text-sm text-neutral-600">
+                  <div className="bg-[var(--card)] border border-brand-border p-3 rounded-lg mb-4">
+                    <p className="text-sm text-brand-text/70">
                       <span className="font-semibold">AI Feedback:</span> {submission.ai_feedback}
                     </p>
                   </div>
                 )}
 
                 {submission.notes && (
-                  <div className="bg-white border border-neutral-200 p-3 rounded-lg mb-4">
-                    <p className="text-sm text-neutral-600">
+                  <div className="bg-[var(--card)] border border-brand-border p-3 rounded-lg mb-4">
+                    <p className="text-sm text-brand-text/70">
                       <span className="font-semibold">Notes:</span> {submission.notes}
                     </p>
                   </div>

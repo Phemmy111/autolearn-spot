@@ -60,8 +60,8 @@ export default function WithdrawalActionModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-50 rounded-2xl p-6 w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold text-neutral-900 mb-4">
+      <div className="bg-brand-bg rounded-2xl p-6 w-full max-w-md shadow-lg">
+        <h2 className="text-xl font-bold text-brand-text mb-4">
           {action === "approve" ? "Approve" : "Reject"} Withdrawal
         </h2>
         <p className="text-gray-200 mb-2">Author: {withdrawal.author.display_name}</p>
@@ -75,7 +75,7 @@ export default function WithdrawalActionModal({
             <input
               id="providerRef"
               type="text"
-              className="w-full px-3 py-2 rounded bg-gray-50 text-neutral-900 focus:outline-none"
+              className="w-full px-3 py-2 rounded bg-brand-bg text-brand-text focus:outline-none"
               value={providerRef}
               onChange={(e) => setProviderRef(e.target.value)}
             />
@@ -84,14 +84,14 @@ export default function WithdrawalActionModal({
         {error && <p className="text-red-500 mb-2">{error}</p>}
         <div className="flex justify-end space-x-2">
           <button
-            className="px-4 py-2 bg-gray-600 text-neutral-900 rounded hover:bg-gray-700"
+            className="px-4 py-2 bg-gray-600 text-brand-text rounded hover:bg-gray-700"
             onClick={onClose}
             disabled={loading}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-blue-600 text-neutral-900 rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-brand-text rounded hover:bg-blue-700"
             onClick={handleConfirm}
             disabled={loading}
           >

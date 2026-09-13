@@ -44,7 +44,7 @@ export function DynamicTestimonialsSection() {
 
   if (isLoading) {
     return (
-      <section className="py-6 sm:py-8 lg:py-12 bg-gray-50">
+      <section className="py-6 sm:py-8 lg:py-12 bg-brand-bg">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
           <div className="text-center mb-4 sm:mb-6 lg:mb-8">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
@@ -53,10 +53,10 @@ export function DynamicTestimonialsSection() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="border border-neutral-200 bg-gray-50/50 rounded-xl p-6 animate-pulse">
-                <div className="h-4 bg-gray-50 rounded mb-4"></div>
-                <div className="h-3 bg-gray-50 rounded mb-2"></div>
-                <div className="h-3 bg-gray-50 rounded w-2/3"></div>
+              <div key={i} className="border border-brand-border bg-brand-bg/50 rounded-xl p-6 animate-pulse">
+                <div className="h-4 bg-brand-bg rounded mb-4"></div>
+                <div className="h-3 bg-brand-bg rounded mb-2"></div>
+                <div className="h-3 bg-brand-bg rounded w-2/3"></div>
               </div>
             ))}
           </div>
@@ -70,7 +70,7 @@ export function DynamicTestimonialsSection() {
   }
 
   return (
-    <section className="py-6 sm:py-8 lg:py-12 bg-gray-50">
+    <section className="py-6 sm:py-8 lg:py-12 bg-brand-bg">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
@@ -80,7 +80,7 @@ export function DynamicTestimonialsSection() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="border border-neutral-200 bg-gray-50/50 backdrop-blur-xl rounded-xl p-6">
+            <div key={testimonial.id} className="border border-brand-border bg-brand-bg/50 backdrop-blur-xl rounded-xl p-6">
               <div className="mb-4 relative">
                 {testimonial.media_type === 'video' ? (
                   <div className="relative">
@@ -112,17 +112,17 @@ export function DynamicTestimonialsSection() {
                     <img
                       src={testimonial.profile_image_url}
                       alt={testimonial.student_name || 'Student'}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-neutral-200 group-hover:border-[#10b981] transition-colors"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-brand-border group-hover:border-[#10b981] transition-colors"
                     />
                     {testimonial.social_profile_url && (
-                      <div className="absolute inset-0 rounded-full bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="text-xs text-neutral-900 font-bold">✓</span>
+                      <div className="absolute inset-0 rounded-full bg-brand-bg/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-xs text-brand-text font-bold">✓</span>
                       </div>
                     )}
                   </a>
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-50 border-2 border-neutral-200 flex items-center justify-center">
-                    <span className="text-neutral-500 text-sm font-semibold">
+                  <div className="w-12 h-12 rounded-full bg-brand-bg border-2 border-brand-border flex items-center justify-center">
+                    <span className="text-brand-text/60 text-sm font-semibold">
                       {(testimonial.student_name || 'S')[0].toUpperCase()}
                     </span>
                   </div>
@@ -132,13 +132,13 @@ export function DynamicTestimonialsSection() {
                 )}
               </div>
               {(testimonial.cohort || testimonial.course) && (
-                <p className="text-xs text-neutral-500 mb-2">
+                <p className="text-xs text-brand-text/60 mb-2">
                   {testimonial.cohort && `${testimonial.cohort} `}
                   {testimonial.course && `• ${testimonial.course}`}
                 </p>
               )}
               {testimonial.caption && (
-                <p className="text-sm text-neutral-500 line-clamp-3">{testimonial.caption}</p>
+                <p className="text-sm text-brand-text/60 line-clamp-3">{testimonial.caption}</p>
               )}
               {testimonial.featured && (
                 <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/10 text-yellow-400 text-xs rounded-full">

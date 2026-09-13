@@ -137,31 +137,31 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
-          <p className="font-mono text-sm text-neutral-600">Loading admins...</p>
+          <p className="font-mono text-sm text-brand-text/70">Loading admins...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-neutral-600 hover:text-neutral-900">
+            <Link href="/admin" className="text-brand-text/70 hover:text-brand-text">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="font-heading text-4xl font-bold text-neutral-900">Admin Users</h1>
-              <p className="font-mono text-sm text-neutral-600">Manage admin access and roles</p>
+              <h1 className="font-heading text-4xl font-bold text-brand-text">Admin Users</h1>
+              <p className="font-mono text-sm text-brand-text/70">Manage admin access and roles</p>
             </div>
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 bg-brand-bg text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-[var(--card)] brightness-95 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Admin
@@ -175,34 +175,34 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-        <div className="border border-neutral-200 bg-gray-100 rounded-xl overflow-hidden">
+        <div className="border border-brand-border bg-[var(--card)] brightness-95 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-brand-bg">
                 <tr>
-                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-neutral-600">Email</th>
-                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-neutral-600">Role</th>
-                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-neutral-600">Status</th>
-                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-neutral-600">Created</th>
-                  <th className="px-6 py-4 text-right font-mono text-xs uppercase text-neutral-600">Actions</th>
+                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-brand-text/70">Email</th>
+                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-brand-text/70">Role</th>
+                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-brand-text/70">Status</th>
+                  <th className="px-6 py-4 text-left font-mono text-xs uppercase text-brand-text/70">Created</th>
+                  <th className="px-6 py-4 text-right font-mono text-xs uppercase text-brand-text/70">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1f2229]">
                 {admins.map((admin) => (
-                  <tr key={admin.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={admin.id} className="hover:bg-brand-bg/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {admin.role === 'super_admin' && (
                           <Crown className="h-4 w-4 text-yellow-400" />
                         )}
-                        <span className="font-mono text-sm text-neutral-900">{admin.email}</span>
+                        <span className="font-mono text-sm text-brand-text">{admin.email}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium ${
                         admin.role === 'super_admin'
                           ? 'bg-yellow-400/10 text-yellow-400 border border-yellow-400/50'
-                          : 'bg-gray-50/10 text-[#10b981] border border-[#10b981]/30'
+                          : 'bg-brand-bg/10 text-[#10b981] border border-[#10b981]/30'
                       }`}>
                         {admin.role === 'super_admin' ? (
                           <>
@@ -236,14 +236,14 @@ export default function AdminUsersPage() {
                         )}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-mono text-xs text-neutral-500">
+                    <td className="px-6 py-4 font-mono text-xs text-brand-text/60">
                       {new Date(admin.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleToggleActive(admin.id, admin.is_active)}
-                          className="p-2 rounded hover:bg-gray-50 transition-colors"
+                          className="p-2 rounded hover:bg-brand-bg transition-colors"
                           title={admin.is_active ? 'Deactivate' : 'Activate'}
                         >
                           {admin.is_active ? (
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
                         </button>
                         <button
                           onClick={() => handleDeleteAdmin(admin.id)}
-                          className="p-2 rounded hover:bg-gray-50 transition-colors"
+                          className="p-2 rounded hover:bg-brand-bg transition-colors"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4 text-red-400" />
@@ -270,26 +270,26 @@ export default function AdminUsersPage() {
 
         {showAddModal && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl max-w-md w-full mx-4">
-              <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-4">Add New Admin</h2>
+            <div className="border border-brand-border bg-[var(--card)] brightness-95 p-6 rounded-xl max-w-md w-full mx-4">
+              <h2 className="font-heading text-2xl font-bold text-brand-text mb-4">Add New Admin</h2>
               <form onSubmit={handleAddAdmin}>
                 <div className="mb-4">
-                  <label className="block font-mono text-xs text-neutral-600 mb-2">Email</label>
+                  <label className="block font-mono text-xs text-brand-text/70 mb-2">Email</label>
                   <input
                     type="email"
                     value={newAdminEmail}
                     onChange={(e) => setNewAdminEmail(e.target.value)}
-                    className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                    className="w-full bg-brand-bg border border-[#3b494b] rounded px-4 py-2 text-brand-text font-mono text-sm focus:outline-none focus:border-[#10b981]"
                     placeholder="admin@example.com"
                     required
                   />
                 </div>
                 <div className="mb-6">
-                  <label className="block font-mono text-xs text-neutral-600 mb-2">Role</label>
+                  <label className="block font-mono text-xs text-brand-text/70 mb-2">Role</label>
                   <select
                     value={newAdminRole}
                     onChange={(e) => setNewAdminRole(e.target.value as 'admin' | 'super_admin')}
-                    className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                    className="w-full bg-brand-bg border border-[#3b494b] rounded px-4 py-2 text-brand-text font-mono text-sm focus:outline-none focus:border-[#10b981]"
                   >
                     <option value="admin">Admin</option>
                     <option value="super_admin">Super Admin</option>
@@ -299,14 +299,14 @@ export default function AdminUsersPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-50 transition-colors"
+                    className="flex-1 border border-[#3b494b] text-brand-text/70 font-mono text-sm px-4 py-2 rounded hover:bg-brand-bg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={adding}
-                    className="flex-1 bg-gray-50 text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    className="flex-1 bg-brand-bg text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50"
                   >
                     {adding ? 'Adding...' : 'Add Admin'}
                   </button>

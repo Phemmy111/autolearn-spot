@@ -58,7 +58,7 @@ export default function VideoPlayer({
 
   // No video source available
   return (
-    <div className="flex h-full items-center justify-center font-mono text-sm text-neutral-500">
+    <div className="flex h-full items-center justify-center font-mono text-sm text-brand-text/60">
       Video source not configured for this lesson.
     </div>
   )

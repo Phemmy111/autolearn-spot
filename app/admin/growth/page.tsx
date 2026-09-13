@@ -115,11 +115,11 @@ export default function AdminGrowthCenter() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Growth Center</h1>
-          <p className="text-neutral-600 text-sm">Manage ambassadors, partners, and payouts.</p>
+          <p className="text-brand-text/70 text-sm">Manage ambassadors, partners, and payouts.</p>
         </div>
       </div>
 
-      <div className="flex border-b border-neutral-200">
+      <div className="flex border-b border-brand-border">
         {(['overview', 'applications', 'partners', 'withdrawals'] as const).map(tab => (
           <button
             key={tab}
@@ -127,7 +127,7 @@ export default function AdminGrowthCenter() {
             className={`px-6 py-3 font-medium text-sm capitalize transition-colors border-b-2 ${
               activeTab === tab 
                 ? 'border-[#10b981] text-[#10b981]' 
-                : 'border-transparent text-neutral-600 hover:text-neutral-900 hover:border-white/20'
+                : 'border-transparent text-brand-text/70 hover:text-brand-text hover:border-white/20'
             }`}
           >
             {tab}
@@ -139,20 +139,20 @@ export default function AdminGrowthCenter() {
 
       {!loading && activeTab === 'overview' && stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
-            <h3 className="text-sm text-neutral-600 mb-1">Student Ambassadors</h3>
+          <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
+            <h3 className="text-sm text-brand-text/70 mb-1">Student Ambassadors</h3>
             <p className="text-3xl font-bold">{stats.studentAmbassadors}</p>
           </div>
-          <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
-            <h3 className="text-sm text-neutral-600 mb-1">Community Ambassadors</h3>
+          <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
+            <h3 className="text-sm text-brand-text/70 mb-1">Community Ambassadors</h3>
             <p className="text-3xl font-bold">{stats.communityAmbassadors}</p>
           </div>
-          <div className="bg-neutral-50 border border-neutral-200 p-6 rounded-2xl">
-            <h3 className="text-sm text-neutral-600 mb-1">Influencer Partners</h3>
+          <div className="bg-brand-bg border border-brand-border p-6 rounded-2xl">
+            <h3 className="text-sm text-brand-text/70 mb-1">Influencer Partners</h3>
             <p className="text-3xl font-bold">{stats.influencerPartners}</p>
           </div>
-          <div className="bg-neutral-50 border border-[#10b981]/20 p-6 rounded-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/10 blur-3xl rounded-full" />
+          <div className="bg-brand-bg border border-[#10b981]/20 p-6 rounded-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-bg/10 blur-3xl rounded-full" />
             <h3 className="text-sm text-[#10b981] mb-1 relative z-10">Total Payouts</h3>
             <p className="text-3xl font-bold relative z-10">₦{stats.totalPayouts.toLocaleString()}</p>
           </div>
@@ -160,28 +160,28 @@ export default function AdminGrowthCenter() {
       )}
 
       {!loading && activeTab === 'applications' && (
-        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/50 border-b border-neutral-200">
+            <thead className="bg-brand-bg/50 border-b border-brand-border">
               <tr>
-                <th className="px-6 py-4 font-medium text-neutral-600">Applicant</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Promotion Method</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Status</th>
-                <th className="px-6 py-4 font-medium text-neutral-600 text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Applicant</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Type</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Promotion Method</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Status</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {applications.map(app => (
-                <tr key={app.id} className="hover:bg-gray-100/5 transition-colors">
+                <tr key={app.id} className="hover:bg-[var(--card)] brightness-95/5 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-neutral-900">{app.full_name}</p>
-                    <p className="text-neutral-600 text-xs">{app.email}</p>
+                    <p className="font-medium text-brand-text">{app.full_name}</p>
+                    <p className="text-brand-text/70 text-xs">{app.email}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-1 rounded bg-gray-100/5 text-xs">{app.is_student ? 'Student' : 'Community'}</span>
+                    <span className="px-2 py-1 rounded bg-[var(--card)] brightness-95/5 text-xs">{app.is_student ? 'Student' : 'Community'}</span>
                   </td>
-                  <td className="px-6 py-4 text-neutral-600 truncate max-w-[200px]" title={app.promotion_method}>
+                  <td className="px-6 py-4 text-brand-text/70 truncate max-w-[200px]" title={app.promotion_method}>
                     {app.promotion_method}
                   </td>
                   <td className="px-6 py-4">
@@ -208,7 +208,7 @@ export default function AdminGrowthCenter() {
                 </tr>
               ))}
               {applications.length === 0 && (
-                <tr><td colSpan={5} className="px-6 py-12 text-center text-neutral-600">No applications found.</td></tr>
+                <tr><td colSpan={5} className="px-6 py-12 text-center text-brand-text/70">No applications found.</td></tr>
               )}
             </tbody>
           </table>
@@ -217,27 +217,27 @@ export default function AdminGrowthCenter() {
 
       {!loading && activeTab === 'partners' && (
         <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
-            <div className="p-6 border-b border-neutral-200">
+          <div className="lg:col-span-2 bg-brand-bg border border-brand-border rounded-2xl overflow-hidden">
+            <div className="p-6 border-b border-brand-border">
               <h3 className="font-bold">Influencer Partners</h3>
             </div>
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50/50 border-b border-neutral-200">
+              <thead className="bg-brand-bg/50 border-b border-brand-border">
                 <tr>
-                  <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
-                  <th className="px-6 py-4 font-medium text-neutral-600">Platform</th>
-                  <th className="px-6 py-4 font-medium text-neutral-600">Rate</th>
-                  <th className="px-6 py-4 font-medium text-neutral-600">Status</th>
+                  <th className="px-6 py-4 font-medium text-brand-text/70">Partner</th>
+                  <th className="px-6 py-4 font-medium text-brand-text/70">Platform</th>
+                  <th className="px-6 py-4 font-medium text-brand-text/70">Rate</th>
+                  <th className="px-6 py-4 font-medium text-brand-text/70">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1f2229]">
                 {partners.map(p => (
                   <tr key={p.id}>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-neutral-900">{p.full_name}</p>
-                      <p className="text-neutral-600 text-xs">{p.email}</p>
+                      <p className="font-medium text-brand-text">{p.full_name}</p>
+                      <p className="text-brand-text/70 text-xs">{p.email}</p>
                     </td>
-                    <td className="px-6 py-4 text-neutral-600">{p.platform}</td>
+                    <td className="px-6 py-4 text-brand-text/70">{p.platform}</td>
                     <td className="px-6 py-4 font-medium">₦{p.commission_rate?.toLocaleString() || '2,000'}</td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 rounded bg-green-500/10 text-green-400 text-xs">{p.status.toUpperCase()}</span>
@@ -245,21 +245,21 @@ export default function AdminGrowthCenter() {
                   </tr>
                 ))}
                 {partners.length === 0 && (
-                  <tr><td colSpan={4} className="px-6 py-8 text-center text-neutral-600">No influencer partners found.</td></tr>
+                  <tr><td colSpan={4} className="px-6 py-8 text-center text-brand-text/70">No influencer partners found.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
 
-          <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-6 h-fit">
+          <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 h-fit">
             <h3 className="font-bold mb-6">Invite Influencer</h3>
             <form onSubmit={handleCreateInfluencer} className="space-y-4 text-sm">
-              <input required value={newInfluencer.full_name} onChange={e => setNewInfluencer({...newInfluencer, full_name: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Full Name" />
-              <input required type="email" value={newInfluencer.email} onChange={e => setNewInfluencer({...newInfluencer, email: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Email Address" />
-              <input value={newInfluencer.phone} onChange={e => setNewInfluencer({...newInfluencer, phone: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Phone Number" />
-              <input required value={newInfluencer.platform} onChange={e => setNewInfluencer({...newInfluencer, platform: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Platform (e.g. YouTube)" />
-              <input required type="number" value={newInfluencer.commission_rate} onChange={e => setNewInfluencer({...newInfluencer, commission_rate: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Commission Rate (e.g. 2000)" />
-              <button disabled={isSubmitting} type="submit" className="w-full py-2.5 rounded-lg bg-gray-50 text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50">
+              <input required value={newInfluencer.full_name} onChange={e => setNewInfluencer({...newInfluencer, full_name: e.target.value})} className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Full Name" />
+              <input required type="email" value={newInfluencer.email} onChange={e => setNewInfluencer({...newInfluencer, email: e.target.value})} className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Email Address" />
+              <input value={newInfluencer.phone} onChange={e => setNewInfluencer({...newInfluencer, phone: e.target.value})} className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Phone Number" />
+              <input required value={newInfluencer.platform} onChange={e => setNewInfluencer({...newInfluencer, platform: e.target.value})} className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Platform (e.g. YouTube)" />
+              <input required type="number" value={newInfluencer.commission_rate} onChange={e => setNewInfluencer({...newInfluencer, commission_rate: e.target.value})} className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Commission Rate (e.g. 2000)" />
+              <button disabled={isSubmitting} type="submit" className="w-full py-2.5 rounded-lg bg-brand-bg text-black font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50">
                 {isSubmitting ? "Inviting..." : "Create Partner"}
               </button>
             </form>
@@ -268,28 +268,28 @@ export default function AdminGrowthCenter() {
       )}
 
       {!loading && activeTab === 'withdrawals' && (
-        <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/50 border-b border-neutral-200">
+            <thead className="bg-brand-bg/50 border-b border-brand-border">
               <tr>
-                <th className="px-6 py-4 font-medium text-neutral-600">Date</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Bank Details</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Amount</th>
-                <th className="px-6 py-4 font-medium text-neutral-600">Status</th>
-                <th className="px-6 py-4 font-medium text-neutral-600 text-right">Actions</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Date</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Type</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Bank Details</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Amount</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70">Status</th>
+                <th className="px-6 py-4 font-medium text-brand-text/70 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {withdrawals.map(w => (
-                <tr key={w.id} className="hover:bg-gray-100/5 transition-colors">
-                  <td className="px-6 py-4 text-neutral-600">{new Date(w.created_at).toLocaleDateString()}</td>
+                <tr key={w.id} className="hover:bg-[var(--card)] brightness-95/5 transition-colors">
+                  <td className="px-6 py-4 text-brand-text/70">{new Date(w.created_at).toLocaleDateString()}</td>
                   <td className="px-6 py-4 capitalize">{w.user_type}</td>
                   <td className="px-6 py-4">
-                    <p className="font-medium text-neutral-900">{w.bank_name}</p>
-                    <p className="text-neutral-600 text-xs">{w.account_number} ({w.account_name})</p>
+                    <p className="font-medium text-brand-text">{w.bank_name}</p>
+                    <p className="text-brand-text/70 text-xs">{w.account_number} ({w.account_name})</p>
                   </td>
-                  <td className="px-6 py-4 font-medium text-neutral-900">₦{w.amount.toLocaleString()}</td>
+                  <td className="px-6 py-4 font-medium text-brand-text">₦{w.amount.toLocaleString()}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       w.status === 'paid' ? 'bg-green-500/10 text-green-400' :
@@ -314,7 +314,7 @@ export default function AdminGrowthCenter() {
                 </tr>
               ))}
               {withdrawals.length === 0 && (
-                <tr><td colSpan={6} className="px-6 py-12 text-center text-neutral-600">No withdrawals found.</td></tr>
+                <tr><td colSpan={6} className="px-6 py-12 text-center text-brand-text/70">No withdrawals found.</td></tr>
               )}
             </tbody>
           </table>

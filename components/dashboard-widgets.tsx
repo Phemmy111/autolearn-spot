@@ -99,15 +99,15 @@ export function DashboardWidgets() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       {/* Resume Learning Widget */}
-      <div className="border border-neutral-200 bg-gray-50 p-5 flex flex-col">
-        <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Quick Action</h3>
+      <div className="border border-brand-border bg-brand-bg p-5 flex flex-col">
+        <h3 className="font-mono text-[10px] uppercase tracking-wider text-brand-text/60 mb-4">Quick Action</h3>
         {nextVideo ? (
           <>
-            <h4 className="font-heading text-lg font-bold text-neutral-900 mb-2 line-clamp-1">{nextVideo.title}</h4>
+            <h4 className="font-heading text-lg font-bold text-brand-text mb-2 line-clamp-1">{nextVideo.title}</h4>
             <p className="text-sm text-[#5d5f63] mb-4 line-clamp-2">{nextVideo.description}</p>
             <Link 
               href={`/dashboard/video/${nextVideo.id}`}
-              className="mt-auto flex items-center justify-center gap-2 border border-[#10b981] bg-gray-50/10 py-3 font-mono text-xs font-bold uppercase text-[#10b981] hover:bg-gray-50 hover:text-black transition-colors"
+              className="mt-auto flex items-center justify-center gap-2 border border-[#10b981] bg-brand-bg/10 py-3 font-mono text-xs font-bold uppercase text-[#10b981] hover:bg-brand-bg hover:text-black transition-colors"
             >
               <PlayCircle className="h-4 w-4" />
               Resume Learning
@@ -123,15 +123,15 @@ export function DashboardWidgets() {
       </div>
 
       {/* Certificate Widget */}
-      <div className="border border-neutral-200 bg-gray-50 p-5 flex flex-col">
-        <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Achievement</h3>
-        <div className="flex-1 flex flex-col items-center justify-center text-center border border-dashed border-neutral-200 p-4 bg-gray-50">
+      <div className="border border-brand-border bg-brand-bg p-5 flex flex-col">
+        <h3 className="font-mono text-[10px] uppercase tracking-wider text-brand-text/60 mb-4">Achievement</h3>
+        <div className="flex-1 flex flex-col items-center justify-center text-center border border-dashed border-brand-border p-4 bg-brand-bg">
           {certLoading ? (
             <Loader2 className="h-8 w-8 animate-spin text-[#3b494b]" />
           ) : canDownloadCert ? (
             <>
               <Award className="h-10 w-10 text-[#10b981] mb-2 drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]" />
-              <p className="text-sm text-neutral-900 font-semibold mb-3">Course Completed!</p>
+              <p className="text-sm text-brand-text font-semibold mb-3">Course Completed!</p>
               <div className="flex gap-2 w-full">
                 <button
                   onClick={() => generateCertificate('pdf')}
@@ -144,7 +144,7 @@ export function DashboardWidgets() {
                 <button
                   onClick={() => generateCertificate('png')}
                   disabled={generating}
-                  className="flex-1 flex items-center justify-center gap-2 border border-[#10b981] text-[#10b981] py-3 px-4 rounded font-mono text-[10px] font-bold uppercase tracking-wider hover:bg-gray-50 hover:text-black transition-colors disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center gap-2 border border-[#10b981] text-[#10b981] py-3 px-4 rounded font-mono text-[10px] font-bold uppercase tracking-wider hover:bg-brand-bg hover:text-black transition-colors disabled:opacity-50"
                 >
                   {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
                   PNG
@@ -169,7 +169,7 @@ export function DashboardWidgets() {
           ) : (
             <>
               <Lock className="h-8 w-8 text-[#3b494b] mb-2" />
-              <p className="text-xs text-neutral-500 font-semibold">Certificate Locked</p>
+              <p className="text-xs text-brand-text/60 font-semibold">Certificate Locked</p>
               <p className="text-[10px] text-[#5d5f63] mt-2 max-w-[180px]">
                 {!certEnabled
                   ? 'Certificates are not yet available.'
@@ -181,29 +181,29 @@ export function DashboardWidgets() {
       </div>
 
       {/* Global Resources Placeholder */}
-      <div className="border border-neutral-200 bg-gray-50 p-5 flex flex-col">
-        <h3 className="font-mono text-[10px] uppercase tracking-wider text-neutral-500 mb-4">Global Resources</h3>
+      <div className="border border-brand-border bg-brand-bg p-5 flex flex-col">
+        <h3 className="font-mono text-[10px] uppercase tracking-wider text-brand-text/60 mb-4">Global Resources</h3>
         <div className="flex-1 flex flex-col gap-3">
-          <div className="flex items-center justify-between p-3 border border-neutral-200 bg-gray-50">
+          <div className="flex items-center justify-between p-3 border border-brand-border bg-brand-bg">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 bg-gray-50 flex items-center justify-center">
+              <div className="h-8 w-8 bg-brand-bg flex items-center justify-center">
                 <FileText className="h-4 w-4 text-[#5d5f63]" />
               </div>
               <div>
-                <p className="text-xs text-neutral-900 font-semibold">Course Slides (PPT)</p>
+                <p className="text-xs text-brand-text font-semibold">Course Slides (PPT)</p>
                 <p className="text-[10px] text-[#10b981]">Coming Soon</p>
               </div>
             </div>
             <Lock className="h-4 w-4 text-[#3b494b]" />
           </div>
           
-          <a href="#" className="flex items-center justify-between p-3 border border-neutral-200 bg-gray-50 hover:border-[#3b494b] transition-colors group cursor-not-allowed pointer-events-none">
+          <a href="#" className="flex items-center justify-between p-3 border border-brand-border bg-brand-bg hover:border-[#3b494b] transition-colors group cursor-not-allowed pointer-events-none">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 bg-gray-50 flex items-center justify-center group-hover:bg-gray-50 transition-colors">
+              <div className="h-8 w-8 bg-brand-bg flex items-center justify-center group-hover:bg-brand-bg transition-colors">
                 <ExternalLink className="h-4 w-4 text-[#5d5f63]" />
               </div>
               <div>
-                <p className="text-xs text-neutral-500 font-semibold">N8n Templates Vault</p>
+                <p className="text-xs text-brand-text/60 font-semibold">N8n Templates Vault</p>
                 <p className="text-[10px] text-[#5d5f63]">Coming Soon</p>
               </div>
             </div>

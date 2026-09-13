@@ -62,19 +62,19 @@ export default function AmbassadorSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center text-brand-text">
         <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-neutral-900">
+    <div className="min-h-screen bg-brand-bg text-brand-text">
       {/* Header */}
-      <header className="border-b border-neutral-200 bg-gray-50/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-brand-border bg-brand-bg/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/ambassador/dashboard" className="text-neutral-500 hover:text-[#10b981] transition-colors">
+            <Link href="/ambassador/dashboard" className="text-brand-text/60 hover:text-[#10b981] transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div className="flex items-center gap-2">
@@ -93,7 +93,7 @@ export default function AmbassadorSettingsPage() {
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 mb-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6 mb-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Profile
           </h2>
@@ -108,7 +108,7 @@ export default function AmbassadorSettingsPage() {
             
             <div className="flex-1">
               <h3 className="text-xl font-bold mb-2">{userData?.user?.full_name || 'Community Partner'}</h3>
-              <p className="text-neutral-500 text-sm mb-4">{userData?.user?.email || ''}</p>
+              <p className="text-brand-text/60 text-sm mb-4">{userData?.user?.email || ''}</p>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs font-mono uppercase px-2 py-1 bg-blue-500/10 text-blue-400 rounded">
                   Community Partner
@@ -117,7 +117,7 @@ export default function AmbassadorSettingsPage() {
                   ₦{(userData?.user?.commission_rate || 1500).toLocaleString}/referral
                 </span>
               </div>
-              <p className="text-xs text-neutral-500/60">
+              <p className="text-xs text-brand-text/60/60">
                 Update your profile picture to personalize your community partner dashboard experience.
               </p>
             </div>
@@ -125,27 +125,27 @@ export default function AmbassadorSettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-brand-bg border border-brand-border rounded-2xl p-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Account Information
           </h2>
           
           <div className="space-y-4">
-            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
-              <span className="text-neutral-500">Email</span>
-              <span className="text-neutral-900">{userData?.user?.email || ''}</span>
+            <div className="flex justify-between items-center py-3 border-b border-brand-border">
+              <span className="text-brand-text/60">Email</span>
+              <span className="text-brand-text">{userData?.user?.email || ''}</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
-              <span className="text-neutral-500">Partner Type</span>
-              <span className="text-neutral-900">Community Partner</span>
+            <div className="flex justify-between items-center py-3 border-b border-brand-border">
+              <span className="text-brand-text/60">Partner Type</span>
+              <span className="text-brand-text">Community Partner</span>
             </div>
-            <div className="flex justify-between items-center py-3 border-b border-neutral-200">
-              <span className="text-neutral-500">Phone</span>
-              <span className="text-neutral-900">{userData?.user?.phone || 'Not set'}</span>
+            <div className="flex justify-between items-center py-3 border-b border-brand-border">
+              <span className="text-brand-text/60">Phone</span>
+              <span className="text-brand-text">{userData?.user?.phone || 'Not set'}</span>
             </div>
             <div className="flex justify-between items-center py-3">
-              <span className="text-neutral-500">Commission Rate</span>
-              <span className="text-neutral-900">₦{(userData?.user?.commission_rate || 1500).toLocaleString()}/referral</span>
+              <span className="text-brand-text/60">Commission Rate</span>
+              <span className="text-brand-text">₦{(userData?.user?.commission_rate || 1500).toLocaleString()}/referral</span>
             </div>
           </div>
         </div>
@@ -154,7 +154,7 @@ export default function AmbassadorSettingsPage() {
         <div className="mt-6 flex justify-end">
           <button 
             onClick={handleLogout}
-            className="font-mono text-xs uppercase px-4 py-2 border border-neutral-200 rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-neutral-500"
+            className="font-mono text-xs uppercase px-4 py-2 border border-brand-border rounded hover:bg-brand-bg transition-colors flex items-center gap-2 text-brand-text/60"
           >
             <LogOut className="h-3 w-3" /> Logout
           </button>
