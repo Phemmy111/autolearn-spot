@@ -13,12 +13,7 @@ export async function GET(request: Request) {
 
     let query = supabaseAdmin
       .from('learning_products')
-      .select(`
-        *,
-        skill:skills (
-          name
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (status && status !== 'ALL') {
@@ -46,9 +41,20 @@ export async function GET(request: Request) {
       }
     });
 
+    // Also fetch skills to map them
+    const skillIds = Array.from(new Set(products?.map(p => p.skill_id).filter(Boolean)));
+    const { data: skills } = await supabaseAdmin
+      .from('skills')
+      .select('id, name')
+      .in('id', skillIds);
+      
+    const skillMap = new Map();
+    skills?.forEach(s => skillMap.set(s.id, { name: s.name }));
+
     const mappedProducts = products?.map((p: any) => ({
       ...p,
-      author: userMap.get(p.author_id) || { name: p.author_id, email: 'Unknown' }
+      author: userMap.get(p.author_id) || { name: p.author_id, email: 'Unknown' },
+      skill: skillMap.get(p.skill_id) || null
     }));
 
     return NextResponse.json({ success: true, products: mappedProducts });

@@ -14,10 +14,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       .from('learning_products')
       .select(`
         *,
-        skill:skills (
-          name,
-          category_id
-        ),
         lessons (
           id,
           title,
@@ -47,9 +43,22 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       }
     }
 
+    let skill = null;
+    if (product.skill_id) {
+      const { data: s } = await supabaseAdmin
+        .from('skills')
+        .select('name, category_id')
+        .eq('id', product.skill_id)
+        .single();
+      
+      if (s) {
+        skill = s;
+      }
+    }
+
     return NextResponse.json({ 
       success: true, 
-      product: { ...product, author } 
+      product: { ...product, author, skill } 
     });
   } catch (err: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
