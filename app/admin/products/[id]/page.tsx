@@ -177,8 +177,8 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
                         <span className="w-6 h-6 flex flex-shrink-0 items-center justify-center bg-sky-100 text-sky-700 rounded-full text-xs font-bold">{i + 1}</span>
                         <span className="font-medium text-sm text-brand-text">{lesson.title}</span>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${lesson.is_published ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {lesson.is_published ? 'Published' : 'Draft'}
+                      <span className={`text-xs px-2 py-1 rounded-full ${lesson.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {lesson.status === 'PUBLISHED' ? 'Published' : (lesson.status || 'Draft')}
                       </span>
                     </li>
                   ))}
