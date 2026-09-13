@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase'
 
 export interface Lesson {
+  uuid_id: string
   id: string
   cohort_id: string | null
   product_id: string | null
@@ -266,7 +267,9 @@ export async function getLessonForProduct(lessonId: string, productId: string): 
  * Create a new lesson for a product (Author Studio)
  */
 export async function createProductLesson(productId: string, lessonData: Partial<Lesson>): Promise<Lesson | null> {
-  // Generate a unique ID for the lesson (VARCHAR to match existing schema)
+  // Generate a UUID for the lesson's primary key
+  const lessonUuidId = crypto.randomUUID()
+  // Generate a legacy ID for backwards compatibility
   const lessonId = `lesson-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   
   // Get the current max order_index for this product
@@ -282,6 +285,7 @@ export async function createProductLesson(productId: string, lessonData: Partial
   const { data, error } = await supabaseAdmin
     .from('lessons')
     .insert({
+      uuid_id: lessonUuidId,
       id: lessonId,
       product_id: productId,
       cohort_id: null, // Product-based lessons don't need cohort_id
@@ -326,7 +330,7 @@ export async function updateProductLesson(lessonId: string, productId: string, u
       ...updates,
       updated_at: new Date().toISOString()
     })
-    .eq('id', lessonId)
+    .eq('uuid_id', lessonId)
     .eq('product_id', productId)
     .select()
     .single()
@@ -346,7 +350,7 @@ export async function deleteProductLesson(lessonId: string, productId: string): 
   const { error } = await supabaseAdmin
     .from('lessons')
     .delete()
-    .eq('id', lessonId)
+    .eq('uuid_id', lessonId)
     .eq('product_id', productId)
 
   if (error) {
@@ -362,12 +366,12 @@ export async function deleteProductLesson(lessonId: string, productId: string): 
  */
 export async function reorderProductLessons(productId: string, lessonIds: string[]): Promise<boolean> {
   try {
-    // Update each lesson's order_index
+    // Update each lesson's order_index using uuid_id
     const updates = lessonIds.map((lessonId, index) => 
       supabaseAdmin
         .from('lessons')
         .update({ order_index: index, updated_at: new Date().toISOString() })
-        .eq('id', lessonId)
+        .eq('uuid_id', lessonId)
         .eq('product_id', productId)
     )
 

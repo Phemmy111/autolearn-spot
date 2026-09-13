@@ -1,37 +1,57 @@
 -- Phase C: Add YouTube support and lesson status to lessons table
 -- This enables the curriculum/lesson builder for Author Studio
 
--- CRITICAL: Handle the primary key constraint issue
--- The current primary key is (cohort_id, id) which won't work with null cohort_id
--- We need to change this to support product-based lessons
+-- ALTERNATIVE APPROACH: Add a UUID primary key while keeping existing structure
+-- This avoids breaking existing data and constraints
 
--- Step 1: Drop the foreign key constraint that depends on lessons_pkey
+-- Step 1: Add a new UUID column as the true primary key
+ALTER TABLE public.lessons ADD COLUMN IF NOT EXISTS uuid_id UUID DEFAULT uuid_generate_v4();
+
+-- Step 2: Populate the uuid_id for existing records
+UPDATE public.lessons SET uuid_id = uuid_generate_v4() WHERE uuid_id IS NULL;
+
+-- Step 3: Make uuid_id NOT NULL
+ALTER TABLE public.lessons ALTER COLUMN uuid_id SET NOT NULL;
+
+-- Step 4: Drop the foreign key constraint that depends on lessons_pkey
 ALTER TABLE public.lesson_progress DROP CONSTRAINT IF EXISTS lesson_progress_cohort_id_lesson_id_fkey;
 
--- Step 2: Drop the unique constraint that also depends on the old structure
+-- Step 5: Drop the unique constraint that also depends on the old structure
 ALTER TABLE public.lesson_progress DROP CONSTRAINT IF EXISTS lesson_progress_cohort_id_lesson_id_user_id_key;
 
--- Step 3: Drop the existing composite primary key
+-- Step 6: Drop the existing composite primary key
 ALTER TABLE public.lessons DROP CONSTRAINT lessons_pkey;
 
--- Step 4: Make cohort_id nullable
+-- Step 7: Add uuid_id as the new primary key
+ALTER TABLE public.lessons ADD CONSTRAINT lessons_pkey PRIMARY KEY (uuid_id);
+
+-- Step 8: Make cohort_id nullable
 ALTER TABLE public.lessons
   ALTER COLUMN cohort_id DROP NOT NULL;
 
--- Step 5: Add a new primary key on id only
-ALTER TABLE public.lessons ADD CONSTRAINT lessons_pkey PRIMARY KEY (id);
+-- Step 9: Add a UUID column to lesson_progress to reference the new primary key
+ALTER TABLE public.lesson_progress ADD COLUMN IF NOT EXISTS lesson_uuid_id UUID;
 
--- Step 6: Recreate the foreign key constraint on lesson_progress
--- Updated to reference the new primary key structure (lesson_id only)
-ALTER TABLE public.lesson_progress 
-  ADD CONSTRAINT lesson_progress_lesson_id_fkey 
-  FOREIGN KEY (lesson_id) REFERENCES public.lessons(id) ON DELETE CASCADE;
+-- Step 10: Populate lesson_uuid_id by joining with lessons table
+UPDATE public.lesson_progress lp
+SET lesson_uuid_id = l.uuid_id
+FROM public.lessons l
+WHERE lp.lesson_id = l.id AND lp.cohort_id = l.cohort_id;
 
--- Step 7: Recreate the unique constraint without cohort_id
--- Now it's just (lesson_id, user_id) to ensure a user can only have one progress record per lesson
+-- Step 11: Make lesson_uuid_id NOT NULL
+ALTER TABLE public.lesson_progress ALTER COLUMN lesson_uuid_id SET NOT NULL;
+
+-- Step 12: Recreate the foreign key constraint on lesson_progress
+-- Updated to reference the new uuid_id primary key
 ALTER TABLE public.lesson_progress 
-  ADD CONSTRAINT lesson_progress_lesson_id_user_id_key 
-  UNIQUE (lesson_id, user_id);
+  ADD CONSTRAINT lesson_progress_lesson_uuid_id_fkey 
+  FOREIGN KEY (lesson_uuid_id) REFERENCES public.lessons(uuid_id) ON DELETE CASCADE;
+
+-- Step 13: Recreate the unique constraint without cohort_id
+-- Now it's just (lesson_uuid_id, user_id) to ensure a user can only have one progress record per lesson
+ALTER TABLE public.lesson_progress 
+  ADD CONSTRAINT lesson_progress_lesson_uuid_id_user_id_key 
+  UNIQUE (lesson_uuid_id, user_id);
 
 -- Add YouTube-specific fields
 ALTER TABLE public.lessons

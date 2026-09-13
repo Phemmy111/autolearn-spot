@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical } from 'lucide-react';
 
 interface Lesson {
+  uuid_id: string;
   id: string;
   title: string;
   description: string | null;
@@ -98,11 +99,11 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const handleDeleteLesson = async (lessonId: string) => {
+  const handleDeleteLesson = async (lessonUuidId: string) => {
     if (!confirm('Are you sure you want to delete this lesson?')) return;
 
     try {
-      const res = await fetch(`/api/author/products/${productId}/lessons/${lessonId}`, {
+      const res = await fetch(`/api/author/products/${productId}/lessons/${lessonUuidId}`, {
         method: 'DELETE'
       });
 
@@ -117,8 +118,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const handleMoveLesson = async (lessonId: string, direction: 'up' | 'down') => {
-    const currentIndex = lessons.findIndex(l => l.id === lessonId);
+  const handleMoveLesson = async (lessonUuidId: string, direction: 'up' | 'down') => {
+    const currentIndex = lessons.findIndex(l => l.uuid_id === lessonUuidId);
     if (currentIndex === -1) return;
 
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
@@ -128,7 +129,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     [reorderedLessons[currentIndex], reorderedLessons[newIndex]] = 
     [reorderedLessons[newIndex], reorderedLessons[currentIndex]];
 
-    const lessonIds = reorderedLessons.map(l => l.id);
+    const lessonIds = reorderedLessons.map(l => l.uuid_id);
 
     try {
       const res = await fetch(`/api/author/products/${productId}/lessons/reorder`, {
@@ -148,11 +149,11 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const handleToggleStatus = async (lessonId: string, currentStatus: string) => {
+  const handleToggleStatus = async (lessonUuidId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'DRAFT' ? 'PUBLISHED' : 'DRAFT';
     
     try {
-      const res = await fetch(`/api/author/products/${productId}/lessons/${lessonId}`, {
+      const res = await fetch(`/api/author/products/${productId}/lessons/${lessonUuidId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -184,7 +185,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/author/products/${productId}/lessons/${editingLesson.id}`, {
+      const res = await fetch(`/api/author/products/${productId}/lessons/${editingLesson.uuid_id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -378,14 +379,14 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
         <div className="space-y-3">
           {lessons.map((lesson, index) => (
             <div
-              key={lesson.id}
+              key={lesson.uuid_id}
               className="bg-white rounded-xl border border-neutral-200 p-4 shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="flex items-start gap-4">
                 {/* Drag Handle */}
                 <div className="flex flex-col items-center gap-1 pt-1">
                   <button
-                    onClick={() => handleMoveLesson(lesson.id, 'up')}
+                    onClick={() => handleMoveLesson(lesson.uuid_id, 'up')}
                     disabled={index === 0}
                     className="p-1 text-neutral-400 hover:text-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
@@ -393,7 +394,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   </button>
                   <GripVertical className="w-4 h-4 text-neutral-300" />
                   <button
-                    onClick={() => handleMoveLesson(lesson.id, 'down')}
+                    onClick={() => handleMoveLesson(lesson.uuid_id, 'down')}
                     disabled={index === lessons.length - 1}
                     className="p-1 text-neutral-400 hover:text-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
@@ -444,7 +445,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                     {/* Actions */}
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleToggleStatus(lesson.id, lesson.status)}
+                        onClick={() => handleToggleStatus(lesson.uuid_id, lesson.status)}
                         className="p-2 text-neutral-500 hover:text-sky-600 transition-colors"
                         title={lesson.status === 'DRAFT' ? 'Publish' : 'Unpublish'}
                       >
@@ -458,7 +459,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteLesson(lesson.id)}
+                        onClick={() => handleDeleteLesson(lesson.uuid_id)}
                         className="p-2 text-neutral-500 hover:text-red-600 transition-colors"
                         title="Delete"
                       >
