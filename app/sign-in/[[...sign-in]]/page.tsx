@@ -3,44 +3,51 @@ import { SignIn } from '@clerk/nextjs'
 
 export default function SignInPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--card)] brightness-95] px-4">
+    <main className="flex min-h-screen items-center justify-center bg-brand-bg px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center flex flex-col items-center">
           <Image src="/logo.png" alt="AutoLearn Spot Logo" width={60} height={60} className="mb-4" />
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#10b981]">Student Portal</p>
-          <h1 className="mt-2 font-heading text-2xl font-bold uppercase text-brand-text">Sign In</h1>
-          <p className="mt-2 font-mono text-sm text-brand-text/60">Access your AutoLearn Spot curriculum</p>
+          <p className="font-semibold text-xs uppercase tracking-wider text-[#10b981]">Student Portal</p>
+          <h1 className="mt-2 font-heading text-3xl font-extrabold text-brand-text">Sign In</h1>
+          <p className="mt-2 text-sm text-brand-text/60">Access your AutoLearn Spot curriculum</p>
         </div>
-        <SignIn
-          appearance={{
-            variables: {
-              colorPrimary: '#00f0ff',
-              colorBackground: '#1a1d24',
-              colorInputBackground: '#111317',
-              colorInputText: '#e2e8f2',
-              borderRadius: '0px',
-              fontFamily: 'monospace',
-            },
-            elements: {
-              logoImage: 'hidden',
-              logoBox: 'hidden',
-              footerAction: 'hidden',
-              watermark: 'hidden',
-              card: 'bg-[var(--card)] brightness-95] border border-[#3b494b] shadow-none rounded-none',
-              headerTitle: 'text-brand-text font-mono',
-              headerSubtitle: 'text-brand-text/60 font-mono text-xs',
-              formButtonPrimary: 'bg-[var(--card)] brightness-95] text-black font-mono font-bold uppercase hover:bg-[var(--card)] brightness-95] rounded-none',
-              formFieldInput: 'bg-[var(--card)] brightness-95] border border-[#3b494b] text-brand-text font-mono rounded-none focus:border-[#10b981]',
-              formFieldLabel: 'text-brand-text/60 font-mono text-xs uppercase',
-              footerActionLink: 'text-[#10b981] font-mono hover:text-[#00d4e0]',
-              identityPreviewText: 'text-[#e2e8f2]',
-              dividerLine: 'bg-[var(--card)] brightness-95]',
-              dividerText: 'text-[#5d5f63] font-mono text-xs',
-              socialButtonsBlockButton: 'border border-[#3b494b] bg-[var(--card)] brightness-95] text-brand-text font-mono hover:bg-[var(--card)] brightness-95] rounded-none',
-              socialButtonsBlockButtonText: 'text-[#e2e8f2] font-mono text-xs',
-            },
-          }}
-        />
+        
+        <div className="bg-[var(--card)] brightness-95 rounded-2xl shadow-sm border border-brand-border/60 overflow-hidden">
+          <SignIn
+            appearance={{
+              layout: {
+                socialButtonsPlacement: 'top',
+                socialButtonsVariant: 'blockButton',
+              },
+              variables: {
+                colorPrimary: '#10b981',
+                colorBackground: 'transparent',
+                colorInputBackground: '#ffffff',
+                colorInputText: '#111827',
+                colorText: '#111827',
+                colorTextSecondary: '#6b7280',
+                borderRadius: '0.75rem',
+                fontFamily: 'inherit',
+              },
+              elements: {
+                logoImage: 'hidden',
+                logoBox: 'hidden',
+                header: 'hidden', // Hide the internal Clerk header, we built our own above
+                card: 'shadow-none bg-transparent m-0 p-8 w-full',
+                formButtonPrimary: 'bg-[#10b981] hover:bg-[#0ea5e9] text-white font-bold transition-all',
+                formFieldInput: 'bg-white border-gray-200 text-gray-900 focus:border-[#10b981] focus:ring-[#10b981]',
+                formFieldLabel: 'text-gray-700 font-medium',
+                footerActionLink: 'text-[#10b981] hover:text-[#0ea5e9] font-medium',
+                identityPreviewText: 'text-gray-900',
+                dividerLine: 'bg-gray-200',
+                dividerText: 'text-gray-500',
+                socialButtonsBlockButton: 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors',
+                socialButtonsBlockButtonText: 'text-gray-700 font-medium',
+                footer: 'bg-transparent border-t border-gray-100',
+              },
+            }}
+          />
+        </div>
       </div>
     </main>
   )
