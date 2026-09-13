@@ -25,7 +25,7 @@ export default function AddToCartButton({ productId }: AddToCartButtonProps) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to add to cart');
       }
-      router.refresh();
+      router.push('/cart');
     } catch (e: any) {
       setError(e.message);
     } finally {
