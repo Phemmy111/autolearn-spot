@@ -4,7 +4,12 @@ import { useRouter } from 'next/navigation';
 import { uploadThumbnail } from '@/lib/supabase-upload';
 import { CATEGORIES, SKILLS_BY_CATEGORY } from '@/lib/taxonomy';
 
-const PRODUCT_TYPES = ['Course', 'Masterclass', 'E-Book', 'Webinar'];
+const PRODUCT_TYPES = [
+  { label: 'Course', value: 'COURSE' },
+  { label: 'Masterclass', value: 'MASTERCLASS' },
+  { label: 'E-Book', value: 'EBOOK' },
+  { label: 'Webinar', value: 'WEBINAR' }
+];
 const DIFFICULTIES = ['Beginner', 'Intermediate', 'Advanced', 'All Levels'];
 const CURRENCIES = ['NGN', 'USD', 'EUR', 'GBP'];
 const ACCESS_DURATIONS = [7, 14, 30, 60, 90, 180, 365, 'Custom'];
@@ -19,7 +24,7 @@ export default function NewProductPage() {
   const [fullDesc, setFullDesc] = useState('');
   
   // SECTION 2: Marketplace Classification
-  const [productType, setProductType] = useState('Course');
+  const [productType, setProductType] = useState('COURSE');
   const [category, setCategory] = useState('');
   const [skill, setSkill] = useState('');
   const [difficulty, setDifficulty] = useState('All Levels');
@@ -217,7 +222,7 @@ export default function NewProductPage() {
             <div>
               <label className="block text-sm font-semibold text-neutral-700 mb-1.5">Product Type <span className="text-red-500">*</span></label>
               <select required className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm" value={productType} onChange={(e) => setProductType(e.target.value)}>
-                {PRODUCT_TYPES.map(pt => <option key={pt} value={pt}>{pt}</option>)}
+                {PRODUCT_TYPES.map(pt => <option key={pt.value} value={pt.value}>{pt.label}</option>)}
               </select>
             </div>
             
