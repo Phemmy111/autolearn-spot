@@ -66,7 +66,7 @@ export default function AuthorProductsPage() {
     }
   };
 
-  const canEdit = (status: string) => status === 'DRAFT' || status === 'UNPUBLISHED';
+  const canEdit = (status: string) => ['DRAFT', 'UNPUBLISHED', 'PUBLISHED', 'PENDING_REVIEW', 'REJECTED'].includes(status);
   const canDelete = (status: string) => status === 'DRAFT';
   const canSubmit = (status: string) => status === 'DRAFT';
 
