@@ -217,6 +217,6 @@ export async function hasActiveEnrollment(
   const enrollments = await getUserEnrollments(clerkUserId, email);
 
   return enrollments.some(
-    (enrollment) => enrollment.status === 'active'
+    (enrollment) => enrollment.status === 'active' || enrollment.status === 'not_started'
   );
 }
