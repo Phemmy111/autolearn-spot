@@ -67,7 +67,7 @@ export default function PartnerLoginPage() {
           </p>
         </div>
 
-        <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+        <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
           {error && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
               {error}
@@ -128,7 +128,7 @@ export default function PartnerLoginPage() {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="w-full py-4 rounded-xl border border-[#00F5FF] bg-gray-100] text-[#070B12] font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl border border-[#00F5FF] bg-gray-50 text-[#070B12] font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

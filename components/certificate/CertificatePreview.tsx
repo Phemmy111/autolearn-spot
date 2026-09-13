@@ -102,13 +102,13 @@ export function CertificatePreview({
   }, []);
 
   return (
-    <div className="bg-gray-100] border border-neutral-200 rounded-xl p-6">
+    <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-2 h-2 bg-gray-100] rounded-full animate-pulse" />
+        <div className="w-2 h-2 bg-gray-50 rounded-full animate-pulse" />
         <h3 className="text-sm font-semibold text-neutral-500">Live Preview</h3>
       </div>
       
-      <div ref={containerRef} className="relative w-full aspect-[3/2] bg-gray-100] rounded-lg overflow-hidden">
+      <div ref={containerRef} className="relative w-full aspect-[3/2] bg-gray-50 rounded-lg overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center p-2">
           <div className="w-full h-full flex items-center justify-center">
             <div style={{ transform: `scale(${scale})`, transformOrigin: 'center' }}>

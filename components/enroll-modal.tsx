@@ -97,7 +97,7 @@ export function EnrollModal({
             <div
               aria-labelledby={modalTitleId}
               aria-modal="true"
-              className="fixed inset-0 z-[300] flex items-center justify-center overflow-y-auto bg-gray-100]/82 px-3 py-4 backdrop-blur-md sm:px-6 sm:py-8"
+              className="fixed inset-0 z-[300] flex items-center justify-center overflow-y-auto bg-gray-50/82 px-3 py-4 backdrop-blur-md sm:px-6 sm:py-8"
               role="dialog"
             >
               <button
@@ -107,21 +107,21 @@ export function EnrollModal({
                 type="button"
               />
 
-              <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[520px] overflow-y-auto border border-[#3b494b] bg-gray-100] p-4 text-[#e2e2e8] shadow-[0_30px_100px_rgba(0,0,0,0.55)] sm:p-6">
+              <div className="relative max-h-[calc(100vh-2rem)] w-full max-w-[520px] overflow-y-auto border border-[#3b494b] bg-gray-50 p-4 text-[#e2e2e8] shadow-[0_30px_100px_rgba(0,0,0,0.55)] sm:p-6">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,240,255,0.13),transparent_44%)]" />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gray-100]" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gray-50" />
 
                 <button
                   aria-label="Close"
-                  className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-neutral-200 bg-gray-100] text-neutral-500 transition hover:border-[#10b981]/70 hover:text-[#10b981] sm:right-6 sm:top-6"
+                  className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-neutral-200 bg-gray-50 text-neutral-500 transition hover:border-[#10b981]/70 hover:text-[#10b981] sm:right-6 sm:top-6"
                   onClick={() => setIsOpen(false)}
                   type="button"
                 >
                   <X className="h-4 w-4" />
                 </button>
 
-                <div className="relative mb-5 border border-neutral-200 bg-gray-100]/92 p-5 pr-14 sm:p-6 sm:pr-16">
-                  <span className="inline-flex border border-[#10b981]/60 bg-gray-100]/10 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#10b981]">
+                <div className="relative mb-5 border border-neutral-200 bg-gray-50/92 p-5 pr-14 sm:p-6 sm:pr-16">
+                  <span className="inline-flex border border-[#10b981]/60 bg-gray-50/10 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#10b981]">
                     Step 1 of 2
                   </span>
                   <h2
@@ -141,7 +141,7 @@ export function EnrollModal({
                       Full Name *
                     </span>
                     <input
-                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-100]"
+                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-50"
                       name="name"
                       placeholder="e.g., Chioma Adeleke"
                       required
@@ -154,7 +154,7 @@ export function EnrollModal({
                       Email Address *
                     </span>
                     <input
-                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-100]"
+                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-50"
                       name="email"
                       placeholder="e.g., chioma@gmail.com"
                       required
@@ -167,7 +167,7 @@ export function EnrollModal({
                       Phone Number *
                     </span>
                     <input
-                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-100]"
+                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-50"
                       name="phone"
                       placeholder="e.g., 08120934828"
                       required
@@ -180,14 +180,14 @@ export function EnrollModal({
                       Referral Code
                     </span>
                     <input
-                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-100]"
+                      className="mt-2 h-12 w-full border border-neutral-200 bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-gray-50"
                       name="referral"
                       placeholder="Optional"
                       type="text"
                     />
                   </label>
 
-                  <div className="flex items-center justify-between border border-neutral-200 bg-gray-100] px-4 py-4">
+                  <div className="flex items-center justify-between border border-neutral-200 bg-gray-50 px-4 py-4">
                     <div>
                       <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5d5f63]">
                         Total Investment
@@ -201,7 +201,7 @@ export function EnrollModal({
                   </div>
 
                   <button
-                    className="corner-accent blueprint-cta flex h-14 w-full items-center justify-center border border-[#10b981] bg-gray-100] px-5 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-gray-100] disabled:cursor-wait disabled:opacity-75"
+                    className="corner-accent blueprint-cta flex h-14 w-full items-center justify-center border border-[#10b981] bg-gray-50 px-5 font-mono text-xs font-bold uppercase tracking-[0.1em] text-[#00363a] shadow-[0_14px_34px_rgba(0,240,255,0.18)] transition hover:bg-gray-50 disabled:cursor-wait disabled:opacity-75"
                     disabled={isSubmitting}
                     type="submit"
                   >

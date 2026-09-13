@@ -30,7 +30,7 @@ export function VideoModal({ isOpen, onClose, videoUrl }: VideoModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-4xl bg-gray-100] border border-neutral-200 rounded-xl overflow-hidden">
+      <div className="relative w-full max-w-4xl bg-gray-50 border border-neutral-200 rounded-xl overflow-hidden">
         {/* Close button */}
         <button
           onClick={onClose}

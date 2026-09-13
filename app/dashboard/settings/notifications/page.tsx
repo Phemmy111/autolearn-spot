@@ -65,14 +65,14 @@ export default function NotificationSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] p-8">
+      <div className="min-h-screen bg-gray-50 p-8">
         <p className="font-mono text-sm text-neutral-500">Loading settings...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100] text-[#e2e8e2] p-4 sm:p-8">
+    <div className="min-h-screen bg-gray-50 text-[#e2e8e2] p-4 sm:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <Link
@@ -89,7 +89,7 @@ export default function NotificationSettingsPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="border border-[#3b494b] bg-gray-100] p-6 rounded-xl">
+          <div className="border border-[#3b494b] bg-gray-50 p-6 rounded-xl">
             <h2 className="font-heading text-xl font-bold text-neutral-900 mb-6">Channels</h2>
             
             <div className="flex items-center justify-between py-3 border-b border-[#3b494b]/50">
@@ -99,7 +99,7 @@ export default function NotificationSettingsPage() {
               </div>
               <button 
                 onClick={() => handleToggle('email_notifications')}
-                className={`w-12 h-6 rounded-full transition-colors relative ${preferences.email_notifications ? 'bg-gray-100]' : 'bg-gray-100]'}`}
+                className={`w-12 h-6 rounded-full transition-colors relative ${preferences.email_notifications ? 'bg-gray-50' : 'bg-gray-50'}`}
               >
                 <div className={`absolute top-1 w-4 h-4 rounded-full bg-gray-100 transition-transform ${preferences.email_notifications ? 'left-7' : 'left-1'}`}></div>
               </button>
@@ -110,19 +110,19 @@ export default function NotificationSettingsPage() {
                 <p className="font-bold text-neutral-900">In-App Notifications</p>
                 <p className="text-xs text-neutral-500 mt-1">Receive updates in the dashboard bell</p>
               </div>
-              <button disabled className="w-12 h-6 rounded-full bg-gray-100] opacity-50 relative cursor-not-allowed">
+              <button disabled className="w-12 h-6 rounded-full bg-gray-50 opacity-50 relative cursor-not-allowed">
                 <div className="absolute top-1 w-4 h-4 rounded-full bg-gray-100 left-7"></div>
               </button>
               <span className="sr-only">Always on</span>
             </div>
           </div>
 
-          <div className="border border-[#3b494b] bg-gray-100] p-6 rounded-xl">
+          <div className="border border-[#3b494b] bg-gray-50 p-6 rounded-xl">
             <h2 className="font-heading text-xl font-bold text-neutral-900 mb-6">Preferences</h2>
             
             <div className="space-y-4">
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.announcement_notifications ? 'border-[#10b981] bg-gray-100]/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-100] text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.announcement_notifications ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -138,7 +138,7 @@ export default function NotificationSettingsPage() {
               </label>
 
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.assignment_updates ? 'border-[#10b981] bg-gray-100]/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-100] text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.assignment_updates ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -154,7 +154,7 @@ export default function NotificationSettingsPage() {
               </label>
 
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.quiz_notifications ? 'border-[#10b981] bg-gray-100]/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-100] text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.quiz_notifications ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -170,7 +170,7 @@ export default function NotificationSettingsPage() {
               </label>
 
               <label className="flex items-start gap-4 cursor-pointer group">
-                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.live_class_notifications ? 'border-[#10b981] bg-gray-100]/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-100] text-transparent'}`}>
+                <div className={`w-5 h-5 border mt-0.5 flex items-center justify-center transition-colors ${preferences.live_class_notifications ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-[#3b494b] bg-gray-50 text-transparent'}`}>
                   <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                 </div>
                 <input
@@ -191,7 +191,7 @@ export default function NotificationSettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 bg-gray-100] px-6 py-3 font-mono text-sm font-bold uppercase text-black transition hover:bg-gray-100 disabled:opacity-50"
+              className="flex items-center gap-2 bg-gray-50 px-6 py-3 font-mono text-sm font-bold uppercase text-black transition hover:bg-gray-100 disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {saving ? 'Saving...' : 'Save Settings'}

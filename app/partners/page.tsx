@@ -114,7 +114,7 @@ function HeroSection() {
               Become an AutoLearn Spot Community Partner and earn commissions by referring students to our AI Automation Training.
             </p>
 
-            <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-gray-100]/10 px-4 py-2 sm:px-5 sm:py-2.5">
+            <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-gray-50/10 px-4 py-2 sm:px-5 sm:py-2.5">
               <DollarSign className="h-5 w-5 text-[#00F5FF]" />
               <span className="font-mono text-sm font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
                 Earn up to ₦1,500 for every successful enrollment
@@ -124,13 +124,13 @@ function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Link
                 href="/partners/apply"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-gray-100] px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-gray-50 px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
               >
                 Apply as Community Partner
               </Link>
               <Link
                 href="/partners/dashboard"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-gray-100]/10 w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-gray-50/10 w-full sm:w-auto"
               >
                 Partner Dashboard
               </Link>
@@ -138,15 +138,15 @@ function HeroSection() {
           </div>
 
           <div className="relative order-2 md:order-2 mt-8 md:mt-0">
-            <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
-              <div className="absolute inset-0 bg-gray-100]/5 rounded-2xl blur-xl" />
+            <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
+              <div className="absolute inset-0 bg-gray-50/5 rounded-2xl blur-xl" />
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-neutral-500">Partner Dashboard Preview</span>
                   <div className="flex gap-2">
-                    <div className="h-2 w-2 rounded-full bg-gray-100]" />
-                    <div className="h-2 w-2 rounded-full bg-gray-100]" />
-                    <div className="h-2 w-2 rounded-full bg-gray-100]" />
+                    <div className="h-2 w-2 rounded-full bg-gray-50" />
+                    <div className="h-2 w-2 rounded-full bg-gray-50" />
+                    <div className="h-2 w-2 rounded-full bg-gray-50" />
                   </div>
                 </div>
 
@@ -175,7 +175,7 @@ function HeroSection() {
                     {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
                       <div
                         key={i}
-                        className="flex-1 bg-gray-100]/20 rounded-t transition-all hover:bg-gray-100]/40"
+                        className="flex-1 bg-gray-50/20 rounded-t transition-all hover:bg-gray-50/40"
                         style={{ height: `${height}%` }}
                       />
                     ))}
@@ -183,7 +183,7 @@ function HeroSection() {
                 </div>
               </div>
             </div>
-            <div className="absolute -top-4 -right-4 w-32 h-32 bg-gray-100]/20 rounded-full blur-3xl" />
+            <div className="absolute -top-4 -right-4 w-32 h-32 bg-gray-50/20 rounded-full blur-3xl" />
             <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
           </div>
         </div>
@@ -194,7 +194,7 @@ function HeroSection() {
 
 function TrustSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-100]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
@@ -224,7 +224,7 @@ function TrustSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-100]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
@@ -235,7 +235,7 @@ function HowItWorksSection() {
           {HOW_IT_WORKS.map((item, index) => (
             <div key={index} className="border border-neutral-200 bg-gray-100/50 rounded-xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00F5FF]/30 bg-gray-100]/10 rounded-lg font-mono text-base sm:text-lg font-bold text-[#00F5FF]">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00F5FF]/30 bg-gray-50/10 rounded-lg font-mono text-base sm:text-lg font-bold text-[#00F5FF]">
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-sm sm:text-base text-[#e2e2e8]">{item.title}</h3>
@@ -260,7 +260,7 @@ function TestimonialsSection() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {PARTNER_TESTIMONIALS.map((testimonial, index) => (
-            <div key={index} className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
+            <div key={index} className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
               <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden flex-shrink-0">
                   <Image
@@ -292,7 +292,7 @@ function TestimonialsSection() {
 
 function ActivityFeedSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-100]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
@@ -303,7 +303,7 @@ function ActivityFeedSection() {
           <div className="space-y-2 sm:space-y-3 lg:space-y-4">
             {ACTIVITY_FEED.map((activity, index) => (
               <div key={index} className="flex items-center gap-3 text-sm text-neutral-500">
-                <div className="h-2 w-2 rounded-full bg-gray-100]" />
+                <div className="h-2 w-2 rounded-full bg-gray-50" />
                 {activity}
               </div>
             ))}
@@ -323,11 +323,11 @@ function LeaderboardSection() {
           <p className="text-sm sm:text-base text-neutral-500">Leaderboard of this month</p>
         </div>
         
-        <div className="border border-neutral-200 bg-gray-100]/50 rounded-2xl overflow-hidden">
+        <div className="border border-neutral-200 bg-gray-50/50 rounded-2xl overflow-hidden">
           {LEADERBOARD.map((item, index) => (
             <div key={index} className="flex items-center justify-between p-3 sm:p-4 lg:p-5 border-b border-neutral-200 last:border-b-0">
               <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-[#00F5FF]/30 bg-gray-100]/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-[#00F5FF]">
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-[#00F5FF]/30 bg-gray-50/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-[#00F5FF]">
                   {item.rank}
                 </div>
                 <span className="text-xs sm:text-sm lg:text-base text-[#e2e2e8]">{item.name}</span>
@@ -369,7 +369,7 @@ function FAQSection() {
   ];
   
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-gray-100]">
+    <section className="py-4 sm:py-6 lg:py-8 bg-gray-50">
       <div className="max-w-3xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-3 sm:mb-4 lg:mb-6">
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>

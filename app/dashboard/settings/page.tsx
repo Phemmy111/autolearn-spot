@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center text-[#e2e8e2]">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-[#e2e8e2]">
         <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     )
@@ -49,16 +49,16 @@ export default function SettingsPage() {
 
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center text-[#e2e8e2]">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-[#e2e8e2]">
         <p className="text-neutral-500">Please sign in to access settings</p>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-gray-100] text-[#e2e8e2]">
+    <main className="min-h-screen bg-gray-50 text-[#e2e8e2]">
       {/* Header */}
-      <div className="border-b border-[#3b494b] bg-gray-100]/95 backdrop-blur">
+      <div className="border-b border-[#3b494b] bg-gray-50/95 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-neutral-500 hover:text-[#10b981] transition-colors">
@@ -80,7 +80,7 @@ export default function SettingsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-gray-100] border border-[#3b494b] rounded-2xl p-6 mb-6">
+        <div className="bg-gray-50 border border-[#3b494b] rounded-2xl p-6 mb-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Profile
           </h2>
@@ -104,7 +104,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-gray-100] border border-[#3b494b] rounded-2xl p-6">
+        <div className="bg-gray-50 border border-[#3b494b] rounded-2xl p-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#10b981] mb-6">
             Account Information
           </h2>

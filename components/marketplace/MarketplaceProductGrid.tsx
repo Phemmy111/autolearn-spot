@@ -9,7 +9,7 @@ interface MarketplaceProductGridProps {
 export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps) {
   if (!products || products.length === 0) {
     return (
-      <section id="products" className="py-24 bg-gray-100]">
+      <section id="products" className="py-24 bg-gray-50">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gray-100 border border-neutral-300/50 mb-6 shadow-sm">
             <BookOpen className="w-8 h-8 text-neutral-400" />
@@ -26,7 +26,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
   }
 
   return (
-    <section id="products" className="py-20 md:py-32 bg-gray-100] border-t border-neutral-300/50">
+    <section id="products" className="py-20 md:py-32 bg-gray-50 border-t border-neutral-300/50">
       <div className="container mx-auto px-4">
         
         {/* Header & Search/Filter Bar */}

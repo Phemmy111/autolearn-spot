@@ -13,13 +13,13 @@ export function AnimatedStatsSection() {
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
 
   return (
-    <section ref={sectionRef} className="py-4 sm:py-6 lg:py-8 bg-gray-100]">
+    <section ref={sectionRef} className="py-4 sm:py-6 lg:py-8 bg-gray-50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
           {stats.map((stat, index) => (
             <div 
               key={stat.label} 
-              className={`border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+              className={`border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 lg:p-6 text-center reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
               style={{ transitionDelay: `${index * 0.1}s` }}
             >
               <div className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#10b981] stat-counter">{stat.value}</div>

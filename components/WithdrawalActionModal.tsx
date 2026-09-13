@@ -60,7 +60,7 @@ export default function WithdrawalActionModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-100] rounded-2xl p-6 w-full max-w-md shadow-lg">
+      <div className="bg-gray-50 rounded-2xl p-6 w-full max-w-md shadow-lg">
         <h2 className="text-xl font-bold text-neutral-900 mb-4">
           {action === "approve" ? "Approve" : "Reject"} Withdrawal
         </h2>
@@ -75,7 +75,7 @@ export default function WithdrawalActionModal({
             <input
               id="providerRef"
               type="text"
-              className="w-full px-3 py-2 rounded bg-gray-100] text-neutral-900 focus:outline-none"
+              className="w-full px-3 py-2 rounded bg-gray-50 text-neutral-900 focus:outline-none"
               value={providerRef}
               onChange={(e) => setProviderRef(e.target.value)}
             />

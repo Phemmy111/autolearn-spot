@@ -48,7 +48,7 @@ export function TopSkillsGrid() {
   ];
 
   return (
-    <section className="bg-gray-100] py-20">
+    <section className="bg-gray-50 py-20">
       <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
@@ -73,7 +73,7 @@ export function TopSkillsGrid() {
             <Link
               key={index}
               href={skill.href}
-              className="group flex items-center gap-6 p-6 bg-gray-100 rounded-[24px] hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-neutral-200/60"
+              className="group flex items-center gap-6 p-6 bg-white rounded-[24px] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 border border-neutral-200/60"
             >
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${skill.bgColor} ${skill.iconColor}`}>
                 <skill.icon className="w-8 h-8" />

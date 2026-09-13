@@ -79,7 +79,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
   // If quiz hasn't started, show intro
   if (!progress.startedAt && !isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl shadow-xl">
+      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-50 p-8 rounded-xl shadow-xl">
         <h2 className="font-heading text-3xl font-bold text-neutral-900 mb-4">{quiz.title}</h2>
         <p className="text-neutral-500 font-mono text-sm mb-6">{quiz.description}</p>
         <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[#10b981]">
@@ -89,7 +89,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
         </div>
         <button
           onClick={startQuiz}
-          className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-gray-100 transition-colors"
+          className="bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-gray-100 transition-colors"
         >
           Start Quiz
         </button>
@@ -103,7 +103,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
 
   if (isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl shadow-xl">
+      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-50 p-8 rounded-xl shadow-xl">
         <CheckCircle className="h-16 w-16 text-emerald-400 mx-auto mb-4" />
         <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Quiz Submitted Successfully</h2>
         <p className="text-neutral-500 font-mono text-sm mb-6">Waiting for grading... Your results will be available shortly.</p>
@@ -126,9 +126,9 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
         <QuizTimer formattedTime={formattedTime} timeLeft={timeLeft} />
       </div>
 
-      <div className="w-full bg-gray-100] h-1.5 rounded-full mb-8 overflow-hidden">
+      <div className="w-full bg-gray-50 h-1.5 rounded-full mb-8 overflow-hidden">
         <div 
-          className="bg-gray-100] h-full transition-all duration-300"
+          className="bg-gray-50 h-full transition-all duration-300"
           style={{ width: `${((currentIndex + 1) / quiz.questions.length) * 100}%` }}
         />
       </div>
@@ -159,7 +159,7 @@ export function QuizPlayer({ quiz, user }: QuizPlayerProps) {
           <button
             onClick={doSubmit}
             disabled={isSubmitting}
-            className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
           >
             Submit Quiz <Send className="h-4 w-4" />
           </button>

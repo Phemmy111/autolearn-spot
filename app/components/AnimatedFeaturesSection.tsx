@@ -16,7 +16,7 @@ export function AnimatedFeaturesSection() {
   const [sectionRef, isVisible] = useScrollAnimation(0.1);
 
   return (
-    <section ref={sectionRef} id="tools" className="py-6 sm:py-8 lg:py-12 bg-gray-100]">
+    <section ref={sectionRef} id="tools" className="py-6 sm:py-8 lg:py-12 bg-gray-50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className={`text-center mb-4 sm:mb-6 lg:mb-8 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#e2e2e8] mb-3 sm:mb-4">
@@ -30,10 +30,10 @@ export function AnimatedFeaturesSection() {
             return (
               <div
                 key={feature.title}
-                className={`border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)] card-enhanced reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+                className={`border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)] card-enhanced reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
                 style={{ transitionDelay: `${0.1 + index * 0.1}s` }}
               >
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#10b981]/60 bg-gray-100]/10 rounded-xl mb-3 sm:mb-4">
+                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#10b981]/60 bg-gray-50/10 rounded-xl mb-3 sm:mb-4">
                   <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#10b981]" />
                 </div>
                 <h3 className="text-base sm:text-lg font-semibold text-[#e2e2e8] mb-2">{feature.title}</h3>

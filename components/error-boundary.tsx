@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-100] flex items-center justify-center px-4">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
           <div className="max-w-md w-full border border-red-500/50 bg-red-500/10 p-8 rounded-xl text-center">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Something went wrong</h2>
@@ -42,7 +42,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <button
               onClick={this.handleReset}
-              className="flex items-center gap-2 mx-auto bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 mx-auto bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors"
             >
               <RefreshCw className="h-4 w-4" />
               Try Again

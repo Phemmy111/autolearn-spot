@@ -25,9 +25,9 @@ export default async function DashboardLayout({
 
   if (!isEnrolled) {
     return (
-      <div className="min-h-screen bg-gray-100]">
+      <div className="min-h-screen bg-gray-50">
         {/* Simple nav bar for unpaid users so they can still sign out */}
-        <nav className="flex h-16 items-center justify-between border-b border-[#3b494b] bg-gray-100] px-4 sm:px-6">
+        <nav className="flex h-16 items-center justify-between border-b border-[#3b494b] bg-gray-50 px-4 sm:px-6">
           <div className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-neutral-900">
             <span className="text-[#10b981]">//</span>
             <span className="underline decoration-[#b9cacb] decoration-2 underline-offset-2">AutoLearn Spot</span>
@@ -44,8 +44,8 @@ export default async function DashboardLayout({
 
   // They are enrolled, render the normal dashboard layout/pages
   return (
-    <div className="flex min-h-screen bg-gray-100]">
-      <nav className="w-64 bg-gray-100] text-neutral-900 p-4">
+    <div className="flex min-h-screen bg-gray-50">
+      <nav className="w-64 bg-gray-50 text-neutral-900 p-4">
         <ul className="space-y-2">
           <li>
             <a href="/dashboard" className="block py-2 hover:text-primary-500">Learning</a>

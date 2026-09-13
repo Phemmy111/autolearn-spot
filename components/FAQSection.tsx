@@ -60,7 +60,7 @@ export default function FAQSection() {
 
   if (isLoading) {
     return (
-      <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-gray-100]">
+      <section id="faq" className="py-6 sm:py-8 lg:py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-4 sm:mb-6 lg:mb-8">
@@ -84,7 +84,7 @@ export default function FAQSection() {
   }
 
   return (
-    <section id="faq" className="py-16 sm:py-24 bg-gray-100] border-t border-neutral-300/50">
+    <section id="faq" className="py-16 sm:py-24 bg-gray-50 border-t border-neutral-300/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-8 sm:mb-12">

@@ -80,7 +80,7 @@ export function ProfilePictureUpload({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className={`relative ${sizeClasses[size]} rounded-full overflow-hidden border-2 border-neutral-200 bg-gray-100] flex items-center justify-center group`}>
+      <div className={`relative ${sizeClasses[size]} rounded-full overflow-hidden border-2 border-neutral-200 bg-gray-50 flex items-center justify-center group`}>
         {preview ? (
           <img 
             src={preview} 
@@ -88,7 +88,7 @@ export function ProfilePictureUpload({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100]">
+          <div className="w-full h-full flex items-center justify-center bg-gray-50">
             <Camera className="h-8 w-8 text-neutral-500" />
           </div>
         )}
@@ -97,7 +97,7 @@ export function ProfilePictureUpload({
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="bg-gray-100] text-black px-3 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors flex items-center gap-2"
+            className="bg-gray-50 text-black px-3 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors flex items-center gap-2"
           >
             {uploading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

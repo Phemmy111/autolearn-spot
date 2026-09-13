@@ -30,7 +30,7 @@ export function StudentTestimonialCard({
   };
 
   return (
-    <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+    <div className="border border-neutral-200/60 shadow-sm bg-gray-50/80 backdrop-blur-xl p-6 rounded-2xl hover:border-[#10b981]/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(16,185,129,0.08)]">
       <div className="flex items-start gap-4 mb-4">
         <div className="relative">
           {image ? (
@@ -44,20 +44,20 @@ export function StudentTestimonialCard({
               />
             </div>
           ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-[#00f0ff]/5 border-2 border-[#10b981]/30 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#10b981]/10 to-transparent border-2 border-[#10b981]/30 flex items-center justify-center">
               <span className="text-[#10b981] font-semibold text-lg">
                 {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
               </span>
             </div>
           )}
           {verified && (
-            <div className="absolute -bottom-1 -right-1 bg-gray-100] rounded-full p-1">
+            <div className="absolute -bottom-1 -right-1 bg-gray-50 rounded-full p-1">
               <CheckCircle className="h-3 w-3 text-[#00363a]" />
             </div>
           )}
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-[#e2e2e8] text-base">{name}</h3>
+          <h3 className="font-semibold text-neutral-900 text-base">{name}</h3>
           <p className="text-sm text-neutral-500 mt-1">{school}</p>
           <div className="flex items-center gap-1 mt-2">
             {renderStars(rating)}

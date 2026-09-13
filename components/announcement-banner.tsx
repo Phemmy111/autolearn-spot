@@ -50,7 +50,7 @@ export function AnnouncementBanner() {
   };
 
   return (
-    <div className="relative z-50 bg-gradient-to-r from-[#00f0ff]/20 to-[#8b5cf6]/20 border-b border-[#10b981]/30">
+    <div className="relative z-50 bg-gradient-to-r from-[#10b981]/10 to-transparent border-b border-[#10b981]/20">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
           <p className="text-sm text-[#e2e2e8] font-medium flex-1">

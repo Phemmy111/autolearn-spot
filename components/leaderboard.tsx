@@ -71,7 +71,7 @@ export function Leaderboard() {
     if (rank === 1) return 'border-yellow-400/30 bg-yellow-400/5'
     if (rank === 2) return 'border-gray-300/30 bg-gray-300/5'
     if (rank === 3) return 'border-amber-600/30 bg-amber-600/5'
-    return 'border-neutral-200 bg-gray-100]'
+    return 'border-neutral-200 bg-gray-50'
   }
 
   return (
@@ -82,7 +82,7 @@ export function Leaderboard() {
       </div>
 
       {leaderboard.length === 0 ? (
-        <div className="text-center py-12 border border-neutral-200 bg-gray-100] rounded-xl">
+        <div className="text-center py-12 border border-neutral-200 bg-gray-50 rounded-xl">
           <p className="font-mono text-sm text-neutral-500">No quiz results yet. Be the first to complete a quiz!</p>
         </div>
       ) : (
@@ -90,7 +90,7 @@ export function Leaderboard() {
           {leaderboard.map((entry, index) => (
             <div
               key={entry.id}
-              className={`group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50 hover:bg-gray-100] ${getRankClass(index + 1)}`}
+              className={`group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(0,240,255,0.08)] hover:border-[#10b981]/50 hover:bg-gray-50 ${getRankClass(index + 1)}`}
               aria-label={`Rank ${index + 1}: ${entry.name} with ${entry.score} points and ${entry.percentage}% average`}
             >
               <div className="flex items-center gap-4 mb-3 sm:mb-0">

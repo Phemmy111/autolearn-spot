@@ -28,7 +28,7 @@ export async function SummaryCard() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
       <div className="border border-neutral-200 bg-gray-100 p-6 rounded-xl hover:border-neutral-300 transition-all duration-300 group shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-gray-100]/10 rounded-lg md:group-hover:scale-110 transition-transform">
+          <div className="p-3 bg-gray-50/10 rounded-lg md:group-hover:scale-110 transition-transform">
             <BookOpen className="h-6 w-6 text-[#10b981]" />
           </div>
           <div>

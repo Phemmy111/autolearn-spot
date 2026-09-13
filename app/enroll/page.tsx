@@ -176,7 +176,7 @@ function EnrollForm() {
 
   if (settingsLoading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin" />
           <span className="text-neutral-500">Loading...</span>
@@ -187,12 +187,12 @@ function EnrollForm() {
 
   if (enrollmentSettings.enrollmentOpen === 'false') {
     return (
-      <div className="min-h-screen bg-gray-100]">
-        <header className="border-b border-neutral-200 bg-gray-100]/80 backdrop-blur-xl">
+      <div className="min-h-screen bg-gray-50">
+        <header className="border-b border-neutral-200 bg-gray-50/80 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <Link href="/" className="flex items-center gap-2 group">
-                <div className="flex items-center justify-center w-8 h-8 border border-[#10b981]/60 bg-gray-100]/10 text-[#10b981] group-hover:border-[#10b981] transition-colors">
+                <div className="flex items-center justify-center w-8 h-8 border border-[#10b981]/60 bg-gray-50/10 text-[#10b981] group-hover:border-[#10b981] transition-colors">
                   <Star className="h-4 w-4" />
                 </div>
                 <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
@@ -223,7 +223,7 @@ function EnrollForm() {
             </p>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gray-50 text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors"
             >
               Return to Home
             </Link>
@@ -234,13 +234,13 @@ function EnrollForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b border-neutral-200 bg-gray-100]/80 backdrop-blur-xl">
+      <header className="border-b border-neutral-200 bg-gray-50/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="flex items-center justify-center w-8 h-8 border border-[#10b981]/60 bg-gray-100]/10 text-[#10b981] group-hover:border-[#10b981] transition-colors">
+              <div className="flex items-center justify-center w-8 h-8 border border-[#10b981]/60 bg-gray-50/10 text-[#10b981] group-hover:border-[#10b981] transition-colors">
                 <Star className="h-4 w-4" />
               </div>
               <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
@@ -262,7 +262,7 @@ function EnrollForm() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         {/* Announcement Banner */}
         {enrollmentSettings.enrollmentAnnouncement && (
-          <div className="mb-8 bg-gray-100]/10 border border-[#10b981]/30 rounded-xl p-4">
+          <div className="mb-8 bg-gray-50/10 border border-[#10b981]/30 rounded-xl p-4">
             <p className="text-sm text-[#10b981] font-medium">{enrollmentSettings.enrollmentAnnouncement}</p>
           </div>
         )}
@@ -271,7 +271,7 @@ function EnrollForm() {
           {/* Left Column - Form */}
           <div>
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 border border-[#10b981]/60 bg-gray-100]/10 px-3 py-1 mb-4">
+              <div className="inline-flex items-center gap-2 border border-[#10b981]/60 bg-gray-50/10 px-3 py-1 mb-4">
                 <Star className="h-4 w-4 text-[#10b981]" />
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#10b981]">
                   Direct Enrollment
@@ -304,7 +304,7 @@ function EnrollForm() {
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="e.g., Chioma Adeleke"
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-50 ${
                         errors.fullName 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -328,7 +328,7 @@ function EnrollForm() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="e.g., chioma@gmail.com"
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-50 ${
                         errors.email 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -352,7 +352,7 @@ function EnrollForm() {
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       placeholder="e.g., 08012345678"
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-50 ${
                         errors.phoneNumber 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -376,7 +376,7 @@ function EnrollForm() {
                       value={formData.whatsappNumber}
                       onChange={handleChange}
                       placeholder="e.g., 08012345678"
-                      className="mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-100] border-neutral-200 focus:border-[#10b981]"
+                      className="mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-50 border-neutral-200 focus:border-[#10b981]"
                     />
                   </label>
                 </div>
@@ -390,7 +390,7 @@ function EnrollForm() {
                       name="state"
                       value={formData.state}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-50 ${
                         errors.state 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -451,7 +451,7 @@ function EnrollForm() {
                       name="occupation"
                       value={formData.occupation}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-50 ${
                         errors.occupation 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -485,7 +485,7 @@ function EnrollForm() {
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-50 ${
                         errors.gender 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -512,7 +512,7 @@ function EnrollForm() {
                       name="referralSource"
                       value={formData.referralSource}
                       onChange={handleChange}
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition focus:bg-gray-50 ${
                         errors.referralSource 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -548,7 +548,7 @@ function EnrollForm() {
                       value={formData.referralCode}
                       onChange={handleChange}
                       placeholder="Enter referral code"
-                      className={`mt-2 h-12 w-full border bg-gray-100] px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-100] ${
+                      className={`mt-2 h-12 w-full border bg-gray-50 px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:bg-gray-50 ${
                         errors.referralCode 
                           ? 'border-red-500 focus:border-red-500' 
                           : 'border-neutral-200 focus:border-[#10b981]'
@@ -570,7 +570,7 @@ function EnrollForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-4 bg-gray-100] text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 bg-gray-50 text-[#050505] font-bold font-mono text-sm uppercase tracking-wider hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
@@ -588,7 +588,7 @@ function EnrollForm() {
           <div className="space-y-8">
             {/* Cohort Information */}
             {(enrollmentSettings.currentCohortName || enrollmentSettings.currentCohortNumber || enrollmentSettings.cohortStartDate || enrollmentSettings.cohortEndDate || enrollmentSettings.enrollmentDeadline) && (
-              <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
+              <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Calendar className="h-5 w-5 text-[#10b981]" />
                   <h2 className="text-xl font-semibold text-[#e2e2e8]">Cohort Information</h2>
@@ -596,25 +596,25 @@ function EnrollForm() {
                 <div className="space-y-3">
                   {enrollmentSettings.currentCohortName && (
                     <div className="flex items-center gap-2 text-sm text-neutral-500">
-                      <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Cohort:</strong> {enrollmentSettings.currentCohortName}</span>
                     </div>
                   )}
                   {enrollmentSettings.currentCohortNumber && (
                     <div className="flex items-center gap-2 text-sm text-neutral-500">
-                      <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Number:</strong> {enrollmentSettings.currentCohortNumber}</span>
                     </div>
                   )}
                   {enrollmentSettings.cohortStartDate && (
                     <div className="flex items-center gap-2 text-sm text-neutral-500">
-                      <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                       <span><strong className="text-[#e2e2e8]">Start Date:</strong> {new Date(enrollmentSettings.cohortStartDate).toLocaleDateString()}</span>
                     </div>
                   )}
                   {enrollmentSettings.cohortEndDate && (
                     <div className="flex items-center gap-2 text-sm text-neutral-500">
-                      <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                      <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                       <span><strong className="text-[#e2e2e8]">End Date:</strong> {new Date(enrollmentSettings.cohortEndDate).toLocaleDateString()}</span>
                     </div>
                   )}
@@ -628,7 +628,7 @@ function EnrollForm() {
               </div>
             )}
 
-            <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Program Details</h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -662,29 +662,29 @@ function EnrollForm() {
               </div>
             </div>
 
-            <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">What You'll Learn</h2>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-neutral-500">
-                  <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                   <span>n8n Fundamentals & Setup</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-neutral-500">
-                  <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                   <span>AI-Powered Workflows</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-neutral-500">
-                  <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                   <span>Deployment on Railway</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-neutral-500">
-                  <div className="h-1.5 w-1.5 bg-gray-100] rounded-full" />
+                  <div className="h-1.5 w-1.5 bg-gray-50 rounded-full" />
                   <span>Capstone Project</span>
                 </div>
               </div>
             </div>
 
-            <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6">
+            <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6">
               <h2 className="text-xl font-semibold text-[#e2e2e8] mb-4">Investment</h2>
               <div className="text-center">
                 {feeLoading ? (
@@ -716,7 +716,7 @@ export const dynamic = 'force-dynamic';
 export default function EnrollPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin" />
           <span className="text-neutral-500">Loading...</span>

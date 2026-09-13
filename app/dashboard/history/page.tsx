@@ -100,7 +100,7 @@ export default function HistoryPage() {
   if (error) {
     return (
       <div className="py-20 flex justify-center">
-        <div className="flex max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-neutral-200 bg-gray-100] p-8 text-center shadow-xl">
+        <div className="flex max-w-md flex-col items-center justify-center gap-4 rounded-xl border border-neutral-200 bg-gray-50 p-8 text-center shadow-xl">
           <AlertCircle className="h-12 w-12 text-red-500" />
           <h2 className="font-heading text-xl font-bold text-neutral-900">Oops</h2>
           <p className="font-mono text-sm text-neutral-500">{error}</p>
@@ -112,7 +112,7 @@ export default function HistoryPage() {
   if (history.length === 0) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <div className="flex flex-col items-center justify-center text-center p-12 border border-neutral-200 bg-gray-100] rounded-xl shadow-xl">
+        <div className="flex flex-col items-center justify-center text-center p-12 border border-neutral-200 bg-gray-50 rounded-xl shadow-xl">
           <History className="h-16 w-16 text-[#3b494b] mb-4" />
           <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">No History Yet</h2>
           <p className="font-mono text-sm text-neutral-500">You haven't completed any quizzes or assignments yet.</p>
@@ -183,10 +183,10 @@ export default function HistoryPage() {
         <p className="font-mono text-sm text-neutral-500">Review your past quiz and assignment submissions.</p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-neutral-200 bg-gray-100] shadow-2xl">
+      <div className="overflow-hidden rounded-xl border border-neutral-200 bg-gray-50 shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm font-mono text-neutral-500">
-            <thead className="bg-gray-100] text-xs uppercase text-[#5d5f63]">
+            <thead className="bg-gray-50 text-xs uppercase text-[#5d5f63]">
               <tr>
                 <th scope="col" className="px-6 py-4">Type</th>
                 <th scope="col" className="px-6 py-4">Title</th>
@@ -198,7 +198,7 @@ export default function HistoryPage() {
             </thead>
             <tbody className="divide-y divide-[#1f2229]">
               {history.map((entry, idx) => (
-                <tr key={entry.id} className={`hover:bg-gray-100] transition-colors ${idx % 2 === 0 ? 'bg-gray-100]' : 'bg-gray-100]'}`}>
+                <tr key={entry.id} className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? 'bg-gray-50' : 'bg-gray-50'}`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       {getEntryIcon(entry)}

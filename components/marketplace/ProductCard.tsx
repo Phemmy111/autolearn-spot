@@ -17,7 +17,7 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
   }).format(product.price);
 
   return (
-    <div className="group flex flex-col bg-gray-100 border border-neutral-300/50 rounded-2xl overflow-hidden hover:border-[#10b981]/40 transition-all duration-500 hover:shadow-[0_12px_40px_-10px_rgba(0,0,0,0.1)] hover:-translate-y-1.5 bg-gradient-to-b from-white to-neutral-50">
+    <div className="group flex flex-col bg-white border border-neutral-200/60 rounded-2xl overflow-hidden hover:border-[#10b981]/40 transition-all duration-500 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1">
       {/* Thumbnail Container */}
       <Link href={`/learning_products/${product.id}`} className="relative aspect-[4/3] block overflow-hidden bg-neutral-100">
         {product.thumbnail_url ? (
@@ -34,7 +34,7 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
         )}
         
         {/* Category Pill */}
-        <div className="absolute top-3 left-3 bg-gray-100/95 backdrop-blur-md text-neutral-900 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm border border-neutral-300/50">
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md text-neutral-900 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm border border-neutral-300/50">
           {product.product_type || 'Course'}
         </div>
         
@@ -45,7 +45,7 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
       {/* Content Area */}
       <div className="flex flex-col flex-1 p-5">
         <div className="flex items-center gap-1.5 text-xs text-neutral-500 font-medium mb-2.5">
-          <div className="flex items-center text-amber-500">
+          <div className="flex items-center text-amber-400">
             <Star className="w-3.5 h-3.5 fill-current" />
             <span className="ml-1 text-neutral-900">4.8</span>
           </div>

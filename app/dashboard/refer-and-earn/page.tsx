@@ -140,7 +140,7 @@ export default function StudentPartnerPage() {
 
   if (!isLoaded || status === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100]">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
       </div>
     );
@@ -148,10 +148,10 @@ export default function StudentPartnerPage() {
 
   if (status === 'not_partner') {
     return (
-      <div className="min-h-screen bg-gray-100] py-12 px-4">
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gray-100] border border-neutral-200 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gray-100]/10 blur-3xl rounded-full" />
+          <div className="bg-gray-50 border border-neutral-200 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gray-50/10 blur-3xl rounded-full" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 blur-3xl rounded-full" />
             
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#00f0ff]/20 to-purple-500/20 flex items-center justify-center text-[#10b981] mx-auto mb-8 relative z-10 border border-[#10b981]/30">
@@ -164,17 +164,17 @@ export default function StudentPartnerPage() {
             </p>
             
             <div className="grid md:grid-cols-3 gap-6 mb-8 relative z-10">
-              <div className="bg-gray-100] border border-neutral-200 rounded-xl p-6">
+              <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
                 <DollarSign className="h-8 w-8 text-[#10b981] mb-3" />
                 <h3 className="font-bold mb-1">₦1,500</h3>
                 <p className="text-sm text-neutral-500">Per successful referral</p>
               </div>
-              <div className="bg-gray-100] border border-neutral-200 rounded-xl p-6">
+              <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
                 <Clock className="h-8 w-8 text-purple-400 mb-3" />
                 <h3 className="font-bold mb-1">7 Days</h3>
                 <p className="text-sm text-neutral-500">Commission holding period</p>
               </div>
-              <div className="bg-gray-100] border border-neutral-200 rounded-xl p-6">
+              <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6">
                 <TrendingUp className="h-8 w-8 text-green-400 mb-3" />
                 <h3 className="font-bold mb-1">Unlimited</h3>
                 <p className="text-sm text-neutral-500">Earning potential</p>
@@ -183,7 +183,7 @@ export default function StudentPartnerPage() {
             
             <Link 
               href="/enroll"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gray-100] text-black font-bold rounded-xl hover:bg-gray-100 transition-colors relative z-10"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gray-50 text-black font-bold rounded-xl hover:bg-gray-100 transition-colors relative z-10"
             >
               Complete Enrollment
               <ArrowRight className="h-4 w-4" />
@@ -195,7 +195,7 @@ export default function StudentPartnerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100] py-8 px-4">
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -205,7 +205,7 @@ export default function StudentPartnerPage() {
           </div>
           <Link 
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-100] text-neutral-500 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-neutral-200 bg-gray-50 text-neutral-500 rounded-lg hover:border-[#10b981] hover:text-[#10b981] transition-colors"
           >
             <ArrowRight className="h-4 w-4 rotate-180" />
             Back to Dashboard
@@ -230,7 +230,7 @@ export default function StudentPartnerPage() {
               </div>
               <button 
                 onClick={handleCopyLink}
-                className="bg-gray-100] text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors flex-shrink-0 flex items-center gap-2"
+                className="bg-gray-50 text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors flex-shrink-0 flex items-center gap-2"
               >
                 {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copied ? "Copied" : "Copy"}
@@ -240,7 +240,7 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Referral Code Card */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
@@ -252,7 +252,7 @@ export default function StudentPartnerPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="bg-gray-100] border border-neutral-200 rounded-lg px-6 py-3 font-mono text-2xl font-bold text-[#10b981] tracking-wider">
+              <div className="bg-gray-50 border border-neutral-200 rounded-lg px-6 py-3 font-mono text-2xl font-bold text-[#10b981] tracking-wider">
                 {data?.referralCode}
               </div>
               <button 
@@ -268,7 +268,7 @@ export default function StudentPartnerPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
                 <MousePointerClick className="h-6 w-6" />
@@ -278,7 +278,7 @@ export default function StudentPartnerPage() {
             <h3 className="text-3xl font-bold">{data?.stats?.totalClicks || 0}</h3>
           </div>
           
-          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
                 <Users className="h-6 w-6" />
@@ -288,7 +288,7 @@ export default function StudentPartnerPage() {
             <h3 className="text-3xl font-bold">{data?.stats?.totalRegistrations || 0}</h3>
           </div>
 
-          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-400">
                 <Clock className="h-6 w-6" />
@@ -299,9 +299,9 @@ export default function StudentPartnerPage() {
           </div>
 
           <div className="bg-gradient-to-br from-[#00f0ff]/10 to-purple-500/10 border border-[#10b981]/30 rounded-2xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-100]/5 blur-3xl rounded-full" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/5 blur-3xl rounded-full" />
             <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-12 h-12 rounded-full bg-gray-100]/10 flex items-center justify-center text-[#10b981]">
+              <div className="w-12 h-12 rounded-full bg-gray-50/10 flex items-center justify-center text-[#10b981]">
                 <Wallet className="h-6 w-6" />
               </div>
             </div>
@@ -311,7 +311,7 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Recent Referrals */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Recent Referrals</h2>
           
           {data?.recentReferrals && data.recentReferrals.length > 0 ? (
@@ -360,13 +360,13 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Commission History */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Commission History</h2>
           
           {data?.commissions && data.commissions.length > 0 ? (
             <div className="space-y-4">
               {data.commissions.map((commission: any, index: number) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-gray-100] border border-neutral-200 rounded-xl">
+                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 border border-neutral-200 rounded-xl">
                   <div>
                     <p className="font-semibold">{commission.refereeEmail}</p>
                     <p className="text-sm text-neutral-500">{new Date(commission.createdAt).toLocaleDateString()}</p>
@@ -387,13 +387,13 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Marketing Kits */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
           <h2 className="text-xl font-bold mb-6">Marketing Kits</h2>
           
           {data?.marketingResources && data.marketingResources.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {data.marketingResources.map((resource: any, index: number) => (
-                <div key={index} className="bg-gray-100] border border-neutral-200 rounded-xl p-4 hover:border-[#10b981]/50 transition-colors">
+                <div key={index} className="bg-gray-50 border border-neutral-200 rounded-xl p-4 hover:border-[#10b981]/50 transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm mb-1">{resource.name}</h3>
@@ -437,7 +437,7 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Bank Details Section */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <CreditCard className="h-6 w-6 text-[#10b981]" />
@@ -454,14 +454,14 @@ export default function StudentPartnerPage() {
                 }
                 setShowBankModal(true);
               }}
-              className="bg-gray-100] text-black px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+              className="bg-gray-50 text-black px-4 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors"
             >
               {data?.bankProfile ? 'Update Bank Details' : 'Add Bank Details'}
             </button>
           </div>
           
           {data?.bankProfile ? (
-            <div className="bg-gray-100] border border-neutral-200 rounded-xl p-4">
+            <div className="bg-gray-50 border border-neutral-200 rounded-xl p-4">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm text-neutral-500 mb-1">Bank Name</p>
@@ -486,13 +486,13 @@ export default function StudentPartnerPage() {
         </div>
 
         {/* Withdrawal Section */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-6">
             <Wallet className="h-6 w-6 text-[#10b981]" />
             <h2 className="text-xl font-bold">Withdraw Earnings</h2>
           </div>
           
-          <div className="bg-gray-100] border border-neutral-200 rounded-xl p-6 mb-4">
+          <div className="bg-gray-50 border border-neutral-200 rounded-xl p-6 mb-4">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm text-neutral-500 mb-1">Available Balance</p>
@@ -520,7 +520,7 @@ export default function StudentPartnerPage() {
               <button
                 type="submit"
                 disabled={isWithdrawing || !data?.bankProfile}
-                className="bg-gray-100] text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="bg-gray-50 text-black px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isWithdrawing ? 'Processing...' : 'Withdraw'}
               </button>
@@ -538,7 +538,7 @@ export default function StudentPartnerPage() {
       {/* Bank Details Modal */}
       {showBankModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 w-full max-w-md">
+          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">Bank Details</h3>
               <button
@@ -557,7 +557,7 @@ export default function StudentPartnerPage() {
                   required
                   value={bankFormData.bank_name}
                   onChange={(e) => setBankFormData({ ...bankFormData, bank_name: e.target.value })}
-                  className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
                   placeholder="e.g., Access Bank"
                 />
               </div>
@@ -569,7 +569,7 @@ export default function StudentPartnerPage() {
                   required
                   value={bankFormData.account_number}
                   onChange={(e) => setBankFormData({ ...bankFormData, account_number: e.target.value })}
-                  className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
                   placeholder="e.g., 1234567890"
                 />
               </div>
@@ -581,7 +581,7 @@ export default function StudentPartnerPage() {
                   required
                   value={bankFormData.account_name}
                   onChange={(e) => setBankFormData({ ...bankFormData, account_name: e.target.value })}
-                  className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
+                  className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-3 text-neutral-900 focus:border-[#10b981] focus:outline-none"
                   placeholder="e.g., John Doe"
                 />
               </div>
@@ -590,14 +590,14 @@ export default function StudentPartnerPage() {
                 <button
                   type="button"
                   onClick={() => setShowBankModal(false)}
-                  className="flex-1 border border-neutral-200 bg-gray-100] text-neutral-500 px-4 py-3 rounded-lg font-medium hover:bg-gray-100] transition-colors"
+                  className="flex-1 border border-neutral-200 bg-gray-50 text-neutral-500 px-4 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingBank}
-                  className="flex-1 bg-gray-100] text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gray-50 text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSavingBank ? 'Saving...' : 'Save Details'}
                 </button>
@@ -610,7 +610,7 @@ export default function StudentPartnerPage() {
       {/* Marketing Material Preview Modal */}
       {showMaterialModal && selectedMaterial && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold">{selectedMaterial.resource_name}</h3>
               <button
@@ -657,14 +657,14 @@ export default function StudentPartnerPage() {
                 href={selectedMaterial.resource_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-black rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-black rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >
                 <Download className="h-4 w-4" />
                 Download
               </a>
               <button
                 onClick={() => setShowMaterialModal(false)}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-100] transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-[#e2e2e8] border border-neutral-200 rounded-lg font-medium hover:bg-gray-50 transition-colors"
               >
                 Close
               </button>

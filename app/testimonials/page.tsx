@@ -51,7 +51,7 @@ export default function TestimonialsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
@@ -61,9 +61,9 @@ export default function TestimonialsPage() {
   const regularTestimonials = testimonials.filter(t => !t.featured);
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-gray-100]/50 backdrop-blur-xl">
+      <div className="border-b border-neutral-200 bg-gray-50/50 backdrop-blur-xl">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8 py-4">
           <Link href="/" className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-900 transition-colors mb-4">
             <ArrowLeft className="h-5 w-5" />
@@ -86,11 +86,11 @@ export default function TestimonialsPage() {
               <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3">
                 Featured Stories
               </h2>
-              <div className="w-20 h-1 bg-gray-100] mx-auto rounded-full"></div>
+              <div className="w-20 h-1 bg-gray-50 mx-auto rounded-full"></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               {featuredTestimonials.map((testimonial) => (
-                <div key={testimonial.id} className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 hover:border-[#10b981]/50 transition-all duration-300">
+                <div key={testimonial.id} className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 hover:border-[#10b981]/50 transition-all duration-300">
                   <div className="mb-6 relative">
                     {testimonial.media_type === 'video' ? (
                       <div className="relative">
@@ -125,13 +125,13 @@ export default function TestimonialsPage() {
                           className="w-16 h-16 rounded-full object-cover border-2 border-neutral-200 group-hover:border-[#10b981] transition-colors"
                         />
                         {testimonial.social_profile_url && (
-                          <div className="absolute inset-0 rounded-full bg-gray-100]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="absolute inset-0 rounded-full bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <CheckCircle className="h-4 w-4 text-neutral-900" />
                           </div>
                         )}
                       </a>
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-100] border-2 border-neutral-200 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-gray-50 border-2 border-neutral-200 flex items-center justify-center">
                         <span className="text-neutral-500 text-sm font-semibold">
                           {(testimonial.student_name || 'S')[0].toUpperCase()}
                         </span>
@@ -172,13 +172,13 @@ export default function TestimonialsPage() {
             <h2 className="text-2xl sm:text-3xl font-bold text-[#e2e2e8] mb-3">
               All Testimonials
             </h2>
-            <div className="w-20 h-1 bg-gray-100] mx-auto rounded-full"></div>
+            <div className="w-20 h-1 bg-gray-50 mx-auto rounded-full"></div>
           </div>
           
           {regularTestimonials.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {regularTestimonials.map((testimonial) => (
-                <div key={testimonial.id} className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300">
+                <div key={testimonial.id} className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-2xl p-6 hover:border-[#10b981]/50 transition-all duration-300">
                   <div className="mb-4 relative">
                     {testimonial.media_type === 'video' ? (
                       <div className="relative">
@@ -213,13 +213,13 @@ export default function TestimonialsPage() {
                           className="w-12 h-12 rounded-full object-cover border-2 border-neutral-200 group-hover:border-[#10b981] transition-colors"
                         />
                         {testimonial.social_profile_url && (
-                          <div className="absolute inset-0 rounded-full bg-gray-100]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <div className="absolute inset-0 rounded-full bg-gray-50/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <CheckCircle className="h-3 w-3 text-neutral-900" />
                           </div>
                         )}
                       </a>
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gray-100] border-2 border-neutral-200 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-gray-50 border-2 border-neutral-200 flex items-center justify-center">
                         <span className="text-neutral-500 text-xs font-semibold">
                           {(testimonial.student_name || 'S')[0].toUpperCase()}
                         </span>
@@ -250,7 +250,7 @@ export default function TestimonialsPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-neutral-200 bg-gray-100]/50 backdrop-blur-xl py-8">
+      <footer className="border-t border-neutral-200 bg-gray-50/50 backdrop-blur-xl py-8">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8 text-center">
           <p className="text-neutral-500 text-sm">
             © {new Date().getFullYear()} {settings.siteName}. All rights reserved.

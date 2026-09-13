@@ -24,7 +24,7 @@ export function CohortCard() {
   const formattedDate = formatDate(cohort.start_date);
 
   return (
-    <div className="border border-neutral-200 bg-gray-100]/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 lg:p-6 animate-scale-in">
+    <div className="border border-neutral-200 bg-gray-50/80 backdrop-blur-xl rounded-xl p-4 sm:p-5 lg:p-6 animate-scale-in">
       <div className="space-y-3 sm:space-y-4">
         {/* Cohort Name */}
         <div>
@@ -47,7 +47,7 @@ export function CohortCard() {
         )}
 
         {/* Duration Badge */}
-        <div className="inline-flex items-center gap-2 border border-[#10b981]/40 bg-gray-100]/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg">
+        <div className="inline-flex items-center gap-2 border border-[#10b981]/40 bg-gray-50/5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg">
           <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#10b981] flex-shrink-0" />
           <span className="font-mono text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] text-[#10b981]">
             4-Week Hands-On Training

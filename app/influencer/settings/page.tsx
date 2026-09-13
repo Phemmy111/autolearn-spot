@@ -62,16 +62,16 @@ export default function InfluencerSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-neutral-900">
         <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100] text-neutral-900">
+    <div className="min-h-screen bg-gray-50 text-neutral-900">
       {/* Header */}
-      <header className="border-b border-neutral-200 bg-gray-100]/80 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-neutral-200 bg-gray-50/80 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/influencer/dashboard" className="text-neutral-500 hover:text-purple-400 transition-colors">
@@ -93,7 +93,7 @@ export default function InfluencerSettingsPage() {
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Profile Section */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6 mb-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6 mb-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-purple-400 mb-6">
             Profile
           </h2>
@@ -125,7 +125,7 @@ export default function InfluencerSettingsPage() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-gray-100] border border-neutral-200 rounded-2xl p-6">
+        <div className="bg-gray-50 border border-neutral-200 rounded-2xl p-6">
           <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-purple-400 mb-6">
             Account Information
           </h2>
@@ -154,7 +154,7 @@ export default function InfluencerSettingsPage() {
         <div className="mt-6 flex justify-end">
           <button 
             onClick={handleLogout}
-            className="font-mono text-xs uppercase px-4 py-2 border border-neutral-200 rounded hover:bg-gray-100] transition-colors flex items-center gap-2 text-neutral-500"
+            className="font-mono text-xs uppercase px-4 py-2 border border-neutral-200 rounded hover:bg-gray-50 transition-colors flex items-center gap-2 text-neutral-500"
           >
             <LogOut className="h-3 w-3" /> Logout
           </button>

@@ -37,7 +37,7 @@ export default function WithdrawalForm({ availableBalance }: { availableBalance:
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl bg-gray-100] p-6 shadow-lg space-y-4">
+    <form onSubmit={handleSubmit} className="rounded-2xl bg-gray-50 p-6 shadow-lg space-y-4">
       <h2 className="text-lg font-medium text-neutral-900">Request Withdrawal</h2>
       {error && <p className="text-red-500">{error}</p>}
       <div>
@@ -49,7 +49,7 @@ export default function WithdrawalForm({ availableBalance }: { availableBalance:
           required
           value={amount}
           onChange={e => setAmount(e.target.value)}
-          className="mt-1 w-full rounded border border-gray-600 bg-gray-100] p-2 text-neutral-900"
+          className="mt-1 w-full rounded border border-gray-600 bg-gray-50 p-2 text-neutral-900"
         />
       </div>
       <button

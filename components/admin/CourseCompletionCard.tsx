@@ -105,7 +105,7 @@ export function CourseCompletionCard() {
               Certificate Enabled
             </label>
             <button
-              className="mt-2 flex items-center gap-2 bg-gray-100] text-black font-bold uppercase px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+              className="mt-2 flex items-center gap-2 bg-gray-50 text-black font-bold uppercase px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
               onClick={handleSave}
               disabled={saving}
             >

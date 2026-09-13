@@ -56,7 +56,7 @@ export default function ResponsiveNavigation() {
   return (
     <>
       {/* Desktop Navigation - Uses proper breakpoints to handle Desktop Mode */}
-      <nav className={`hidden md:flex items-center justify-between h-20 border-b border-neutral-200 bg-gray-100]/95 backdrop-blur-xl px-6 lg:px-8 ${isDesktopMode ? 'flex' : ''}`}>
+      <nav className={`hidden md:flex items-center justify-between h-20 border-b border-neutral-200 bg-gray-50/95 backdrop-blur-xl px-6 lg:px-8 ${isDesktopMode ? 'flex' : ''}`}>
         <Link href="/" className="flex items-center gap-2 group">
           <Image
             src="/logo.png"
@@ -85,14 +85,14 @@ export default function ResponsiveNavigation() {
 
         <Link
           href="/enroll"
-          className="border border-[#10b981] bg-gray-100] px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-gray-100 transition-colors"
+          className="border border-[#10b981] bg-gray-50 px-6 py-2.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-gray-100 transition-colors"
         >
           Enroll Now
         </Link>
       </nav>
 
       {/* Mobile Navigation - Udemy-style hamburger */}
-      <nav className={`md:hidden sticky top-0 z-50 h-[64px] border-b border-neutral-200 bg-gray-100]/95 backdrop-blur-xl px-4 ${isDesktopMode ? 'hidden' : ''}`}>
+      <nav className={`md:hidden sticky top-0 z-50 h-[64px] border-b border-neutral-200 bg-gray-50/95 backdrop-blur-xl px-4 ${isDesktopMode ? 'hidden' : ''}`}>
         <div className="flex items-center justify-between h-full">
           <button
             onClick={() => setIsOpen(true)}
@@ -125,7 +125,7 @@ export default function ResponsiveNavigation() {
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 z-50 w-80 bg-gray-100] border-r border-neutral-200 transform transition-transform duration-300 ease-in-out">
+          <div className="fixed inset-y-0 left-0 z-50 w-80 bg-gray-50 border-r border-neutral-200 transform transition-transform duration-300 ease-in-out">
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-neutral-200">
@@ -148,7 +148,7 @@ export default function ResponsiveNavigation() {
                     key={item.name}
                     href={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-gray-100] rounded-lg transition-colors"
+                    className="block px-4 py-3 text-base text-[#e2e2e8] hover:text-[#10b981] hover:bg-gray-50 rounded-lg transition-colors"
                   >
                     {item.name}
                   </Link>
@@ -163,7 +163,7 @@ export default function ResponsiveNavigation() {
                 <Link
                   href="/enroll"
                   onClick={() => setIsOpen(false)}
-                  className="block w-full border border-[#10b981] bg-gray-100] px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-gray-100 transition-colors text-center"
+                  className="block w-full border border-[#10b981] bg-gray-50 px-6 py-3 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-[#00363a] hover:bg-gray-100 transition-colors text-center"
                 >
                   Enroll Now
                 </Link>
@@ -174,7 +174,7 @@ export default function ResponsiveNavigation() {
                 <Link
                   href="/partners/login"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center gap-2 border border-neutral-200 bg-gray-100] px-4 py-2 text-sm text-[#e2e2e8] hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+                  className="flex items-center justify-center gap-2 border border-neutral-200 bg-gray-50 px-4 py-2 text-sm text-[#e2e2e8] hover:border-[#10b981] hover:text-[#10b981] transition-colors"
                 >
                   <User className="h-4 w-4" />
                   Partner Login
@@ -182,7 +182,7 @@ export default function ResponsiveNavigation() {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-center gap-2 border border-neutral-200 bg-gray-100] px-4 py-2 text-sm text-[#e2e2e8] hover:border-[#10b981] hover:text-[#10b981] transition-colors"
+                  className="flex items-center justify-center gap-2 border border-neutral-200 bg-gray-50 px-4 py-2 text-sm text-[#e2e2e8] hover:border-[#10b981] hover:text-[#10b981] transition-colors"
                 >
                   <LogIn className="h-4 w-4" />
                   Student Login

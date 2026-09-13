@@ -41,7 +41,7 @@ export default function InfluencerLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100] text-neutral-900">
+    <div className="min-h-screen bg-gray-50 text-neutral-900">
       <Navbar />
       
       <main className="flex min-h-screen items-center justify-center p-6 pt-32">

@@ -161,8 +161,8 @@ export default function ScholarshipApplyPage() {
 
   if (step === 5 && successData) {
     return (
-      <main className="min-h-screen bg-gray-100] text-[#e2e2e8] flex flex-col items-center justify-center p-4">
-        <div className="max-w-md w-full bg-gray-100] border border-neutral-200 p-8 text-center relative overflow-hidden">
+      <main className="min-h-screen bg-gray-50 text-[#e2e2e8] flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full bg-gray-50 border border-neutral-200 p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00f0ff] to-[#00363a]" />
           
           <CheckCircle className="w-16 h-16 text-[#10b981] mx-auto mb-6" />
@@ -173,14 +173,14 @@ export default function ScholarshipApplyPage() {
             We have received your application. A confirmation email has been sent to {formData.email}.
           </p>
           
-          <div className="bg-gray-100] border border-neutral-200 p-4 mb-8">
+          <div className="bg-gray-50 border border-neutral-200 p-4 mb-8">
             <p className="text-sm text-neutral-500 mb-1 uppercase tracking-widest">Your Reference Number</p>
             <p className="font-mono text-xl text-[#10b981] font-bold">{successData.referenceNumber}</p>
           </div>
           
           <Link
             href="/scholarship/status"
-            className="w-full flex items-center justify-center gap-2 border border-[#10b981] bg-gray-100]/10 px-6 py-3 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-gray-100] hover:text-black hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
+            className="w-full flex items-center justify-center gap-2 border border-[#10b981] bg-gray-50/10 px-6 py-3 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-gray-50 hover:text-black hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
           >
             Check Status Page
           </Link>
@@ -191,8 +191,8 @@ export default function ScholarshipApplyPage() {
 
   if (step === 6 && existingApplication) {
     return (
-      <main className="min-h-screen bg-gray-100] text-[#e2e2e8] flex flex-col items-center justify-center p-4">
-        <div className="max-w-md w-full bg-gray-100] border border-neutral-200 p-8 text-center relative overflow-hidden">
+      <main className="min-h-screen bg-gray-50 text-[#e2e2e8] flex flex-col items-center justify-center p-4">
+        <div className="max-w-md w-full bg-gray-50 border border-neutral-200 p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-orange-400" />
           
           <h2 className="font-heading text-2xl font-bold mb-4">You already have an existing scholarship application.</h2>
@@ -207,7 +207,7 @@ export default function ScholarshipApplyPage() {
           
           <Link
             href="/scholarship/status"
-            className="w-full flex items-center justify-center gap-2 border border-[#10b981] bg-gray-100]/10 px-6 py-3 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-gray-100] hover:text-black hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
+            className="w-full flex items-center justify-center gap-2 border border-[#10b981] bg-gray-50/10 px-6 py-3 font-mono text-sm font-bold uppercase text-[#10b981] transition-all hover:bg-gray-50 hover:text-black hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]"
           >
             Check Application Status
           </Link>
@@ -217,7 +217,7 @@ export default function ScholarshipApplyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100] text-[#e2e2e8] pb-24">
+    <main className="min-h-screen bg-gray-50 text-[#e2e2e8] pb-24">
       <Navigation />
       <div className="pt-24">
         <div className="max-w-3xl mx-auto px-4 py-12">
@@ -238,7 +238,7 @@ export default function ScholarshipApplyPage() {
         {/* Progress Bar */}
         <div className="flex gap-2 mb-12">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className={`h-1 flex-1 ${i <= step ? 'bg-gray-100]' : 'bg-gray-100]'}`} />
+            <div key={i} className={`h-1 flex-1 ${i <= step ? 'bg-gray-50' : 'bg-gray-50'}`} />
           ))}
         </div>
 
@@ -256,31 +256,31 @@ export default function ScholarshipApplyPage() {
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">Full Name *</label>
-                  <input required name="full_name" value={formData.full_name} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
+                  <input required name="full_name" value={formData.full_name} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">Email Address *</label>
-                  <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
+                  <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">Phone Number *</label>
-                  <input required name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
+                  <input required name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">WhatsApp Number *</label>
-                  <input required name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
+                  <input required name="whatsapp" value={formData.whatsapp} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">Country *</label>
-                  <input required name="country" value={formData.country} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
+                  <input required name="country" value={formData.country} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">State/City *</label>
-                  <input required name="state" value={formData.state} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
+                  <input required name="state" value={formData.state} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <label className="text-sm font-mono text-neutral-500">Current Occupation/Role *</label>
-                  <input required name="occupation" value={formData.occupation} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
+                  <input required name="occupation" value={formData.occupation} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors" />
                 </div>
               </div>
             </div>
@@ -293,7 +293,7 @@ export default function ScholarshipApplyPage() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">What is your experience with AI tools? *</label>
-                  <select required name="ai_experience" value={formData.ai_experience} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors appearance-none">
+                  <select required name="ai_experience" value={formData.ai_experience} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors appearance-none">
                     <option value="">Select experience level</option>
                     <option value="None">None - Complete beginner</option>
                     <option value="Beginner">Beginner - Used ChatGPT occasionally</option>
@@ -304,7 +304,7 @@ export default function ScholarshipApplyPage() {
                 
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">What is your experience with automation tools (Zapier, Make, n8n)? *</label>
-                  <select required name="automation_experience" value={formData.automation_experience} onChange={handleChange} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors appearance-none">
+                  <select required name="automation_experience" value={formData.automation_experience} onChange={handleChange} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors appearance-none">
                     <option value="">Select experience level</option>
                     <option value="None">None - Have never used them</option>
                     <option value="Beginner">Beginner - Have played around a bit</option>
@@ -314,12 +314,12 @@ export default function ScholarshipApplyPage() {
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-neutral-200">
-                  <label className="flex items-center gap-3 p-4 border border-neutral-200 bg-gray-100] hover:border-[#10b981]/50 cursor-pointer transition-colors">
+                  <label className="flex items-center gap-3 p-4 border border-neutral-200 bg-gray-50 hover:border-[#10b981]/50 cursor-pointer transition-colors">
                     <input type="checkbox" name="has_laptop" checked={formData.has_laptop} onChange={handleChange} className="w-5 h-5 accent-[#00f0ff]" />
                     <span className="text-sm text-[#e2e2e8]">I have access to a working laptop/computer for the next 4 weeks. *</span>
                   </label>
                   
-                  <label className="flex items-center gap-3 p-4 border border-neutral-200 bg-gray-100] hover:border-[#10b981]/50 cursor-pointer transition-colors">
+                  <label className="flex items-center gap-3 p-4 border border-neutral-200 bg-gray-50 hover:border-[#10b981]/50 cursor-pointer transition-colors">
                     <input type="checkbox" name="has_internet" checked={formData.has_internet} onChange={handleChange} className="w-5 h-5 accent-[#00f0ff]" />
                     <span className="text-sm text-[#e2e2e8]">I have reliable internet access to join live sessions and complete assignments. *</span>
                   </label>
@@ -335,22 +335,22 @@ export default function ScholarshipApplyPage() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">Why do you want to learn AI Automation? *</label>
-                  <textarea required name="motivation" value={formData.motivation} onChange={handleChange} rows={4} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" placeholder="Share your main motivation..." />
+                  <textarea required name="motivation" value={formData.motivation} onChange={handleChange} rows={4} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" placeholder="Share your main motivation..." />
                 </div>
                 
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">What is your specific goal for the next 6 months? *</label>
-                  <textarea required name="goals" value={formData.goals} onChange={handleChange} rows={3} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" placeholder="e.g., Get a job, start an agency, automate my business..." />
+                  <textarea required name="goals" value={formData.goals} onChange={handleChange} rows={3} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" placeholder="e.g., Get a job, start an agency, automate my business..." />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">How will this scholarship impact you? *</label>
-                  <textarea required name="impact" value={formData.impact} onChange={handleChange} rows={3} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" />
+                  <textarea required name="impact" value={formData.impact} onChange={handleChange} rows={3} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-mono text-neutral-500">Why should we select you out of hundreds of applicants? *</label>
-                  <textarea required name="why_you" value={formData.why_you} onChange={handleChange} rows={3} className="w-full bg-gray-100] border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" />
+                  <textarea required name="why_you" value={formData.why_you} onChange={handleChange} rows={3} className="w-full bg-gray-50 border border-neutral-200 p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors resize-none" />
                 </div>
               </div>
             </div>
@@ -363,7 +363,7 @@ export default function ScholarshipApplyPage() {
               <div className="space-y-4">
                 <p className="text-neutral-500 mb-6">Please read and agree to the following conditions before submitting your application.</p>
 
-                <div className="p-6 border border-[#3b494b] bg-gray-100] space-y-4">
+                <div className="p-6 border border-[#3b494b] bg-gray-50 space-y-4">
                   <h3 className="font-bold text-neutral-900 mb-2">Scholarship Terms</h3>
                   <ul className="list-disc list-inside space-y-2 text-sm text-neutral-500">
                     <li>I understand that the full value of this training is {formattedFullValue}.</li>
@@ -373,7 +373,7 @@ export default function ScholarshipApplyPage() {
                   </ul>
                 </div>
 
-                <label className="flex items-start gap-3 p-4 border border-[#10b981]/30 bg-gray-100] mt-6 cursor-pointer">
+                <label className="flex items-start gap-3 p-4 border border-[#10b981]/30 bg-gray-50 mt-6 cursor-pointer">
                   <input type="checkbox" name="commitment_confirmed" checked={formData.commitment_confirmed} onChange={handleChange} className="w-5 h-5 accent-[#00f0ff] mt-0.5" />
                   <span className="text-sm text-neutral-900">I confirm that all information provided is accurate, and I agree to the Scholarship Terms stated above. *</span>
                 </label>
@@ -387,7 +387,7 @@ export default function ScholarshipApplyPage() {
               <button
                 type="button"
                 onClick={prevStep}
-                className="flex items-center gap-2 px-6 py-3 border border-[#3b494b] font-mono text-sm uppercase text-neutral-500 hover:bg-gray-100] transition-colors"
+                className="flex items-center gap-2 px-6 py-3 border border-[#3b494b] font-mono text-sm uppercase text-neutral-500 hover:bg-gray-50 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Previous
               </button>
@@ -399,7 +399,7 @@ export default function ScholarshipApplyPage() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="flex items-center gap-2 px-6 py-3 border border-[#10b981] bg-gray-100]/10 font-mono text-sm font-bold uppercase text-[#10b981] hover:bg-gray-100] hover:text-black transition-colors shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+                className="flex items-center gap-2 px-6 py-3 border border-[#10b981] bg-gray-50/10 font-mono text-sm font-bold uppercase text-[#10b981] hover:bg-gray-50 hover:text-black transition-colors shadow-[0_0_15px_rgba(0,240,255,0.2)]"
               >
                 Next Step <ChevronRight className="w-4 h-4" />
               </button>
@@ -407,7 +407,7 @@ export default function ScholarshipApplyPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-8 py-3 border border-[#10b981] bg-gray-100] font-mono text-sm font-bold uppercase text-black hover:bg-transparent hover:text-[#10b981] transition-colors shadow-[0_0_20px_rgba(0,240,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-8 py-3 border border-[#10b981] bg-gray-50 font-mono text-sm font-bold uppercase text-black hover:bg-transparent hover:text-[#10b981] transition-colors shadow-[0_0_20px_rgba(0,240,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</>
