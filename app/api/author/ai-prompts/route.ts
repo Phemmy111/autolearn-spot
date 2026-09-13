@@ -66,7 +66,17 @@ export async function POST(request: Request) {
 
     const nextVersion = (existingPrompts?.[0]?.version || 0) + 1
 
-    // If this is set as active, deactivate other prompts of the same type for this author
+    // If this is set as active, deactivate other prompts of the same type for this author BEFORE inserting
+    const willBeActive = body.is_active !== false
+    if (willBeActive) {
+      await supabaseAdmin
+        .from('ai_prompts')
+        .update({ is_active: false })
+        .eq('author_id', userId)
+        .eq('prompt_type', prompt_type)
+    }
+
+    // Insert the new prompt
     const { data: prompt, error } = await supabaseAdmin
       .from('ai_prompts')
       .insert({
@@ -74,7 +84,7 @@ export async function POST(request: Request) {
         prompt_type,
         content,
         version: nextVersion,
-        is_active: body.is_active !== false, // Default to true
+        is_active: willBeActive,
         author_id: userId,
         created_by: userId,
       })
@@ -84,16 +94,6 @@ export async function POST(request: Request) {
     if (error) {
       console.error('[POST /api/author/ai-prompts] Error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    // Deactivate other prompts of the same type for this author
-    if (prompt.is_active) {
-      await supabaseAdmin
-        .from('ai_prompts')
-        .update({ is_active: false })
-        .eq('author_id', userId)
-        .eq('prompt_type', prompt_type)
-        .neq('id', prompt.id)
     }
 
     return NextResponse.json({ prompt }, { status: 201 })
