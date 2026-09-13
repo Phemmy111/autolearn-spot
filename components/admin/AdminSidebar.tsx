@@ -263,9 +263,7 @@ export function AdminSidebar() {
         {/* Logo Area */}
         <div className="h-16 flex items-center px-6 border-b border-gray-100 flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2.5">
-            <div className="h-8 w-8 bg-sky-600 rounded-lg flex items-center justify-center shadow-sm">
-              <GraduationCap className="h-5 w-5 text-neutral-900" />
-            </div>
+            <img src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" className="w-8 h-8 object-contain" />
             <span className="text-lg font-bold text-gray-900 tracking-tight">AutoLearn Spot</span>
           </Link>
         </div>

@@ -38,9 +38,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
         <aside className="fixed inset-y-0 left-0 w-64 bg-gray-100 border-r border-neutral-200 z-30 overflow-y-auto">
           <div className="p-6">
             <Link href="/" className="flex items-center gap-2 mb-8">
-              <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-neutral-900" />
-              </div>
+              <img src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" className="w-8 h-8 object-contain" />
               <span className="font-heading text-lg font-bold text-neutral-900">
                 AutoLearn Spot
               </span>
@@ -95,9 +93,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
             <Menu className="w-6 h-6" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-sky-600 rounded-lg flex items-center justify-center">
-              <BookOpen className="w-4 h-4 text-neutral-900" />
-            </div>
+            <img src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" className="w-6 h-6 object-contain" />
             <span className="font-heading text-base font-bold text-neutral-900">
               AutoLearn Spot
             </span>
