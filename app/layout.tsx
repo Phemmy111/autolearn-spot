@@ -64,7 +64,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="h-full" suppressHydrationWarning>
         <body className="font-sans antialiased h-full bg-brand-bg text-brand-text">
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             <BrandTheming />
             {children}
             {process.env.NODE_ENV === 'production' && <Analytics />}
