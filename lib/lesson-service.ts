@@ -2,18 +2,25 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 export interface Lesson {
   id: string
-  cohort_id: string
+  cohort_id: string | null
+  product_id: string | null
   title: string
   description: string | null
   vdo_cipher_video_id: string | null
   vimeo_video_id: string | null
+  youtube_url: string | null
+  youtube_video_id: string | null
+  youtube_thumbnail: string | null
   available_at: string
   duration_label: string | null
-  week_number: number
-  session_number: number
-  release_day: string
+  week_number: number | null
+  session_number: number | null
+  release_day: string | null
   resources: any
   order_index: number
+  status: string
+  is_required: boolean
+  unlock_config: any
   created_at: string
   updated_at: string
 }
@@ -212,4 +219,196 @@ export function parseDateInput(dateString: string, timezone: string = 'Africa/La
     console.error('[lesson-service] Error parsing date:', error)
     return dateString
   }
+}
+
+// ============================================================================
+// PRODUCT-BASED LESSON FUNCTIONS (Author Studio - Phase C)
+// ============================================================================
+
+/**
+ * Get all lessons for a specific product (Author Studio)
+ */
+export async function getLessonsForProduct(productId: string): Promise<Lesson[]> {
+  const { data, error } = await supabaseAdmin
+    .from('lessons')
+    .select('*')
+    .eq('product_id', productId)
+    .order('order_index', { ascending: true })
+
+  if (error) {
+    console.error('[lesson-service] Error fetching product lessons:', error)
+    return []
+  }
+
+  return (data as Lesson[]) || []
+}
+
+/**
+ * Get a single lesson by ID and product
+ */
+export async function getLessonForProduct(lessonId: string, productId: string): Promise<Lesson | null> {
+  const { data, error } = await supabaseAdmin
+    .from('lessons')
+    .select('*')
+    .eq('id', lessonId)
+    .eq('product_id', productId)
+    .single()
+
+  if (error) {
+    console.error('[lesson-service] Error fetching product lesson:', error)
+    return null
+  }
+
+  return data as Lesson | null
+}
+
+/**
+ * Create a new lesson for a product (Author Studio)
+ */
+export async function createProductLesson(productId: string, lessonData: Partial<Lesson>): Promise<Lesson | null> {
+  // Generate a UUID for the lesson ID
+  const lessonId = crypto.randomUUID()
+  
+  // Get the current max order_index for this product
+  const { data: existingLessons } = await supabaseAdmin
+    .from('lessons')
+    .select('order_index')
+    .eq('product_id', productId)
+    .order('order_index', { ascending: false })
+    .limit(1)
+  
+  const nextOrderIndex = (existingLessons && existingLessons[0]?.order_index ?? 0) + 1
+
+  const { data, error } = await supabaseAdmin
+    .from('lessons')
+    .insert({
+      id: lessonId,
+      product_id: productId,
+      cohort_id: null, // Product-based lessons don't need cohort_id
+      title: lessonData.title || 'Untitled Lesson',
+      description: lessonData.description || null,
+      youtube_url: lessonData.youtube_url || null,
+      youtube_video_id: lessonData.youtube_video_id || null,
+      youtube_thumbnail: lessonData.youtube_thumbnail || null,
+      vdo_cipher_video_id: null,
+      vimeo_video_id: null,
+      available_at: new Date().toISOString(),
+      duration_label: lessonData.duration_label || null,
+      week_number: null,
+      session_number: null,
+      release_day: null,
+      resources: lessonData.resources || '[]',
+      order_index: nextOrderIndex,
+      status: 'DRAFT',
+      is_required: lessonData.is_required ?? true,
+      unlock_config: lessonData.unlock_config || {},
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('[lesson-service] Error creating product lesson:', error)
+    return null
+  }
+
+  return data as Lesson | null
+}
+
+/**
+ * Update a product lesson
+ */
+export async function updateProductLesson(lessonId: string, productId: string, updates: Partial<Lesson>): Promise<Lesson | null> {
+  const { data, error } = await supabaseAdmin
+    .from('lessons')
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', lessonId)
+    .eq('product_id', productId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('[lesson-service] Error updating product lesson:', error)
+    return null
+  }
+
+  return data as Lesson | null
+}
+
+/**
+ * Delete a product lesson
+ */
+export async function deleteProductLesson(lessonId: string, productId: string): Promise<boolean> {
+  const { error } = await supabaseAdmin
+    .from('lessons')
+    .delete()
+    .eq('id', lessonId)
+    .eq('product_id', productId)
+
+  if (error) {
+    console.error('[lesson-service] Error deleting product lesson:', error)
+    return false
+  }
+
+  return true
+}
+
+/**
+ * Reorder lessons for a product (update order_index for multiple lessons)
+ */
+export async function reorderProductLessons(productId: string, lessonIds: string[]): Promise<boolean> {
+  try {
+    // Update each lesson's order_index
+    const updates = lessonIds.map((lessonId, index) => 
+      supabaseAdmin
+        .from('lessons')
+        .update({ order_index: index, updated_at: new Date().toISOString() })
+        .eq('id', lessonId)
+        .eq('product_id', productId)
+    )
+
+    await Promise.all(updates)
+    return true
+  } catch (error) {
+    console.error('[lesson-service] Error reordering product lessons:', error)
+    return false
+  }
+}
+
+/**
+ * Extract YouTube video ID from various YouTube URL formats
+ */
+export function extractYouTubeVideoId(url: string): string | null {
+  if (!url) return null
+
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/
+  ]
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match && match[1]) {
+      return match[1]
+    }
+  }
+
+  return null
+}
+
+/**
+ * Get YouTube thumbnail URL from video ID
+ */
+export function getYouTubeThumbnailUrl(videoId: string, quality: 'default' | 'medium' | 'high' | 'maxres' = 'high'): string {
+  const qualityMap = {
+    default: 'default',
+    medium: 'mqdefault',
+    high: 'hqdefault',
+    maxres: 'maxresdefault'
+  }
+  return `https://img.youtube.com/vi/${videoId}/${qualityMap[quality]}.jpg`
 }

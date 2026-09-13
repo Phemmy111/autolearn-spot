@@ -508,6 +508,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
             <button type="button" onClick={() => router.push('/author/products')} className="w-full sm:w-auto px-6 py-3 text-neutral-600 font-semibold text-sm hover:text-neutral-900 transition-colors">
               Back to Products
             </button>
+            <button type="button" onClick={() => router.push(`/author/products/${id}/curriculum`)} className="w-full sm:w-auto px-6 py-3 bg-white border border-neutral-300 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-50 transition-colors shadow-sm">
+              Manage Curriculum
+            </button>
             <button type="submit" disabled={submitting || saveStatus === 'saving'} className="w-full sm:w-auto px-8 py-3 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
               {submitting ? (
                 <><span className="animate-spin mr-2">⟳</span> Saving...</>

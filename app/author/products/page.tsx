@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Package, Plus, Edit, Eye, Trash2, Send, AlertCircle } from 'lucide-react';
+import { Package, Plus, Edit, Eye, Trash2, Send, AlertCircle, BookOpen } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -190,6 +190,14 @@ export default function AuthorProductsPage() {
                       Edit
                     </Link>
                   )}
+
+                  <Link
+                    href={`/author/products/${product.id}/curriculum`}
+                    className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-white border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors text-sm"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    Curriculum
+                  </Link>
 
                   {canSubmit(product.status) && (
                     <button
