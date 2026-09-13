@@ -129,13 +129,17 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-red-500/50 bg-red-500/10 p-8 rounded-xl">
-        <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-        <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Error</h2>
-        <p className="font-mono text-sm text-neutral-500 mb-6">{error}</p>
-        <Link href="/quizzes" className="text-[#10b981] hover:underline font-mono text-sm">
-          Back to Quizzes
-        </Link>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-200 p-8 text-center">
+          <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <XCircle className="h-8 w-8 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Link href="/quizzes" className="inline-flex items-center text-sky-600 hover:text-sky-700 font-medium">
+            Back to Quizzes
+          </Link>
+        </div>
       </div>
     )
   }
@@ -146,142 +150,150 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
 
   if (!userId) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl">
-        <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-4">Sign In Required</h2>
-        <p className="font-mono text-sm text-neutral-500 mb-6">You need to sign in to take this quiz.</p>
-        <Link
-          href="/sign-in"
-          className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-gray-100 transition-colors"
-        >
-          Sign In
-        </Link>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-200 p-8 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Sign In Required</h2>
+          <p className="text-gray-600 mb-6">You need to sign in to take this quiz.</p>
+          <Link
+            href="/sign-in"
+            className="inline-flex items-center justify-center w-full bg-sky-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-sky-700 transition-colors"
+          >
+            Sign In
+          </Link>
+        </div>
       </div>
     )
   }
 
   if (submitted && result) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl">
-        {result.passed ? (
-          <CheckCircle className="h-16 w-16 text-emerald-400 mx-auto mb-4" />
-        ) : (
-          <XCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-        )}
-        <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">
-          {result.passed ? 'Quiz Passed!' : 'Quiz Not Passed'}
-        </h2>
-        <div className="flex justify-center gap-8 mb-6 font-mono text-sm">
-          <div className="text-center">
-            <p className="text-neutral-500">Score</p>
-            <p className="text-2xl font-bold text-[#10b981]">{result.score}</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${result.passed ? 'bg-emerald-50' : 'bg-red-50'}`}>
+            {result.passed ? (
+              <CheckCircle className="h-10 w-10 text-emerald-500" />
+            ) : (
+              <XCircle className="h-10 w-10 text-red-500" />
+            )}
           </div>
-          <div className="text-center">
-            <p className="text-neutral-500">Percentage</p>
-            <p className="text-2xl font-bold text-[#10b981]">{result.percentage}%</p>
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-2">
+            {result.passed ? 'Quiz Passed!' : 'Quiz Not Passed'}
+          </h2>
+          <div className="flex justify-center gap-12 mb-8">
+            <div className="text-center">
+              <p className="text-gray-500 text-sm mb-1">Score</p>
+              <p className="text-4xl font-bold text-gray-900">{result.score}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-500 text-sm mb-1">Percentage</p>
+              <p className="text-4xl font-bold text-gray-900">{result.percentage}%</p>
+            </div>
           </div>
-        </div>
-        <div className="flex justify-center gap-4">
-          <Link
-            href="/quizzes"
-            className="text-[#10b981] hover:underline font-mono text-sm"
-          >
-            Back to Quizzes
-          </Link>
-          <Link
-            href="/dashboard"
-            className="text-[#10b981] hover:underline font-mono text-sm"
-          >
-            Dashboard
-          </Link>
-        </div>
+          <div className="flex justify-center gap-4 mb-8">
+            <Link
+              href="/quizzes"
+              className="inline-flex items-center text-sky-600 hover:text-sky-700 font-medium"
+            >
+              Back to Quizzes
+            </Link>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center text-sky-600 hover:text-sky-700 font-medium"
+            >
+              Dashboard
+            </Link>
+          </div>
 
-        {result.question_results && (
-          <div className="mt-12 text-left space-y-6">
-            <h3 className="font-heading text-xl font-bold text-neutral-900 mb-6 border-b border-neutral-200 pb-4">
-              Review Your Answers
-            </h3>
-            {result.question_results.map((q: any, i: number) => (
-              <div
-                key={q.id || i}
-                className={`p-6 rounded-xl border ${
-                  q.is_correct ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'
-                }`}
-              >
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="mt-1">
-                    {q.is_correct ? (
-                      <CheckCircle className="h-5 w-5 text-emerald-400" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-red-400" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-heading text-[#e2e8e2] mb-3 leading-relaxed">
-                      <span className="text-[#5d5f63] font-mono mr-2 text-sm">{i + 1}.</span>
-                      {q.question_text}
-                    </p>
-                    <div className="space-y-2 font-mono text-sm">
-                      <div className="flex items-start gap-2">
-                        <span className="text-[#5d5f63] min-w-[100px]">Your Answer:</span>
-                        <span className={q.is_correct ? 'text-emerald-400' : 'text-red-400'}>
-                          {q.user_answer || '(No answer)'}
-                        </span>
-                      </div>
-                      {!q.is_correct && (
-                        <div className="flex items-start gap-2">
-                          <span className="text-[#5d5f63] min-w-[100px]">Correct:</span>
-                          <span className="text-emerald-400">{q.correct_answer}</span>
-                        </div>
+          {result.question_results && (
+            <div className="mt-8 space-y-4">
+              <h3 className="text-xl font-bold text-gray-900 pb-4 border-b border-gray-200">
+                Review Your Answers
+              </h3>
+              {result.question_results.map((q: any, i: number) => (
+                <div
+                  key={q.id || i}
+                  className={`p-6 rounded-xl border ${
+                    q.is_correct ? 'border-emerald-200 bg-emerald-50' : 'border-red-200 bg-red-50'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="mt-1">
+                      {q.is_correct ? (
+                        <CheckCircle className="h-5 w-5 text-emerald-500" />
+                      ) : (
+                        <XCircle className="h-5 w-5 text-red-500" />
                       )}
                     </div>
+                    <div className="flex-1">
+                      <p className="text-gray-900 font-medium mb-3">
+                        <span className="text-gray-500 mr-2">Q{i + 1}.</span>
+                        {q.question_text}
+                      </p>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-start gap-2">
+                          <span className="text-gray-500 min-w-[100px]">Your Answer:</span>
+                          <span className={q.is_correct ? 'text-emerald-600 font-medium' : 'text-red-600 font-medium'}>
+                            {q.user_answer || '(No answer)'}
+                          </span>
+                        </div>
+                        {!q.is_correct && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-gray-500 min-w-[100px]">Correct:</span>
+                            <span className="text-emerald-600 font-medium">{q.correct_answer}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {q.explanation && (
-                  <div className="mt-4 pt-4 border-t border-neutral-200/50">
-                    <p className="font-mono text-xs uppercase tracking-wider text-neutral-500 mb-2">Explanation</p>
-                    <p className="font-mono text-sm text-[#8b949e] leading-relaxed">
-                      {q.explanation}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                  {q.explanation && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Explanation</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {q.explanation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     )
   }
 
   if (!started) {
     return (
-      <div className="mx-auto max-w-2xl text-center border border-neutral-200 bg-gray-100] p-8 rounded-xl shadow-xl">
-        <h2 className="font-heading text-3xl font-bold text-neutral-900 mb-4">{quiz.title}</h2>
-        {quiz.description && (
-          <p className="text-neutral-500 font-mono text-sm mb-6">{quiz.description}</p>
-        )}
-        <div className="flex justify-center gap-8 mb-8 font-mono text-sm text-[#10b981]">
-          {quiz.time_limit && (
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>{quiz.time_limit} mins</span>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4 text-center">{quiz.title}</h2>
+          {quiz.description && (
+            <p className="text-gray-600 mb-8 text-center">{quiz.description}</p>
           )}
-          <div className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            <span>Pass: {quiz.passing_score}%</span>
+          <div className="flex justify-center gap-8 mb-8 text-gray-600">
+            {quiz.time_limit && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                <span>{quiz.time_limit} mins</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5" />
+              <span>Pass: {quiz.passing_score}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Questions: {questions.length}</span>
+            </div>
           </div>
-          <div>
-            <strong>Questions:</strong> {questions.length}
-          </div>
+          <button
+            onClick={startQuiz}
+            disabled={questions.length === 0}
+            className="w-full bg-sky-600 text-white font-semibold px-8 py-4 rounded-xl hover:bg-sky-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {questions.length === 0 ? 'No Questions Yet' : 'Start Quiz'}
+          </button>
         </div>
-        <button
-          onClick={startQuiz}
-          disabled={questions.length === 0}
-          className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-8 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {questions.length === 0 ? 'No Questions Yet' : 'Start Quiz'}
-        </button>
       </div>
     )
   }
@@ -294,151 +306,153 @@ export default function QuizPage({ params }: { params: Promise<{ id: string }> }
   const options = currentQ.options ? (Array.isArray(currentQ.options) ? currentQ.options : JSON.parse(currentQ.options)) : []
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/quizzes" className="text-neutral-500 hover:text-neutral-900">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div className="flex-1">
-          <h2 className="font-heading text-2xl font-bold text-neutral-900">{quiz.title}</h2>
-          <p className="font-mono text-xs text-[#5d5f63] mt-1">
-            Question {currentQuestion + 1} of {questions.length}
-          </p>
-        </div>
-      </div>
-
-      <div className="w-full bg-gray-100] h-1.5 rounded-full mb-8 overflow-hidden">
-        <div
-          className="bg-gray-100] h-full transition-all duration-300"
-          style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
-        />
-      </div>
-
-      <div className="rounded-xl border border-neutral-200 bg-gray-100] p-6 shadow-2xl">
-        <h3 className="mb-6 font-heading text-lg font-semibold text-[#e2e8e2] leading-relaxed whitespace-pre-line">
-          {currentQ.question_text}
-        </h3>
-
-        {currentQ.question_type === 'multiple_choice' && options.length > 0 && (
-          <div className="flex flex-col gap-3">
-            {options.map((opt: string, i: number) => {
-              const isSelected = answers[currentQ.id] === opt
-              return (
-                <label
-                  key={i}
-                  className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
-                    isSelected
-                      ? 'border-[#10b981] bg-gray-100]/10 text-[#10b981]'
-                      : 'border-neutral-200 bg-gray-100] text-neutral-500 hover:border-[#3b494b]'
-                  }`}
-                >
-                  <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${isSelected ? 'border-[#10b981]' : 'border-[#5d5f63]'}`}>
-                    {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-gray-100]" />}
-                  </div>
-                  <span className="font-mono text-sm">{opt}</span>
-                  <input
-                    type="radio"
-                    name={`question-${currentQ.id}`}
-                    value={opt}
-                    checked={isSelected}
-                    onChange={() => handleAnswer(currentQ.id, opt)}
-                    className="hidden"
-                  />
-                </label>
-              )
-            })}
-          </div>
-        )}
-
-        {currentQ.question_type === 'true_false' && (
-          <div className="flex gap-4">
-            {['True', 'False'].map((option) => {
-              const isSelected = answers[currentQ.id] === option
-              return (
-                <label
-                  key={option}
-                  className={`flex-1 cursor-pointer rounded-lg border p-4 text-center transition-colors ${
-                    isSelected
-                      ? 'border-[#10b981] bg-gray-100]/10 text-[#10b981]'
-                      : 'border-neutral-200 bg-gray-100] text-neutral-500 hover:border-[#3b494b]'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={`question-${currentQ.id}`}
-                    value={option}
-                    checked={isSelected}
-                    onChange={() => handleAnswer(currentQ.id, option)}
-                    className="hidden"
-                  />
-                  <span className="font-mono text-sm font-bold">{option}</span>
-                </label>
-              )
-            })}
-          </div>
-        )}
-
-        {currentQ.question_type === 'short_answer' && (
-          <textarea
-            value={answers[currentQ.id] || ''}
-            onChange={(e) => handleAnswer(currentQ.id, e.target.value)}
-            placeholder="Type your answer here..."
-            className="h-40 w-full resize-y rounded-lg border border-neutral-200 bg-gray-100] p-4 font-mono text-sm text-[#e2e8e2] outline-none transition-colors focus:border-[#10b981] placeholder:text-[#5d5f63]"
-          />
-        )}
-      </div>
-
-      <div className="flex justify-between items-center mt-8">
-        <button
-          onClick={() => setCurrentQuestion((prev) => Math.max(0, prev - 1))}
-          disabled={currentQuestion === 0}
-          className="flex items-center gap-2 text-neutral-500 hover:text-neutral-900 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm uppercase tracking-wider transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" /> Previous
-        </button>
-
-        {currentQuestion === questions.length - 1 ? (
-          <button
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
-          >
-            Submit Quiz
-          </button>
-        ) : (
-          <button
-            onClick={() => setCurrentQuestion((prev) => Math.min(questions.length - 1, prev + 1))}
-            className="flex items-center gap-2 text-[#10b981] hover:text-neutral-900 font-mono text-sm uppercase tracking-wider transition-colors"
-          >
-            Next
-          </button>
-        )}
-      </div>
-
-      {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-gray-100] p-8 text-center shadow-2xl">
-            <h2 className="mb-4 font-heading text-2xl font-bold text-neutral-900">Unanswered Questions</h2>
-            <p className="mb-8 font-mono text-sm text-neutral-500">
-              You have {questions.filter(q => !answers[q.id]).length} questions left unanswered. Are you sure you want to submit?
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/quizzes" className="text-gray-500 hover:text-gray-900">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold text-gray-900">{quiz.title}</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Question {currentQuestion + 1} of {questions.length}
             </p>
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="font-mono text-sm text-neutral-500 hover:text-neutral-900 px-6 py-3"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmSubmit}
-                className="bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors"
-              >
-                Yes, Submit
-              </button>
+          </div>
+        </div>
+
+        <div className="w-full bg-gray-200 h-2 rounded-full mb-8 overflow-hidden">
+          <div
+            className="bg-sky-600 h-full transition-all duration-300"
+            style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+          />
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6 leading-relaxed whitespace-pre-line">
+            {currentQ.question_text}
+          </h3>
+
+          {currentQ.question_type === 'multiple_choice' && options.length > 0 && (
+            <div className="flex flex-col gap-3">
+              {options.map((opt: string, i: number) => {
+                const isSelected = answers[currentQ.id] === opt
+                return (
+                  <label
+                    key={i}
+                    className={`flex cursor-pointer items-center gap-3 rounded-xl border p-4 transition-all ${
+                      isSelected
+                        ? 'border-sky-500 bg-sky-50 text-sky-700'
+                        : 'border-gray-200 bg-gray-50 text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${isSelected ? 'border-sky-500' : 'border-gray-300'}`}>
+                      {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-sky-500" />}
+                    </div>
+                    <span className="text-sm">{opt}</span>
+                    <input
+                      type="radio"
+                      name={`question-${currentQ.id}`}
+                      value={opt}
+                      checked={isSelected}
+                      onChange={() => handleAnswer(currentQ.id, opt)}
+                      className="hidden"
+                    />
+                  </label>
+                )
+              })}
+            </div>
+          )}
+
+          {currentQ.question_type === 'true_false' && (
+            <div className="flex gap-4">
+              {['True', 'False'].map((option) => {
+                const isSelected = answers[currentQ.id] === option
+                return (
+                  <label
+                    key={option}
+                    className={`flex-1 cursor-pointer rounded-xl border p-4 text-center transition-all ${
+                      isSelected
+                        ? 'border-sky-500 bg-sky-50 text-sky-700'
+                        : 'border-gray-200 bg-gray-50 text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`question-${currentQ.id}`}
+                      value={option}
+                      checked={isSelected}
+                      onChange={() => handleAnswer(currentQ.id, option)}
+                      className="hidden"
+                    />
+                    <span className="text-sm font-semibold">{option}</span>
+                  </label>
+                )
+              })}
+            </div>
+          )}
+
+          {currentQ.question_type === 'short_answer' && (
+            <textarea
+              value={answers[currentQ.id] || ''}
+              onChange={(e) => handleAnswer(currentQ.id, e.target.value)}
+              placeholder="Type your answer here..."
+              className="h-40 w-full resize-y rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-900 outline-none transition-colors focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 placeholder:text-gray-400"
+            />
+          )}
+        </div>
+
+        <div className="flex justify-between items-center mt-8">
+          <button
+            onClick={() => setCurrentQuestion((prev) => Math.max(0, prev - 1))}
+            disabled={currentQuestion === 0}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed font-medium transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" /> Previous
+          </button>
+
+          {currentQuestion === questions.length - 1 ? (
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="bg-sky-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-sky-700 transition-colors disabled:opacity-50"
+            >
+              Submit Quiz
+            </button>
+          ) : (
+            <button
+              onClick={() => setCurrentQuestion((prev) => Math.min(questions.length - 1, prev + 1))}
+              className="flex items-center gap-2 text-sky-600 hover:text-sky-700 font-medium transition-colors"
+            >
+              Next
+            </button>
+          )}
+        </div>
+
+        {showConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-200 p-8 text-center">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Unanswered Questions</h2>
+              <p className="text-gray-600 mb-8">
+                You have {questions.filter(q => !answers[q.id]).length} questions left unanswered. Are you sure you want to submit?
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="text-gray-600 hover:text-gray-900 font-medium px-6 py-3"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmSubmit}
+                  className="bg-sky-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-sky-700 transition-colors"
+                >
+                  Yes, Submit
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
