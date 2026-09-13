@@ -135,6 +135,15 @@ const ENROLLMENT_SELECT = `
       product_type,
       access_duration_days
     )
+  ),
+  learning_product:learning_products (
+    id,
+    title,
+    slug,
+    description,
+    thumbnail_url,
+    product_type,
+    access_duration_days
   )
 `;
 
