@@ -53,15 +53,32 @@ ALTER TABLE public.lesson_progress ALTER COLUMN lesson_uuid_id SET NOT NULL;
 
 -- Step 12: Recreate the foreign key constraint on lesson_progress
 -- Updated to reference the new uuid_id primary key
-ALTER TABLE public.lesson_progress 
-  ADD CONSTRAINT IF NOT EXISTS lesson_progress_lesson_uuid_id_fkey 
-  FOREIGN KEY (lesson_uuid_id) REFERENCES public.lessons(uuid_id) ON DELETE CASCADE;
+-- Check if constraint exists first
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'lesson_progress_lesson_uuid_id_fkey'
+    ) THEN
+        ALTER TABLE public.lesson_progress 
+        ADD CONSTRAINT lesson_progress_lesson_uuid_id_fkey 
+        FOREIGN KEY (lesson_uuid_id) REFERENCES public.lessons(uuid_id) ON DELETE CASCADE;
+    END IF;
+END $$;
 
 -- Step 13: Recreate the unique constraint without cohort_id
 -- Now it's just (lesson_uuid_id, user_id) to ensure a user can only have one progress record per lesson
-ALTER TABLE public.lesson_progress 
-  ADD CONSTRAINT IF NOT EXISTS lesson_progress_lesson_uuid_id_user_id_key 
-  UNIQUE (lesson_uuid_id, user_id);
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'lesson_progress_lesson_uuid_id_user_id_key'
+    ) THEN
+        ALTER TABLE public.lesson_progress 
+        ADD CONSTRAINT lesson_progress_lesson_uuid_id_user_id_key 
+        UNIQUE (lesson_uuid_id, user_id);
+    END IF;
+END $$;
 
 -- Add YouTube-specific fields
 ALTER TABLE public.lessons
