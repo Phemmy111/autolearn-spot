@@ -138,7 +138,7 @@ export default function DashboardPage() {
                       <div className="w-full bg-brand-border/30 rounded-full h-1.5 overflow-hidden">
                         <div 
                           className="bg-[#10b981] h-1.5 rounded-full transition-all duration-1000"
-                          style={{ width: \`\${progressPercent}%\` }}
+                          style={{ width: `${progressPercent}%` }}
                         />
                       </div>
                     </div>

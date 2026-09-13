@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
   if (!paystackData.status) {
     console.error('cart/checkout: Paystack initialization failed', paystackData);
-    await import(&@/lib/supabase').then(({ supabaseAdmin }) =>
+    await import('@/lib/supabase').then(({ supabaseAdmin }) =>
       supabaseAdmin
         .from('orders')
         .update({ status: 'FAILED', updated_at: new Date().toISOString() })
