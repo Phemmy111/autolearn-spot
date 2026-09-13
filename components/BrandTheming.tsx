@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect } from 'react';
-import { getPublicSettings } from '@/lib/public-settings';
 
 export function BrandTheming() {
   useEffect(() => {
     async function applyTheme() {
       try {
-        const settings = await getPublicSettings(['primaryColor', 'secondaryColor', 'accentColor', 'backgroundColor', 'buttonRadius', 'typography', 'textColor', 'linkColor', 'borderColor']);
+        const res = await fetch('/api/public/design-studio');
+        if (!res.ok) return;
+        const data = await res.json();
+        const settings = data.config || {};
         
         const root = document.documentElement;
         
