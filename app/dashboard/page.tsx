@@ -161,7 +161,7 @@ export default function DashboardPage() {
             <BookOpen className="w-12 h-12 text-brand-text/20 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-brand-text mb-2">No active courses</h3>
             <p className="text-brand-text/60 mb-6 max-w-md mx-auto">
-              You haven't bought any courses yet, or your access has expired.
+              You haven&apos;t bought any courses yet, or your access has expired.
             </p>
             <Link href="/" className="inline-flex items-center justify-center bg-[#10b981] text-white px-6 py-2.5 rounded-xl font-bold hover:bg-[#0ea5e9] transition-colors">
               Explore Marketplace

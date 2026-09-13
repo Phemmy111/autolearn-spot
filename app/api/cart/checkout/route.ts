@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   let { userId } = await auth();
   const clerkUser = await currentUser();
   
-  let email = clerkUser?.emailAddresses?:[0]?.emailAddress ?? clerkUser?.primaryEmailAddress?.emailAddress;
+  let email = clerkUser?.emailAddresses?.[0]?.emailAddress ?? clerkUser?.primaryEmailAddress?.emailAddress;
   let fullName = clerkUser?.fullName ?? `${clerkUser?.firstName ?? ''} ${clerkUser?.lastName ?? ''}`.trim() ?? 'Student';
 
   // Parse optional callback URL and guest details from body

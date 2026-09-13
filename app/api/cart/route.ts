@@ -8,7 +8,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { cookies } from 'next/headers';
 import { getCartDetails, addProductToCart } from '@/lib/cart-service';
-import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +18,7 @@ async function getIdentifier() {
   const cookieStore = await cookies();
   let guestId = cookieStore.get('guest_cart_id')?.value;
   if (!guestId) {
-    guestId = 'guest_' + uuidv4();
+    guestId = 'guest_' + crypto.randomUUID();
   }
   return guestId;
 }
