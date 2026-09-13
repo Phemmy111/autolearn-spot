@@ -28,7 +28,7 @@ interface CartResponse {
 }
 
 export default function CartPage() {
-  const { isSignedIn, getToken, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const [cart, setCart] = useState<CartResponse['cart'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -48,10 +48,7 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     try {
-      const token = await getToken({ template: 'integration' });
-      const res = await fetch('/api/cart', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch('/api/cart');
       if (!res.ok) throw new Error('Failed to fetch cart');
       const data = (await res.json()) as CartResponse;
       setCart(data.cart);
@@ -65,10 +62,8 @@ export default function CartPage() {
   const removeItem = async (itemId: string) => {
     setRemovingId(itemId);
     try {
-      const token = await getToken({ template: 'integration' });
       const res = await fetch(`/api/cart/${itemId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to remove item');
       
@@ -90,10 +85,9 @@ export default function CartPage() {
   const checkout = async () => {
     setCheckingOut(true);
     try {
-      const token = await getToken({ template: 'integration' });
       const res = await fetch('/api/cart/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) throw new Error('Checkout failed');
       const { authorization_url } = await res.json();
