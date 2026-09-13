@@ -212,7 +212,7 @@ export default function AuthorProductsPage() {
 
                   {product.status === 'PUBLISHED' && (
                     <Link
-                      href={`/products/${product.slug}`}
+                      href={`/learning_products/${product.id}`}
                       className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-brand-primary text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
                     >
                       <Eye className="w-4 h-4" />
