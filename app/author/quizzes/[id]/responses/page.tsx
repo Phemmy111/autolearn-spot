@@ -34,10 +34,14 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
   const [responses, setResponses] = useState<Response[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [quizId, setQuizId] = useState<string>('')
 
   useEffect(() => {
     if (params) {
-      params.then(p => fetchResponses(p.id))
+      params.then(p => {
+        setQuizId(p.id)
+        fetchResponses(p.id)
+      })
     }
   }, [params, userId])
 
@@ -74,7 +78,7 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Link href={`/author/quizzes/${(await params).id}`} className="text-neutral-600 hover:text-neutral-900">
+          <Link href={`/author/quizzes/${quizId}`} className="text-neutral-600 hover:text-neutral-900">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
