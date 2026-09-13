@@ -76,6 +76,7 @@ export async function POST(request: Request) {
         version: nextVersion,
         is_active: body.is_active !== false, // Default to true
         author_id: userId,
+        created_by: userId,
       })
       .select()
       .single()

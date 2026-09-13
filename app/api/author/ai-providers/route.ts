@@ -85,7 +85,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create provider' }, { status: 500 })
     }
 
-    return NextResponse.json({ provider }, { status: 201 })
+    // Update the provider to set author_id (AIProviderManager doesn't know about author_id)
+    const { data: updatedProvider, error: updateError } = await supabaseAdmin
+      .from('ai_providers')
+      .update({ author_id: userId })
+      .eq('id', provider.id)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error('[POST /api/author/ai-providers] Error setting author_id:', updateError)
+      // Don't fail the request, but log the error
+    }
+
+    return NextResponse.json({ provider: updatedProvider || provider }, { status: 201 })
   } catch (error: any) {
     console.error('[POST /api/author/ai-providers] Error:', error)
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
