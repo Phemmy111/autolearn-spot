@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation';
 import { supabaseAdmin } from '@/lib/supabase';
 import AddToCartButton from '@/components/marketplace/AddToCartButton';
 import Image from 'next/image';
-import { Star, Clock, User as UserIcon, Globe, CheckCircle2, ChevronRight, PlayCircle, BookOpen, MessageSquare } from 'lucide-react';
+import { Star, Clock, User as UserIcon, Globe, CheckCircle2, ChevronRight, PlayCircle, BookOpen, MessageSquare, Edit } from 'lucide-react';
 import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
 
 interface PageParams {
   params: Promise<{ id: string }>;
@@ -25,6 +26,10 @@ export default async function LearningProductPage({ params }: PageParams) {
     notFound();
     return null;
   }
+  
+  // Check if current user is the owner
+  const { userId } = await auth();
+  const isOwner = userId === product.author_id;
 
   // 2. Fetch Author
   const { data: author } = await supabaseAdmin
@@ -72,7 +77,7 @@ export default async function LearningProductPage({ params }: PageParams) {
     <div className="min-h-screen bg-background pb-20">
       {/* Breadcrumbs / Top Nav */}
       <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-3 pt-24">
+        <div className="container mx-auto px-4 py-3 pt-24 flex items-center justify-between">
           <div className="flex items-center text-sm text-muted-foreground font-medium">
             <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="w-4 h-4 mx-2 opacity-50" />
@@ -80,6 +85,16 @@ export default async function LearningProductPage({ params }: PageParams) {
             <ChevronRight className="w-4 h-4 mx-2 opacity-50" />
             <span className="text-foreground truncate max-w-[200px] sm:max-w-none">{product.title}</span>
           </div>
+          
+          {isOwner && (
+            <Link 
+              href={`/author/products/${product.id}/edit`} 
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[var(--card)] border border-brand-border hover:bg-brand-bg text-brand-text text-xs font-semibold rounded-md transition-colors"
+            >
+              <Edit className="w-3.5 h-3.5" />
+              Edit Course
+            </Link>
+          )}
         </div>
       </div>
 

@@ -1,9 +1,11 @@
 import { getPublishedProducts } from '@/lib/public-product-service';
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid';
 import { supabaseAdmin } from '@/lib/supabase';
-import { User, Briefcase, Award } from 'lucide-react';
+import { User, Briefcase, Award, Edit } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import { auth } from '@clerk/nextjs/server';
+import Link from 'next/link';
 
 interface PageParams {
   params: Promise<{ id: string }>;
@@ -11,6 +13,10 @@ interface PageParams {
 
 export default async function CreatorPage({ params }: PageParams) {
   const { id } = await params;
+  
+  // Check if current user is the author
+  const { userId } = await auth();
+  const isOwner = userId === id;
   
   // Try to find the author in authors table
   const { data: author } = await supabaseAdmin
@@ -38,7 +44,21 @@ export default async function CreatorPage({ params }: PageParams) {
     <div className="min-h-screen bg-brand-bg">
       <div className="bg-[var(--card)] brightness-95 border-b border-brand-border pb-12">
         <div className="container mx-auto px-6 lg:px-12 pt-32">
-          <div className="flex flex-col md:flex-row items-start gap-8">
+          <div className="flex flex-col md:flex-row items-start gap-8 relative">
+            
+            {/* Edit Button for Owner */}
+            {isOwner && (
+              <div className="absolute top-0 right-0">
+                <Link 
+                  href="/author/settings/profile" 
+                  className="flex items-center gap-2 px-4 py-2 bg-[var(--card)] border border-brand-border hover:bg-brand-bg text-brand-text text-sm font-semibold rounded-lg transition-colors shadow-sm"
+                >
+                  <Edit className="w-4 h-4" />
+                  Edit Profile
+                </Link>
+              </div>
+            )}
+
             <div className="w-32 h-32 shrink-0 rounded-full bg-brand-primary/10 flex items-center justify-center border-4 border-[var(--card)] shadow-xl overflow-hidden relative">
               {author?.profile_image ? (
                 <Image src={author.profile_image} alt={authorName} fill className="object-cover" />

@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Loader2, User as UserIcon } from 'lucide-react';
 import Image from 'next/image';
+import { uploadThumbnail } from '@/lib/supabase-upload';
 
 export default function AuthorProfileSettings() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   
   const [formData, setFormData] = useState({
@@ -74,9 +76,25 @@ export default function AuthorProfileSettings() {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Basic URL placeholder handling for now, ideally connect to your image upload service
-    setFormData({ ...formData, profile_image: e.target.value });
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    setUploadingImage(true);
+    setMessage({ type: '', text: '' });
+    
+    try {
+      const publicUrl = await uploadThumbnail(file);
+      if (publicUrl) {
+        setFormData({ ...formData, profile_image: publicUrl });
+      } else {
+        setMessage({ type: 'error', text: 'Failed to upload image. Please try again.' });
+      }
+    } catch (error: any) {
+      setMessage({ type: 'error', text: 'Failed to upload image: ' + error.message });
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   if (loading) {
@@ -121,13 +139,22 @@ export default function AuthorProfileSettings() {
               </div>
               <div className="flex-1">
                 <input
-                  type="url"
-                  placeholder="Paste image URL (https://...)"
-                  className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary text-brand-text mb-2"
-                  value={formData.profile_image}
+                  type="file"
+                  accept="image/png, image/jpeg, image/webp"
                   onChange={handleImageChange}
+                  disabled={uploadingImage}
+                  className="w-full text-sm text-brand-text/70
+                    file:mr-4 file:py-2.5 file:px-6
+                    file:rounded-xl file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-brand-primary file:text-primary-foreground
+                    hover:file:bg-brand-primary-hover
+                    focus:outline-none file:cursor-pointer disabled:opacity-50
+                    mb-2"
                 />
-                <p className="text-xs text-brand-text/50">For best results, use an image at least 400x400px.</p>
+                <p className="text-xs text-brand-text/50">
+                  {uploadingImage ? "Uploading image, please wait..." : "Upload a PNG or JPEG image. For best results, use an image at least 400x400px."}
+                </p>
               </div>
             </div>
           </div>
