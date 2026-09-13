@@ -10,7 +10,7 @@ interface CartItem {
   id: string; // cart item id
   learning_product_id: string;
   quantity: number;
-  learning_product: {
+  learning_products: {
     id: string;
     title: string;
     thumbnail_url?: string;
@@ -71,7 +71,7 @@ export default function CartPage() {
       setCart(prev => prev ? {
         ...prev,
         items: prev.items.filter(i => i.id !== itemId),
-        subtotal: prev.subtotal - (prev.items.find(i => i.id === itemId)?.learning_product.price || 0)
+        subtotal: prev.subtotal - (prev.items.find(i => i.id === itemId)?.learning_products.price || 0)
       } : null);
       
     } catch (e) {
@@ -185,11 +185,11 @@ export default function CartPage() {
                   key={item.id} 
                   className={`group flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 rounded-3xl border border-border bg-card transition-all duration-300 hover:border-brand-primary/30 ${removingId === item.id ? 'opacity-50 scale-95' : ''}`}
                 >
-                  <Link href={`/learning_products/${item.learning_product.id}`} className="relative w-full sm:w-40 aspect-video sm:aspect-auto rounded-xl overflow-hidden bg-muted shrink-0 block">
-                    {item.learning_product.thumbnail_url ? (
+                  <Link href={`/learning_products/${item.learning_products.id}`} className="relative w-full sm:w-40 aspect-video sm:aspect-auto rounded-xl overflow-hidden bg-muted shrink-0 block">
+                    {item.learning_products.thumbnail_url ? (
                       <Image
-                        src={item.learning_product.thumbnail_url}
-                        alt={item.learning_product.title}
+                        src={item.learning_products.thumbnail_url}
+                        alt={item.learning_products.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
@@ -201,9 +201,9 @@ export default function CartPage() {
                   </Link>
                   
                   <div className="flex-1 flex flex-col py-1">
-                    <Link href={`/learning_products/${item.learning_product.id}`} className="hover:text-brand-primary transition-colors">
+                    <Link href={`/learning_products/${item.learning_products.id}`} className="hover:text-brand-primary transition-colors">
                       <h3 className="font-heading font-bold text-lg text-foreground line-clamp-2 mb-1">
-                        {item.learning_product.title}
+                        {item.learning_products.title}
                       </h3>
                     </Link>
                     <p className="text-sm text-muted-foreground mb-4">
@@ -212,7 +212,7 @@ export default function CartPage() {
                     
                     <div className="mt-auto flex items-center justify-between">
                       <p className="font-bold text-lg text-foreground">
-                        {formatPrice(item.learning_product.price, item.learning_product.currency)}
+                        {formatPrice(item.learning_products.price, item.learning_products.currency)}
                       </p>
                       
                       <button
