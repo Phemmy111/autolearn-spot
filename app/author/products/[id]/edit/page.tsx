@@ -159,7 +159,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       difficulty,
       learning_outcomes: learningOutcomes,
       requirements,
-      target_audience: targetAudience
+      target_audience: targetAudience,
+      media_gallery: updatedMediaGallery
     });
 
     const payload = {
@@ -279,7 +280,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       difficulty,
       learning_outcomes: learningOutcomes,
       requirements,
-      target_audience: targetAudience
+      target_audience: targetAudience,
+      media_gallery: updatedMediaGallery
     });
 
     const payload = {

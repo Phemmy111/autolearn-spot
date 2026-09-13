@@ -145,7 +145,8 @@ export default function NewProductPage() {
       difficulty,
       learning_outcomes: learningOutcomes,
       requirements,
-      target_audience: targetAudience
+      target_audience: targetAudience,
+      media_gallery: updatedMediaGallery
     });
 
     const payload = {
