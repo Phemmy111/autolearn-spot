@@ -1,8 +1,9 @@
 import { getPublishedProducts } from '@/lib/public-product-service';
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid';
 import { supabaseAdmin } from '@/lib/supabase';
-import { User } from 'lucide-react';
+import { User, Briefcase, Award } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 
 interface PageParams {
   params: Promise<{ id: string }>;
@@ -11,15 +12,15 @@ interface PageParams {
 export default async function CreatorPage({ params }: PageParams) {
   const { id } = await params;
   
-  // Try to find the user in enrollments just to get their name (hack for now since no users table)
-  const { data: user } = await supabaseAdmin
-    .from('enrollments')
-    .select('full_name, email')
-    .eq('clerk_user_id', id)
+  // Try to find the author in authors table
+  const { data: author } = await supabaseAdmin
+    .from('authors')
+    .select('display_name, email, bio, profile_image, professional_title, years_of_experience')
+    .eq('id', id)
     .limit(1)
     .single();
 
-  const authorName = user?.full_name || 'Expert Instructor';
+  const authorName = author?.display_name || 'Expert Instructor';
 
   // Get products by this author
   const { data: products } = await supabaseAdmin
@@ -35,19 +36,41 @@ export default async function CreatorPage({ params }: PageParams) {
 
   return (
     <div className="min-h-screen bg-brand-bg">
-      <div className="bg-[var(--card)] brightness-95 border-b border-brand-border">
-        <div className="container mx-auto px-6 lg:px-12 py-12 pt-24">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-16 h-16 rounded-full bg-brand-primary/10 flex items-center justify-center border-2 border-brand-primary/30">
-              <User className="w-8 h-8 text-brand-primary" />
+      <div className="bg-[var(--card)] brightness-95 border-b border-brand-border pb-12">
+        <div className="container mx-auto px-6 lg:px-12 pt-32">
+          <div className="flex flex-col md:flex-row items-start gap-8">
+            <div className="w-32 h-32 shrink-0 rounded-full bg-brand-primary/10 flex items-center justify-center border-4 border-[var(--card)] shadow-xl overflow-hidden relative">
+              {author?.profile_image ? (
+                <Image src={author.profile_image} alt={authorName} fill className="object-cover" />
+              ) : (
+                <User className="w-16 h-16 text-brand-primary" />
+              )}
             </div>
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-brand-text">
+            
+            <div className="flex-1 mt-2">
+              <h1 className="text-3xl lg:text-5xl font-extrabold text-brand-text tracking-tight mb-2">
                 {authorName}
               </h1>
-              <p className="text-brand-text/70 mt-1">
-                Course Creator & Expert Instructor
-              </p>
+              <div className="flex flex-wrap items-center gap-4 text-brand-text/70 font-medium mb-6">
+                <span className="flex items-center gap-1.5 text-brand-primary">
+                  <Briefcase className="w-4 h-4" />
+                  {author?.professional_title || 'Course Creator & Expert Instructor'}
+                </span>
+                {author?.years_of_experience && (
+                  <span className="flex items-center gap-1.5 text-amber-500">
+                    <Award className="w-4 h-4" />
+                    {author.years_of_experience} Years Experience
+                  </span>
+                )}
+              </div>
+              
+              {author?.bio && (
+                <div className="prose prose-invert max-w-3xl">
+                  <p className="text-brand-text/80 text-lg leading-relaxed whitespace-pre-wrap">
+                    {author.bio}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

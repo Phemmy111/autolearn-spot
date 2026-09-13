@@ -62,11 +62,21 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
           </h3>
         </Link>
         
-        {product.description && (
-          <p className="text-sm text-brand-text/70 line-clamp-2 mb-4 flex-1 leading-relaxed">
-            {product.description}
-          </p>
-        )}
+        {(() => {
+          if (!product.description) return null;
+          let descText = product.description;
+          try {
+            const parsed = JSON.parse(product.description);
+            descText = parsed.short_description || parsed.full_description || product.description;
+          } catch (e) {
+            // Not JSON, use as is
+          }
+          return (
+            <p className="text-sm text-brand-text/70 line-clamp-2 mb-4 flex-1 leading-relaxed">
+              {descText}
+            </p>
+          );
+        })()}
 
         <div className="mt-auto pt-4 border-t border-brand-border">
           <div className="flex items-center justify-between mb-4">
