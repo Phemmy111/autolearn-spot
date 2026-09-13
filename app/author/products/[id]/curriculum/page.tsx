@@ -292,6 +292,11 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
         })
       });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to create quiz');
+      }
+
       const data = await res.json();
       if (data.success) {
         setNewQuizTitle('');
@@ -305,8 +310,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       } else {
         setError(data.error || 'Failed to create quiz');
       }
-    } catch (err) {
-      setError('Network error creating quiz');
+    } catch (err: any) {
+      setError(err.message || 'Network error creating quiz');
     } finally {
       setSaving(false);
     }
@@ -330,6 +335,11 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
         })
       });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to create assignment');
+      }
+
       const data = await res.json();
       if (data.success) {
         setNewAssignmentTitle('');
@@ -345,8 +355,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       } else {
         setError(data.error || 'Failed to create assignment');
       }
-    } catch (err) {
-      setError('Network error creating assignment');
+    } catch (err: any) {
+      setError(err.message || 'Network error creating assignment');
     } finally {
       setSaving(false);
     }
