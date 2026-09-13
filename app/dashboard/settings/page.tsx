@@ -16,10 +16,10 @@ const LIGHT_PRESETS = [
 ]
 
 const DARK_PRESETS = [
-  { name: 'Midnight',      bg: '#0f0f11', fg: '#e8eaf0', accent: '#10b981' },
-  { name: 'Deep Ocean',    bg: '#0c1a2e', fg: '#d1e8ff', accent: '#38bdf8' },
-  { name: 'Obsidian',      bg: '#1c1c1e', fg: '#f2f2f7', accent: '#a78bfa' },
-  { name: 'Forest Night',  bg: '#0a1a0e', fg: '#d4edda', accent: '#22c55e' },
+  { name: 'Void (Default)', bg: '#000000', fg: '#ffffff',  accent: '#10b981' },
+  { name: 'Obsidian',       bg: '#0a0a0a', fg: '#f2f2f2',  accent: '#a78bfa' },
+  { name: 'Deep Slate',     bg: '#0d1117', fg: '#e6edf3',  accent: '#38bdf8' },
+  { name: 'Forest Ink',     bg: '#060e0a', fg: '#d4edda',  accent: '#22c55e' },
 ]
 
 function ColorSwatch({ hex }: { hex: string }) {
