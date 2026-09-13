@@ -12,13 +12,13 @@ export async function uploadThumbnail(file: File, bucket?: string): Promise<stri
     const fileName = `${crypto.randomUUID()}.${ext}`;
     const { data, error } = await supabase.storage.from(bucketName).upload(fileName, file);
     if (error) {
-      console.warn('Supabase upload error (falling back to placeholder):', error);
-      return '/images/placeholder.jpg';
+      console.error('Supabase upload error:', error);
+      return null;
     }
     const { data: publicData } = supabase.storage.from(bucketName).getPublicUrl(data.path);
-    return publicData?.publicUrl ?? '/images/placeholder.jpg';
+    return publicData?.publicUrl ?? null;
   } catch (e) {
-    console.warn('uploadThumbnail exception (falling back to placeholder):', e);
-    return '/images/placeholder.jpg';
+    console.error('uploadThumbnail exception:', e);
+    return null;
   }
 }
