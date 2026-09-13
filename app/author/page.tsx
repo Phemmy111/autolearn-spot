@@ -1,13 +1,58 @@
 import Link from 'next/link';
 import { Package, Users, DollarSign, BarChart3, ArrowRight, Plus } from 'lucide-react';
+import { auth } from '@clerk/nextjs/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
 /**
  * Author Dashboard Landing Page
- * 
- * Clean author dashboard with navigation to management areas.
- * Will be connected to backend data in future phases.
  */
-export default function AuthorDashboardPage() {
+export default async function AuthorDashboardPage() {
+  const { userId } = await auth();
+  
+  let productsCount = 0;
+  let studentsCount = 0;
+  let earnings = 0;
+  let rating = 0.0;
+
+  if (userId) {
+    // 1. Fetch Products count
+    const { count } = await supabaseAdmin
+      .from('learning_products')
+      .select('*', { count: 'exact', head: true })
+      .eq('author_id', userId);
+    productsCount = count || 0;
+
+    // 2. Fetch Earnings
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single();
+      
+    if (author) {
+      const { data: earningData } = await supabaseAdmin
+        .from('author_earnings')
+        .select('total_net')
+        .eq('author_id', author.id)
+        .single();
+      earnings = earningData?.total_net || 0;
+    }
+
+    // 3. Fetch Students count (For now, count unique enrollments as cohorts are platform-wide)
+    const { data: enrollments } = await supabaseAdmin
+      .from('enrollments')
+      .select('email');
+    if (enrollments) {
+      studentsCount = new Set(enrollments.map(e => e.email)).size;
+    }
+  }
+
+  const formattedEarnings = new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    maximumFractionDigits: 0
+  }).format(earnings);
+
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
@@ -27,7 +72,7 @@ export default function AuthorDashboardPage() {
             <Package className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-brand-text/70">Products</span>
           </div>
-          <p className="text-3xl font-bold text-brand-text">0</p>
+          <p className="text-3xl font-bold text-brand-text">{productsCount}</p>
         </div>
 
         <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
@@ -35,7 +80,7 @@ export default function AuthorDashboardPage() {
             <Users className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-brand-text/70">Students</span>
           </div>
-          <p className="text-3xl font-bold text-brand-text">0</p>
+          <p className="text-3xl font-bold text-brand-text">{studentsCount}</p>
         </div>
 
         <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
@@ -43,7 +88,7 @@ export default function AuthorDashboardPage() {
             <DollarSign className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-brand-text/70">Earnings</span>
           </div>
-          <p className="text-3xl font-bold text-brand-text">₦0</p>
+          <p className="text-3xl font-bold text-brand-text">{formattedEarnings}</p>
         </div>
 
         <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
@@ -51,7 +96,7 @@ export default function AuthorDashboardPage() {
             <BarChart3 className="w-5 h-5 text-sky-600" />
             <span className="text-sm font-medium text-brand-text/70">Rating</span>
           </div>
-          <p className="text-3xl font-bold text-brand-text">0.0</p>
+          <p className="text-3xl font-bold text-brand-text">{rating.toFixed(1)}</p>
         </div>
       </div>
 

@@ -245,25 +245,10 @@ export default async function LearningProductPage({ params }: PageParams) {
                 <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
                 Student Reviews
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[1, 2].map((i) => (
-                  <div key={i} className="bg-card border border-border rounded-2xl p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center font-bold text-muted-foreground">
-                        S{i}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm">Student {i}</h4>
-                        <div className="flex text-amber-500">
-                          {[1,2,3,4,5].map(s => <Star key={s} className="w-3 h-3 fill-current" />)}
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      "This course was exactly what I needed! Highly recommend to anyone looking to level up their skills quickly."
-                    </p>
-                  </div>
-                ))}
+              <div className="bg-card border border-border rounded-2xl p-8 text-center">
+                <Star className="w-12 h-12 text-muted-foreground/20 mx-auto mb-3" />
+                <h4 className="text-lg font-bold text-foreground mb-1">No reviews yet</h4>
+                <p className="text-muted-foreground text-sm">Be the first to review this course after enrolling!</p>
               </div>
             </div>
 
