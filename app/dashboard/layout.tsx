@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { hasActiveEnrollment } from '@/lib/enrollment-service';
 import { EnrollmentRequired } from '@/components/enrollment-required';
 import { trackAuthentication } from '@/lib/auth-tracking';
+import { StudentShell } from '@/components/student/StudentShell';
 
 export default async function DashboardLayout({
   children,
@@ -44,10 +45,8 @@ export default async function DashboardLayout({
 
   // They are enrolled, render the normal dashboard layout/pages
   return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {children}
-      </main>
-    </div>
+    <StudentShell>
+      {children}
+    </StudentShell>
   );
 }

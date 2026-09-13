@@ -34,8 +34,8 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-neutral-50">
       {/* Desktop Layout */}
       <div className="hidden md:flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-gray-100 border-r border-neutral-200 min-h-screen sticky top-0">
+        {/* Sidebar - fixed, independent from scrolling */}
+        <aside className="fixed inset-y-0 left-0 w-64 bg-gray-100 border-r border-neutral-200 z-30 overflow-y-auto">
           <div className="p-6">
             <Link href="/" className="flex items-center gap-2 mb-8">
               <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center">
@@ -79,7 +79,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 ml-64">
           {children}
         </main>
       </div>
