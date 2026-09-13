@@ -47,6 +47,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [mediaGallery, setMediaGallery] = useState<string[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -87,6 +89,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
               setLearningOutcomes(descData.learning_outcomes || []);
               setRequirements(descData.requirements || []);
               setTargetAudience(descData.target_audience || []);
+              setMediaGallery(descData.media_gallery || []);
             } catch (e) {
               setFullDesc(p.description);
             }
@@ -112,7 +115,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }, [
     title, shortDesc, fullDesc, productType, category, skill, difficulty,
     price, currency, accessDurationType, customAccessDuration,
-    targetAudience, learningOutcomes, requirements, thumbnailFile, thumbnailUrl
+    targetAudience, learningOutcomes, requirements, thumbnailFile, thumbnailUrl, mediaGallery, mediaFiles
   ]);
 
   const autoSave = async () => {
@@ -131,6 +134,19 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       } catch (err) {
         setSaveStatus('error');
         return;
+      }
+    }
+    
+    let updatedMediaGallery = [...mediaGallery];
+    if (mediaFiles.length > 0) {
+      try {
+        const newUrls = await Promise.all(mediaFiles.map(file => uploadThumbnail(file)));
+        const validUrls = newUrls.filter(Boolean) as string[];
+        updatedMediaGallery = [...updatedMediaGallery, ...validUrls];
+        setMediaGallery(updatedMediaGallery);
+        setMediaFiles([]);
+      } catch (e) {
+        console.error('Failed to upload additional media');
       }
     }
     
@@ -493,6 +509,34 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 </label>
                 <p className="mt-2 text-xs text-brand-text/60">Recommended size: 1280x720. Max size: 2MB.</p>
               </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <label className="block text-sm font-semibold text-neutral-700 mb-2">Additional Media Gallery (Images & Short Videos)</label>
+            <div className="p-6 border-2 border-dashed border-brand-border rounded-xl bg-brand-bg">
+              <div className="flex flex-wrap gap-4 mb-4">
+                {mediaGallery.map((url, idx) => (
+                  <div key={idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand-border group">
+                    {url.match(/\.(mp4|webm)$/i) ? (
+                      <video src={url} className="w-full h-full object-cover" />
+                    ) : (
+                      <img src={url} alt={Media } className="w-full h-full object-cover" />
+                    )}
+                    <button type="button" onClick={() => removeMediaGalleryItem(idx)} className="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">?</button>
+                  </div>
+                ))}
+                {mediaFiles.map((file, idx) => (
+                  <div key={ile-} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand-border bg-neutral-200 flex items-center justify-center opacity-70 group">
+                    <span className="text-[10px] text-center px-1 break-all text-neutral-600">{file.name}</span>
+                    <button type="button" onClick={() => removeMediaFile(idx)} className="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">?</button>
+                  </div>
+                ))}
+              </div>
+              <input type="file" id="additional-media" multiple accept="image/png, image/jpeg, image/webp, video/mp4, video/webm" className="hidden" onChange={handleMediaChange} />
+              <label htmlFor="additional-media" className="cursor-pointer inline-flex px-4 py-2 bg-[var(--card)] border border-brand-border text-neutral-700 text-sm font-semibold rounded-lg hover:bg-brand-bg transition-colors shadow-sm">
+                + Add Media
+              </label>
             </div>
           </div>
         </div>

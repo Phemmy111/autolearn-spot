@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Star, Clock, User as UserIcon, Globe, CheckCircle2, ChevronRight, PlayCircle, BookOpen, MessageSquare, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
+import { ProductMediaGallery } from '@/components/marketplace/ProductMediaGallery';
 
 interface PageParams {
   params: Promise<{ id: string }>;
@@ -56,20 +57,25 @@ export default async function LearningProductPage({ params }: PageParams) {
   const authorName = author?.display_name || 'Expert Instructor';
 
   // Parse Description JSON
-  let shortDesc = product.description;
+  let shortDesc = '';
   let fullDesc = '';
   let learningOutcomes: string[] = ['Master core concepts and advanced techniques'];
+  let mediaGallery: string[] = [];
   
   if (product.description) {
     try {
       const parsed = JSON.parse(product.description);
-      shortDesc = parsed.short_description || product.description;
+      shortDesc = parsed.short_description || '';
       fullDesc = parsed.full_description || '';
-      if (parsed.learning_outcomes && Array.isArray(parsed.learning_outcomes)) {
+      if (Array.isArray(parsed.learning_outcomes) && parsed.learning_outcomes.length > 0) {
         learningOutcomes = parsed.learning_outcomes;
+      }
+      if (Array.isArray(parsed.media_gallery)) {
+        mediaGallery = parsed.media_gallery;
       }
     } catch (e) {
       // Not JSON, use as is
+      shortDesc = product.description;
     }
   }
 
@@ -140,28 +146,11 @@ export default async function LearningProductPage({ params }: PageParams) {
               </div>
             </div>
 
-            {/* Main Image / Video Reference Placeholder */}
-            <div className="relative aspect-[16/9] w-full bg-muted rounded-3xl overflow-hidden border border-border shadow-sm animate-in fade-in zoom-in-95 duration-700 delay-150 fill-mode-both group">
-              {product.thumbnail_url ? (
-                <Image
-                  src={product.thumbnail_url}
-                  alt={product.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <BookOpen className="w-16 h-16 text-muted-foreground/30" />
-                </div>
-              )}
-              {/* Play Button Overlay (just visual for now to simulate video preview) */}
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center cursor-pointer">
-                <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:scale-110 transition-transform">
-                  <PlayCircle className="w-12 h-12" />
-                </div>
-              </div>
-            </div>
+            {/* Media Gallery (Temu Style) */}
+            <ProductMediaGallery 
+              thumbnailUrl={product.thumbnail_url} 
+              mediaGallery={mediaGallery} 
+            />
 
             {/* Description Section */}
             <div className="prose prose-lg dark:prose-invert max-w-none animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
