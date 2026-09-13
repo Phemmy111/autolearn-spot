@@ -80,7 +80,7 @@ export async function updateProduct(productId: string, updates: Partial<Omit<Lea
     console.error('[product-service] ownership check failed:', selError);
     return null;
   }
-  const allowed = ['DRAFT', 'UNPUBLISHED'];
+  const allowed = ['DRAFT', 'UNPUBLISHED', 'PUBLISHED', 'PENDING_REVIEW', 'REJECTED'];
   if (!allowed.includes((existing as any).status)) {
     console.error('[product-service] cannot edit status', (existing as any).status);
     return null;
