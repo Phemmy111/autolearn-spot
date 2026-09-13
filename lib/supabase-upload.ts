@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
  */
 export async function uploadThumbnail(file: File, bucket?: string): Promise<string | null> {
   try {
-    const bucketName = bucket || process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'thumbnails';
+    const bucketName = bucket || process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'product-thumbnails';
     const ext = file.name.split('.').pop();
     const fileName = `${crypto.randomUUID()}.${ext}`;
     const { data, error } = await supabase.storage.from(bucketName).upload(fileName, file);
