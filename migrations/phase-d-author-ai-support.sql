@@ -15,6 +15,10 @@ ALTER TABLE public.ai_prompts
 -- Add index for author-specific prompts
 CREATE INDEX IF NOT EXISTS idx_ai_prompts_author_id ON public.ai_prompts(author_id);
 
+-- Drop the old global unique constraint and create a per-author unique constraint
+DROP INDEX IF EXISTS idx_ai_prompts_active_type;
+CREATE UNIQUE INDEX idx_ai_prompts_author_active_type ON public.ai_prompts(author_id, prompt_type) WHERE is_active = true;
+
 -- Update RLS policies to allow authors to manage their own AI providers
 -- Drop old restrictive policies first
 DROP POLICY IF EXISTS "No direct selects on ai_providers" ON public.ai_providers;
