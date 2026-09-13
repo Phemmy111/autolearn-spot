@@ -266,8 +266,8 @@ export async function getLessonForProduct(lessonId: string, productId: string): 
  * Create a new lesson for a product (Author Studio)
  */
 export async function createProductLesson(productId: string, lessonData: Partial<Lesson>): Promise<Lesson | null> {
-  // Generate a UUID for the lesson ID
-  const lessonId = crypto.randomUUID()
+  // Generate a unique ID for the lesson (VARCHAR to match existing schema)
+  const lessonId = `lesson-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   
   // Get the current max order_index for this product
   const { data: existingLessons } = await supabaseAdmin
