@@ -121,8 +121,8 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
       email: email,
       payment_ref: reference, // we can use provider_ref as the payment reference
       amount_paid: item.price_snapshot,
-      status: 'active',
-      activated_at: new Date().toISOString(),
+      status: 'not_started',
+      activated_at: null,
       // Phase 4: we don't handle cart-level referrals yet, so these are null
       referral_code: null,
       referred_by_code: null,
@@ -304,8 +304,8 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
     email: pendingEnrollment.email,
     payment_ref: reference,
     amount_paid: amountInNaira,
-    status: 'active',
-    activated_at: new Date().toISOString(),
+    status: 'not_started',
+    activated_at: null,
     referral_code: pendingEnrollment.referral_code || null,
     referred_by_code: pendingEnrollment.referral_code || null
   };
@@ -813,8 +813,8 @@ export async function POST(request: NextRequest) {
           email: application.email,
           payment_ref: reference,
           amount_paid: amount,
-          status: 'active',
-          activated_at: new Date().toISOString()
+          status: 'not_started',
+          activated_at: null
         };
 
           // Add name fields from application

@@ -1,39 +1,52 @@
 /**
- * GET /api/cart  – Retrieve the authenticated student's cart.
- * POST /api/cart – Add a product to the cart.
+ * GET /api/cart  - Retrieve the student's cart.
+ * POST /api/cart - Add a product to the cart.
  *                  Body: { learningProductId: string }
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
 import { getCartDetails, addProductToCart } from '@/lib/cart-service';
+import { v4 as uuidv4 } from 'uuid';
 
-// ─── GET ──────────────────────────────────────────────────────────────────────
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+async function getIdentifier() {
   const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  if (userId) return userId;
 
-  const cart = await getCartDetails(userId);
+  const cookieStore = await cookies();
+  let guestId = cookieStore.get('guest_cart_id')?.value;
+  if (!guestId) {
+    guestId = 'guest_' + uuidv4();
+  }
+  return guestId;
+}
+
+// GET
+export async function GET() {
+  const identifier = await getIdentifier();
+  const cart = await getCartDetails(identifier);
   if (!cart) {
     return NextResponse.json({ error: 'Failed to retrieve cart' }, { status: 500 });
   }
 
-  return NextResponse.json({ cart });
+  const response = NextResponse.json({ cart });
+  if (identifier.startsWith('guest_')) {
+    response.cookies.set('guest_cart_id', identifier, { maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: true });
+  }
+  return response;
 }
 
-// ─── POST ─────────────────────────────────────────────────────────────────────
+// POST
 export async function POST(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const identifier = await getIdentifier();
 
   let body: { learningProductId?: string };
   try {
     body = await request.json();
-  } catch {
+  } catch (e) {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
@@ -42,12 +55,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'learningProductId is required' }, { status: 400 });
   }
 
-  const result = await addProductToCart(userId, learningProductId);
+  const result = await addProductToCart(identifier, learningProductId);
   if (!result.success) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
 
-  // Return updated cart
-  const cart = await getCartDetails(userId);
-  return NextResponse.json({ cart }, { status: 201 });
+  const cart = await getCartDetails(identifier);
+  const response = NextResponse.json({ cart }, { status: 201 });
+  if (identifier.startsWith('guest_')) {
+    response.cookies.set('guest_cart_id', identifier, { maxAge: 60 * 60 * 24 * 30, httpOnly: true, secure: true });
+  }
+  return response;
 }

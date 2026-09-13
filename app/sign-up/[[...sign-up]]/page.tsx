@@ -1,10 +1,12 @@
+import Image from 'next/image';
 import { SignUp } from '@clerk/nextjs'
 
 export default function SignUpPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[var(--card)] brightness-95] px-4">
       <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center flex flex-col items-center">
+          <Image src="/logo.png" alt="AutoLearn Spot Logo" width={60} height={60} className="mb-4" />
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#10b981]">Student Portal</p>
           <h1 className="mt-2 font-heading text-2xl font-bold uppercase text-brand-text">Create Account</h1>
           <p className="mt-2 font-mono text-sm text-brand-text/60">Join AutoLearn Spot to access your curriculum</p>
@@ -22,6 +24,10 @@ export default function SignUpPage() {
               fontFamily: 'monospace',
             },
             elements: {
+              logoImage: 'hidden',
+              logoBox: 'hidden',
+              footerAction: 'hidden',
+              watermark: 'hidden',
               card: 'bg-[var(--card)] brightness-95] border border-[#3b494b] shadow-none rounded-none',
               headerTitle: 'text-brand-text font-mono',
               headerSubtitle: 'text-brand-text/60 font-mono text-xs',

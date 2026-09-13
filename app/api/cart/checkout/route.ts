@@ -1,66 +1,61 @@
 /**
  * POST /api/cart/checkout
- *
- * Converts the current cart to a PENDING order and initialises a Paystack
- * transaction. Returns the Paystack authorization_url, reference, and orderId.
- *
- * Security guarantees:
- * - All pricing is read server-side from learning_products.price.
- * - Amount sent to Paystack = order.total (in kobo).
- * - order_ref is a server-generated UUID.
- * - Cart is NOT cleared until the webhook confirms PAID.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
 import { getCartDetails } from '@/lib/cart-service';
 import { createOrderFromCart, setOrderProviderRef } from '@/lib/order-service';
 
-const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY!;
+const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY!|| '';
 
 export async function POST(request: NextRequest) {
-  // 1. Authenticate
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  let { userId } = await auth();
+  const clerkUser = await currentUser();
+  
+  let email = clerkUser?.emailAddresses?:[0]?.emailAddress ?? clerkUser?.primaryEmailAddress?.emailAddress;
+  let fullName = clerkUser?.fullName ?? `${clerkUser?.firstName ?? ''} ${clerkUser?.lastName ?? ''}`.trim() ?? 'Student';
+
+  // Parse optional callback URL and guest details from body
+  let callbackUrl: string | undefined;
+  let guestEmail: string | undefined;
+  let guestName: string | undefined;
+  try {
+    const body = await request.json();
+    callbackUrl = body?.callbackUrl;
+    guestEmail = body?.email;
+    guestName = body?.fullName;
+  } catch {
+    // ignore
   }
 
-  // 2. Get Clerk user for email/name
-  const clerkUser = await currentUser();
-  const email =
-    clerkUser?.emailAddresses?.[0]?.emailAddress ??
-    clerkUser?.primaryEmailAddress?.emailAddress;
-  const fullName =
-    clerkUser?.fullName ??
-    `${clerkUser?.firstName ?? ''} ${clerkUser?.lastName ?? ''}`.trim() ??
-    'Student';
+  // If guest
+   if (!userId) {
+     const cookieStore = await cookies();
+     userId = cookieStore.get('guest_cart_id')?.value || '';
+     if (!userId) {
+       return NextResponse.json({ error: 'Cart is empty or expired' }, { status: 400 });
+     }
+     
+     email = guestEmail;
+     fullName = guestName || 'Guest Student';
+   }
 
   if (!email) {
-    return NextResponse.json({ error: 'User email not found' }, { status: 400 });
+    return NextResponse.json({ error: 'User email is required' }, { status: 400 });
   }
 
-  // 3. Fetch cart
   const cart = await getCartDetails(userId);
   if (!cart || cart.item_count === 0) {
     return NextResponse.json({ error: 'Cart is empty' }, { status: 422 });
   }
 
-  // 4. Create PENDING order + order_items snapshot
   const order = await createOrderFromCart(userId, cart);
   if (!order) {
     return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
   }
 
-  // 5. Parse optional callback URL from body
-  let callbackUrl: string | undefined;
-  try {
-    const body = await request.json().catch(() => ({}));
-    callbackUrl = body?.callbackUrl;
-  } catch {
-    // ignore
-  }
-
-  // 6. Initialise Paystack transaction
   if (!paystackSecretKey) {
     return NextResponse.json({ error: 'Payment provider not configured' }, { status: 500 });
   }
@@ -73,7 +68,6 @@ export async function POST(request: NextRequest) {
     },
     body: JSON.stringify({
       email,
-      // Paystack requires amount in kobo (smallest currency unit)
       amount: Math.round(order.total * 100),
       currency: order.currency,
       metadata: {
@@ -94,8 +88,7 @@ export async function POST(request: NextRequest) {
 
   if (!paystackData.status) {
     console.error('cart/checkout: Paystack initialization failed', paystackData);
-    // Mark order as FAILED so it does not sit PENDING forever
-    await import('@/lib/supabase').then(({ supabaseAdmin }) =>
+    await import(&@/lib/supabase').then(({ supabaseAdmin }) =>
       supabaseAdmin
         .from('orders')
         .update({ status: 'FAILED', updated_at: new Date().toISOString() })
@@ -107,7 +100,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 7. Persist the Paystack reference on the order
   const providerRef: string = paystackData.data.reference;
   await setOrderProviderRef(order.id, providerRef);
 

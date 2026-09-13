@@ -33,15 +33,13 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [guestEmail, setGuestEmail] = useState('');
+  const [guestName, setGuestName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isLoaded) {
-      if (!isSignedIn) {
-        setError('Please sign in to view your cart.');
-        setLoading(false);
-        return;
-      }
+      
       fetchCart();
     }
   }, [isLoaded, isSignedIn]);
@@ -83,11 +81,19 @@ export default function CartPage() {
   };
 
   const checkout = async () => {
+    if (!isSignedIn && !guestEmail) {
+      setError('Please provide an email address to checkout.');
+      return;
+    }
     setCheckingOut(true);
     try {
       const res = await fetch('/api/cart/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: !isSignedIn ? guestEmail : undefined,
+          fullName: !isSignedIn ? guestName : undefined
+        })
       });
       if (!res.ok) throw new Error('Checkout failed');
       const { authorization_url } = await res.json();
@@ -215,7 +221,34 @@ export default function CartPage() {
                         {formatPrice(item.learning_products.price, item.learning_products.currency)}
                       </p>
                       
-                      <button
+                      
+              {!isSignedIn && (
+                <div className="space-y-4 mb-6 pt-6 border-t border-border/50 text-left">
+                  <p className="text-sm text-muted-foreground">Checking out as a guest. We'll automatically create an account for you.</p>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground uppercase mb-1">Full Name</label>
+                    <input 
+                      type="text" 
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      placeholder="Enter your full name" 
+                      className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground uppercase mb-1">Email Address <span className="text-destructive">*</span></label>
+                    <input 
+                      type="email" 
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      placeholder="Enter your email" 
+                      className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-primary"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+              <button
                         onClick={() => removeItem(item.id)}
                         disabled={removingId === item.id}
                         className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-destructive transition-colors p-2 -mr-2"
@@ -255,7 +288,7 @@ export default function CartPage() {
               </div>
               
               <button
-                onClick={checkout}
+                 onClick={checkout}
                 disabled={checkingOut}
                 className="group flex items-center justify-center gap-2 w-full bg-brand-primary text-primary-foreground font-semibold py-4 px-4 rounded-2xl hover:bg-brand-primary-hover transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_4px_14px_0_rgba(var(--color-brand-primary),0.39)] hover:shadow-[0_6px_20px_rgba(var(--color-brand-primary),0.23)] hover:-translate-y-0.5"
               >

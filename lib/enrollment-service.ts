@@ -65,6 +65,48 @@ export async function linkEmailToClerkUser(
 /**
  * Fetch all enrollments for a given Clerk user (and auto-link if needed)
  */
+
+/**
+ * Helper to check if an enrollment is expired and update DB if so
+ */
+async function processEnrollmentExpiry(enrollments: any[]): Promise<any[]> {
+  const now = new Date().getTime();
+  const validEnrollments = [];
+
+  for (const e of enrollments) {
+    if (e.status !== 'active') {
+      validEnrollments.push(e);
+      continue;
+    }
+
+    let isExpired = false;
+    
+    // Check access_duration_days from learning_product
+    const lp = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+    if (lp && lp.access_duration_days && e.activated_at) {
+      const activatedTime = new Date(e.activated_at).getTime();
+      const durationMs = lp.access_duration_days * 24 * 60 * 60 * 1000;
+      if (now > activatedTime + durationMs) {
+        isExpired = true;
+      }
+    }
+
+    if (isExpired) {
+      console.log(`[enrollment-service] Enrollment ${e.id} has expired.`);
+      await supabaseAdmin
+        .from('enrollments')
+        .update({ status: 'expired' })
+        .eq('id', e.id);
+      
+      e.status = 'expired';
+    }
+    
+    validEnrollments.push(e);
+  }
+
+  return validEnrollments;
+}
+
 export const getUserEnrollments = cache(
   async (
     clerkUserId: string,
@@ -91,6 +133,15 @@ export const getUserEnrollments = cache(
           name,
           slug,
           is_current
+        ),
+        learning_product:learning_products (
+          id,
+          title,
+          slug,
+          description,
+          thumbnail_url,
+          product_type,
+          access_duration_days
         )
       `)
       .eq('clerk_user_id', clerkUserId);
@@ -115,11 +166,20 @@ export const getUserEnrollments = cache(
           .select(`
             *,
             cohort:cohorts (
-              id,
-              name,
-              slug,
-              is_current
-            )
+          id,
+          name,
+          slug,
+          is_current
+        ),
+        learning_product:learning_products (
+          id,
+          title,
+          slug,
+          description,
+          thumbnail_url,
+          product_type,
+          access_duration_days
+        )
           `)
           .eq('email', email);
 
@@ -138,12 +198,12 @@ export const getUserEnrollments = cache(
         if (emailData && emailData.length > 0) {
           console.log('[getUserEnrollments] Found enrollment by email, linking clerk_user_id');
           await linkEmailToClerkUser(email, clerkUserId);
-          return (emailData ?? []) as Enrollment[];
+          return await processEnrollmentExpiry((emailData ?? []) as any[]);
         }
       }
     }
 
-    return (data ?? []) as Enrollment[];
+    return await processEnrollmentExpiry((data ?? []) as any[]);
   }
 );
 
