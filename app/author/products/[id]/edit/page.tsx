@@ -229,6 +229,21 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setMediaFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const removeMediaGalleryItem = (index: number) => {
+    setMediaGallery(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeMediaFile = (index: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);

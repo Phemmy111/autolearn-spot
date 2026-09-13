@@ -98,6 +98,17 @@ export default function NewProductPage() {
     }
   };
 
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setMediaFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const removeMediaFile = (index: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
