@@ -88,8 +88,18 @@ export async function POST(request: Request) {
     // Parse the JSON response
     let quizData
     try {
-      // Remove markdown code blocks if present
-      const cleanedContent = result.content.replace(/```json\n?|\n?```/g, '').trim()
+      // Remove markdown code blocks if present (more robust pattern)
+      let cleanedContent = result.content
+        .replace(/```json\s*\n?/g, '')
+        .replace(/```\s*\n?/g, '')
+        .trim()
+      
+      // Try to extract JSON if mixed with other text
+      const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        cleanedContent = jsonMatch[0]
+      }
+      
       quizData = JSON.parse(cleanedContent)
     } catch (parseError) {
       console.error('Failed to parse AI response:', result.content)
