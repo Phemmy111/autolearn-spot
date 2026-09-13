@@ -40,7 +40,7 @@ export async function GET(
 
     // Get submissions with user and assignment data
     const { data: submissions, error } = await supabaseAdmin
-      .from('assignment_submissions')
+      .from('submissions')
       .select(`
         *,
         assignment:assignments!inner (
