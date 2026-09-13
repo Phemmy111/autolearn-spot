@@ -298,9 +298,9 @@ export async function createProductLesson(productId: string, lessonData: Partial
       vimeo_video_id: null,
       available_at: new Date().toISOString(),
       duration_label: lessonData.duration_label || null,
-      week_number: null,
-      session_number: null,
-      release_day: null,
+      week_number: 0, // Default to 0 for product-based lessons
+      session_number: 0, // Default to 0 for product-based lessons
+      release_day: 'monday', // Default to monday for product-based lessons
       resources: lessonData.resources || '[]',
       order_index: nextOrderIndex,
       status: 'DRAFT',

@@ -29,6 +29,12 @@ ALTER TABLE public.lessons ADD CONSTRAINT lessons_pkey PRIMARY KEY (uuid_id);
 ALTER TABLE public.lessons
   ALTER COLUMN cohort_id DROP NOT NULL;
 
+-- Step 8.5: Make cohort-specific fields nullable for product-based lessons
+ALTER TABLE public.lessons
+  ALTER COLUMN week_number DROP NOT NULL,
+  ALTER COLUMN session_number DROP NOT NULL,
+  ALTER COLUMN release_day DROP NOT NULL;
+
 -- Step 9: Add a UUID column to lesson_progress to reference the new primary key
 ALTER TABLE public.lesson_progress ADD COLUMN IF NOT EXISTS lesson_uuid_id UUID;
 
