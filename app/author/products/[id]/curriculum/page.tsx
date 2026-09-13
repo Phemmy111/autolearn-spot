@@ -85,6 +85,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const [selectedPromptId, setSelectedPromptId] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
   const [generatedQuiz, setGeneratedQuiz] = useState<any>(null);
+  const [fetchingModels, setFetchingModels] = useState(false);
 
   // Assignment state
   const [showAddAssignment, setShowAddAssignment] = useState(false);
@@ -391,6 +392,35 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       }
     } catch (err) {
       console.error('Failed to fetch AI prompts:', err);
+    }
+  };
+
+  const handleFetchModels = async () => {
+    if (!selectedProviderId) {
+      setError('Please select a provider first');
+      return;
+    }
+
+    setFetchingModels(true);
+    try {
+      const res = await fetch(`/api/author/ai-providers/${selectedProviderId}/models`, {
+        method: 'POST',
+      });
+
+      const data = await res.json();
+      if (data.models && data.models.length > 0) {
+        // Update the provider in the list with the new models
+        setAiProviders(prev => prev.map(p => 
+          p.id === selectedProviderId ? { ...p, models: data.models } : p
+        ));
+        setSelectedModel(data.models[0]);
+      } else {
+        setError('No models found or fetch failed');
+      }
+    } catch (err: any) {
+      setError('Failed to fetch models: ' + err.message);
+    } finally {
+      setFetchingModels(false);
     }
   };
 
@@ -1165,26 +1195,37 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                     Model
                   </label>
-                  <select
-                    className="w-full bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
-                    value={selectedModel}
-                    onChange={(e) => setSelectedModel(e.target.value)}
-                  >
-                    {selectedProviderId ? (
-                      (() => {
-                        const provider = aiProviders.find((p: any) => p.id === selectedProviderId);
-                        const models = provider?.models || [];
-                        if (models.length === 0) {
-                          return <option value="">No models</option>;
-                        }
-                        return models.map((model: string) => (
-                          <option key={model} value={model}>{model}</option>
-                        ));
-                      })()
-                    ) : (
-                      <option value="">Select provider first</option>
-                    )}
-                  </select>
+                  <div className="flex gap-2">
+                    <select
+                      className="flex-1 bg-neutral-50 border border-neutral-300 text-neutral-900 text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                    >
+                      {selectedProviderId ? (
+                        (() => {
+                          const provider = aiProviders.find((p: any) => p.id === selectedProviderId);
+                          const models = provider?.models || [];
+                          if (models.length === 0) {
+                            return <option value="">No models</option>;
+                          }
+                          return models.map((model: string) => (
+                            <option key={model} value={model}>{model}</option>
+                          ));
+                        })()
+                      ) : (
+                        <option value="">Select provider first</option>
+                      )}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={handleFetchModels}
+                      disabled={fetchingModels || !selectedProviderId}
+                      className="px-3 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-lg hover:bg-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Fetch available models"
+                    >
+                      {fetchingModels ? '...' : 'Fetch'}
+                    </button>
+                  </div>
                 </div>
 
                 <div>

@@ -21,7 +21,7 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
     { name: 'Students', href: '/author/students', icon: Users },
     { name: 'Earnings', href: '/dashboard/earnings', icon: DollarSign },
     { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+    { name: 'Settings', href: '/author/settings', icon: Settings },
   ];
 
   return (
