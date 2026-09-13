@@ -102,7 +102,14 @@ export async function POST(
       return NextResponse.json({ error: 'Quiz title is required' }, { status: 400 })
     }
 
-    const { data: quiz } = await supabaseAdmin
+    console.log('[QUIZ CREATE] Inserting quiz with data:', {
+      title: body.title,
+      description: body.description,
+      lesson_id: lessonId,
+      lesson_id_type: typeof lessonId,
+    });
+
+    const { data: quiz, error: insertError } = await supabaseAdmin
       .from('quizzes')
       .insert({
         title: body.title,
@@ -116,6 +123,11 @@ export async function POST(
       })
       .select()
       .single()
+
+    if (insertError) {
+      console.error('[QUIZ CREATE] Insert error:', insertError);
+      return NextResponse.json({ error: insertError.message, details: insertError }, { status: 500 })
+    }
 
     if (!quiz) {
       return NextResponse.json({ error: 'Failed to create quiz' }, { status: 500 })
