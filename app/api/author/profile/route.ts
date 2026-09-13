@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const { data: author, error } = await supabaseAdmin
       .from('authors')
       .select('display_name, bio, profile_image, professional_title, years_of_experience')
-      .eq('id', userId)
+      .eq('clerk_user_id', userId)
       .single();
 
     if (error) {
@@ -48,21 +48,18 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { display_name, bio, profile_image, professional_title, years_of_experience } = body;
 
-    // Use upsert so it creates the row on first save
+    // Update the existing author row matched by clerk_user_id
     const { data: author, error } = await supabaseAdmin
       .from('authors')
-      .upsert(
-        {
-          id: userId,
-          display_name,
-          bio,
-          profile_image,
-          professional_title,
-          years_of_experience,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'id' }
-      )
+      .update({
+        display_name,
+        bio,
+        profile_image,
+        professional_title,
+        years_of_experience,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('clerk_user_id', userId)
       .select()
       .single();
 

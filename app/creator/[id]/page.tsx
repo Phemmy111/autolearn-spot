@@ -22,7 +22,7 @@ export default async function CreatorPage({ params }: PageParams) {
   const { data: author } = await supabaseAdmin
     .from('authors')
     .select('display_name, email, bio, profile_image, professional_title, years_of_experience')
-    .eq('id', id)
+    .eq('clerk_user_id', id)
     .limit(1)
     .single();
 

@@ -35,7 +35,7 @@ export default async function LearningProductPage({ params }: PageParams) {
   const { data: author } = await supabaseAdmin
     .from('authors')
     .select('id, display_name, profile_image, professional_title, bio')
-    .eq('id', product.author_id)
+    .eq('clerk_user_id', product.author_id)
     .limit(1)
     .single();
 
