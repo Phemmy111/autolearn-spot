@@ -46,6 +46,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     fetch(`/api/author/products/${id}`)
@@ -85,6 +88,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           }
         }
         setLoading(false);
+        setTimeout(() => setInitialLoad(false), 500);
       })
       .catch(() => {
         setError('Failed to load product.');
@@ -93,6 +97,71 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   }, [id]);
 
   const availableSkills = category && SKILLS_BY_CATEGORY[category] ? SKILLS_BY_CATEGORY[category] : [];
+
+  useEffect(() => {
+    if (loading || initialLoad || submitting) return;
+    const handler = setTimeout(() => {
+      autoSave();
+    }, 2000);
+    return () => clearTimeout(handler);
+  }, [
+    title, shortDesc, fullDesc, productType, category, skill, difficulty,
+    price, currency, accessDurationType, customAccessDuration,
+    targetAudience, learningOutcomes, requirements, thumbnailFile, thumbnailUrl
+  ]);
+
+  const autoSave = async () => {
+    if (!title.trim() || !category || !skill || Number(price) < 0) return;
+    setSaveStatus('saving');
+    
+    let updatedThumbnailUrl = thumbnailUrl;
+    if (thumbnailFile) {
+      try {
+        updatedThumbnailUrl = await uploadThumbnail(thumbnailFile);
+        if (updatedThumbnailUrl) {
+          setThumbnailUrl(updatedThumbnailUrl);
+          setThumbnailFile(null);
+          setThumbnailPreview(null);
+        }
+      } catch (err) {
+        setSaveStatus('error');
+        return;
+      }
+    }
+    
+    const finalAccessDuration = accessDurationType === 'Custom' ? Number(customAccessDuration) : Number(accessDurationType);
+    const generatedSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const structuredDescription = JSON.stringify({
+      short_description: shortDesc,
+      full_description: fullDesc,
+      category,
+      difficulty,
+      learning_outcomes: learningOutcomes,
+      requirements,
+      target_audience: targetAudience
+    });
+
+    const payload = {
+      title, slug: generatedSlug, description: structuredDescription,
+      product_type: productType, skill_id: skill, price: Number(price),
+      currency, access_duration_days: finalAccessDuration, thumbnail_url: updatedThumbnailUrl,
+    };
+
+    try {
+      const res = await fetch(`/api/author/products/${id}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setSaveStatus('saved');
+        setLastSaved(new Date());
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (err) {
+      setSaveStatus('error');
+    }
+  };
 
   const handleCategoryChange = (val: string) => {
     setCategory(val);
@@ -424,17 +493,24 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* ACTIONS */}
-        <div className="flex flex-col sm:flex-row justify-end items-center gap-4 pt-4">
-          <button type="button" onClick={() => router.push('/author/products')} className="w-full sm:w-auto px-6 py-3 text-neutral-600 font-semibold text-sm hover:text-neutral-900 transition-colors">
-            Cancel
-          </button>
-          <button type="submit" disabled={submitting} className="w-full sm:w-auto px-8 py-3 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-            {submitting ? (
-              <><span className="animate-spin mr-2">⟳</span> Saving Changes...</>
-            ) : (
-              'Save Changes'
-            )}
-          </button>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 mt-8 border-t border-neutral-200">
+          <div className="text-sm font-medium w-full sm:w-auto text-center sm:text-left">
+            {saveStatus === 'saving' && <span className="text-neutral-500 flex items-center justify-center sm:justify-start gap-2"><span className="animate-spin">⟳</span> Auto-saving...</span>}
+            {saveStatus === 'saved' && lastSaved && <span className="text-emerald-600">✓ Draft saved at {lastSaved.toLocaleTimeString()}</span>}
+            {saveStatus === 'error' && <span className="text-red-500">Failed to auto-save. Please save manually.</span>}
+          </div>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <button type="button" onClick={() => router.push('/author/products')} className="w-full sm:w-auto px-6 py-3 text-neutral-600 font-semibold text-sm hover:text-neutral-900 transition-colors">
+              Back to Products
+            </button>
+            <button type="submit" disabled={submitting || saveStatus === 'saving'} className="w-full sm:w-auto px-8 py-3 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors shadow-sm focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+              {submitting ? (
+                <><span className="animate-spin mr-2">⟳</span> Saving...</>
+              ) : (
+                'Save Changes'
+              )}
+            </button>
+          </div>
         </div>
         
       </form>
