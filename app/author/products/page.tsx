@@ -12,7 +12,7 @@ interface Product {
   status: 'DRAFT' | 'PENDING_REVIEW' | 'PUBLISHED' | 'UNPUBLISHED' | 'REJECTED' | 'SUSPENDED';
   price: number;
   currency: string;
-  thumbnail: string | null;
+  thumbnail_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -152,9 +152,9 @@ export default function AuthorProductsPage() {
             >
               {/* Thumbnail */}
               <div className="aspect-video bg-neutral-100 flex items-center justify-center">
-                {product.thumbnail ? (
+                {product.thumbnail_url ? (
                   <img
-                    src={product.thumbnail}
+                    src={product.thumbnail_url}
                     alt={product.title}
                     className="w-full h-full object-cover"
                   />
