@@ -1,6 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { cache } from 'react';
-import { currentUser } from '@clerk/nextjs/server';
 
 export interface Enrollment {
   id: string;
@@ -12,6 +11,7 @@ export interface Enrollment {
   status: string;
   starts_at: string | null;
   expires_at: string | null;
+  activated_at?: string | null;
   first_name?: string | null;
   last_name?: string | null;
   full_name?: string | null;
@@ -20,7 +20,10 @@ export interface Enrollment {
     name: string;
     slug: string;
     is_current: boolean;
+    learning_product?: any;
   };
+  // direct join (after migration adds learning_product_id column)
+  learning_product?: any;
 }
 
 interface EnrollmentUpdateData {
@@ -29,16 +32,12 @@ interface EnrollmentUpdateData {
 
 /**
  * Automatically link an email-only enrollment to a Clerk User ID
- * Also captures the user's name from Clerk
  */
 export async function linkEmailToClerkUser(
   email: string,
   clerkUserId: string
 ): Promise<void> {
   try {
-    // Simplified: Just link the clerk_user_id without fetching name data
-    // Name data will be updated when user actively uses the application
-    
     const updateData: EnrollmentUpdateData = {
       clerk_user_id: clerkUserId,
     };
@@ -63,8 +62,21 @@ export async function linkEmailToClerkUser(
 }
 
 /**
- * Fetch all enrollments for a given Clerk user (and auto-link if needed)
+ * Given an enrollment record, resolve its learning product.
+ * Checks the direct field first (after migration), then falls back through cohort.
  */
+function resolveLearningProduct(e: any): any {
+  // After migration: direct learning_product field
+  if (e.learning_product) {
+    return Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+  }
+  // Before migration: learning_product nested inside cohort
+  const cohort = Array.isArray(e.cohort) ? e.cohort[0] : e.cohort;
+  if (cohort?.learning_product) {
+    return Array.isArray(cohort.learning_product) ? cohort.learning_product[0] : cohort.learning_product;
+  }
+  return null;
+}
 
 /**
  * Helper to check if an enrollment is expired and update DB if so
@@ -80,9 +92,8 @@ async function processEnrollmentExpiry(enrollments: any[]): Promise<any[]> {
     }
 
     let isExpired = false;
-    
-    // Check access_duration_days from learning_product
-    const lp = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+
+    const lp = resolveLearningProduct(e);
     if (lp && lp.access_duration_days && e.activated_at) {
       const activatedTime = new Date(e.activated_at).getTime();
       const durationMs = lp.access_duration_days * 24 * 60 * 60 * 1000;
@@ -97,15 +108,35 @@ async function processEnrollmentExpiry(enrollments: any[]): Promise<any[]> {
         .from('enrollments')
         .update({ status: 'expired' })
         .eq('id', e.id);
-      
+
       e.status = 'expired';
     }
-    
+
     validEnrollments.push(e);
   }
 
   return validEnrollments;
 }
+
+/** The select string for enrollment queries — joins cohort and its learning_product */
+const ENROLLMENT_SELECT = `
+  *,
+  cohort:cohorts (
+    id,
+    name,
+    slug,
+    is_current,
+    learning_product:learning_products (
+      id,
+      title,
+      slug,
+      description,
+      thumbnail_url,
+      product_type,
+      access_duration_days
+    )
+  )
+`;
 
 export const getUserEnrollments = cache(
   async (
@@ -113,41 +144,24 @@ export const getUserEnrollments = cache(
     email: string
   ): Promise<Enrollment[]> => {
     console.log('[getUserEnrollments] Input values:', { clerkUserId, email });
-    
+
     if (!clerkUserId) {
       console.log('[getUserEnrollments] Missing clerkUserId, returning empty');
       return [];
     }
 
-    // Auto-link email enrollment to Clerk account (only if email is provided)
+    // Auto-link email enrollment to Clerk account
     if (email) {
       await linkEmailToClerkUser(email, clerkUserId);
     }
 
     const { data, error } = await supabaseAdmin
       .from('enrollments')
-      .select(`
-        *,
-        cohort:cohorts (
-          id,
-          name,
-          slug,
-          is_current
-        ),
-        learning_product:learning_products (
-          id,
-          title,
-          slug,
-          description,
-          thumbnail_url,
-          product_type,
-          access_duration_days
-        )
-      `)
+      .select(ENROLLMENT_SELECT)
       .eq('clerk_user_id', clerkUserId);
 
-    console.log('[getUserEnrollments] Query result:', { 
-      recordCount: data?.length || 0, 
+    console.log('[getUserEnrollments] Query result:', {
+      recordCount: data?.length || 0,
       error: error?.message,
       enrollments: data?.map(e => ({ id: e.id, email: e.email, clerk_user_id: e.clerk_user_id, cohort_id: e.cohort_id }))
     });
@@ -163,28 +177,11 @@ export const getUserEnrollments = cache(
         console.log('[getUserEnrollments] No enrollment by clerk_user_id, trying email fallback');
         const { data: emailData, error: emailError } = await supabaseAdmin
           .from('enrollments')
-          .select(`
-            *,
-            cohort:cohorts (
-          id,
-          name,
-          slug,
-          is_current
-        ),
-        learning_product:learning_products (
-          id,
-          title,
-          slug,
-          description,
-          thumbnail_url,
-          product_type,
-          access_duration_days
-        )
-          `)
+          .select(ENROLLMENT_SELECT)
           .eq('email', email);
 
-        console.log('[getUserEnrollments] Email fallback result:', { 
-          recordCount: emailData?.length || 0, 
+        console.log('[getUserEnrollments] Email fallback result:', {
+          recordCount: emailData?.length || 0,
           error: emailError?.message,
           enrollments: emailData?.map(e => ({ id: e.id, email: e.email, clerk_user_id: e.clerk_user_id, cohort_id: e.cohort_id }))
         });
@@ -194,7 +191,6 @@ export const getUserEnrollments = cache(
           return [];
         }
 
-        // If found by email, link the clerk_user_id for future lookups
         if (emailData && emailData.length > 0) {
           console.log('[getUserEnrollments] Found enrollment by email, linking clerk_user_id');
           await linkEmailToClerkUser(email, clerkUserId);
@@ -216,7 +212,10 @@ export async function hasActiveEnrollment(
 ): Promise<boolean> {
   const enrollments = await getUserEnrollments(clerkUserId, email);
 
+  // Allow access for both active courses AND purchased-but-not-yet-started courses
   return enrollments.some(
     (enrollment) => enrollment.status === 'active' || enrollment.status === 'not_started'
   );
 }
+
+export { resolveLearningProduct };

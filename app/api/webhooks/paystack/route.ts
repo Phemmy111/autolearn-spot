@@ -116,28 +116,37 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   const orderItems = await getOrderItems(order.id);
   
   for (const item of orderItems) {
-    const enrollmentData = {
+    const enrollmentData: Record<string, any> = {
       cohort_id: currentCohort.id,
       email: email,
-      payment_ref: reference, // we can use provider_ref as the payment reference
+      payment_ref: reference,
       amount_paid: item.price_snapshot,
       status: 'not_started',
       activated_at: null,
-      // Phase 4: we don't handle cart-level referrals yet, so these are null
       referral_code: null,
       referred_by_code: null,
-      learning_product_id: item.learning_product_id
     };
+
+    // Include learning_product_id if the column exists (added via migration)
+    if (item.learning_product_id) {
+      enrollmentData.learning_product_id = item.learning_product_id;
+    }
 
     const { error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .upsert(enrollmentData, {
-        onConflict: 'cohort_id, email, learning_product_id'
+        onConflict: 'cohort_id, email'
       });
 
     if (enrollmentError) {
       console.error('CART CHECKOUT: Failed to create enrollment for item', item.id, enrollmentError);
-      // We log but continue with other items. In a robust system we might want a retry queue.
+      // Try insert as fallback without the upsert conflict
+      const { error: insertError } = await supabaseAdmin
+        .from('enrollments')
+        .insert(enrollmentData);
+      if (insertError) {
+        console.error('CART CHECKOUT: Insert fallback also failed', insertError);
+      }
     }
   }
 
