@@ -491,7 +491,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create quiz');
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to create quiz');
       }
 
       const quizData = await res.json();
@@ -499,11 +500,16 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
       // Create questions using the existing quiz API
       for (const question of generatedQuiz.questions) {
-        await fetch(`/api/author/products/${productId}/lessons/${aiLessonId}/quizzes/${quizId}/questions`, {
+        const questionRes = await fetch(`/api/author/products/${productId}/lessons/${aiLessonId}/quizzes/${quizId}/questions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(question),
         });
+
+        if (!questionRes.ok) {
+          const errorData = await questionRes.json();
+          throw new Error(errorData.error || 'Failed to create question');
+        }
       }
 
       setGeneratedQuiz(null);
