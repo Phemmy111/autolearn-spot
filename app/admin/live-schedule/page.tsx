@@ -61,7 +61,7 @@ export default function LiveScheduleAdmin() {
   }
 
   return (
-    <section className="min-h-screen bg-gray-100]">
+    <section className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link

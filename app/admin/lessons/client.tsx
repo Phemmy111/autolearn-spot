@@ -203,9 +203,9 @@ export default function LessonSchedulerClient() {
                 key={lesson.id}
                 className={`border ${
                   isEditing
-                    ? 'border-[#10b981] bg-gray-100]/5'
+                    ? 'border-[#10b981] bg-gray-50/5'
                     : isAvailable
-                      ? 'border-[#3b494b] bg-gray-100]'
+                      ? 'border-[#3b494b] bg-gray-50'
                       : 'border-neutral-200 bg-neutral-50 opacity-60'
                 } rounded-lg p-4 transition-colors`}
               >
@@ -262,13 +262,13 @@ export default function LessonSchedulerClient() {
                           <button
                             onClick={saveEdit}
                             disabled={saving}
-                            className="flex items-center gap-2 bg-gray-100] text-black font-bold px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 bg-gray-50 text-black font-bold px-4 py-2 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {saving ? 'Saving...' : <><Save className="h-4 w-4" /> <span>Save</span></>}
                           </button>
                           <button
                             onClick={cancelEditing}
-                            className="flex items-center gap-2 border border-neutral-200 text-neutral-600 px-4 py-2 rounded hover:bg-gray-100] transition-colors"
+                            className="flex items-center gap-2 border border-neutral-200 text-neutral-600 px-4 py-2 rounded hover:bg-gray-50 transition-colors"
                           >
                             <X className="h-4 w-4" /> Cancel
                           </button>

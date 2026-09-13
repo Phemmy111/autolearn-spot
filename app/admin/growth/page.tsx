@@ -152,7 +152,7 @@ export default function AdminGrowthCenter() {
             <p className="text-3xl font-bold">{stats.influencerPartners}</p>
           </div>
           <div className="bg-neutral-50 border border-[#10b981]/20 p-6 rounded-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-100]/10 blur-3xl rounded-full" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/10 blur-3xl rounded-full" />
             <h3 className="text-sm text-[#10b981] mb-1 relative z-10">Total Payouts</h3>
             <p className="text-3xl font-bold relative z-10">₦{stats.totalPayouts.toLocaleString()}</p>
           </div>
@@ -162,7 +162,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'applications' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100]/50 border-b border-neutral-200">
+            <thead className="bg-gray-50/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Applicant</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
@@ -222,7 +222,7 @@ export default function AdminGrowthCenter() {
               <h3 className="font-bold">Influencer Partners</h3>
             </div>
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-100]/50 border-b border-neutral-200">
+              <thead className="bg-gray-50/50 border-b border-neutral-200">
                 <tr>
                   <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
                   <th className="px-6 py-4 font-medium text-neutral-600">Platform</th>
@@ -259,7 +259,7 @@ export default function AdminGrowthCenter() {
               <input value={newInfluencer.phone} onChange={e => setNewInfluencer({...newInfluencer, phone: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Phone Number" />
               <input required value={newInfluencer.platform} onChange={e => setNewInfluencer({...newInfluencer, platform: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Platform (e.g. YouTube)" />
               <input required type="number" value={newInfluencer.commission_rate} onChange={e => setNewInfluencer({...newInfluencer, commission_rate: e.target.value})} className="w-full bg-gray-100 border border-neutral-200 rounded-lg px-4 py-2 focus:border-[#10b981] outline-none" placeholder="Commission Rate (e.g. 2000)" />
-              <button disabled={isSubmitting} type="submit" className="w-full py-2.5 rounded-lg bg-gray-100] text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50">
+              <button disabled={isSubmitting} type="submit" className="w-full py-2.5 rounded-lg bg-gray-50 text-black font-bold hover:bg-gray-100 transition-colors disabled:opacity-50">
                 {isSubmitting ? "Inviting..." : "Create Partner"}
               </button>
             </form>
@@ -270,7 +270,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'withdrawals' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100]/50 border-b border-neutral-200">
+            <thead className="bg-gray-50/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Date</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Type</th>

@@ -20,7 +20,7 @@ export default async function LessonSchedulerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-10">
           <Link

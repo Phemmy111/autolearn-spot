@@ -110,7 +110,7 @@ export default function AdminHealthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
           <p className="font-mono text-sm text-neutral-600">Loading health data...</p>
@@ -121,14 +121,14 @@ export default function AdminHealthPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center border border-red-500/50 bg-red-500/10 p-8 rounded-xl max-w-md">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Error</h2>
           <p className="font-mono text-sm text-neutral-600 mb-4">{error}</p>
           <button
             onClick={fetchHealth}
-            className="flex items-center gap-2 mx-auto bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 mx-auto bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             Retry
@@ -141,7 +141,7 @@ export default function AdminHealthPage() {
   if (!health) return null
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -156,7 +156,7 @@ export default function AdminHealthPage() {
           <button
             onClick={fetchHealth}
             disabled={refreshing}
-            className="flex items-center gap-2 bg-gray-100]/10 text-[#10b981] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100]/20 transition-colors border border-[#10b981]/30 disabled:opacity-50"
+            className="flex items-center gap-2 bg-gray-50/10 text-[#10b981] font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-50/20 transition-colors border border-[#10b981]/30 disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -275,9 +275,9 @@ export default function AdminHealthPage() {
                 <span className="font-mono text-sm text-neutral-600">Average Score</span>
                 <span className="font-heading text-4xl font-bold text-[#10b981]">{health.metrics.averageScore}%</span>
               </div>
-              <div className="w-full bg-gray-100] rounded-full h-2">
+              <div className="w-full bg-gray-50 rounded-full h-2">
                 <div 
-                  className="bg-gray-100] h-2 rounded-full transition-all"
+                  className="bg-gray-50 h-2 rounded-full transition-all"
                   style={{ width: `${health.metrics.averageScore}%` }}
                 />
               </div>
@@ -288,7 +288,7 @@ export default function AdminHealthPage() {
                 <span className="font-mono text-sm text-neutral-600">Pass Rate</span>
                 <span className="font-heading text-4xl font-bold text-emerald-400">{health.metrics.passRate}%</span>
               </div>
-              <div className="w-full bg-gray-100] rounded-full h-2">
+              <div className="w-full bg-gray-50 rounded-full h-2">
                 <div 
                   className="bg-emerald-400 h-2 rounded-full transition-all"
                   style={{ width: `${health.metrics.passRate}%` }}

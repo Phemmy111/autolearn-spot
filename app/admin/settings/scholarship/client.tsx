@@ -109,7 +109,7 @@ export function ScholarshipSettingsClient() {
             type="number"
             value={settings.commitmentFee}
             onChange={(e) => setSettings({ ...settings, commitmentFee: parseInt(e.target.value) || 0 })}
-            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="5000"
           />
           <p className="text-xs text-neutral-500 mt-1">Amount scholarship applicants pay as commitment fee</p>
@@ -125,7 +125,7 @@ export function ScholarshipSettingsClient() {
             type="number"
             value={settings.fullValue}
             onChange={(e) => setSettings({ ...settings, fullValue: parseInt(e.target.value) || 0 })}
-            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="8000"
           />
           <p className="text-xs text-neutral-500 mt-1">Original course value displayed to applicants</p>
@@ -141,7 +141,7 @@ export function ScholarshipSettingsClient() {
             type="url"
             value={settings.paymentUrl}
             onChange={(e) => setSettings({ ...settings, paymentUrl: e.target.value })}
-            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="https://paystack.shop/pay/..."
           />
           <p className="text-xs text-neutral-500 mt-1">Payment link sent to accepted scholarship applicants</p>
@@ -156,7 +156,7 @@ export function ScholarshipSettingsClient() {
           <select
             value={settings.isOpen.toString()}
             onChange={(e) => setSettings({ ...settings, isOpen: e.target.value === 'true' })}
-            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
           >
             <option value="true">Open - Accepting applications</option>
             <option value="false">Closed - Not accepting applications</option>
@@ -174,7 +174,7 @@ export function ScholarshipSettingsClient() {
             type="url"
             value={settings.generalWhatsApp}
             onChange={(e) => setSettings({ ...settings, generalWhatsApp: e.target.value })}
-            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="https://chat.whatsapp.com/..."
           />
           <p className="text-xs text-neutral-500 mt-1">WhatsApp group for all scholarship applicants</p>
@@ -190,7 +190,7 @@ export function ScholarshipSettingsClient() {
             type="url"
             value={settings.paidWhatsApp}
             onChange={(e) => setSettings({ ...settings, paidWhatsApp: e.target.value })}
-            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="https://chat.whatsapp.com/..."
           />
           <p className="text-xs text-neutral-500 mt-1">WhatsApp group for paid scholarship students</p>
@@ -202,7 +202,7 @@ export function ScholarshipSettingsClient() {
             type="button"
             onClick={saveSettings}
             disabled={saving}
-            className="flex items-center gap-2 bg-gray-100] text-[#00363a] px-6 py-2 font-mono text-sm font-semibold uppercase tracking-wider hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-gray-50 text-[#00363a] px-6 py-2 font-mono text-sm font-semibold uppercase tracking-wider hover:bg-gray-50/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="h-4 w-4" />
             {saving ? 'Saving...' : 'Save Settings'}

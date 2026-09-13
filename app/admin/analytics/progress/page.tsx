@@ -82,17 +82,17 @@ export default function AdminProgressAnalyticsPage() {
     return (
       <div className="container mx-auto py-8 space-y-6">
         <div className="space-y-2">
-          <Skeleton className="h-8 w-64 bg-gray-100]" />
-          <Skeleton className="h-4 w-96 bg-gray-100]" />
+          <Skeleton className="h-8 w-64 bg-gray-50" />
+          <Skeleton className="h-4 w-96 bg-gray-50" />
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i} className="bg-gray-100 border-neutral-200">
               <CardHeader>
-                <Skeleton className="h-4 w-24 bg-gray-100]" />
+                <Skeleton className="h-4 w-24 bg-gray-50" />
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-8 w-16 bg-gray-100]" />
+                <Skeleton className="h-8 w-16 bg-gray-50" />
               </CardContent>
             </Card>
           ))}
@@ -123,7 +123,7 @@ export default function AdminProgressAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="mb-8">
           <Link
@@ -191,10 +191,10 @@ export default function AdminProgressAnalyticsPage() {
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="bg-gray-100 border-neutral-200">
-            <TabsTrigger value="overview" className="data-[state=active]:bg-gray-100]">Overview</TabsTrigger>
-            <TabsTrigger value="students" className="data-[state=active]:bg-gray-100]">Students</TabsTrigger>
-            <TabsTrigger value="performance" className="data-[state=active]:bg-gray-100]">Performance</TabsTrigger>
-            <TabsTrigger value="at-risk" className="data-[state=active]:bg-gray-100]">At-Risk</TabsTrigger>
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gray-50">Overview</TabsTrigger>
+            <TabsTrigger value="students" className="data-[state=active]:bg-gray-50">Students</TabsTrigger>
+            <TabsTrigger value="performance" className="data-[state=active]:bg-gray-50">Performance</TabsTrigger>
+            <TabsTrigger value="at-risk" className="data-[state=active]:bg-gray-50">At-Risk</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -209,7 +209,7 @@ export default function AdminProgressAnalyticsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
-                    <div className="p-4 bg-gray-100] rounded-lg">
+                    <div className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm text-neutral-500">Active (7d)</p>
                         <Clock className="h-4 w-4 text-[#10b981]" />
@@ -217,7 +217,7 @@ export default function AdminProgressAnalyticsPage() {
                       <p className="text-3xl font-bold text-neutral-900">{analytics.engagementMetrics.activeStudents7d}</p>
                       <Progress value={(analytics.engagementMetrics.activeStudents7d / analytics.totalStudents) * 100} className="h-2 mt-2" />
                     </div>
-                    <div className="p-4 bg-gray-100] rounded-lg">
+                    <div className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm text-neutral-500">Active (30d)</p>
                         <Target className="h-4 w-4 text-[#10b981]" />
@@ -225,7 +225,7 @@ export default function AdminProgressAnalyticsPage() {
                       <p className="text-3xl font-bold text-neutral-900">{analytics.engagementMetrics.activeStudents30d}</p>
                       <Progress value={(analytics.engagementMetrics.activeStudents30d / analytics.totalStudents) * 100} className="h-2 mt-2" />
                     </div>
-                    <div className="p-4 bg-gray-100] rounded-lg">
+                    <div className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm text-neutral-500">Avg Session</p>
                         <Zap className="h-4 w-4 text-[#10b981]" />
@@ -235,7 +235,7 @@ export default function AdminProgressAnalyticsPage() {
                       </p>
                       <p className="text-xs text-neutral-500 mt-1">Average duration</p>
                     </div>
-                    <div className="p-4 bg-gray-100] rounded-lg">
+                    <div className="p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm text-neutral-500">Login Freq</p>
                         <TrendingUp className="h-4 w-4 text-[#10b981]" />
@@ -294,10 +294,10 @@ export default function AdminProgressAnalyticsPage() {
               <CardContent>
                 <div className="space-y-3">
                   {analytics.performanceDistribution.topPerformers.slice(0, 5).map((performer, index) => (
-                    <div key={performer.userId} className="flex items-center justify-between p-3 bg-gray-100] rounded-lg">
+                    <div key={performer.userId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-neutral-900 ${
-                          index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-amber-600' : 'bg-gray-100]'
+                          index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-amber-600' : 'bg-gray-50'
                         }`}>
                           {index + 1}
                         </div>
@@ -334,8 +334,8 @@ export default function AdminProgressAnalyticsPage() {
                       onClick={() => setSortBy(option)}
                       className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
                         sortBy === option
-                          ? 'bg-gray-100] text-black shadow-lg shadow-[#00f0ff]/20'
-                          : 'bg-gray-100] text-neutral-600 hover:bg-neutral-50 border border-[#3b494b]'
+                          ? 'bg-gray-50 text-black shadow-lg shadow-[#00f0ff]/20'
+                          : 'bg-gray-50 text-neutral-600 hover:bg-neutral-50 border border-[#3b494b]'
                       }`}
                     >
                       {option.charAt(0).toUpperCase() + option.slice(1)}
@@ -350,7 +350,7 @@ export default function AdminProgressAnalyticsPage() {
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-neutral-900 ${
-                          index < 3 ? 'bg-gray-100]' : 'bg-gray-100]'
+                          index < 3 ? 'bg-gray-50' : 'bg-gray-50'
                         }`}>
                           {index + 1}
                         </div>
@@ -414,7 +414,7 @@ export default function AdminProgressAnalyticsPage() {
                             ? 'bg-gray-400' 
                             : index === 2 
                             ? 'bg-amber-600' 
-                            : 'bg-gray-100]'
+                            : 'bg-gray-50'
                         }`}>
                           {index + 1}
                         </div>

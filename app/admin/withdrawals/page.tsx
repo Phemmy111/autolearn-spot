@@ -71,7 +71,7 @@ export default function AdminWithdrawalsPage() {
       {withdrawals.length === 0 ? (
         <p className="text-gray-300">No pending withdrawals.</p>
       ) : (
-        <table className="min-w-full bg-gray-100] rounded-2xl shadow-lg">
+        <table className="min-w-full bg-gray-50 rounded-2xl shadow-lg">
           <thead>
             <tr className="text-left">
               <th className="px-4 py-2 text-gray-400">Author</th>

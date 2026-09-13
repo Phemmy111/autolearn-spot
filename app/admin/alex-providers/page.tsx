@@ -306,7 +306,7 @@ export default function AlexProvidersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
           <p className="font-mono text-sm text-neutral-600">Loading ALEX providers...</p>
@@ -316,7 +316,7 @@ export default function AlexProvidersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -330,7 +330,7 @@ export default function AlexProvidersPage() {
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Provider
@@ -356,7 +356,7 @@ export default function AlexProvidersPage() {
                       ? 'bg-yellow-400/10 border border-yellow-400/50'
                       : provider.health_status === 'unavailable'
                       ? 'bg-red-400/10 border border-red-400/50'
-                      : 'bg-gray-100]/10 border border-[#10b981]/30'
+                      : 'bg-gray-50/10 border border-[#10b981]/30'
                   }`}>
                     {getProviderIcon(provider.provider_type)}
                   </div>
@@ -408,7 +408,7 @@ export default function AlexProvidersPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleEditProvider(provider)}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title="Edit Provider"
                   >
                     <Edit className="h-4 w-4 text-[#10b981]" />
@@ -416,7 +416,7 @@ export default function AlexProvidersPage() {
                   <button
                     onClick={() => handleTestConnection(provider.id)}
                     disabled={testingProvider === provider.id}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title="Test Connection"
                   >
                     <RefreshCw className={`h-4 w-4 text-emerald-400 ${testingProvider === provider.id ? 'animate-spin' : ''}`} />
@@ -424,14 +424,14 @@ export default function AlexProvidersPage() {
                   <button
                     onClick={() => handleFetchModels(provider.id)}
                     disabled={fetchingModels === provider.id}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title="Fetch Models"
                   >
                     <Globe className={`h-4 w-4 text-[#10b981] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
                   </button>
                   <button
                     onClick={() => handleToggleActive(provider.id, provider.is_active)}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title={provider.is_active ? 'Deactivate' : 'Activate'}
                   >
                     {provider.is_active ? (
@@ -442,7 +442,7 @@ export default function AlexProvidersPage() {
                   </button>
                   <button
                     onClick={() => handleDeleteProvider(provider.id)}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
@@ -460,7 +460,7 @@ export default function AlexProvidersPage() {
             <p className="font-mono text-sm text-neutral-600 mb-4">Add your first ALEX provider to enable AI features</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 mx-auto bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 mx-auto bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Provider
@@ -480,7 +480,7 @@ export default function AlexProvidersPage() {
                       type="text"
                       value={newProvider.provider_name}
                       onChange={(e) => setNewProvider({ ...newProvider, provider_name: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="alex-primary-groq"
                       required
                     />
@@ -491,7 +491,7 @@ export default function AlexProvidersPage() {
                       type="text"
                       value={newProvider.display_name}
                       onChange={(e) => setNewProvider({ ...newProvider, display_name: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="ALEX Primary (Groq)"
                       required
                     />
@@ -508,7 +508,7 @@ export default function AlexProvidersPage() {
                           auth_type: type === 'self_hosted' ? 'none' : 'bearer',
                         })
                       }}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                     >
                       <option value="self_hosted">Self-Hosted (Ollama, vLLM)</option>
                       <option value="groq">Groq</option>
@@ -525,7 +525,7 @@ export default function AlexProvidersPage() {
                         type="password"
                         value={newProvider.api_key}
                         onChange={(e) => setNewProvider({ ...newProvider, api_key: e.target.value })}
-                        className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                        className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         placeholder="sk-..."
                         required={newProvider.provider_type !== 'self_hosted'}
                       />
@@ -538,7 +538,7 @@ export default function AlexProvidersPage() {
                         type="text"
                         value={newProvider.base_url}
                         onChange={(e) => setNewProvider({ ...newProvider, base_url: e.target.value })}
-                        className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                        className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         placeholder="http://localhost:11434/v1"
                         required
                       />
@@ -550,7 +550,7 @@ export default function AlexProvidersPage() {
                       type="text"
                       value={newProvider.current_model}
                       onChange={(e) => setNewProvider({ ...newProvider, current_model: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="llama3-70b-8192"
                       required
                     />
@@ -569,7 +569,7 @@ export default function AlexProvidersPage() {
                       type="number"
                       value={newProvider.priority}
                       onChange={(e) => setNewProvider({ ...newProvider, priority: parseInt(e.target.value) || 1 })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1"
                       required
                     />
@@ -580,7 +580,7 @@ export default function AlexProvidersPage() {
                       type="number"
                       value={newProvider.request_timeout}
                       onChange={(e) => setNewProvider({ ...newProvider, request_timeout: parseInt(e.target.value) || 30000 })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1000"
                       required
                     />
@@ -591,7 +591,7 @@ export default function AlexProvidersPage() {
                       id="fallbackEnabled"
                       checked={newProvider.fallback_enabled}
                       onChange={(e) => setNewProvider({ ...newProvider, fallback_enabled: e.target.checked })}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-gray-100]"
+                      className="w-4 h-4 rounded border-[#3b494b] bg-gray-50"
                     />
                     <label htmlFor="fallbackEnabled" className="font-mono text-xs text-neutral-600">
                       Enable as fallback provider
@@ -602,13 +602,13 @@ export default function AlexProvidersPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-100] transition-colors"
+                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gray-100] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+                    className="flex-1 bg-gray-50 text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-gray-100 transition-colors"
                   >
                     Add Provider
                   </button>
@@ -630,7 +630,7 @@ export default function AlexProvidersPage() {
                       type="text"
                       value={editingProvider.display_name}
                       onChange={(e) => setEditingProvider({ ...editingProvider, display_name: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       required
                     />
                   </div>
@@ -641,7 +641,7 @@ export default function AlexProvidersPage() {
                         type="password"
                         value={editApiKey}
                         onChange={(e) => setEditApiKey(e.target.value)}
-                        className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                        className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         placeholder="Enter new API key to update (or leave empty)"
                       />
                     </div>
@@ -653,21 +653,21 @@ export default function AlexProvidersPage() {
                         type="text"
                         value={editingProvider.current_model}
                         onChange={(e) => setEditingProvider({ ...editingProvider, current_model: e.target.value })}
-                        className="flex-1 bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                        className="flex-1 bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => handleFetchModels(editingProvider.id)}
                         disabled={fetchingModels === editingProvider.id}
-                        className="px-3 py-2 bg-gray-100] text-black font-bold font-mono text-xs rounded hover:bg-gray-100 transition-colors"
+                        className="px-3 py-2 bg-gray-50 text-black font-bold font-mono text-xs rounded hover:bg-gray-100 transition-colors"
                         title="Fetch Models"
                       >
                         {fetchingModels === editingProvider.id ? 'Loading...' : 'Fetch Models'}
                       </button>
                     </div>
                     {showModelSelector && availableModels.length > 0 && (
-                      <div className="mt-2 p-2 bg-gray-100] border border-[#3b494b] rounded max-h-40 overflow-y-auto">
+                      <div className="mt-2 p-2 bg-gray-50 border border-[#3b494b] rounded max-h-40 overflow-y-auto">
                         <p className="font-mono text-xs text-neutral-600 mb-2 font-bold">Available Models:</p>
                         {availableModels.map((model) => (
                           <button
@@ -677,7 +677,7 @@ export default function AlexProvidersPage() {
                               setEditingProvider({ ...editingProvider, current_model: model })
                               setShowModelSelector(false)
                             }}
-                            className="block w-full text-left px-2 py-1 font-mono text-xs text-neutral-600 hover:bg-gray-100] rounded mb-1"
+                            className="block w-full text-left px-2 py-1 font-mono text-xs text-neutral-600 hover:bg-gray-50 rounded mb-1"
                           >
                             {model}
                           </button>
@@ -691,7 +691,7 @@ export default function AlexProvidersPage() {
                       type="number"
                       value={editingProvider.priority}
                       onChange={(e) => setEditingProvider({ ...editingProvider, priority: parseInt(e.target.value) || 1 })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1"
                       required
                     />
@@ -702,7 +702,7 @@ export default function AlexProvidersPage() {
                       type="number"
                       value={editingProvider.request_timeout}
                       onChange={(e) => setEditingProvider({ ...editingProvider, request_timeout: parseInt(e.target.value) || 30000 })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       min="1000"
                       required
                     />
@@ -713,7 +713,7 @@ export default function AlexProvidersPage() {
                       id="editFallbackEnabled"
                       checked={editingProvider.fallback_enabled}
                       onChange={(e) => setEditingProvider({ ...editingProvider, fallback_enabled: e.target.checked })}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-gray-100]"
+                      className="w-4 h-4 rounded border-[#3b494b] bg-gray-50"
                     />
                     <label htmlFor="editFallbackEnabled" className="font-mono text-xs text-neutral-600">
                       Enable as fallback provider
@@ -729,13 +729,13 @@ export default function AlexProvidersPage() {
                       setEditApiKey('')
                       setShowModelSelector(false)
                     }}
-                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-100] transition-colors"
+                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gray-100] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+                    className="flex-1 bg-gray-50 text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-gray-100 transition-colors"
                   >
                     Save Changes
                   </button>

@@ -165,14 +165,14 @@ export default function AdminWorkflowShowcasePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -205,7 +205,7 @@ export default function AdminWorkflowShowcasePage() {
                 setPosterFile(null);
                 setShowModal(true);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-[#00363a] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Item
@@ -271,7 +271,7 @@ export default function AdminWorkflowShowcasePage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
+                    className="p-2 hover:bg-gray-50/10 rounded-lg transition-colors text-neutral-600 hover:text-[#10b981]"
                   >
                     <Edit className="h-4 w-4" />
                   </button>
@@ -524,7 +524,7 @@ export default function AdminWorkflowShowcasePage() {
               <div className="flex gap-3 pt-4 border-t border-neutral-200">
                 <button
                   type="submit"
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-[#00363a] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
                 >
                   {editingItem ? 'Update' : 'Add'} Item
                 </button>

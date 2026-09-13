@@ -149,7 +149,7 @@ export default function FounderNotificationsPage() {
               <Bell className="h-8 w-8 text-[#10b981]" />
               <h1 className="text-3xl font-bold">Founder Notifications</h1>
               {unreadCount > 0 && (
-                <span className="bg-gray-100] text-black px-3 py-1 rounded-full text-sm font-bold">
+                <span className="bg-gray-50 text-black px-3 py-1 rounded-full text-sm font-bold">
                   {unreadCount} unread
                 </span>
               )}
@@ -188,8 +188,8 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('all')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'all' 
-                  ? 'bg-gray-100] text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-100]'
+                  ? 'bg-gray-50 text-black' 
+                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-50'
               }`}
             >
               All
@@ -198,8 +198,8 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('unread')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'unread' 
-                  ? 'bg-gray-100] text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-100]'
+                  ? 'bg-gray-50 text-black' 
+                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-50'
               }`}
             >
               Unread
@@ -208,15 +208,15 @@ export default function FounderNotificationsPage() {
               onClick={() => setFilter('read')}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                 filter === 'read' 
-                  ? 'bg-gray-100] text-black' 
-                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-100]'
+                  ? 'bg-gray-50 text-black' 
+                  : 'bg-neutral-50 text-neutral-600 hover:bg-gray-50'
               }`}
             >
               Read
             </button>
           </div>
 
-          <div className="w-px h-6 bg-gray-100]" />
+          <div className="w-px h-6 bg-gray-50" />
 
           <select
             value={typeFilter}
@@ -244,7 +244,7 @@ export default function FounderNotificationsPage() {
           <div className="space-y-4">
             {filteredNotifications.map((notification) => {
               const Icon = notificationIcons[notification.notification_type] || Bell;
-              const colorClass = notificationColors[notification.notification_type] || 'text-neutral-600 bg-gray-100]';
+              const colorClass = notificationColors[notification.notification_type] || 'text-neutral-600 bg-gray-50';
               const isUnread = !notification.read_at;
 
               return (
@@ -252,7 +252,7 @@ export default function FounderNotificationsPage() {
                   key={notification.id}
                   className={`bg-gray-100 border rounded-xl p-6 transition-all ${
                     isUnread 
-                      ? 'border-[#10b981]/30 bg-gray-100]/5' 
+                      ? 'border-[#10b981]/30 bg-gray-50/5' 
                       : 'border-neutral-200'
                   }`}
                 >

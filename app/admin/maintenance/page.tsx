@@ -148,7 +148,7 @@ export default function MaintenancePage() {
           <button
             onClick={() => setConfirmDialog(operation)}
             disabled={executing !== null}
-            className="bg-gray-100] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="bg-gray-50 text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-50/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {executing === operation ? (
               <>
@@ -225,14 +225,14 @@ export default function MaintenancePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <Link
@@ -276,7 +276,7 @@ export default function MaintenancePage() {
           <select
             value={selectedCohort}
             onChange={(e) => setSelectedCohort(e.target.value)}
-            className="w-full bg-gray-100] border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono text-sm focus:border-[#10b981] focus:outline-none"
+            className="w-full bg-gray-50 border border-neutral-200 rounded-lg px-4 py-2 text-neutral-900 font-mono text-sm focus:border-[#10b981] focus:outline-none"
           >
             <option value="all">All Active Cohorts</option>
             {cohorts.map(cohort => (
@@ -358,7 +358,7 @@ export default function MaintenancePage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setConfirmDialog(null)}
-                  className="flex-1 border border-neutral-200 bg-gray-100 text-neutral-900 px-4 py-2 rounded-lg font-mono text-sm hover:bg-gray-100] transition-colors"
+                  className="flex-1 border border-neutral-200 bg-gray-100 text-neutral-900 px-4 py-2 rounded-lg font-mono text-sm hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -382,7 +382,7 @@ export default function MaintenancePage() {
                     
                     executeMaintenance(confirmDialog, endpoint, cohortBody)
                   }}
-                  className="flex-1 bg-gray-100] text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-100]/80 transition-colors"
+                  className="flex-1 bg-gray-50 text-[#0a0c10] px-4 py-2 rounded-lg font-mono text-sm font-bold hover:bg-gray-50/80 transition-colors"
                 >
                   Confirm
                 </button>

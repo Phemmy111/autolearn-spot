@@ -21,14 +21,14 @@ export default async function AdminResultsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p className="text-red-400 font-mono">Error loading results: {error.message}</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <h1 className="font-heading text-4xl font-bold text-neutral-900 mb-4">Quiz Results</h1>

@@ -186,7 +186,7 @@ export default function AIProvidersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
           <p className="font-mono text-sm text-neutral-600">Loading AI providers...</p>
@@ -196,7 +196,7 @@ export default function AIProvidersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -210,7 +210,7 @@ export default function AIProvidersPage() {
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Provider
@@ -232,7 +232,7 @@ export default function AIProvidersPage() {
                   <div className={`p-3 rounded-lg ${
                     provider.is_default 
                       ? 'bg-yellow-400/10 border border-yellow-400/50' 
-                      : 'bg-gray-100]/10 border border-[#10b981]/30'
+                      : 'bg-gray-50/10 border border-[#10b981]/30'
                   }`}>
                     {getProviderIcon(provider.provider_type)}
                   </div>
@@ -276,7 +276,7 @@ export default function AIProvidersPage() {
                   <button
                     onClick={() => handleTestConnection(provider.id)}
                     disabled={testingProvider === provider.id}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title="Test Connection"
                   >
                     <RefreshCw className={`h-4 w-4 text-emerald-400 ${testingProvider === provider.id ? 'animate-spin' : ''}`} />
@@ -284,7 +284,7 @@ export default function AIProvidersPage() {
                   <button
                     onClick={() => handleFetchModels(provider.id)}
                     disabled={fetchingModels === provider.id}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title="Fetch Models"
                   >
                     <Settings className={`h-4 w-4 text-[#10b981] ${fetchingModels === provider.id ? 'animate-spin' : ''}`} />
@@ -292,7 +292,7 @@ export default function AIProvidersPage() {
                   {!provider.is_default && (
                     <button
                       onClick={() => handleSetDefault(provider.id)}
-                      className="p-2 rounded hover:bg-gray-100] transition-colors"
+                      className="p-2 rounded hover:bg-gray-50 transition-colors"
                       title="Set as Default"
                     >
                       <Star className="h-4 w-4 text-yellow-400" />
@@ -300,7 +300,7 @@ export default function AIProvidersPage() {
                   )}
                   <button
                     onClick={() => handleDeleteProvider(provider.id)}
-                    className="p-2 rounded hover:bg-gray-100] transition-colors"
+                    className="p-2 rounded hover:bg-gray-50 transition-colors"
                     title="Delete"
                   >
                     <Trash2 className="h-4 w-4 text-red-400" />
@@ -318,7 +318,7 @@ export default function AIProvidersPage() {
             <p className="font-mono text-sm text-neutral-600 mb-4">Add your first AI provider to enable AI features</p>
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 mx-auto bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 mx-auto bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Provider
@@ -338,7 +338,7 @@ export default function AIProvidersPage() {
                       type="text"
                       value={newProvider.name}
                       onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="My OpenRouter"
                       required
                     />
@@ -348,7 +348,7 @@ export default function AIProvidersPage() {
                     <select
                       value={newProvider.provider_type}
                       onChange={(e) => setNewProvider({ ...newProvider, provider_type: e.target.value as ProviderType })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                     >
                       <option value="openrouter">OpenRouter</option>
                       <option value="openai">OpenAI</option>
@@ -362,7 +362,7 @@ export default function AIProvidersPage() {
                       type="password"
                       value={newProvider.api_key}
                       onChange={(e) => setNewProvider({ ...newProvider, api_key: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="sk-..."
                       required
                     />
@@ -373,7 +373,7 @@ export default function AIProvidersPage() {
                       type="text"
                       value={newProvider.base_url}
                       onChange={(e) => setNewProvider({ ...newProvider, base_url: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="https://api.example.com/v1"
                     />
                   </div>
@@ -383,7 +383,7 @@ export default function AIProvidersPage() {
                       type="text"
                       value={newProvider.default_model}
                       onChange={(e) => setNewProvider({ ...newProvider, default_model: e.target.value })}
-                      className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                      className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                       placeholder="anthropic/claude-3.5-sonnet"
                     />
                   </div>
@@ -397,7 +397,7 @@ export default function AIProvidersPage() {
                           setNewProvider({ ...newProvider, default_model: 'default' })
                         }
                       }}
-                      className="w-4 h-4 rounded border-[#3b494b] bg-gray-100]"
+                      className="w-4 h-4 rounded border-[#3b494b] bg-gray-50"
                     />
                     <label htmlFor="setDefault" className="font-mono text-xs text-neutral-600">
                       Set as default provider
@@ -408,13 +408,13 @@ export default function AIProvidersPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-100] transition-colors"
+                    className="flex-1 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gray-100] text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-gray-100 transition-colors"
+                    className="flex-1 bg-gray-50 text-black font-bold font-mono text-sm px-4 py-2 rounded hover:bg-gray-100 transition-colors"
                   >
                     Add Provider
                   </button>

@@ -192,7 +192,7 @@ export default function AdminGrowthCenter() {
               <p className="text-3xl font-bold">{stats.partners.influencer}</p>
             </div>
             <div className="bg-neutral-50 border border-[#10b981]/20 p-6 rounded-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gray-100]/10 blur-3xl rounded-full" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/10 blur-3xl rounded-full" />
               <h3 className="text-sm text-[#10b981] mb-1 relative z-10">Total Partners</h3>
               <p className="text-3xl font-bold relative z-10">{stats.partners.total}</p>
             </div>
@@ -261,7 +261,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'applications' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100]/50 border-b border-neutral-200">
+            <thead className="bg-gray-50/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Applicant</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Contact</th>
@@ -330,7 +330,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'partners' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100]/50 border-b border-neutral-200">
+            <thead className="bg-gray-50/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
@@ -382,7 +382,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'withdrawals' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100]/50 border-b border-neutral-200">
+            <thead className="bg-gray-50/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Partner</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Amount</th>
@@ -444,7 +444,7 @@ export default function AdminGrowthCenter() {
       {!loading && activeTab === 'fraud' && (
         <div className="bg-neutral-50 border border-neutral-200 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-gray-100]/50 border-b border-neutral-200">
+            <thead className="bg-gray-50/50 border-b border-neutral-200">
               <tr>
                 <th className="px-6 py-4 font-medium text-neutral-600">Type</th>
                 <th className="px-6 py-4 font-medium text-neutral-600">Severity</th>

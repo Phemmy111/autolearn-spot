@@ -85,7 +85,7 @@ export default function AIHealthPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
           <p className="font-mono text-sm text-neutral-600">Loading AI health data...</p>
@@ -95,7 +95,7 @@ export default function AIHealthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -109,7 +109,7 @@ export default function AIHealthPage() {
           </div>
           <button
             onClick={fetchHealthData}
-            className="flex items-center gap-2 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-100] transition-colors"
+            className="flex items-center gap-2 border border-[#3b494b] text-neutral-600 font-mono text-sm px-4 py-2 rounded hover:bg-gray-50 transition-colors"
           >
             <RefreshCw className="h-4 w-4" />
             Refresh
@@ -209,7 +209,7 @@ export default function AIHealthPage() {
             {healthData?.providerStatus?.map((provider) => (
               <div
                 key={provider.id}
-                className="flex items-center justify-between p-4 bg-gray-100] rounded-lg"
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${

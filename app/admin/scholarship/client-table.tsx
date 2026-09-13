@@ -32,8 +32,8 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Submitted': return 'text-neutral-600 bg-gray-100]/10 border-[#3b494b]';
-      case 'Under Review': return 'text-[#10b981] bg-gray-100]/10 border-[#10b981]/30';
+      case 'Submitted': return 'text-neutral-600 bg-gray-50/10 border-[#3b494b]';
+      case 'Under Review': return 'text-[#10b981] bg-gray-50/10 border-[#10b981]/30';
       case 'Shortlisted': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
       case 'Accepted': return 'text-green-400 bg-green-400/10 border-green-400/30';
       case 'Waitlisted': return 'text-orange-400 bg-orange-400/10 border-orange-400/30';
@@ -44,7 +44,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
-      case 'Waiting': return 'text-neutral-600 bg-gray-100]/10 border-[#3b494b]';
+      case 'Waiting': return 'text-neutral-600 bg-gray-50/10 border-[#3b494b]';
       case 'Pending Verification': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30';
       case 'Verified': return 'text-green-400 bg-green-400/10 border-green-400/30';
       case 'Rejected': return 'text-red-400 bg-red-400/10 border-red-400/30';
@@ -113,7 +113,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
             placeholder="Search by name, email, or reference..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-gray-100] border border-[#3b494b] pl-10 pr-4 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors font-mono text-sm"
+            className="w-full bg-gray-50 border border-[#3b494b] pl-10 pr-4 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors font-mono text-sm"
           />
         </div>
         
@@ -122,7 +122,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full md:w-auto bg-gray-100] border border-[#3b494b] px-4 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors font-mono text-sm appearance-none"
+            className="w-full md:w-auto bg-gray-50 border border-[#3b494b] px-4 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors font-mono text-sm appearance-none"
           >
             <option value="All">All Statuses</option>
             <option value="Submitted">Submitted</option>
@@ -138,7 +138,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
       <div className="bg-gray-100 border border-neutral-200 overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-neutral-200 bg-gray-100]">
+            <tr className="border-b border-neutral-200 bg-gray-50">
               <th className="p-4 font-mono text-xs font-bold uppercase text-neutral-600">Reference</th>
               <th className="p-4 font-mono text-xs font-bold uppercase text-neutral-600">Applicant</th>
               <th className="p-4 font-mono text-xs font-bold uppercase text-neutral-600">Experience</th>
@@ -157,7 +157,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
               </tr>
             ) : (
               filteredData.map((app) => (
-                <tr key={app.id} className="border-b border-neutral-200 hover:bg-gray-100] transition-colors">
+                <tr key={app.id} className="border-b border-neutral-200 hover:bg-gray-50 transition-colors">
                   <td className="p-4 font-mono text-sm text-[#10b981] font-bold">{app.reference_number}</td>
                   <td className="p-4">
                     <div className="font-bold text-neutral-900">{app.full_name}</div>
@@ -200,7 +200,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
       {selectedApp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-gray-100 border border-neutral-200 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="sticky top-0 bg-gray-100] border-b border-neutral-200 p-4 flex justify-between items-center z-10">
+            <div className="sticky top-0 bg-gray-50 border-b border-neutral-200 p-4 flex justify-between items-center z-10">
               <h2 className="font-heading text-xl font-bold flex items-center gap-2">
                 Application <span className="text-[#10b981]">{selectedApp.reference_number}</span>
               </h2>
@@ -245,7 +245,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                       <select
                         value={newStatus}
                         onChange={(e) => setNewStatus(e.target.value as ScholarshipStatus)}
-                        className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm appearance-none"
+                        className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm appearance-none"
                       >
                         <option value="Submitted">Submitted</option>
                         <option value="Under Review">Under Review</option>
@@ -268,7 +268,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                           <select
                             value={paymentStatus}
                             onChange={(e) => setPaymentStatus(e.target.value)}
-                            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm appearance-none"
+                            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm appearance-none"
                           >
                             <option value="Waiting">Waiting</option>
                             <option value="Pending Verification">Pending Verification</option>
@@ -284,7 +284,7 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                             onChange={(e) => setPaymentNotes(e.target.value)}
                             rows={2}
                             placeholder="Add payment verification notes..."
-                            className="w-full bg-gray-100] border border-[#3b494b] p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm resize-none"
+                            className="w-full bg-gray-50 border border-[#3b494b] p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm resize-none"
                           />
                         </div>
                       </div>
@@ -297,14 +297,14 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                         onChange={(e) => setNotes(e.target.value)}
                         rows={4}
                         placeholder="Add internal notes about this applicant..."
-                        className="w-full bg-gray-100] border border-[#3b494b] p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm resize-none"
+                        className="w-full bg-gray-50 border border-[#3b494b] p-3 text-neutral-900 focus:border-[#10b981] focus:outline-none transition-colors text-sm resize-none"
                       />
                     </div>
 
                     <button
                       onClick={handleUpdate}
                       disabled={isUpdating}
-                      className="w-full flex items-center justify-center gap-2 border border-[#10b981] bg-gray-100] px-4 py-2 font-mono text-sm font-bold uppercase text-black transition-all hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 border border-[#10b981] bg-gray-50 px-4 py-2 font-mono text-sm font-bold uppercase text-black transition-all hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] disabled:opacity-50"
                     >
                       {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
                     </button>
@@ -328,8 +328,8 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
                     <div className="space-y-3">
                       {timeline.map((event, index) => (
                         <div key={event.id} className="relative pl-6 border-l-2 border-neutral-200">
-                          <div className="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 bg-gray-100] rounded-full"></div>
-                          <div className="bg-gray-100] p-3 border border-neutral-200">
+                          <div className="absolute left-0 top-0 w-4 h-4 -translate-x-1/2 bg-gray-50 rounded-full"></div>
+                          <div className="bg-gray-50 p-3 border border-neutral-200">
                             <div className="flex justify-between items-start mb-1">
                               <span className="text-xs font-bold text-[#10b981]">
                                 {event.to_status}
@@ -368,22 +368,22 @@ export function ScholarshipClientTable({ initialData, isSuperAdmin }: { initialD
 
                 <div>
                   <h3 className="font-mono text-sm uppercase text-neutral-600 border-b border-neutral-200 pb-2 mb-4">Motivation</h3>
-                  <p className="text-sm bg-gray-100] p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.motivation}</p>
+                  <p className="text-sm bg-gray-50 p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.motivation}</p>
                 </div>
                 
                 <div>
                   <h3 className="font-mono text-sm uppercase text-neutral-600 border-b border-neutral-200 pb-2 mb-4">Goals</h3>
-                  <p className="text-sm bg-gray-100] p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.goals}</p>
+                  <p className="text-sm bg-gray-50 p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.goals}</p>
                 </div>
                 
                 <div>
                   <h3 className="font-mono text-sm uppercase text-neutral-600 border-b border-neutral-200 pb-2 mb-4">Impact</h3>
-                  <p className="text-sm bg-gray-100] p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.impact}</p>
+                  <p className="text-sm bg-gray-50 p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.impact}</p>
                 </div>
                 
                 <div>
                   <h3 className="font-mono text-sm uppercase text-neutral-600 border-b border-neutral-200 pb-2 mb-4">Why Select You</h3>
-                  <p className="text-sm bg-gray-100] p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.why_you}</p>
+                  <p className="text-sm bg-gray-50 p-4 border border-neutral-200 whitespace-pre-wrap">{selectedApp.why_you}</p>
                 </div>
               </div>
             </div>

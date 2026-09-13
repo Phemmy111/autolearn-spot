@@ -22,14 +22,14 @@ export default async function ManualEnrollmentPage() {
 
   if (cohortsError) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center text-red-400">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-red-400">
         Error loading cohorts: {cohortsError.message}
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12 max-w-3xl">
         <div className="mb-8">
           <Link

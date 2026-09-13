@@ -54,7 +54,7 @@ export default function NewQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
@@ -192,7 +192,7 @@ export default function NewQuizPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 {loading ? 'Creating...' : 'Create Quiz'}

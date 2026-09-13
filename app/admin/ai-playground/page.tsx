@@ -129,7 +129,7 @@ export default function AIPlaygroundPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center gap-4 mb-8">
           <Link href="/admin" className="text-neutral-600 hover:text-neutral-900">
@@ -149,7 +149,7 @@ export default function AIPlaygroundPage() {
               <select
                 value={selectedProvider}
                 onChange={(e) => handleProviderChange(e.target.value)}
-                className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
               >
                 <option value="">Select a provider</option>
                 {providers.map((provider) => (
@@ -174,7 +174,7 @@ export default function AIPlaygroundPage() {
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
+                className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-2 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981]"
                 disabled={!selectedProvider}
               >
                 <option value="">Select a model</option>
@@ -191,7 +191,7 @@ export default function AIPlaygroundPage() {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="w-full bg-gray-100] border border-[#3b494b] rounded px-4 py-3 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] min-h-[200px] resize-y"
+                className="w-full bg-gray-50 border border-[#3b494b] rounded px-4 py-3 text-neutral-900 font-mono text-sm focus:outline-none focus:border-[#10b981] min-h-[200px] resize-y"
                 placeholder="Enter your prompt here..."
               />
             </div>
@@ -199,7 +199,7 @@ export default function AIPlaygroundPage() {
             <button
               onClick={handleSend}
               disabled={loading || !prompt.trim() || !selectedProvider || !selectedModel}
-              className="w-full flex items-center justify-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
@@ -238,7 +238,7 @@ export default function AIPlaygroundPage() {
                 </button>
               )}
             </div>
-            <div className="bg-gray-100] rounded p-4 min-h-[400px]">
+            <div className="bg-gray-50 rounded p-4 min-h-[400px]">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
@@ -273,7 +273,7 @@ export default function AIPlaygroundPage() {
             </p>
             <Link
               href="/admin/ai-providers"
-              className="inline-flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-2 rounded hover:bg-gray-100 transition-colors"
             >
               <Settings className="h-4 w-4" />
               Configure Providers

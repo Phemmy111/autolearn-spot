@@ -77,14 +77,14 @@ export default function AdminPricingSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
@@ -110,7 +110,7 @@ export default function AdminPricingSettingsPage() {
               <h2 className="font-heading text-2xl font-bold text-neutral-900">Direct Enrollment Fee</h2>
             </div>
 
-            <div className="mb-6 p-4 bg-gray-100] border border-neutral-200 rounded-lg">
+            <div className="mb-6 p-4 bg-gray-50 border border-neutral-200 rounded-lg">
               <p className="text-sm text-neutral-600 mb-1">Current Price</p>
               <p className="text-3xl font-bold text-[#10b981]">₦{fee.toLocaleString()}</p>
             </div>
@@ -126,7 +126,7 @@ export default function AdminPricingSettingsPage() {
                   onChange={(e) => setNewFee(e.target.value)}
                   min="1"
                   max="1000000"
-                  className="w-full bg-gray-100] border border-neutral-200 p-4 text-neutral-900 text-lg focus:border-[#10b981] focus:outline-none transition-colors rounded-lg"
+                  className="w-full bg-gray-50 border border-neutral-200 p-4 text-neutral-900 text-lg focus:border-[#10b981] focus:outline-none transition-colors rounded-lg"
                   placeholder="Enter new price"
                 />
                 <p className="text-xs text-neutral-500 mt-2">
@@ -151,14 +151,14 @@ export default function AdminPricingSettingsPage() {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full flex items-center justify-center gap-2 bg-gray-100] text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50 rounded-lg"
+                className="w-full flex items-center justify-center gap-2 bg-gray-50 text-black font-mono font-bold uppercase p-4 hover:bg-transparent hover:text-[#10b981] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] border border-[#10b981] transition-all disabled:opacity-50 rounded-lg"
               >
                 {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save New Price'}
               </button>
             </form>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-100]/50 border border-neutral-200 rounded-lg">
+          <div className="mt-6 p-4 bg-gray-50/50 border border-neutral-200 rounded-lg">
             <h3 className="font-semibold text-[#e2e2e8] mb-2">Important Notes</h3>
             <ul className="text-sm text-neutral-600 space-y-1">
               <li>• Changes apply only to new enrollments</li>

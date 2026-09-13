@@ -70,7 +70,7 @@ function ProviderBadge({ provider }: { provider: string }) {
     youtube: 'bg-red-500/20 text-red-300 border-red-500/30',
     vimeo: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     vdocipher: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-    none: 'bg-gray-100] text-neutral-600 border-[#3b494b]',
+    none: 'bg-gray-50 text-neutral-600 border-[#3b494b]',
   }
   const cls = colors[provider] ?? colors.none
   return (
@@ -173,7 +173,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
             onClick={handleToggle}
             className={`flex items-center gap-2 border px-5 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider transition-all ${
               v2Enabled
-                ? 'border-[#10b981] bg-gray-100]/10 text-[#10b981] hover:bg-gray-100]/20'
+                ? 'border-[#10b981] bg-gray-50/10 text-[#10b981] hover:bg-gray-50/20'
                 : 'border-[#3b494b] bg-neutral-50 text-neutral-600 hover:border-[#10b981] hover:text-[#10b981]'
             }`}
           >
@@ -227,7 +227,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
               return (
                 <tr
                   key={lesson.id}
-                  className={`border-b border-neutral-200 transition-colors hover:bg-gray-100 ${i % 2 === 0 ? 'bg-neutral-50' : 'bg-gray-100]'}`}
+                  className={`border-b border-neutral-200 transition-colors hover:bg-gray-100 ${i % 2 === 0 ? 'bg-neutral-50' : 'bg-gray-50'}`}
                 >
                   <td className="px-4 py-3">
                     <div className="font-mono text-xs text-neutral-600">W{lesson.week}</div>
@@ -281,7 +281,7 @@ export default function VideoDebugClient({ lessons }: { lessons: LessonManifest[
                     {videoId ? (
                       <button
                         onClick={() => setPreviewLesson(lesson)}
-                        className="flex items-center gap-1.5 border border-[#3b494b] px-3 py-1.5 font-mono text-xs font-semibold uppercase text-[#10b981] transition-all hover:border-[#10b981] hover:bg-gray-100]/10"
+                        className="flex items-center gap-1.5 border border-[#3b494b] px-3 py-1.5 font-mono text-xs font-semibold uppercase text-[#10b981] transition-all hover:border-[#10b981] hover:bg-gray-50/10"
                       >
                         <Play className="h-3 w-3" />
                         Test

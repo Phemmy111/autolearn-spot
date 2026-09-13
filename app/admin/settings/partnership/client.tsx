@@ -99,7 +99,7 @@ export function PartnershipSettingsClient() {
             type="number"
             value={settings.minWithdrawal}
             onChange={(e) => setSettings({ ...settings, minWithdrawal: parseInt(e.target.value) || 0 })}
-            className="w-full bg-gray-100] border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
+            className="w-full bg-gray-50 border border-[#3b494b] px-3 py-2 font-mono text-sm text-neutral-900 focus:outline-none focus:border-[#10b981]"
             placeholder="5000"
             min="0"
             max="1000000"
@@ -112,7 +112,7 @@ export function PartnershipSettingsClient() {
           <button
             onClick={saveSettings}
             disabled={saving}
-            className="flex items-center gap-2 bg-gray-100] text-[#00363a] px-4 py-2 font-mono text-sm font-semibold uppercase hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-gray-50 text-[#00363a] px-4 py-2 font-mono text-sm font-semibold uppercase hover:bg-gray-50/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="h-4 w-4" />
             {saving ? 'Saving...' : 'Save Settings'}

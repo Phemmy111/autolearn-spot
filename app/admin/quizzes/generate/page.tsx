@@ -220,7 +220,7 @@ export default function GenerateQuizPage() {
 
   if (step === 'generating') {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 text-[#10b981] animate-spin mx-auto mb-4" />
           <h2 className="font-heading text-2xl font-bold text-neutral-900 mb-2">Generating Quiz...</h2>
@@ -231,7 +231,7 @@ export default function GenerateQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <Link
@@ -426,7 +426,7 @@ export default function GenerateQuizPage() {
               <button
                 onClick={handleGenerate}
                 disabled={loading || !script.trim()}
-                className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
                 <Sparkles className="h-4 w-4" />
                 {loading ? 'Generating...' : 'Generate Quiz'}
@@ -437,7 +437,7 @@ export default function GenerateQuizPage() {
 
         {step === 'review' && generatedQuiz && (
           <div className="max-w-4xl">
-            <div className="mb-6 border border-[#10b981]/30 bg-gray-100]/10 p-4 rounded-lg">
+            <div className="mb-6 border border-[#10b981]/30 bg-gray-50/10 p-4 rounded-lg">
               <p className="font-mono text-sm text-[#10b981]">
                 Quiz generated successfully! Review the questions below before creating.
               </p>
@@ -460,16 +460,16 @@ export default function GenerateQuizPage() {
                   className="border border-neutral-200 bg-gray-100 p-4 rounded-xl"
                 >
                   <div className="flex items-start gap-4 mb-3">
-                    <span className="px-2 py-1 bg-gray-100]/10 text-[#10b981] font-mono text-xs rounded">
+                    <span className="px-2 py-1 bg-gray-50/10 text-[#10b981] font-mono text-xs rounded">
                       Q{index + 1}
                     </span>
                     <div className="flex-1">
                       <p className="font-mono text-sm text-neutral-900 mb-2">{question.question_text}</p>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-1 bg-gray-100] text-neutral-600 font-mono text-xs rounded">
+                        <span className="px-2 py-1 bg-gray-50 text-neutral-600 font-mono text-xs rounded">
                           {question.question_type}
                         </span>
-                        <span className="px-2 py-1 bg-gray-100] text-neutral-600 font-mono text-xs rounded">
+                        <span className="px-2 py-1 bg-gray-50 text-neutral-600 font-mono text-xs rounded">
                           {question.points} pts
                         </span>
                       </div>
@@ -516,7 +516,7 @@ export default function GenerateQuizPage() {
               <button
                 onClick={handleCreateQuiz}
                 disabled={loading}
-                className="flex items-center gap-2 bg-gray-100] text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-gray-50 text-black font-bold uppercase tracking-wider font-mono px-6 py-3 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
               >
                 <FileText className="h-4 w-4" />
                 {loading ? 'Creating...' : 'Create Quiz'}

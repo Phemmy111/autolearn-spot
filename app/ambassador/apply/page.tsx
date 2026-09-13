@@ -53,7 +53,7 @@ export default function AmbassadorApplyPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center p-6 text-neutral-900">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 text-neutral-900">
         <div className="max-w-md w-full bg-gray-100/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl text-center">
           <CheckCircle2 className="h-16 w-16 text-[#10b981] mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Application Received!</h2>
@@ -72,14 +72,14 @@ export default function AmbassadorApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100] py-12 px-6 text-neutral-900">
+    <div className="min-h-screen bg-gray-50 py-12 px-6 text-neutral-900">
       <div className="max-w-3xl mx-auto">
         <Link href="/ambassador" className="inline-flex items-center gap-2 text-neutral-500 hover:text-neutral-900 mb-8 transition-colors">
           <ArrowLeft className="h-4 w-4" /> Back to Ambassador Program
         </Link>
         
         <div className="bg-gray-100/5 border border-white/10 p-8 md:p-12 rounded-3xl backdrop-blur-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gray-100]/5 blur-3xl rounded-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gray-50/5 blur-3xl rounded-full pointer-events-none" />
           
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Apply Now</h1>
           <p className="text-neutral-500 mb-10">Fill out the form below to join our Community Ambassador program.</p>
@@ -152,7 +152,7 @@ export default function AmbassadorApplyPage() {
             </div>
 
             <div className="flex items-start gap-3 pt-4">
-              <input required type="checkbox" id="terms" className="mt-1 w-5 h-5 rounded border-white/20 bg-gray-100 checked:bg-gray-100] cursor-pointer" />
+              <input required type="checkbox" id="terms" className="mt-1 w-5 h-5 rounded border-white/20 bg-gray-100 checked:bg-gray-50 cursor-pointer" />
               <label htmlFor="terms" className="text-sm text-neutral-500 leading-relaxed cursor-pointer">
                 I agree to the terms and conditions of the AutoLearn Spot Ambassador Program. I understand that commissions are only paid for verified enrollments.
               </label>
@@ -161,7 +161,7 @@ export default function AmbassadorApplyPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 rounded-xl bg-gray-100] text-black font-bold text-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-xl bg-gray-50 text-black font-bold text-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? <><Loader2 className="h-5 w-5 animate-spin" /> Submitting...</> : "Submit Application"}
             </button>

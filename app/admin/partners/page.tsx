@@ -514,7 +514,7 @@ export default function AdminPartnersPage() {
                 onClick={() => setActiveTab(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   activeTab === item.id
-                    ? 'bg-gray-100]/10 text-[#12E6F3] border border-[#12E6F3]/20'
+                    ? 'bg-gray-50/10 text-[#12E6F3] border border-[#12E6F3]/20'
                     : 'text-neutral-600 hover:bg-gray-100 hover:text-[#e2e2e8]'
                 }`}
               >
@@ -552,7 +552,7 @@ export default function AdminPartnersPage() {
                 className="pl-10 pr-4 py-2 bg-gray-100 border border-neutral-200 rounded-lg text-sm text-[#e2e2e8] placeholder-[#b9cacb] focus:outline-none focus:border-[#12E6F3] w-64"
               />
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+            <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
                 onClick={() => setShowAddPartnerModal(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -568,7 +568,7 @@ export default function AdminPartnersPage() {
             return (
               <div key={card.id} className="border border-neutral-200 bg-gray-100/50 backdrop-blur-xl rounded-xl p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex h-10 w-10 items-center justify-center border border-[#12E6F3]/30 bg-gray-100]/10 rounded-lg">
+                  <div className="flex h-10 w-10 items-center justify-center border border-[#12E6F3]/30 bg-gray-50/10 rounded-lg">
                     <Icon className="h-5 w-5 text-[#12E6F3]" />
                   </div>
                   {card.growth && (
@@ -630,21 +630,21 @@ export default function AdminPartnersPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button
                   onClick={() => setShowAddPartnerModal(true)}
-                  className="flex items-center gap-3 p-4 bg-gray-100]/10 border border-[#12E6F3]/30 rounded-lg hover:bg-gray-100]/20 transition-colors"
+                  className="flex items-center gap-3 p-4 bg-gray-50/10 border border-[#12E6F3]/30 rounded-lg hover:bg-gray-50/20 transition-colors"
                 >
                   <Plus className="h-5 w-5 text-[#12E6F3]" />
                   <span className="text-[#e2e2e8]">Add Partner</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('applications')}
-                  className="flex items-center gap-3 p-4 bg-gray-100] border border-neutral-200 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-3 p-4 bg-gray-50 border border-neutral-200 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <FileText className="h-5 w-5 text-neutral-600" />
                   <span className="text-[#e2e2e8]">Review Applications</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('marketing')}
-                  className="flex items-center gap-3 p-4 bg-gray-100] border border-neutral-200 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-3 p-4 bg-gray-50 border border-neutral-200 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <Upload className="h-5 w-5 text-neutral-600" />
                   <span className="text-[#e2e2e8]">Upload Marketing Kit</span>
@@ -659,7 +659,7 @@ export default function AdminPartnersPage() {
                 {applications.slice(0, 5).map((app) => (
                   <div key={app.id} className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
+                      <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 text-xs">
                         {app.full_name?.charAt(0) || '?'}
                       </div>
                       <div>
@@ -722,7 +722,7 @@ export default function AdminPartnersPage() {
                     filteredApplications.map((app) => (
                       <tr key={app.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors">
                         <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
+                          <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 text-xs">
                             {app.full_name?.charAt(0) || '?'}
                           </div>
                         </td>
@@ -825,7 +825,7 @@ export default function AdminPartnersPage() {
                         <td className="p-4">
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-2 hover:bg-gray-50/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="View Details"
                           >
                             <Eye className="h-4 w-4" />
@@ -847,7 +847,7 @@ export default function AdminPartnersPage() {
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Community Partners</h2>
               <button
                 onClick={() => setShowAddPartnerModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Add Partner
@@ -876,7 +876,7 @@ export default function AdminPartnersPage() {
                     partners.filter(p => p.partner_type === 'community').map((p) => (
                       <tr key={p.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
                         <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
+                          <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 text-xs">
                             {p.full_name?.charAt(0) || '?'}
                           </div>
                         </td>
@@ -896,7 +896,7 @@ export default function AdminPartnersPage() {
                         <td className="p-4">
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-2 hover:bg-gray-50/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="View Details"
                           >
                             <Eye className="h-4 w-4" />
@@ -918,7 +918,7 @@ export default function AdminPartnersPage() {
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Influencer Partners</h2>
               <button
                 onClick={() => setShowAddPartnerModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Add Partner
@@ -947,7 +947,7 @@ export default function AdminPartnersPage() {
                     partners.filter(p => p.partner_type === 'influencer').map((p) => (
                       <tr key={p.id} className="border-t border-neutral-200 hover:bg-gray-100/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
                         <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-xs">
+                          <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 text-xs">
                             {p.full_name?.charAt(0) || '?'}
                           </div>
                         </td>
@@ -967,7 +967,7 @@ export default function AdminPartnersPage() {
                         <td className="p-4">
                           <button
                             onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-gray-100]/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-2 hover:bg-gray-50/10 rounded-lg transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="View Details"
                           >
                             <Eye className="h-4 w-4" />
@@ -1063,7 +1063,7 @@ export default function AdminPartnersPage() {
               <h2 className="text-lg font-semibold text-[#e2e2e8]">Marketing Kit</h2>
               <button
                 onClick={() => setShowUploadModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 Upload Material
@@ -1082,7 +1082,7 @@ export default function AdminPartnersPage() {
                   {marketingMaterials.map((material) => (
                     <div key={material.id} className="border border-neutral-200 bg-gray-100 rounded-lg p-4 hover:border-[#12E6F3]/30 transition-colors">
                       <div className="flex items-center justify-between mb-3">
-                        <div className="h-12 w-12 bg-gray-100] rounded-lg flex items-center justify-center">
+                        <div className="h-12 w-12 bg-gray-50 rounded-lg flex items-center justify-center">
                           <Download className="h-6 w-6 text-[#12E6F3]" />
                         </div>
                         <span className="text-xs text-neutral-600">{material.type.toUpperCase()}</span>
@@ -1094,21 +1094,21 @@ export default function AdminPartnersPage() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => window.open(`/api/marketing/download/${material.id}`, '_blank')}
-                            className="p-1 hover:bg-gray-100]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-1 hover:bg-gray-50/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="Download"
                           >
                             <Download className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => openMaterialPreview(material)}
-                            className="p-1 hover:bg-gray-100]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-1 hover:bg-gray-50/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="Preview"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => openMaterialEdit(material)}
-                            className="p-1 hover:bg-gray-100]/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
+                            className="p-1 hover:bg-gray-50/10 rounded transition-colors text-neutral-600 hover:text-[#12E6F3]"
                             title="Edit"
                           >
                             <EditIcon className="h-4 w-4" />
@@ -1229,7 +1229,7 @@ export default function AdminPartnersPage() {
                 <div className="flex items-center gap-3 pt-4 border-t border-neutral-200">
                   <button
                     onClick={handleMarketingUpload}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
                   >
                     <Upload className="h-4 w-4" />
                     Upload
@@ -1263,7 +1263,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-[#e2e2e8]">{selectedMaterial.name}</h3>
-                  <span className="px-3 py-1 bg-gray-100]/10 text-[#12E6F3] rounded-full text-xs font-medium">
+                  <span className="px-3 py-1 bg-gray-50/10 text-[#12E6F3] rounded-full text-xs font-medium">
                     {selectedMaterial.type.toUpperCase()}
                   </span>
                 </div>
@@ -1377,7 +1377,7 @@ export default function AdminPartnersPage() {
                 <div className="flex items-center gap-3 pt-4 border-t border-neutral-200">
                   <button
                     onClick={handleMaterialEdit}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
                   >
                     <CheckCircle className="h-4 w-4" />
                     Save Changes
@@ -1449,9 +1449,9 @@ export default function AdminPartnersPage() {
                         {partners.filter(p => p.partner_type === 'community').length}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-100] rounded-full h-2">
+                    <div className="w-full bg-gray-50 rounded-full h-2">
                       <div 
-                        className="bg-gray-100] h-2 rounded-full transition-all"
+                        className="bg-gray-50 h-2 rounded-full transition-all"
                         style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'community').length / partners.length) * 100 : 0}%` }}
                       />
                     </div>
@@ -1463,9 +1463,9 @@ export default function AdminPartnersPage() {
                         {partners.filter(p => p.partner_type === 'influencer').length}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-100] rounded-full h-2">
+                    <div className="w-full bg-gray-50 rounded-full h-2">
                       <div 
-                        className="bg-gray-100] h-2 rounded-full transition-all"
+                        className="bg-gray-50 h-2 rounded-full transition-all"
                         style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'influencer').length / partners.length) * 100 : 0}%` }}
                       />
                     </div>
@@ -1477,9 +1477,9 @@ export default function AdminPartnersPage() {
                         {partners.filter(p => p.partner_type === 'student').length}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-100] rounded-full h-2">
+                    <div className="w-full bg-gray-50 rounded-full h-2">
                       <div 
-                        className="bg-gray-100] h-2 rounded-full transition-all"
+                        className="bg-gray-50 h-2 rounded-full transition-all"
                         style={{ width: `${partners.length > 0 ? (partners.filter(p => p.partner_type === 'student').length / partners.length) * 100 : 0}%` }}
                       />
                     </div>
@@ -1497,7 +1497,7 @@ export default function AdminPartnersPage() {
                     .map((partner, index) => (
                       <div key={partner.id} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg">
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 font-bold">
+                          <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 font-bold">
                             {index + 1}
                           </div>
                           <div>
@@ -1523,7 +1523,7 @@ export default function AdminPartnersPage() {
                     return (
                       <div key={month} className="flex-1 flex flex-col items-center gap-2">
                         <div 
-                          className="w-full bg-gray-100] rounded-t-lg transition-all hover:bg-gray-100]/80"
+                          className="w-full bg-gray-50 rounded-t-lg transition-all hover:bg-gray-50/80"
                           style={{ height: `${heights[index]}%` }}
                         />
                         <span className="text-xs text-neutral-600">{month}</span>
@@ -1547,7 +1547,7 @@ export default function AdminPartnersPage() {
                   localStorage.setItem('partnerSettings', JSON.stringify(settings));
                   alert('Settings saved successfully!');
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
               >
                 <CheckCircle className="h-4 w-4" />
                 Save Settings
@@ -1701,7 +1701,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-6">
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-2xl">
+                  <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 text-2xl">
                     {selectedPartner.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
@@ -1834,7 +1834,7 @@ export default function AdminPartnersPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleResendEmail(selectedPartner.id, 'welcome')}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
                     >
                       <Mail className="h-4 w-4" />
                       Resend Welcome Email
@@ -1868,7 +1868,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-6">
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-2xl">
+                  <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 text-2xl">
                     {selectedApp.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
@@ -1922,7 +1922,7 @@ export default function AdminPartnersPage() {
                     <XCircle className="h-4 w-4" />
                     Reject
                   </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100]/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-gray-100]/20 transition-colors">
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-gray-50/20 transition-colors">
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
                   </button>
@@ -1982,7 +1982,7 @@ export default function AdminPartnersPage() {
               <div className="p-6 space-y-6">
                 {/* Profile Section */}
                 <div className="flex items-start gap-4">
-                  <div className="h-20 w-20 rounded-full bg-gray-100] flex items-center justify-center text-neutral-600 text-2xl">
+                  <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center text-neutral-600 text-2xl">
                     {selectedApp.full_name?.charAt(0) || '?'}
                   </div>
                   <div className="flex-1">
@@ -2036,7 +2036,7 @@ export default function AdminPartnersPage() {
                     <XCircle className="h-4 w-4" />
                     Reject
                   </button>
-                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100]/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-gray-100]/20 transition-colors">
+                  <button className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50/10 text-[#12E6F3] border border-[#12E6F3]/20 rounded-lg font-medium hover:bg-gray-50/20 transition-colors">
                     <MessageCircle className="h-4 w-4" />
                     WhatsApp
                   </button>
@@ -2138,7 +2138,7 @@ export default function AdminPartnersPage() {
                 <div className="flex items-center gap-3 pt-4 border-t border-neutral-200">
                   <button
                     onClick={handleAddPartner}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-100] text-[#070B12] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-[#070B12] rounded-lg font-medium hover:bg-gray-50/90 transition-colors"
                   >
                     <Plus className="h-4 w-4" />
                     Create Partner

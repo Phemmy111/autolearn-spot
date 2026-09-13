@@ -105,7 +105,7 @@ export default function AdminNotificationsPage() {
   )
 
   return (
-    <main className="min-h-screen bg-gray-100] text-neutral-900">
+    <main className="min-h-screen bg-gray-50 text-neutral-900">
       <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-neutral-200 bg-gray-100/95 px-4 backdrop-blur sm:px-6">
         <Link className="flex items-center gap-2 font-mono text-sm font-bold uppercase text-neutral-900" href="/admin">
           <ArrowLeft className="h-4 w-4" />
@@ -122,7 +122,7 @@ export default function AdminNotificationsPage() {
           <h1 className="font-heading text-3xl font-bold uppercase text-neutral-900">Notification Center</h1>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 border border-[#10b981] bg-gray-100] px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-gray-100"
+            className="flex items-center gap-2 border border-[#10b981] bg-gray-50 px-4 py-2 font-mono text-xs uppercase font-bold text-black transition hover:bg-gray-100"
           >
             <Plus className="h-4 w-4" />
             New Notification
@@ -331,7 +331,7 @@ export default function AdminNotificationsPage() {
 
               <div className="pt-2 border-t border-neutral-200">
                 <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${formData.send_email ? 'border-[#10b981] bg-gray-100]/20 text-[#10b981]' : 'border-neutral-200 bg-neutral-50 text-transparent'}`}>
+                  <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${formData.send_email ? 'border-[#10b981] bg-gray-50/20 text-[#10b981]' : 'border-neutral-200 bg-neutral-50 text-transparent'}`}>
                     <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
                   </div>
                   <input
@@ -350,7 +350,7 @@ export default function AdminNotificationsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-gray-100] py-3 font-mono text-sm font-bold uppercase text-black transition-colors hover:bg-gray-100 disabled:opacity-50 mt-4"
+                className="w-full bg-gray-50 py-3 font-mono text-sm font-bold uppercase text-black transition-colors hover:bg-gray-100 disabled:opacity-50 mt-4"
               >
                 {submitting ? 'Sending...' : 'Send Notification'}
               </button>

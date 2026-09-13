@@ -6,13 +6,13 @@ import { Navbar } from "@/components/navbar";
 
 export default function AmbassadorLandingPage() {
   return (
-    <div className="min-h-screen bg-gray-100] text-neutral-900">
+    <div className="min-h-screen bg-gray-50 text-neutral-900">
       <Navbar />
       
       <main className="pt-32 pb-20">
         {/* Hero Section */}
         <section className="px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100]/10 border border-[#10b981]/20 text-[#10b981] mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50/10 border border-[#10b981]/20 text-[#10b981] mb-8 animate-fade-in">
             <Star className="h-4 w-4" />
             <span className="text-sm font-medium">AutoLearn Spot Ambassador Program</span>
           </div>
@@ -29,7 +29,7 @@ export default function AmbassadorLandingPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link 
               href="/ambassador/apply" 
-              className="px-8 py-4 rounded-full bg-gray-100] text-black font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+              className="px-8 py-4 rounded-full bg-gray-50 text-black font-bold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 flex items-center justify-center gap-2"
             >
               Apply Now <ArrowRight className="h-5 w-5" />
             </Link>
@@ -48,7 +48,7 @@ export default function AmbassadorLandingPage() {
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="p-8 rounded-3xl bg-gray-100/5 border border-white/10 backdrop-blur-xl relative overflow-hidden group hover:border-[#10b981]/50 transition-colors">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gray-100]/10 blur-3xl rounded-full -mr-16 -mt-16 transition-all group-hover:bg-gray-100]/20" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gray-50/10 blur-3xl rounded-full -mr-16 -mt-16 transition-all group-hover:bg-gray-50/20" />
               <DollarSign className="h-10 w-10 text-[#10b981] mb-6" />
               <h3 className="text-xl font-bold mb-4">Earn ₦1,000 per referral</h3>
               <p className="text-neutral-500 leading-relaxed">Get paid directly to your bank account for every verified student enrollment you bring to the platform.</p>
@@ -77,28 +77,28 @@ export default function AmbassadorLandingPage() {
             
             <div className="grid md:grid-cols-4 gap-8">
               <div className="text-center relative">
-                <div className="w-16 h-16 rounded-full bg-gray-100]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">1</div>
+                <div className="w-16 h-16 rounded-full bg-gray-50/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">1</div>
                 <h4 className="font-bold mb-2">Apply</h4>
                 <p className="text-sm text-neutral-500">Submit your simple application to join</p>
                 <div className="hidden md:block absolute top-8 left-[60%] w-full h-[2px] bg-gradient-to-r from-[#00f0ff]/50 to-transparent" />
               </div>
               
               <div className="text-center relative">
-                <div className="w-16 h-16 rounded-full bg-gray-100]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">2</div>
+                <div className="w-16 h-16 rounded-full bg-gray-50/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">2</div>
                 <h4 className="font-bold mb-2">Get Approved</h4>
                 <p className="text-sm text-neutral-500">Receive your unique referral link</p>
                 <div className="hidden md:block absolute top-8 left-[60%] w-full h-[2px] bg-gradient-to-r from-[#00f0ff]/50 to-transparent" />
               </div>
               
               <div className="text-center relative">
-                <div className="w-16 h-16 rounded-full bg-gray-100]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">3</div>
+                <div className="w-16 h-16 rounded-full bg-gray-50/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">3</div>
                 <h4 className="font-bold mb-2">Share</h4>
                 <p className="text-sm text-neutral-500">Share your link with your network</p>
                 <div className="hidden md:block absolute top-8 left-[60%] w-full h-[2px] bg-gradient-to-r from-[#00f0ff]/50 to-transparent" />
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-gray-100]/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">4</div>
+                <div className="w-16 h-16 rounded-full bg-gray-50/20 text-[#10b981] flex items-center justify-center text-2xl font-bold mx-auto mb-6">4</div>
                 <h4 className="font-bold mb-2">Earn</h4>
                 <p className="text-sm text-neutral-500">Get ₦1,000 for every enrollment</p>
               </div>

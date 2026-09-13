@@ -177,14 +177,14 @@ export default function AdminCertificatesSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loader2 className="h-8 w-8 text-[#10b981] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="border-b border-neutral-200 bg-gray-100/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -235,13 +235,13 @@ export default function AdminCertificatesSettingsPage() {
         </div>
 
         {fullScreenDesigner && (
-          <div className="fixed inset-0 z-50 bg-gray-100]">
+          <div className="fixed inset-0 z-50 bg-gray-50">
             <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-neutral-200">
               <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setFullScreenDesigner(false)}
-                  className="p-2 bg-gray-100] text-neutral-600 rounded hover:bg-neutral-200 transition-colors"
+                  className="p-2 bg-gray-50 text-neutral-600 rounded hover:bg-neutral-200 transition-colors"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </button>
@@ -570,7 +570,7 @@ export default function AdminCertificatesSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-gray-100] text-[#00363a] rounded-lg font-medium hover:bg-gray-100]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-3 bg-gray-50 text-[#00363a] rounded-lg font-medium hover:bg-gray-50/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? (
                 <>

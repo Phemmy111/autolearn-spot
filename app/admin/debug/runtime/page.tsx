@@ -182,7 +182,7 @@ export default function RuntimeDebugPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-100] p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-neutral-900 mb-2">Runtime Debug Dashboard</h1>
@@ -213,7 +213,7 @@ export default function RuntimeDebugPage() {
               <Button 
                 onClick={loadRuntimeData} 
                 disabled={!selectedStudent || loading}
-                className="bg-gray-100] text-black hover:bg-gray-100]/90"
+                className="bg-gray-50 text-black hover:bg-gray-50/90"
               >
                 {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : 'Load Runtime Data'}
               </Button>

@@ -14,7 +14,7 @@ export default async function AdminLeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100]">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <Link

@@ -37,7 +37,7 @@ export default function AdminrevenuePage() {
   }
 
   return (
-    <div className="min-h-screen p-8 text-gray-900 bg-gray-100]">
+    <div className="min-h-screen p-8 text-gray-900 bg-gray-50">
       <h1 className="text-3xl font-extrabold mb-6 capitalize">revenue</h1>
       <div className="bg-gray-100 rounded-2xl p-6 shadow-sm border border-gray-100">
         {data.length > 0 ? (
