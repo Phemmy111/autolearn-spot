@@ -7,7 +7,7 @@ export function BrandTheming() {
   useEffect(() => {
     async function applyTheme() {
       try {
-        const settings = await getPublicSettings(['primaryColor', 'secondaryColor', 'accentColor']);
+        const settings = await getPublicSettings(['primaryColor', 'secondaryColor', 'accentColor', 'backgroundColor', 'buttonRadius', 'typography']);
         
         const root = document.documentElement;
         
@@ -23,6 +23,15 @@ export function BrandTheming() {
         
         if (settings.accentColor) {
           root.style.setProperty('--brand-accent', settings.accentColor);
+        }
+        if (settings.backgroundColor) {
+          root.style.setProperty('--bg-color', settings.backgroundColor);
+        }
+        if (settings.buttonRadius !== undefined) {
+          root.style.setProperty('--button-radius', `${settings.buttonRadius}px`);
+        }
+        if (settings.typography) {
+          root.style.setProperty('--font-family', settings.typography);
         }
       } catch (error) {
         console.error('Failed to apply brand theme:', error);
