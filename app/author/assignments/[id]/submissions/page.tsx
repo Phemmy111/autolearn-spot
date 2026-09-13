@@ -1,0 +1,188 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useAuth } from '@clerk/nextjs'
+import Link from 'next/link'
+import { 
+  ArrowLeft, 
+  User, 
+  Clock, 
+  CheckCircle2,
+  XCircle,
+  Download
+} from 'lucide-react'
+
+interface Submission {
+  id: string
+  score: number | null
+  submitted_at: string
+  submission_url: string | null
+  feedback: string | null
+  assignment: {
+    id: string
+    title: string
+    max_score: number
+  }
+  user: {
+    id: string
+    first_name: string | null
+    last_name: string | null
+    email_addresses: Array<{ email_address: string }>
+  }
+}
+
+export default function AuthorAssignmentSubmissionsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { userId } = useAuth()
+  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [assignmentId, setAssignmentId] = useState<string>('')
+
+  useEffect(() => {
+    if (params) {
+      params.then(p => {
+        setAssignmentId(p.id)
+        fetchSubmissions(p.id)
+      })
+    }
+  }, [params, userId])
+
+  const fetchSubmissions = async (assignmentId: string) => {
+    if (!userId) return
+
+    try {
+      const res = await fetch(`/api/author/assignments/${assignmentId}/submissions`)
+      const data = await res.json()
+
+      if (data.success) {
+        setSubmissions(data.submissions)
+      } else {
+        setError(data.error || 'Failed to load submissions')
+      }
+    } catch (err) {
+      setError('Network error loading submissions')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-12">
+          <div className="text-center text-neutral-500 py-12">Loading submissions...</div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="flex items-center gap-4 mb-8">
+          <Link href={`/author/assignments/${assignmentId}`} className="text-neutral-600 hover:text-neutral-900">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-neutral-900">Student Submissions</h1>
+            <p className="text-sm text-neutral-600 mt-1">Review assignment submissions and provide feedback</p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
+
+        {submissions.length === 0 ? (
+          <div className="bg-white rounded-xl border border-neutral-200 p-12 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="p-4 bg-neutral-100 rounded-full">
+                <User className="h-8 w-8 text-neutral-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-neutral-900">No submissions yet</h3>
+              <p className="text-neutral-500">Students haven't submitted this assignment yet</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {submissions.map((submission) => (
+              <div
+                key={submission.id}
+                className="border border-neutral-200 bg-neutral-50 p-6 rounded-xl hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 bg-sky-50 rounded-full">
+                        <User className="h-5 w-5 text-sky-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-neutral-900">
+                          {submission.user.first_name} {submission.user.last_name}
+                        </h3>
+                        <p className="text-sm text-neutral-600">
+                          {submission.user.email_addresses?.[0]?.email_address}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    {submission.score !== null ? (
+                      <div className="flex items-center gap-2 justify-end mb-1">
+                        <span className="text-2xl font-bold text-gray-900">
+                          {submission.score}/{submission.assignment.max_score}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500">Not graded</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-neutral-600 mb-4">
+                  <Clock className="h-4 w-4" />
+                  <span>
+                    Submitted: {new Date(submission.submitted_at).toLocaleString()}
+                  </span>
+                </div>
+
+                {submission.submission_url && (
+                  <div className="mb-4">
+                    <a
+                      href={submission.submission_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sky-600 hover:text-sky-700 text-sm font-medium"
+                    >
+                      <Download className="h-4 w-4" />
+                      View Submission
+                    </a>
+                  </div>
+                )}
+
+                {submission.feedback && (
+                  <div className="bg-white border border-neutral-200 p-3 rounded-lg mb-4">
+                    <p className="text-sm text-neutral-600">
+                      <span className="font-semibold">Feedback:</span> {submission.feedback}
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-4 flex gap-2">
+                  <Link
+                    href={`/author/assignments/${submission.assignment.id}/submissions/${submission.id}`}
+                    className="px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
+                  >
+                    Grade & Provide Feedback
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
