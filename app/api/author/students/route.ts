@@ -16,10 +16,47 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get all enrollments (platform-wide for now since cohorts may not link to products)
+    // 1. Get author's products
+    const { data: products } = await supabaseAdmin
+      .from('learning_products')
+      .select('id')
+      .eq('author_id', userId)
+
+    const productIds = products?.map(p => p.id) || []
+
+    if (productIds.length === 0) {
+      return NextResponse.json({ success: true, students: [] })
+    }
+
+    // 2. Get order items for these products
+    const { data: orderItems } = await supabaseAdmin
+      .from('order_items')
+      .select('order_id')
+      .in('learning_product_id', productIds)
+
+    const orderIds = orderItems?.map(oi => oi.order_id) || []
+
+    let validUserIds: string[] = []
+    if (orderIds.length > 0) {
+      // 3. Get PAID orders for these order items to find the buyer IDs
+      const { data: orders } = await supabaseAdmin
+        .from('orders')
+        .select('user_id')
+        .in('id', orderIds)
+        .eq('status', 'PAID')
+
+      validUserIds = orders?.map(o => o.user_id).filter(Boolean) || []
+    }
+
+    if (validUserIds.length === 0) {
+      return NextResponse.json({ success: true, students: [] })
+    }
+
+    // 4. Get enrollments ONLY for these valid buyers
     const { data: enrollments, error } = await supabaseAdmin
       .from('enrollments')
       .select('id, email, clerk_user_id, first_name, last_name, full_name, cohort, status, profile_picture, created_at, activated_at')
+      .in('clerk_user_id', validUserIds)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -27,15 +64,17 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Get quiz response counts per user
+    // Get quiz response counts per user for these specific users
     const { data: quizCounts } = await supabaseAdmin
       .from('quiz_responses')
       .select('user_id')
+      .in('user_id', validUserIds)
 
-    // Get submission counts per user
+    // Get submission counts per user for these specific users
     const { data: submissionCounts } = await supabaseAdmin
       .from('submissions')
       .select('user_id')
+      .in('user_id', validUserIds)
 
     // Build count maps
     const quizCountMap: Record<string, number> = {}

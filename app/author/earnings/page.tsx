@@ -1,0 +1,161 @@
+import { auth } from '@clerk/nextjs/server';
+import { supabaseAdmin } from '@/lib/supabase';
+import { getAvailableBalance } from '@/lib/authorService';
+import { Wallet, ArrowUpRight, DollarSign, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
+
+export default async function AuthorEarningsPage() {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    return null;
+  }
+
+  // 1. Fetch Author DB profile
+  const { data: author } = await supabaseAdmin
+    .from('authors')
+    .select('id')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (!author) {
+    return (
+      <div className="p-8 text-center text-brand-text/60">
+        Author profile not found.
+      </div>
+    );
+  }
+
+  // 2. Fetch Earnings totals
+  const { data: earningData } = await supabaseAdmin
+    .from('author_earnings')
+    .select('*')
+    .eq('author_id', author.id)
+    .single();
+
+  const totalNet = earningData?.total_net || 0;
+  const totalWithdrawn = earningData?.total_withdrawn || 0;
+  
+  // 3. Fetch Available Balance (using RPC via service)
+  let availableBalance = 0;
+  try {
+    availableBalance = await getAvailableBalance(author.id);
+  } catch (error) {
+    console.error('Failed to fetch available balance:', error);
+  }
+
+  // 4. Fetch Withdrawals History
+  const { data: withdrawals } = await supabaseAdmin
+    .from('author_withdrawals')
+    .select('*')
+    .eq('author_id', author.id)
+    .order('created_at', { ascending: false });
+
+  const getStatusIcon = (status: string) => {
+    switch(status) {
+      case 'COMPLETED': return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+      case 'PENDING': return <Clock className="w-4 h-4 text-amber-500" />;
+      case 'FAILED': return <AlertCircle className="w-4 h-4 text-red-500" />;
+      default: return <Clock className="w-4 h-4 text-neutral-500" />;
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-brand-text mb-2">Earnings & Payouts</h1>
+          <p className="text-brand-text/70">
+            Track your revenue and manage your withdrawals.
+          </p>
+        </div>
+        <Link
+          href="/author/settings"
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium text-sm"
+        >
+          <ArrowUpRight className="w-4 h-4" />
+          Request Withdrawal
+        </Link>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 bg-gradient-to-br from-emerald-900/40 to-emerald-800/20 border border-emerald-900/50 rounded-lg">
+          <div className="flex items-center gap-3 mb-2">
+            <Wallet className="w-5 h-5 text-emerald-400" />
+            <span className="text-sm font-medium text-emerald-100">Available Balance</span>
+          </div>
+          <p className="text-4xl font-bold text-emerald-50">
+            {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(availableBalance)}
+          </p>
+        </div>
+        
+        <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
+          <div className="flex items-center gap-3 mb-2">
+            <DollarSign className="w-5 h-5 text-sky-600" />
+            <span className="text-sm font-medium text-brand-text/70">Total Earned (Net)</span>
+          </div>
+          <p className="text-3xl font-bold text-brand-text">
+            {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(totalNet)}
+          </p>
+        </div>
+        
+        <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
+          <div className="flex items-center gap-3 mb-2">
+            <ArrowUpRight className="w-5 h-5 text-neutral-400" />
+            <span className="text-sm font-medium text-brand-text/70">Total Withdrawn</span>
+          </div>
+          <p className="text-3xl font-bold text-brand-text">
+            {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(totalWithdrawn)}
+          </p>
+        </div>
+      </div>
+
+      {/* Withdrawals History */}
+      <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
+        <h2 className="text-lg font-semibold text-brand-text mb-6">Withdrawal History</h2>
+        
+        {withdrawals && withdrawals.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-brand-border text-sm text-brand-text/60">
+                  <th className="pb-3 font-medium">Date</th>
+                  <th className="pb-3 font-medium">Amount</th>
+                  <th className="pb-3 font-medium">Reference</th>
+                  <th className="pb-3 font-medium text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-brand-border text-sm">
+                {withdrawals.map((w) => (
+                  <tr key={w.id} className="hover:bg-brand-bg/50 transition-colors">
+                    <td className="py-4 text-brand-text">
+                      {new Date(w.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </td>
+                    <td className="py-4 font-medium text-brand-text">
+                      {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(w.amount)}
+                    </td>
+                    <td className="py-4 text-brand-text/60 font-mono text-xs">{w.request_ref || w.id.split('-')[0]}</td>
+                    <td className="py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {getStatusIcon(w.status)}
+                        <span className="font-medium text-brand-text text-xs uppercase">{w.status}</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-brand-text/60">No withdrawals yet.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
