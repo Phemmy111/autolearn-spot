@@ -29,8 +29,7 @@ export async function GET(request: Request) {
             title,
             author_id
           )
-        ),
-        submissions:assignment_submissions(count)
+        )
       `)
       .eq('lesson.product.author_id', userId)
       .order('created_at', { ascending: false })
