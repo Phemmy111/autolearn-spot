@@ -343,7 +343,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     console.log('[YouTubePlayer] Play/Pause clicked - isPlaying:', isPlaying, 'Player ready:', !!playerRef.current)
     if (!playerRef.current) return
     try {
-      if (isPlaying) {
+      const playerState = playerRef.current.getPlayerState()
+      console.log('[YouTubePlayer] Current YouTube player state:', playerState)
+      
+      if (isPlaying || playerState === window.YT.PlayerState.PLAYING) {
         playerRef.current.pauseVideo()
       } else {
         playerRef.current.playVideo()
@@ -379,7 +382,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       console.log('[YouTubePlayer] Fast forward - Current time:', currentTime, 'Duration:', duration)
       const newTime = Math.min(currentTime + 10, duration)
       console.log('[YouTubePlayer] Fast forward - New time:', newTime)
-      playerRef.current.seekTo(newTime, true)
+      playerRef.current.seekTo(newTime, false) // Changed to false (smooth seek)
       setProgress((newTime / duration) * 100)
     } catch (err) {
       console.error('[YouTubePlayer] Fast forward error:', err)
@@ -395,7 +398,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       console.log('[YouTubePlayer] Rewind - Current time:', currentTime, 'Duration:', duration)
       const newTime = Math.max(currentTime - 10, 0)
       console.log('[YouTubePlayer] Rewind - New time:', newTime)
-      playerRef.current.seekTo(newTime, true)
+      playerRef.current.seekTo(newTime, false) // Changed to false (smooth seek)
       setProgress((newTime / duration) * 100)
     } catch (err) {
       console.error('[YouTubePlayer] Rewind error:', err)
