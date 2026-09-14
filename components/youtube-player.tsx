@@ -201,7 +201,6 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 hasResumedRef.current = true
                 console.log('[YouTubePlayer] Resuming from:', resumeFromSeconds)
                 event.target.seekTo(resumeFromSeconds, false)
-                setCurrentTime(resumeFromSeconds)
                 migrationLog.resume(lessonId, resumeFromSeconds)
               }
             },
@@ -386,14 +385,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       const newTime = Math.min(currentTime + 10, duration)
       console.log('[YouTubePlayer] Fast forward - New time:', newTime)
       
-      // Try playing before seeking to prevent restart
-      playerRef.current.playVideo()
-      
-      setTimeout(() => {
-        playerRef.current.seekTo(newTime, false)
-        setProgress((newTime / duration) * 100)
-        setCurrentTime(newTime)
-      }, 100)
+      playerRef.current.seekTo(newTime, false)
+      setProgress((newTime / duration) * 100)
     } catch (err) {
       console.error('[YouTubePlayer] Fast forward error:', err)
     }
@@ -409,14 +402,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       const newTime = Math.max(currentTime - 10, 0)
       console.log('[YouTubePlayer] Rewind - New time:', newTime)
       
-      // Try playing before seeking to prevent restart
-      playerRef.current.playVideo()
-      
-      setTimeout(() => {
-        playerRef.current.seekTo(newTime, false)
-        setProgress((newTime / duration) * 100)
-        setCurrentTime(newTime)
-      }, 100)
+      playerRef.current.seekTo(newTime, false)
+      setProgress((newTime / duration) * 100)
     } catch (err) {
       console.error('[YouTubePlayer] Rewind error:', err)
     }
