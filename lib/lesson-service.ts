@@ -453,6 +453,11 @@ export async function updateLessonUnlockConfig(lessonUuidId: string, productId: 
  * Used by the video player page to fetch lesson data
  */
 export async function getLessonById(lessonId: string): Promise<Lesson | null> {
+  console.info('[lesson-service] getLessonById called', {
+    lessonId,
+    isLikelyUuid: lessonId.includes('-'),
+  });
+
   // First try to find by UUID (new primary key)
   const { data: uuidLesson, error: uuidError } = await supabaseAdmin
     .from('lessons')
@@ -461,6 +466,11 @@ export async function getLessonById(lessonId: string): Promise<Lesson | null> {
     .single()
 
   if (uuidLesson && !uuidError) {
+    console.info('[lesson-service] lesson-found-by-uuid', {
+      lessonId,
+      uuid_id: uuidLesson.uuid_id,
+      title: uuidLesson.title,
+    });
     return uuidLesson as Lesson
   }
 
@@ -472,9 +482,18 @@ export async function getLessonById(lessonId: string): Promise<Lesson | null> {
     .single()
 
   if (legacyLesson && !legacyError) {
+    console.info('[lesson-service] lesson-found-by-legacy-id', {
+      lessonId,
+      legacy_id: legacyLesson.id,
+      title: legacyLesson.title,
+    });
     return legacyLesson as Lesson
   }
 
-  console.error('[lesson-service] Lesson not found:', lessonId, { uuidError, legacyError })
+  console.error('[lesson-service] lesson-not-found', {
+    lessonId,
+    uuidError: uuidError?.message,
+    legacyError: legacyError?.message,
+  });
   return null
 }

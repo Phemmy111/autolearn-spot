@@ -12,6 +12,11 @@ export default async function CoursePage({ params }: { params: { id: string } })
 
   const productId = params.id;
 
+  console.info('[course-page] loading', {
+    productId,
+    userId: userId.slice(0, 8) + '...',
+  });
+
   // 1. Verify ownership and get enrollment details (including status)
   const { data: enrollment } = await supabaseAdmin
     .from('enrollments')
@@ -21,8 +26,18 @@ export default async function CoursePage({ params }: { params: { id: string } })
     .single();
 
   if (!enrollment) {
+    console.warn('[course-page] enrollment-not-found', {
+      productId,
+      userId: userId.slice(0, 8) + '...',
+    });
     redirect('/dashboard'); // Not enrolled
   }
+
+  console.info('[course-page] enrollment-found', {
+    enrollmentId: enrollment.id,
+    activatedAt: enrollment.activated_at,
+    status: enrollment.status,
+  });
 
   const isStarted = !!enrollment.activated_at;
   const course: any = Array.isArray(enrollment.learning_product) ? enrollment.learning_product[0] : enrollment.learning_product;
@@ -43,6 +58,11 @@ export default async function CoursePage({ params }: { params: { id: string } })
   const lessons = await getLessonsForProduct(productId);
   lessons.sort((a, b) => a.order_index - b.order_index);
 
+  console.info('[course-page] lessons-loaded', {
+    lessonCount: lessons.length,
+    firstLessonId: lessons[0]?.uuid_id || lessons[0]?.id,
+  });
+
   // 4. Fetch progress for these lessons
   // Use uuid_id for progress lookups since that's the new primary key
   const lessonIds = lessons.map(l => l.uuid_id || l.id);
@@ -55,6 +75,11 @@ export default async function CoursePage({ params }: { params: { id: string } })
       .in('lesson_uuid_id', lessonIds);
 
     progressMap = new Map(progressRows?.map((p: any) => [p.lesson_uuid_id, p]) || []);
+
+    console.info('[course-page] progress-loaded', {
+      progressCount: progressMap.size,
+      completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
+    });
   }
 
   // 5. Determine unlock status (80% rule)

@@ -23,13 +23,29 @@ export default async function VideoPage({ params }: VideoPageProps) {
   }
 
   const resolvedParams = await params
-  
+
+  console.info('[video-page] loading', {
+    lessonId: resolvedParams.id,
+    userId: userId.slice(0, 8) + '...',
+  });
+
   // Fetch lesson from database (supports both UUID and legacy string IDs)
   const lesson = await getLessonById(resolvedParams.id)
 
   if (!lesson) {
+    console.error('[video-page] lesson-not-found', {
+      lessonId: resolvedParams.id,
+      userId: userId.slice(0, 8) + '...',
+    });
     notFound()
   }
+
+  console.info('[video-page] lesson-found', {
+    lessonId: lesson.uuid_id || lesson.id,
+    title: lesson.title,
+    productId: lesson.product_id,
+    cohortId: lesson.cohort_id,
+  });
 
   // Check if user has access to this lesson
   // For product-based lessons, check enrollment
@@ -47,6 +63,13 @@ export default async function VideoPage({ params }: VideoPageProps) {
       .eq('learning_product_id', lesson.product_id)
       .single()
 
+    console.info('[video-page] product-enrollment-check', {
+      productId: lesson.product_id,
+      enrollmentFound: !!enrollment,
+      enrollmentStatus: enrollment?.status,
+      enrollmentActivated: !!enrollment?.activated_at,
+    });
+
     if (enrollment && enrollment.status === 'active' && enrollment.activated_at) {
       hasAccess = true
       backUrl = `/dashboard/course/${lesson.product_id}`
@@ -57,15 +80,32 @@ export default async function VideoPage({ params }: VideoPageProps) {
     const { email } = await auth()
     const enrollments = await getUserEnrollments(userId, email || '')
     const cohortEnrollment = enrollments.find(e => e.cohort_id === lesson.cohort_id)
-    
+
+    console.info('[video-page] cohort-enrollment-check', {
+      cohortId: lesson.cohort_id,
+      cohortEnrollmentFound: !!cohortEnrollment,
+      cohortEnrollmentStatus: cohortEnrollment?.status,
+    });
+
     if (cohortEnrollment && cohortEnrollment.status === 'active') {
       hasAccess = true
     }
   }
 
   if (!hasAccess) {
+    console.warn('[video-page] access-denied', {
+      lessonId: lesson.uuid_id || lesson.id,
+      userId: userId.slice(0, 8) + '...',
+      productId: lesson.product_id,
+      cohortId: lesson.cohort_id,
+    });
     redirect('/dashboard')
   }
+
+  console.info('[video-page] access-granted', {
+    lessonId: lesson.uuid_id || lesson.id,
+    userId: userId.slice(0, 8) + '...',
+  });
 
   // Fetch saved progress so the player can resume from the last position
   let resumeFromSeconds = 0
