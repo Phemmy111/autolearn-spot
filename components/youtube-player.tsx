@@ -440,7 +440,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       onContextMenu={(e) => e.preventDefault()}
     >
       {isLoading && (
-        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center gap-3 bg-neutral-900">
+        <div className="absolute inset-0 -z-10 flex flex-col items-center justify-center gap-3 bg-neutral-900 opacity-0 pointer-events-none">
           <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
             Loading video…
