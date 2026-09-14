@@ -56,7 +56,9 @@ export async function GET(request: Request) {
       })
     }
 
-    // Simplified: Get all assignments without cohort filter
+    // For students enrolled in products, get only lesson-based assignments
+    // For students in cohorts, get cohort-based assignments
+    // Simplified: Get all assignments for now and filter by lesson_id on video page
     const { data: allAssignments, error } = await supabase
       .from('assignments')
       .select(`

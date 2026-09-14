@@ -367,7 +367,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
                     )}
                   </div>
                   <Link
-                    href={`/dashboard/assignments`}
+                    href={`/dashboard/assignments?assignment=${assignment.id}`}
                     className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
                   >
                     View Assignment

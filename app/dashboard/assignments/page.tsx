@@ -53,7 +53,7 @@ export default function AssignmentsPage() {
       
       let url = '/api/assignments';
       if (assignmentId) {
-        url = `/api/assignments/${assignmentId}`;
+        url = `/api/assignments?assignment=${assignmentId}`;
       }
       
       const res = await fetch(url);
