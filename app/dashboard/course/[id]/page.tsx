@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { getLessonsForProduct } from '@/lib/lesson-service';
+import { getLessonsForProduct, getLessonsForCohort } from '@/lib/lesson-service';
 import Link from 'next/link';
 import { Lock, Play, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import StartCourseButton from './StartCourseButton';
@@ -17,13 +17,58 @@ export default async function CoursePage({ params }: { params: { id: string } })
     userId: userId.slice(0, 8) + '...',
   });
 
-  // 1. Verify ownership and get enrollment details (including status)
-  const { data: enrollment } = await supabaseAdmin
+  // 1. Verify ownership - check both product enrollment AND cohort enrollment
+  let enrollment: any = null;
+  let isCohortEnrollment = false;
+
+  // First, try product enrollment
+  const { data: productEnrollment } = await supabaseAdmin
     .from('enrollments')
     .select('id, activated_at, status, learning_product:learning_products(*)')
     .eq('clerk_user_id', userId)
     .eq('learning_product_id', productId)
     .single();
+
+  if (productEnrollment) {
+    enrollment = productEnrollment;
+    console.info('[course-page] product-enrollment-found', {
+      enrollmentId: enrollment.id,
+      activatedAt: enrollment.activated_at,
+      status: enrollment.status,
+    });
+  } else {
+    // If no product enrollment, check if user has a cohort enrollment for this product
+    // First, get the product to find its associated cohort
+    const { data: product } = await supabaseAdmin
+      .from('learning_products')
+      .select('id, title, description, access_duration_days, cohort_id')
+      .eq('id', productId)
+      .single();
+
+    if (product && product.cohort_id) {
+      // Check if user is enrolled in this cohort
+      const { data: cohortEnrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('id, activated_at, status, cohort_id')
+        .eq('clerk_user_id', userId)
+        .eq('cohort_id', product.cohort_id)
+        .single();
+
+      if (cohortEnrollment) {
+        isCohortEnrollment = true;
+        enrollment = {
+          ...cohortEnrollment,
+          learning_product: product,
+        };
+        console.info('[course-page] cohort-enrollment-found', {
+          enrollmentId: enrollment.id,
+          cohortId: product.cohort_id,
+          activatedAt: enrollment.activated_at,
+          status: enrollment.status,
+        });
+      }
+    }
+  }
 
   if (!enrollment) {
     console.warn('[course-page] enrollment-not-found', {
@@ -32,12 +77,6 @@ export default async function CoursePage({ params }: { params: { id: string } })
     });
     redirect('/dashboard'); // Not enrolled
   }
-
-  console.info('[course-page] enrollment-found', {
-    enrollmentId: enrollment.id,
-    activatedAt: enrollment.activated_at,
-    status: enrollment.status,
-  });
 
   const isStarted = !!enrollment.activated_at;
   const course: any = Array.isArray(enrollment.learning_product) ? enrollment.learning_product[0] : enrollment.learning_product;
@@ -55,12 +94,34 @@ export default async function CoursePage({ params }: { params: { id: string } })
   }
 
   // 3. Fetch all lessons ordered
-  const lessons = await getLessonsForProduct(productId);
+  // Support both product-based and cohort-based lessons
+  let lessons: any[] = [];
+  if (isCohortEnrollment) {
+    // Fetch cohort lessons
+    const { data: cohortData } = await supabaseAdmin
+      .from('learning_products')
+      .select('cohort_id')
+      .eq('id', productId)
+      .single();
+
+    if (cohortData?.cohort_id) {
+      lessons = await getLessonsForCohort(cohortData.cohort_id);
+      console.info('[course-page] cohort-lessons-loaded', {
+        cohortId: cohortData.cohort_id,
+        lessonCount: lessons.length,
+      });
+    }
+  } else {
+    // Product-based lessons
+    lessons = await getLessonsForProduct(productId);
+  }
+
   lessons.sort((a, b) => a.order_index - b.order_index);
 
   console.info('[course-page] lessons-loaded', {
     lessonCount: lessons.length,
     firstLessonId: lessons[0]?.uuid_id || lessons[0]?.id,
+    isCohortEnrollment,
   });
 
   // 4. Fetch progress for these lessons

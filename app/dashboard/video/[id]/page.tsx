@@ -74,6 +74,35 @@ export default async function VideoPage({ params }: VideoPageProps) {
       hasAccess = true
       backUrl = `/dashboard/course/${lesson.product_id}`
       backLabel = 'Back to Course'
+    } else {
+      // If no direct product enrollment, check if product has a cohort and user is enrolled in that cohort
+      const { data: product } = await supabaseAdmin
+        .from('learning_products')
+        .select('cohort_id')
+        .eq('id', lesson.product_id)
+        .single();
+
+      if (product?.cohort_id) {
+        const { data: cohortEnrollment } = await supabaseAdmin
+          .from('enrollments')
+          .select('id, status, activated_at')
+          .eq('clerk_user_id', userId)
+          .eq('cohort_id', product.cohort_id)
+          .single();
+
+        console.info('[video-page] product-cohort-enrollment-check', {
+          productId: lesson.product_id,
+          cohortId: product.cohort_id,
+          cohortEnrollmentFound: !!cohortEnrollment,
+          cohortEnrollmentStatus: cohortEnrollment?.status,
+        });
+
+        if (cohortEnrollment && cohortEnrollment.status === 'active') {
+          hasAccess = true
+          backUrl = `/dashboard/course/${lesson.product_id}`
+          backLabel = 'Back to Course'
+        }
+      }
     }
   } else if (lesson.cohort_id) {
     // Cohort-based lesson - check cohort enrollment
