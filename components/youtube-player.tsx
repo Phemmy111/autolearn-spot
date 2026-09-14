@@ -164,14 +164,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           width: '100%',
           height: '100%',
           playerVars: {
-            autoplay: 0,
+            autoplay: 1,
             modestbranding: 1,
             rel: 0,
             playsinline: 1,
             enablejsapi: 1,
             origin: window.location.origin,
             disablekb: 1,
-            fs: 0,
+            fs: 1,
             // Show native controls for reliable play/pause
             controls: 1,
             // Hide video annotations
@@ -183,15 +183,15 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               setIsLoading(false)
               migrationLog.mount(lessonId, 'youtube', 'v2')
 
-              // Crop the top title bar by extending the iframe beyond the container
-              const iframe = containerRef.current?.querySelector('iframe')
-              if (iframe) {
-                iframe.style.position = 'absolute'
-                iframe.style.top = '-60px'
-                iframe.style.left = '0'
-                iframe.style.width = '100%'
-                iframe.style.height = 'calc(100% + 120px)' // +60 top +60 bottom
-              }
+              // TEMPORARILY DISABLED: Crop the top title bar - this might be hiding the video
+              // const iframe = containerRef.current?.querySelector('iframe')
+              // if (iframe) {
+              //   iframe.style.position = 'absolute'
+              //   iframe.style.top = '-60px'
+              //   iframe.style.left = '0'
+              //   iframe.style.width = '100%'
+              //   iframe.style.height = 'calc(100% + 120px)' // +60 top +60 bottom
+              // }
 
               // TEMPORARILY DISABLED: Resume from saved position to fix video loading
             },
