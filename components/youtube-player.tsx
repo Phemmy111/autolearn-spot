@@ -452,73 +452,9 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         className="absolute inset-0"
       />
 
-      {/* Click-to-play/pause overlay — covers the entire video area (no icon) */}
-      {!isLoading && (
-        <div
-          className="absolute inset-0 z-10 cursor-pointer"
-          onClick={(e) => {
-            console.log('[YouTubePlayer] Video overlay clicked')
-            e.stopPropagation()
-            handlePlayPause()
-          }}
-        />
-      )}
 
-      {/* Custom progress bar at the bottom */}
-      {!isLoading && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center gap-4 px-4 pb-4">
-          {/* Rewind button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              handleRewind()
-            }}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
-            title="Rewind 10s"
-          >
-            <Rewind className="h-5 w-5" />
-          </button>
 
-          {/* Progress bar */}
-          <div
-            ref={progressBarRef}
-            className="flex-1 h-[6px] cursor-pointer bg-white/30 transition-all hover:h-[10px]"
-            onClick={(e) => {
-              e.stopPropagation()
-              handleSeek(e)
-            }}
-          >
-            <div
-              className="h-full bg-neutral-900 transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
 
-          {/* Fast forward button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              handleFastForward()
-            }}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
-            title="Fast forward 10s"
-          >
-            <FastForward className="h-5 w-5" />
-          </button>
-
-          {/* Fullscreen button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleFullscreen()
-            }}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
-            title="Fullscreen"
-          >
-            <Maximize className="h-5 w-5" />
-          </button>
-        </div>
-      )}
     </div>
   )
 }
