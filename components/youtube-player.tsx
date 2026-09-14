@@ -437,14 +437,13 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
   return (
     <div
       className="relative h-full w-full overflow-hidden bg-black"
-      onContextMenu={(e) => e.preventDefault()}
     >
 
 
       {/* The YouTube iframe (controls: 0 hides native UI) */}
       <div
         ref={containerRef}
-        className="absolute inset-0"
+        className="absolute inset-0 z-10"
       />
 
 
