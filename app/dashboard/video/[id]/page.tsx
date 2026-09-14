@@ -237,13 +237,22 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
         {/* Video Player Container */}
         <div className="relative w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-lg" style={{ aspectRatio: '16/9', minHeight: '200px' }}>
-          <VideoPlayer
-            lessonId={lesson.uuid_id || lesson.id}
-            youtubeVideoId={lesson.youtube_video_id || undefined}
-            vimeoVideoId={lesson.vimeo_video_id || undefined}
-            vdoCipherVideoId={lesson.vdo_cipher_video_id || undefined}
-            resumeFromSeconds={resumeFromSeconds}
-          />
+          {lesson.youtube_video_id ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${lesson.youtube_video_id}?autoplay=1&enablejsapi=1`}
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <VideoPlayer
+              lessonId={lesson.uuid_id || lesson.id}
+              youtubeVideoId={lesson.youtube_video_id || undefined}
+              vimeoVideoId={lesson.vimeo_video_id || undefined}
+              vdoCipherVideoId={lesson.vdo_cipher_video_id || undefined}
+              resumeFromSeconds={resumeFromSeconds}
+            />
+          )}
         </div>
 
         {/* Resources Section */}
