@@ -199,12 +199,15 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 !hasResumedRef.current
               ) {
                 hasResumedRef.current = true
-                event.target.seekTo(resumeFromSeconds, true)
+                console.log('[YouTubePlayer] Resuming from:', resumeFromSeconds)
+                event.target.seekTo(resumeFromSeconds, false)
+                setCurrentTime(resumeFromSeconds)
                 migrationLog.resume(lessonId, resumeFromSeconds)
               }
             },
             onStateChange: (event: YT.OnStateChangeEvent) => {
               const player = event.target
+              console.log('[YouTubePlayer] State change - event.data:', event.data, 'isPlaying:', isPlaying)
 
               if (event.data === window.YT.PlayerState.PLAYING) {
                 setIsPlaying(true)
@@ -340,13 +343,13 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   // Toggle play/pause via the API
   const handlePlayPause = useCallback(() => {
-    console.log('[YouTubePlayer] Play/Pause clicked - isPlaying:', isPlaying, 'Player ready:', !!playerRef.current)
     if (!playerRef.current) return
     try {
       const playerState = playerRef.current.getPlayerState()
-      console.log('[YouTubePlayer] Current YouTube player state:', playerState)
+      console.log('[YouTubePlayer] Play/Pause clicked - Current player state:', playerState, 'Local isPlaying:', isPlaying)
       
-      if (isPlaying || playerState === window.YT.PlayerState.PLAYING) {
+      // Use actual player state instead of local state
+      if (playerState === window.YT.PlayerState.PLAYING) {
         playerRef.current.pauseVideo()
       } else {
         playerRef.current.playVideo()
@@ -354,7 +357,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     } catch (err) {
       console.error('[YouTubePlayer] Play/Pause error:', err)
     }
-  }, [isPlaying])
+  }, [])
 
   // Seek when clicking the progress bar
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -382,8 +385,15 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       console.log('[YouTubePlayer] Fast forward - Current time:', currentTime, 'Duration:', duration)
       const newTime = Math.min(currentTime + 10, duration)
       console.log('[YouTubePlayer] Fast forward - New time:', newTime)
-      playerRef.current.seekTo(newTime, false) // Changed to false (smooth seek)
-      setProgress((newTime / duration) * 100)
+      
+      // Try playing before seeking to prevent restart
+      playerRef.current.playVideo()
+      
+      setTimeout(() => {
+        playerRef.current.seekTo(newTime, false)
+        setProgress((newTime / duration) * 100)
+        setCurrentTime(newTime)
+      }, 100)
     } catch (err) {
       console.error('[YouTubePlayer] Fast forward error:', err)
     }
@@ -398,8 +408,15 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       console.log('[YouTubePlayer] Rewind - Current time:', currentTime, 'Duration:', duration)
       const newTime = Math.max(currentTime - 10, 0)
       console.log('[YouTubePlayer] Rewind - New time:', newTime)
-      playerRef.current.seekTo(newTime, false) // Changed to false (smooth seek)
-      setProgress((newTime / duration) * 100)
+      
+      // Try playing before seeking to prevent restart
+      playerRef.current.playVideo()
+      
+      setTimeout(() => {
+        playerRef.current.seekTo(newTime, false)
+        setProgress((newTime / duration) * 100)
+        setCurrentTime(newTime)
+      }, 100)
     } catch (err) {
       console.error('[YouTubePlayer] Rewind error:', err)
     }
