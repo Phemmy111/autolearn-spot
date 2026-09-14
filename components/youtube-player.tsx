@@ -176,7 +176,16 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
             playsinline: 1,
             enablejsapi: 1,
             origin: window.location.origin,
-            controls: 1,
+            // Disable the native YouTube control bar — hides the YT logo,
+            // share button, watch-later, and related-video end screen.
+            // Our custom controls below handle all playback interactions.
+            controls: 0,
+            // Hide video annotations
+            iv_load_policy: 3,
+            // Disable the YouTube fullscreen button (we have our own)
+            fs: 0,
+            // Disable keyboard shortcuts so YT overlay never appears
+            disablekb: 1,
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
@@ -442,15 +451,97 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
   }, [])
 
   return (
-    <div
-      className="relative h-full w-full overflow-hidden bg-black"
-    >
-      {/* The YouTube iframe */}
+    <div className="relative h-full w-full overflow-hidden bg-black select-none">
+      {/* The YouTube iframe — rendered inside containerRef */}
       <div
         ref={containerRef}
         className="absolute inset-0"
         style={{ width: '100%', height: '100%' }}
       />
+
+      {/* Transparent overlay — sits above the iframe.
+          Blocks right-click context menu, share watermark clicks, and
+          prevents the YouTube end-screen from being interacted with.
+          pointer-events on the overlay are set to 'none' except on the
+          top half so our custom controls (below) still receive clicks. */}
+      <div
+        className="absolute inset-0 z-10"
+        style={{ background: 'transparent' }}
+        onContextMenu={(e) => e.preventDefault()}
+      />
+
+      {/* Loading spinner */}
+      {isLoading && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black">
+          <Loader2 className="h-10 w-10 animate-spin text-brand-primary" />
+        </div>
+      )}
+
+      {/* ── Custom Control Bar ───────────────────────────────────────── */}
+      <div
+        className="absolute bottom-0 left-0 right-0 z-20 flex flex-col gap-1 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2 pt-6"
+        // Allow pointer events through to controls (sit above the overlay)
+        style={{ pointerEvents: 'auto' }}
+      >
+        {/* Progress bar */}
+        <div
+          ref={progressBarRef}
+          className="relative h-1.5 w-full cursor-pointer rounded-full bg-white/20"
+          onClick={handleSeek}
+        >
+          <div
+            className="absolute left-0 top-0 h-full rounded-full bg-brand-primary transition-all"
+            style={{ width: `${progress}%` }}
+          />
+          {/* Scrubber thumb */}
+          <div
+            className="absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-white shadow"
+            style={{ left: `${progress}%`, transform: 'translate(-50%, -50%)' }}
+          />
+        </div>
+
+        {/* Buttons row */}
+        <div className="flex items-center gap-3 pt-0.5">
+          <button
+            onClick={handleRewind}
+            className="text-white/80 hover:text-white transition-colors"
+            title="Rewind 10s"
+          >
+            <Rewind className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={handlePlayPause}
+            className="text-white hover:text-brand-primary transition-colors"
+            title={isPlaying ? 'Pause' : 'Play'}
+          >
+            {isPlaying ? (
+              <Pause className="h-5 w-5" />
+            ) : (
+              <Play className="h-5 w-5 fill-current" />
+            )}
+          </button>
+
+          <button
+            onClick={handleFastForward}
+            className="text-white/80 hover:text-white transition-colors"
+            title="Forward 10s"
+          >
+            <FastForward className="h-4 w-4" />
+          </button>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          <button
+            onClick={toggleFullscreen}
+            className="text-white/80 hover:text-white transition-colors"
+            title="Fullscreen"
+          >
+            <Maximize className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
