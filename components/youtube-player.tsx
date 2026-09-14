@@ -172,8 +172,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             origin: window.location.origin,
             disablekb: 1,
             fs: 0,
-            // Hide ALL native controls (they contain the Share button)
-            controls: 0,
+            // Show native controls for reliable play/pause
+            controls: 1,
             // Hide video annotations
             iv_load_policy: 3,
           },
@@ -345,9 +345,9 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     if (!playerRef.current) return
     try {
       const playerState = playerRef.current.getPlayerState()
-      console.log('[YouTubePlayer] Play/Pause clicked - Current player state:', playerState, 'Local isPlaying:', isPlaying)
+      console.log('[YouTubePlayer] Play/Pause clicked - Player state:', playerState)
       
-      // Use actual player state instead of local state
+      // Toggle based on actual player state
       if (playerState === window.YT.PlayerState.PLAYING) {
         playerRef.current.pauseVideo()
       } else {
