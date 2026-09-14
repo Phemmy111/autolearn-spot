@@ -229,6 +229,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               console.log('[YouTubePlayer] State change - event.data:', event.data, 'isPlaying:', isPlaying)
 
               if (event.data === window.YT.PlayerState.PLAYING) {
+                console.log('[YouTubePlayer] Video started playing, setting up progress interval')
                 setIsPlaying(true)
                 migrationLog.playback(lessonId, 'youtube', videoId)
 
@@ -237,17 +238,20 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                   clearInterval(progressIntervalRef.current)
                 }
                 progressIntervalRef.current = setInterval(() => {
+                  console.log('[YouTubePlayer] Progress interval tick')
                   try {
                     const currentTime = player.getCurrentTime()
                     const duration = player.getDuration()
+                    console.log('[YouTubePlayer] Interval - currentTime:', currentTime, 'duration:', duration)
                     if (duration > 0) {
                       setProgress((currentTime / duration) * 100)
                     }
                     saveProgress(currentTime, duration)
-                  } catch {
-                    // Player may be unavailable
+                  } catch (err) {
+                    console.error('[YouTubePlayer] Interval error:', err)
                   }
                 }, 5000)
+                console.log('[YouTubePlayer] Progress interval set up')
               }
 
               if (event.data === window.YT.PlayerState.PAUSED) {
