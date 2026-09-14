@@ -80,14 +80,6 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         lastPositionSeconds: currentTime,
       }
 
-      console.log('[YouTubePlayer] saveProgress called', {
-        lessonId,
-        currentTime,
-        duration,
-        watchPct,
-        forceComplete,
-      })
-
       // Mark complete when >= 90% watched
       if (!markedCompleteRef.current && (watchPct >= 90 || forceComplete)) {
         markedCompleteRef.current = true
@@ -100,16 +92,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       const timeDiff = Math.abs(currentTime - lastSavedTimeRef.current)
       const pctDiff = Math.abs(watchPct - lastSavedPctRef.current)
 
-      console.log('[YouTubePlayer] Throttle check', {
-        timeDiff,
-        pctDiff,
-        willSave: timeDiff >= 15 || pctDiff >= 5 || payload.completed,
-      })
-
-      if (timeDiff < 15 && pctDiff < 5 && !payload.completed) {
-        console.log('[YouTubePlayer] Progress save throttled')
-        return
-      }
+      if (timeDiff < 15 && pctDiff < 5 && !payload.completed) return
 
       lastSavedTimeRef.current = currentTime
       lastSavedPctRef.current = watchPct
@@ -117,15 +100,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       migrationLog.progressSave(lessonId, watchPct, currentTime)
 
       try {
-        const response = await fetch('/api/progress', {
+        await fetch('/api/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         })
-        const result = await response.json()
-        console.log('[YouTubePlayer] Progress save result', result)
       } catch (err) {
-        console.error('[YouTubePlayer] Progress save error', err)
         migrationLog.progressSaveError(lessonId, err)
       }
     },
@@ -179,7 +159,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         containerRef.current.innerHTML = ''
         containerRef.current.appendChild(playerDiv)
 
-        new window.YT.Player(playerDiv.id, {
+        playerRef.current = new window.YT.Player(playerDiv.id, {
           videoId,
           width: '100%',
           height: '100%',
@@ -191,7 +171,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             enablejsapi: 1,
             origin: window.location.origin,
             disablekb: 1,
-            fs: 1,
+            fs: 0,
             // Show native controls for reliable play/pause
             controls: 1,
             // Hide video annotations
@@ -199,58 +179,6 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
-              console.log('[YouTubePlayer] === ON READY CALLBACK FIRED ===')
-              console.log('[YouTubePlayer] event.target:', event.target)
-              console.log('[YouTubePlayer] event.target type:', typeof event.target)
-              console.log('[YouTubePlayer] Player ready, setting playerRef.current')
-              playerRef.current = event.target
-              console.log('[YouTubePlayer] playerRef.current set:', !!playerRef.current)
-              console.log('[YouTubePlayer] playerRef.current type:', typeof playerRef.current)
-              console.log('[YouTubePlayer] playerRef.current methods:', {
-                getCurrentTime: typeof playerRef.current?.getCurrentTime,
-                getDuration: typeof playerRef.current?.getDuration,
-                playVideo: typeof playerRef.current?.playVideo,
-                pauseVideo: typeof playerRef.current?.pauseVideo,
-              })
-              setIsLoading(false)
-              migrationLog.mount(lessonId, 'youtube', 'v2')
-
-              // Crop the top title bar by extending the iframe beyond the container
-              const iframe = containerRef.current?.querySelector('iframe')
-              if (iframe) {
-                iframe.style.position = 'absolute'
-                iframe.style.top = '-60px'
-                iframe.style.left = '0'
-                iframe.style.width = '100%'
-                iframe.style.height = 'calc(100% + 120px)' // +60 top +60 bottom
-              }
-
-              // Resume from saved position if provided
-              if (
-                resumeFromSeconds &&
-                resumeFromSeconds > 0 &&
-                !hasResumedRef.current
-              ) {
-                hasResumedRef.current = true
-                console.log('[YouTubePlayer] Resuming from:', resumeFromSeconds)
-                event.target.seekTo(resumeFromSeconds, false)
-                migrationLog.resume(lessonId, resumeFromSeconds)
-              }
-            },
-            onReady: (event: YT.PlayerEvent) => {
-              console.log('[YouTubePlayer] === ON READY CALLBACK FIRED ===')
-              console.log('[YouTubePlayer] event.target:', event.target)
-              console.log('[YouTubePlayer] event.target type:', typeof event.target)
-              console.log('[YouTubePlayer] Player ready, setting playerRef.current')
-              playerRef.current = event.target
-              console.log('[YouTubePlayer] playerRef.current set:', !!playerRef.current)
-              console.log('[YouTubePlayer] playerRef.current type:', typeof playerRef.current)
-              console.log('[YouTubePlayer] playerRef.current methods:', {
-                getCurrentTime: typeof playerRef.current?.getCurrentTime,
-                getDuration: typeof playerRef.current?.getDuration,
-                playVideo: typeof playerRef.current?.playVideo,
-                pauseVideo: typeof playerRef.current?.pauseVideo,
-              })
               setIsLoading(false)
               migrationLog.mount(lessonId, 'youtube', 'v2')
 
@@ -279,15 +207,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             onStateChange: (event: YT.OnStateChangeEvent) => {
               const player = event.target
               console.log('[YouTubePlayer] State change - event.data:', event.data, 'isPlaying:', isPlaying)
-              
-              // Always update playerRef when we get a state change event
-              if (!playerRef.current) {
-                console.log('[YouTubePlayer] Setting playerRef.current from state change event')
-                playerRef.current = player
-              }
 
               if (event.data === window.YT.PlayerState.PLAYING) {
-                console.log('[YouTubePlayer] Video started playing, setting up progress interval')
                 setIsPlaying(true)
                 migrationLog.playback(lessonId, 'youtube', videoId)
 
@@ -295,20 +216,18 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 if (progressIntervalRef.current) {
                   clearInterval(progressIntervalRef.current)
                 }
-                
-                // Use a simple time-based approach instead of calling YouTube API
-                let startTime = Date.now()
                 progressIntervalRef.current = setInterval(() => {
-                  console.log('[YouTubePlayer] Progress interval tick (time-based)')
                   try {
-                    const elapsedSeconds = (Date.now() - startTime) / 1000
-                    // Save progress with estimated time
-                    saveProgress(elapsedSeconds, 300) // Assume 5 min video for progress calculation
-                  } catch (err) {
-                    console.error('[YouTubePlayer] Interval error:', err)
+                    const currentTime = player.getCurrentTime()
+                    const duration = player.getDuration()
+                    if (duration > 0) {
+                      setProgress((currentTime / duration) * 100)
+                    }
+                    saveProgress(currentTime, duration)
+                  } catch {
+                    // Player may be unavailable
                   }
                 }, 5000)
-                console.log('[YouTubePlayer] Progress interval set up')
               }
 
               if (event.data === window.YT.PlayerState.PAUSED) {
