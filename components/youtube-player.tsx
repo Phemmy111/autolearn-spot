@@ -80,6 +80,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         lastPositionSeconds: currentTime,
       }
 
+      console.log('[YouTubePlayer] saveProgress called', {
+        lessonId,
+        currentTime,
+        duration,
+        watchPct,
+        forceComplete,
+      })
+
       // Mark complete when >= 90% watched
       if (!markedCompleteRef.current && (watchPct >= 90 || forceComplete)) {
         markedCompleteRef.current = true
@@ -92,7 +100,16 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       const timeDiff = Math.abs(currentTime - lastSavedTimeRef.current)
       const pctDiff = Math.abs(watchPct - lastSavedPctRef.current)
 
-      if (timeDiff < 15 && pctDiff < 5 && !payload.completed) return
+      console.log('[YouTubePlayer] Throttle check', {
+        timeDiff,
+        pctDiff,
+        willSave: timeDiff >= 15 || pctDiff >= 5 || payload.completed,
+      })
+
+      if (timeDiff < 15 && pctDiff < 5 && !payload.completed) {
+        console.log('[YouTubePlayer] Progress save throttled')
+        return
+      }
 
       lastSavedTimeRef.current = currentTime
       lastSavedPctRef.current = watchPct
@@ -100,12 +117,15 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       migrationLog.progressSave(lessonId, watchPct, currentTime)
 
       try {
-        await fetch('/api/progress', {
+        const response = await fetch('/api/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         })
+        const result = await response.json()
+        console.log('[YouTubePlayer] Progress save result', result)
       } catch (err) {
+        console.error('[YouTubePlayer] Progress save error', err)
         migrationLog.progressSaveError(lessonId, err)
       }
     },
