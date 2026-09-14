@@ -4,7 +4,7 @@ import { ArrowLeft, Download, Clock, BookOpen } from 'lucide-react'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AutolearnBot } from '@/components/autolearn-bot'
-import { PremiumVideoPlayer } from '@/components/video/PremiumVideoPlayer'
+import VideoPlayer from '@/components/video-player'
 import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 import { getLessonById } from '@/lib/lesson-service'
 import { getUserEnrollments } from '@/lib/enrollment-service'
@@ -218,16 +218,13 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
         {/* Video Player Container */}
         <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-lg">
-          {lesson.youtube_video_id ? (
-            <PremiumVideoPlayer
-              youtubeVideoId={lesson.youtube_video_id}
-              resumeFromSeconds={resumeFromSeconds}
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-neutral-400">
-              <p>No video available</p>
-            </div>
-          )}
+          <VideoPlayer
+            lessonId={lesson.uuid_id || lesson.id}
+            youtubeVideoId={lesson.youtube_video_id || undefined}
+            vimeoVideoId={lesson.vimeo_video_id || undefined}
+            vdoCipherVideoId={lesson.vdo_cipher_video_id || undefined}
+            resumeFromSeconds={resumeFromSeconds}
+          />
         </div>
 
         {/* Resources Section */}
