@@ -6,11 +6,12 @@ import Link from 'next/link';
 import { Lock, Play, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import StartCourseButton from './StartCourseButton';
 
-export default async function CoursePage({ params }: { params: { id: string } }) {
+export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
   if (!userId) redirect('/sign-in');
 
-  const productId = params.id;
+  const resolvedParams = await params;
+  const productId = resolvedParams.id;
 
   console.info('[course-page] loading', {
     productId,
