@@ -279,6 +279,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             onStateChange: (event: YT.OnStateChangeEvent) => {
               const player = event.target
               console.log('[YouTubePlayer] State change - event.data:', event.data, 'isPlaying:', isPlaying)
+              
+              // Always update playerRef when we get a state change event
+              if (!playerRef.current) {
+                console.log('[YouTubePlayer] Setting playerRef.current from state change event')
+                playerRef.current = player
+              }
 
               if (event.data === window.YT.PlayerState.PLAYING) {
                 console.log('[YouTubePlayer] Video started playing, setting up progress interval')
@@ -292,19 +298,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 progressIntervalRef.current = setInterval(() => {
                   console.log('[YouTubePlayer] Progress interval tick')
                   try {
-                    if (!playerRef.current) {
-                      console.log('[YouTubePlayer] Player ref is null, using event.target instead')
-                      const currentTime = player.getCurrentTime()
-                      const duration = player.getDuration()
-                      console.log('[YouTubePlayer] Interval - currentTime:', currentTime, 'duration:', duration)
-                      if (duration > 0) {
-                        setProgress((currentTime / duration) * 100)
-                      }
-                      saveProgress(currentTime, duration)
-                      return
-                    }
-                    const currentTime = playerRef.current.getCurrentTime()
-                    const duration = playerRef.current.getDuration()
+                    const currentPlayer = playerRef.current || player
+                    console.log('[YouTubePlayer] Using player:', playerRef.current ? 'playerRef.current' : 'event.target')
+                    const currentTime = currentPlayer.getCurrentTime()
+                    const duration = currentPlayer.getDuration()
                     console.log('[YouTubePlayer] Interval - currentTime:', currentTime, 'duration:', duration)
                     if (duration > 0) {
                       setProgress((currentTime / duration) * 100)
