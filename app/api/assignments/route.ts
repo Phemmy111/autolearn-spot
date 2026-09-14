@@ -101,7 +101,7 @@ export async function GET(request: Request) {
           updated_at
         )
       `)
-      .not('cohort_id', is null)
+      .is('cohort_id', null)
       .order('order_index', { ascending: true })
 
     console.log('[GET /api/assignments] Query result:', { 
