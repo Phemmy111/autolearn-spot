@@ -340,6 +340,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   // Toggle play/pause via the API
   const handlePlayPause = useCallback(() => {
+    console.log('[YouTubePlayer] Play/Pause clicked - isPlaying:', isPlaying, 'Player ready:', !!playerRef.current)
     if (!playerRef.current) return
     try {
       if (isPlaying) {
@@ -347,8 +348,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       } else {
         playerRef.current.playVideo()
       }
-    } catch {
-      // Player may not be ready
+    } catch (err) {
+      console.error('[YouTubePlayer] Play/Pause error:', err)
     }
   }, [isPlaying])
 
@@ -375,11 +376,13 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     try {
       const currentTime = playerRef.current.getCurrentTime()
       const duration = playerRef.current.getDuration()
+      console.log('[YouTubePlayer] Fast forward - Current time:', currentTime, 'Duration:', duration)
       const newTime = Math.min(currentTime + 10, duration)
+      console.log('[YouTubePlayer] Fast forward - New time:', newTime)
       playerRef.current.seekTo(newTime, true)
       setProgress((newTime / duration) * 100)
-    } catch {
-      // Player may not be ready
+    } catch (err) {
+      console.error('[YouTubePlayer] Fast forward error:', err)
     }
   }, [])
 
@@ -389,11 +392,13 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     try {
       const currentTime = playerRef.current.getCurrentTime()
       const duration = playerRef.current.getDuration()
+      console.log('[YouTubePlayer] Rewind - Current time:', currentTime, 'Duration:', duration)
       const newTime = Math.max(currentTime - 10, 0)
+      console.log('[YouTubePlayer] Rewind - New time:', newTime)
       playerRef.current.seekTo(newTime, true)
       setProgress((newTime / duration) * 100)
-    } catch {
-      // Player may not be ready
+    } catch (err) {
+      console.error('[YouTubePlayer] Rewind error:', err)
     }
   }, [])
 
@@ -444,7 +449,11 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       {!isLoading && (
         <div
           className="absolute inset-0 z-10 cursor-pointer"
-          onClick={handlePlayPause}
+          onClick={(e) => {
+            console.log('[YouTubePlayer] Video overlay clicked')
+            e.stopPropagation()
+            handlePlayPause()
+          }}
         />
       )}
 
@@ -453,7 +462,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center gap-4 px-4 pb-4">
           {/* Rewind button */}
           <button
-            onClick={handleRewind}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleRewind()
+            }}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
             title="Rewind 10s"
           >
@@ -464,7 +476,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           <div
             ref={progressBarRef}
             className="flex-1 h-[6px] cursor-pointer bg-white/30 transition-all hover:h-[10px]"
-            onClick={handleSeek}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSeek(e)
+            }}
           >
             <div
               className="h-full bg-neutral-900 transition-all duration-300"
@@ -474,7 +489,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
           {/* Fast forward button */}
           <button
-            onClick={handleFastForward}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleFastForward()
+            }}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
             title="Fast forward 10s"
           >
@@ -483,7 +501,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
           {/* Fullscreen button */}
           <button
-            onClick={toggleFullscreen}
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleFullscreen()
+            }}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
             title="Fullscreen"
           >
