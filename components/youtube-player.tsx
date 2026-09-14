@@ -159,7 +159,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         containerRef.current.innerHTML = ''
         containerRef.current.appendChild(playerDiv)
 
-        playerRef.current = new window.YT.Player(playerDiv.id, {
+        new window.YT.Player(playerDiv.id, {
           videoId,
           width: '100%',
           height: '100%',
@@ -179,6 +179,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
+              playerRef.current = event.target
               setIsLoading(false)
               migrationLog.mount(lessonId, 'youtube', 'v2')
 
@@ -206,7 +207,11 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             },
             onStateChange: (event: YT.OnStateChangeEvent) => {
               const player = event.target
-              console.log('[YouTubePlayer] State change - event.data:', event.data, 'isPlaying:', isPlaying)
+              
+              // Always update playerRef when we get a state change event
+              if (!playerRef.current) {
+                playerRef.current = player
+              }
 
               if (event.data === window.YT.PlayerState.PLAYING) {
                 setIsPlaying(true)
