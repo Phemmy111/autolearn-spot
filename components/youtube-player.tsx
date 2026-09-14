@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { markVideoComplete } from '@/components/progress-tracker'
 import { migrationLog } from '@/utils/migration-logger'
-import { Loader2, AlertCircle, RefreshCw, Play, Pause, Rewind, FastForward } from 'lucide-react'
+import { Loader2, AlertCircle, RefreshCw, Rewind, FastForward, Maximize, RotateCw } from 'lucide-react'
 // YT namespace and Window extension are declared in types/youtube.d.ts
 
 interface YouTubePlayerProps {
@@ -55,6 +55,7 @@ function loadYouTubeAPI(): Promise<void> {
 export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: YouTubePlayerProps) {
   const { userId } = useAuth()
   const containerRef = useRef<HTMLDivElement>(null)
+  const playerContainerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YT.Player | null>(null)
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const markedCompleteRef = useRef(false)
@@ -65,7 +66,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
   const [error, setError] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
-  const progressBarRef = useRef<HTMLDivElement>(null)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [showControls, setShowControls] = useState(true)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showRewindIndicator, setShowRewindIndicator] = useState(false)
+  const [showForwardIndicator, setShowForwardIndicator] = useState(false)
+  const controlsTimeoutRef = useRef<NodeJS.Timeout>()
+  const lastTapRef = useRef<number>(0)
 
   // Save progress to the server — reuses the existing /api/progress endpoint
   const saveProgress = useCallback(
@@ -143,20 +151,20 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   // Initialise YouTube player
   useEffect(() => {
-    if (!videoId || !containerRef.current) return
+    if (!videoId || !playerContainerRef.current) return
 
     let destroyed = false
 
     const init = async () => {
       try {
         await loadYouTubeAPI()
-        if (destroyed || !containerRef.current) return
+        if (destroyed || !playerContainerRef.current) return
 
         // Create a placeholder div inside the container for YT.Player to replace
         const playerDiv = document.createElement('div')
         playerDiv.id = `yt-player-${lessonId}`
-        containerRef.current.innerHTML = ''
-        containerRef.current.appendChild(playerDiv)
+        playerContainerRef.current.innerHTML = ''
+        playerContainerRef.current.appendChild(playerDiv)
 
         playerRef.current = new window.YT.Player(playerDiv.id, {
           videoId,
@@ -181,8 +189,11 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               setIsLoading(false)
               migrationLog.mount(lessonId, 'youtube', 'v2')
 
+              const playerDuration = event.target.getDuration()
+              setDuration(playerDuration)
+
               // Crop the top title bar by extending the iframe beyond the container
-              const iframe = containerRef.current?.querySelector('iframe')
+              const iframe = playerContainerRef.current?.querySelector('iframe')
               if (iframe) {
                 iframe.style.position = 'absolute'
                 iframe.style.top = '-60px'
@@ -199,6 +210,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               ) {
                 hasResumedRef.current = true
                 event.target.seekTo(resumeFromSeconds, true)
+                setCurrentTime(resumeFromSeconds)
                 migrationLog.resume(lessonId, resumeFromSeconds)
               }
             },
@@ -219,6 +231,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                     const duration = player.getDuration()
                     if (duration > 0) {
                       setProgress((currentTime / duration) * 100)
+                      setCurrentTime(currentTime)
+                      setDuration(duration)
                     }
                     saveProgress(currentTime, duration)
                   } catch {
@@ -309,15 +323,53 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     }
   }, [videoId, lessonId, resumeFromSeconds, saveProgress])
 
+  // Auto-hide controls when playing
+  useEffect(() => {
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false)
+      }, 3000)
+    }
+
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current)
+      }
+    }
+  }, [isPlaying, showControls])
+
+  // Fullscreen toggle
+  const toggleFullscreen = useCallback(() => {
+    if (!playerContainerRef.current) return
+
+    if (!document.fullscreenElement) {
+      playerContainerRef.current.requestFullscreen()
+      setIsFullscreen(true)
+    } else {
+      document.exitFullscreen()
+      setIsFullscreen(false)
+    }
+  }, [])
+
+  // Handle fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
+
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 bg-brand-bg p-8 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-4 bg-neutral-900 p-8 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
           <AlertCircle className="h-8 w-8 text-red-400" />
         </div>
         <div>
           <p className="font-mono text-sm font-semibold text-red-400">{error}</p>
-          <p className="mt-1 font-mono text-xs text-brand-text/60">
+          <p className="mt-1 font-mono text-xs text-neutral-500">
             Video ID: {videoId}
           </p>
         </div>
@@ -328,7 +380,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             markedCompleteRef.current = false
             hasResumedRef.current = false
           }}
-          className="flex items-center gap-2 border border-[#3b494b] bg-brand-bg px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#10b981] transition-colors hover:border-[#10b981] hover:bg-brand-bg"
+          className="flex items-center gap-2 border border-neutral-700 bg-neutral-800 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-700"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Retry
@@ -351,22 +403,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     }
   }, [isPlaying])
 
-  // Seek when clicking the progress bar
-  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!playerRef.current || !progressBarRef.current) return
-    try {
-      const rect = progressBarRef.current.getBoundingClientRect()
-      const clickX = e.clientX - rect.left
-      const pct = clickX / rect.width
-      const duration = playerRef.current.getDuration()
-      if (duration > 0) {
-        playerRef.current.seekTo(pct * duration, true)
-        setProgress(pct * 100)
-      }
-    } catch {
-      // Player may not be ready
-    }
-  }, [])
+
 
   // Fast forward 10 seconds
   const handleFastForward = useCallback(() => {
@@ -377,6 +414,11 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       const newTime = Math.min(currentTime + 10, duration)
       playerRef.current.seekTo(newTime, true)
       setProgress((newTime / duration) * 100)
+      setCurrentTime(newTime)
+
+      // Show indicator
+      setShowForwardIndicator(true)
+      setTimeout(() => setShowForwardIndicator(false), 500)
     } catch {
       // Player may not be ready
     }
@@ -391,80 +433,160 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       const newTime = Math.max(currentTime - 10, 0)
       playerRef.current.seekTo(newTime, true)
       setProgress((newTime / duration) * 100)
+      setCurrentTime(newTime)
+
+      // Show indicator
+      setShowRewindIndicator(true)
+      setTimeout(() => setShowRewindIndicator(false), 500)
     } catch {
       // Player may not be ready
     }
   }, [])
 
+  // Handle double-tap gestures and center tap
+  const handleVideoClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!playerContainerRef.current) return
+
+    const rect = playerContainerRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const width = rect.width
+
+    const now = Date.now()
+    const timeSinceLastTap = now - lastTapRef.current
+
+    // Left 30% - rewind on double-tap
+    if (x < width * 0.3) {
+      if (timeSinceLastTap < 300) {
+        handleRewind()
+        lastTapRef.current = 0
+      } else {
+        lastTapRef.current = now
+      }
+      return
+    }
+
+    // Right 30% - fast forward on double-tap
+    if (x > width * 0.7) {
+      if (timeSinceLastTap < 300) {
+        handleFastForward()
+        lastTapRef.current = 0
+      } else {
+        lastTapRef.current = now
+      }
+      return
+    }
+
+    // Center - play/pause on single tap
+    handlePlayPause()
+    setShowControls(true)
+  }, [handlePlayPause, handleRewind, handleFastForward])
+
+  // Format time helper
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
   return (
     <div
+      ref={containerRef}
       className="relative h-full w-full overflow-hidden bg-black"
       onContextMenu={(e) => e.preventDefault()}
+      onClick={handleVideoClick}
+      onMouseMove={() => setShowControls(true)}
+      onMouseLeave={() => isPlaying && setShowControls(false)}
     >
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-brand-bg">
-          <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-text/60">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-neutral-900">
+          <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
             Loading video…
           </p>
         </div>
       )}
 
       {/* The YouTube iframe (controls: 0 hides native UI) */}
-      <div
-        ref={containerRef}
-        className="absolute inset-0"
-      />
+      <div ref={playerContainerRef} className="absolute inset-0" />
 
-      {/* Click-to-play/pause overlay — covers the entire video area */}
+      {/* Double-tap indicators */}
+      <div className="absolute inset-0 pointer-events-none flex justify-between px-8 z-10">
+        <div className="w-1/3 h-full flex items-center justify-start">
+          <div className={`flex items-center gap-2 bg-black/70 text-white px-4 py-3 rounded-lg backdrop-blur-sm transition-opacity ${showRewindIndicator ? 'opacity-100' : 'opacity-0'}`}>
+            <RotateCw className="w-6 h-6 rotate-180" />
+            <span className="text-sm font-bold">-10s</span>
+          </div>
+        </div>
+        <div className="w-1/3 h-full flex items-center justify-end">
+          <div className={`flex items-center gap-2 bg-black/70 text-white px-4 py-3 rounded-lg backdrop-blur-sm transition-opacity ${showForwardIndicator ? 'opacity-100' : 'opacity-0'}`}>
+            <RotateCw className="w-6 h-6" />
+            <span className="text-sm font-bold">+10s</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom controls overlay */}
       {!isLoading && (
         <div
-          className="absolute inset-0 z-10 cursor-pointer"
-          onClick={handlePlayPause}
+          className={`absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 transition-opacity duration-300 ${
+            showControls ? 'opacity-100' : 'opacity-0'
+          }`}
         >
-          {/* Show play/pause icon briefly on state change */}
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-bg/90 shadow-lg shadow-[#00f0ff]/30">
-                <Play className="h-10 w-10 text-black ml-1" />
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Custom progress bar at the bottom */}
-      {!isLoading && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center gap-4 px-4 pb-4">
-          {/* Rewind button */}
-          <button
-            onClick={handleRewind}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-bg text-brand-text transition-all hover:bg-brand-bg hover:text-black"
-            title="Rewind 10s"
-          >
-            <Rewind className="h-5 w-5" />
-          </button>
-
           {/* Progress bar */}
-          <div
-            ref={progressBarRef}
-            className="flex-1 h-[6px] cursor-pointer bg-[var(--card)] brightness-95/20 transition-all hover:h-[10px]"
-            onClick={handleSeek}
-          >
-            <div
-              className="h-full bg-brand-bg transition-all duration-300"
-              style={{ width: `${progress}%` }}
+          <div className="mb-4">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={progress}
+              onChange={(e) => {
+                const pct = parseInt(e.target.value)
+                if (playerRef.current && duration > 0) {
+                  const newTime = (pct / 100) * duration
+                  playerRef.current.seekTo(newTime, true)
+                  setProgress(pct)
+                  setCurrentTime(newTime)
+                }
+              }}
+              className="w-full h-1 bg-white/30 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform"
             />
           </div>
 
-          {/* Fast forward button */}
-          <button
-            onClick={handleFastForward}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-bg text-brand-text transition-all hover:bg-brand-bg hover:text-black"
-            title="Fast forward 10s"
-          >
-            <FastForward className="h-5 w-5" />
-          </button>
+          {/* Control buttons */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {/* Play/Pause */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handlePlayPause()
+                }}
+                className="text-white hover:text-gray-300 transition-colors"
+              >
+                {isPlaying ? (
+                  <Pause className="w-6 h-6" />
+                ) : (
+                  <Play className="w-6 h-6 ml-1" />
+                )}
+              </button>
+
+              {/* Time */}
+              <span className="text-white text-sm font-medium">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
+            </div>
+
+            {/* Fullscreen */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleFullscreen()
+              }}
+              className="text-white hover:text-gray-300 transition-colors"
+            >
+              <Maximize className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       )}
     </div>
