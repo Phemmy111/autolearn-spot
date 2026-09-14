@@ -181,26 +181,37 @@ export default async function VideoPage({ params }: VideoPageProps) {
   }
 
   // Fetch quizzes attached to this lesson
-  const { data: lessonQuizzes } = await supabaseAdmin
+  const lessonIdForQuery = lesson.uuid_id || lesson.id
+  console.info('[video-page] lesson-query-info', {
+    lessonIdForQuery,
+    hasUuid: !!lesson.uuid_id,
+    hasLegacyId: !!lesson.id,
+  })
+
+  const { data: lessonQuizzes, error: quizError } = await supabaseAdmin
     .from('quizzes')
-    .select('id, title, description, time_limit, passing_score')
-    .eq('lesson_id', lesson.uuid_id || lesson.id)
+    .select('id, title, description, time_limit, passing_score, lesson_id')
+    .eq('lesson_id', lessonIdForQuery)
     .eq('is_active', true)
 
   console.info('[video-page] lesson-quizzes', {
-    lessonId: lesson.uuid_id || lesson.id,
+    lessonId: lessonIdForQuery,
     quizCount: lessonQuizzes?.length || 0,
+    quizError: quizError?.message,
+    quizzes: lessonQuizzes,
   })
 
   // Fetch assignments attached to this lesson
-  const { data: lessonAssignments } = await supabaseAdmin
+  const { data: lessonAssignments, error: assignmentError } = await supabaseAdmin
     .from('assignments')
-    .select('id, title, description, due_date, file_url')
-    .eq('lesson_id', lesson.uuid_id || lesson.id)
+    .select('id, title, description, due_date, file_url, lesson_id')
+    .eq('lesson_id', lessonIdForQuery)
 
   console.info('[video-page] lesson-assignments', {
-    lessonId: lesson.uuid_id || lesson.id,
+    lessonId: lessonIdForQuery,
     assignmentCount: lessonAssignments?.length || 0,
+    assignmentError: assignmentError?.message,
+    assignments: lessonAssignments,
   })
 
   return (
