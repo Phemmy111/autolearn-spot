@@ -4,7 +4,6 @@ import { ArrowLeft, Download, Clock, BookOpen, FileText, ClipboardCheck } from '
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AutolearnBot } from '@/components/autolearn-bot'
-import VideoPlayer from '@/components/video-player'
 import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 import { getLessonById } from '@/lib/lesson-service'
 import { getUserEnrollments } from '@/lib/enrollment-service'
@@ -244,14 +243,17 @@ export default async function VideoPage({ params }: VideoPageProps) {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
-          ) : (
-            <VideoPlayer
-              lessonId={lesson.uuid_id || lesson.id}
-              youtubeVideoId={lesson.youtube_video_id || undefined}
-              vimeoVideoId={lesson.vimeo_video_id || undefined}
-              vdoCipherVideoId={lesson.vdo_cipher_video_id || undefined}
-              resumeFromSeconds={resumeFromSeconds}
+          ) : lesson.vimeo_video_id ? (
+            <iframe
+              src={`https://player.vimeo.com/video/${lesson.vimeo_video_id}?autoplay=1`}
+              className="w-full h-full"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
             />
+          ) : (
+            <div className="flex items-center justify-center h-full text-neutral-400">
+              No video available
+            </div>
           )}
         </div>
 
@@ -360,8 +362,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
           </div>
         )}
       </div>
-      {/* TEMPORARILY DISABLED: AutolearnBot to debug mobile black overlay */}
-      {/* <AutolearnBot context="dashboard" /> */}
+      <AutolearnBot context="dashboard" />
     </main>
   )
 }
