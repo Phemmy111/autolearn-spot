@@ -135,36 +135,9 @@ export default async function VideoPage({ params }: VideoPageProps) {
     userId: userId.slice(0, 8) + '...',
   });
 
-  // Fetch saved progress so the player can resume from the last position
+  // TEMPORARILY DISABLED: Fetch saved progress so the player can resume from the last position
+  // This is causing video loading issues
   let resumeFromSeconds = 0
-  try {
-    // Try lesson_uuid_id first (product lessons)
-    const { data: progressRow } = await supabaseAdmin
-      .from('lesson_progress')
-      .select('watch_pct, completed, last_position_seconds')
-      .eq('user_id', userId)
-      .eq('lesson_uuid_id', lesson.uuid_id || lesson.id)
-      .single()
-
-    // If not found, try lesson_id (cohort lessons)
-    let finalProgressRow = progressRow;
-    if (!progressRow) {
-      const { data: legacyProgressRow } = await supabaseAdmin
-        .from('lesson_progress')
-        .select('watch_pct, completed, last_position_seconds')
-        .eq('user_id', userId)
-        .eq('lesson_id', lesson.id)
-        .single();
-      finalProgressRow = legacyProgressRow;
-    }
-
-    // Only resume if not yet completed and position is meaningful (> 5s)
-    if (finalProgressRow && !finalProgressRow.completed && finalProgressRow.last_position_seconds > 5) {
-      resumeFromSeconds = finalProgressRow.last_position_seconds
-    }
-  } catch {
-    // Non-fatal — player will start from the beginning
-  }
 
   // Parse resources from JSON
   let resources: { label: string; url: string }[] = []

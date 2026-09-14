@@ -193,17 +193,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 iframe.style.height = 'calc(100% + 120px)' // +60 top +60 bottom
               }
 
-              // Resume from saved position if provided
-              if (
-                resumeFromSeconds &&
-                resumeFromSeconds > 0 &&
-                !hasResumedRef.current
-              ) {
-                hasResumedRef.current = true
-                console.log('[YouTubePlayer] Resuming from:', resumeFromSeconds)
-                event.target.seekTo(resumeFromSeconds, false)
-                migrationLog.resume(lessonId, resumeFromSeconds)
-              }
+              // TEMPORARILY DISABLED: Resume from saved position to fix video loading
             },
             onStateChange: (event: YT.OnStateChangeEvent) => {
               const player = event.target
