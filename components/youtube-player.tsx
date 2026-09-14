@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { markVideoComplete } from '@/components/progress-tracker'
 import { migrationLog } from '@/utils/migration-logger'
-import { Loader2, AlertCircle, RefreshCw, Play, Pause, Rewind, FastForward } from 'lucide-react'
+import { Loader2, AlertCircle, RefreshCw, Play, Pause, Rewind, FastForward, Maximize } from 'lucide-react'
 // YT namespace and Window extension are declared in types/youtube.d.ts
 
 interface YouTubePlayerProps {
@@ -65,6 +65,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
   const [error, setError] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const progressBarRef = useRef<HTMLDivElement>(null)
 
   // Save progress to the server — reuses the existing /api/progress endpoint
@@ -311,13 +312,13 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 bg-brand-bg p-8 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-4 bg-neutral-900 p-8 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
           <AlertCircle className="h-8 w-8 text-red-400" />
         </div>
         <div>
           <p className="font-mono text-sm font-semibold text-red-400">{error}</p>
-          <p className="mt-1 font-mono text-xs text-brand-text/60">
+          <p className="mt-1 font-mono text-xs text-neutral-500">
             Video ID: {videoId}
           </p>
         </div>
@@ -328,7 +329,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             markedCompleteRef.current = false
             hasResumedRef.current = false
           }}
-          className="flex items-center gap-2 border border-[#3b494b] bg-brand-bg px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-[#10b981] transition-colors hover:border-[#10b981] hover:bg-brand-bg"
+          className="flex items-center gap-2 border border-neutral-700 bg-neutral-800 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-wider text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-700"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Retry
@@ -396,15 +397,38 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     }
   }, [])
 
+  // Fullscreen toggle
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return
+
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen()
+      setIsFullscreen(true)
+    } else {
+      document.exitFullscreen()
+      setIsFullscreen(false)
+    }
+  }, [])
+
+  // Handle fullscreen change
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
+
   return (
     <div
       className="relative h-full w-full overflow-hidden bg-black"
       onContextMenu={(e) => e.preventDefault()}
     >
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-brand-bg">
-          <Loader2 className="h-8 w-8 animate-spin text-[#10b981]" />
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-text/60">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-neutral-900">
+          <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
+          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
             Loading video…
           </p>
         </div>
@@ -439,7 +463,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Rewind button */}
           <button
             onClick={handleRewind}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-bg text-brand-text transition-all hover:bg-brand-bg hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
             title="Rewind 10s"
           >
             <Rewind className="h-5 w-5" />
@@ -448,11 +472,11 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Progress bar */}
           <div
             ref={progressBarRef}
-            className="flex-1 h-[6px] cursor-pointer bg-[var(--card)] brightness-95/20 transition-all hover:h-[10px]"
+            className="flex-1 h-[6px] cursor-pointer bg-white/30 transition-all hover:h-[10px]"
             onClick={handleSeek}
           >
             <div
-              className="h-full bg-brand-bg transition-all duration-300"
+              className="h-full bg-neutral-900 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -460,10 +484,19 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           {/* Fast forward button */}
           <button
             onClick={handleFastForward}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-bg text-brand-text transition-all hover:bg-brand-bg hover:text-black"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
             title="Fast forward 10s"
           >
             <FastForward className="h-5 w-5" />
+          </button>
+
+          {/* Fullscreen button */}
+          <button
+            onClick={toggleFullscreen}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-neutral-900 transition-all hover:bg-neutral-100"
+            title="Fullscreen"
+          >
+            <Maximize className="h-5 w-5" />
           </button>
         </div>
       )}
