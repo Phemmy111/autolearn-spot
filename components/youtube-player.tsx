@@ -115,7 +115,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
         migrationLog.progressSaveError(lessonId, err)
       }
     },
-    [userId, lessonId]
+    [userId, lessonId, onComplete]
   )
 
   // Save progress on page unload / navigation

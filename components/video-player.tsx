@@ -34,6 +34,7 @@ export default function VideoPlayer({
   vimeoVideoId,
   vdoCipherVideoId,
   resumeFromSeconds,
+  onComplete,
 }: VideoPlayerProps) {
   // ── V2: YouTube Iframe API (permanent engine for all devices) ────
   if (youtubeVideoId) {
