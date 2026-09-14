@@ -17,13 +17,56 @@ export default async function CoursePage({ params }: { params: { id: string } })
     userId: userId.slice(0, 8) + '...',
   });
 
-  // 1. Verify ownership - only check product enrollment
-  const { data: enrollment } = await supabaseAdmin
+  // 1. Verify ownership - check product enrollment first, then cohort enrollment as fallback
+  let enrollment: any = null;
+  let isCohortEnrollment = false;
+
+  // First, try product enrollment
+  const { data: productEnrollment } = await supabaseAdmin
     .from('enrollments')
     .select('id, activated_at, status, learning_product:learning_products(*)')
     .eq('clerk_user_id', userId)
     .eq('learning_product_id', productId)
     .single();
+
+  if (productEnrollment) {
+    enrollment = productEnrollment;
+    console.info('[course-page] product-enrollment-found', {
+      enrollmentId: enrollment.id,
+      activatedAt: enrollment.activated_at,
+      status: enrollment.status,
+    });
+  } else {
+    // Fallback: check if user has a cohort enrollment for this product
+    const { data: product } = await supabaseAdmin
+      .from('learning_products')
+      .select('id, title, description, access_duration_days, cohort_id')
+      .eq('id', productId)
+      .single();
+
+    if (product && product.cohort_id) {
+      const { data: cohortEnrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('id, activated_at, status, cohort_id')
+        .eq('clerk_user_id', userId)
+        .eq('cohort_id', product.cohort_id)
+        .single();
+
+      if (cohortEnrollment) {
+        isCohortEnrollment = true;
+        enrollment = {
+          ...cohortEnrollment,
+          learning_product: product,
+        };
+        console.info('[course-page] cohort-enrollment-found', {
+          enrollmentId: enrollment.id,
+          cohortId: product.cohort_id,
+          activatedAt: enrollment.activated_at,
+          status: enrollment.status,
+        });
+      }
+    }
+  }
 
   if (!enrollment) {
     console.warn('[course-page] enrollment-not-found', {
@@ -33,17 +76,12 @@ export default async function CoursePage({ params }: { params: { id: string } })
     redirect('/dashboard'); // Not enrolled
   }
 
-  console.info('[course-page] enrollment-found', {
-    enrollmentId: enrollment.id,
-    activatedAt: enrollment.activated_at,
-    status: enrollment.status,
-  });
-
-  const isStarted = !!enrollment.activated_at;
+  const isStarted = !!enrollment.activated_at || isCohortEnrollment; // Cohort enrollments are auto-started
   const course: any = Array.isArray(enrollment.learning_product) ? enrollment.learning_product[0] : enrollment.learning_product;
 
   console.info('[course-page] course-start-status', {
     isStarted,
+    isCohortEnrollment,
     activatedAt: enrollment.activated_at,
   });
 
@@ -59,45 +97,76 @@ export default async function CoursePage({ params }: { params: { id: string } })
     countdownPercent = Math.max(0, Math.min(100, 100 - (daysLeft / course.access_duration_days) * 100));
   }
 
-  // 3. Fetch all lessons ordered (product-based only)
-  const lessons = await getLessonsForProduct(productId);
+  // 3. Fetch all lessons ordered (support both product and cohort lessons)
+  let lessons: any[] = [];
+  if (isCohortEnrollment) {
+    // For cohort enrollments, fetch cohort lessons
+    const { data: product } = await supabaseAdmin
+      .from('learning_products')
+      .select('cohort_id')
+      .eq('id', productId)
+      .single();
+
+    if (product?.cohort_id) {
+      const { data: cohortLessons } = await supabaseAdmin
+        .from('lessons')
+        .select('*')
+        .eq('cohort_id', product.cohort_id)
+        .order('order_index', { ascending: true });
+      lessons = cohortLessons || [];
+      console.info('[course-page] cohort-lessons-loaded', {
+        cohortId: product.cohort_id,
+        lessonCount: lessons.length,
+      });
+    }
+  } else {
+    // For product enrollments, fetch product lessons
+    lessons = await getLessonsForProduct(productId);
+  }
+
   lessons.sort((a, b) => a.order_index - b.order_index);
 
   console.info('[course-page] lessons-loaded', {
     lessonCount: lessons.length,
     firstLessonId: lessons[0]?.uuid_id || lessons[0]?.id,
+    isCohortEnrollment,
   });
 
-  // 4. Fetch progress for these lessons (use uuid_id for product lessons)
-  // Also try lesson_id for backwards compatibility with existing progress
-  const lessonIds = lessons.map(l => l.uuid_id || l.id);
-  const legacyLessonIds = lessons.map(l => l.id);
+  // 4. Fetch progress for these lessons
+  // Cohort lessons use lesson_id, product lessons use lesson_uuid_id
   let progressMap = new Map();
-  if (lessonIds.length > 0) {
-    // Try uuid_id first
-    const { data: progressRows } = await supabaseAdmin
-      .from('lesson_progress')
-      .select('lesson_uuid_id, watch_pct, completed')
-      .eq('user_id', userId)
-      .in('lesson_uuid_id', lessonIds);
-
-    progressMap = new Map(progressRows?.map((p: any) => [p.lesson_uuid_id, p]) || []);
-
-    // If no progress found, try legacy lesson_id
-    if (progressMap.size === 0) {
-      const { data: legacyProgressRows } = await supabaseAdmin
+  if (lessons.length > 0) {
+    if (isCohortEnrollment) {
+      // Cohort lessons use legacy lesson_id
+      const lessonIds = lessons.map(l => l.id);
+      const { data: progressRows } = await supabaseAdmin
         .from('lesson_progress')
         .select('lesson_id, watch_pct, completed')
         .eq('user_id', userId)
-        .in('lesson_id', legacyLessonIds);
+        .in('lesson_id', lessonIds);
 
-      progressMap = new Map(legacyProgressRows?.map((p: any) => [p.lesson_id, p]) || []);
+      progressMap = new Map(progressRows?.map((p: any) => [p.lesson_id, p]) || []);
+
+      console.info('[course-page] progress-loaded-cohort', {
+        progressCount: progressMap.size,
+        completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
+      });
+    } else {
+      // Product lessons use uuid_id
+      const lessonIds = lessons.map(l => l.uuid_id || l.id);
+      const { data: progressRows } = await supabaseAdmin
+        .from('lesson_progress')
+        .select('lesson_uuid_id, watch_pct, completed')
+        .eq('user_id', userId)
+        .in('lesson_uuid_id', lessonIds);
+
+      progressMap = new Map(progressRows?.map((p: any) => [p.lesson_uuid_id, p]) || []);
+
+      console.info('[course-page] progress-loaded-product', {
+        progressCount: progressMap.size,
+        completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
+      });
     }
-
-    console.info('[course-page] progress-loaded', {
-      progressCount: progressMap.size,
-      completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
-    });
   }
 
   // 5. Determine unlock status (80% rule)
@@ -114,14 +183,14 @@ export default async function CoursePage({ params }: { params: { id: string } })
       unlocked = true;
     } else {
       const prevLesson = lessons[index - 1];
-      const prevLessonId = prevLesson.uuid_id || prevLesson.id;
+      const prevLessonId = isCohortEnrollment ? prevLesson.id : (prevLesson.uuid_id || prevLesson.id);
       const prevProgress = progressMap.get(prevLessonId);
       if (prevProgress && (prevProgress.completed || (prevProgress.watch_pct && prevProgress.watch_pct >= 80))) {
         unlocked = true;
       }
     }
 
-    const lessonId = lesson.uuid_id || lesson.id;
+    const lessonId = isCohortEnrollment ? lesson.id : (lesson.uuid_id || lesson.id);
     const prog = progressMap.get(lessonId);
     return {
       ...lesson,
@@ -149,7 +218,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
         </p>
 
         {/* Start Course Button OR Countdown Bar */}
-        {!isStarted ? (
+        {!isStarted && !isCohortEnrollment ? (
           <div className="mt-2 p-5 rounded-2xl border border-amber-300/60 bg-amber-50/60 max-w-xl">
             <div className="flex items-start gap-3 mb-4">
               <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
@@ -207,7 +276,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
                 } transition-all duration-300`}
               >
                 <Link
-                  href={lesson.unlocked ? `/dashboard/video/${lesson.uuid_id || lesson.id}` : '#'}
+                  href={lesson.unlocked ? `/dashboard/video/${isCohortEnrollment ? lesson.id : (lesson.uuid_id || lesson.id)}` : '#'}
                   className={`block aspect-video w-full relative overflow-hidden bg-brand-bg border-b border-neutral-100 ${!lesson.unlocked && 'cursor-not-allowed'}`}
                 >
                   <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -244,7 +313,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
                   
                   {lesson.unlocked ? (
                     <Link
-                      href={`/dashboard/video/${lesson.uuid_id || lesson.id}`}
+                      href={`/dashboard/video/${isCohortEnrollment ? lesson.id : (lesson.uuid_id || lesson.id)}`}
                       className="inline-flex items-center justify-center bg-[var(--card)] border border-brand-border px-4 py-2 text-sm font-semibold text-neutral-700 rounded-xl hover:bg-brand-bg transition-all shadow-sm"
                     >
                       {lesson.watch_pct > 0 ? 'Continue' : 'Watch'}

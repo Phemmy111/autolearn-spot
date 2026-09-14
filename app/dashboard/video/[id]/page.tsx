@@ -7,6 +7,7 @@ import { AutolearnBot } from '@/components/autolearn-bot'
 import VideoPlayer from '@/components/video-player'
 import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 import { getLessonById } from '@/lib/lesson-service'
+import { getUserEnrollments } from '@/lib/enrollment-service'
 
 interface VideoPageProps {
   params: Promise<{
@@ -46,7 +47,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
     cohortId: lesson.cohort_id,
   });
 
-  // Check if user has access to this lesson (product-based only)
+  // Check if user has access to this lesson
+  // Try product enrollment first, then cohort enrollment as fallback
   let hasAccess = false
   let backUrl = '/dashboard'
   let backLabel = 'Back to Dashboard'
@@ -71,6 +73,50 @@ export default async function VideoPage({ params }: VideoPageProps) {
       hasAccess = true
       backUrl = `/dashboard/course/${lesson.product_id}`
       backLabel = 'Back to Course'
+    } else {
+      // Fallback: check if product has a cohort and user is enrolled in that cohort
+      const { data: product } = await supabaseAdmin
+        .from('learning_products')
+        .select('cohort_id')
+        .eq('id', lesson.product_id)
+        .single();
+
+      if (product?.cohort_id) {
+        const { data: cohortEnrollment } = await supabaseAdmin
+          .from('enrollments')
+          .select('id, status, activated_at')
+          .eq('clerk_user_id', userId)
+          .eq('cohort_id', product.cohort_id)
+          .single();
+
+        console.info('[video-page] product-cohort-enrollment-check', {
+          productId: lesson.product_id,
+          cohortId: product.cohort_id,
+          cohortEnrollmentFound: !!cohortEnrollment,
+          cohortEnrollmentStatus: cohortEnrollment?.status,
+        });
+
+        if (cohortEnrollment && cohortEnrollment.status === 'active') {
+          hasAccess = true
+          backUrl = `/dashboard/course/${lesson.product_id}`
+          backLabel = 'Back to Course'
+        }
+      }
+    }
+  } else if (lesson.cohort_id) {
+    // Cohort-based lesson - check cohort enrollment
+    const { email } = await auth()
+    const enrollments = await getUserEnrollments(userId, email || '')
+    const cohortEnrollment = enrollments.find(e => e.cohort_id === lesson.cohort_id)
+
+    console.info('[video-page] cohort-enrollment-check', {
+      cohortId: lesson.cohort_id,
+      cohortEnrollmentFound: !!cohortEnrollment,
+      cohortEnrollmentStatus: cohortEnrollment?.status,
+    });
+
+    if (cohortEnrollment && cohortEnrollment.status === 'active') {
+      hasAccess = true
     }
   }
 
@@ -92,8 +138,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
   // Fetch saved progress so the player can resume from the last position
   let resumeFromSeconds = 0
   try {
-    // For product-based lessons, we don't need cohort_id
-    // Try to get progress by lesson_uuid_id
+    // Try lesson_uuid_id first (product lessons)
     const { data: progressRow } = await supabaseAdmin
       .from('lesson_progress')
       .select('watch_pct, completed, last_position_seconds')
@@ -101,9 +146,21 @@ export default async function VideoPage({ params }: VideoPageProps) {
       .eq('lesson_uuid_id', lesson.uuid_id || lesson.id)
       .single()
 
+    // If not found, try lesson_id (cohort lessons)
+    let finalProgressRow = progressRow;
+    if (!progressRow) {
+      const { data: legacyProgressRow } = await supabaseAdmin
+        .from('lesson_progress')
+        .select('watch_pct, completed, last_position_seconds')
+        .eq('user_id', userId)
+        .eq('lesson_id', lesson.id)
+        .single();
+      finalProgressRow = legacyProgressRow;
+    }
+
     // Only resume if not yet completed and position is meaningful (> 5s)
-    if (progressRow && !progressRow.completed && progressRow.last_position_seconds > 5) {
-      resumeFromSeconds = progressRow.last_position_seconds
+    if (finalProgressRow && !finalProgressRow.completed && finalProgressRow.last_position_seconds > 5) {
+      resumeFromSeconds = finalProgressRow.last_position_seconds
     }
   } catch {
     // Non-fatal — player will start from the beginning
