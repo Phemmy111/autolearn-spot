@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 import { getLessonById } from '@/lib/lesson-service'
 import { getUserEnrollments } from '@/lib/enrollment-service'
+import VideoPageClient from '@/components/video-page-client'
 
 interface VideoPageProps {
   params: Promise<{
@@ -133,9 +134,19 @@ export default async function VideoPage({ params }: VideoPageProps) {
     userId: userId.slice(0, 8) + '...',
   });
 
-  // TEMPORARILY DISABLED: Fetch saved progress so the player can resume from the last position
-  // This is causing video loading issues
+  // Fetch saved progress
   let resumeFromSeconds = 0
+  try {
+    const { email } = await auth()
+    const cohortId = await getUserCohortId(userId, email || '')
+    const progressRows = await getUserProgress(userId, cohortId)
+    const row = progressRows.find((p) => p.lesson_id === (lesson.uuid_id || lesson.id))
+    if (row && !row.completed && row.last_position_seconds > 5) {
+      resumeFromSeconds = row.last_position_seconds
+    }
+  } catch (err) {
+    console.error('Failed to fetch progress:', err)
+  }
 
   // Parse resources from JSON
   let resources: { label: string; url: string }[] = []
@@ -153,296 +164,54 @@ export default async function VideoPage({ params }: VideoPageProps) {
 
   // Fetch quizzes attached to this lesson
   const lessonIdForQuery = lesson.uuid_id || lesson.id
-  console.info('[video-page] lesson-query-info', {
-    lessonIdForQuery,
-    hasUuid: !!lesson.uuid_id,
-    hasLegacyId: !!lesson.id,
-  })
-
-  const { data: lessonQuizzes, error: quizError } = await supabaseAdmin
+  const { data: lessonQuizzes } = await supabaseAdmin
     .from('quizzes')
     .select('id, title, description, time_limit, passing_score, lesson_id')
     .eq('lesson_id', lessonIdForQuery)
     .eq('is_active', true)
 
-  console.info('[video-page] lesson-quizzes', {
-    lessonId: lessonIdForQuery,
-    quizCount: lessonQuizzes?.length || 0,
-    quizError: quizError?.message,
-    quizzes: lessonQuizzes,
-  })
-
   // Fetch assignments attached to this lesson
-  const { data: lessonAssignments, error: assignmentError } = await supabaseAdmin
+  const { data: lessonAssignments } = await supabaseAdmin
     .from('assignments')
     .select('id, title, description, due_date, lesson_id')
     .eq('lesson_id', lessonIdForQuery)
 
-  console.info('[video-page] lesson-assignments', {
-    lessonId: lessonIdForQuery,
-    assignmentCount: lessonAssignments?.length || 0,
-    assignmentError: assignmentError?.message,
-    assignments: lessonAssignments,
-  })
-
-  // Also check if there are any assignments in the database at all
-  const { data: allAssignments, error: allAssignmentsError } = await supabaseAdmin
-    .from('assignments')
-    .select('id, title, lesson_id')
-    .limit(5)
-
-  console.info('[video-page] all-assignments-sample', {
-    totalCount: allAssignments?.length || 0,
-    error: allAssignmentsError?.message,
-    sample: allAssignments,
-  })
+  // Find next lesson
+  let nextLessonId: string | null = null
+  if (lesson.product_id) {
+    const { data: nextLessons } = await supabaseAdmin
+      .from('lessons')
+      .select('id, uuid_id')
+      .eq('product_id', lesson.product_id)
+      .gt('order_index', lesson.order_index)
+      .order('order_index', { ascending: true })
+      .limit(1)
+    if (nextLessons && nextLessons.length > 0) {
+      nextLessonId = nextLessons[0].uuid_id || nextLessons[0].id
+    }
+  } else if (lesson.cohort_id) {
+    const { data: nextLessons } = await supabaseAdmin
+      .from('lessons')
+      .select('id, uuid_id')
+      .eq('cohort_id', lesson.cohort_id)
+      .gt('order_index', lesson.order_index)
+      .order('order_index', { ascending: true })
+      .limit(1)
+    if (nextLessons && nextLessons.length > 0) {
+      nextLessonId = nextLessons[0].uuid_id || nextLessons[0].id
+    }
+  }
 
   return (
-    <main className="min-h-screen bg-neutral-50 text-neutral-900">
-      {/* Header */}
-      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-neutral-200 bg-white/95 px-4 backdrop-blur sm:px-6">
-        <Link
-          href={backUrl}
-          className="flex items-center gap-2 text-sm font-medium text-neutral-600 transition hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {backLabel}
-        </Link>
-      </nav>
-
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {/* Lesson Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-xs font-medium text-neutral-600">
-              <Clock className="h-3.5 w-3.5" />
-              {lesson.duration_label || 'Video Lesson'}
-            </span>
-            {lesson.week_number && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-xs font-medium text-neutral-600">
-                <BookOpen className="h-3.5 w-3.5" />
-                Week {lesson.week_number}
-              </span>
-            )}
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">
-            {lesson.title}
-          </h1>
-          <p className="mt-3 text-base text-neutral-600 leading-relaxed max-w-3xl">
-            {lesson.description || 'No description provided.'}
-          </p>
-        </div>
-
-        {/* Video Player Container */}
-        <div className="relative w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-lg" style={{ aspectRatio: '16/9', minHeight: '200px' }}>
-          {lesson.youtube_video_id ? (
-            <iframe
-              id={`youtube-player-${lesson.uuid_id || lesson.id}`}
-              src={`https://www.youtube.com/embed/${lesson.youtube_video_id}?modestbranding=1&rel=0&playsinline=1&showinfo=0&iv_load_policy=3&enablejsapi=1`}
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : lesson.vimeo_video_id ? (
-            <iframe
-              src={`https://player.vimeo.com/video/${lesson.vimeo_video_id}?autoplay=1`}
-              className="w-full h-full"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full text-neutral-400">
-              No video available
-            </div>
-          )}
-        </div>
-
-        {/* Progress Tracking Script */}
-        {lesson.youtube_video_id && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                var tag = document.createElement('script');
-                tag.src = "https://www.youtube.com/iframe_api";
-                var firstScriptTag = document.getElementsByTagName('script')[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-                var player;
-                var lessonId = '${lesson.uuid_id || lesson.id}';
-                var interval;
-
-                function onYouTubeIframeAPIReady() {
-                  player = new YT.Player('youtube-player-' + lessonId, {
-                    events: {
-                      'onStateChange': function(event) {
-                        if (event.data == YT.PlayerState.PLAYING) {
-                          startProgressTracking();
-                        } else {
-                          stopProgressTracking();
-                        }
-                      }
-                    }
-                  });
-                }
-
-                function startProgressTracking() {
-                  if (interval) clearInterval(interval);
-                  interval = setInterval(function() {
-                    try {
-                      var currentTime = player.getCurrentTime();
-                      var duration = player.getDuration();
-                      var watchPct = (currentTime / duration) * 100;
-                      
-                      if (watchPct >= 80) {
-                        saveProgress(watchPct, currentTime, true);
-                      } else {
-                        saveProgress(watchPct, currentTime, false);
-                      }
-                    } catch(e) {
-                      console.error('Progress tracking error:', e);
-                    }
-                  }, 5000);
-                }
-
-                function stopProgressTracking() {
-                  if (interval) {
-                    clearInterval(interval);
-                    interval = null;
-                  }
-                  try {
-                    var currentTime = player.getCurrentTime();
-                    var duration = player.getDuration();
-                    var watchPct = (currentTime / duration) * 100;
-                    saveProgress(watchPct, currentTime, false);
-                  } catch(e) {}
-                }
-
-                function saveProgress(watchPct, currentTime, completed) {
-                  fetch('/api/progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      lessonId: lessonId,
-                      watchPct: watchPct,
-                      lastPositionSeconds: currentTime,
-                      completed: completed
-                    })
-                  }).catch(console.error);
-                }
-
-                window.addEventListener('beforeunload', function() {
-                  stopProgressTracking();
-                });
-              `
-            }}
-          />
-        )}
-
-        {/* Resources Section */}
-        {resources && resources.length > 0 && (
-          <div className="mt-12 border border-neutral-200 bg-white rounded-2xl p-6 sm:p-8">
-            <h2 className="mb-6 text-lg font-semibold text-neutral-900">
-              Session Resources
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {resources.map((resource, i) => (
-                <a
-                  key={i}
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-neutral-50 hover:border-neutral-300 hover:bg-neutral-100 transition-colors"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-neutral-600">
-                    <Download className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium text-neutral-900">
-                    {resource.label}
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Quizzes Section */}
-        {lessonQuizzes && lessonQuizzes.length > 0 && (
-          <div className="mt-12 border border-neutral-200 bg-white rounded-2xl p-6 sm:p-8">
-            <h2 className="mb-6 text-lg font-semibold text-neutral-900 flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5" />
-              Quiz
-            </h2>
-            <div className="space-y-4">
-              {lessonQuizzes.map((quiz) => (
-                <div
-                  key={quiz.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-neutral-200 bg-neutral-50"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-medium text-neutral-900">{quiz.title}</h3>
-                    {quiz.description && (
-                      <p className="mt-1 text-sm text-neutral-600">{quiz.description}</p>
-                    )}
-                    <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
-                      {quiz.time_limit && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
-                          {quiz.time_limit} minutes
-                        </span>
-                      )}
-                      <span className="flex items-center gap-1">
-                        Pass mark: {quiz.passing_score}%
-                      </span>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/quiz/${quiz.id}`}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
-                  >
-                    Take Quiz
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Assignments Section */}
-        {lessonAssignments && lessonAssignments.length > 0 && (
-          <div className="mt-12 border border-neutral-200 bg-white rounded-2xl p-6 sm:p-8">
-            <h2 className="mb-6 text-lg font-semibold text-neutral-900 flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Assignment
-            </h2>
-            <div className="space-y-4">
-              {lessonAssignments.map((assignment) => (
-                <div
-                  key={assignment.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-neutral-200 bg-neutral-50"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-medium text-neutral-900">{assignment.title}</h3>
-                    {assignment.description && (
-                      <p className="mt-1 text-sm text-neutral-600">{assignment.description}</p>
-                    )}
-                    {assignment.due_date && (
-                      <p className="mt-2 text-xs text-neutral-500">
-                        Due: {new Date(assignment.due_date).toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                  <Link
-                    href={`/dashboard/assignments?assignment=${assignment.id}`}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
-                  >
-                    View Assignment
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </main>
+    <VideoPageClient 
+      lesson={lesson}
+      nextLessonId={nextLessonId}
+      resumeFromSeconds={resumeFromSeconds}
+      resources={resources}
+      quizzes={lessonQuizzes || []}
+      assignments={lessonAssignments || []}
+      backUrl={backUrl}
+      backLabel={backLabel}
+    />
   )
 }

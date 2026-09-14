@@ -15,6 +15,8 @@ interface VideoPlayerProps {
   vdoCipherVideoId?: string
   /** Resume position in seconds from saved progress */
   resumeFromSeconds?: number
+  /** Callback fired when the video completes or hits 90% */
+  onComplete?: () => void
 }
 
 /**
@@ -41,6 +43,7 @@ export default function VideoPlayer({
         videoId={youtubeVideoId}
         lessonId={lessonId}
         resumeFromSeconds={resumeFromSeconds}
+        onComplete={onComplete}
       />
     )
   }

@@ -12,6 +12,8 @@ interface YouTubePlayerProps {
   lessonId: string
   /** Resume playback from this position in seconds (from progress API) */
   resumeFromSeconds?: number
+  /** Callback fired when the video completes or hits 90% */
+  onComplete?: () => void
 }
 
 // Singleton: load the YouTube Iframe API script only once
@@ -52,7 +54,7 @@ function loadYouTubeAPI(): Promise<void> {
   return ytApiLoadPromise
 }
 
-export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: YouTubePlayerProps) {
+export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, onComplete }: YouTubePlayerProps) {
   const { userId } = useAuth()
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YT.Player | null>(null)
@@ -86,6 +88,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         payload.completed = true
         migrationLog.completion(lessonId, watchPct)
         markVideoComplete(userId, lessonId)
+        if (onComplete) {
+          // Call onComplete asynchronously so it doesn't block the save progress
+          setTimeout(onComplete, 0)
+        }
       }
 
       // Throttle: save every 15 seconds or 5% progress
@@ -208,6 +214,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               if (event.data === window.YT.PlayerState.PLAYING) {
                 setIsPlaying(true)
                 migrationLog.playback(lessonId, 'youtube', videoId)
+
+                // Safe resume logic on first play
+                if (resumeFromSeconds && resumeFromSeconds > 5 && !hasResumedRef.current) {
+                  hasResumedRef.current = true
+                  player.seekTo(resumeFromSeconds, true)
+                }
 
                 // Start progress tracking interval (every 5 seconds for UI + 15s for server)
                 if (progressIntervalRef.current) {
