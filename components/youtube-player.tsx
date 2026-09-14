@@ -440,21 +440,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
         className="absolute inset-0"
       />
 
-      {/* Click-to-play/pause overlay — covers the entire video area */}
+      {/* Click-to-play/pause overlay — covers the entire video area (no icon) */}
       {!isLoading && (
         <div
           className="absolute inset-0 z-10 cursor-pointer"
           onClick={handlePlayPause}
-        >
-          {/* Show play/pause icon briefly on state change */}
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-bg/90 shadow-lg shadow-[#00f0ff]/30">
-                <Play className="h-10 w-10 text-black ml-1" />
-              </div>
-            </div>
-          )}
-        </div>
+        />
       )}
 
       {/* Custom progress bar at the bottom */}
