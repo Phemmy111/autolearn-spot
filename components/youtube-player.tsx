@@ -170,12 +170,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             playsinline: 1,
             enablejsapi: 1,
             origin: window.location.origin,
-            disablekb: 1,
-            fs: 1,
-            // Show native controls for reliable play/pause
             controls: 1,
-            // Hide video annotations
-            iv_load_policy: 3,
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
@@ -438,17 +433,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     <div
       className="relative h-full w-full overflow-hidden bg-black"
     >
-
-
-      {/* The YouTube iframe (controls: 0 hides native UI) */}
+      {/* The YouTube iframe */}
       <div
         ref={containerRef}
-        className="absolute inset-0 z-10"
+        className="absolute inset-0"
+        style={{ width: '100%', height: '100%' }}
       />
-
-
-
-
     </div>
   )
 }
