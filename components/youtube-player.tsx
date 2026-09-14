@@ -179,8 +179,15 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
+              console.log('[YouTubePlayer] onReady fired - setting isLoading to false')
               playerRef.current = event.target
               setIsLoading(false)
+              
+              // Force hide loading overlay after a short delay as fallback
+              setTimeout(() => {
+                setIsLoading(false)
+              }, 1000)
+              
               migrationLog.mount(lessonId, 'youtube', 'v2')
 
               // TEMPORARILY DISABLED: Crop the top title bar - this might be hiding the video
@@ -433,7 +440,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       onContextMenu={(e) => e.preventDefault()}
     >
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-neutral-900">
+        <div className="absolute inset-0 z-0 flex flex-col items-center justify-center gap-3 bg-neutral-900">
           <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
             Loading video…
