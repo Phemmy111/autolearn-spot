@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { ArrowLeft, Download, Clock, BookOpen, FileText, ClipboardCheck } from 'lucide-react'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { AutolearnBot } from '@/components/autolearn-bot'
 import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 import { getLessonById } from '@/lib/lesson-service'
 import { getUserEnrollments } from '@/lib/enrollment-service'
@@ -362,7 +361,6 @@ export default async function VideoPage({ params }: VideoPageProps) {
           </div>
         )}
       </div>
-      <AutolearnBot context="dashboard" />
     </main>
   )
 }
