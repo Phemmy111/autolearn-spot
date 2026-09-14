@@ -240,8 +240,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 progressIntervalRef.current = setInterval(() => {
                   console.log('[YouTubePlayer] Progress interval tick')
                   try {
-                    const currentTime = player.getCurrentTime()
-                    const duration = player.getDuration()
+                    if (!playerRef.current) {
+                      console.log('[YouTubePlayer] Player ref is null')
+                      return
+                    }
+                    const currentTime = playerRef.current.getCurrentTime()
+                    const duration = playerRef.current.getDuration()
                     console.log('[YouTubePlayer] Interval - currentTime:', currentTime, 'duration:', duration)
                     if (duration > 0) {
                       setProgress((currentTime / duration) * 100)
