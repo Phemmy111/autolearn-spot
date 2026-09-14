@@ -56,55 +56,81 @@ export async function GET(request: Request) {
       })
     }
 
-    // For students enrolled in products, get only lesson-based assignments
-    // For students in cohorts, get cohort-based assignments
-    // Simplified: Get all assignments for now and filter by lesson_id on video page
-    const { data: allAssignments, error } = await supabase
-      .from('assignments')
+    // Only fetch assignments that the user has submitted
+    const { data: userSubmissions, error: submissionsError } = await supabase
+      .from('submissions')
       .select(`
-        *,
-        submissions (
+        assignment_id,
+        id,
+        user_id,
+        live_url,
+        screenshot_url,
+        notes,
+        status,
+        ai_score,
+        ai_feedback,
+        created_at,
+        updated_at,
+        assignment:assignments(
           id,
-          user_id,
-          live_url,
-          screenshot_url,
-          notes,
-          status,
-          ai_score,
-          ai_feedback,
-          created_at,
-          updated_at
+          title,
+          description,
+          lesson_id,
+          lesson_uuid_id,
+          cohort_id,
+          due_date,
+          order_index
         )
       `)
-      .order('order_index', { ascending: true })
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
 
-    console.log('[GET /api/assignments] Query result:', { 
-      assignmentCount: allAssignments?.length || 0, 
-      error: error?.message 
+    console.log('[GET /api/assignments] User submissions result:', { 
+      submissionCount: userSubmissions?.length || 0, 
+      error: submissionsError?.message 
     });
 
-    if (error) {
-      console.error('Error fetching assignments:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (submissionsError) {
+      console.error('Error fetching user submissions:', submissionsError)
+      return NextResponse.json({ error: submissionsError.message }, { status: 500 })
     }
 
-    if (!allAssignments || allAssignments.length === 0) {
+    if (!userSubmissions || userSubmissions.length === 0) {
       return NextResponse.json({ assignments: [] })
     }
 
-    console.log('Fetched assignments:', allAssignments.length)
+    // Group submissions by assignment and include assignment details
+    const assignmentMap = new Map();
+    
+    userSubmissions.forEach((submission: any) => {
+      const assignment = submission.assignment;
+      if (!assignment) return;
 
-    // Filter submissions to only show current user's
-    const assignmentsWithUserSubmissions = allAssignments.map(assignment => {
-      const userSubmissions = assignment.submissions?.filter((s: { user_id: string }) => s.user_id === userId) || []
-      console.log(`Assignment ${assignment.id}: ${userSubmissions.length} user submissions`)
-      return {
-        ...assignment,
-        submissions: userSubmissions
+      if (!assignmentMap.has(assignment.id)) {
+        assignmentMap.set(assignment.id, {
+          ...assignment,
+          submissions: []
+        });
       }
-    })
 
-    return NextResponse.json({ assignments: assignmentsWithUserSubmissions })
+      assignmentMap.get(assignment.id).submissions.push({
+        id: submission.id,
+        user_id: submission.user_id,
+        live_url: submission.live_url,
+        screenshot_url: submission.screenshot_url,
+        notes: submission.notes,
+        status: submission.status,
+        ai_score: submission.ai_score,
+        ai_feedback: submission.ai_feedback,
+        created_at: submission.created_at,
+        updated_at: submission.updated_at,
+      });
+    });
+
+    const assignments = Array.from(assignmentMap.values());
+    console.log('[GET /api/assignments] Processed assignments:', assignments.length);
+
+    return NextResponse.json({ assignments })
   } catch (error: any) {
     console.error('[GET /api/assignments] Error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

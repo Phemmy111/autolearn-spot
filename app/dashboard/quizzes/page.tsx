@@ -37,46 +37,71 @@ export default function StudentQuizzesPage() {
   const fetchQuizzes = async () => {
     try {
       if (!userId) {
-        throw new Error('Not authenticated');
+        setLoading(false);
+        return;
       }
 
-      // Fetch all quizzes with their lesson info
+      console.log('[StudentQuizzesPage] Fetching quizzes for user:', userId);
+
+      // Fetch only quizzes that the user has attempted
       const { data: quizzesData, error: quizzesError } = await supabase
-        .from('quizzes')
+        .from('quiz_responses')
         .select(`
-          *,
-          lesson:lessons(id, title, uuid_id)
+          quiz_id,
+          score,
+          passed,
+          quiz:quizzes(
+            id,
+            title,
+            description,
+            lesson_id,
+            lesson_uuid_id,
+            time_limit_minutes,
+            passing_score,
+            created_at,
+            lesson:lessons(id, title, uuid_id)
+          )
         `)
-        .order('created_at', { ascending: false });
+        .eq('user_id', userId);
 
-      if (quizzesError) throw quizzesError;
+      if (quizzesError) {
+        console.error('[StudentQuizzesPage] Error fetching quizzes:', quizzesError);
+        throw quizzesError;
+      }
 
-      // For each quiz, fetch user's attempts
-      const quizzesWithAttempts = await Promise.all(
-        (quizzesData || []).map(async (quiz: Quiz) => {
-          const { data: attempts } = await supabase
-            .from('quiz_responses')
-            .select('score, passed')
-            .eq('quiz_id', quiz.id)
-            .eq('user_id', userId!);
+      console.log('[StudentQuizzesPage] Quiz responses:', quizzesData);
 
-          const userAttempts = attempts || [];
-          const bestScore = userAttempts.length > 0 
-            ? Math.max(...userAttempts.map(a => a.score))
-            : null;
-          const bestScorePassed = userAttempts.some(a => a.passed);
+      // Group by quiz_id and get best attempt for each quiz
+      const quizMap = new Map<string, Quiz>();
+      
+      (quizzesData || []).forEach((response: any) => {
+        const quiz = response.quiz;
+        if (!quiz) return;
 
-          return {
+        const existing = quizMap.get(quiz.id);
+        const currentScore = response.score;
+        const existingBestScore = existing?.best_score || 0;
+
+        if (!existing || currentScore > existingBestScore) {
+          quizMap.set(quiz.id, {
             ...quiz,
-            user_attempts: userAttempts.length,
-            best_score: bestScore,
-            best_score_passed: bestScorePassed,
-          };
-        })
-      );
+            user_attempts: (existing?.user_attempts || 0) + 1,
+            best_score: currentScore,
+            best_score_passed: response.passed,
+          });
+        } else {
+          quizMap.set(quiz.id, {
+            ...existing,
+            user_attempts: existing.user_attempts + 1,
+          });
+        }
+      });
 
-      setQuizzes(quizzesWithAttempts);
+      const quizzes = Array.from(quizMap.values());
+      console.log('[StudentQuizzesPage] Processed quizzes:', quizzes);
+      setQuizzes(quizzes);
     } catch (err: any) {
+      console.error('[StudentQuizzesPage] Error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
