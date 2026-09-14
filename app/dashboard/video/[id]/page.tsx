@@ -351,7 +351,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
           </div>
         )}
       </div>
-      <AutolearnBot context="dashboard" />
+      {/* TEMPORARILY DISABLED: AutolearnBot to debug mobile black overlay */}
+      {/* <AutolearnBot context="dashboard" /> */}
     </main>
   )
 }
