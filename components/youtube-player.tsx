@@ -55,7 +55,6 @@ function loadYouTubeAPI(): Promise<void> {
 export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: YouTubePlayerProps) {
   const { userId } = useAuth()
   const containerRef = useRef<HTMLDivElement>(null)
-  const playerContainerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YT.Player | null>(null)
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const markedCompleteRef = useRef(false)
@@ -151,20 +150,20 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   // Initialise YouTube player
   useEffect(() => {
-    if (!videoId || !playerContainerRef.current) return
+    if (!videoId || !containerRef.current) return
 
     let destroyed = false
 
     const init = async () => {
       try {
         await loadYouTubeAPI()
-        if (destroyed || !playerContainerRef.current) return
+        if (destroyed || !containerRef.current) return
 
         // Create a placeholder div inside the container for YT.Player to replace
         const playerDiv = document.createElement('div')
         playerDiv.id = `yt-player-${lessonId}`
-        playerContainerRef.current.innerHTML = ''
-        playerContainerRef.current.appendChild(playerDiv)
+        containerRef.current.innerHTML = ''
+        containerRef.current.appendChild(playerDiv)
 
         playerRef.current = new window.YT.Player(playerDiv.id, {
           videoId,
@@ -193,7 +192,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
               setDuration(playerDuration)
 
               // Crop the top title bar by extending the iframe beyond the container
-              const iframe = playerContainerRef.current?.querySelector('iframe')
+              const iframe = containerRef.current?.querySelector('iframe')
               if (iframe) {
                 iframe.style.position = 'absolute'
                 iframe.style.top = '-60px'
@@ -340,10 +339,10 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   // Fullscreen toggle
   const toggleFullscreen = useCallback(() => {
-    if (!playerContainerRef.current) return
+    if (!containerRef.current) return
 
     if (!document.fullscreenElement) {
-      playerContainerRef.current.requestFullscreen()
+      containerRef.current.requestFullscreen()
       setIsFullscreen(true)
     } else {
       document.exitFullscreen()
@@ -445,9 +444,9 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
 
   // Handle double-tap gestures and center tap
   const handleVideoClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!playerContainerRef.current) return
+    if (!containerRef.current) return
 
-    const rect = playerContainerRef.current.getBoundingClientRect()
+    const rect = containerRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const width = rect.width
 
@@ -507,7 +506,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       )}
 
       {/* The YouTube iframe (controls: 0 hides native UI) */}
-      <div ref={playerContainerRef} className="absolute inset-0" />
+      <div className="absolute inset-0" />
 
       {/* Double-tap indicators */}
       <div className="absolute inset-0 pointer-events-none flex justify-between px-8 z-10">
