@@ -48,10 +48,29 @@ export default function AssignmentsPage() {
 
   const fetchAssignments = async () => {
     try {
-      const res = await fetch('/api/assignments');
+      const urlParams = new URLSearchParams(window.location.search);
+      const assignmentId = urlParams.get('assignment');
+      
+      let url = '/api/assignments';
+      if (assignmentId) {
+        url = `/api/assignments/${assignmentId}`;
+      }
+      
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch assignments');
       const data = await res.json();
-      setAssignments(data.assignments || []);
+      
+      if (assignmentId) {
+        // Single assignment response
+        setAssignments([data.assignment]);
+        // Auto-open the assignment modal if specified
+        if (data.assignment) {
+          setSelectedAssignment(data.assignment);
+        }
+      } else {
+        // All assignments response
+        setAssignments(data.assignments || []);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

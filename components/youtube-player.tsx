@@ -191,7 +191,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
             enablejsapi: 1,
             origin: window.location.origin,
             disablekb: 1,
-            fs: 0,
+            fs: 1,
             // Show native controls for reliable play/pause
             controls: 1,
             // Hide video annotations
@@ -295,11 +295,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 if (progressIntervalRef.current) {
                   clearInterval(progressIntervalRef.current)
                 }
+                
+                // Capture player in closure to avoid reference issues
+                const currentPlayer = player
                 progressIntervalRef.current = setInterval(() => {
                   console.log('[YouTubePlayer] Progress interval tick')
                   try {
-                    const currentTime = player.getCurrentTime()
-                    const duration = player.getDuration()
+                    const currentTime = currentPlayer.getCurrentTime()
+                    const duration = currentPlayer.getDuration()
                     console.log('[YouTubePlayer] Interval - currentTime:', currentTime, 'duration:', duration)
                     if (duration > 0) {
                       setProgress((currentTime / duration) * 100)
