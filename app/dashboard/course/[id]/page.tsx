@@ -78,8 +78,14 @@ export default async function CoursePage({ params }: { params: { id: string } })
     redirect('/dashboard'); // Not enrolled
   }
 
-  const isStarted = !!enrollment.activated_at;
+  const isStarted = !!enrollment.activated_at || isCohortEnrollment; // Cohort enrollments are considered "started"
   const course: any = Array.isArray(enrollment.learning_product) ? enrollment.learning_product[0] : enrollment.learning_product;
+
+  console.info('[course-page] course-start-status', {
+    isStarted,
+    isCohortEnrollment,
+    activatedAt: enrollment.activated_at,
+  });
 
   // 2. Compute countdown if started
   let daysLeft: number | null = null;
@@ -125,22 +131,40 @@ export default async function CoursePage({ params }: { params: { id: string } })
   });
 
   // 4. Fetch progress for these lessons
-  // Use uuid_id for progress lookups since that's the new primary key
-  const lessonIds = lessons.map(l => l.uuid_id || l.id);
+  // For cohort lessons, use lesson_id (legacy), for product lessons use lesson_uuid_id
   let progressMap = new Map();
-  if (lessonIds.length > 0) {
-    const { data: progressRows } = await supabaseAdmin
-      .from('lesson_progress')
-      .select('lesson_uuid_id, watch_pct, completed')
-      .eq('user_id', userId)
-      .in('lesson_uuid_id', lessonIds);
+  if (lessons.length > 0) {
+    if (isCohortEnrollment) {
+      // Cohort lessons use legacy lesson_id
+      const lessonIds = lessons.map(l => l.id);
+      const { data: progressRows } = await supabaseAdmin
+        .from('lesson_progress')
+        .select('lesson_id, watch_pct, completed')
+        .eq('user_id', userId)
+        .in('lesson_id', lessonIds);
 
-    progressMap = new Map(progressRows?.map((p: any) => [p.lesson_uuid_id, p]) || []);
+      progressMap = new Map(progressRows?.map((p: any) => [p.lesson_id, p]) || []);
 
-    console.info('[course-page] progress-loaded', {
-      progressCount: progressMap.size,
-      completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
-    });
+      console.info('[course-page] progress-loaded-cohort', {
+        progressCount: progressMap.size,
+        completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
+      });
+    } else {
+      // Product lessons use uuid_id
+      const lessonIds = lessons.map(l => l.uuid_id || l.id);
+      const { data: progressRows } = await supabaseAdmin
+        .from('lesson_progress')
+        .select('lesson_uuid_id, watch_pct, completed')
+        .eq('user_id', userId)
+        .in('lesson_uuid_id', lessonIds);
+
+      progressMap = new Map(progressRows?.map((p: any) => [p.lesson_uuid_id, p]) || []);
+
+      console.info('[course-page] progress-loaded-product', {
+        progressCount: progressMap.size,
+        completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
+      });
+    }
   }
 
   // 5. Determine unlock status (80% rule)
@@ -157,14 +181,14 @@ export default async function CoursePage({ params }: { params: { id: string } })
       unlocked = true;
     } else {
       const prevLesson = lessons[index - 1];
-      const prevLessonId = prevLesson.uuid_id || prevLesson.id;
+      const prevLessonId = isCohortEnrollment ? prevLesson.id : (prevLesson.uuid_id || prevLesson.id);
       const prevProgress = progressMap.get(prevLessonId);
       if (prevProgress && (prevProgress.completed || (prevProgress.watch_pct && prevProgress.watch_pct >= 80))) {
         unlocked = true;
       }
     }
 
-    const lessonId = lesson.uuid_id || lesson.id;
+    const lessonId = isCohortEnrollment ? lesson.id : (lesson.uuid_id || lesson.id);
     const prog = progressMap.get(lessonId);
     return {
       ...lesson,
@@ -192,7 +216,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
         </p>
 
         {/* Start Course Button OR Countdown Bar */}
-        {!isStarted ? (
+        {!isStarted && !isCohortEnrollment ? (
           <div className="mt-2 p-5 rounded-2xl border border-amber-300/60 bg-amber-50/60 max-w-xl">
             <div className="flex items-start gap-3 mb-4">
               <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
@@ -250,7 +274,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
                 } transition-all duration-300`}
               >
                 <Link
-                  href={lesson.unlocked ? `/dashboard/video/${lesson.uuid_id || lesson.id}` : '#'}
+                  href={lesson.unlocked ? `/dashboard/video/${isCohortEnrollment ? lesson.id : (lesson.uuid_id || lesson.id)}` : '#'}
                   className={`block aspect-video w-full relative overflow-hidden bg-brand-bg border-b border-neutral-100 ${!lesson.unlocked && 'cursor-not-allowed'}`}
                 >
                   <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -287,7 +311,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
                   
                   {lesson.unlocked ? (
                     <Link
-                      href={`/dashboard/video/${lesson.uuid_id || lesson.id}`}
+                      href={`/dashboard/video/${isCohortEnrollment ? lesson.id : (lesson.uuid_id || lesson.id)}`}
                       className="inline-flex items-center justify-center bg-[var(--card)] border border-brand-border px-4 py-2 text-sm font-semibold text-neutral-700 rounded-xl hover:bg-brand-bg transition-all shadow-sm"
                     >
                       {lesson.watch_pct > 0 ? 'Continue' : 'Watch'}
