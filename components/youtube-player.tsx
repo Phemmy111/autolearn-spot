@@ -439,14 +439,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
       className="relative h-full w-full overflow-hidden bg-black"
       onContextMenu={(e) => e.preventDefault()}
     >
-      {isLoading && (
-        <div className="absolute inset-0 -z-10 flex flex-col items-center justify-center gap-3 bg-neutral-900 opacity-0 pointer-events-none">
-          <Loader2 className="h-8 w-8 animate-spin text-neutral-400" />
-          <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
-            Loading video…
-          </p>
-        </div>
-      )}
+
 
       {/* The YouTube iframe (controls: 0 hides native UI) */}
       <div
