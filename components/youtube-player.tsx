@@ -322,20 +322,16 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
     }
   }, [videoId, lessonId, resumeFromSeconds, saveProgress])
 
-  // Auto-hide controls when playing
+  // Auto-hide controls when playing (disabled for now to ensure controls are visible)
   useEffect(() => {
-    if (isPlaying) {
-      controlsTimeoutRef.current = setTimeout(() => {
-        setShowControls(false)
-      }, 3000)
-    }
-
+    // Disabled auto-hide to ensure controls are always visible
+    // User can hide them by clicking outside
     return () => {
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current)
       }
     }
-  }, [isPlaying, showControls])
+  }, [])
 
   // Fullscreen toggle
   const toggleFullscreen = useCallback(() => {
@@ -530,6 +526,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           className={`absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 transition-opacity duration-300 ${
             showControls ? 'opacity-100' : 'opacity-0'
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
           {/* Progress bar */}
           <div className="mb-4">
@@ -569,10 +566,34 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 )}
               </button>
 
+              {/* Rewind */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleRewind()
+                }}
+                className="text-white hover:text-gray-300 transition-colors"
+                title="Rewind 10s"
+              >
+                <Rewind className="w-5 h-5" />
+              </button>
+
               {/* Time */}
               <span className="text-white text-sm font-medium">
                 {formatTime(currentTime)} / {formatTime(duration)}
               </span>
+
+              {/* Fast forward */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleFastForward()
+                }}
+                className="text-white hover:text-gray-300 transition-colors"
+                title="Fast forward 10s"
+              >
+                <FastForward className="w-5 h-5" />
+              </button>
             </div>
 
             {/* Fullscreen */}
@@ -582,6 +603,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                 toggleFullscreen()
               }}
               className="text-white hover:text-gray-300 transition-colors"
+              title="Fullscreen"
             >
               <Maximize className="w-6 h-6" />
             </button>
