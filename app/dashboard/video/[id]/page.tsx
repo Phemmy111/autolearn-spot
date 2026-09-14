@@ -236,7 +236,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
         </div>
 
         {/* Video Player Container */}
-        <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-lg">
+        <div className="relative w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-lg" style={{ aspectRatio: '16/9', minHeight: '200px' }}>
           <VideoPlayer
             lessonId={lesson.uuid_id || lesson.id}
             youtubeVideoId={lesson.youtube_video_id || undefined}
