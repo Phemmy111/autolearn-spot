@@ -199,9 +199,52 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
+              console.log('[YouTubePlayer] === ON READY CALLBACK FIRED ===')
+              console.log('[YouTubePlayer] event.target:', event.target)
+              console.log('[YouTubePlayer] event.target type:', typeof event.target)
               console.log('[YouTubePlayer] Player ready, setting playerRef.current')
               playerRef.current = event.target
               console.log('[YouTubePlayer] playerRef.current set:', !!playerRef.current)
+              console.log('[YouTubePlayer] playerRef.current type:', typeof playerRef.current)
+              console.log('[YouTubePlayer] playerRef.current methods:', {
+                getCurrentTime: typeof playerRef.current?.getCurrentTime,
+                getDuration: typeof playerRef.current?.getDuration,
+                playVideo: typeof playerRef.current?.playVideo,
+                pauseVideo: typeof playerRef.current?.pauseVideo,
+              })
+              setIsLoading(false)
+              migrationLog.mount(lessonId, 'youtube', 'v2')
+
+              // Crop the top title bar by extending the iframe beyond the container
+              const iframe = containerRef.current?.querySelector('iframe')
+              if (iframe) {
+                iframe.style.position = 'absolute'
+                iframe.style.top = '-60px'
+                iframe.style.left = '0'
+                iframe.style.width = '100%'
+                iframe.style.height = 'calc(100% + 120px)' // +60 top +60 bottom
+              }
+
+              // Resume from saved position if provided
+              if (
+                resumeFromSeconds &&
+                resumeFromSeconds > 0 &&
+                !hasResumedRef.current
+              ) {
+                hasResumedRef.current = true
+                console.log('[YouTubePlayer] Resuming from:', resumeFromSeconds)
+                event.target.seekTo(resumeFromSeconds, false)
+                migrationLog.resume(lessonId, resumeFromSeconds)
+              }
+            },
+            onReady: (event: YT.PlayerEvent) => {
+              console.log('[YouTubePlayer] === ON READY CALLBACK FIRED ===')
+              console.log('[YouTubePlayer] event.target:', event.target)
+              console.log('[YouTubePlayer] event.target type:', typeof event.target)
+              console.log('[YouTubePlayer] Player ready, setting playerRef.current')
+              playerRef.current = event.target
+              console.log('[YouTubePlayer] playerRef.current set:', !!playerRef.current)
+              console.log('[YouTubePlayer] playerRef.current type:', typeof playerRef.current)
               console.log('[YouTubePlayer] playerRef.current methods:', {
                 getCurrentTime: typeof playerRef.current?.getCurrentTime,
                 getDuration: typeof playerRef.current?.getDuration,
@@ -250,7 +293,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                   console.log('[YouTubePlayer] Progress interval tick')
                   try {
                     if (!playerRef.current) {
-                      console.log('[YouTubePlayer] Player ref is null')
+                      console.log('[YouTubePlayer] Player ref is null, using event.target instead')
+                      const currentTime = player.getCurrentTime()
+                      const duration = player.getDuration()
+                      console.log('[YouTubePlayer] Interval - currentTime:', currentTime, 'duration:', duration)
+                      if (duration > 0) {
+                        setProgress((currentTime / duration) * 100)
+                      }
+                      saveProgress(currentTime, duration)
                       return
                     }
                     const currentTime = playerRef.current.getCurrentTime()

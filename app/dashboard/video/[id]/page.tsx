@@ -204,7 +204,7 @@ export default async function VideoPage({ params }: VideoPageProps) {
   // Fetch assignments attached to this lesson
   const { data: lessonAssignments, error: assignmentError } = await supabaseAdmin
     .from('assignments')
-    .select('id, title, description, due_date, file_url, lesson_id')
+    .select('id, title, description, due_date, lesson_id')
     .eq('lesson_id', lessonIdForQuery)
 
   console.info('[video-page] lesson-assignments', {
@@ -366,17 +366,10 @@ export default async function VideoPage({ params }: VideoPageProps) {
                       </p>
                     )}
                   </div>
-                  {assignment.file_url && (
-                    <a
-                      href={assignment.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download
-                    </a>
-                  )}
+                  <div className="inline-flex items-center gap-2 text-xs text-neutral-500">
+                    <FileText className="h-4 w-4" />
+                    Assignment
+                  </div>
                 </div>
               ))}
             </div>
