@@ -1,10 +1,10 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Download } from 'lucide-react'
+import { ArrowLeft, Download, Clock, BookOpen } from 'lucide-react'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AutolearnBot } from '@/components/autolearn-bot'
-import VideoPlayer from '@/components/video-player'
+import { PremiumVideoPlayer } from '@/components/video/PremiumVideoPlayer'
 import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
 import { getLessonById } from '@/lib/lesson-service'
 import { getUserEnrollments } from '@/lib/enrollment-service'
@@ -181,45 +181,59 @@ export default async function VideoPage({ params }: VideoPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--card)] brightness-95] text-[#e2e2e8]">
-      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-[var(--card)] brightness-95]/95 px-4 backdrop-blur sm:px-6">
+    <main className="min-h-screen bg-neutral-50 text-neutral-900">
+      {/* Header */}
+      <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-neutral-200 bg-white/95 px-4 backdrop-blur sm:px-6">
         <Link
           href={backUrl}
-          className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-brand-text/60 transition hover:text-[#10b981]"
+          className="flex items-center gap-2 text-sm font-medium text-neutral-600 transition hover:text-neutral-900"
         >
           <ArrowLeft className="h-4 w-4" />
           {backLabel}
         </Link>
       </nav>
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        {/* Lesson Header */}
         <div className="mb-8">
-          <span className="mb-2 inline-block font-mono text-[10px] uppercase tracking-wider text-[#10b981]">
-            {lesson.duration_label || 'Video Lesson'}
-          </span>
-          <h1 className="font-heading text-2xl font-bold uppercase text-brand-text sm:text-3xl">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-xs font-medium text-neutral-600">
+              <Clock className="h-3.5 w-3.5" />
+              {lesson.duration_label || 'Video Lesson'}
+            </span>
+            {lesson.week_number && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-xs font-medium text-neutral-600">
+                <BookOpen className="h-3.5 w-3.5" />
+                Week {lesson.week_number}
+              </span>
+            )}
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">
             {lesson.title}
           </h1>
-          <p className="mt-3 max-w-3xl font-mono text-sm leading-relaxed text-brand-text/60">
+          <p className="mt-3 text-base text-neutral-600 leading-relaxed max-w-3xl">
             {lesson.description || 'No description provided.'}
           </p>
         </div>
 
         {/* Video Player Container */}
-        <div className="relative aspect-video w-full overflow-hidden border border-[#3b494b] bg-black shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-          <VideoPlayer
-            lessonId={lesson.uuid_id || lesson.id}
-            youtubeVideoId={lesson.youtube_video_id || undefined}
-            vimeoVideoId={lesson.vimeo_video_id || undefined}
-            vdoCipherVideoId={lesson.vdo_cipher_video_id || undefined}
-            resumeFromSeconds={resumeFromSeconds}
-          />
+        <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-lg">
+          {lesson.youtube_video_id ? (
+            <PremiumVideoPlayer
+              youtubeVideoId={lesson.youtube_video_id}
+              resumeFromSeconds={resumeFromSeconds}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-neutral-400">
+              <p>No video available</p>
+            </div>
+          )}
         </div>
 
         {/* Resources Section */}
         {resources && resources.length > 0 && (
-          <div className="mt-12 border border-brand-border bg-[var(--card)] brightness-95] p-6 sm:p-8">
-            <h2 className="mb-6 font-mono text-lg font-semibold uppercase tracking-wider text-[#10b981]">
+          <div className="mt-12 border border-neutral-200 bg-white rounded-2xl p-6 sm:p-8">
+            <h2 className="mb-6 text-lg font-semibold text-neutral-900">
               Session Resources
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -229,12 +243,12 @@ export default async function VideoPage({ params }: VideoPageProps) {
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 border border-[#3b494b] bg-[var(--card)] brightness-95] p-4 transition-colors hover:border-[#10b981] hover:bg-[var(--card)] brightness-95]"
+                  className="flex items-center gap-4 p-4 rounded-xl border border-neutral-200 bg-neutral-50 hover:border-neutral-300 hover:bg-neutral-100 transition-colors"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-[var(--card)] brightness-95]/10 text-[#10b981]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-neutral-600">
                     <Download className="h-5 w-5" />
                   </div>
-                  <span className="font-mono text-sm font-semibold text-[#e2e2e8]">
+                  <span className="text-sm font-medium text-neutral-900">
                     {resource.label}
                   </span>
                 </a>

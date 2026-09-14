@@ -23,15 +23,15 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-brand-bg">
+    <div className="min-h-screen bg-neutral-50">
       {/* Desktop Layout */}
       <div className="hidden md:flex">
         {/* Sidebar - fixed, independent from scrolling */}
-        <aside className="fixed inset-y-0 left-0 w-64 bg-[var(--card)] brightness-95 border-r border-brand-border z-30 overflow-y-auto">
+        <aside className="fixed inset-y-0 left-0 w-64 bg-white border-r border-neutral-200 z-30 overflow-y-auto">
           <div className="p-6">
             <Link href="/" className="flex items-center gap-2 mb-8">
               <img src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" className="w-8 h-8 object-contain" />
-              <span className="font-heading text-lg font-bold text-brand-text">
+              <span className="font-heading text-lg font-bold text-neutral-900">
                 AutoLearn Spot
               </span>
             </Link>
@@ -46,8 +46,8 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
                     href={item.href}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-sky-50 text-sky-700'
-                        : 'text-brand-text/70 hover:bg-[var(--card)] brightness-95'
+                        ? 'bg-neutral-100 text-neutral-900'
+                        : 'text-neutral-600 hover:bg-neutral-50'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -57,9 +57,9 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
               })}
             </nav>
 
-            <div className="mt-8 pt-8 border-t border-brand-border">
+            <div className="mt-8 pt-8 border-t border-neutral-200">
               <SignOutButton>
-                <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-brand-text/70 hover:bg-[var(--card)] brightness-95 w-full">
+                <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-50 w-full">
                   <LogOut className="w-5 h-5" />
                   Sign Out
                 </button>
@@ -77,16 +77,16 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
       {/* Mobile Layout */}
       <div className="md:hidden">
         {/* Mobile Header */}
-        <header className="bg-[var(--card)] brightness-95 border-b border-brand-border px-4 py-4 flex items-center justify-between sticky top-0 z-40">
+        <header className="bg-white border-b border-neutral-200 px-4 py-4 flex items-center justify-between sticky top-0 z-40">
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="text-brand-text/70 hover:text-sky-600"
+            className="text-neutral-600 hover:text-neutral-900"
           >
             <Menu className="w-6 h-6" />
           </button>
           <Link href="/" className="flex items-center gap-2">
             <img src="/autolearn-brandmark.png" alt="AutoLearn Spot Logo" className="w-6 h-6 object-contain" />
-            <span className="font-heading text-base font-bold text-brand-text">
+            <span className="font-heading text-base font-bold text-neutral-900">
               AutoLearn Spot
             </span>
           </Link>
@@ -105,14 +105,14 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
               className="fixed inset-0 bg-black/50 z-40"
               onClick={() => setIsSidebarOpen(false)}
             />
-            <div className="fixed inset-y-0 left-0 w-72 bg-[var(--card)] brightness-95 z-50 p-6 overflow-y-auto">
+            <div className="fixed inset-y-0 left-0 w-72 bg-white z-50 p-6 overflow-y-auto">
               <div className="flex items-center justify-between mb-8">
-                <span className="font-heading text-lg font-bold text-brand-text">
+                <span className="font-heading text-lg font-bold text-neutral-900">
                   Menu
                 </span>
                 <button
                   onClick={() => setIsSidebarOpen(false)}
-                  className="text-brand-text/70 hover:text-sky-600"
+                  className="text-neutral-600 hover:text-neutral-900"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -129,8 +129,8 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
                       onClick={() => setIsSidebarOpen(false)}
                       className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-sky-50 text-sky-700'
-                          : 'text-brand-text/70 hover:bg-[var(--card)] brightness-95'
+                          ? 'bg-neutral-100 text-neutral-900'
+                          : 'text-neutral-600 hover:bg-neutral-50'
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -140,9 +140,9 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
                 })}
               </nav>
 
-              <div className="mt-8 pt-8 border-t border-brand-border">
+              <div className="mt-8 pt-8 border-t border-neutral-200">
                 <SignOutButton>
-                  <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-brand-text/70 hover:bg-[var(--card)] brightness-95 w-full">
+                  <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-50 w-full">
                     <LogOut className="w-5 h-5" />
                     Sign Out
                   </button>
