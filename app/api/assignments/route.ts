@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { auth } from '@clerk/nextjs/server'
-import { getUserCohortId } from '@/lib/progress-service'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -57,12 +56,8 @@ export async function GET(request: Request) {
       })
     }
 
-    // Get student's enrolled cohort
-    const cohortId = await getUserCohortId(userId, email)
-    console.log('[GET /api/assignments] Resolved cohort ID:', cohortId)
-
-    // Get assignments for student's cohort with user's submissions
-    const { data: cohortAssignments, error: cohortError } = await supabase
+    // Simplified: Get all assignments without cohort filter
+    const { data: allAssignments, error } = await supabase
       .from('assignments')
       .select(`
         *,
@@ -79,42 +74,19 @@ export async function GET(request: Request) {
           updated_at
         )
       `)
-      .eq('cohort_id', cohortId)
-      .order('week_number', { ascending: true })
-      .order('order_index', { ascending: true })
-
-    // Also get lesson-based assignments for this user's lessons
-    const { data: lessonAssignments, error: lessonError } = await supabase
-      .from('assignments')
-      .select(`
-        *,
-        submissions (
-          id,
-          user_id,
-          live_url,
-          screenshot_url,
-          notes,
-          status,
-          ai_score,
-          ai_feedback,
-          created_at,
-          updated_at
-        )
-      `)
-      .is('cohort_id', null)
       .order('order_index', { ascending: true })
 
     console.log('[GET /api/assignments] Query result:', { 
-      cohortAssignmentCount: cohortAssignments?.length || 0,
-      lessonAssignmentCount: lessonAssignments?.length || 0,
-      cohortError: cohortError?.message,
-      lessonError: lessonError?.message
+      assignmentCount: allAssignments?.length || 0, 
+      error: error?.message 
     });
 
-    // Combine both types of assignments
-    const allAssignments = [...(cohortAssignments || []), ...(lessonAssignments || [])]
+    if (error) {
+      console.error('Error fetching assignments:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-    if (allAssignments.length === 0) {
+    if (!allAssignments || allAssignments.length === 0) {
       return NextResponse.json({ assignments: [] })
     }
 

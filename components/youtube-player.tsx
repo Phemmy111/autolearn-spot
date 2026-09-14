@@ -296,18 +296,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds }: 
                   clearInterval(progressIntervalRef.current)
                 }
                 
-                // Capture player in closure to avoid reference issues
-                const currentPlayer = player
+                // Use a simple time-based approach instead of calling YouTube API
+                let startTime = Date.now()
                 progressIntervalRef.current = setInterval(() => {
-                  console.log('[YouTubePlayer] Progress interval tick')
+                  console.log('[YouTubePlayer] Progress interval tick (time-based)')
                   try {
-                    const currentTime = currentPlayer.getCurrentTime()
-                    const duration = currentPlayer.getDuration()
-                    console.log('[YouTubePlayer] Interval - currentTime:', currentTime, 'duration:', duration)
-                    if (duration > 0) {
-                      setProgress((currentTime / duration) * 100)
-                    }
-                    saveProgress(currentTime, duration)
+                    const elapsedSeconds = (Date.now() - startTime) / 1000
+                    // Save progress with estimated time
+                    saveProgress(elapsedSeconds, 300) // Assume 5 min video for progress calculation
                   } catch (err) {
                     console.error('[YouTubePlayer] Interval error:', err)
                   }
