@@ -237,7 +237,8 @@ export default async function VideoPage({ params }: VideoPageProps) {
         <div className="relative w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-lg" style={{ aspectRatio: '16/9', minHeight: '200px' }}>
           {lesson.youtube_video_id ? (
             <iframe
-              src={`https://www.youtube.com/embed/${lesson.youtube_video_id}`}
+              id={`youtube-player-${lesson.uuid_id || lesson.id}`}
+              src={`https://www.youtube.com/embed/${lesson.youtube_video_id}?modestbranding=1&rel=0&playsinline=1&showinfo=0&iv_load_policy=3&enablejsapi=1`}
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
@@ -255,6 +256,87 @@ export default async function VideoPage({ params }: VideoPageProps) {
             </div>
           )}
         </div>
+
+        {/* Progress Tracking Script */}
+        {lesson.youtube_video_id && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                var tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                var firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+                var player;
+                var lessonId = '${lesson.uuid_id || lesson.id}';
+                var interval;
+
+                function onYouTubeIframeAPIReady() {
+                  player = new YT.Player('youtube-player-' + lessonId, {
+                    events: {
+                      'onStateChange': function(event) {
+                        if (event.data == YT.PlayerState.PLAYING) {
+                          startProgressTracking();
+                        } else {
+                          stopProgressTracking();
+                        }
+                      }
+                    }
+                  });
+                }
+
+                function startProgressTracking() {
+                  if (interval) clearInterval(interval);
+                  interval = setInterval(function() {
+                    try {
+                      var currentTime = player.getCurrentTime();
+                      var duration = player.getDuration();
+                      var watchPct = (currentTime / duration) * 100;
+                      
+                      if (watchPct >= 80) {
+                        saveProgress(watchPct, currentTime, true);
+                      } else {
+                        saveProgress(watchPct, currentTime, false);
+                      }
+                    } catch(e) {
+                      console.error('Progress tracking error:', e);
+                    }
+                  }, 5000);
+                }
+
+                function stopProgressTracking() {
+                  if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                  }
+                  try {
+                    var currentTime = player.getCurrentTime();
+                    var duration = player.getDuration();
+                    var watchPct = (currentTime / duration) * 100;
+                    saveProgress(watchPct, currentTime, false);
+                  } catch(e) {}
+                }
+
+                function saveProgress(watchPct, currentTime, completed) {
+                  fetch('/api/progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      lessonId: lessonId,
+                      watchPct: watchPct,
+                      lastPositionSeconds: currentTime,
+                      completed: completed
+                    })
+                  }).catch(console.error);
+                }
+
+                window.addEventListener('beforeunload', function() {
+                  stopProgressTracking();
+                });
+              `
+            }}
+          />
+        )}
 
         {/* Resources Section */}
         {resources && resources.length > 0 && (
