@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Download, Clock, BookOpen } from 'lucide-react'
+import { ArrowLeft, Download, Clock, BookOpen, FileText, ClipboardCheck } from 'lucide-react'
 import { auth } from '@clerk/nextjs/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { AutolearnBot } from '@/components/autolearn-bot'
@@ -180,6 +180,29 @@ export default async function VideoPage({ params }: VideoPageProps) {
     console.error('[VideoPage] Error parsing resources:', error)
   }
 
+  // Fetch quizzes attached to this lesson
+  const { data: lessonQuizzes } = await supabaseAdmin
+    .from('quizzes')
+    .select('id, title, description, time_limit, passing_score')
+    .eq('lesson_id', lesson.uuid_id || lesson.id)
+    .eq('is_active', true)
+
+  console.info('[video-page] lesson-quizzes', {
+    lessonId: lesson.uuid_id || lesson.id,
+    quizCount: lessonQuizzes?.length || 0,
+  })
+
+  // Fetch assignments attached to this lesson
+  const { data: lessonAssignments } = await supabaseAdmin
+    .from('assignments')
+    .select('id, title, description, due_date, file_url')
+    .eq('lesson_id', lesson.uuid_id || lesson.id)
+
+  console.info('[video-page] lesson-assignments', {
+    lessonId: lesson.uuid_id || lesson.id,
+    assignmentCount: lessonAssignments?.length || 0,
+  })
+
   return (
     <main className="min-h-screen bg-neutral-50 text-neutral-900">
       {/* Header */}
@@ -249,6 +272,89 @@ export default async function VideoPage({ params }: VideoPageProps) {
                     {resource.label}
                   </span>
                 </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quizzes Section */}
+        {lessonQuizzes && lessonQuizzes.length > 0 && (
+          <div className="mt-12 border border-neutral-200 bg-white rounded-2xl p-6 sm:p-8">
+            <h2 className="mb-6 text-lg font-semibold text-neutral-900 flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5" />
+              Quiz
+            </h2>
+            <div className="space-y-4">
+              {lessonQuizzes.map((quiz) => (
+                <div
+                  key={quiz.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-neutral-200 bg-neutral-50"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-medium text-neutral-900">{quiz.title}</h3>
+                    {quiz.description && (
+                      <p className="mt-1 text-sm text-neutral-600">{quiz.description}</p>
+                    )}
+                    <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
+                      {quiz.time_limit && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5" />
+                          {quiz.time_limit} minutes
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        Pass mark: {quiz.passing_score}%
+                      </span>
+                    </div>
+                  </div>
+                  <Link
+                    href={`/quiz/${quiz.id}`}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
+                  >
+                    Take Quiz
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Assignments Section */}
+        {lessonAssignments && lessonAssignments.length > 0 && (
+          <div className="mt-12 border border-neutral-200 bg-white rounded-2xl p-6 sm:p-8">
+            <h2 className="mb-6 text-lg font-semibold text-neutral-900 flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Assignment
+            </h2>
+            <div className="space-y-4">
+              {lessonAssignments.map((assignment) => (
+                <div
+                  key={assignment.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-neutral-200 bg-neutral-50"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-medium text-neutral-900">{assignment.title}</h3>
+                    {assignment.description && (
+                      <p className="mt-1 text-sm text-neutral-600">{assignment.description}</p>
+                    )}
+                    {assignment.due_date && (
+                      <p className="mt-2 text-xs text-neutral-500">
+                        Due: {new Date(assignment.due_date).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                  {assignment.file_url && (
+                    <a
+                      href={assignment.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
+                    >
+                      <Download className="h-4 w-4" />
+                      Download
+                    </a>
+                  )}
+                </div>
               ))}
             </div>
           </div>
