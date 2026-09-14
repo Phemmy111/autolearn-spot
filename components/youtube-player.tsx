@@ -56,6 +56,7 @@ function loadYouTubeAPI(): Promise<void> {
 
 export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, onComplete }: YouTubePlayerProps) {
   const { userId } = useAuth()
+  const wrapperRef = useRef<HTMLDivElement>(null)   // outermost shell → used for browser fullscreen
   const containerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<YT.Player | null>(null)
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -68,7 +69,6 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const progressBarRef = useRef<HTMLDivElement>(null)
 
   // Save progress to the server — reuses the existing /api/progress endpoint
   const saveProgress = useCallback(
@@ -176,16 +176,13 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
             playsinline: 1,
             enablejsapi: 1,
             origin: window.location.origin,
-            // Disable the native YouTube control bar — hides the YT logo,
-            // share button, watch-later, and related-video end screen.
-            // Our custom controls below handle all playback interactions.
-            controls: 0,
-            // Hide video annotations
-            iv_load_policy: 3,
-            // Disable the YouTube fullscreen button (we have our own)
+            // Native controls — YouTube's own play/pause/seek/progress bar work perfectly.
+            controls: 1,
+            // Hide YouTube's own fullscreen button; we trigger browser fullscreen on
+            // the wrapper div so our protective overlay divs remain visible in fullscreen.
             fs: 0,
-            // Disable keyboard shortcuts so YT overlay never appears
-            disablekb: 1,
+            // Hide annotations
+            iv_load_policy: 3,
           },
           events: {
             onReady: (event: YT.PlayerEvent) => {
@@ -427,12 +424,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
     }
   }, [])
 
-  // Fullscreen toggle
+  // Fullscreen toggle — uses the outermost wrapper so our overlay divs come along
   const toggleFullscreen = useCallback(() => {
-    if (!containerRef.current) return
+    if (!wrapperRef.current) return
 
     if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen()
+      wrapperRef.current.requestFullscreen()
       setIsFullscreen(true)
     } else {
       document.exitFullscreen()
@@ -451,97 +448,84 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
   }, [])
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-black select-none">
-      {/* The YouTube iframe — rendered inside containerRef */}
+    <div
+      ref={wrapperRef}
+      className="relative h-full w-full overflow-hidden bg-black select-none"
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {/* YouTube iframe rendered here by the YT.Player API */}
       <div
         ref={containerRef}
         className="absolute inset-0"
         style={{ width: '100%', height: '100%' }}
       />
 
-      {/* Transparent overlay — sits above the iframe.
-          Blocks right-click context menu, share watermark clicks, and
-          prevents the YouTube end-screen from being interacted with.
-          pointer-events on the overlay are set to 'none' except on the
-          top half so our custom controls (below) still receive clicks. */}
+      {/*
+        ── PROTECTION OVERLAY ──────────────────────────────────────────────
+        A transparent div covers the full video. pointer-events: none means
+        ALL native YouTube controls (play, pause, seek bar, volume, rewind,
+        fast-forward) still receive clicks normally.
+        The onContextMenu on the wrapperRef above blocks right-click for the
+        entire shell including fullscreen.
+      */}
       <div
         className="absolute inset-0 z-10"
-        style={{ background: 'transparent' }}
-        onContextMenu={(e) => e.preventDefault()}
+        style={{ pointerEvents: 'none', background: 'transparent' }}
+      />
+
+      {/*
+        ── SHARE BUTTON BLOCKER ─────────────────────────────────────────────
+        The YouTube share icon sits in the bottom-left of the native control
+        bar (approximately 48×48 px). This transparent patch absorbs clicks
+        on that spot so the share dialog never opens.
+        pointer-events: auto means it intercepts, but it is invisible.
+      */}
+      <div
+        className="absolute bottom-0 left-0 z-20"
+        style={{ width: '52px', height: '52px', pointerEvents: 'auto', cursor: 'default' }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+      />
+
+      {/*
+        ── YOUTUBE LOGO / WATERMARK BLOCKER ─────────────────────────────────
+        The YouTube wordmark appears in the bottom-right of the control bar.
+        The channel branding / watermark appears in the top-right of the
+        video. Both are covered by transparent click-absorbers below.
+      */}
+      {/* Bottom-right: YouTube wordmark in control bar */}
+      <div
+        className="absolute bottom-0 right-0 z-20"
+        style={{ width: '90px', height: '52px', pointerEvents: 'auto', cursor: 'default' }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+      />
+      {/* Top-right: channel branding / watermark */}
+      <div
+        className="absolute top-0 right-0 z-20"
+        style={{ width: '200px', height: '60px', pointerEvents: 'auto', cursor: 'default' }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
 
       {/* Loading spinner */}
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black">
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black">
           <Loader2 className="h-10 w-10 animate-spin text-brand-primary" />
         </div>
       )}
 
-      {/* ── Custom Control Bar ───────────────────────────────────────── */}
-      <div
-        className="absolute bottom-0 left-0 right-0 z-20 flex flex-col gap-1 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2 pt-6"
-        // Allow pointer events through to controls (sit above the overlay)
+      {/*
+        ── FULLSCREEN BUTTON ────────────────────────────────────────────────
+        Since fs:0 hides YouTube's own fullscreen button, we add our own.
+        It expands wrapperRef (the shell) so all overlay divs follow into
+        fullscreen — no YouTube logo or share button visible in fullscreen.
+      */}
+      <button
+        onClick={toggleFullscreen}
+        className="absolute bottom-2 right-2 z-30 rounded bg-black/50 p-1.5 text-white opacity-0 hover:opacity-100 transition-opacity"
+        title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
         style={{ pointerEvents: 'auto' }}
       >
-        {/* Progress bar */}
-        <div
-          ref={progressBarRef}
-          className="relative h-1.5 w-full cursor-pointer rounded-full bg-white/20"
-          onClick={handleSeek}
-        >
-          <div
-            className="absolute left-0 top-0 h-full rounded-full bg-brand-primary transition-all"
-            style={{ width: `${progress}%` }}
-          />
-          {/* Scrubber thumb */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-white shadow"
-            style={{ left: `${progress}%`, transform: 'translate(-50%, -50%)' }}
-          />
-        </div>
-
-        {/* Buttons row */}
-        <div className="flex items-center gap-3 pt-0.5">
-          <button
-            onClick={handleRewind}
-            className="text-white/80 hover:text-white transition-colors"
-            title="Rewind 10s"
-          >
-            <Rewind className="h-4 w-4" />
-          </button>
-
-          <button
-            onClick={handlePlayPause}
-            className="text-white hover:text-brand-primary transition-colors"
-            title={isPlaying ? 'Pause' : 'Play'}
-          >
-            {isPlaying ? (
-              <Pause className="h-5 w-5" />
-            ) : (
-              <Play className="h-5 w-5 fill-current" />
-            )}
-          </button>
-
-          <button
-            onClick={handleFastForward}
-            className="text-white/80 hover:text-white transition-colors"
-            title="Forward 10s"
-          >
-            <FastForward className="h-4 w-4" />
-          </button>
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          <button
-            onClick={toggleFullscreen}
-            className="text-white/80 hover:text-white transition-colors"
-            title="Fullscreen"
-          >
-            <Maximize className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
+        <Maximize className="h-4 w-4" />
+      </button>
     </div>
   )
 }
