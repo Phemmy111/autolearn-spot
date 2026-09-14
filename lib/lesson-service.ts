@@ -447,3 +447,34 @@ export async function updateLessonUnlockConfig(lessonUuidId: string, productId: 
 
   return data as Lesson | null
 }
+
+/**
+ * Get a lesson by ID (supports both legacy string IDs and UUID IDs)
+ * Used by the video player page to fetch lesson data
+ */
+export async function getLessonById(lessonId: string): Promise<Lesson | null> {
+  // First try to find by UUID (new primary key)
+  const { data: uuidLesson, error: uuidError } = await supabaseAdmin
+    .from('lessons')
+    .select('*')
+    .eq('uuid_id', lessonId)
+    .single()
+
+  if (uuidLesson && !uuidError) {
+    return uuidLesson as Lesson
+  }
+
+  // If not found by UUID, try legacy string ID
+  const { data: legacyLesson, error: legacyError } = await supabaseAdmin
+    .from('lessons')
+    .select('*')
+    .eq('id', lessonId)
+    .single()
+
+  if (legacyLesson && !legacyError) {
+    return legacyLesson as Lesson
+  }
+
+  console.error('[lesson-service] Lesson not found:', lessonId, { uuidError, legacyError })
+  return null
+}

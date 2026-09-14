@@ -1,11 +1,13 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Download } from 'lucide-react'
-import { videos, isVideoAvailable, isVideoAvailableForCohort } from '@/data/videos'
 import { auth } from '@clerk/nextjs/server'
+import { supabaseAdmin } from '@/lib/supabase'
 import { AutolearnBot } from '@/components/autolearn-bot'
 import VideoPlayer from '@/components/video-player'
 import { getUserProgress, getUserCohortId } from '@/lib/progress-service'
+import { getLessonById } from '@/lib/lesson-service'
+import { getUserEnrollments } from '@/lib/enrollment-service'
 
 interface VideoPageProps {
   params: Promise<{
@@ -21,18 +23,47 @@ export default async function VideoPage({ params }: VideoPageProps) {
   }
 
   const resolvedParams = await params
-  const video = videos.find((v) => v.id === resolvedParams.id)
+  
+  // Fetch lesson from database (supports both UUID and legacy string IDs)
+  const lesson = await getLessonById(resolvedParams.id)
 
-  if (!video) {
+  if (!lesson) {
     notFound()
   }
 
-  // Server-side availability check with cohort support
-  const { email } = await auth()
-  const cohortId = await getUserCohortId(userId, email)
-  const isAvailable = await isVideoAvailableForCohort(video.id, cohortId)
+  // Check if user has access to this lesson
+  // For product-based lessons, check enrollment
+  // For cohort-based lessons, check cohort enrollment
+  let hasAccess = false
+  let backUrl = '/dashboard'
+  let backLabel = 'Back to Dashboard'
 
-  if (!isAvailable) {
+  if (lesson.product_id) {
+    // Product-based lesson - check enrollment
+    const { data: enrollment } = await supabaseAdmin
+      .from('enrollments')
+      .select('id, status, activated_at, learning_product:learning_products(*)')
+      .eq('clerk_user_id', userId)
+      .eq('learning_product_id', lesson.product_id)
+      .single()
+
+    if (enrollment && enrollment.status === 'active' && enrollment.activated_at) {
+      hasAccess = true
+      backUrl = `/dashboard/course/${lesson.product_id}`
+      backLabel = 'Back to Course'
+    }
+  } else if (lesson.cohort_id) {
+    // Cohort-based lesson - check cohort enrollment
+    const { email } = await auth()
+    const enrollments = await getUserEnrollments(userId, email || '')
+    const cohortEnrollment = enrollments.find(e => e.cohort_id === lesson.cohort_id)
+    
+    if (cohortEnrollment && cohortEnrollment.status === 'active') {
+      hasAccess = true
+    }
+  }
+
+  if (!hasAccess) {
     redirect('/dashboard')
   }
 
@@ -40,9 +71,13 @@ export default async function VideoPage({ params }: VideoPageProps) {
   let resumeFromSeconds = 0
   try {
     const { email } = await auth()
-    const cohortId = await getUserCohortId(userId, email)
+    const cohortId = lesson.cohort_id || await getUserCohortId(userId, email)
     const progressRows = await getUserProgress(userId, cohortId)
-    const row = progressRows.find((p) => p.lesson_id === video.id)
+    
+    // Use uuid_id for progress lookup if available, otherwise use legacy id
+    const lessonIdForProgress = lesson.uuid_id || lesson.id
+    const row = progressRows.find((p) => p.lesson_id === lessonIdForProgress)
+    
     // Only resume if not yet completed and position is meaningful (> 5s)
     if (row && !row.completed && row.last_position_seconds > 5) {
       resumeFromSeconds = row.last_position_seconds
@@ -51,50 +86,64 @@ export default async function VideoPage({ params }: VideoPageProps) {
     // Non-fatal — player will start from the beginning
   }
 
+  // Parse resources from JSON
+  let resources: { label: string; url: string }[] = []
+  try {
+    if (lesson.resources) {
+      if (typeof lesson.resources === 'string') {
+        resources = JSON.parse(lesson.resources)
+      } else if (Array.isArray(lesson.resources)) {
+        resources = lesson.resources
+      }
+    }
+  } catch (error) {
+    console.error('[VideoPage] Error parsing resources:', error)
+  }
+
   return (
     <main className="min-h-screen bg-[var(--card)] brightness-95] text-[#e2e2e8]">
       <nav className="sticky top-0 z-50 flex h-16 items-center border-b border-[#3b494b] bg-[var(--card)] brightness-95]/95 px-4 backdrop-blur sm:px-6">
         <Link
-          href="/dashboard"
+          href={backUrl}
           className="flex items-center gap-2 font-mono text-xs font-semibold uppercase text-brand-text/60 transition hover:text-[#10b981]"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Dashboard
+          {backLabel}
         </Link>
       </nav>
 
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         <div className="mb-8">
           <span className="mb-2 inline-block font-mono text-[10px] uppercase tracking-wider text-[#10b981]">
-            Week {video.week} • {video.duration}
+            {lesson.duration_label || 'Video Lesson'}
           </span>
           <h1 className="font-heading text-2xl font-bold uppercase text-brand-text sm:text-3xl">
-            {video.title}
+            {lesson.title}
           </h1>
           <p className="mt-3 max-w-3xl font-mono text-sm leading-relaxed text-brand-text/60">
-            {video.description}
+            {lesson.description || 'No description provided.'}
           </p>
         </div>
 
         {/* Video Player Container */}
         <div className="relative aspect-video w-full overflow-hidden border border-[#3b494b] bg-black shadow-[0_0_30px_rgba(0,0,0,0.5)]">
           <VideoPlayer
-            lessonId={video.id}
-            youtubeVideoId={video.youtubeVideoId}
-            vimeoVideoId={video.vimeoVideoId}
-            vdoCipherVideoId={video.vdoCipherVideoId}
+            lessonId={lesson.uuid_id || lesson.id}
+            youtubeVideoId={lesson.youtube_video_id || undefined}
+            vimeoVideoId={lesson.vimeo_video_id || undefined}
+            vdoCipherVideoId={lesson.vdo_cipher_video_id || undefined}
             resumeFromSeconds={resumeFromSeconds}
           />
         </div>
 
         {/* Resources Section */}
-        {video.resources && video.resources.length > 0 && (
+        {resources && resources.length > 0 && (
           <div className="mt-12 border border-brand-border bg-[var(--card)] brightness-95] p-6 sm:p-8">
             <h2 className="mb-6 font-mono text-lg font-semibold uppercase tracking-wider text-[#10b981]">
               Session Resources
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              {video.resources.map((resource, i) => (
+              {resources.map((resource, i) => (
                 <a
                   key={i}
                   href={resource.url}

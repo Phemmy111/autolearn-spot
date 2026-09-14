@@ -47,13 +47,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
-  themeColor: [{ color: '#111317' }],
+  colorScheme: 'light',
+  themeColor: [{ color: '#ffffff' }],
 }
-
-// Test commit to trigger deployment
-
-import { ThemeProvider } from 'next-themes'
 
 export default function RootLayout({
   children,
@@ -62,13 +58,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="h-full" suppressHydrationWarning>
+      <html lang="en" className="h-full">
         <body className="font-sans antialiased h-full bg-brand-bg text-brand-text">
-          <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
-            <BrandTheming />
-            {children}
-            {process.env.NODE_ENV === 'production' && <Analytics />}
-          </ThemeProvider>
+          <BrandTheming />
+          {children}
+          {process.env.NODE_ENV === 'production' && <Analytics />}
         </body>
       </html>
     </ClerkProvider>

@@ -102,6 +102,7 @@ export async function getUserProgress(
 /**
  * Upsert a single lesson progress row.
  * Auto-marks completed when watchPct >= 90.
+ * Updated to use lesson_uuid_id for the new UUID-based lesson system.
  */
 export async function upsertLessonProgress(
   userId: string,
@@ -117,11 +118,38 @@ export async function upsertLessonProgress(
   const shouldComplete =
     data.completed === true || (data.watchPct !== undefined && data.watchPct >= 90)
 
+  // Check if lessonId is a UUID (new system) or legacy string ID
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(lessonId)
+  
   const upsertData: Record<string, unknown> = {
     cohort_id: cohortId,
-    lesson_id: lessonId,
     user_id: userId,
     updated_at: now,
+  }
+
+  // Use lesson_uuid_id for UUID-based lessons, lesson_id for legacy
+  if (isUuid) {
+    upsertData.lesson_uuid_id = lessonId
+    // For legacy compatibility, also set lesson_id if we can find the legacy ID
+    const { data: lesson } = await supabaseAdmin
+      .from('lessons')
+      .select('id')
+      .eq('uuid_id', lessonId)
+      .single()
+    if (lesson) {
+      upsertData.lesson_id = lesson.id
+    }
+  } else {
+    upsertData.lesson_id = lessonId
+    // For legacy lessons, try to find and set the UUID if available
+    const { data: lesson } = await supabaseAdmin
+      .from('lessons')
+      .select('uuid_id')
+      .eq('id', lessonId)
+      .single()
+    if (lesson) {
+      upsertData.lesson_uuid_id = lesson.uuid_id
+    }
   }
 
   if (data.watchPct !== undefined) {
@@ -139,9 +167,13 @@ export async function upsertLessonProgress(
     }
   }
 
+  // Use the new unique constraint (lesson_uuid_id, user_id) for UUID lessons
+  // Fall back to old constraint for legacy lessons
+  const conflictTarget = isUuid ? 'lesson_uuid_id,user_id' : 'cohort_id,lesson_id,user_id'
+
   const { data: row, error } = await supabaseAdmin
     .from('lesson_progress')
-    .upsert(upsertData, { onConflict: 'cohort_id,lesson_id,user_id' })
+    .upsert(upsertData, { onConflict: conflictTarget })
     .select()
     .single()
 

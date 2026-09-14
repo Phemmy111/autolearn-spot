@@ -44,16 +44,17 @@ export default async function CoursePage({ params }: { params: { id: string } })
   lessons.sort((a, b) => a.order_index - b.order_index);
 
   // 4. Fetch progress for these lessons
-  const lessonIds = lessons.map(l => l.id);
+  // Use uuid_id for progress lookups since that's the new primary key
+  const lessonIds = lessons.map(l => l.uuid_id || l.id);
   let progressMap = new Map();
   if (lessonIds.length > 0) {
     const { data: progressRows } = await supabaseAdmin
       .from('lesson_progress')
-      .select('lesson_id, watch_pct, completed')
+      .select('lesson_uuid_id, watch_pct, completed')
       .eq('user_id', userId)
-      .in('lesson_id', lessonIds);
+      .in('lesson_uuid_id', lessonIds);
 
-    progressMap = new Map(progressRows?.map((p: any) => [p.lesson_id, p]) || []);
+    progressMap = new Map(progressRows?.map((p: any) => [p.lesson_uuid_id, p]) || []);
   }
 
   // 5. Determine unlock status (80% rule)
@@ -70,13 +71,15 @@ export default async function CoursePage({ params }: { params: { id: string } })
       unlocked = true;
     } else {
       const prevLesson = lessons[index - 1];
-      const prevProgress = progressMap.get(prevLesson.id);
+      const prevLessonId = prevLesson.uuid_id || prevLesson.id;
+      const prevProgress = progressMap.get(prevLessonId);
       if (prevProgress && (prevProgress.completed || (prevProgress.watch_pct && prevProgress.watch_pct >= 80))) {
         unlocked = true;
       }
     }
 
-    const prog = progressMap.get(lesson.id);
+    const lessonId = lesson.uuid_id || lesson.id;
+    const prog = progressMap.get(lessonId);
     return {
       ...lesson,
       unlocked,
@@ -104,7 +107,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
 
         {/* Start Course Button OR Countdown Bar */}
         {!isStarted ? (
-          <div className="mt-2 p-5 rounded-2xl border border-amber-300/60 bg-amber-50/60 dark:bg-amber-900/10 dark:border-amber-500/30 max-w-xl">
+          <div className="mt-2 p-5 rounded-2xl border border-amber-300/60 bg-amber-50/60 max-w-xl">
             <div className="flex items-start gap-3 mb-4">
               <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
               <div>
@@ -161,7 +164,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
                 } transition-all duration-300`}
               >
                 <Link
-                  href={lesson.unlocked ? `/dashboard/video/${lesson.id}` : '#'}
+                  href={lesson.unlocked ? `/dashboard/video/${lesson.uuid_id || lesson.id}` : '#'}
                   className={`block aspect-video w-full relative overflow-hidden bg-brand-bg border-b border-neutral-100 ${!lesson.unlocked && 'cursor-not-allowed'}`}
                 >
                   <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -198,7 +201,7 @@ export default async function CoursePage({ params }: { params: { id: string } })
                   
                   {lesson.unlocked ? (
                     <Link
-                      href={`/dashboard/video/${lesson.id}`}
+                      href={`/dashboard/video/${lesson.uuid_id || lesson.id}`}
                       className="inline-flex items-center justify-center bg-[var(--card)] border border-brand-border px-4 py-2 text-sm font-semibold text-neutral-700 rounded-xl hover:bg-brand-bg transition-all shadow-sm"
                     >
                       {lesson.watch_pct > 0 ? 'Continue' : 'Watch'}
