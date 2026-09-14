@@ -459,11 +459,19 @@ export async function getLessonById(lessonId: string): Promise<Lesson | null> {
   });
 
   // First try to find by UUID (new primary key)
-  const { data: uuidLesson, error: uuidError } = await supabaseAdmin
-    .from('lessons')
-    .select('*')
-    .eq('uuid_id', lessonId)
-    .single()
+  let uuidLesson, uuidError
+  try {
+    const result = await supabaseAdmin
+      .from('lessons')
+      .select('*')
+      .eq('uuid_id', lessonId)
+      .single()
+    uuidLesson = result.data
+    uuidError = result.error
+  } catch (err) {
+    console.error('[lesson-service] UUID fetch error:', err)
+    uuidError = err
+  }
 
   if (uuidLesson && !uuidError) {
     console.info('[lesson-service] lesson-found-by-uuid', {
@@ -475,11 +483,19 @@ export async function getLessonById(lessonId: string): Promise<Lesson | null> {
   }
 
   // If not found by UUID, try legacy string ID
-  const { data: legacyLesson, error: legacyError } = await supabaseAdmin
-    .from('lessons')
-    .select('*')
-    .eq('id', lessonId)
-    .single()
+  let legacyLesson, legacyError
+  try {
+    const result = await supabaseAdmin
+      .from('lessons')
+      .select('*')
+      .eq('id', lessonId)
+      .single()
+    legacyLesson = result.data
+    legacyError = result.error
+  } catch (err) {
+    console.error('[lesson-service] Legacy fetch error:', err)
+    legacyError = err
+  }
 
   if (legacyLesson && !legacyError) {
     console.info('[lesson-service] lesson-found-by-legacy-id', {

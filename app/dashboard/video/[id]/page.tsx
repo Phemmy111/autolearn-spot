@@ -214,6 +214,18 @@ export default async function VideoPage({ params }: VideoPageProps) {
     assignments: lessonAssignments,
   })
 
+  // Also check if there are any assignments in the database at all
+  const { data: allAssignments, error: allAssignmentsError } = await supabaseAdmin
+    .from('assignments')
+    .select('id, title, lesson_id')
+    .limit(5)
+
+  console.info('[video-page] all-assignments-sample', {
+    totalCount: allAssignments?.length || 0,
+    error: allAssignmentsError?.message,
+    sample: allAssignments,
+  })
+
   return (
     <main className="min-h-screen bg-neutral-50 text-neutral-900">
       {/* Header */}
