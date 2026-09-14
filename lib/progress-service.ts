@@ -116,15 +116,20 @@ export async function upsertLessonProgress(
 ): Promise<LessonProgress | null> {
   const now = new Date().toISOString()
   const shouldComplete =
-    data.completed === true || (data.watchPct !== undefined && data.watchPct >= 90)
+    data.completed === true || (data.watchPct !== undefined && data.watchPct >= 80)
 
   // Check if lessonId is a UUID (new system) or legacy string ID
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(lessonId)
   
   const upsertData: Record<string, unknown> = {
-    cohort_id: cohortId,
     user_id: userId,
     updated_at: now,
+  }
+
+  // For UUID lessons (product lessons), don't set cohort_id
+  // For legacy lessons (cohort lessons), set cohort_id
+  if (!isUuid) {
+    upsertData.cohort_id = cohortId
   }
 
   // Use lesson_uuid_id for UUID-based lessons, lesson_id for legacy
@@ -181,6 +186,14 @@ export async function upsertLessonProgress(
     console.error('[progress-service] upsertLessonProgress error:', error)
     return null
   }
+
+  console.log('[progress-service] Progress upserted:', {
+    isUuid,
+    lessonId,
+    watchPct: upsertData.watch_pct,
+    completed: upsertData.completed,
+    hasCohortId: !!upsertData.cohort_id
+  })
 
   // Invalidate analytics cache after progress update
   try {

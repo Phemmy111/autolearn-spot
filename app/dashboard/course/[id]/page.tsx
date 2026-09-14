@@ -153,7 +153,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
         completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
       });
     } else {
-      // Product lessons use uuid_id
+      // Product lessons use uuid_id - query without cohort_id filter
       const lessonIds = lessons.map(l => l.uuid_id || l.id);
       const { data: progressRows } = await supabaseAdmin
         .from('lesson_progress')
@@ -166,6 +166,8 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
       console.info('[course-page] progress-loaded-product', {
         progressCount: progressMap.size,
         completedLessons: Array.from(progressMap.values()).filter(p => p.completed).length,
+        lessonIds,
+        progressData: progressRows
       });
     }
   }
