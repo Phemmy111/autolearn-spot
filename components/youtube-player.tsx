@@ -476,26 +476,37 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
       />
 
       {/*
-        ── SHARE BUTTON BLOCKER & CUSTOM LOGO ───────────────────────────────
-        The YouTube share icon is a floating circle on the bottom-left.
-        We place a black patch over it and render our own brand logo inside it
-        so it looks like a custom branded player!
+        ── SHARE BUTTON BLOCKER (INVISIBLE) ─────────────────────────────────
+        Transparent div sits exactly over the YouTube share button area.
+        It absorbs all clicks so the share dialog never opens.
+        Students see the share button but cannot click it.
       */}
       <div
-        className="absolute z-20 flex items-center justify-center bg-black/90 rounded-full border border-white/10 shadow-lg"
-        style={{ left: '35px', bottom: '15px', width: '70px', height: '70px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute z-20"
+        style={{ left: '0px', bottom: '0px', width: '120px', height: '80px', pointerEvents: 'auto', cursor: 'default', background: 'transparent' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+      />
+
+      {/*
+        ── AUTOLEARN LOGO BADGE ──────────────────────────────────────────────
+        Our branded badge sits above the control bar in the bottom-left.
+        It doesn't block anything — purely decorative branding.
+      */}
+      <div
+        className="absolute z-30 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 shadow-md"
+        style={{ left: '10px', bottom: '58px', pointerEvents: 'none' }}
       >
-        <img src="/autolearn-brandmark.png" alt="AutoLearn Spot" className="w-10 h-10 object-contain opacity-100" />
+        <img src="/autolearn-brandmark.png" alt="AutoLearn Spot" className="w-5 h-5 object-contain" />
+        <span className="text-white text-[10px] font-semibold tracking-wide opacity-90">AutoLearn Spot</span>
       </div>
 
       {/*
-        ── YOUTUBE LOGO / WATERMARK BLOCKER ─────────────────────────────────
+        ── TOP-RIGHT WATERMARK BLOCKER (INVISIBLE) ───────────────────────────
+        Transparent; blocks clicks on the channel watermark / branding.
       */}
-      {/* Top-right: channel branding / watermark */}
       <div
-        className="absolute top-0 right-0 z-20 bg-black/90 rounded-bl-xl"
-        style={{ width: '220px', height: '80px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute top-0 right-0 z-20"
+        style={{ width: '220px', height: '80px', pointerEvents: 'auto', cursor: 'default', background: 'transparent' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
 
@@ -507,17 +518,25 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
       )}
 
       {/*
-        ── FULLSCREEN BUTTON & 'WATCH ON YOUTUBE' BLOCKER ───────────────────
-        This covers the entire "Watch on YouTube" button at the bottom right.
+        ── BOTTOM-RIGHT BLOCKER + FULLSCREEN BUTTON ─────────────────────────
+        Invisible div covers "Watch on YouTube". The Fullscreen button floats
+        on top of it, clearly visible to students.
       */}
+      {/* Invisible click-blocker over "Watch on YouTube" */}
+      <div
+        className="absolute z-20"
+        style={{ right: '0px', bottom: '0px', width: '220px', height: '80px', pointerEvents: 'auto', cursor: 'default', background: 'transparent' }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+      />
+      {/* Fullscreen button — always visible, floats above the blocker */}
       <button
         onClick={toggleFullscreen}
-        className="absolute z-30 flex items-center justify-center rounded-xl bg-black/95 text-white opacity-90 hover:opacity-100 hover:bg-[#10b981] transition-all border border-white/20 shadow-lg"
+        className="absolute z-30 flex items-center gap-2 px-3 py-2 rounded-lg text-white font-semibold text-sm transition-all bg-black/50 hover:bg-[#10b981] backdrop-blur-sm border border-white/20 shadow-lg"
         title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-        style={{ right: '15px', bottom: '15px', width: '160px', height: '50px', pointerEvents: 'auto' }}
+        style={{ right: '12px', bottom: '12px', pointerEvents: 'auto' }}
       >
-        <span className="text-sm font-bold mr-2 uppercase tracking-wider">{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
-        <Maximize className="h-5 w-5" />
+        <Maximize className="h-4 w-4" />
+        <span>{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
       </button>
     </div>
   )
