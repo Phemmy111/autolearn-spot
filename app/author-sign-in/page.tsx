@@ -1,64 +1,15 @@
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, BookOpen } from 'lucide-react';
 
 /**
  * Author Sign In Page
  *
  * Custom styled login page for authors
+ * This page should be accessible to anyone - no redirects
+ * After sign-in, the redirect URL will handle authorization
  */
-export default async function AuthorSignInPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ status?: string }>;
-}) {
-  const { status } = await searchParams;
-
-  const getStatusMessage = () => {
-    switch (status) {
-      case 'PENDING':
-        return {
-          icon: <Clock className="w-5 h-5 text-yellow-600" />,
-          title: 'Application Pending',
-          message: 'Your author application is currently under review. You will be notified once approved.',
-          bgColor: 'bg-yellow-50',
-          borderColor: 'border-yellow-200',
-          textColor: 'text-yellow-800'
-        };
-      case 'REJECTED':
-        return {
-          icon: <AlertCircle className="w-5 h-5 text-red-600" />,
-          title: 'Application Rejected',
-          message: 'Your author application was not approved. Please contact support for more information.',
-          bgColor: 'bg-red-50',
-          borderColor: 'border-red-200',
-          textColor: 'text-red-800'
-        };
-      case 'SUSPENDED':
-        return {
-          icon: <AlertCircle className="w-5 h-5 text-red-600" />,
-          title: 'Account Suspended',
-          message: 'Your author account has been suspended. Please contact support for assistance.',
-          bgColor: 'bg-red-50',
-          borderColor: 'border-red-200',
-          textColor: 'text-red-800'
-        };
-      case 'ACTIVE':
-        return {
-          icon: <CheckCircle2 className="w-5 h-5 text-green-600" />,
-          title: 'Account Active',
-          message: 'Your author account is active. Please sign in to access your dashboard.',
-          bgColor: 'bg-green-50',
-          borderColor: 'border-green-200',
-          textColor: 'text-green-800'
-        };
-      default:
-        return null;
-    }
-  };
-
-  const statusMessage = getStatusMessage();
-
+export default function AuthorSignInPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}
@@ -92,25 +43,8 @@ export default async function AuthorSignInPage({
               </p>
             </div>
 
-            {/* Status Message */}
-            {statusMessage && (
-              <div className={`mb-6 p-4 rounded-lg border ${statusMessage.bgColor} ${statusMessage.borderColor}`}>
-                <div className="flex items-start gap-3">
-                  {statusMessage.icon}
-                  <div className="flex-1">
-                    <h3 className={`font-semibold ${statusMessage.textColor} mb-1`}>
-                      {statusMessage.title}
-                    </h3>
-                    <p className={`text-sm ${statusMessage.textColor}`}>
-                      {statusMessage.message}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             <SignIn
-              forceRedirectUrl="/author"
+              forceRedirectUrl="/author/check-auth"
               appearance={{
                 elements: {
                   card: 'shadow-none',
