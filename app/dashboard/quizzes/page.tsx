@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase';
-import { Link } from 'next/link';
+import Link from 'next/link';
 import { Clock, CheckCircle, Play, Lock, ClipboardCheck } from 'lucide-react';
 
 interface Quiz {
