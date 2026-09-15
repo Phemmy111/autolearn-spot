@@ -476,56 +476,53 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
       />
 
       {/*
-        ── SHARE BUTTON BLOCKER ─────────────────────────────────────────────
-        The YouTube share icon sits in the bottom-left of the native control
-        bar (approximately 48×48 px). This solid patch completely hides it
-        and absorbs clicks so the share dialog never opens.
-        bg-[#0f0f0f] perfectly matches YouTube's bottom control bar.
+        ── SHARE BUTTON BLOCKER & CUSTOM LOGO ───────────────────────────────
+        The YouTube share icon is a floating circle on the bottom-left.
+        We place a black patch over it and render our own brand logo inside it
+        so it looks like a custom branded player!
       */}
       <div
-        className="absolute bottom-0 left-0 z-20 bg-[#0f0f0f]"
-        style={{ width: '55px', height: '48px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute z-20 flex items-center justify-center bg-black/90 rounded-xl"
+        style={{ left: '12px', bottom: '38px', width: '60px', height: '60px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
-      />
+      >
+        <img src="/autolearn-brandmark.png" alt="AutoLearn Spot" className="w-8 h-8 object-contain opacity-90" />
+      </div>
 
       {/*
         ── YOUTUBE LOGO / WATERMARK BLOCKER ─────────────────────────────────
-        The YouTube wordmark appears in the bottom-right of the control bar.
-        The channel branding / watermark appears in the top-right of the
-        video. Both are covered by transparent click-absorbers below.
       */}
-      {/* Bottom-right: YouTube wordmark in control bar */}
+      {/* Bottom-right: YouTube wordmark */}
       <div
-        className="absolute bottom-0 right-0 z-20 bg-[#0f0f0f]"
-        style={{ width: '90px', height: '48px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute z-20 bg-black/90 rounded-lg"
+        style={{ right: '15px', bottom: '25px', width: '100px', height: '40px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
       {/* Top-right: channel branding / watermark */}
       <div
         className="absolute top-0 right-0 z-20 bg-black"
-        style={{ width: '200px', height: '70px', pointerEvents: 'auto', cursor: 'default' }}
+        style={{ width: '220px', height: '80px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
 
       {/* Loading spinner */}
       {isLoading && (
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-black">
-          <Loader2 className="h-10 w-10 animate-spin text-brand-primary" />
+          <Loader2 className="h-10 w-10 animate-spin text-[#10b981]" />
         </div>
       )}
 
       {/*
         ── FULLSCREEN BUTTON ────────────────────────────────────────────────
-        Since fs:0 hides YouTube's own fullscreen button, we add our own.
-        It expands wrapperRef (the shell) so all overlay divs follow into
-        fullscreen — no YouTube logo or share button visible in fullscreen.
+        Always visible (opacity-70, brightens on hover) so users can find it.
       */}
       <button
         onClick={toggleFullscreen}
-        className="absolute bottom-2 right-2 z-30 rounded bg-black/50 p-1.5 text-white opacity-0 hover:opacity-100 transition-opacity"
+        className="absolute z-30 flex items-center justify-center rounded-lg bg-black/80 text-white opacity-80 hover:opacity-100 hover:bg-[#10b981] transition-all border border-white/20 shadow-lg"
         title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-        style={{ pointerEvents: 'auto' }}
+        style={{ right: '15px', bottom: '25px', width: '100px', height: '40px', pointerEvents: 'auto' }}
       >
+        <span className="text-xs font-bold mr-2 uppercase tracking-wider">{isFullscreen ? 'Exit' : 'Full'}</span>
         <Maximize className="h-4 w-4" />
       </button>
     </div>
