@@ -18,7 +18,6 @@ export async function getAuthorApplication(userId: string) {
 
 /** Return true if the user has an active author profile */
 export async function isApprovedAuthor(userId: string): Promise<boolean> {
-  // Check if user has an active author profile in the authors table
   const { data, error } = await supabaseAdmin
     .from('authors')
     .select('status')
@@ -62,22 +61,36 @@ export async function getAuthorStatus(userId: string): Promise<string | null> {
   return data.status;
 }
 
-/** Link author profile to Clerk user ID after account creation */
+/**
+ * Link an author profile to a Clerk user ID by matching email.
+ *
+ * Handles three cases:
+ * 1. Author record exists with clerk_user_id = null → link it
+ * 2. Author record already linked to THIS userId → already correct, return true
+ * 3. Author record linked to a DIFFERENT userId (e.g. from incognito) → re-link to current userId
+ */
 export async function linkAuthorProfile(userId: string, email: string): Promise<boolean> {
-  // Find author profile by email (for users who applied without auth)
+  if (!email) return false;
+
+  // Find any author profile matching this email (regardless of clerk_user_id)
   const { data: author, error } = await supabaseAdmin
     .from('authors')
     .select('*')
     .eq('email', email)
-    .is('clerk_user_id', null)
     .single();
 
   if (error || !author) {
-    console.log('[Author Link] No unlinked author profile found for email:', email);
+    console.log('[Author Link] No author profile found for email:', email);
     return false;
   }
 
-  // Update the author profile with the Clerk user ID
+  // Already correctly linked to this user — nothing to do
+  if (author.clerk_user_id === userId) {
+    console.log('[Author Link] Already linked to this userId:', userId);
+    return true;
+  }
+
+  // Link (or re-link) the author profile to the current Clerk user ID
   const { error: updateError } = await supabaseAdmin
     .from('authors')
     .update({
@@ -91,7 +104,7 @@ export async function linkAuthorProfile(userId: string, email: string): Promise<
     return false;
   }
 
-  console.log('[Author Link] Successfully linked author profile for:', email);
+  console.log('[Author Link] Successfully linked author profile for:', email, '→ userId:', userId);
   return true;
 }
 

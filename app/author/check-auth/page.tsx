@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { isApprovedAuthor, hasAuthorRecord, getAuthorStatus, linkAuthorProfile } from '@/lib/author';
 
@@ -9,6 +9,8 @@ import { isApprovedAuthor, hasAuthorRecord, getAuthorStatus, linkAuthorProfile }
  * - If approved author → redirect to /author dashboard
  * - If has author record but not active → redirect to /author-auth with status
  * - If no author record → redirect to /author-apply
+ * 
+ * A user can be both a student and an author (same Clerk account).
  */
 export default async function CheckAuthPage() {
   const { userId } = await auth();
@@ -16,42 +18,41 @@ export default async function CheckAuthPage() {
   console.log('[CheckAuth] userId:', userId);
 
   if (!userId) {
-    // Not authenticated, redirect to sign-in
     console.log('[CheckAuth] No userId, redirecting to sign-in');
     redirect('/author-sign-in');
   }
 
-  // Try to link author profile by email (for users who applied without auth)
-  const user = await auth();
-  const email = user?.user?.emailAddresses?.[0]?.emailAddress;
+  // Get the full Clerk user object to access email
+  const clerkUser = await currentUser();
+  const email = clerkUser?.emailAddresses?.[0]?.emailAddress;
 
   console.log('[CheckAuth] email:', email);
 
   if (email) {
+    // Try to link or re-link author profile by email
+    // (handles: applied without auth, signed in from different browser/device)
     const linked = await linkAuthorProfile(userId, email);
     console.log('[CheckAuth] linked:', linked);
     if (linked) {
-      // Retry approval check after linking
       const approvedAfterLink = await isApprovedAuthor(userId);
       console.log('[CheckAuth] approvedAfterLink:', approvedAfterLink);
       if (approvedAfterLink) {
-        console.log('[CheckAuth] Redirecting to author dashboard');
+        console.log('[CheckAuth] Redirecting to author dashboard after link');
         redirect('/author');
       }
     }
   }
 
-  // Check if user is an approved author
+  // Check if user is an approved author (already linked)
   const approved = await isApprovedAuthor(userId);
   console.log('[CheckAuth] approved:', approved);
   
   if (approved) {
-    // User is approved author, send to dashboard
     console.log('[CheckAuth] Redirecting to author dashboard');
     redirect('/author');
   }
 
-  // Check if user has an author record
+  // Check if user has an author record (pending/rejected/suspended)
   const hasRecord = await hasAuthorRecord(userId);
   const authorStatus = await getAuthorStatus(userId);
 
@@ -59,12 +60,10 @@ export default async function CheckAuthPage() {
   console.log('[CheckAuth] authorStatus:', authorStatus);
 
   if (hasRecord) {
-    // User has author account but not active - redirect to auth page with status
     console.log('[CheckAuth] Redirecting to author-auth with status:', authorStatus);
     redirect(`/author-auth?status=${authorStatus || 'PENDING'}`);
   } else {
-    // User has no author record - redirect to apply
-    console.log('[CheckAuth] Redirecting to author-apply');
+    console.log('[CheckAuth] No author record found, redirecting to author-apply');
     redirect('/author-apply');
   }
 }
