@@ -4,9 +4,6 @@ import { supabase } from '@/lib/supabase';
  * Upload a file to Supabase storage and return the public URL.
  * @param file - File object from an <input type="file"/>
  * @param bucket - Optional bucket name (defaults to env variable or 'product-thumbnails')
- * 
- * Note: Buckets must be created manually in Supabase dashboard or via service role client.
- * Client-side code cannot create buckets due to RLS policies.
  */
 export async function uploadThumbnail(file: File, bucket?: string): Promise<string | null> {
   try {
@@ -16,22 +13,23 @@ export async function uploadThumbnail(file: File, bucket?: string): Promise<stri
     
     console.log(`Attempting to upload to bucket: ${bucketName}, file: ${fileName}`);
     
-    // Check if bucket exists
-    const { data: buckets } = await supabase.storage.listBuckets();
-    const bucketExists = buckets?.some(b => b.name === bucketName);
-    
-    if (!bucketExists) {
-      console.error(`Bucket ${bucketName} does not exist. Please create it in Supabase dashboard.`);
-      return null;
-    }
-    
+    // Try to upload directly - if bucket doesn't exist, we'll get a clear error
     const { data, error } = await supabase.storage.from(bucketName).upload(fileName, file);
     if (error) {
       console.error('Supabase upload error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        statusCode: error.statusCode,
+        name: error.name
+      });
       return null;
     }
+    
+    console.log('Upload successful, getting public URL...');
     const { data: publicData } = supabase.storage.from(bucketName).getPublicUrl(data.path);
-    return publicData?.publicUrl ?? null;
+    const publicUrl = publicData?.publicUrl ?? null;
+    console.log('Public URL:', publicUrl);
+    return publicUrl;
   } catch (e) {
     console.error('uploadThumbnail exception:', e);
     return null;
