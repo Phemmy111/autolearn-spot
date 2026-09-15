@@ -11,7 +11,6 @@ interface Quiz {
   title: string;
   description: string;
   lesson_id: string | null;
-  time_limit_minutes: number | null;
   passing_score: number;
   created_at: string;
   lesson?: {
@@ -54,7 +53,6 @@ export default function StudentQuizzesPage() {
             title,
             description,
             lesson_id,
-            time_limit_minutes,
             passing_score,
             created_at,
             lesson:lessons(id, title, uuid_id)
@@ -159,12 +157,6 @@ export default function StudentQuizzesPage() {
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
                         <CheckCircle className="w-3 h-3" />
                         Passed
-                      </span>
-                    )}
-                    {quiz.time_limit_minutes && (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 text-neutral-600 text-xs font-medium rounded-full">
-                        <Clock className="w-3 h-3" />
-                        {quiz.time_limit_minutes} min
                       </span>
                     )}
                   </div>
