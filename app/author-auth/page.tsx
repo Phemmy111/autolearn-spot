@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import { UserPlus, LogIn, ArrowRight, BookOpen, Users, DollarSign, TrendingUp } from 'lucide-react';
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import { isApprovedAuthor, hasAuthorRecord, getAuthorStatus, linkAuthorProfile } from '@/lib/author';
 
 /**
  * Author Auth Landing Page
@@ -8,8 +11,79 @@ import { UserPlus, LogIn, ArrowRight, BookOpen, Users, DollarSign, TrendingUp } 
  * 1. Create an account and apply
  * 2. Login to existing author dashboard
  * 3. Return to home
+ * 
+ * Also handles post-sign-in routing based on author status
  */
-export default function AuthorAuthPage() {
+export default async function AuthorAuthPage() {
+  const { userId } = await auth();
+
+  // If user is authenticated, check their author status and redirect appropriately
+  if (userId) {
+    const approved = await isApprovedAuthor(userId);
+    
+    if (approved) {
+      // User is approved author, send to dashboard
+      redirect('/author');
+    } else {
+      // Try to link author profile by email
+      const user = await auth();
+      const email = user?.user?.emailAddresses?.[0]?.emailAddress;
+
+      if (email) {
+        const linked = await linkAuthorProfile(userId, email);
+        if (linked) {
+          // Retry approval check after linking
+          const approvedAfterLink = await isApprovedAuthor(userId);
+          if (approvedAfterLink) {
+            redirect('/author');
+          }
+        }
+      }
+
+      // Check if user has an author record
+      const hasRecord = await hasAuthorRecord(userId);
+      const authorStatus = await getAuthorStatus(userId);
+
+      if (hasRecord) {
+        // User has author account but not active - show status info
+        return (
+          <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4">
+            <div className="max-w-md w-full bg-[var(--card)] brightness-95 rounded-2xl shadow-xl border border-brand-border p-8 text-center">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold text-brand-text mb-2">
+                  Author Account Status
+                </h1>
+                <p className="text-brand-text/70">
+                  Your author account is currently: <span className="font-semibold">{authorStatus || 'PENDING'}</span>
+                </p>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-blue-800">
+                  {authorStatus === 'PENDING' && 'Your application is under review. You will be notified once approved.'}
+                  {authorStatus === 'REJECTED' && 'Your application was not approved. Please contact support for more information.'}
+                  {authorStatus === 'SUSPENDED' && 'Your account has been suspended. Please contact support for assistance.'}
+                  {!authorStatus && 'Your account status is being processed.'}
+                </p>
+              </div>
+
+              <Link
+                href="/"
+                className="inline-flex items-center gap-2 text-indigo-600 font-medium hover:text-indigo-700"
+              >
+                Return to Home
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        );
+      } else {
+        // User has no author record - redirect to apply
+        redirect('/author-apply');
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}

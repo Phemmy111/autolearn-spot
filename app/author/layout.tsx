@@ -24,16 +24,23 @@ export default async function AuthorLayout({
   // Check if user is an approved author
   const approved = await isApprovedAuthor(userId);
 
+  console.log('[Author Layout] userId:', userId);
+  console.log('[Author Layout] approved:', approved);
+
   if (!approved) {
     // Try to link author profile by email (for users who applied without auth)
     const user = await auth();
     const email = user?.user?.emailAddresses?.[0]?.emailAddress;
 
+    console.log('[Author Layout] email:', email);
+
     if (email) {
       const linked = await linkAuthorProfile(userId, email);
+      console.log('[Author Layout] linked:', linked);
       if (linked) {
         // Retry approval check after linking
         const approvedAfterLink = await isApprovedAuthor(userId);
+        console.log('[Author Layout] approvedAfterLink:', approvedAfterLink);
         if (approvedAfterLink) {
           return <AuthorShell>{children}</AuthorShell>;
         }
@@ -44,16 +51,16 @@ export default async function AuthorLayout({
     const hasRecord = await hasAuthorRecord(userId);
     const authorStatus = await getAuthorStatus(userId);
 
+    console.log('[Author Layout] hasRecord:', hasRecord);
+    console.log('[Author Layout] authorStatus:', authorStatus);
+
     if (hasRecord) {
-      // User has an author account but is not active - redirect to sign-in with status info
-      // If status is ACTIVE but check failed, something is wrong - let them try signing in
-      if (authorStatus === 'ACTIVE') {
-        // Status is active but check failed - possible data inconsistency, let them through
-        return <AuthorShell>{children}</AuthorShell>;
-      }
-      redirect(`/author-sign-in?status=${authorStatus || 'PENDING'}`);
+      // User has an author account but is not active - redirect to auth page which handles status display
+      console.log('[Author Layout] Has author record, redirecting to auth page');
+      redirect('/author-auth');
     } else {
       // User has no author record - redirect to apply
+      console.log('[Author Layout] No author record, redirecting to apply');
       redirect('/author-apply');
     }
   }

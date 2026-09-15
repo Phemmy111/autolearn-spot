@@ -25,6 +25,10 @@ export async function isApprovedAuthor(userId: string): Promise<boolean> {
     .eq('clerk_user_id', userId)
     .single();
 
+  console.log('[isApprovedAuthor] userId:', userId);
+  console.log('[isApprovedAuthor] data:', data);
+  console.log('[isApprovedAuthor] error:', error);
+
   if (error || !data) {
     return false;
   }
