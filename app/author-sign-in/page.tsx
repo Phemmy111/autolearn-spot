@@ -1,9 +1,6 @@
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { isApprovedAuthor, hasAuthorRecord, getAuthorStatus, linkAuthorProfile } from '@/lib/author';
 
 /**
  * Author Sign In Page
@@ -12,46 +9,7 @@ import { isApprovedAuthor, hasAuthorRecord, getAuthorStatus, linkAuthorProfile }
  * This page should be accessible to anyone - no redirects
  * After sign-in, the redirect URL will handle authorization
  */
-export default async function AuthorSignInPage() {
-  const { userId } = await auth();
-
-  // If user is already authenticated, redirect them appropriately
-  if (userId) {
-    // Try to link author profile by email
-    const user = await auth();
-    const email = user?.user?.emailAddresses?.[0]?.emailAddress;
-
-    if (email) {
-      const linked = await linkAuthorProfile(userId, email);
-      if (linked) {
-        const approvedAfterLink = await isApprovedAuthor(userId);
-        if (approvedAfterLink) {
-          redirect('/author');
-        }
-      }
-    }
-
-    // Check if user is an approved author
-    const approved = await isApprovedAuthor(userId);
-    
-    if (approved) {
-      // User is approved author, send to dashboard
-      redirect('/author');
-    }
-
-    // Check if user has an author record
-    const hasRecord = await hasAuthorRecord(userId);
-    const authorStatus = await getAuthorStatus(userId);
-
-    if (hasRecord) {
-      // User has author account but not active - redirect to check-auth for status display
-      redirect('/author/check-auth');
-    } else {
-      // User has no author record - redirect to apply
-      redirect('/author-apply');
-    }
-  }
-
+export default function AuthorSignInPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}
@@ -86,6 +44,7 @@ export default async function AuthorSignInPage() {
             </div>
 
             <SignIn
+              redirectUrl="/author/check-auth"
               appearance={{
                 elements: {
                   card: 'shadow-none',
