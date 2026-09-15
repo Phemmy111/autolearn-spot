@@ -70,6 +70,12 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
   const [progress, setProgress] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
 
+  // Keep a ref to the latest onComplete callback to avoid recreating saveProgress
+  const onCompleteRef = useRef(onComplete)
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
+
   // Save progress to the server — reuses the existing /api/progress endpoint
   const saveProgress = useCallback(
     async (currentTime: number, duration: number, forceComplete = false) => {
@@ -88,9 +94,9 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
         payload.completed = true
         migrationLog.completion(lessonId, watchPct)
         markVideoComplete(userId, lessonId)
-        if (onComplete) {
+        if (onCompleteRef.current) {
           // Call onComplete asynchronously so it doesn't block the save progress
-          setTimeout(onComplete, 0)
+          setTimeout(onCompleteRef.current, 0)
         }
       }
 
@@ -115,7 +121,7 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
         migrationLog.progressSaveError(lessonId, err)
       }
     },
-    [userId, lessonId, onComplete]
+    [userId, lessonId] // Removed onComplete to prevent infinite remounts
   )
 
   // Save progress on page unload / navigation
@@ -159,9 +165,11 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
         await loadYouTubeAPI()
         if (destroyed || !containerRef.current) return
 
-        // Create a placeholder div inside the container for YT.Player to replace
+        // Create a placeholder div inside the container for YT.Player to replace.
+        // Use a random suffix to prevent ID collisions if React Strict Mode remounts quickly.
+        const uniqueId = `yt-player-${lessonId}-${Math.random().toString(36).slice(2, 9)}`
         const playerDiv = document.createElement('div')
-        playerDiv.id = `yt-player-${lessonId}`
+        playerDiv.id = uniqueId
         containerRef.current.innerHTML = ''
         containerRef.current.appendChild(playerDiv)
 
@@ -216,6 +224,9 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
               if (!playerRef.current) {
                 playerRef.current = player
               }
+
+              // Fallback: if we get any state change, we definitely have a player
+              setIsLoading(false)
 
               if (event.data === window.YT.PlayerState.PLAYING) {
                 setIsPlaying(true)
