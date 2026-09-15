@@ -1,3 +1,7 @@
+'use server';
+
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen } from 'lucide-react';
@@ -5,11 +9,20 @@ import { ArrowLeft, BookOpen } from 'lucide-react';
 /**
  * Author Sign In Page
  *
- * Custom styled login page for authors
- * This page should be accessible to anyone - no redirects
- * After sign-in, the redirect URL will handle authorization
+ * Custom styled login page for authors.
+ * If the user is ALREADY signed in (e.g. as a student in the same browser),
+ * we skip the SignIn component entirely and redirect them to check-auth,
+ * which will determine whether they are an approved author or not.
+ * This prevents the infinite Clerk redirect loop.
  */
-export default function AuthorSignInPage() {
+export default async function AuthorSignInPage() {
+  const { userId } = await auth();
+
+  // Already logged in — go straight to the author check page
+  if (userId) {
+    redirect('/author/check-auth');
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}
@@ -59,7 +72,7 @@ export default function AuthorSignInPage() {
 
             <div className="mt-6 pt-6 border-t border-brand-border text-center">
               <p className="text-sm text-brand-text/70 mb-3">
-                Don't have an author account yet?
+                Don&apos;t have an author account yet?
               </p>
               <Link
                 href="/author-apply"
