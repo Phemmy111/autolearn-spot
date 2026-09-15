@@ -63,7 +63,8 @@ export default async function CheckAuthPage() {
     console.log('[CheckAuth] Redirecting to author-auth with status:', authorStatus);
     redirect(`/author-auth?status=${authorStatus || 'PENDING'}`);
   } else {
-    console.log('[CheckAuth] No author record found, redirecting to author-apply');
-    redirect('/author-apply');
+    // User is signed in but has no author record — show them a clear message
+    console.log('[CheckAuth] No author record found, showing NOT_AUTHOR message');
+    redirect('/author-sign-in?status=NOT_AUTHOR');
   }
 }
