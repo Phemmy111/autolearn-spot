@@ -86,7 +86,6 @@ export default async function AuthorSignInPage() {
             </div>
 
             <SignIn
-              forceRedirectUrl="/author/check-auth"
               appearance={{
                 elements: {
                   card: 'shadow-none',

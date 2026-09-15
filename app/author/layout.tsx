@@ -40,8 +40,17 @@ export default async function AuthorLayout({
       }
     }
 
-    // Not approved - redirect to auth page where they can choose sign-in or apply
-    redirect('/author-auth');
+    // Check if user has an author record to show appropriate status
+    const hasRecord = await hasAuthorRecord(userId);
+    const authorStatus = await getAuthorStatus(userId);
+
+    if (hasRecord) {
+      // User has author account but not active - redirect to auth page with status
+      redirect(`/author-auth?status=${authorStatus || 'PENDING'}`);
+    } else {
+      // User has no author record - redirect to auth page to choose sign-in or apply
+      redirect('/author-auth');
+    }
   }
 
   return <AuthorShell>{children}</AuthorShell>;

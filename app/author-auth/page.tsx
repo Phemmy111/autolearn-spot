@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { UserPlus, LogIn, ArrowRight, BookOpen, Users, DollarSign, TrendingUp } from 'lucide-react';
+import { UserPlus, LogIn, ArrowRight, BookOpen, Users, DollarSign, TrendingUp, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
 
 /**
  * Author Auth Landing Page
@@ -8,8 +8,61 @@ import { UserPlus, LogIn, ArrowRight, BookOpen, Users, DollarSign, TrendingUp } 
  * 1. Create an account and apply
  * 2. Login to existing author dashboard
  * 3. Return to home
+ * 
+ * Can also display status information if redirected from check-auth
  */
-export default function AuthorAuthPage() {
+export default async function AuthorAuthPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const { status } = await searchParams;
+
+  const getStatusMessage = () => {
+    switch (status) {
+      case 'PENDING':
+        return {
+          icon: <Clock className="w-5 h-5 text-yellow-600" />,
+          title: 'Application Pending',
+          message: 'Your author application is currently under review. You will be notified once approved.',
+          bgColor: 'bg-yellow-50',
+          borderColor: 'border-yellow-200',
+          textColor: 'text-yellow-800'
+        };
+      case 'REJECTED':
+        return {
+          icon: <AlertCircle className="w-5 h-5 text-red-600" />,
+          title: 'Application Rejected',
+          message: 'Your author application was not approved. Please contact support for more information.',
+          bgColor: 'bg-red-50',
+          borderColor: 'border-red-200',
+          textColor: 'text-red-800'
+        };
+      case 'SUSPENDED':
+        return {
+          icon: <AlertCircle className="w-5 h-5 text-red-600" />,
+          title: 'Account Suspended',
+          message: 'Your account has been suspended. Please contact support for assistance.',
+          bgColor: 'bg-red-50',
+          borderColor: 'border-red-200',
+          textColor: 'text-red-800'
+        };
+      case 'ACTIVE':
+        return {
+          icon: <CheckCircle2 className="w-5 h-5 text-green-600" />,
+          title: 'Account Active',
+          message: 'Your author account is active. Please sign in to access your dashboard.',
+          bgColor: 'bg-green-50',
+          borderColor: 'border-green-200',
+          textColor: 'text-green-800'
+        };
+      default:
+        return null;
+    }
+  };
+
+  const statusMessage = getStatusMessage();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Header */}
@@ -34,6 +87,23 @@ export default function AuthorAuthPage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Status Message */}
+        {statusMessage && (
+          <div className={`mb-8 p-4 rounded-lg border ${statusMessage.bgColor} ${statusMessage.borderColor}`}>
+            <div className="flex items-start gap-3">
+              {statusMessage.icon}
+              <div className="flex-1">
+                <h3 className={`font-semibold ${statusMessage.textColor} mb-1`}>
+                  {statusMessage.title}
+                </h3>
+                <p className={`text-sm ${statusMessage.textColor}`}>
+                  {statusMessage.message}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-brand-text mb-4">
             Author Studio
