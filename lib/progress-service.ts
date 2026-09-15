@@ -123,13 +123,8 @@ export async function upsertLessonProgress(
   
   const upsertData: Record<string, unknown> = {
     user_id: userId,
+    cohort_id: cohortId,  // Always required — cohort_id is NOT NULL in the DB
     updated_at: now,
-  }
-
-  // For UUID lessons (product lessons), don't set cohort_id
-  // For legacy lessons (cohort lessons), set cohort_id
-  if (!isUuid) {
-    upsertData.cohort_id = cohortId
   }
 
   // Use lesson_uuid_id for UUID-based lessons, lesson_id for legacy
@@ -183,16 +178,16 @@ export async function upsertLessonProgress(
     .single()
 
   if (error) {
-    console.error('[progress-service] upsertLessonProgress error:', error)
+    console.error('[progress-service] upsertLessonProgress error:', error, { upsertData, conflictTarget })
     return null
   }
 
   console.log('[progress-service] Progress upserted:', {
     isUuid,
     lessonId,
+    cohortId,
     watchPct: upsertData.watch_pct,
     completed: upsertData.completed,
-    hasCohortId: !!upsertData.cohort_id
   })
 
   // Invalidate analytics cache after progress update

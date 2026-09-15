@@ -487,18 +487,6 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
 
-      {/*
-        ── AUTOLEARN LOGO BADGE ──────────────────────────────────────────────
-        Our branded badge sits above the control bar in the bottom-left.
-        It doesn't block anything — purely decorative branding.
-      */}
-      <div
-        className="absolute z-30 flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 shadow-md"
-        style={{ left: '10px', bottom: '58px', pointerEvents: 'none' }}
-      >
-        <img src="/autolearn-brandmark.png" alt="AutoLearn Spot" className="w-5 h-5 object-contain" />
-        <span className="text-white text-[10px] font-semibold tracking-wide opacity-90">AutoLearn Spot</span>
-      </div>
 
       {/*
         ── TOP-RIGHT WATERMARK BLOCKER (INVISIBLE) ───────────────────────────
