@@ -47,22 +47,9 @@ export default async function AuthorLayout({
       }
     }
 
-    // Check if user has an author record (even if not active)
-    const hasRecord = await hasAuthorRecord(userId);
-    const authorStatus = await getAuthorStatus(userId);
-
-    console.log('[Author Layout] hasRecord:', hasRecord);
-    console.log('[Author Layout] authorStatus:', authorStatus);
-
-    if (hasRecord) {
-      // User has an author account but is not active - redirect to auth page which handles status display
-      console.log('[Author Layout] Has author record, redirecting to auth page');
-      redirect('/author-auth');
-    } else {
-      // User has no author record - redirect to apply
-      console.log('[Author Layout] No author record, redirecting to apply');
-      redirect('/author-apply');
-    }
+    // Not approved - redirect to auth page where they can choose sign-in or apply
+    console.log('[Author Layout] Not approved, redirecting to auth page');
+    redirect('/author-auth');
   }
 
   return <AuthorShell>{children}</AuthorShell>;
