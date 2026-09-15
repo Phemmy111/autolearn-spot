@@ -134,7 +134,7 @@ export default async function AuthorSignInPage({
                   Or use a different account
                 </p>
                 <Link
-                  href="/api/author-switch-account"
+                  href="/author-switch-account"
                   className="w-full flex items-center justify-center gap-2 border-2 border-indigo-200 text-indigo-600 font-semibold py-3 px-4 rounded-xl hover:border-indigo-400 hover:bg-indigo-50 transition-colors"
                 >
                   Sign in with a different account
