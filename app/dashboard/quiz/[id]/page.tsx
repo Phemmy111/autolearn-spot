@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { supabase } from '@/lib/supabase';
-import { Link, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { Clock, CheckCircle, Play, ArrowLeft } from 'lucide-react';
 
 interface Question {
