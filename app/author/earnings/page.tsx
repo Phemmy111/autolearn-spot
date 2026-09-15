@@ -35,8 +35,13 @@ export default async function AuthorEarningsPage() {
     .eq('author_id', author.id)
     .single();
 
+  const totalGross = earningData?.total_gross || 0;
+  const totalCommission = earningData?.total_commission || 0;
   const totalNet = earningData?.total_net || 0;
   const totalWithdrawn = earningData?.total_withdrawn || 0;
+  
+  // Calculate pending balance (available balance + pending withdrawals)
+  const pendingBalance = 0; // This would need to be calculated from pending withdrawals
   
   // 3. Fetch Available Balance (using RPC via service)
   let availableBalance = 0;
@@ -72,17 +77,26 @@ export default async function AuthorEarningsPage() {
             Track your revenue and manage your withdrawals.
           </p>
         </div>
-        <Link
-          href="/author/settings"
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium text-sm"
-        >
-          <ArrowUpRight className="w-4 h-4" />
-          Request Withdrawal
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/author/bank"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors shadow-sm font-medium text-sm"
+          >
+            <Wallet className="w-4 h-4" />
+            Manage Bank
+          </Link>
+          <Link
+            href="/author/transactions"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm font-medium text-sm"
+          >
+            <ArrowUpRight className="w-4 h-4" />
+            View Transactions
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="p-6 bg-gradient-to-br from-emerald-900/40 to-emerald-800/20 border border-emerald-900/50 rounded-lg">
           <div className="flex items-center gap-3 mb-2">
             <Wallet className="w-5 h-5 text-emerald-400" />
@@ -112,6 +126,55 @@ export default async function AuthorEarningsPage() {
             {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(totalWithdrawn)}
           </p>
         </div>
+
+        <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
+          <div className="flex items-center gap-3 mb-2">
+            <Clock className="w-5 h-5 text-amber-500" />
+            <span className="text-sm font-medium text-brand-text/70">Pending Balance</span>
+          </div>
+          <p className="text-3xl font-bold text-brand-text">
+            {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(pendingBalance)}
+          </p>
+        </div>
+      </div>
+
+      {/* Revenue Breakdown */}
+      <div className="p-6 bg-[var(--card)] brightness-95 border border-brand-border rounded-lg">
+        <h2 className="text-lg font-semibold text-brand-text mb-6">Revenue Breakdown</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-2">
+            <p className="text-sm text-brand-text/70">Total Sales (Gross)</p>
+            <p className="text-2xl font-bold text-brand-text">
+              {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(totalGross)}
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <p className="text-sm text-brand-text/70">Platform Commission</p>
+            <p className="text-2xl font-bold text-red-600">
+              -{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(totalCommission)}
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <p className="text-sm text-brand-text/70">Your Earnings (Net)</p>
+            <p className="text-2xl font-bold text-emerald-600">
+              {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(totalNet)}
+            </p>
+          </div>
+        </div>
+
+        {totalGross > 0 && (
+          <div className="mt-6 pt-6 border-t border-brand-border">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-brand-text/70">Commission Rate</span>
+              <span className="font-semibold text-brand-text">
+                {totalGross > 0 ? ((totalCommission / totalGross) * 100).toFixed(1) : 0}%
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Withdrawals History */}
