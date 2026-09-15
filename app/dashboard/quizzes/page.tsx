@@ -11,7 +11,6 @@ interface Quiz {
   title: string;
   description: string;
   lesson_id: string | null;
-  lesson_uuid_id: string | null;
   time_limit_minutes: number | null;
   passing_score: number;
   created_at: string;
@@ -55,7 +54,6 @@ export default function StudentQuizzesPage() {
             title,
             description,
             lesson_id,
-            lesson_uuid_id,
             time_limit_minutes,
             passing_score,
             created_at,

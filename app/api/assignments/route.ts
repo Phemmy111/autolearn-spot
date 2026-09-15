@@ -76,7 +76,6 @@ export async function GET(request: Request) {
           title,
           description,
           lesson_id,
-          lesson_uuid_id,
           cohort_id,
           due_date,
           order_index
