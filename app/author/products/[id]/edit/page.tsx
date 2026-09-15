@@ -266,6 +266,19 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       }
     }
     
+    let updatedMediaGallery = [...mediaGallery];
+    if (mediaFiles.length > 0) {
+      try {
+        const newUrls = await Promise.all(mediaFiles.map(file => uploadThumbnail(file)));
+        const validUrls = newUrls.filter(Boolean) as string[];
+        updatedMediaGallery = [...updatedMediaGallery, ...validUrls];
+        setMediaGallery(updatedMediaGallery);
+        setMediaFiles([]);
+      } catch (e) {
+        console.error('Failed to upload additional media');
+      }
+    }
+    
     const finalAccessDuration = accessDurationType === 'Custom' 
       ? Number(customAccessDuration) 
       : Number(accessDurationType);

@@ -4,6 +4,9 @@ import { supabase } from '@/lib/supabase';
  * Upload a file to Supabase storage and return the public URL.
  * @param file - File object from an <input type="file"/>
  * @param bucket - Optional bucket name (defaults to env variable or 'product-thumbnails')
+ * 
+ * Note: Buckets must be created manually in Supabase dashboard or via service role client.
+ * Client-side code cannot create buckets due to RLS policies.
  */
 export async function uploadThumbnail(file: File, bucket?: string): Promise<string | null> {
   try {
@@ -13,20 +16,13 @@ export async function uploadThumbnail(file: File, bucket?: string): Promise<stri
     
     console.log(`Attempting to upload to bucket: ${bucketName}, file: ${fileName}`);
     
-    // Check if bucket exists, if not try to create it
+    // Check if bucket exists
     const { data: buckets } = await supabase.storage.listBuckets();
     const bucketExists = buckets?.some(b => b.name === bucketName);
     
     if (!bucketExists) {
-      console.warn(`Bucket ${bucketName} does not exist, attempting to create it`);
-      const { error: createError } = await supabase.storage.createBucket(bucketName, {
-        public: true,
-        fileSizeLimit: 5 * 1024 * 1024 // 5MB limit
-      });
-      if (createError) {
-        console.error('Failed to create bucket:', createError);
-        return null;
-      }
+      console.error(`Bucket ${bucketName} does not exist. Please create it in Supabase dashboard.`);
+      return null;
     }
     
     const { data, error } = await supabase.storage.from(bucketName).upload(fileName, file);
