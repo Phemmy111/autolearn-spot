@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getAvailableBalance } from '@/lib/authorService';
 import { Wallet, ArrowUpRight, DollarSign, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,16 +28,24 @@ export default async function AuthorEarningsPage() {
     );
   }
 
-  // 2. Fetch Earnings totals from financial summary API
-  const earningsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/author/financial-summary`, {
-    cache: 'no-store'
-  });
-  const earningsData = await earningsRes.json();
+  // 2. Fetch Earnings totals directly from database
+  const { data: earningData } = await supabaseAdmin
+    .from('author_earnings')
+    .select('total_gross, total_commission, total_net')
+    .eq('author_id', author.id)
+    .single();
 
-  const totalGross = earningsData.total_sales || 0;
-  const totalCommission = totalGross > 0 && earningsData.total_earnings > 0 ? totalGross - earningsData.total_earnings : 0;
-  const totalNet = earningsData.total_earnings || 0;
-  const availableBalance = earningsData.available_balance || 0;
+  const totalGross = earningData?.total_gross || 0;
+  const totalCommission = earningData?.total_commission || 0;
+  const totalNet = earningData?.total_net || 0;
+  
+  // 3. Fetch Available Balance (using RPC via service)
+  let availableBalance = 0;
+  try {
+    availableBalance = await getAvailableBalance(author.id);
+  } catch (error) {
+    console.error('Failed to fetch available balance:', error);
+  }
   
   // Calculate pending balance (available balance + pending withdrawals)
   const pendingBalance = 0; // This would need to be calculated from pending withdrawals
