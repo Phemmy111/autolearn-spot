@@ -482,25 +482,19 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
         so it looks like a custom branded player!
       */}
       <div
-        className="absolute z-20 flex items-center justify-center bg-black/90 rounded-xl"
-        style={{ left: '12px', bottom: '38px', width: '60px', height: '60px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute z-20 flex items-center justify-center bg-black/90 rounded-full border border-white/10 shadow-lg"
+        style={{ left: '35px', bottom: '15px', width: '70px', height: '70px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       >
-        <img src="/autolearn-brandmark.png" alt="AutoLearn Spot" className="w-8 h-8 object-contain opacity-90" />
+        <img src="/autolearn-brandmark.png" alt="AutoLearn Spot" className="w-10 h-10 object-contain opacity-100" />
       </div>
 
       {/*
         ── YOUTUBE LOGO / WATERMARK BLOCKER ─────────────────────────────────
       */}
-      {/* Bottom-right: YouTube wordmark */}
-      <div
-        className="absolute z-20 bg-black/90 rounded-lg"
-        style={{ right: '15px', bottom: '25px', width: '100px', height: '40px', pointerEvents: 'auto', cursor: 'default' }}
-        onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
-      />
       {/* Top-right: channel branding / watermark */}
       <div
-        className="absolute top-0 right-0 z-20 bg-black"
+        className="absolute top-0 right-0 z-20 bg-black/90 rounded-bl-xl"
         style={{ width: '220px', height: '80px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
@@ -513,17 +507,17 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
       )}
 
       {/*
-        ── FULLSCREEN BUTTON ────────────────────────────────────────────────
-        Always visible (opacity-70, brightens on hover) so users can find it.
+        ── FULLSCREEN BUTTON & 'WATCH ON YOUTUBE' BLOCKER ───────────────────
+        This covers the entire "Watch on YouTube" button at the bottom right.
       */}
       <button
         onClick={toggleFullscreen}
-        className="absolute z-30 flex items-center justify-center rounded-lg bg-black/80 text-white opacity-80 hover:opacity-100 hover:bg-[#10b981] transition-all border border-white/20 shadow-lg"
+        className="absolute z-30 flex items-center justify-center rounded-xl bg-black/95 text-white opacity-90 hover:opacity-100 hover:bg-[#10b981] transition-all border border-white/20 shadow-lg"
         title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-        style={{ right: '15px', bottom: '25px', width: '100px', height: '40px', pointerEvents: 'auto' }}
+        style={{ right: '15px', bottom: '15px', width: '160px', height: '50px', pointerEvents: 'auto' }}
       >
-        <span className="text-xs font-bold mr-2 uppercase tracking-wider">{isFullscreen ? 'Exit' : 'Full'}</span>
-        <Maximize className="h-4 w-4" />
+        <span className="text-sm font-bold mr-2 uppercase tracking-wider">{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
+        <Maximize className="h-5 w-5" />
       </button>
     </div>
   )
