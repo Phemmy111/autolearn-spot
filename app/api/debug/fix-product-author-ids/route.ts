@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST() {
+export async function GET() {
   try {
     // Get all products with their current author_id
     const { data: products, error: productsError } = await supabaseAdmin

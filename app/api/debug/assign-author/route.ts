@@ -3,13 +3,14 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   try {
-    const body = await request.json();
-    const { productId, authorId } = body;
+    const { searchParams } = new URL(request.url);
+    const productId = searchParams.get('productId');
+    const authorId = searchParams.get('authorId');
 
     if (!productId || !authorId) {
-      return NextResponse.json({ error: 'Product ID and Author ID are required' }, { status: 400 });
+      return NextResponse.json({ error: 'Product ID and Author ID are required as query params' }, { status: 400 });
     }
 
     // Update product with author_id
