@@ -22,8 +22,6 @@ import { logUserActivity } from '@/lib/audit-logging';
 // Phase 4: Cart checkout
 import { getOrderByProviderRef, getOrderItems, markOrderPaid } from '@/lib/order-service';
 import { clearCartItems } from '@/lib/cart-service';
-// Author finance
-import { recordAuthorSale } from '@/lib/authorService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -114,9 +112,68 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
     return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
   }
 
-  // 5.5. Record author sales for financial tracking
+  // 5.5. Record author sales for financial tracking using direct inserts
+  const orderItems = await getOrderItems(order.id);
+  
   try {
-    await recordAuthorSale(order.id);
+    for (const item of orderItems) {
+      // Check if sale already exists
+      const { data: existingSale } = await supabaseAdmin
+        .from('author_sales')
+        .select('id')
+        .eq('order_item_id', item.id)
+        .single();
+
+      if (existingSale) {
+        continue; // Skip if already recorded
+      }
+
+      // Get product author_id
+      const { data: product } = await supabaseAdmin
+        .from('learning_products')
+        .select('author_id')
+        .eq('id', item.learning_product_id)
+        .single();
+
+      if (!product?.author_id) {
+        console.error(`Product ${item.learning_product_id} has no author_id`);
+        continue;
+      }
+
+      // Direct insert into author_sales
+      const { data: sale, error: saleError } = await supabaseAdmin
+        .from('author_sales')
+        .insert({
+          order_id: order.id,
+          order_item_id: item.id,
+          product_id: item.learning_product_id,
+          author_id: product.author_id,
+          gross_amount: item.price_snapshot,
+          commission_amount: item.price_snapshot * 0.1, // 10% commission
+          net_amount: item.price_snapshot * 0.9, // 90% net
+          currency: 'NGN'
+        })
+        .select()
+        .single();
+
+      if (saleError) {
+        console.error(`Failed to insert author sale for item ${item.id}:`, saleError);
+        continue;
+      }
+
+      // Direct insert into author_transactions
+      await supabaseAdmin
+        .from('author_transactions')
+        .insert({
+          author_id: product.author_id,
+          type: 'SALE_CREDIT',
+          amount: item.price_snapshot * 0.9,
+          currency: 'NGN',
+          related_id: sale.id,
+          description: `Sale for order ${order.id}, item ${item.id}`
+        });
+    }
+    
     console.log(`CART CHECKOUT: Recorded author sales for order ${order.id}`);
   } catch (error) {
     console.error('CART CHECKOUT: Failed to record author sales for order', order.id, error);
@@ -124,7 +181,6 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   }
 
   // 6. Create enrollments for each order item
-  const orderItems = await getOrderItems(order.id);
   
   for (const item of orderItems) {
     const enrollmentData: Record<string, any> = {
