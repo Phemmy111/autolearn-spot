@@ -66,7 +66,7 @@ export default function QuizDetailPage() {
 
       // Fetch quiz questions
       const { data: questionsData, error: questionsError } = await supabase
-        .from('quiz_questions')
+        .from('questions')
         .select('*')
         .eq('quiz_id', quizId)
         .order('order_index', { ascending: true });
