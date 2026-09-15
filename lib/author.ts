@@ -32,6 +32,36 @@ export async function isApprovedAuthor(userId: string): Promise<boolean> {
   return data.status === 'ACTIVE';
 }
 
+/** Check if user has any author record (regardless of status) */
+export async function hasAuthorRecord(userId: string): Promise<boolean> {
+  const { data, error } = await supabaseAdmin
+    .from('authors')
+    .select('id, status')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (error || !data) {
+    return false;
+  }
+
+  return true;
+}
+
+/** Get author status for display purposes */
+export async function getAuthorStatus(userId: string): Promise<string | null> {
+  const { data, error } = await supabaseAdmin
+    .from('authors')
+    .select('status')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data.status;
+}
+
 /** Link author profile to Clerk user ID after account creation */
 export async function linkAuthorProfile(userId: string, email: string): Promise<boolean> {
   // Find author profile by email (for users who applied without auth)

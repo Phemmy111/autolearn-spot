@@ -109,6 +109,14 @@ export default function NewProductPage() {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const replaceMediaFile = (index: number, newFile: File) => {
+    setMediaFiles(prev => {
+      const updated = [...prev];
+      updated[index] = newFile;
+      return updated;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -129,6 +137,22 @@ export default function NewProductPage() {
         return setError('Failed to upload thumbnail.');
       }
     }
+
+    // Upload media gallery files
+    let uploadedMediaUrls: string[] = [];
+    if (mediaFiles.length > 0) {
+      try {
+        for (const file of mediaFiles) {
+          const url = await uploadThumbnail(file, 'product-media');
+          if (url) {
+            uploadedMediaUrls.push(url);
+          }
+        }
+      } catch (err) {
+        setSubmitting(false);
+        return setError('Failed to upload media files.');
+      }
+    }
     
     const finalAccessDuration = accessDurationType === 'Custom' 
       ? Number(customAccessDuration) 
@@ -146,7 +170,7 @@ export default function NewProductPage() {
       learning_outcomes: learningOutcomes,
       requirements,
       target_audience: targetAudience,
-      media_gallery: updatedMediaGallery
+      media_gallery: uploadedMediaUrls
     });
 
     const payload = {
@@ -167,18 +191,7 @@ export default function NewProductPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      // Determine if the entered skill is a custom free‑text entry
-      const isCustomSkill = skill && (!availableSkills || availableSkills.length === 0 || !availableSkills.some(s => s.id === skill));
-      const structuredDescriptionWithCustom = isCustomSkill ? JSON.stringify({
-        short_description: shortDesc,
-        full_description: fullDesc,
-        category,
-        difficulty,
-        learning_outcomes: learningOutcomes,
-        requirements,
-        target_audience: targetAudience,
-        custom_skill: skill,
-      }) : structuredDescription;
+      
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Failed to create product');
@@ -405,9 +418,36 @@ export default function NewProductPage() {
             <div className="p-6 border-2 border-dashed border-brand-border rounded-xl bg-brand-bg">
               <div className="flex flex-wrap gap-4 mb-4">
                 {mediaFiles.map((file, idx) => (
-                  <div key={"file-" + idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand-border bg-neutral-200 flex items-center justify-center opacity-70 group">
+                  <div key={"file-" + idx} className="relative w-24 h-24 rounded-lg overflow-hidden border border-brand-border bg-neutral-200 flex items-center justify-center group">
                     <span className="text-[10px] text-center px-1 break-all text-neutral-600">{file.name}</span>
-                    <button type="button" onClick={() => removeMediaFile(idx)} className="absolute top-1 right-1 bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">?</button>
+                    <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button 
+                        type="button" 
+                        onClick={() => removeMediaFile(idx)} 
+                        className="bg-red-100 text-red-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] shadow-sm hover:bg-red-200"
+                        title="Remove"
+                      >
+                        ×
+                      </button>
+                      <label 
+                        htmlFor={`replace-media-${idx}`}
+                        className="bg-blue-100 text-blue-600 rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px] shadow-sm hover:bg-blue-200 cursor-pointer"
+                        title="Replace"
+                      >
+                        ↻
+                      </label>
+                      <input 
+                        type="file" 
+                        id={`replace-media-${idx}`} 
+                        className="hidden" 
+                        accept="image/png, image/jpeg, image/webp, video/mp4, video/webm"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            replaceMediaFile(idx, e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
