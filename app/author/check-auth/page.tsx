@@ -13,8 +13,11 @@ import { isApprovedAuthor, hasAuthorRecord, getAuthorStatus, linkAuthorProfile }
 export default async function CheckAuthPage() {
   const { userId } = await auth();
 
+  console.log('[CheckAuth] userId:', userId);
+
   if (!userId) {
     // Not authenticated, redirect to sign-in
+    console.log('[CheckAuth] No userId, redirecting to sign-in');
     redirect('/author-sign-in');
   }
 
@@ -22,12 +25,17 @@ export default async function CheckAuthPage() {
   const user = await auth();
   const email = user?.user?.emailAddresses?.[0]?.emailAddress;
 
+  console.log('[CheckAuth] email:', email);
+
   if (email) {
     const linked = await linkAuthorProfile(userId, email);
+    console.log('[CheckAuth] linked:', linked);
     if (linked) {
       // Retry approval check after linking
       const approvedAfterLink = await isApprovedAuthor(userId);
+      console.log('[CheckAuth] approvedAfterLink:', approvedAfterLink);
       if (approvedAfterLink) {
+        console.log('[CheckAuth] Redirecting to author dashboard');
         redirect('/author');
       }
     }
@@ -35,9 +43,11 @@ export default async function CheckAuthPage() {
 
   // Check if user is an approved author
   const approved = await isApprovedAuthor(userId);
+  console.log('[CheckAuth] approved:', approved);
   
   if (approved) {
     // User is approved author, send to dashboard
+    console.log('[CheckAuth] Redirecting to author dashboard');
     redirect('/author');
   }
 
@@ -45,11 +55,16 @@ export default async function CheckAuthPage() {
   const hasRecord = await hasAuthorRecord(userId);
   const authorStatus = await getAuthorStatus(userId);
 
+  console.log('[CheckAuth] hasRecord:', hasRecord);
+  console.log('[CheckAuth] authorStatus:', authorStatus);
+
   if (hasRecord) {
     // User has author account but not active - redirect to auth page with status
+    console.log('[CheckAuth] Redirecting to author-auth with status:', authorStatus);
     redirect(`/author-auth?status=${authorStatus || 'PENDING'}`);
   } else {
     // User has no author record - redirect to apply
+    console.log('[CheckAuth] Redirecting to author-apply');
     redirect('/author-apply');
   }
 }

@@ -44,8 +44,7 @@ export default function AuthorSignInPage() {
             </div>
 
             <SignIn
-              afterSignInUrl="/author/check-auth"
-              afterSignUpUrl="/author/check-auth"
+              forceRedirectUrl="/author/check-auth"
               appearance={{
                 elements: {
                   card: 'shadow-none',
