@@ -179,7 +179,7 @@ export default function QuizDetailPage() {
 
       <div className="flex justify-end">
         <Link
-          href={`/dashboard/quiz/${quiz.id}/take`}
+          href={`/quiz/${quiz.id}`}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition-colors"
         >
           <Play className="w-5 h-5" />
