@@ -50,7 +50,7 @@ BEGIN
     SELECT oi.price_snapshot, lp.author_id, lp.commission_rate
     INTO gross, author_id, commission_rate
     FROM public.order_items AS oi
-    JOIN public.learning_products AS lp ON lp.id = oi.product_id
+    JOIN public.learning_products AS lp ON lp.id = oi.learning_product_id
     WHERE oi.id = p_order_item_id;
     IF author_id IS NULL THEN
         RAISE EXCEPTION 'No author for product linked to order_item %', p_order_item_id;
@@ -72,7 +72,7 @@ BEGIN
     ) VALUES (
         p_order_id,
         p_order_item_id,
-        (SELECT product_id FROM public.order_items WHERE id = p_order_item_id),
+        (SELECT learning_product_id FROM public.order_items WHERE id = p_order_item_id),
         author_id,
         gross,
         commission,
