@@ -173,12 +173,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
         containerRef.current.innerHTML = ''
         containerRef.current.appendChild(playerDiv)
 
-        new window.YT.Player(playerDiv.id, {
+        // Capture the player instance immediately so cleanup can destroy it
+        // even if the component unmounts before onReady fires.
+        const player = new window.YT.Player(playerDiv.id, {
           videoId,
           width: '100%',
           height: '100%',
           playerVars: {
-            autoplay: 1,
+            autoplay: 0, // Disabled autoplay to prevent background ghost playing
             modestbranding: 1,
             rel: 0,
             playsinline: 1,
@@ -195,7 +197,6 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
           events: {
             onReady: (event: YT.PlayerEvent) => {
               console.log('[YouTubePlayer] onReady fired - setting isLoading to false')
-              playerRef.current = event.target
               setIsLoading(false)
               
               // Force hide loading overlay after a short delay as fallback
@@ -204,18 +205,6 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
               }, 1000)
               
               migrationLog.mount(lessonId, 'youtube', 'v2')
-
-              // TEMPORARILY DISABLED: Crop the top title bar - this might be hiding the video
-              // const iframe = containerRef.current?.querySelector('iframe')
-              // if (iframe) {
-              //   iframe.style.position = 'absolute'
-              //   iframe.style.top = '-60px'
-              //   iframe.style.left = '0'
-              //   iframe.style.width = '100%'
-              //   iframe.style.height = 'calc(100% + 120px)' // +60 top +60 bottom
-              // }
-
-              // TEMPORARILY DISABLED: Resume from saved position to fix video loading
             },
             onStateChange: (event: YT.OnStateChangeEvent) => {
               const player = event.target
@@ -310,6 +299,8 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
             },
           },
         })
+
+        playerRef.current = player
       } catch (err) {
         if (!destroyed) {
           setError('Failed to load the YouTube player. Please try refreshing.')
@@ -487,13 +478,13 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
       {/*
         ── SHARE BUTTON BLOCKER ─────────────────────────────────────────────
         The YouTube share icon sits in the bottom-left of the native control
-        bar (approximately 48×48 px). This transparent patch absorbs clicks
-        on that spot so the share dialog never opens.
-        pointer-events: auto means it intercepts, but it is invisible.
+        bar (approximately 48×48 px). This solid patch completely hides it
+        and absorbs clicks so the share dialog never opens.
+        bg-[#0f0f0f] perfectly matches YouTube's bottom control bar.
       */}
       <div
-        className="absolute bottom-0 left-0 z-20"
-        style={{ width: '52px', height: '52px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute bottom-0 left-0 z-20 bg-[#0f0f0f]"
+        style={{ width: '55px', height: '48px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
 
@@ -505,14 +496,14 @@ export default function YouTubePlayer({ videoId, lessonId, resumeFromSeconds, on
       */}
       {/* Bottom-right: YouTube wordmark in control bar */}
       <div
-        className="absolute bottom-0 right-0 z-20"
-        style={{ width: '90px', height: '52px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute bottom-0 right-0 z-20 bg-[#0f0f0f]"
+        style={{ width: '90px', height: '48px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
       {/* Top-right: channel branding / watermark */}
       <div
-        className="absolute top-0 right-0 z-20"
-        style={{ width: '200px', height: '60px', pointerEvents: 'auto', cursor: 'default' }}
+        className="absolute top-0 right-0 z-20 bg-black"
+        style={{ width: '200px', height: '70px', pointerEvents: 'auto', cursor: 'default' }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
       />
 
