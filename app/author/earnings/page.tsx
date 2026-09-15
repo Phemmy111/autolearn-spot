@@ -1,6 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { getAvailableBalance } from '@/lib/authorService';
 import { Wallet, ArrowUpRight, DollarSign, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -28,28 +27,28 @@ export default async function AuthorEarningsPage() {
     );
   }
 
-  // 2. Fetch Earnings totals
-  const { data: earningData } = await supabaseAdmin
-    .from('author_earnings')
-    .select('*')
-    .eq('author_id', author.id)
-    .single();
+  // 2. Fetch Earnings totals from financial summary API
+  const earningsRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/author/financial-summary`, {
+    cache: 'no-store'
+  });
+  const earningsData = await earningsRes.json();
 
-  const totalGross = earningData?.total_gross || 0;
-  const totalCommission = earningData?.total_commission || 0;
-  const totalNet = earningData?.total_net || 0;
-  const totalWithdrawn = earningData?.total_withdrawn || 0;
+  const totalGross = earningsData.total_sales || 0;
+  const totalCommission = totalGross > 0 && earningsData.total_earnings > 0 ? totalGross - earningsData.total_earnings : 0;
+  const totalNet = earningsData.total_earnings || 0;
+  const availableBalance = earningsData.available_balance || 0;
   
   // Calculate pending balance (available balance + pending withdrawals)
   const pendingBalance = 0; // This would need to be calculated from pending withdrawals
   
-  // 3. Fetch Available Balance (using RPC via service)
-  let availableBalance = 0;
-  try {
-    availableBalance = await getAvailableBalance(author.id);
-  } catch (error) {
-    console.error('Failed to fetch available balance:', error);
-  }
+  // Fetch withdrawals history for total withdrawn amount
+  const { data: paidWithdrawals } = await supabaseAdmin
+    .from('author_withdrawals')
+    .select('amount, status')
+    .eq('author_id', author.id)
+    .eq('status', 'PAID');
+  
+  const totalWithdrawn = paidWithdrawals?.reduce((sum, w) => sum + w.amount, 0) || 0;
 
   // 4. Fetch Withdrawals History
   const { data: withdrawals } = await supabaseAdmin

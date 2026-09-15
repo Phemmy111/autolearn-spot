@@ -22,6 +22,8 @@ import { logUserActivity } from '@/lib/audit-logging';
 // Phase 4: Cart checkout
 import { getOrderByProviderRef, getOrderItems, markOrderPaid } from '@/lib/order-service';
 import { clearCartItems } from '@/lib/cart-service';
+// Author finance
+import { recordAuthorSale } from '@/lib/authorService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -110,6 +112,15 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   if (!marked) {
     console.error(`Failed to mark order ${order.id} as PAID`);
     return NextResponse.json({ error: 'Failed to update order status' }, { status: 500 });
+  }
+
+  // 5.5. Record author sales for financial tracking
+  try {
+    await recordAuthorSale(order.id);
+    console.log(`CART CHECKOUT: Recorded author sales for order ${order.id}`);
+  } catch (error) {
+    console.error('CART CHECKOUT: Failed to record author sales for order', order.id, error);
+    // Don't fail the webhook for author sale recording errors
   }
 
   // 6. Create enrollments for each order item

@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const { data: author, error: authorErr } = await supabaseAdmin
     .from('authors')
     .select('id')
-    .eq('user_id', userId)
+    .eq('clerk_user_id', userId)
     .single();
   if (authorErr || !author) return NextResponse.json({ error: 'Author not found' }, { status: 404 });
   const authorId = author.id;
@@ -18,11 +18,12 @@ export async function GET(req: Request) {
   const withdrawableAmount = availableBalance ?? 0;
   const { data: earnings, error: earnErr } = await supabaseAdmin
     .from('author_earnings')
-    .select('total_gross,total_net')
+    .select('total_gross,total_commission,total_net')
     .eq('author_id', authorId)
     .single();
   const totalEarnings = earnings?.total_net ?? 0;
   const totalSales = earnings?.total_gross ?? 0;
+  const totalCommission = earnings?.total_commission ?? 0;
   if (balErr || earnErr) {
     return NextResponse.json({ error: 'Failed to fetch financial data' }, { status: 500 });
   }
