@@ -4,27 +4,29 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin';
 import { processWithdrawal } from '@/lib/authorService';
 import { createTransferRecipient, initiateTransfer } from '@/lib/paystack-transfer';
+import { createNotification } from '@/lib/notifications';
+import { logAdminAction } from '@/lib/auditLog';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/admin/withdrawals
- * Returns all pending withdrawals (status = 'PENDING').
- * Admin‑only.
+ * Returns all pending withdrawals with author bank details.
+ * Admin-only.
  */
 export async function GET(request: Request) {
   try {
     await requireAdmin();
     const { data: pending, error } = await supabaseAdmin
       .from('author_withdrawals')
-      .select('*, authors(display_name, email, clerk_user_id)')
+      .select('*, authors(display_name, email, clerk_user_id), author_bank_accounts(bank_name, account_number_text, routing_number_text)')
       .eq('status', 'PENDING');
-      
+
     if (error) {
       console.error('Supabase error:', error);
       throw error;
     }
-    
+
     return NextResponse.json({ success: true, withdrawals: pending || [] });
   } catch (e: any) {
     console.error('[GET /api/admin/withdrawals] error:', e);
@@ -34,183 +36,238 @@ export async function GET(request: Request) {
 
 /**
  * POST /api/admin/withdrawals
- * Body: { withdrawal_id: string, action: 'approve' | 'reject', provider_reference?: string }
- * Calls authorService.processWithdrawal to transition state.
- * Admin‑only.
+ * Body: { withdrawal_id, action: 'approve'|'reject', manual?: boolean, provider_reference?: string }
+ * When manual=true: skips Paystack, sets status=PAID, notifies author, writes audit log.
+ * Admin-only.
  */
 export async function POST(request: Request) {
   try {
     await requireAdmin();
+    const { userId: adminUserId } = await auth();
+
     const body = await request.json();
-    const { withdrawal_id, action, provider_reference } = body;
-    
+    const { withdrawal_id, action, provider_reference, manual } = body;
+
     if (!withdrawal_id || !action) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
-    
-    const newStatus = action === 'approve' ? 'APPROVED' : action === 'reject' ? 'REJECTED' : null;
-    if (!newStatus) {
+
+    const isManual = manual === true;
+
+    // Validate action
+    if (!['approve', 'reject'].includes(action)) {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
-    
+
     // Get withdrawal details including author info
     const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
       .from('author_withdrawals')
-      .select('*, authors(display_name, email)')
+      .select('*, authors(display_name, email, clerk_user_id)')
       .eq('id', withdrawal_id)
       .single();
-    
+
     if (withdrawalError || !withdrawal) {
       return NextResponse.json({ error: 'Withdrawal not found' }, { status: 404 });
     }
-    
-    // If approving, initiate Paystack transfer
-    if (action === 'approve') {
+
+    // ─── MANUAL PAID FLOW ───────────────────────────────────────────────────
+    if (action === 'approve' && isManual) {
+      // 1. Mark withdrawal as PAID
+      await processWithdrawal(withdrawal_id, 'PAID', null);
+
+      // 2. Send in-app notification to the author
+      const authorClerkId = withdrawal.authors?.clerk_user_id;
+      if (authorClerkId) {
+        try {
+          await createNotification({
+            title: 'Withdrawal Payment Sent',
+            message: 'Your withdrawal of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + (withdrawal.request_ref || withdrawal_id.slice(0, 8)) + ') has been paid. Please check your bank account.',
+            category: 'payment',
+            priority: 'important',
+            target_type: 'student',
+            target_id: authorClerkId,
+            action_url: '/author/earnings',
+            action_label: 'View Earnings',
+          });
+        } catch (notifErr) {
+          console.error('[withdrawals] Failed to send notification:', notifErr);
+          // Non-fatal – continue
+        }
+      }
+
+      // 3. Write audit log
+      await logAdminAction({
+        adminId: adminUserId || 'unknown',
+        action: 'MANUAL_PAID',
+        details: {
+          withdrawal_id,
+          author_id: withdrawal.author_id,
+          amount: withdrawal.amount,
+          request_ref: withdrawal.request_ref,
+        },
+      });
+
+      return NextResponse.json({ success: true, withdrawal_id, newStatus: 'PAID' });
+    }
+
+    // ─── REJECTION FLOW ─────────────────────────────────────────────────────
+    if (action === 'reject') {
+      await processWithdrawal(withdrawal_id, 'REJECTED', provider_reference ?? null);
+
+      // Notify author of rejection
+      const authorClerkId = withdrawal.authors?.clerk_user_id;
+      if (authorClerkId) {
+        try {
+          await createNotification({
+            title: 'Withdrawal Request Rejected',
+            message: 'Your withdrawal request of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + (withdrawal.request_ref || withdrawal_id.slice(0, 8)) + ') has been rejected. Please contact support for assistance.',
+            category: 'payment',
+            priority: 'important',
+            target_type: 'student',
+            target_id: authorClerkId,
+            action_url: '/author/earnings',
+            action_label: 'View Earnings',
+          });
+        } catch (notifErr) {
+          console.error('[withdrawals] Failed to send rejection notification:', notifErr);
+        }
+      }
+
+      await logAdminAction({
+        adminId: adminUserId || 'unknown',
+        action: 'WITHDRAWAL_REJECTED',
+        details: { withdrawal_id, author_id: withdrawal.author_id, amount: withdrawal.amount },
+      });
+
+      return NextResponse.json({ success: true, withdrawal_id, newStatus: 'REJECTED' });
+    }
+
+    // ─── AUTOMATIC PAYSTACK FLOW (future use when plan is upgraded) ─────────
+    if (action === 'approve' && !isManual) {
       try {
-        // Get author's bank account
         const { data: bankAccount, error: bankError } = await supabaseAdmin
           .from('author_bank_accounts')
           .select('id, bank_name, account_number, routing_number, account_number_text, routing_number_text')
           .eq('author_id', withdrawal.author_id)
           .single();
-        
+
         if (bankError || !bankAccount) {
           return NextResponse.json({ error: 'Author bank account not found' }, { status: 400 });
         }
-        
-        // Handle bank account data - use text columns for transfer support
+
         let accountNumber: string;
         let bankCode: string;
-        
+
         if (bankAccount.account_number_text) {
           accountNumber = bankAccount.account_number_text;
         } else if (typeof bankAccount.account_number === 'string') {
           accountNumber = bankAccount.account_number;
         } else {
-          return NextResponse.json({ 
+          return NextResponse.json({
             error: 'Bank account number not available for transfer',
-            message: 'Please update bank account details to enable automatic transfers.'
+            message: 'Please update bank account details to enable automatic transfers.',
           }, { status: 400 });
         }
-        
+
         if (bankAccount.routing_number_text) {
           bankCode = bankAccount.routing_number_text;
         } else if (typeof bankAccount.routing_number === 'string') {
           bankCode = bankAccount.routing_number;
         } else {
-          return NextResponse.json({ 
+          return NextResponse.json({
             error: 'Bank code not available for transfer',
-            message: 'Please update bank account details to enable automatic transfers.'
+            message: 'Please update bank account details to enable automatic transfers.',
           }, { status: 400 });
         }
-        
-        // Create transfer recipient
+
         const recipient = await createTransferRecipient(
           accountNumber,
           bankCode,
           withdrawal.authors?.display_name || 'Author'
         );
-        
-        // Initiate transfer
-        const transferRef = provider_reference || `WD-${withdrawal_id.slice(0, 8)}`;
-        let transfer;
-        
+
+        const transferRef = provider_reference || ('WD-' + withdrawal_id.slice(0, 8));
+
         try {
-          transfer = await initiateTransfer(
+          const transfer = await initiateTransfer(
             recipient.recipient_code,
             withdrawal.amount,
             transferRef,
-            `Withdrawal for ${withdrawal.authors?.display_name || 'Author'}`
+            'Withdrawal for ' + (withdrawal.authors?.display_name || 'Author')
           );
-          
-          // Update withdrawal with provider reference and set to PROCESSING
+
           await processWithdrawal(withdrawal_id, 'PROCESSING', transfer.data.reference);
-          
-          return NextResponse.json({ 
-            success: true, 
-            withdrawal_id, 
+
+          return NextResponse.json({
+            success: true,
+            withdrawal_id,
             newStatus: 'PROCESSING',
             transfer_reference: transfer.data.reference,
-            message: 'Transfer initiated successfully'
+            message: 'Transfer initiated successfully',
           });
         } catch (transferError: any) {
           console.error('Transfer initiation failed:', transferError);
-          console.error('Transfer error details:', {
-            message: transferError.message,
-            stack: transferError.stack,
-            recipient: recipient.recipient_code,
-            amount: withdrawal.amount
-          });
-          
-          // Check if this is a Paystack business tier limitation
-          const isBusinessTierLimitation = transferError.message?.includes('business tier') || 
-                                           transferError.message?.includes('starter business') ||
-                                           transferError.message?.includes('Registered Business');
-          
+
+          const isBusinessTierLimitation =
+            transferError.message?.includes('business tier') ||
+            transferError.message?.includes('starter business') ||
+            transferError.message?.includes('Registered Business');
+
           if (isBusinessTierLimitation) {
-            // Business tier limitation - cannot transfer automatically
             await processWithdrawal(withdrawal_id, 'APPROVED', null);
-            return NextResponse.json({ 
-              success: true, 
-              withdrawal_id, 
+            return NextResponse.json({
+              success: true,
+              withdrawal_id,
               newStatus: 'APPROVED',
               message: 'Withdrawal approved (manual transfer required)',
-              warning: 'Paystack business tier limitation: Please upgrade to Registered Business to enable automatic transfers. Process this withdrawal manually.',
-              requiresManualTransfer: true
+              warning:
+                'Paystack business tier limitation: Please upgrade to Registered Business to enable automatic transfers. Process this withdrawal manually.',
+              requiresManualTransfer: true,
             });
           }
-          
-          // Other transfer errors - still approve but note the error
+
           await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
-          return NextResponse.json({ 
-            success: true, 
-            withdrawal_id, 
+          return NextResponse.json({
+            success: true,
+            withdrawal_id,
             newStatus: 'APPROVED',
             warning: 'Transfer initiation failed, withdrawal approved for manual processing',
             error: transferError.message,
-            debugInfo: {
-              recipientCode: recipient.recipient_code,
-              amount: withdrawal.amount,
-              transferRef: transferRef
-            }
           });
         }
-      } catch (transferError: any) {
-        console.error('Transfer initiation error:', transferError);
-        
-        // Check if this is a Paystack business tier limitation
-        const isBusinessTierLimitation = transferError.message?.includes('business tier') || 
-                                         transferError.message?.includes('starter business') ||
-                                         transferError.message?.includes('Registered Business');
-        
+      } catch (outerErr: any) {
+        console.error('Transfer initiation error:', outerErr);
+
+        const isBusinessTierLimitation =
+          outerErr.message?.includes('business tier') ||
+          outerErr.message?.includes('starter business') ||
+          outerErr.message?.includes('Registered Business');
+
         if (isBusinessTierLimitation) {
-          // Business tier limitation - cannot transfer automatically
           await processWithdrawal(withdrawal_id, 'APPROVED', null);
-          return NextResponse.json({ 
-            success: true, 
-            withdrawal_id, 
+          return NextResponse.json({
+            success: true,
+            withdrawal_id,
             newStatus: 'APPROVED',
             message: 'Withdrawal approved (manual transfer required)',
-            warning: 'Paystack business tier limitation: Please upgrade to Registered Business to enable automatic transfers. Process this withdrawal manually.',
-            requiresManualTransfer: true
+            warning:
+              'Paystack business tier limitation: Please upgrade to Registered Business to enable automatic transfers. Process this withdrawal manually.',
+            requiresManualTransfer: true,
           });
         }
-        
-        // Other transfer errors - still approve but note the error
+
         await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
-        return NextResponse.json({ 
-          success: true, 
-          withdrawal_id, 
+        return NextResponse.json({
+          success: true,
+          withdrawal_id,
           newStatus: 'APPROVED',
           warning: 'Transfer initiation failed, withdrawal approved for manual processing',
-          error: transferError.message
+          error: outerErr.message,
         });
       }
-    } else {
-      // Handle rejection
-      await processWithdrawal(withdrawal_id, newStatus, provider_reference);
-      return NextResponse.json({ success: true, withdrawal_id, newStatus });
     }
+
+    return NextResponse.json({ error: 'Unhandled action' }, { status: 400 });
   } catch (e: any) {
     console.error('[POST /api/admin/withdrawals] error:', e);
     return NextResponse.json({ error: e.message || 'Unauthorized or internal error' }, { status: 403 });
