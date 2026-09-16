@@ -142,7 +142,25 @@ export async function POST(request: Request) {
             amount: withdrawal.amount
           });
           
-          // Still approve the withdrawal but note the transfer error
+          // Check if this is a Paystack business tier limitation
+          const isBusinessTierLimitation = transferError.message?.includes('business tier') || 
+                                           transferError.message?.includes('starter business') ||
+                                           transferError.message?.includes('Registered Business');
+          
+          if (isBusinessTierLimitation) {
+            // Business tier limitation - cannot transfer automatically
+            await processWithdrawal(withdrawal_id, 'APPROVED', null);
+            return NextResponse.json({ 
+              success: true, 
+              withdrawal_id, 
+              newStatus: 'APPROVED',
+              message: 'Withdrawal approved (manual transfer required)',
+              warning: 'Paystack business tier limitation: Please upgrade to Registered Business to enable automatic transfers. Process this withdrawal manually.',
+              requiresManualTransfer: true
+            });
+          }
+          
+          // Other transfer errors - still approve but note the error
           await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
           return NextResponse.json({ 
             success: true, 
@@ -159,7 +177,26 @@ export async function POST(request: Request) {
         }
       } catch (transferError: any) {
         console.error('Transfer initiation error:', transferError);
-        // Still approve the withdrawal but note the transfer error
+        
+        // Check if this is a Paystack business tier limitation
+        const isBusinessTierLimitation = transferError.message?.includes('business tier') || 
+                                         transferError.message?.includes('starter business') ||
+                                         transferError.message?.includes('Registered Business');
+        
+        if (isBusinessTierLimitation) {
+          // Business tier limitation - cannot transfer automatically
+          await processWithdrawal(withdrawal_id, 'APPROVED', null);
+          return NextResponse.json({ 
+            success: true, 
+            withdrawal_id, 
+            newStatus: 'APPROVED',
+            message: 'Withdrawal approved (manual transfer required)',
+            warning: 'Paystack business tier limitation: Please upgrade to Registered Business to enable automatic transfers. Process this withdrawal manually.',
+            requiresManualTransfer: true
+          });
+        }
+        
+        // Other transfer errors - still approve but note the error
         await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
         return NextResponse.json({ 
           success: true, 

@@ -61,7 +61,7 @@ async function getAuthorProducts(authorId: string) {
   
   const { data: products, error: productsError } = await supabaseAdmin
     .from('learning_products')
-    .select('*, product_reviews(rating)')
+    .select('*')
     .eq('author_id', authorId)
     .order('created_at', { ascending: false });
 
@@ -75,19 +75,12 @@ async function getAuthorProducts(authorId: string) {
   const publishedProducts = products.filter((p: any) => p.status === 'PUBLISHED');
   console.log('Published products count:', publishedProducts.length);
 
-  // Calculate average rating for each product
-  const productsWithRating = publishedProducts.map((product: any) => {
-    const reviews = product.product_reviews || [];
-    const avgRating = reviews.length > 0 
-      ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length 
-      : 0;
-    
-    return {
-      ...product,
-      rating: avgRating,
-      review_count: reviews.length
-    };
-  });
+  // Return products with default rating 0 (reviews table relationship doesn't exist)
+  const productsWithRating = publishedProducts.map((product: any) => ({
+    ...product,
+    rating: 0,
+    review_count: 0
+  }));
 
   return productsWithRating as Product[];
 }

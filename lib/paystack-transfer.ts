@@ -131,6 +131,10 @@ export async function initiateTransfer(
   });
 
   if (!data.status) {
+    // Check for business tier limitation
+    if (data.code === 'transfer_unavailable' || data.message?.includes('starter business')) {
+      throw new Error('Paystack account limitation: Your business tier does not support third party payouts. Please upgrade to a Registered Business in your Paystack dashboard to enable transfers.');
+    }
     throw new Error(`Failed to initiate transfer: ${data.message}`);
   }
 
