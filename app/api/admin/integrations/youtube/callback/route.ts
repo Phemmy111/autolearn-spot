@@ -6,7 +6,7 @@ import { auth } from '@clerk/nextjs/server';
 export async function GET(request: Request) {
   try {
     await requireAdmin();
-    const { userId } = auth();
+    const { userId } = await auth();
     
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 });
