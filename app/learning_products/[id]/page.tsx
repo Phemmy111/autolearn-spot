@@ -129,7 +129,7 @@ export default async function LearningProductPage({ params }: PageParams) {
                 </div>
                 <div className="hidden sm:block w-1 h-1 rounded-full bg-border" />
                 
-                <Link href={`/author-profile?id=${product.author_id}`} className="flex items-center gap-2 hover:text-brand-primary transition-colors text-foreground">
+                <Link href={`/instructors/${product.author_id}`} className="flex items-center gap-2 hover:text-brand-primary transition-colors text-foreground">
                   {author?.profile_image ? (
                     <Image src={author.profile_image} alt={authorName} width={24} height={24} className="rounded-full object-cover w-6 h-6" />
                   ) : (
@@ -207,7 +207,7 @@ export default async function LearningProductPage({ params }: PageParams) {
             <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-600 fill-mode-both">
               <h2 className="text-2xl font-heading font-bold mb-6">About the Instructor</h2>
               <div className="flex flex-col sm:flex-row gap-6 items-start">
-                <Link href={`/author-profile?id=${product.author_id}`} className="shrink-0">
+                <Link href={`/instructors/${product.author_id}`} className="shrink-0">
                   {author?.profile_image ? (
                     <Image src={author.profile_image} alt={authorName} width={120} height={120} className="rounded-full object-cover w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] border-4 border-muted" />
                   ) : (
@@ -217,7 +217,7 @@ export default async function LearningProductPage({ params }: PageParams) {
                   )}
                 </Link>
                 <div>
-                  <Link href={`/author-profile?id=${product.author_id}`} className="hover:text-brand-primary transition-colors">
+                  <Link href={`/instructors/${product.author_id}`} className="hover:text-brand-primary transition-colors">
                     <h3 className="text-xl font-bold text-foreground mb-1">{authorName}</h3>
                   </Link>
                   <p className="text-brand-primary font-medium text-sm mb-4">{author?.professional_title || 'Expert Course Creator'}</p>
@@ -232,7 +232,7 @@ export default async function LearningProductPage({ params }: PageParams) {
                     </p>
                   )}
                   
-                  <Link href={`/author-profile?id=${product.author_id}`} className="text-sm font-bold text-foreground hover:text-brand-primary transition-colors inline-flex items-center gap-1">
+                  <Link href={`/instructors/${product.author_id}`} className="text-sm font-bold text-foreground hover:text-brand-primary transition-colors inline-flex items-center gap-1">
                     View Full Profile <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>

@@ -136,7 +136,7 @@ export default function AuthorProfileSettings() {
         <div className="flex justify-end mb-4">
           {authorId && (
             <Link 
-              href={`/author-profile?id=${authorId}`} 
+              href={`/instructors/${authorId}`} 
               className="text-sm text-sky-400 hover:text-sky-300 transition-colors"
             >
               View Public Profile →
