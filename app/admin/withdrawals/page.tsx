@@ -85,7 +85,7 @@ export default function AdminWithdrawalsPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Pending Withdrawals</h1>
+      <h1 className="text-2xl font-bold text-gray-900">Withdrawals</h1>
 
       {/* Success toast */}
       {successMsg && (
@@ -95,7 +95,7 @@ export default function AdminWithdrawalsPage() {
       )}
 
       {withdrawals.length === 0 ? (
-        <p className="text-gray-600">No pending withdrawals.</p>
+        <p className="text-gray-600">No withdrawals found.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg shadow-md border border-gray-200">
           <table className="min-w-full bg-white">
@@ -105,6 +105,7 @@ export default function AdminWithdrawalsPage() {
                 <th className="px-4 py-3 text-gray-700 font-semibold">Reference ID</th>
                 <th className="px-4 py-3 text-gray-700 font-semibold">Amount (₦)</th>
                 <th className="px-4 py-3 text-gray-700 font-semibold">Requested At</th>
+                <th className="px-4 py-3 text-gray-700 font-semibold">Status</th>
                 <th className="px-4 py-3 text-gray-700 font-semibold">Bank Details</th>
                 <th className="px-4 py-3 text-gray-700 font-semibold">Actions</th>
               </tr>
@@ -123,6 +124,15 @@ export default function AdminWithdrawalsPage() {
                       <td className="px-4 py-3 text-gray-700 font-mono text-sm">{w.request_ref || w.id.slice(0, 8)}</td>
                       <td className="px-4 py-3 text-gray-900 font-semibold">₦{w.amount.toLocaleString()}</td>
                       <td className="px-4 py-3 text-gray-700 text-sm">{new Date(w.requested_at).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          w.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
+                          w.status === 'PAID' ? 'bg-emerald-100 text-emerald-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {w.status}
+                        </span>
+                      </td>
                       <td className="px-4 py-3">
                         {bank ? (
                           <button
@@ -138,18 +148,24 @@ export default function AdminWithdrawalsPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 space-x-2">
-                        <button
-                          className="px-3 py-1.5 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors text-sm font-medium"
-                          onClick={() => openModal(w, "approve")}
-                        >
-                          Paid
-                        </button>
-                        <button
-                          className="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
-                          onClick={() => openModal(w, "reject")}
-                        >
-                          Reject
-                        </button>
+                        {w.status === 'PENDING' ? (
+                          <>
+                            <button
+                              className="px-3 py-1.5 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors text-sm font-medium"
+                              onClick={() => openModal(w, "approve")}
+                            >
+                              Paid
+                            </button>
+                            <button
+                              className="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+                              onClick={() => openModal(w, "reject")}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-sm text-gray-500 italic">No actions</span>
+                        )}
                       </td>
                     </tr>
                     {/* Collapsible bank details row */}

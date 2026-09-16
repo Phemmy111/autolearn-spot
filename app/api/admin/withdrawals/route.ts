@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     const { data: pending, error } = await supabaseAdmin
       .from('author_withdrawals')
       .select('*, authors(display_name, email, clerk_user_id, author_bank_accounts(bank_name, account_number_text, routing_number_text))')
-      .eq('status', 'PENDING');
+      .order('requested_at', { ascending: false });
 
     if (error) {
       console.error('Supabase error:', error);
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
             message: 'Your withdrawal of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + (withdrawal.request_ref || withdrawal_id.slice(0, 8)) + ') has been paid. Please check your bank account.',
             category: 'payment',
             priority: 'important',
-            target_type: 'student',
+            target_type: 'author',
             target_id: authorClerkId,
             action_url: '/author/earnings',
             action_label: 'View Earnings',
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
             message: 'Your withdrawal request of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + (withdrawal.request_ref || withdrawal_id.slice(0, 8)) + ') has been rejected. Please contact support for assistance.',
             category: 'payment',
             priority: 'important',
-            target_type: 'student',
+            target_type: 'author',
             target_id: authorClerkId,
             action_url: '/author/earnings',
             action_label: 'View Earnings',

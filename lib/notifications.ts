@@ -12,7 +12,7 @@ if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
 
 export type NotificationCategory = 'announcement' | 'assignment' | 'assignment_review' | 'quiz' | 'payment' | 'enrollment' | 'certificate' | 'live_class' | 'system' | 'content_unlock' | 'progress_milestone' | 'inactivity_reminder'
 export type NotificationPriority = 'normal' | 'important' | 'urgent'
-export type NotificationTarget = 'all' | 'cohort' | 'student'
+export type NotificationTarget = 'all' | 'cohort' | 'student' | 'author'
 
 export interface CreateNotificationParams {
   title: string
@@ -69,6 +69,18 @@ export async function createNotification(params: CreateNotificationParams) {
         targetUsers.push({ id: enrollment.clerk_user_id || target_id, email: enrollment.email })
       } else {
         // Fallback for system notifications
+        targetUsers.push({ id: target_id, email: target_id.includes('@') ? target_id : '' })
+      }
+    } else if (target_type === 'author' && target_id) {
+      const { data: author } = await supabaseAdmin
+        .from('authors')
+        .select('email, clerk_user_id')
+        .or(`clerk_user_id.eq.${target_id},email.eq.${target_id}`)
+        .single()
+      
+      if (author) {
+        targetUsers.push({ id: author.clerk_user_id || target_id, email: author.email })
+      } else {
         targetUsers.push({ id: target_id, email: target_id.includes('@') ? target_id : '' })
       }
     } else if (target_type === 'cohort' && target_id) {
