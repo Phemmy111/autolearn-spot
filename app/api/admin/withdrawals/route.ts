@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     await requireAdmin();
     const { data: pending, error } = await supabaseAdmin
       .from('author_withdrawals')
-      .select('*, authors(display_name, email, clerk_user_id), author_bank_accounts(bank_name, account_number_text, routing_number_text)')
+      .select('*, authors(display_name, email, clerk_user_id, author_bank_accounts(bank_name, account_number_text, routing_number_text))')
       .eq('status', 'PENDING');
 
     if (error) {

@@ -1,4 +1,4 @@
-﻿// app/admin/withdrawals/page.tsx
+// app/admin/withdrawals/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -22,14 +22,15 @@ interface Withdrawal {
     display_name: string;
     email: string;
     clerk_user_id?: string;
+    author_bank_accounts?: BankAccount | BankAccount[] | null;
   };
-  author_bank_accounts?: BankAccount | BankAccount[] | null;
 }
 
 function getBankInfo(w: Withdrawal): BankAccount | null {
-  if (!w.author_bank_accounts) return null;
-  if (Array.isArray(w.author_bank_accounts)) return w.author_bank_accounts[0] ?? null;
-  return w.author_bank_accounts;
+  const accounts = w.authors?.author_bank_accounts;
+  if (!accounts) return null;
+  if (Array.isArray(accounts)) return accounts[0] ?? null;
+  return accounts;
 }
 
 export default function AdminWithdrawalsPage() {
