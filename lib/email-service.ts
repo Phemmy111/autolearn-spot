@@ -322,4 +322,165 @@ export class EmailService {
 
     return this.sendEmail(template);
   }
+
+  /**
+   * Send course purchase confirmation to student
+   */
+  static async sendCoursePurchaseConfirmation(
+    studentEmail: string,
+    studentName: string,
+    courseTitle: string,
+    amount: number,
+    reference: string
+  ): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const courseUrl = `${baseUrl}/marketplace`;
+
+    const template: EmailTemplate = {
+      to: studentEmail,
+      subject: `Course Purchase Confirmed: ${courseTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">🎉 Course Purchase Confirmed!</h2>
+          <p>Dear ${studentName},</p>
+          <p>Thank you for your purchase! Your payment has been successfully processed.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Purchase Details</h3>
+            <p><strong>Course:</strong> ${courseTitle}</p>
+            <p><strong>Amount Paid:</strong> ₦${amount.toLocaleString()}</p>
+            <p><strong>Transaction Reference:</strong> ${reference}</p>
+          </div>
+          
+          <p>You can now access your course materials through your student dashboard.</p>
+          <p><a href="${courseUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Access Your Courses</a></p>
+          
+          <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+          <p>Best regards,<br>The AutoLearn Spot Team</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
+
+  /**
+   * Send course sale notification to author
+   */
+  static async sendCourseSaleNotification(
+    authorEmail: string,
+    authorName: string,
+    courseTitle: string,
+    studentEmail: string,
+    amount: number,
+    authorEarnings: number
+  ): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const earningsUrl = `${baseUrl}/author/earnings`;
+
+    const template: EmailTemplate = {
+      to: authorEmail,
+      subject: `New Course Sale: ${courseTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">💰 New Course Sale!</h2>
+          <p>Dear ${authorName},</p>
+          <p>Great news! Someone just purchased your course.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Sale Details</h3>
+            <p><strong>Course:</strong> ${courseTitle}</p>
+            <p><strong>Student Email:</strong> ${studentEmail}</p>
+            <p><strong>Sale Amount:</strong> ₦${amount.toLocaleString()}</p>
+            <p><strong>Your Earnings:</strong> ₦${authorEarnings.toLocaleString()}</p>
+          </div>
+          
+          <p>Your earnings have been added to your available balance. You can request a withdrawal from your author dashboard.</p>
+          <p><a href="${earningsUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Your Earnings</a></p>
+          
+          <p>Keep up the great work!</p>
+          <p>Best regards,<br>The AutoLearn Spot Team</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
+
+  /**
+   * Send course sale notification to founder
+   */
+  static async sendFounderCourseSaleNotification(
+    courseTitle: string,
+    authorName: string,
+    studentEmail: string,
+    amount: number,
+    platformCommission: number
+  ): Promise<boolean> {
+    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
+
+    const template: EmailTemplate = {
+      to: founderEmail,
+      subject: `New Course Sale: ${courseTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #4F46E5;">New Course Sale on AutoLearn Spot</h2>
+          <p>A new course has been purchased on the platform.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Sale Details</h3>
+            <p><strong>Course:</strong> ${courseTitle}</p>
+            <p><strong>Author:</strong> ${authorName}</p>
+            <p><strong>Student Email:</strong> ${studentEmail}</p>
+            <p><strong>Sale Amount:</strong> ₦${amount.toLocaleString()}</p>
+            <p><strong>Platform Commission:</strong> ₦${platformCommission.toLocaleString()}</p>
+          </div>
+          
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
+
+  /**
+   * Send withdrawal request notification to founder
+   */
+  static async sendFounderWithdrawalNotification(
+    authorName: string,
+    authorEmail: string,
+    amount: number,
+    reference: string
+  ): Promise<boolean> {
+    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const adminUrl = `${baseUrl}/admin/withdrawals`;
+
+    const template: EmailTemplate = {
+      to: founderEmail,
+      subject: `New Withdrawal Request: ₦${amount.toLocaleString()}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #4F46E5;">New Withdrawal Request</h2>
+          <p>An author has requested a withdrawal from their earnings.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Withdrawal Details</h3>
+            <p><strong>Author:</strong> ${authorName}</p>
+            <p><strong>Author Email:</strong> ${authorEmail}</p>
+            <p><strong>Amount:</strong> ₦${amount.toLocaleString()}</p>
+            <p><strong>Reference:</strong> ${reference}</p>
+          </div>
+          
+          <p>Please review and approve this withdrawal request in the admin portal.</p>
+          <p><a href="${adminUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review Withdrawals</a></p>
+          
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
 }

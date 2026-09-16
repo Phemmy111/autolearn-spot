@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { EmailService } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +15,7 @@ export async function GET(req: Request) {
     // Get author ID from authenticated user
     const { data: author, error: authorErr } = await supabaseAdmin
       .from('authors')
-      .select('id')
+      .select('id, display_name, email')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
     // Get author ID from authenticated user
     const { data: author, error: authorErr } = await supabaseAdmin
       .from('authors')
-      .select('id')
+      .select('id, display_name, email')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -168,6 +169,19 @@ export async function POST(req: Request) {
     if (transactionError) {
       console.error('Error creating withdrawal transaction:', transactionError);
       // Don't fail the withdrawal if transaction creation fails
+    }
+
+    // Send notification to founder about withdrawal request
+    try {
+      await EmailService.sendFounderWithdrawalNotification(
+        author.display_name,
+        author.email,
+        amount,
+        withdrawal.id
+      );
+    } catch (emailError) {
+      console.error('Failed to send withdrawal notification:', emailError);
+      // Don't fail the withdrawal if email fails
     }
 
     return NextResponse.json({

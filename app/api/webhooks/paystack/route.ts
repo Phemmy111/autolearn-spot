@@ -24,6 +24,8 @@ import { getOrderByProviderRef, getOrderItems, markOrderPaid } from '@/lib/order
 import { clearCartItems } from '@/lib/cart-service';
 // Phase J: Withdrawal transfers
 import { processWithdrawal } from '@/lib/authorService';
+// Email service for course purchases
+import { EmailService } from '@/lib/email-service';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -233,6 +235,54 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
       orderId: order.id
     },
   });
+
+  // Send emails for each product in the cart
+  for (const item of orderItems) {
+    try {
+      // Get product and author details
+      const { data: product } = await supabaseAdmin
+        .from('learning_products')
+        .select('*, authors(display_name, email)')
+        .eq('id', item.learning_product_id)
+        .single();
+
+      if (product && product.authors) {
+        const authorEarnings = item.price_snapshot * 0.9; // 90% to author
+        const platformCommission = item.price_snapshot * 0.1; // 10% platform commission
+
+        // Send course purchase confirmation to student
+        await EmailService.sendCoursePurchaseConfirmation(
+          email,
+          data.customer.name || email,
+          product.title,
+          item.price_snapshot,
+          reference
+        );
+
+        // Send course sale notification to author
+        await EmailService.sendCourseSaleNotification(
+          product.authors.email,
+          product.authors.display_name,
+          product.title,
+          email,
+          item.price_snapshot,
+          authorEarnings
+        );
+
+        // Send course sale notification to founder
+        await EmailService.sendFounderCourseSaleNotification(
+          product.title,
+          product.authors.display_name,
+          email,
+          item.price_snapshot,
+          platformCommission
+        );
+      }
+    } catch (emailError) {
+      console.error('Failed to send course purchase emails:', emailError);
+      // Don't fail the checkout if emails fail
+    }
+  }
 
   return NextResponse.json({
     received: true,
