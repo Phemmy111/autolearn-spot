@@ -36,6 +36,13 @@ export default async function AdminCertificatesPage() {
   // Group by student email
   const studentsMap = new Map();
 
+  const getFallbackName = (email: string) => {
+    if (!email) return 'Student';
+    const prefix = email.split('@')[0];
+    // Capitalize first letter or remove numbers if we want to be fancy, but simple prefix is fine
+    return prefix.replace(/[0-9]/g, '').replace(/\b\w/g, l => l.toUpperCase()) || 'Student';
+  };
+
   // Process enrollments
   safeEnrollments.forEach(enr => {
     if (!enr.email) return;
@@ -45,8 +52,13 @@ export default async function AdminCertificatesPage() {
     const displayCourse = courseTitle === 'Cohort 1' ? 'AI Automation with n8n' : courseTitle === 'Cohort 2' ? 'AI Video Content Creation' : courseTitle;
     
     if (!studentsMap.has(enr.email)) {
+      let name = enr.full_name;
+      if (!name || name.trim() === '' || name === 'Student') {
+        name = getFallbackName(enr.email);
+      }
+      
       studentsMap.set(enr.email, {
-        name: enr.full_name || 'Student',
+        name,
         email: enr.email,
         userId: enr.clerk_user_id,
         courses: []
@@ -72,12 +84,27 @@ export default async function AdminCertificatesPage() {
     const displayCourse = courseTitle === 'Cohort 1' ? 'AI Automation with n8n' : courseTitle === 'Cohort 2' ? 'AI Video Content Creation' : courseTitle;
 
     if (!studentsMap.has(cert.user_email)) {
+      let name = cert.user_name;
+      if (!name || name.trim() === '' || name === 'Student') {
+        name = getFallbackName(cert.user_email);
+      }
+      
       studentsMap.set(cert.user_email, {
-        name: cert.user_name || 'Student',
+        name,
         email: cert.user_email,
         userId: cert.user_id,
         courses: []
       });
+    } else {
+      // Update name if certificate has a better one
+      const student = studentsMap.get(cert.user_email);
+      if (cert.user_name && cert.user_name !== 'Student' && cert.user_name.trim() !== '') {
+        // If the current name is just the email prefix or 'Student', upgrade it
+        const fallback = getFallbackName(cert.user_email);
+        if (student.name === 'Student' || student.name === fallback) {
+          student.name = cert.user_name;
+        }
+      }
     }
 
     const student = studentsMap.get(cert.user_email);
