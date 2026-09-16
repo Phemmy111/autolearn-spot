@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Package, Users, DollarSign, BarChart3, Settings, Home, LogOut, Target, FileText, Star, CreditCard, Wallet } from 'lucide-react';
+import { Menu, X, Package, Users, DollarSign, BarChart3, Settings, Home, LogOut, Target, FileText, Star, CreditCard, Wallet, ArrowUpRight } from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
 
 /**
@@ -25,6 +25,7 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
     { name: 'Earnings', href: '/author/earnings', icon: DollarSign },
     { name: 'Transactions', href: '/author/transactions', icon: CreditCard },
     { name: 'Bank Details', href: '/author/bank', icon: Wallet },
+    { name: 'Withdrawals', href: '/author/withdrawals', icon: ArrowUpRight },
     { name: 'Analytics', href: '/author/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/author/settings', icon: Settings },
   ];

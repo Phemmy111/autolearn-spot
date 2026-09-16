@@ -100,6 +100,13 @@ export default async function AuthorEarningsPage() {
             <ArrowUpRight className="w-4 h-4" />
             View Transactions
           </Link>
+          <Link
+            href="/author/withdrawals"
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-sm font-medium text-sm"
+          >
+            <ArrowUpRight className="w-4 h-4" />
+            Request Withdrawal
+          </Link>
         </div>
       </div>
 
