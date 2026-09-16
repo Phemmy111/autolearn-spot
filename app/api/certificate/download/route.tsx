@@ -65,12 +65,12 @@ export async function GET(request: Request) {
     const { data: certificateRecord } = await query
       .order('issued_at', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
 
-    const certificateId = certificateRecord?.certificate_code || ''
+    const certificateId = certificateRecord?.certificate_code || `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     const lpTitle = certificateRecord?.cohorts?.learning_products?.title;
     const cName = certificateRecord?.cohorts?.name;
-    const dbCourseTitle = lpTitle || (cName === 'Cohort 1' ? 'n8n Automation Training' : cName);
+    const dbCourseTitle = lpTitle || (cName === 'Cohort 1' ? 'AI Automation with n8n' : cName === 'Cohort 2' ? 'AI Video Content Creation' : cName);
 
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
