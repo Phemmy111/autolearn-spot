@@ -4,6 +4,9 @@ import { User, MapPin, Link as LinkIcon, Briefcase, Star, Award } from 'lucide-r
 import Image from 'next/image';
 import Link from 'next/link';
 
+// Force dynamic rendering to prevent 404 errors
+export const dynamic = 'force-dynamic';
+
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
