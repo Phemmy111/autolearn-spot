@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/admin';
 import { processWithdrawal } from '@/lib/authorService';
+import { createTransferRecipient, initiateTransfer } from '@/lib/paystack-transfer';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,9 +53,100 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
     
-    await processWithdrawal(withdrawal_id, newStatus, provider_reference);
+    // Get withdrawal details including author info
+    const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
+      .from('author_withdrawals')
+      .select('*, authors(display_name, email)')
+      .eq('id', withdrawal_id)
+      .single();
     
-    return NextResponse.json({ success: true, withdrawal_id, newStatus });
+    if (withdrawalError || !withdrawal) {
+      return NextResponse.json({ error: 'Withdrawal not found' }, { status: 404 });
+    }
+    
+    // If approving, initiate Paystack transfer
+    if (action === 'approve') {
+      try {
+        // Get author's bank account
+        const { data: bankAccount, error: bankError } = await supabaseAdmin
+          .from('author_bank_accounts')
+          .select('id, bank_name, account_number, routing_number, account_number_text, routing_number_text')
+          .eq('author_id', withdrawal.author_id)
+          .single();
+        
+        if (bankError || !bankAccount) {
+          return NextResponse.json({ error: 'Author bank account not found' }, { status: 400 });
+        }
+        
+        // Handle bank account data - use text columns for transfer support
+        let accountNumber: string;
+        let bankCode: string;
+        
+        if (bankAccount.account_number_text) {
+          accountNumber = bankAccount.account_number_text;
+        } else if (typeof bankAccount.account_number === 'string') {
+          accountNumber = bankAccount.account_number;
+        } else {
+          return NextResponse.json({ 
+            error: 'Bank account number not available for transfer',
+            message: 'Please update bank account details to enable automatic transfers.'
+          }, { status: 400 });
+        }
+        
+        if (bankAccount.routing_number_text) {
+          bankCode = bankAccount.routing_number_text;
+        } else if (typeof bankAccount.routing_number === 'string') {
+          bankCode = bankAccount.routing_number;
+        } else {
+          return NextResponse.json({ 
+            error: 'Bank code not available for transfer',
+            message: 'Please update bank account details to enable automatic transfers.'
+          }, { status: 400 });
+        }
+        
+        // Create transfer recipient
+        const recipient = await createTransferRecipient(
+          accountNumber,
+          bankCode,
+          withdrawal.authors?.display_name || 'Author'
+        );
+        
+        // Initiate transfer
+        const transferRef = provider_reference || `WD-${withdrawal_id.slice(0, 8)}`;
+        const transfer = await initiateTransfer(
+          recipient.recipient_code,
+          withdrawal.amount,
+          transferRef,
+          `Withdrawal for ${withdrawal.authors?.display_name || 'Author'}`
+        );
+        
+        // Update withdrawal with provider reference and set to PROCESSING
+        await processWithdrawal(withdrawal_id, 'PROCESSING', transfer.data.reference);
+        
+        return NextResponse.json({ 
+          success: true, 
+          withdrawal_id, 
+          newStatus: 'PROCESSING',
+          transfer_reference: transfer.data.reference,
+          message: 'Transfer initiated successfully'
+        });
+      } catch (transferError: any) {
+        console.error('Transfer initiation failed:', transferError);
+        // Still approve the withdrawal but note the transfer error
+        await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
+        return NextResponse.json({ 
+          success: true, 
+          withdrawal_id, 
+          newStatus: 'APPROVED',
+          warning: 'Transfer initiation failed, withdrawal approved for manual processing',
+          error: transferError.message
+        });
+      }
+    } else {
+      // Handle rejection
+      await processWithdrawal(withdrawal_id, newStatus, provider_reference);
+      return NextResponse.json({ success: true, withdrawal_id, newStatus });
+    }
   } catch (e: any) {
     console.error('[POST /api/admin/withdrawals] error:', e);
     return NextResponse.json({ error: e.message || 'Unauthorized or internal error' }, { status: 403 });

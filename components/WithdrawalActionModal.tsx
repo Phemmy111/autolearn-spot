@@ -50,7 +50,15 @@ export default function WithdrawalActionModal({
       if (!data.success) {
         throw new Error(data.message || "Action failed")
       }
-      onSuccess()
+      
+      // Handle transfer-specific responses
+      if (data.warning) {
+        setError(data.warning)
+        // Still close modal since withdrawal was approved
+        setTimeout(() => onSuccess(), 2000)
+      } else {
+        onSuccess()
+      }
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -66,7 +74,7 @@ export default function WithdrawalActionModal({
         </h2>
         <p className="text-gray-200 mb-2">Author: {withdrawal.authors?.display_name || 'Unknown'}</p>
         <p className="text-gray-200 mb-2">Amount: {withdrawal.amount} ₦</p>
-        <p className="text-gray-200 mb-4">Reference: {withdrawal.request_ref}</p>
+        <p className="text-gray-200 mb-4">Reference: {withdrawal.request_ref || withdrawal.id.slice(0, 8)}</p>
         {action === "approve" && (
           <div className="mb-4">
             <label className="block text-gray-400 mb-1" htmlFor="providerRef">

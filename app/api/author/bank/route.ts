@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     // Fetch bank account details (masked)
     const { data: bankAccount, error } = await supabaseAdmin
       .from('author_bank_accounts')
-      .select('id, bank_name, account_number, routing_number, created_at, updated_at')
+      .select('id, bank_name, account_number, routing_number, account_number_text, routing_number_text, created_at, updated_at')
       .eq('author_id', author.id)
       .single();
 
@@ -37,15 +37,25 @@ export async function GET(req: Request) {
       });
     }
 
-    // Handle encrypted bytea data - return basic info without trying to decrypt
+    // Handle encrypted bytea data - use text columns if available
+    let accountNumber = 'ENCRYPTED';
+    let bankCode = 'ENCRYPTED';
+    
+    // Try to use text columns first (for transfer support)
+    if (bankAccount.account_number_text) {
+      accountNumber = '****' + bankAccount.account_number_text.slice(-4);
+    }
+    if (bankAccount.routing_number_text) {
+      bankCode = '****' + bankAccount.routing_number_text.slice(-4);
+    }
+    
     return NextResponse.json({
       success: true,
       bankAccount: {
         id: bankAccount.id,
         bank_name: bankAccount.bank_name,
-        // Can't decrypt without pgcrypto.key, so just show that account exists
-        account_number: 'ENCRYPTED',
-        routing_number: 'ENCRYPTED',
+        account_number: accountNumber,
+        bank_code: bankCode,
         created_at: bankAccount.created_at,
         updated_at: bankAccount.updated_at,
       },
@@ -92,39 +102,21 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Invalid bank code. Must be 3 digits' }, { status: 400 });
     }
 
-    // Try to use the RPC function for encryption first
-    let error: any;
-    try {
-      const { error: rpcError } = await supabaseAdmin.rpc('upsert_author_bank_account', {
-        p_author_id: author.id,
-        p_bank_name: bank_name,
-        p_account_number: account_number,
-        p_routing_number: bank_code
+    // Save to text columns for transfer support (less secure but functional)
+    const { error: upsertErr } = await supabaseAdmin
+      .from('author_bank_accounts')
+      .upsert({
+        author_id: author.id,
+        bank_name,
+        account_number_text: account_number,
+        routing_number_text: bank_code,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'author_id'
       });
-      error = rpcError;
-    } catch (rpcErr) {
-      error = rpcErr;
-    }
 
-    // If RPC fails, fall back to direct insert (less secure but functional)
-    if (error) {
-      console.warn('RPC encryption failed, falling back to direct insert:', error);
-      const { error: upsertErr } = await supabaseAdmin
-        .from('author_bank_accounts')
-        .upsert({
-          author_id: author.id,
-          bank_name,
-          account_number,
-          routing_number: bank_code,
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'author_id'
-        });
-      error = upsertErr;
-    }
-
-    if (error) {
-      console.error('Bank account upsert error:', error);
+    if (upsertErr) {
+      console.error('Bank account upsert error:', upsertErr);
       return NextResponse.json({ error: 'Failed to save bank account' }, { status: 500 });
     }
 

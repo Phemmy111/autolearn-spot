@@ -22,6 +22,8 @@ import { logUserActivity } from '@/lib/audit-logging';
 // Phase 4: Cart checkout
 import { getOrderByProviderRef, getOrderItems, markOrderPaid } from '@/lib/order-service';
 import { clearCartItems } from '@/lib/cart-service';
+// Phase J: Withdrawal transfers
+import { processWithdrawal } from '@/lib/authorService';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -667,6 +669,47 @@ export async function POST(request: NextRequest) {
       status: 'success',
     });
 
+    // Handle transfer events
+    if (event.event === 'transfer.success' || event.event === 'transfer.failed') {
+      const { data } = event;
+      const reference = data.reference;
+      const transferStatus = event.event === 'transfer.success' ? 'PAID' : 'FAILED';
+      
+      console.log('Transfer webhook received:', { reference, status: transferStatus });
+      
+      // Find withdrawal by provider_reference
+      const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
+        .from('author_withdrawals')
+        .select('*')
+        .eq('provider_reference', reference)
+        .single();
+      
+      if (withdrawalError || !withdrawal) {
+        console.error('Withdrawal not found for transfer reference:', reference);
+        return NextResponse.json({ error: 'Withdrawal not found' }, { status: 404 });
+      }
+      
+      // Update withdrawal status
+      try {
+        await processWithdrawal(withdrawal.id, transferStatus, reference);
+        console.log('Withdrawal status updated:', { withdrawalId: withdrawal.id, status: transferStatus });
+        
+        await logPaymentEvent({
+          action: 'transfer_webhook_processed',
+          category: 'withdrawal',
+          payment_reference: reference,
+          description: `Transfer ${transferStatus} for withdrawal ${withdrawal.id}`,
+          status: 'success',
+          metadata: { withdrawal_id: withdrawal.id, transfer_status: transferStatus }
+        });
+        
+        return NextResponse.json({ received: true, message: 'Transfer webhook processed' });
+      } catch (error) {
+        console.error('Failed to update withdrawal status:', error);
+        return NextResponse.json({ error: 'Failed to update withdrawal status' }, { status: 500 });
+      }
+    }
+    
     // Handle successful payment event
     if (event.event === 'charge.success') {
       const { data } = event;
