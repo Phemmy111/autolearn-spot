@@ -157,6 +157,18 @@ export async function POST(request: Request) {
             }
           });
         }
+      } catch (transferError: any) {
+        console.error('Transfer initiation error:', transferError);
+        // Still approve the withdrawal but note the transfer error
+        await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
+        return NextResponse.json({ 
+          success: true, 
+          withdrawal_id, 
+          newStatus: 'APPROVED',
+          warning: 'Transfer initiation failed, withdrawal approved for manual processing',
+          error: transferError.message
+        });
+      }
     } else {
       // Handle rejection
       await processWithdrawal(withdrawal_id, newStatus, provider_reference);

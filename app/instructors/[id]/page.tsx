@@ -7,9 +7,6 @@ import Link from 'next/link';
 // Force dynamic rendering to prevent 404 errors
 export const dynamic = 'force-dynamic';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
 interface Author {
   id: string;
   display_name: string;
