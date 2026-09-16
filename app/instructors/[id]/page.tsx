@@ -101,14 +101,14 @@ export default async function AuthorPublicPage({ params }: { params: { id: strin
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               {/* Profile Image */}
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-sky-600 to-sky-800 p-1 shrink-0">
-                <div className="w-full h-full rounded-full bg-sky-900/50 flex items-center justify-center overflow-hidden">
+                <div className="w-full h-full rounded-full bg-sky-900/50 flex items-center justify-center overflow-hidden relative">
                   {author.profile_image ? (
                     <Image 
                       src={author.profile_image} 
                       alt={author.display_name} 
-                      width={128} 
-                      height={128}
+                      fill
                       className="object-cover"
+                      unoptimized
                     />
                   ) : (
                     <User className="w-16 h-16 text-sky-400" />
