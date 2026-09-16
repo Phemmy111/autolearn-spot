@@ -147,7 +147,7 @@ export default async function AdminCertificatesPage() {
                           
                           <div>
                             <a 
-                              href={\/api/certificate/download?userId=\&name=\&course=\\\} 
+                              href={`/api/certificate/download?userId=${student.userId}&name=${encodeURIComponent(student.name)}&course=${encodeURIComponent(course.title)}${course.certificate ? '&certificateId=' + course.certificate.id : ''}`}
                               className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
                             >
                               <Download className="h-4 w-4" />
