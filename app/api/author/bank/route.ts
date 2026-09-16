@@ -97,9 +97,9 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Invalid account number. Must be 8-12 digits' }, { status: 400 });
     }
 
-    // Validate bank code (typically 3 digits for Nigerian bank codes)
-    if (!/^\d{3}$/.test(bank_code)) {
-      return NextResponse.json({ error: 'Invalid bank code. Must be 3 digits (e.g., 044 for Access Bank)' }, { status: 400 });
+    // Validate bank code (3-6 digits for Nigerian bank codes, including fintech like Opay)
+    if (!/^\d{3,6}$/.test(bank_code)) {
+      return NextResponse.json({ error: 'Invalid bank code. Must be 3-6 digits (e.g., 044 for Access Bank, 999992 for Opay)' }, { status: 400 });
     }
 
     // Save to both encrypted and text columns for transfer support

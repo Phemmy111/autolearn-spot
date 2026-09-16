@@ -57,19 +57,26 @@ async function getAuthorData(authorId: string) {
 }
 
 async function getAuthorProducts(authorId: string) {
+  console.log('Fetching products for author:', authorId);
+  
   const { data: products, error: productsError } = await supabaseAdmin
     .from('learning_products')
     .select('*, product_reviews(rating)')
     .eq('author_id', authorId)
-    .eq('status', 'PUBLISHED')
     .order('created_at', { ascending: false });
+
+  console.log('Products query result:', { products, error: productsError });
 
   if (productsError || !products) {
     return [];
   }
 
+  // Filter for published products
+  const publishedProducts = products.filter((p: any) => p.status === 'PUBLISHED');
+  console.log('Published products count:', publishedProducts.length);
+
   // Calculate average rating for each product
-  const productsWithRating = products.map((product: any) => {
+  const productsWithRating = publishedProducts.map((product: any) => {
     const reviews = product.product_reviews || [];
     const avgRating = reviews.length > 0 
       ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length 
