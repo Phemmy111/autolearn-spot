@@ -16,7 +16,7 @@ interface Withdrawal {
   id: string;
   request_ref: string;
   amount: number;
-  created_at: string;
+  requested_at: string;
   status: string;
   authors?: {
     display_name: string;
@@ -122,7 +122,7 @@ export default function AdminWithdrawalsPage() {
                       </td>
                       <td className="px-4 py-3 text-gray-700 font-mono text-sm">{w.request_ref || w.id.slice(0, 8)}</td>
                       <td className="px-4 py-3 text-gray-900 font-semibold">₦{w.amount.toLocaleString()}</td>
-                      <td className="px-4 py-3 text-gray-700 text-sm">{new Date(w.created_at).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-gray-700 text-sm">{new Date(w.requested_at).toLocaleDateString()}</td>
                       <td className="px-4 py-3">
                         {bank ? (
                           <button

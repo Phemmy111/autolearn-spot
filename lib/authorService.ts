@@ -65,11 +65,12 @@ export async function processWithdrawal(
   newStatus: string,
   providerReference?: string,
 ): Promise<void> {
-  await supabaseAdmin.rpc('process_withdrawal', {
+  const { error } = await supabaseAdmin.rpc('process_withdrawal', {
     p_withdrawal_id: withdrawalId,
     p_new_status: newStatus,
     p_provider_ref: providerReference ?? null,
   });
+  if (error) throw error;
 }
 
 /** Get available balance for author using the authoritative ledger. */

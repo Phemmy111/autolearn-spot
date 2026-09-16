@@ -1,4 +1,4 @@
-﻿// components/WithdrawalActionModal.tsx
+// components/WithdrawalActionModal.tsx
 "use client"
 
 import React, { useState } from "react"
@@ -8,7 +8,7 @@ interface Withdrawal {
   id: string
   request_ref: string
   amount: number
-  created_at: string
+  requested_at: string
   status: string
   authors?: {
     display_name: string
