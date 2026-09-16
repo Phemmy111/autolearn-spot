@@ -99,7 +99,7 @@ export async function PUT(req: Request) {
 
     // Validate bank code (typically 3 digits for Nigerian bank codes)
     if (!/^\d{3}$/.test(bank_code)) {
-      return NextResponse.json({ error: 'Invalid bank code. Must be 3 digits' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid bank code. Must be 3 digits (e.g., 044 for Access Bank)' }, { status: 400 });
     }
 
     // Save to both encrypted and text columns for transfer support
