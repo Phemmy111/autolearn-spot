@@ -132,6 +132,14 @@ export async function POST(request: Request) {
       videoProgress: { completed: completedLessons, total: totalLessons, complete: videoProgressComplete }
     })
 
+    if (!videoProgressComplete) {
+      return NextResponse.json({
+        error: 'Not eligible for certificate yet. Complete all lessons.',
+        eligibility: { videoProgress: videoProgressComplete }
+      }, { status: 400 })
+    }
+
+
     // 4. Upsert student certificate record
     const certCode = `CERT-${crypto.randomBytes(4).toString('hex').toUpperCase()}`
     
