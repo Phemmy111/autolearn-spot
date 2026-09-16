@@ -5,11 +5,22 @@ import { requireAuthor } from '@/lib/author';
 /** Helper to get authenticated author id */
 async function getAuthorId(): Promise<string> {
   const result = await requireAuthor();
-  if ("userId" in result) {
-    return result.userId;
+  if (!("userId" in result)) {
+    // If requireAuthor returned a NextResponse, throw it to be handled by the route
+    throw result;
   }
-  // If requireAuthor returned a NextResponse, throw it to be handled by the route
-  throw result;
+  
+  const { data, error } = await supabaseAdmin
+    .from('authors')
+    .select('id')
+    .eq('clerk_user_id', result.userId)
+    .single();
+    
+  if (error || !data) {
+    throw new Error('Author profile not found in database');
+  }
+  
+  return data.id;
 }
 
 /** Validate product completeness before submission */
