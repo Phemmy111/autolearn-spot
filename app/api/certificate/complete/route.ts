@@ -67,8 +67,8 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: `Submitted lesson (${submittedLessonId}) does not match the configured final lesson (${configuredFinalLessonId}).`, debug: { configuredFinalLessonId, submittedLessonId } },
         { status: 400 }
-      ) */
-    }
+      ) 
+    } */
 
     // 2. Fetch User Details
     const user = await currentUser()
