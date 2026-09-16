@@ -11,12 +11,16 @@ const paymentUrl = paymentMode === 'test' ? (process.env.NEXT_PUBLIC_PAYSTACK_TE
 function paymentHref(form: HTMLFormElement) {
   const data = new FormData(form)
   const url = new URL(paymentUrl)
-  const name = String(data.get('name') || '')
+  const firstName = String(data.get('firstName') || '')
+  const lastName = String(data.get('lastName') || '')
+  const name = `${firstName} ${lastName}`.trim()
   const email = String(data.get('email') || '')
   const phone = String(data.get('phone') || '')
   const referral = String(data.get('referral') || '')
 
   if (name) url.searchParams.set('name', name)
+  if (firstName) url.searchParams.set('first_name', firstName)
+  if (lastName) url.searchParams.set('last_name', lastName)
   if (email) url.searchParams.set('email', email)
   if (phone) url.searchParams.set('phone', phone)
   if (referral) url.searchParams.set('referral', referral)
@@ -63,8 +67,12 @@ export function EnrollModal({
     const href = paymentHref(form)
 
     const data = new FormData(form)
+    const firstName = String(data.get('firstName') || '')
+    const lastName = String(data.get('lastName') || '')
     const payload = JSON.stringify({
-      "Full Name": String(data.get('name') || ''),
+      "First Name": firstName,
+      "Last Name": lastName,
+      "Full Name": `${firstName} ${lastName}`.trim(),
       "Email1": String(data.get('email') || ''),
       "Phone": String(data.get('phone') || ''),
       "ReferralCode": String(data.get('referral') || '')
@@ -136,18 +144,32 @@ export function EnrollModal({
                 </div>
 
                 <form className="relative space-y-4" onSubmit={onSubmit}>
-                  <label className="block">
-                    <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
-                      Full Name *
-                    </span>
-                    <input
-                      className="mt-2 h-12 w-full border border-brand-border bg-brand-bg px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-brand-bg"
-                      name="name"
-                      placeholder="e.g., Chioma Adeleke"
-                      required
-                      type="text"
-                    />
-                  </label>
+                  <div className="flex gap-4">
+                    <label className="block w-1/2">
+                      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
+                        First Name *
+                      </span>
+                      <input
+                        className="mt-2 h-12 w-full border border-brand-border bg-brand-bg px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-brand-bg"
+                        name="firstName"
+                        placeholder="e.g., Chioma"
+                        required
+                        type="text"
+                      />
+                    </label>
+                    <label className="block w-1/2">
+                      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
+                        Last Name *
+                      </span>
+                      <input
+                        className="mt-2 h-12 w-full border border-brand-border bg-brand-bg px-4 font-mono text-sm text-[#e2e2e8] outline-none transition placeholder:text-[#5d5f63] focus:border-[#10b981] focus:bg-brand-bg"
+                        name="lastName"
+                        placeholder="e.g., Adeleke"
+                        required
+                        type="text"
+                      />
+                    </label>
+                  </div>
 
                   <label className="block">
                     <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#dbfcff]">
