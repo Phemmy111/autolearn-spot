@@ -2,6 +2,7 @@
 import { useEffect, useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronUp, ChevronDown, Plus, Trash2, Edit, Eye, Video, Clock, GripVertical, FileText, HelpCircle, Sparkles } from 'lucide-react';
+import { YouTubeResumableUploader } from '@/components/author/YouTubeResumableUploader';
 
 interface Lesson {
   uuid_id: string;
@@ -1357,3 +1358,5 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     </div>
   );
 }
+
+

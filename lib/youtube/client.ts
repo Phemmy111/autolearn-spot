@@ -98,3 +98,51 @@ export async function getVideoStatus(videoId: string) {
     rejectionReason: status.rejectionReason
   };
 }
+
+export async function createResumableUploadSession(
+  title: string,
+  description: string,
+  mimeType: string,
+  fileSize: number
+) {
+  const connection = await getActiveConnection();
+  if (!connection) {
+    throw new Error('No active YouTube connection found. Please contact administration.');
+  }
+
+  const metadata = {
+    snippet: {
+      title,
+      description,
+      categoryId: '27' // Education
+    },
+    status: {
+      privacyStatus: 'unlisted', // The intended privacy setting
+      selfDeclaredMadeForKids: false
+    }
+  };
+
+  const response = await fetch(`${YOUTUBE_UPLOAD_URL}?uploadType=resumable&part=snippet,status`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${connection.accessToken}`,
+      'Content-Type': 'application/json',
+      'X-Upload-Content-Length': fileSize.toString(),
+      'X-Upload-Content-Type': mimeType
+    },
+    body: JSON.stringify(metadata)
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Failed to create resumable upload session: ${err}`);
+  }
+
+  // Google returns the resumable upload URL in the Location header
+  const locationUrl = response.headers.get('location');
+  if (!locationUrl) {
+    throw new Error('No location header returned from YouTube API');
+  }
+
+  return { uploadUrl: locationUrl };
+}
