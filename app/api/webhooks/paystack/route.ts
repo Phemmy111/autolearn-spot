@@ -186,6 +186,10 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
 
   // 6. Create enrollments for each order item
   
+  const firstName = data.customer.first_name;
+  const lastName = data.customer.last_name;
+  const fullName = [firstName, lastName].filter(Boolean).join(' ');
+
   for (const item of orderItems) {
     const enrollmentData: Record<string, any> = {
       cohort_id: currentCohort.id,
@@ -197,6 +201,12 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
       referral_code: null,
       referred_by_code: null,
     };
+
+    if (fullName) {
+      enrollmentData.full_name = fullName;
+      if (firstName) enrollmentData.first_name = firstName;
+      if (lastName) enrollmentData.last_name = lastName;
+    }
 
     // Include learning_product_id if the column exists (added via migration)
     if (item.learning_product_id) {
@@ -427,7 +437,11 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
     amount_paid: amountInNaira
   });
 
-  const enrollmentData = {
+  const firstName = data.customer.first_name;
+  const lastName = data.customer.last_name;
+  const fullName = [firstName, lastName].filter(Boolean).join(' ');
+
+  const enrollmentData: any = {
     cohort_id: currentCohort.id,
     email: pendingEnrollment.email,
     payment_ref: reference,
@@ -437,6 +451,14 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
     referral_code: pendingEnrollment.referral_code || null,
     referred_by_code: pendingEnrollment.referral_code || null
   };
+
+  if (fullName) {
+    enrollmentData.full_name = fullName;
+    if (firstName) enrollmentData.first_name = firstName;
+    if (lastName) enrollmentData.last_name = lastName;
+  } else if (pendingEnrollment.full_name) {
+    enrollmentData.full_name = pendingEnrollment.full_name;
+  }
 
   const { error: enrollmentError } = await supabaseAdmin
     .from('enrollments')
