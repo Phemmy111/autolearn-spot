@@ -133,7 +133,7 @@ export async function GET(request: Request) {
     const qrDestination = certSettings.certificateQrDestination || `${baseUrl}/certificate/verify`
 
     // Fetch font for the cursive name
-    const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/great-vibes@latest/latin-400-normal.ttf')
+    const fontRes = await fetch('https://cdn.jsdelivr.net/fontsource/fonts/playfair-display@latest/latin-600-normal.ttf')
     const fontData = await fontRes.arrayBuffer()
     
     // Fetch a standard font (Roboto) for the rest of the text
@@ -214,10 +214,10 @@ export async function GET(request: Request) {
             weight: 400
           },
           {
-            name: 'GreatVibes',
+            name: 'Playfair Display',
             data: fontData,
             style: 'normal',
-            weight: 400
+            weight: 600
           }
         ]
       }

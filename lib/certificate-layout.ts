@@ -294,7 +294,7 @@ export const DEFAULT_CERTIFICATE_LAYOUT: CertificateLayout = {
         color: '#f5f5f5',
         fontSize: 68,
         fontWeight: 400,
-        fontFamily: 'GreatVibes',
+        fontFamily: 'Playfair Display',
         lineHeight: 1,
         textAlign: 'center',
         textShadow: '0 3px 10px rgba(0,0,0,0.85)',
