@@ -727,10 +727,10 @@ export async function POST(request: NextRequest) {
       
       console.log('Transfer webhook received:', { reference, status: transferStatus });
       
-      // Find withdrawal by provider_reference
+      // Find withdrawal by provider_reference with author details
       const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
         .from('author_withdrawals')
-        .select('*')
+        .select('*, authors(display_name, email, clerk_user_id)')
         .eq('provider_reference', reference)
         .single();
       
@@ -743,7 +743,38 @@ export async function POST(request: NextRequest) {
       try {
         await processWithdrawal(withdrawal.id, transferStatus, reference);
         console.log('Withdrawal status updated:', { withdrawalId: withdrawal.id, status: transferStatus });
-        
+
+        // Send email notification to author
+        const authorEmail = withdrawal.authors?.email;
+        const authorName = withdrawal.authors?.display_name || 'Author';
+        const withdrawalRef = withdrawal.request_ref || withdrawal.id.slice(0, 8);
+
+        if (authorEmail) {
+          try {
+            if (transferStatus === 'PAID') {
+              await EmailService.sendWithdrawalPaidNotification(
+                authorEmail,
+                authorName,
+                withdrawal.amount,
+                withdrawalRef
+              );
+              console.log('Transfer webhook: Email notification sent to author for successful transfer:', authorEmail);
+            } else {
+              await EmailService.sendWithdrawalRejectedNotification(
+                authorEmail,
+                authorName,
+                withdrawal.amount,
+                withdrawalRef,
+                'Transfer failed - funds have been returned to your available balance'
+              );
+              console.log('Transfer webhook: Email notification sent to author for failed transfer:', authorEmail);
+            }
+          } catch (emailErr) {
+            console.error('Transfer webhook: Failed to send email notification:', emailErr);
+            // Non-fatal - continue
+          }
+        }
+
         await logPaymentEvent({
           action: 'transfer_webhook_processed',
           category: 'withdrawal',

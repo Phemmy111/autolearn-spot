@@ -483,4 +483,88 @@ export class EmailService {
 
     return this.sendEmail(template);
   }
+
+  /**
+   * Send withdrawal payment notification to author
+   */
+  static async sendWithdrawalPaidNotification(
+    authorEmail: string,
+    authorName: string,
+    amount: number,
+    reference: string
+  ): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const earningsUrl = `${baseUrl}/author/earnings`;
+
+    const template: EmailTemplate = {
+      to: authorEmail,
+      subject: `Withdrawal Payment Sent: ₦${amount.toLocaleString()}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">💰 Withdrawal Payment Sent!</h2>
+          <p>Dear ${authorName},</p>
+          <p>Great news! Your withdrawal request has been processed and the payment has been sent to your bank account.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Payment Details</h3>
+            <p><strong>Amount:</strong> ₦${amount.toLocaleString()}</p>
+            <p><strong>Reference:</strong> ${reference}</p>
+            <p><strong>Status:</strong> Paid</p>
+          </div>
+          
+          <p>The funds should appear in your bank account within 24-48 hours, depending on your bank's processing time.</p>
+          <p>Please check your bank account and confirm receipt of the payment.</p>
+          <p><a href="${earningsUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Your Earnings</a></p>
+          
+          <p>If you don't receive the payment within 48 hours, please contact our support team.</p>
+          <p>Thank you for being part of AutoLearn Spot!</p>
+          <p>Best regards,<br>The AutoLearn Spot Team</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
+
+  /**
+   * Send withdrawal rejection notification to author
+   */
+  static async sendWithdrawalRejectedNotification(
+    authorEmail: string,
+    authorName: string,
+    amount: number,
+    reference: string,
+    reason?: string
+  ): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const earningsUrl = `${baseUrl}/author/earnings`;
+
+    const template: EmailTemplate = {
+      to: authorEmail,
+      subject: `Withdrawal Request Rejected: ₦${amount.toLocaleString()}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #EF4444;">Withdrawal Request Rejected</h2>
+          <p>Dear ${authorName},</p>
+          <p>We regret to inform you that your withdrawal request has been rejected.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Withdrawal Details</h3>
+            <p><strong>Amount:</strong> ₦${amount.toLocaleString()}</p>
+            <p><strong>Reference:</strong> ${reference}</p>
+            <p><strong>Status:</strong> Rejected</p>
+            ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+          </div>
+          
+          <p>The amount has been returned to your available balance. You can submit a new withdrawal request from your author dashboard.</p>
+          <p><a href="${earningsUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Your Earnings</a></p>
+          
+          <p>If you have any questions or believe this is an error, please contact our support team.</p>
+          <p>Best regards,<br>The AutoLearn Spot Team</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
 }

@@ -6,6 +6,7 @@ import { processWithdrawal } from '@/lib/authorService';
 import { createTransferRecipient, initiateTransfer } from '@/lib/paystack-transfer';
 import { createNotification } from '@/lib/notifications';
 import { logAdminAction } from '@/lib/auditLog';
+import { EmailService } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,11 +83,15 @@ export async function POST(request: Request) {
 
       // 2. Send in-app notification to the author
       const authorClerkId = withdrawal.authors?.clerk_user_id;
+      const authorEmail = withdrawal.authors?.email;
+      const authorName = withdrawal.authors?.display_name || 'Author';
+      const withdrawalRef = withdrawal.request_ref || withdrawal_id.slice(0, 8);
+
       if (authorClerkId) {
         try {
           await createNotification({
             title: 'Withdrawal Payment Sent',
-            message: 'Your withdrawal of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + (withdrawal.request_ref || withdrawal_id.slice(0, 8)) + ') has been paid. Please check your bank account.',
+            message: 'Your withdrawal of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + withdrawalRef + ') has been paid. Please check your bank account.',
             category: 'payment',
             priority: 'important',
             target_type: 'author',
@@ -101,7 +106,23 @@ export async function POST(request: Request) {
         }
       }
 
-      // 3. Write audit log
+      // 3. Send dedicated email notification to author
+      if (authorEmail) {
+        try {
+          await EmailService.sendWithdrawalPaidNotification(
+            authorEmail,
+            authorName,
+            withdrawal.amount,
+            withdrawalRef
+          );
+          console.log('[withdrawals] Email notification sent to author:', authorEmail);
+        } catch (emailErr) {
+          console.error('[withdrawals] Failed to send email notification:', emailErr);
+          // Non-fatal – continue
+        }
+      }
+
+      // 4. Write audit log
       await logAdminAction({
         adminId: adminUserId || 'unknown',
         action: 'MANUAL_PAID',
@@ -122,11 +143,15 @@ export async function POST(request: Request) {
 
       // Notify author of rejection
       const authorClerkId = withdrawal.authors?.clerk_user_id;
+      const authorEmail = withdrawal.authors?.email;
+      const authorName = withdrawal.authors?.display_name || 'Author';
+      const withdrawalRef = withdrawal.request_ref || withdrawal_id.slice(0, 8);
+
       if (authorClerkId) {
         try {
           await createNotification({
             title: 'Withdrawal Request Rejected',
-            message: 'Your withdrawal request of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + (withdrawal.request_ref || withdrawal_id.slice(0, 8)) + ') has been rejected. Please contact support for assistance.',
+            message: 'Your withdrawal request of \u20a6' + withdrawal.amount.toLocaleString() + ' (ref: ' + withdrawalRef + ') has been rejected. Please contact support for assistance.',
             category: 'payment',
             priority: 'important',
             target_type: 'author',
@@ -137,6 +162,22 @@ export async function POST(request: Request) {
           });
         } catch (notifErr) {
           console.error('[withdrawals] Failed to send rejection notification:', notifErr);
+        }
+      }
+
+      // Send dedicated email notification to author
+      if (authorEmail) {
+        try {
+          await EmailService.sendWithdrawalRejectedNotification(
+            authorEmail,
+            authorName,
+            withdrawal.amount,
+            withdrawalRef
+          );
+          console.log('[withdrawals] Rejection email sent to author:', authorEmail);
+        } catch (emailErr) {
+          console.error('[withdrawals] Failed to send rejection email:', emailErr);
+          // Non-fatal – continue
         }
       }
 
