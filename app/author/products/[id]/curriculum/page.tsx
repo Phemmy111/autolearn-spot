@@ -242,7 +242,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
     setSaving(true);
     try {
-      const res = await fetch(`/api/author/products/${productId}/lessons/${editingLesson.id}`, {
+      const res = await fetch(`/api/author/products/${productId}/lessons/${editingLesson.uuid_id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
