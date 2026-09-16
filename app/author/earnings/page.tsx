@@ -59,6 +59,23 @@ export default async function AuthorEarningsPage() {
   
   const totalWithdrawn = paidWithdrawals?.reduce((sum, w) => sum + w.amount, 0) || 0;
 
+  // 3.5 Fetch current commission rate
+  const { data: commissionSetting } = await supabaseAdmin
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'platform_commission_rate')
+    .single();
+
+  let commissionRate = 10;
+  if (commissionSetting?.value) {
+    try {
+      const parsed = JSON.parse(commissionSetting.value);
+      commissionRate = typeof parsed === 'number' ? parsed : parseFloat(parsed);
+    } catch {
+      commissionRate = parseFloat(commissionSetting.value) || 10;
+    }
+  }
+
   // 4. Fetch Withdrawals History
   const { data: withdrawals } = await supabaseAdmin
     .from('author_withdrawals')
@@ -180,16 +197,17 @@ export default async function AuthorEarningsPage() {
           </div>
         </div>
 
-        {totalGross > 0 && (
-          <div className="mt-6 pt-6 border-t border-brand-border">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-brand-text/70">Commission Rate</span>
-              <span className="font-semibold text-brand-text">
-                {totalGross > 0 ? ((totalCommission / totalGross) * 100).toFixed(1) : 0}%
-              </span>
+        <div className="mt-6 pt-6 border-t border-brand-border">
+          <div className="flex items-center justify-between text-sm">
+            <div>
+              <span className="text-brand-text/70 block">Current Commission Rate</span>
+              <span className="text-xs text-brand-text/50">Applies to all new sales</span>
             </div>
+            <span className="font-semibold text-brand-text">
+              {commissionRate}%
+            </span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Withdrawals History */}
