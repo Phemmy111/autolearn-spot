@@ -128,11 +128,6 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Failed to save bank account' }, { status: 500 });
     }
 
-    if (upsertErr) {
-      console.error('Bank account upsert error:', upsertErr);
-      return NextResponse.json({ error: 'Failed to save bank account' }, { status: 500 });
-    }
-
     // Return success response
     return NextResponse.json({
       success: true,

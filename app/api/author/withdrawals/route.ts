@@ -142,7 +142,8 @@ export async function POST(req: Request) {
         status: 'PENDING',
         provider: 'PAYSTACK',
         provider_reference: null,
-        requested_at: new Date().toISOString()
+        requested_at: new Date().toISOString(),
+        request_ref: crypto.randomUUID()
       })
       .select()
       .single();
