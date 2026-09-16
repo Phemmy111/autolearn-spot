@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
     const { data: author, error } = await supabaseAdmin
       .from('authors')
-      .select('display_name, bio, profile_image, professional_title, years_of_experience')
+      .select('*')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -27,6 +27,15 @@ export async function GET(request: NextRequest) {
           profile_image: '',
           professional_title: '',
           years_of_experience: null,
+          email: '',
+          phone: '',
+          location: '',
+          linkedin_profile: '',
+          website_portfolio: '',
+          expertise: [],
+          cv_url: '',
+          portfolio_samples_url: '',
+          id_document_url: '',
         },
       });
     }
@@ -46,7 +55,19 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { display_name, bio, profile_image, professional_title, years_of_experience } = body;
+    const { 
+      display_name, 
+      bio, 
+      profile_image, 
+      professional_title, 
+      years_of_experience,
+      email,
+      phone,
+      location,
+      linkedin_profile,
+      website_portfolio,
+      expertise
+    } = body;
 
     // Update the existing author row matched by clerk_user_id
     const { data: author, error } = await supabaseAdmin
@@ -57,6 +78,12 @@ export async function PUT(request: NextRequest) {
         profile_image,
         professional_title,
         years_of_experience,
+        email,
+        phone,
+        location,
+        linkedin_profile,
+        website_portfolio,
+        expertise,
         updated_at: new Date().toISOString(),
       })
       .eq('clerk_user_id', userId)

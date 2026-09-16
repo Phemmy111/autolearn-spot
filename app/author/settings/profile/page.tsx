@@ -19,8 +19,16 @@ export default function AuthorProfileSettings() {
     professional_title: '',
     years_of_experience: '',
     profile_image: '',
-    bio: ''
+    bio: '',
+    email: '',
+    phone: '',
+    location: '',
+    linkedin_profile: '',
+    website_portfolio: '',
+    expertise: [] as string[]
   });
+  
+  const [authorId, setAuthorId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -37,8 +45,15 @@ export default function AuthorProfileSettings() {
             professional_title: data.author.professional_title || '',
             years_of_experience: data.author.years_of_experience || '',
             profile_image: data.author.profile_image || '',
-            bio: data.author.bio || ''
+            bio: data.author.bio || '',
+            email: data.author.email || '',
+            phone: data.author.phone || '',
+            location: data.author.location || '',
+            linkedin_profile: data.author.linkedin_profile || '',
+            website_portfolio: data.author.website_portfolio || '',
+            expertise: data.author.expertise || []
           });
+          setAuthorId(data.author.id);
         }
       }
     } catch (e) {
@@ -118,13 +133,24 @@ export default function AuthorProfileSettings() {
       </div>
 
       <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="flex justify-end mb-4">
+          {authorId && (
+            <Link 
+              href={`/instructors/${authorId}`} 
+              className="text-sm text-sky-400 hover:text-sky-300 transition-colors"
+            >
+              View Public Profile →
+            </Link>
+          )}
+        </div>
+
         {message.text && (
           <div className={`p-4 rounded-xl mb-6 ${message.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-500' : 'bg-red-500/10 border border-red-500/20 text-red-500'}`}>
             {message.text}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8 bg-brand-bg border border-brand-border rounded-2xl p-6 sm:p-8">
+        <form onSubmit={handleSubmit} className="space-y-8 bg-brand-bg border border-brand-border rounded-2xl p-6 sm:p-8" id="profile-form">
           
           {/* Avatar Section */}
           <div>
@@ -195,6 +221,65 @@ export default function AuthorProfileSettings() {
             />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-brand-text mb-2">Email</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary text-brand-text"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold text-brand-text mb-2">Phone</label>
+              <input
+                type="tel"
+                placeholder="+234 8XX XXX XXXX"
+                className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary text-brand-text"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-brand-text mb-2">Location</label>
+            <input
+              type="text"
+              placeholder="e.g. Lagos, Nigeria"
+              className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary text-brand-text"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-semibold text-brand-text mb-2">LinkedIn Profile</label>
+              <input
+                type="url"
+                placeholder="https://linkedin.com/in/yourprofile"
+                className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary text-brand-text"
+                value={formData.linkedin_profile}
+                onChange={(e) => setFormData({ ...formData, linkedin_profile: e.target.value })}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-semibold text-brand-text mb-2">Website/Portfolio</label>
+              <input
+                type="url"
+                placeholder="https://yourportfolio.com"
+                className="w-full bg-[var(--card)] brightness-95 border border-brand-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-primary text-brand-text"
+                value={formData.website_portfolio}
+                onChange={(e) => setFormData({ ...formData, website_portfolio: e.target.value })}
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-brand-text mb-2">Track Record & Bio</label>
             <textarea
@@ -204,6 +289,29 @@ export default function AuthorProfileSettings() {
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-brand-text mb-2">Areas of Expertise</label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {['AI & Automation', 'Web Development', 'Mobile Development', 'Data Science', 'Digital Marketing', 'Design & UX', 'Business', 'Other'].map((expertise) => (
+                <label key={expertise} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.expertise.includes(expertise)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setFormData({ ...formData, expertise: [...formData.expertise, expertise] });
+                      } else {
+                        setFormData({ ...formData, expertise: formData.expertise.filter(e => e !== expertise) });
+                      }
+                    }}
+                    className="w-4 h-4 rounded border-brand-border text-brand-primary focus:ring-brand-primary"
+                  />
+                  <span className="text-sm text-brand-text">{expertise}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <div className="pt-4 border-t border-brand-border flex justify-end">
