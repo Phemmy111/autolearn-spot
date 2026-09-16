@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       .from('author_bank_accounts')
       .select('id, bank_name')
       .eq('author_id', author.id)
-      .single();
+      .maybeSingle();
 
     if (bankError || !bankAccount) {
       return NextResponse.json({ error: 'Please add a bank account before requesting a withdrawal' }, { status: 400 });
