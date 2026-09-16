@@ -132,9 +132,6 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
 
-    // Generate unique request reference
-    const requestRef = crypto.randomUUID();
-
     // Insert withdrawal request
     const { data: withdrawal, error: withdrawalError } = await supabaseAdmin
       .from('author_withdrawals')
@@ -164,7 +161,7 @@ export async function POST(req: Request) {
         amount,
         currency: 'NGN',
         related_id: withdrawal.id,
-        description: `Withdrawal request ${requestRef}`
+        description: `Withdrawal request ${withdrawal.id}`
       });
 
     if (transactionError) {
