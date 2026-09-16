@@ -115,7 +115,7 @@ export async function POST(request: Request) {
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('completed', true)
-        .in('lesson_id', lessonIds)
+        .in('lesson_uuid_id', lessonIds)
       completedLessons = count || 0
     }
 
