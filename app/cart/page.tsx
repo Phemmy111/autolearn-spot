@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useAuth, useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingBag, Trash2, ArrowRight, ShieldCheck, Loader2 } from 'lucide-react';
@@ -222,19 +222,25 @@ export default function CartPage() {
                       </p>
                       
                       
-              {!isSignedIn && (
-                <div className="space-y-4 mb-6 pt-6 border-t border-border/50 text-left">
+              <div className="space-y-4 mb-6 pt-6 border-t border-border/50 text-left">
+                {!isSignedIn && (
                   <p className="text-sm text-muted-foreground">Checking out as a guest. We'll automatically create an account for you.</p>
-                  <div>
-                    <label className="block text-xs font-semibold text-foreground uppercase mb-1">Full Name</label>
-                    <input 
-                      type="text" 
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      placeholder="Enter your full name" 
-                      className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-primary"
-                    />
-                  </div>
+                )}
+                {isSignedIn && (
+                  <p className="text-sm text-muted-foreground">Please confirm your name for your certificate.</p>
+                )}
+                <div>
+                  <label className="block text-xs font-semibold text-foreground uppercase mb-1">Full Name <span className="text-destructive">*</span></label>
+                  <input 
+                    type="text" 
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    placeholder="e.g., Chioma Adeleke" 
+                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-brand-primary"
+                    required
+                  />
+                </div>
+                {!isSignedIn && (
                   <div>
                     <label className="block text-xs font-semibold text-foreground uppercase mb-1">Email Address <span className="text-destructive">*</span></label>
                     <input 
@@ -246,8 +252,8 @@ export default function CartPage() {
                       required
                     />
                   </div>
-                </div>
-              )}
+                )}
+              </div>
               <button
                         onClick={() => removeItem(item.id)}
                         disabled={removingId === item.id}
