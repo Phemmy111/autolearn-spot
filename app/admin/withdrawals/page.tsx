@@ -11,7 +11,7 @@ interface Withdrawal {
   amount: number;
   created_at: string;
   status: string;
-  author: {
+  authors?: {
     display_name: string;
     email: string;
   };
@@ -35,9 +35,10 @@ export default function AdminWithdrawalsPage() {
       if (!data.success) {
         throw new Error(data.message || "Failed to load withdrawals");
       }
-      setWithdrawals(data.withdrawals);
+      setWithdrawals(data.withdrawals || []);
     } catch (e: any) {
       setError(e.message);
+      setWithdrawals([]);
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,7 @@ export default function AdminWithdrawalsPage() {
           <tbody>
             {withdrawals.map((w) => (
               <tr key={w.id} className="border-b border-gray-700">
-                <td className="px-4 py-2 text-gray-200">{w.author.display_name}</td>
+                <td className="px-4 py-2 text-gray-200">{w.authors?.display_name || 'Unknown'}</td>
                 <td className="px-4 py-2 text-gray-200">{w.request_ref}</td>
                 <td className="px-4 py-2 text-gray-200">{w.amount}</td>
                 <td className="px-4 py-2 text-gray-200">

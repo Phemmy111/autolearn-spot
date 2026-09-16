@@ -10,7 +10,7 @@ interface Withdrawal {
   amount: number
   created_at: string
   status: string
-  author: {
+  authors?: {
     display_name: string
     email: string
   }
@@ -64,7 +64,7 @@ export default function WithdrawalActionModal({
         <h2 className="text-xl font-bold text-brand-text mb-4">
           {action === "approve" ? "Approve" : "Reject"} Withdrawal
         </h2>
-        <p className="text-gray-200 mb-2">Author: {withdrawal.author.display_name}</p>
+        <p className="text-gray-200 mb-2">Author: {withdrawal.authors?.display_name || 'Unknown'}</p>
         <p className="text-gray-200 mb-2">Amount: {withdrawal.amount} ₦</p>
         <p className="text-gray-200 mb-4">Reference: {withdrawal.request_ref}</p>
         {action === "approve" && (
