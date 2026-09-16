@@ -17,11 +17,11 @@ export default async function AdminCertificatesPage() {
   // Fetch all enrollments
   const { data: enrollments } = await supabaseAdmin
     .from('enrollments')
-    .select(
+    .select(`
       id, clerk_user_id, full_name, email,
       learning_product:learning_products (title),
       cohorts (name)
-    )
+    `)
     .in('status', ['active', 'completed', 'successful']);
 
   // Fetch all certificates
