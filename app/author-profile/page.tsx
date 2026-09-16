@@ -77,8 +77,9 @@ async function getAuthorProducts(authorId: string) {
   return productsWithRating as Product[];
 }
 
-export default async function AuthorPublicPage({ searchParams }: { searchParams: { id?: string } }) {
-  const authorId = searchParams.id;
+export default async function AuthorPublicPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
+  const resolvedSearchParams = await searchParams;
+  const authorId = resolvedSearchParams.id;
   
   if (!authorId) {
     return (
