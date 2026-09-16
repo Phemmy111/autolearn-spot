@@ -250,7 +250,7 @@ export default function AdminAuthorsPage() {
           </div>
           
           <div className="px-6 py-4 border-t border-gray-100 bg-brand-bg/50 flex items-center justify-between">
-            <span className="text-sm font-medium text-brand-text/60">Showing <span className="font-bold text-gray-700">1</span> to <span className="font-bold text-gray-700">5</span> of <span className="font-bold text-gray-700">1,248</span> authors</span>
+            <span className="text-sm font-medium text-brand-text/60">Showing <span className="font-bold text-gray-700">{authors.length > 0 ? 1 : 0}</span> to <span className="font-bold text-gray-700">{authors.length}</span> of <span className="font-bold text-gray-700">{authors.length}</span> authors</span>
             <div className="flex gap-2">
               <button className="px-3 py-1.5 bg-[var(--card)] brightness-95 border border-brand-border text-brand-text/60 font-bold text-sm rounded-lg opacity-50 cursor-not-allowed">Previous</button>
               <button className="px-3 py-1.5 bg-[var(--card)] brightness-95 border border-brand-border text-gray-700 font-bold text-sm rounded-lg hover:bg-brand-bg shadow-sm transition-colors">Next</button>

@@ -1,46 +1,71 @@
-'use client';
+import React from 'react';
+import { User, BookOpen, Calendar, CreditCard } from 'lucide-react';
+import { requireAdmin } from '@/lib/admin';
+import { supabaseAdmin } from '@/lib/supabase';
+import { redirect } from 'next/navigation';
 
-import React, { useState, useEffect } from 'react';
-import { Loader2, User, BookOpen, Calendar, CreditCard } from 'lucide-react';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-export default function AdminstudentsPage() {
-  const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch('/api/admin/students');
-        if (res.ok) {
-          const json = await res.json();
-          setData(json.data || []);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-      </div>
-    );
+export default async function AdminStudentsPage() {
+  try {
+    await requireAdmin();
+  } catch (error) {
+    redirect('/');
   }
+
+  const { data: enrollments, error } = await supabaseAdmin
+    .from('enrollments')
+    .select(`
+      id,
+      full_name,
+      email,
+      payment_amount,
+      amount_paid,
+      status,
+      activated_at,
+      enrolled_at,
+      learning_product:learning_products (
+        title,
+        access_duration_days
+      )
+    `)
+    .order('created_at', { ascending: false });
+
+  const safeEnrollments = enrollments || [];
+
+  const formattedData = safeEnrollments.map(e => {
+    const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+    
+    let daysLeft = null;
+    if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
+      const start = new Date(e.activated_at).getTime();
+      const now = Date.now();
+      const durationMs = product.access_duration_days * 24 * 60 * 60 * 1000;
+      daysLeft = Math.max(0, Math.ceil((start + durationMs - now) / (1000 * 60 * 60 * 24)));
+    }
+
+    return {
+      id: e.id,
+      name: e.full_name || 'No name',
+      email: e.email,
+      course: product ? product.title : 'Unknown Course',
+      amount: e.payment_amount || e.amount_paid || 0,
+      status: e.status || 'inactive',
+      date: e.activated_at || e.enrolled_at || 'N/A',
+      days_left: daysLeft
+    };
+  });
 
   return (
     <div className="min-h-screen p-8 text-brand-text bg-brand-bg">
       <h1 className="text-3xl font-extrabold mb-6 capitalize">Students</h1>
       <div className="bg-[var(--card)] brightness-95 rounded-2xl p-6 shadow-sm border border-gray-100 overflow-x-auto">
-        {data.length > 0 ? (
+        {formattedData.length > 0 ? (
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-gray-200 text-gray-500">
-                <th className="q-4 font-medium">Name &amp; Email</th>
+                <th className="p-4 font-medium">Name &amp; Email</th>
                 <th className="p-4 font-medium">Course</th>
                 <th className="p-4 font-medium">Amount</th>
                 <th className="p-4 font-medium">Start Date</th>
@@ -49,7 +74,7 @@ export default function AdminstudentsPage() {
               </tr>
             </thead>
             <tbody>
-              {data.map((item, idx) => (
+              {formattedData.map((item, idx) => (
                 <tr key={item.id || idx} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -71,7 +96,7 @@ export default function AdminstudentsPage() {
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-gray-400" />
-                      <span>₦{item.amount}</span>
+                      <span>₦{item.amount.toLocaleString()}</span>
                     </div>
                   </td>
                   <td className="p-4">

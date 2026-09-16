@@ -15,33 +15,12 @@ export default async function AdminEnrollmentsPage() {
     redirect('/');
   }
 
-  // Fetch current active cohort
-  const { data: currentCohort } = await supabaseAdmin
-    .from('cohorts')
-    .select('*')
-    .eq('is_current', true)
-    .eq('status', 'active')
-    .single();
-
-  // Fetch all cohorts for the filter
-  const { data: cohorts } = await supabaseAdmin
-    .from('cohorts')
-    .select('id, name, is_current, price_ngn, start_date, end_date, status')
-    .order('created_at', { ascending: false });
-
-  // Fetch student count for current cohort
-  const { count: studentCount } = await supabaseAdmin
-    .from('enrollments')
-    .select('id', { count: 'exact', head: true })
-    .eq('cohort_id', currentCohort?.id)
-    .eq('status', 'active');
-
-  // Fetch all enrollments with cohort data
+  // Fetch all enrollments
   const { data: enrollments } = await supabaseAdmin
     .from('enrollments')
     .select(`
       *,
-      cohort:cohorts (id, name, slug)
+      learning_product:learning_products(title)
     `)
     .order('created_at', { ascending: false });
 
@@ -50,44 +29,38 @@ export default async function AdminEnrollmentsPage() {
   // Fetch pending enrollments
   const { data: pendingEnrollments } = await supabaseAdmin
     .from('pending_enrollments')
-    .select('*')
+    .select(`
+      *,
+      learning_product:learning_products(title)
+    `)
     .order('created_at', { ascending: false });
 
   const safePendingEnrollments = pendingEnrollments || [];
 
-  // Merge enrollments and pending enrollments, deduplicating by email AND cohort
-  // If email+cohort exists in both enrollments and pending_enrollments, show as Enrolled (not Payment Pending)
-  // This allows students enrolled in Cohort 1 to register for Cohort 2
-  const enrolledKeys = new Set(safeEnrollments.map(e => `${e.email}:${e.cohort_id}`));
+  // Deduplicate by email and learning_product_id
+  const enrolledKeys = new Set(safeEnrollments.map(e => `${e.email}:${e.learning_product_id}`));
   const uniquePendingEnrollments = safePendingEnrollments.filter(pending => {
-    const pendingCohortId = currentCohort?.id;
-    const key = `${pending.email}:${pendingCohortId}`;
+    const key = `${pending.email}:${pending.learning_product_id}`;
     return !enrolledKeys.has(key);
   });
 
-  // Attach current cohort info to pending enrollments for display
-  const pendingWithCohort = uniquePendingEnrollments.map(pending => ({
+  const pendingMapped = uniquePendingEnrollments.map(pending => ({
     ...pending,
-    cohort: currentCohort,
-    cohort_id: currentCohort?.id,
     is_pending: true,
     display_status: pending.payment_status === 'pending' ? 'Payment Pending' : 
                   pending.payment_status === 'expired' ? 'Expired' :
                   pending.payment_status === 'failed' ? 'Payment Failed' : pending.payment_status
   }));
 
-  // Combine all records for display
   const allRecords = [
     ...safeEnrollments.map(e => ({ ...e, is_pending: false, display_status: e.status === 'active' ? 'Enrolled' : e.status })),
-    ...pendingWithCohort
+    ...pendingMapped
   ];
 
-  // Calculate Summary Statistics
   let paidCount = 0;
   let pendingCount = 0;
   let expiredCount = 0;
   let failedCount = 0;
-  let refundedCount = 0;
   let revenue = 0;
 
   safeEnrollments.forEach(en => {
@@ -96,12 +69,9 @@ export default async function AdminEnrollmentsPage() {
       revenue += (en.amount_paid || 0);
     } else if (en.status === 'pending') {
       pendingCount++;
-    } else if (en.status === 'refunded') {
-      refundedCount++;
     }
   });
 
-  // Count pending enrollments from pending_enrollments table
   uniquePendingEnrollments.forEach(pending => {
     if (pending.payment_status === 'pending') {
       pendingCount++;
@@ -117,13 +87,9 @@ export default async function AdminEnrollmentsPage() {
     pending: pendingCount,
     expired: expiredCount,
     failed: failedCount,
-    refunded: refundedCount,
-    revenue: revenue / 100 // assuming amount is stored in kobo/cents. If raw NGN, remove / 100
+    revenue: revenue / 100
   };
 
-  // Adjust if amount is stored in whole Naira in the DB 
-  // Looking at our webhook, Paystack sends in kobo, so / 100 is correct for NGN display.
-  
   return (
     <div className="min-h-screen bg-brand-bg">
       <div className="container mx-auto px-4 py-12">
@@ -140,16 +106,13 @@ export default async function AdminEnrollmentsPage() {
             <h1 className="font-heading text-4xl font-bold text-brand-text">Enrollments</h1>
           </div>
           <p className="font-mono text-sm text-brand-text/70 max-w-2xl mt-4">
-            Manage student enrollments, view payments, and resync webhook data.
+            Manage student enrollments and view payments.
           </p>
         </div>
 
         <EnrollmentsTable 
           initialEnrollments={allRecords} 
-          cohorts={cohorts || []} 
           summary={summary}
-          currentCohort={currentCohort}
-          studentCount={studentCount || 0}
         />
       </div>
     </div>

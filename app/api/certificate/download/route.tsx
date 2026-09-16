@@ -24,18 +24,21 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const format = searchParams.get('format') || 'pdf'
     const studentNameParam = searchParams.get('name')
+    const targetUserIdParam = searchParams.get('userId')
 
     const user = await currentUser()
     let userName =
       user?.firstName && user?.lastName
         ? `${user.firstName} ${user.lastName}`
         : user?.username || 'Student'
+    let targetUserId = userId
 
-    // Allow super admin to override the name
-    if (studentNameParam) {
+    // Allow super admin to override the name and target user
+    if (studentNameParam || targetUserIdParam) {
       const isSuper = await isSuperAdmin()
       if (isSuper) {
-        userName = studentNameParam
+        if (studentNameParam) userName = studentNameParam
+        if (targetUserIdParam) targetUserId = targetUserIdParam
       }
     }
 
@@ -51,7 +54,7 @@ export async function GET(request: Request) {
     const { data: certificateRecord } = await supabaseAdmin
       .from('certificates')
       .select('certificate_code')
-      .eq('user_id', userId)
+      .eq('user_id', targetUserId)
       .order('issued_at', { ascending: false })
       .limit(1)
       .single()
