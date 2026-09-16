@@ -317,14 +317,21 @@ export default function AuthorBankPage() {
                 id="bank_name"
                 name="bank_name"
                 value={formData.bank_name}
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e);
+                  // Auto-fill bank code when bank is selected
+                  const selectedBank = nigerianBanks.find(bank => bank.name === e.target.value);
+                  if (selectedBank) {
+                    setFormData(prev => ({ ...prev, bank_code: selectedBank.code }));
+                  }
+                }}
                 required
                 className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
               >
                 <option value="">Choose your bank</option>
                 {nigerianBanks.map((bank) => (
                   <option key={bank.code} value={bank.name}>
-                    {bank.name}
+                    {bank.name} (Code: {bank.code})
                   </option>
                 ))}
               </select>
@@ -378,7 +385,7 @@ export default function AuthorBankPage() {
                 />
               </div>
               <p className="text-xs text-brand-text/60 mt-1">
-                3-digit bank code (e.g., 001 for Access Bank)
+                3-digit bank code (auto-filled when you select your bank)
               </p>
             </div>
 
