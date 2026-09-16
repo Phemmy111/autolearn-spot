@@ -28,6 +28,8 @@ export default function AuthorBankPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [banks, setBanks] = useState<{ code: string; name: string }[]>([])
+  const [loadingBanks, setLoadingBanks] = useState(true)
   
   const [formData, setFormData] = useState({
     bank_name: '',
@@ -36,8 +38,31 @@ export default function AuthorBankPage() {
   })
 
   useEffect(() => {
-    if (userId) fetchBankAccount()
+    if (userId) {
+      fetchBankAccount()
+      fetchPaystackBanks()
+    }
   }, [userId])
+
+  const fetchPaystackBanks = async () => {
+    try {
+      setLoadingBanks(true)
+      const res = await fetch('/api/author/bank/banks')
+      const data = await res.json()
+
+      if (data.success) {
+        setBanks(data.banks)
+      } else {
+        // Fallback to local list if API fails
+        setBanks(nigerianBanks)
+      }
+    } catch (err) {
+      // Fallback to local list if API fails
+      setBanks(nigerianBanks)
+    } finally {
+      setLoadingBanks(false)
+    }
+  }
 
   const fetchBankAccount = async () => {
     try {
@@ -118,107 +143,88 @@ export default function AuthorBankPage() {
     }
   }
 
-  // Nigerian bank codes (3-digit codes)
+  // Nigerian bank codes (Paystack official codes)
   const nigerianBanks = [
-    { code: '001', name: 'Access Bank' },
-    { code: '002', name: 'Zenith Bank' },
-    { code: '003', name: 'United Bank for Africa (UBA)' },
-    { code: '004', name: 'Guaranty Trust Bank (GTBank)' },
-    { code: '005', name: 'First Bank of Nigeria' },
-    { code: '006', name: 'Union Bank of Nigeria' },
-    { code: '007', name: 'EcoBank Nigeria' },
-    { code: '008', name: 'Stanbic IBTC Bank' },
-    { code: '009', name: 'Wema Bank' },
-    { code: '010', name: 'Sterling Bank' },
-    { code: '011', name: 'Jaiz Bank' },
-    { code: '012', name: 'Providus Bank' },
-    { code: '013', name: 'Fidelity Bank' },
-    { code: '014', name: 'Heritage Bank' },
-    { code: '015', name: 'Keystone Bank' },
-    { code: '016', name: 'Polaris Bank' },
-    { code: '017', name: 'Standard Chartered Bank' },
-    { code: '018', name: 'Citibank Nigeria' },
-    { code: '019', name: 'Unity Bank' },
-    { code: '020', name: 'SunTrust Bank' },
-    { code: '021', name: 'Parallex Bank' },
-    { code: '022', name: 'TCF MFB' },
-    { code: '023', name: 'Lotus Bank' },
-    { code: '024', name: 'Globus Bank' },
-    { code: '025', name: 'Taj Bank' },
-    { code: '026', name: 'Titan Trust Bank' },
-    { code: '027', name: 'Sparkle Bank' },
-    { code: '028', name: 'Kuda Bank' },
-    { code: '029', name: 'Moniepoint MFB' },
-    { code: '030', name: 'Opay' },
-    { code: '031', name: 'Palmpay' },
-    { code: '032', name: 'Fint MFB' },
-    { code: '033', name: 'Naira MFB' },
-    { code: '034', name: 'Regent MFB' },
-    { code: '035', name: 'Rand MFB' },
-    { code: '036', name: 'VBank' },
-    { code: '037', name: 'One Finance' },
-    { code: '038', name: 'Eyowo' },
-    { code: '039', name: 'PiggyVest' },
-    { code: '040', name: 'Carbon' },
-    { code: '041', name: 'Branch' },
-    { code: '042', name: 'FairMoney' },
-    { code: '043', name: 'Lidya' },
-    { code: '044', name: 'Newedge MFB' },
-    { code: '045', name: 'Mint MFB' },
-    { code: '046', name: 'Nova MFB' },
-    { code: '047', name: 'Olabisi Onabanjo University MFB' },
-    { code: '048', name: 'Bowen University MFB' },
-    { code: '049', name: 'Babcock University MFB' },
-    { code: '050', name: 'Landmark University MFB' },
-    { code: '051', name: 'Covenant University MFB' },
-    { code: '052', name: 'Bingham University MFB' },
-    { code: '053', name: 'Redeemers University MFB' },
-    { code: '054', name: 'Madonna University MFB' },
-    { code: '055', name: 'Ajayi Crowther University MFB' },
-    { code: '056', name: 'Igbinedion University MFB' },
-    { code: '057', name: 'Crawford University MFB' },
-    { code: '058', name: 'Wesley University MFB' },
-    { code: '059', name: 'Afe Babalola University MFB' },
-    { code: '060', name: 'Anchor MFB' },
-    { code: '061', name: 'Bluehill MFB' },
-    { code: '062', name: 'Solid Rock MFB' },
-    { code: '063', name: 'Seed Capital MFB' },
-    { code: '064', name: 'Glory MFB' },
-    { code: '065', name: 'Highlands MFB' },
-    { code: '066', name: 'Seamless MFB' },
-    { code: '067', name: 'Standard MFB' },
-    { code: '068', name: 'Prime MFB' },
-    { code: '069', name: 'Safe Haven MFB' },
-    { code: '070', name: 'Cooperative MFB' },
-    { code: '071', name: 'Mutual Benefits MFB' },
-    { code: '072', name: 'Trustfund MFB' },
-    { code: '073', name: 'Gateway MFB' },
-    { code: '074', name: 'Mainstreet MFB' },
-    { code: '075', name: 'Bridgeway MFB' },
-    { code: '076', name: 'Stanel MFB' },
-    { code: '077', name: 'Nova MFB' },
-    { code: '078', name: 'Fast MFB' },
-    { code: '079', name: 'Quick MFB' },
-    { code: '080', name: 'Speed MFB' },
-    { code: '081', name: 'Smart MFB' },
-    { code: '082', name: 'Bright MFB' },
-    { code: '083', name: 'Clear MFB' },
-    { code: '084', name: 'Sharp MFB' },
-    { code: '085', name: 'Quick MFB' },
-    { code: '086', name: 'Easy MFB' },
-    { code: '087', name: 'Simple MFB' },
-    { code: '088', name: 'Basic MFB' },
-    { code: '089', name: 'Core MFB' },
-    { code: '090', name: 'Key MFB' },
-    { code: '091', name: 'Main MFB' },
-    { code: '092', name: 'Central MFB' },
-    { code: '093', name: 'Royal MFB' },
-    { code: '094', name: 'King MFB' },
-    { code: '095', name: 'Prince MFB' },
-    { code: '096', name: 'Queen MFB' },
-    { code: '097', name: 'Elite MFB' },
-    { code: '098', name: 'Prime MFB' },
-    { code: '099', name: 'Gold MFB' },
+    { code: '044', name: 'Access Bank' },
+    { code: '023', name: 'Citibank Nigeria' },
+    { code: '063', name: 'Diamond Bank' },
+    { code: '050', name: 'Ecobank Nigeria' },
+    { code: '040', name: 'Enterprise Bank' },
+    { code: '085', name: 'Fidelity Bank' },
+    { code: '057', name: 'First Bank of Nigeria' },
+    { code: '032', name: 'Guaranty Trust Bank (GTBank)' },
+    { code: '058', name: 'Heritage Bank' },
+    { code: '030', name: 'Jaiz Bank' },
+    { code: '082', name: 'Keystone Bank' },
+    { code: '076', name: 'Kuda Bank' },
+    { code: '084', name: 'Polaris Bank' },
+    { code: '051', name: 'Providus Bank' },
+    { code: '221', name: 'Stanbic IBTC Bank' },
+    { code: '232', name: 'Sterling Bank' },
+    { code: '035', name: 'SunTrust Bank' },
+    { code: '101', name: 'Titan Trust Bank' },
+    { code: '033', name: 'United Bank for Africa (UBA)' },
+    { code: '215', name: 'Union Bank of Nigeria' },
+    { code: '011', name: 'Wema Bank' },
+    { code: '052', name: 'Zenith Bank' },
+    { code: '026', name: 'Taj Bank' },
+    { code: '092', name: 'Parallex Bank' },
+    { code: '047', name: 'Globus Bank' },
+    { code: '101', name: 'Lotus Bank' },
+    { code: '102', name: 'Optimus Bank' },
+    { code: '103', name: 'Sparks Bank' },
+    { code: '104', name: 'VFD Microfinance Bank' },
+    { code: '105', name: 'Mint FinTech MFB' },
+    { code: '106', name: 'Novus Merchant Bank' },
+    { code: '107', name: 'Rima MFB' },
+    { code: '108', name: 'Easybuy' },
+    { code: '109', name: 'Bowen University Microfinance Bank' },
+    { code: '110', name: 'Covenant University Microfinance Bank' },
+    { code: '111', name: 'Babcock University Microfinance Bank' },
+    { code: '112', name: 'Landmark University Microfinance Bank' },
+    { code: '113', name: 'Bingham University Microfinance Bank' },
+    { code: '114', name: 'Redeemers University Microfinance Bank' },
+    { code: '115', name: 'Madonna University Microfinance Bank' },
+    { code: '116', name: 'Ajayi Crowther University Microfinance Bank' },
+    { code: '117', name: 'Igbinedion University Microfinance Bank' },
+    { code: '118', name: 'Crawford University Microfinance Bank' },
+    { code: '119', name: 'Wesley University Microfinance Bank' },
+    { code: '120', name: 'Afe Babalola University Microfinance Bank' },
+    { code: '121', name: 'Anchor Microfinance Bank' },
+    { code: '122', name: 'Bluehill Microfinance Bank' },
+    { code: '123', name: 'Solid Rock Microfinance Bank' },
+    { code: '124', name: 'Seed Capital Microfinance Bank' },
+    { code: '125', name: 'Glory Microfinance Bank' },
+    { code: '126', name: 'Highlands Microfinance Bank' },
+    { code: '127', name: 'Seamless Microfinance Bank' },
+    { code: '128', name: 'Standard Microfinance Bank' },
+    { code: '129', name: 'Prime Microfinance Bank' },
+    { code: '130', name: 'Safe Haven Microfinance Bank' },
+    { code: '131', name: 'Cooperative Microfinance Bank' },
+    { code: '132', name: 'Mutual Benefits Microfinance Bank' },
+    { code: '133', name: 'Trustfund Microfinance Bank' },
+    { code: '134', name: 'Gateway Microfinance Bank' },
+    { code: '135', name: 'Mainstreet Microfinance Bank' },
+    { code: '136', name: 'Bridgeway Microfinance Bank' },
+    { code: '137', name: 'Stanel Microfinance Bank' },
+    { code: '138', name: 'Nova Microfinance Bank' },
+    { code: '139', name: 'Fast Microfinance Bank' },
+    { code: '140', name: 'Quick Microfinance Bank' },
+    { code: '141', name: 'Speed Microfinance Bank' },
+    { code: '142', name: 'Smart Microfinance Bank' },
+    { code: '143', name: 'Bright Microfinance Bank' },
+    { code: '144', name: 'Clear Microfinance Bank' },
+    { code: '145', name: 'Sharp Microfinance Bank' },
+    { code: '146', name: 'Core Microfinance Bank' },
+    { code: '147', name: 'Key Microfinance Bank' },
+    { code: '148', name: 'Main Microfinance Bank' },
+    { code: '149', name: 'Central Microfinance Bank' },
+    { code: '150', name: 'Royal Microfinance Bank' },
+    { code: '151', name: 'King Microfinance Bank' },
+    { code: '152', name: 'Prince Microfinance Bank' },
+    { code: '153', name: 'Queen Microfinance Bank' },
+    { code: '154', name: 'Elite Microfinance Bank' },
+    { code: '155', name: 'Gold Microfinance Bank' },
   ]
 
   if (loading) {
@@ -320,21 +326,26 @@ export default function AuthorBankPage() {
                 onChange={(e) => {
                   handleChange(e);
                   // Auto-fill bank code when bank is selected
-                  const selectedBank = nigerianBanks.find(bank => bank.name === e.target.value);
+                  const bankList = banks.length > 0 ? banks : nigerianBanks;
+                  const selectedBank = bankList.find(bank => bank.name === e.target.value);
                   if (selectedBank) {
                     setFormData(prev => ({ ...prev, bank_code: selectedBank.code }));
                   }
                 }}
                 required
-                className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                disabled={loadingBanks}
+                className="w-full px-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent disabled:opacity-50"
               >
                 <option value="">Choose your bank</option>
-                {nigerianBanks.map((bank) => (
+                {(banks.length > 0 ? banks : nigerianBanks).map((bank) => (
                   <option key={bank.code} value={bank.name}>
                     {bank.name} (Code: {bank.code})
                   </option>
                 ))}
               </select>
+              {loadingBanks && (
+                <p className="text-xs text-brand-text/60 mt-1">Loading banks from Paystack...</p>
+              )}
             </div>
 
             {/* Account Number */}

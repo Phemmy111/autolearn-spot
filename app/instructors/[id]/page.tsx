@@ -38,13 +38,18 @@ interface Product {
 }
 
 async function getAuthorData(authorId: string) {
+  console.log('Looking up author with ID:', authorId);
+  
   const { data: author, error: authorError } = await supabaseAdmin
     .from('authors')
     .select('*')
     .eq('id', authorId)
     .single();
 
+  console.log('Author lookup result:', { author, error: authorError });
+
   if (authorError || !author) {
+    console.log('Author not found, returning null');
     return null;
   }
 
