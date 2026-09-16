@@ -68,38 +68,38 @@ export default function AdminWithdrawalsPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold text-brand-text">Pending Withdrawals</h1>
+      <h1 className="text-2xl font-bold text-gray-900">Pending Withdrawals</h1>
       {withdrawals.length === 0 ? (
-        <p className="text-gray-300">No pending withdrawals.</p>
+        <p className="text-gray-600">No pending withdrawals.</p>
       ) : (
-        <table className="min-w-full bg-brand-bg rounded-2xl shadow-lg">
+        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
           <thead>
-            <tr className="text-left">
-              <th className="px-4 py-2 text-gray-400">Author</th>
-              <th className="px-4 py-2 text-gray-400">Reference ID</th>
-              <th className="px-4 py-2 text-gray-400">Amount (₦)</th>
-              <th className="px-4 py-2 text-gray-400">Requested At</th>
-              <th className="px-4 py-2 text-gray-400">Actions</th>
+            <tr className="text-left bg-gray-50">
+              <th className="px-4 py-3 text-gray-700 font-semibold">Author</th>
+              <th className="px-4 py-3 text-gray-700 font-semibold">Reference ID</th>
+              <th className="px-4 py-3 text-gray-700 font-semibold">Amount (₦)</th>
+              <th className="px-4 py-3 text-gray-700 font-semibold">Requested At</th>
+              <th className="px-4 py-3 text-gray-700 font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {withdrawals.map((w) => (
-              <tr key={w.id} className="border-b border-gray-700">
-                <td className="px-4 py-2 text-gray-200">{w.authors?.display_name || 'Unknown'}</td>
-                <td className="px-4 py-2 text-gray-200">{w.request_ref}</td>
-                <td className="px-4 py-2 text-gray-200">{w.amount}</td>
-                <td className="px-4 py-2 text-gray-200">
+              <tr key={w.id} className="border-b border-gray-200 hover:bg-gray-50">
+                <td className="px-4 py-3 text-gray-900 font-medium">{w.authors?.display_name || 'Unknown'}</td>
+                <td className="px-4 py-3 text-gray-700">{w.request_ref || w.id.slice(0, 8)}</td>
+                <td className="px-4 py-3 text-gray-900 font-semibold">{w.amount.toLocaleString()}</td>
+                <td className="px-4 py-3 text-gray-700">
                   {new Date(w.created_at).toLocaleDateString()}
                 </td>
-                <td className="px-4 py-2 space-x-2">
+                <td className="px-4 py-3 space-x-2">
                   <button
-                    className="px-3 py-1 bg-brand-primary text-brand-text rounded hover:bg-green-700"
+                    className="px-3 py-1.5 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
                     onClick={() => openModal(w, "approve")}
                   >
                     Approve
                   </button>
                   <button
-                    className="px-3 py-1 bg-red-600 text-brand-text rounded hover:bg-red-700"
+                    className="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
                     onClick={() => openModal(w, "reject")}
                   >
                     Reject

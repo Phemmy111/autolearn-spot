@@ -102,7 +102,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: 'Invalid bank code. Must be 3 digits' }, { status: 400 });
     }
 
-    // Save to text columns for transfer support (less secure but functional)
+    // Save to both encrypted and text columns for transfer support
     const { error: upsertErr } = await supabaseAdmin
       .from('author_bank_accounts')
       .upsert({
@@ -110,6 +110,9 @@ export async function PUT(req: Request) {
         bank_name,
         account_number_text: account_number,
         routing_number_text: bank_code,
+        // Also try to save to encrypted columns for RPC support
+        account_number: account_number,
+        routing_number: bank_code,
         updated_at: new Date().toISOString(),
       }, {
         onConflict: 'author_id'
