@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag } from 'lucide-react';
+import { Layers } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
@@ -14,10 +14,10 @@ export default async function AdminCategoriesPage() {
     redirect('/');
   }
 
-  const { data: categories, error } = await supabaseAdmin
+  const { data: categories } = await supabaseAdmin
     .from('categories')
     .select('*')
-    .order('name');
+    .order('name', { ascending: true });
 
   const safeCategories = categories || [];
 
@@ -32,7 +32,7 @@ export default async function AdminCategoriesPage() {
             <thead>
               <tr className="border-b border-gray-200 text-gray-500">
                 <th className="p-4 font-medium">Category Name</th>
-                <th className="p-4 font-medium">Status</th>
+                <th className="p-4 font-medium">Description</th>
               </tr>
             </thead>
             <tbody>
@@ -41,15 +41,13 @@ export default async function AdminCategoriesPage() {
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Tag className="h-5 w-5 text-blue-600" />
+                        <Layers className="h-5 w-5 text-blue-600" />
                       </div>
                       <div className="font-medium text-gray-900">{item.name}</div>
                     </div>
                   </td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Active
-                    </span>
+                  <td className="p-4 text-brand-text/70">
+                    {item.description || '-'}
                   </td>
                 </tr>
               ))}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Code } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
@@ -14,10 +14,10 @@ export default async function AdminSkillsPage() {
     redirect('/');
   }
 
-  const { data: skills, error } = await supabaseAdmin
+  const { data: skills } = await supabaseAdmin
     .from('skills')
-    .select('*, categories(name)')
-    .order('name');
+    .select('*')
+    .order('name', { ascending: true });
 
   const safeSkills = skills || [];
 
@@ -32,8 +32,7 @@ export default async function AdminSkillsPage() {
             <thead>
               <tr className="border-b border-gray-200 text-gray-500">
                 <th className="p-4 font-medium">Skill Name</th>
-                <th className="p-4 font-medium">Category</th>
-                <th className="p-4 font-medium">Status</th>
+                <th className="p-4 font-medium">Category ID</th>
               </tr>
             </thead>
             <tbody>
@@ -41,19 +40,14 @@ export default async function AdminSkillsPage() {
                 <tr key={item.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <Code className="h-5 w-5 text-blue-600" />
+                      <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <Target className="h-5 w-5 text-indigo-600" />
                       </div>
                       <div className="font-medium text-gray-900">{item.name}</div>
                     </div>
                   </td>
                   <td className="p-4 text-brand-text/70">
-                    {item.categories?.name || '-'}
-                  </td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Active
-                    </span>
+                    {item.category_id || '-'}
                   </td>
                 </tr>
               ))}

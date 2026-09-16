@@ -14,12 +14,21 @@ export default async function AdminMarketplacePage() {
     redirect('/');
   }
 
-  const { data: products, error } = await supabaseAdmin
+  const { data: products } = await supabaseAdmin
     .from('learning_products')
-    .select('*, authors(display_name)')
+    .select('*')
     .order('created_at', { ascending: false });
 
-  const safeProducts = products || [];
+  const { data: authors } = await supabaseAdmin
+    .from('authors')
+    .select('id, display_name');
+    
+  const authorsMap = new Map((authors || []).map(a => [a.id, a]));
+
+  const safeProducts = (products || []).map(p => ({
+    ...p,
+    authors: authorsMap.get(p.author_id)
+  }));
 
   return (
     <div className="min-h-screen p-8 text-brand-text bg-brand-bg">
