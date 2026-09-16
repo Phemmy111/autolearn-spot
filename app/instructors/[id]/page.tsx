@@ -85,14 +85,15 @@ async function getAuthorProducts(authorId: string) {
   return productsWithRating as Product[];
 }
 
-export default async function AuthorPublicPage({ params }: { params: { id: string } }) {
-  const author = await getAuthorData(params.id);
+export default async function AuthorPublicPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const author = await getAuthorData(id);
   
   if (!author) {
     notFound();
   }
 
-  const products = await getAuthorProducts(params.id);
+  const products = await getAuthorProducts(id);
 
   // Calculate author stats
   const totalStudents = products.reduce((sum, p) => sum + (p.enrolled_count || 0), 0);

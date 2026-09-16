@@ -30,6 +30,15 @@ export async function GET() {
       slug: bank.slug
     }));
 
+    // Add Opay with the correct code if not present
+    if (!banks.find((b: any) => b.code === '999992')) {
+      banks.push({
+        code: '999992',
+        name: 'Opay',
+        slug: 'opay'
+      });
+    }
+
     return NextResponse.json({
       success: true,
       banks

@@ -143,7 +143,7 @@ export default function AuthorBankPage() {
     }
   }
 
-  // Nigerian bank codes (Paystack official codes)
+  // Nigerian bank codes (Paystack official codes - fallback if API fails)
   const nigerianBanks = [
     { code: '044', name: 'Access Bank' },
     { code: '023', name: 'Citibank Nigeria' },
@@ -225,6 +225,7 @@ export default function AuthorBankPage() {
     { code: '153', name: 'Queen Microfinance Bank' },
     { code: '154', name: 'Elite Microfinance Bank' },
     { code: '155', name: 'Gold Microfinance Bank' },
+    { code: '999992', name: 'Opay' },
   ]
 
   if (loading) {
@@ -387,16 +388,15 @@ export default function AuthorBankPage() {
                   name="bank_code"
                   value={formData.bank_code}
                   onChange={handleChange}
-                  placeholder="Enter 3-digit bank code"
+                  placeholder="Bank code (auto-filled)"
                   required
-                  maxLength={3}
                   minLength={3}
-                  pattern="[0-9]{3}"
+                  pattern="[0-9]{3,6}"
                   className="w-full pl-10 pr-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text placeholder-brand-text/50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
                 />
               </div>
               <p className="text-xs text-brand-text/60 mt-1">
-                3-digit bank code (auto-filled when you select your bank)
+                Bank code (3-6 digits, auto-filled when you select your bank)
               </p>
             </div>
 
