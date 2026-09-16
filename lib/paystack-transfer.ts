@@ -72,6 +72,19 @@ export async function initiateTransfer(
   reference: string,
   reason?: string
 ): Promise<TransferResponse> {
+  if (!PAYSTACK_SECRET_KEY) {
+    throw new Error('Paystack secret key not configured');
+  }
+
+  console.log('Initiating transfer:', {
+    recipientCode,
+    amount,
+    reference,
+    reason,
+    baseUrl: PAYSTACK_BASE_URL,
+    hasKey: !!PAYSTACK_SECRET_KEY
+  });
+
   const url = `${PAYSTACK_BASE_URL}/transfer`;
   
   const response = await fetch(url, {
@@ -90,6 +103,13 @@ export async function initiateTransfer(
   });
 
   const data = await response.json();
+
+  console.log('Transfer response:', {
+    status: response.status,
+    dataStatus: data.status,
+    dataMessage: data.message,
+    fullResponse: data
+  });
 
   if (!data.status) {
     throw new Error(`Failed to initiate transfer: ${data.message}`);

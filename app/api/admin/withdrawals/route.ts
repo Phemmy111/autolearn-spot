@@ -113,35 +113,50 @@ export async function POST(request: Request) {
         
         // Initiate transfer
         const transferRef = provider_reference || `WD-${withdrawal_id.slice(0, 8)}`;
-        const transfer = await initiateTransfer(
-          recipient.recipient_code,
-          withdrawal.amount,
-          transferRef,
-          `Withdrawal for ${withdrawal.authors?.display_name || 'Author'}`
-        );
+        let transfer;
         
-        // Update withdrawal with provider reference and set to PROCESSING
-        await processWithdrawal(withdrawal_id, 'PROCESSING', transfer.data.reference);
-        
-        return NextResponse.json({ 
-          success: true, 
-          withdrawal_id, 
-          newStatus: 'PROCESSING',
-          transfer_reference: transfer.data.reference,
-          message: 'Transfer initiated successfully'
-        });
-      } catch (transferError: any) {
-        console.error('Transfer initiation failed:', transferError);
-        // Still approve the withdrawal but note the transfer error
-        await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
-        return NextResponse.json({ 
-          success: true, 
-          withdrawal_id, 
-          newStatus: 'APPROVED',
-          warning: 'Transfer initiation failed, withdrawal approved for manual processing',
-          error: transferError.message
-        });
-      }
+        try {
+          transfer = await initiateTransfer(
+            recipient.recipient_code,
+            withdrawal.amount,
+            transferRef,
+            `Withdrawal for ${withdrawal.authors?.display_name || 'Author'}`
+          );
+          
+          // Update withdrawal with provider reference and set to PROCESSING
+          await processWithdrawal(withdrawal_id, 'PROCESSING', transfer.data.reference);
+          
+          return NextResponse.json({ 
+            success: true, 
+            withdrawal_id, 
+            newStatus: 'PROCESSING',
+            transfer_reference: transfer.data.reference,
+            message: 'Transfer initiated successfully'
+          });
+        } catch (transferError: any) {
+          console.error('Transfer initiation failed:', transferError);
+          console.error('Transfer error details:', {
+            message: transferError.message,
+            stack: transferError.stack,
+            recipient: recipient.recipient_code,
+            amount: withdrawal.amount
+          });
+          
+          // Still approve the withdrawal but note the transfer error
+          await processWithdrawal(withdrawal_id, 'APPROVED', provider_reference);
+          return NextResponse.json({ 
+            success: true, 
+            withdrawal_id, 
+            newStatus: 'APPROVED',
+            warning: 'Transfer initiation failed, withdrawal approved for manual processing',
+            error: transferError.message,
+            debugInfo: {
+              recipientCode: recipient.recipient_code,
+              amount: withdrawal.amount,
+              transferRef: transferRef
+            }
+          });
+        }
     } else {
       // Handle rejection
       await processWithdrawal(withdrawal_id, newStatus, provider_reference);
