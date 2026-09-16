@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { User, MapPin, Link as LinkIcon, Briefcase, Star, Award } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ProductCard } from '@/components/marketplace/ProductCard';
 
 // Force dynamic rendering to prevent 404 errors
 export const dynamic = 'force-dynamic';
@@ -57,15 +58,16 @@ async function getAuthorData(authorId: string) {
 }
 
 async function getAuthorProducts(authorId: string) {
-  console.log('Fetching products for author:', authorId);
-  
   const { data: products, error: productsError } = await supabaseAdmin
     .from('learning_products')
-    .select('*')
+    .select(`
+      *,
+      cohorts (
+        enrollments (count)
+      )
+    `)
     .eq('author_id', authorId)
     .order('created_at', { ascending: false });
-
-  console.log('Products query result:', { products, error: productsError });
 
   if (productsError || !products) {
     return [];
@@ -73,14 +75,21 @@ async function getAuthorProducts(authorId: string) {
 
   // Filter for published products
   const publishedProducts = products.filter((p: any) => p.status === 'PUBLISHED');
-  console.log('Published products count:', publishedProducts.length);
 
-  // Return products with default rating 0 (reviews table relationship doesn't exist)
-  const productsWithRating = publishedProducts.map((product: any) => ({
-    ...product,
-    rating: 0,
-    review_count: 0
-  }));
+  const productsWithRating = publishedProducts.map((product: any) => {
+    // Sum enrollments across all cohorts for this product
+    const enrolled_count = product.cohorts?.reduce((acc: number, cohort: any) => {
+      const count = cohort.enrollments?.[0]?.count || 0;
+      return acc + count;
+    }, 0) || 0;
+
+    return {
+      ...product,
+      rating: 0,
+      review_count: 0,
+      enrolled_count
+    };
+  });
 
   return productsWithRating as Product[];
 }
@@ -102,103 +111,118 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
     : 0;
 
   return (
-    <div className="min-h-screen bg-[var(--card)]">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-sky-900/20 to-sky-800/10 border-b border-sky-900/30">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-              {/* Profile Image */}
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-sky-600 to-sky-800 p-1 shrink-0">
-                <div className="w-full h-full rounded-full bg-sky-900/50 flex items-center justify-center overflow-hidden relative">
-                  {author.profile_image ? (
-                    <Image 
-                      src={author.profile_image} 
-                      alt={author.display_name} 
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <User className="w-16 h-16 text-sky-400" />
-                  )}
+    <div className="min-h-screen bg-brand-bg">
+      {/* Header Profile Section */}
+      <div className="bg-[var(--card)] border-b border-brand-border/50 shadow-sm relative overflow-hidden">
+        {/* Decorative background element */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#10b981]/5 to-transparent pointer-events-none" />
+        
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-8">
+            
+            {/* Profile Image */}
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[var(--card)] shadow-xl relative overflow-hidden shrink-0 bg-neutral-100">
+              {author.profile_image ? (
+                <Image 
+                  src={author.profile_image} 
+                  alt={author.display_name} 
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-brand-bg">
+                  <User className="w-16 h-16 text-neutral-300" />
                 </div>
-              </div>
-
-              {/* Author Info */}
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-3xl font-bold text-brand-text mb-2">{author.display_name}</h1>
-                {author.professional_title && (
-                  <p className="text-lg text-sky-400 mb-3">{author.professional_title}</p>
-                )}
-                
-                {/* Stats */}
-                <div className="flex flex-wrap justify-center md:justify-start gap-6 mb-4">
-                  <div className="flex items-center gap-2 text-brand-text/80">
-                    <Award className="w-5 h-5 text-sky-400" />
-                    <span className="font-semibold">{products.length} Courses</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-brand-text/80">
-                    <Star className="w-5 h-5 text-amber-400" />
-                    <span className="font-semibold">{avgRating.toFixed(1)} Rating</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-brand-text/80">
-                    <User className="w-5 h-5 text-emerald-400" />
-                    <span className="font-semibold">{totalStudents} Students</span>
-                  </div>
-                </div>
-
-                {/* Location & Links */}
-                <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-brand-text/70">
-                  {author.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {author.location}
-                    </div>
-                  )}
-                  {author.linkedin_profile && (
-                    <a 
-                      href={author.linkedin_profile} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 hover:text-sky-400 transition-colors"
-                    >
-                      <LinkIcon className="w-4 h-4" />
-                      LinkedIn
-                    </a>
-                  )}
-                  {author.website_portfolio && (
-                    <a 
-                      href={author.website_portfolio} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 hover:text-sky-400 transition-colors"
-                    >
-                      <LinkIcon className="w-4 h-4" />
-                      Portfolio
-                    </a>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Bio */}
+            {/* Author Info */}
+            <div className="flex-1 text-center md:text-left mt-2 md:mt-4">
+              <h1 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-2">
+                {author.display_name}
+              </h1>
+              {author.professional_title && (
+                <p className="text-lg text-[#10b981] font-medium mb-4">
+                  {author.professional_title}
+                </p>
+              )}
+              
+              {/* Stats */}
+              <div className="flex flex-wrap justify-center md:justify-start gap-6 mb-6 pb-6 border-b border-brand-border/40 inline-flex md:flex">
+                <div className="flex flex-col items-center md:items-start">
+                  <span className="text-2xl font-bold text-brand-text">{products.length}</span>
+                  <span className="text-xs text-brand-text/60 uppercase tracking-wider font-semibold">Courses</span>
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                  <div className="flex items-center gap-1">
+                    <span className="text-2xl font-bold text-brand-text">{avgRating.toFixed(1)}</span>
+                    <Star className="w-4 h-4 text-amber-400 fill-current -mt-1" />
+                  </div>
+                  <span className="text-xs text-brand-text/60 uppercase tracking-wider font-semibold">Rating</span>
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                  <span className="text-2xl font-bold text-brand-text">{totalStudents.toLocaleString()}</span>
+                  <span className="text-xs text-brand-text/60 uppercase tracking-wider font-semibold">Students</span>
+                </div>
+              </div>
+
+              {/* Location & Links */}
+              <div className="flex flex-wrap justify-center md:justify-start gap-5 text-sm text-brand-text/70 font-medium">
+                {author.location && (
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-brand-text/40" />
+                    {author.location}
+                  </div>
+                )}
+                {author.linkedin_profile && (
+                  <a 
+                    href={author.linkedin_profile} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors"
+                  >
+                    <LinkIcon className="w-4 h-4 text-brand-text/40" />
+                    LinkedIn
+                  </a>
+                )}
+                {author.website_portfolio && (
+                  <a 
+                    href={author.website_portfolio} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 hover:text-[#10b981] transition-colors"
+                  >
+                    <LinkIcon className="w-4 h-4 text-brand-text/40" />
+                    Portfolio
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12">
+          
+          {/* Left Column (About & Expertise) */}
+          <div className="w-full lg:w-1/3 flex flex-col gap-8">
             {author.bio && (
-              <div className="mt-8 bg-brand-bg/50 border border-sky-900/30 rounded-xl p-6">
-                <h2 className="text-lg font-semibold text-brand-text mb-3">About</h2>
-                <p className="text-brand-text/80 leading-relaxed">{author.bio}</p>
+              <div className="bg-[var(--card)] border border-brand-border/50 rounded-2xl p-6 shadow-sm">
+                <h2 className="font-heading font-bold text-lg text-brand-text mb-4">About Me</h2>
+                <p className="text-brand-text/70 leading-relaxed text-sm whitespace-pre-wrap">{author.bio}</p>
               </div>
             )}
 
-            {/* Expertise */}
             {author.expertise && author.expertise.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-sm font-semibold text-brand-text mb-3">Areas of Expertise</h3>
+              <div className="bg-[var(--card)] border border-brand-border/50 rounded-2xl p-6 shadow-sm">
+                <h3 className="font-heading font-bold text-lg text-brand-text mb-4">Areas of Expertise</h3>
                 <div className="flex flex-wrap gap-2">
                   {author.expertise.map((expertise) => (
                     <span 
                       key={expertise}
-                      className="px-3 py-1 bg-sky-900/30 border border-sky-900/50 rounded-full text-sm text-sky-300"
+                      className="px-3 py-1.5 bg-[#10b981]/10 border border-[#10b981]/20 rounded-full text-xs font-semibold text-[#10b981]"
                     >
                       {expertise}
                     </span>
@@ -207,87 +231,31 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Published Courses */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-brand-text mb-6">Published Courses</h2>
-          
-          {products.length === 0 ? (
-            <div className="text-center py-12 bg-brand-bg border border-brand-border rounded-xl">
-              <Briefcase className="w-16 h-16 text-brand-text/30 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-brand-text mb-2">No courses published yet</h3>
-              <p className="text-brand-text/60">This author hasn't published any courses yet.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Link 
+          {/* Right Column (Courses) */}
+          <div className="w-full lg:w-2/3">
+            <h2 className="text-2xl font-heading font-bold text-brand-text mb-6">Published Courses</h2>
+            
+            {products.length === 0 ? (
+              <div className="text-center py-16 bg-[var(--card)] border border-brand-border/50 rounded-2xl shadow-sm">
+                <Briefcase className="w-12 h-12 text-brand-text/20 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-brand-text mb-2">No courses published yet</h3>
+                <p className="text-brand-text/50">This instructor hasn't published any courses yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {products.map((product) => (
+                <ProductCard 
                   key={product.id} 
-                  href={`/product/${product.slug}`}
-                  className="group bg-brand-bg border border-brand-border rounded-xl overflow-hidden hover:border-sky-500/50 transition-all hover:shadow-lg"
-                >
-                  <div className="aspect-video bg-gradient-to-br from-sky-900/20 to-sky-800/10 relative">
-                    {product.thumbnail ? (
-                      <Image 
-                        src={product.thumbnail} 
-                        alt={product.title} 
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Briefcase className="w-12 h-12 text-sky-600/50" />
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs px-2 py-1 bg-sky-900/30 text-sky-300 rounded-full">
-                        {product.category}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-emerald-900/30 text-emerald-300 rounded-full">
-                        {product.skill}
-                      </span>
-                    </div>
-                    
-                    <h3 className="font-semibold text-brand-text mb-2 line-clamp-2 group-hover:text-sky-400 transition-colors">
-                      {product.title}
-                    </h3>
-                    
-                    <p className="text-sm text-brand-text/60 mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span className="text-sm font-semibold text-brand-text">
-                          {product.rating.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-brand-text/60">
-                          ({product.review_count})
-                        </span>
-                      </div>
-                      
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-sky-400">
-                          {new Intl.NumberFormat('en-NG', { 
-                            style: 'currency', 
-                            currency: product.currency || 'NGN',
-                            maximumFractionDigits: 0 
-                          }).format(product.price)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                  product={product as any} 
+                  authorName={author.display_name} 
+                  rating={product.rating}
+                  enrolledCount={product.enrolled_count}
+                />
               ))}
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

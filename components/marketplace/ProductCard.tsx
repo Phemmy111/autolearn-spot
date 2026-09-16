@@ -7,9 +7,11 @@ import AddToCartButton from './AddToCartButton';
 interface ProductCardProps {
   product: LearningProduct;
   authorName?: string;
+  rating?: number;
+  enrolledCount?: number;
 }
 
-export function ProductCard({ product, authorName = 'Expert Instructor' }: ProductCardProps) {
+export function ProductCard({ product, authorName = 'Expert Instructor', rating = 0, enrolledCount = 0 }: ProductCardProps) {
   const formattedPrice = new Intl.NumberFormat('en-NG', {
     style: 'currency',
     currency: product.currency || 'NGN',
@@ -47,8 +49,9 @@ export function ProductCard({ product, authorName = 'Expert Instructor' }: Produ
         <div className="flex items-center gap-1.5 text-xs text-brand-text/60 font-medium mb-2.5">
           <div className="flex items-center text-amber-400">
             <Star className="w-3.5 h-3.5 fill-current" />
-            <span className="ml-1 text-brand-text">4.8</span>
+            <span className="ml-1 text-brand-text">{rating > 0 ? rating.toFixed(1) : '0.0'}</span>
           </div>
+          <span className="text-[10px] ml-1">({enrolledCount})</span>
           <span className="opacity-50">•</span>
           <Link href={`/instructors/${product.author_id}`} className="flex items-center gap-1 hover:text-brand-primary transition-colors">
             <User className="w-3.5 h-3.5" />
