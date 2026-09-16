@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
     // 2. Fetch User Details
     const user = await currentUser()
-    const userName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || 'Student'
+    const userName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || (user?.emailAddresses?.[0]?.emailAddress?.split('@')[0]) || 'Student'
     const userEmail = user?.emailAddresses?.[0]?.emailAddress || ''
 
     // Get default cohort ID or fallback UUID
