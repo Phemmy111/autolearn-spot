@@ -75,7 +75,7 @@ export async function POST(request: Request) {
       // 1. Mark withdrawal as PAID directly to bypass RPC validation rules
       const { error: updateError } = await supabaseAdmin
         .from('author_withdrawals')
-        .update({ status: 'PAID', updated_at: new Date().toISOString() })
+        .update({ status: 'PAID', processed_at: new Date().toISOString() })
         .eq('id', withdrawal_id);
       
       if (updateError) throw updateError;
