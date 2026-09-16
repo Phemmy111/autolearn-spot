@@ -45,7 +45,8 @@ import {
   Video,
   Image,
   HelpCircle,
-  Globe
+  Globe,
+  Youtube
 } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 
@@ -146,6 +147,7 @@ const navigation: NavSection[] = [
       { label: 'Maintenance', href: '/admin/maintenance', icon: Wrench },
       { label: 'Runtime Debug', href: '/admin/debug/runtime', icon: Bug },
       { label: 'Video Debug', href: '/admin/video-debug', icon: Activity },
+      { label: 'YouTube Integration', href: '/admin/integrations/youtube', icon: Youtube },
       { label: 'Design Studio', href: '/admin/design-studio', icon: LayoutTemplate },
     ],
   },
