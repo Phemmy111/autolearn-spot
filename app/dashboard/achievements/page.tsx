@@ -5,9 +5,17 @@ import { Award, Download, Calendar, CheckCircle, Clock } from 'lucide-react';
 interface Certificate {
   id: string;
   user_id: string;
-  course_slug: string;
-  completed_at: string;
+  course_slug?: string;
+  completed_at?: string;
+  issued_at?: string;
+  created_at?: string;
   certificate_url?: string;
+  cohorts?: {
+    name?: string;
+    learning_products?: {
+      title?: string;
+    };
+  };
 }
 
 export default function AchievementsPage() {
@@ -22,8 +30,8 @@ export default function AchievementsPage() {
         if (!res.ok) throw new Error('Failed to fetch certificates');
         const data = await res.json();
         
-        if (data.eligible && data.certificate) {
-          setCertificates([data.certificate]);
+        if (data.eligible && data.certificates) {
+          setCertificates(data.certificates);
         } else {
           setCertificates([]);
         }
@@ -36,9 +44,9 @@ export default function AchievementsPage() {
     fetchCertificates();
   }, []);
 
-  const downloadCertificate = async () => {
+  const downloadCertificate = async (certId: string) => {
     try {
-      const res = await fetch('/api/certificate/download?format=pdf');
+      const res = await fetch(`/api/certificate/download?format=pdf&certificateId=${certId}`);
       if (!res.ok) throw new Error('Failed to download certificate');
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -102,14 +110,14 @@ export default function AchievementsPage() {
                 </div>
 
                 <h3 className="font-heading font-bold text-lg leading-tight mb-2 text-brand-text">
-                  {cert.course_slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  {cert.cohorts?.learning_products?.title || cert.cohorts?.name || cert.course_slug?.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Course Certificate'}
                 </h3>
 
                 <div className="space-y-2 text-sm text-brand-text/60">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
                     <span>
-                      Earned: {new Date(cert.completed_at).toLocaleDateString()}
+                      Earned: {new Date(cert.issued_at || cert.completed_at || cert.created_at || Date.now()).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -117,7 +125,7 @@ export default function AchievementsPage() {
 
               <div className="p-6 pt-0 mt-auto">
                 <button
-                  onClick={downloadCertificate}
+                  onClick={() => downloadCertificate(cert.id)}
                   className="w-full inline-flex items-center justify-center gap-2 bg-[#10b981] text-white font-bold py-2.5 rounded-xl hover:bg-[#0ea5e9] transition-all"
                 >
                   <Download className="w-4 h-4" />

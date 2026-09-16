@@ -33,14 +33,15 @@ export async function GET(request: Request) {
       enabled = enabled === true || enabled === 'true'
     }
 
-    // Check if student has unlocked certificate in DB
-    const { data: certRecord } = await supabaseAdmin
+    // Check if student has unlocked certificates in DB
+    const { data: certRecords } = await supabaseAdmin
       .from('certificates')
-      .select('*')
+      .select('*, cohorts(name, learning_products(title))')
       .eq('user_id', userId)
-      .single()
+      .order('issued_at', { ascending: false })
 
-    const eligible = !!certRecord
+    const eligible = certRecords && certRecords.length > 0
+    const certificates = certRecords || []
 
     // Get user info for the response
     const user = await currentUser()
@@ -49,8 +50,8 @@ export async function GET(request: Request) {
     return NextResponse.json({
       enabled,
       eligible,
-      certificate: certRecord || null,
-      downloadUrl: eligible ? `/api/certificate/download?format=pdf` : null,
+      certificates,
+      downloadUrl: eligible && certificates[0] ? `/api/certificate/download?format=pdf&certificateId=${certificates[0].id}` : null,
       totalVideos: videos.length,
       availableVideos: videos.filter(isVideoAvailable).length,
       fullName,

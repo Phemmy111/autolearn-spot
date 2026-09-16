@@ -48,18 +48,29 @@ export async function GET(request: Request) {
       .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
       .join(' ')
 
+    const certificateIdParam = searchParams.get('certificateId')
+
     const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
 
-    // Fetch the certificate record to get the actual certificate code
-    const { data: certificateRecord } = await supabaseAdmin
+    // Fetch the certificate record to get the actual certificate code and course title
+    let query = supabaseAdmin
       .from('certificates')
-      .select('certificate_code')
+      .select('certificate_code, cohorts(name, learning_products(title))')
       .eq('user_id', targetUserId)
+      
+    if (certificateIdParam) {
+      query = query.eq('id', certificateIdParam)
+    }
+    
+    const { data: certificateRecord } = await query
       .order('issued_at', { ascending: false })
       .limit(1)
       .single()
 
     const certificateId = certificateRecord?.certificate_code || ''
+    const lpTitle = certificateRecord?.cohorts?.learning_products?.title;
+    const cName = certificateRecord?.cohorts?.name;
+    const dbCourseTitle = lpTitle || (cName === 'Cohort 1' ? 'n8n Automation Training' : cName);
 
     const dateStr = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
@@ -85,6 +96,8 @@ export async function GET(request: Request) {
       'certificateLayout',
     ])
 
+    const courseParam = searchParams.get('course')
+
     // Use database settings with fallbacks to hardcoded values
     // Use the new professional certificate background
     const backgroundSrc = certSettings.certificateBackgroundUrl || `${baseUrl}/certificate-template.png`
@@ -92,7 +105,9 @@ export async function GET(request: Request) {
     const title = certSettings.certificateTitle || 'Certificate of Completion'
     const subtitle = certSettings.certificateSubtitle || 'This certifies that'
     const bodyText = certSettings.certificateBodyText || 'has successfully completed the'
-    const course = certSettings.certificateCourse || 'n8n Automation'
+    
+    // Dynamic course name logic (URL param > Database relation > Site settings > Default)
+    const course = courseParam || dbCourseTitle || certSettings.certificateCourse || 'AI Automation Training'
     const founderName = certSettings.certificateFounderName || 'AutoLearn Spot'
     const signatureUrl = certSettings.certificateSignatureUrl || ''
     const signatureText = certSettings.certificateSignatureText || 'Founder'

@@ -16,7 +16,7 @@ export default async function AdminCertificatesPage() {
 
   const { data: certificates, error } = await supabaseAdmin
     .from('certificates')
-    .select('id, certificate_code, user_id, user_name, user_email, issued_at')
+    .select('id, certificate_code, user_id, user_name, user_email, issued_at, cohort_id, cohorts(name, learning_products(title))')
     .order('issued_at', { ascending: false });
 
   const safeCertificates = certificates || [];
@@ -59,13 +59,21 @@ export default async function AdminCertificatesPage() {
                     {new Date(cert.issued_at).toLocaleDateString()}
                   </td>
                   <td className="p-4 text-right">
-                    <a 
-                      href={`/api/certificate/download?userId=${cert.user_id}&name=${encodeURIComponent(cert.user_name || 'Student')}`} 
-                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download
-                    </a>
+                    {(() => {
+                      const lpTitle = cert.cohorts?.learning_products?.title;
+                      const cName = cert.cohorts?.name;
+                      const courseTitle = lpTitle || (cName === 'Cohort 1' ? 'n8n Automation Training' : cName) || 'AI Automation Training';
+                      
+                      return (
+                        <a 
+                          href={`/api/certificate/download?userId=${cert.user_id}&name=${encodeURIComponent(cert.user_name || 'Student')}&course=${encodeURIComponent(courseTitle)}&certificateId=${cert.id}`} 
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download
+                        </a>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}
