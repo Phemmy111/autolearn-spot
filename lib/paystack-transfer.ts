@@ -32,6 +32,18 @@ export async function createTransferRecipient(
   bankCode: string,
   accountName: string
 ): Promise<TransferRecipient> {
+  if (!PAYSTACK_SECRET_KEY) {
+    throw new Error('Paystack secret key not configured');
+  }
+
+  console.log('Creating transfer recipient:', {
+    accountNumber,
+    bankCode,
+    accountName,
+    baseUrl: PAYSTACK_BASE_URL,
+    hasKey: !!PAYSTACK_SECRET_KEY
+  });
+
   const url = `${PAYSTACK_BASE_URL}/transferrecipient`;
   
   const response = await fetch(url, {
@@ -50,6 +62,13 @@ export async function createTransferRecipient(
   });
 
   const data = await response.json();
+
+  console.log('Transfer recipient response:', {
+    status: response.status,
+    dataStatus: data.status,
+    dataMessage: data.message,
+    fullResponse: data
+  });
 
   if (!data.status) {
     throw new Error(`Failed to create transfer recipient: ${data.message}`);

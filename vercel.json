@@ -1,15 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/instructors/:id",
-      "destination": "/author-profile",
-      "has": [
-        {
-          "type": "query",
-          "key": "id",
-          "value": ":id"
-        }
-      ]
+      "source": "/instructors/:id*",
+      "destination": "/author-profile?id=:id"
     }
   ]
 }
