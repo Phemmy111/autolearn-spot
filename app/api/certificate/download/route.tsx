@@ -27,10 +27,26 @@ export async function GET(request: Request) {
     const targetUserIdParam = searchParams.get('userId')
 
     const user = await currentUser()
-    let userName =
-      user?.firstName && user?.lastName
-        ? `${user.firstName} ${user.lastName}`
-        : user?.username || 'Student'
+    let fallbackName = user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.username || '';
+    const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+    
+    // Fallback to enrollment table if name is missing
+    if (!fallbackName || fallbackName === 'Student' || fallbackName === userEmail?.split('@')[0]) {
+      if (userEmail) {
+        const { data: enrollment } = await supabaseAdmin
+          .from('enrollments')
+          .select('full_name')
+          .eq('email', userEmail)
+          .order('enrolled_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (enrollment?.full_name) {
+          fallbackName = enrollment.full_name;
+        }
+      }
+    }
+    
+    let userName = fallbackName || (userEmail?.split('@')[0]) || 'Student'
     let targetUserId = userId
 
     // Allow super admin to override the name and target user
