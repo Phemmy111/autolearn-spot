@@ -56,49 +56,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Get the quiz generation prompt (use specific promptId if provided, otherwise get active for this author)
-    let activePrompt
-    if (promptId) {
-      // First try matching author_id
-      let { data: prompt } = await supabaseAdmin
-        .from('ai_prompts')
-        .select('*')
-        .eq('id', promptId)
-        .eq('author_id', author.id)
-        .maybeSingle()
-        
-      if (!prompt) {
-        // Fallback to global prompt
-        const { data: globalPrompt } = await supabaseAdmin
-          .from('ai_prompts')
-          .select('*')
-          .eq('id', promptId)
-          .is('author_id', null)
-          .maybeSingle()
-        prompt = globalPrompt
-      }
-      activePrompt = prompt
-    } else {
-      let { data: prompt } = await supabaseAdmin
-        .from('ai_prompts')
-        .select('*')
-        .eq('author_id', author.id)
-        .eq('prompt_type', 'quiz_generation')
-        .eq('is_active', true)
-        .maybeSingle()
-        
-      if (!prompt) {
-        const { data: globalPrompt } = await supabaseAdmin
-          .from('ai_prompts')
-          .select('*')
-          .is('author_id', null)
-          .eq('prompt_type', 'quiz_generation')
-          .eq('is_active', true)
-          .maybeSingle()
-        prompt = globalPrompt
-      }
-      activePrompt = prompt
-    }
+    // Get the global quiz generation prompt
+    const { data: activePrompt } = await supabaseAdmin
+      .from('ai_prompts')
+      .select('*')
+      .is('author_id', null)
+      .eq('prompt_type', 'quiz_generation')
+      .eq('is_active', true)
+      .maybeSingle()
     
     if (!activePrompt) {
       return NextResponse.json({ error: 'No quiz generation prompt found. Please configure a prompt in your AI settings.' }, { status: 500 })

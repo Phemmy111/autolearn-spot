@@ -80,10 +80,10 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const [aiScript, setAiScript] = useState('');
   const [aiQuestionCount, setAiQuestionCount] = useState(10);
   const [aiProviders, setAiProviders] = useState<any[]>([]);
-  const [aiPrompts, setAiPrompts] = useState<any[]>([]);
+  
   const [selectedProviderId, setSelectedProviderId] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
-  const [selectedPromptId, setSelectedPromptId] = useState('');
+  
   const [aiGenerating, setAiGenerating] = useState(false);
   const [generatedQuiz, setGeneratedQuiz] = useState<any>(null);
   const [fetchingModels, setFetchingModels] = useState(false);
@@ -101,7 +101,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   useEffect(() => {
     fetchLessons();
     fetchAIProviders();
-    fetchAIPrompts();
+    
   }, [productId]);
 
   const fetchLessons = async () => {
@@ -968,7 +968,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                     Time Limit (minutes)
@@ -1086,7 +1086,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                     Max Score
@@ -1190,7 +1190,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                     Question Count
@@ -1231,7 +1231,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
                     Model
@@ -1269,26 +1269,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
-                    AI Prompt
-                  </label>
-                  <select
-                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
-                    value={selectedPromptId}
-                    onChange={(e) => setSelectedPromptId(e.target.value)}
-                  >
-                    {aiPrompts.length === 0 ? (
-                      <option value="">No prompts</option>
-                    ) : (
-                      aiPrompts.map((prompt: any) => (
-                        <option key={prompt.id} value={prompt.id}>
-                          {prompt.name} (v{prompt.version}) {prompt.is_active && '(Active)'}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
+                
               </div>
 
               <div className="flex gap-3 pt-4">
