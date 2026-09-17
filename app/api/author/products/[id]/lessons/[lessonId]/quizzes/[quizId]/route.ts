@@ -38,9 +38,20 @@ export async function PUT(
       .from('learning_products')
       .select('author_id')
       .eq('id', lesson.product_id)
-      .single()
+      .maybeSingle()
 
-    if (!product || product.author_id !== userId) {
+        // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .maybeSingle()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
+    if (!product || product.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -103,9 +114,20 @@ export async function DELETE(
       .from('learning_products')
       .select('author_id')
       .eq('id', lesson.product_id)
-      .single()
+      .maybeSingle()
 
-    if (!product || product.author_id !== userId) {
+        // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .maybeSingle()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
+    if (!product || product.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
