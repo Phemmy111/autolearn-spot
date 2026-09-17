@@ -16,6 +16,17 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Get all assignments for the author's lessons
     const { data: assignments, error } = await supabaseAdmin
       .from('assignments')
@@ -31,7 +42,7 @@ export async function GET(request: Request) {
           )
         )
       `)
-      .eq('lesson.product.author_id', userId)
+      .eq('lesson.product.author_id', author.id)
       .order('created_at', { ascending: false })
 
     if (error) {

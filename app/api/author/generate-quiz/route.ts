@@ -73,16 +73,27 @@ export async function POST(request: Request) {
     const countText = questionCount ? `Generate exactly ${questionCount} questions.` : 'Generate 10 questions.'
     const prompt = `${activePrompt.content}\n\nGenerate a quiz for lesson "${lesson.title}" based on this lesson script:\n\n${script}\n\n${countText}`
     
-    const chatResult = await AIEngine.processChat({
-      content: prompt,
-      mode: 'chat',
-      conversationHistory: [],
-      userId
-    })
+    const providerManager = AIEngine.getProviderManager()
+    let fullContent = ''
+    
+    for await (const chunk of providerManager.executeStreamingWithFallback({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'openai/gpt-4o', // fallback will auto-select if this fails
+      temperature: 0.7,
+      maxTokens: 4000,
+      stream: true,
+      disableTools: true
+    })) {
+      if (chunk.type === 'delta') {
+        fullContent += chunk.data?.content || chunk.data?.text || ''
+      } else if (chunk.type === 'error') {
+        throw new Error(chunk.data?.error || 'Streaming error')
+      }
+    }
 
     const result = {
       success: true,
-      content: chatResult.orchestratorResponse.response,
+      content: fullContent,
       error: null
     }
 
