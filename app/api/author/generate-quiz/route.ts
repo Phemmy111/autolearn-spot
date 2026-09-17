@@ -165,6 +165,7 @@ export async function POST(request: Request) {
     quizData.description = quizData.description || `Quiz for lesson: ${lesson.title}`
 
     // Save the quiz to the database
+    console.log('[POST /api/author/generate-quiz] Saving quiz to database with lesson_id:', lessonId)
     const { data: savedQuiz, error: saveError } = await supabaseAdmin
       .from('quizzes')
       .insert({
@@ -182,6 +183,8 @@ export async function POST(request: Request) {
       console.error('[POST /api/author/generate-quiz] Failed to save quiz:', saveError)
       return NextResponse.json({ error: 'Failed to save quiz to database' }, { status: 500 })
     }
+
+    console.log('[POST /api/author/generate-quiz] Quiz saved successfully with ID:', savedQuiz.id)
 
     // Save the questions
     const questionsToInsert = quizData.questions.map((q: any) => ({

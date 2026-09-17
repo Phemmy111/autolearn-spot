@@ -36,6 +36,10 @@ export async function GET(request: Request) {
       .eq('lesson.product.author_id', userId)
       .order('created_at', { ascending: false })
 
+    console.log('[GET /api/author/quizzes] Author userId:', userId)
+    console.log('[GET /api/author/quizzes] Quizzes found:', quizzes?.length || 0)
+    console.log('[GET /api/author/quizzes] Quiz data:', quizzes)
+
     if (error) {
       console.error('[GET /api/author/quizzes] Error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
