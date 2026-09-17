@@ -23,7 +23,7 @@ export default function AuthorSettingsPage() {
           </Link>
           <div>
             <h1 className="text-3xl font-bold text-brand-text">Settings</h1>
-            <p className="text-sm text-brand-text/70">Manage your AI configuration</p>
+            <p className="text-sm text-brand-text/70">Manage your profile</p>
           </div>
         </div>
 
@@ -43,35 +43,9 @@ export default function AuthorSettingsPage() {
             </div>
           </Link>
 
-          <Link
-            href="/author/ai-providers"
-            className="border border-brand-border bg-brand-bg p-6 rounded-xl flex items-center justify-between hover:bg-[var(--card)] brightness-95 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-sky-50 rounded-lg">
-                <Bot className="h-5 w-5 text-sky-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-brand-text">AI Providers</h3>
-                <p className="text-sm text-brand-text/70">Configure AI providers for quiz generation</p>
-              </div>
-            </div>
-          </Link>
+          
 
-          <Link
-            href="/author/ai-prompts"
-            className="border border-brand-border bg-brand-bg p-6 rounded-xl flex items-center justify-between hover:bg-[var(--card)] brightness-95 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-sky-50 rounded-lg">
-                <MessageSquare className="h-5 w-5 text-sky-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-brand-text">AI Prompts</h3>
-                <p className="text-sm text-brand-text/70">Manage AI prompts for content generation</p>
-              </div>
-            </div>
-          </Link>
+          
         </div>
       </div>
     </div>

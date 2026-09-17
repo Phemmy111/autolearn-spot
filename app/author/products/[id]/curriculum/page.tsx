@@ -79,15 +79,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
   const [aiLessonId, setAiLessonId] = useState<string | null>(null);
   const [aiScript, setAiScript] = useState('');
   const [aiQuestionCount, setAiQuestionCount] = useState(10);
-  const [aiProviders, setAiProviders] = useState<any[]>([]);
-  
-  const [selectedProviderId, setSelectedProviderId] = useState('');
-  const [selectedModel, setSelectedModel] = useState('');
-  
   const [aiGenerating, setAiGenerating] = useState(false);
   const [generatedQuiz, setGeneratedQuiz] = useState<any>(null);
-  const [fetchingModels, setFetchingModels] = useState(false);
-
   // Assignment state
   const [showAddAssignment, setShowAddAssignment] = useState(false);
   const [assignmentLessonId, setAssignmentLessonId] = useState<string | null>(null);
@@ -100,7 +93,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
 
   useEffect(() => {
     fetchLessons();
-    fetchAIProviders();
+    
     
   }, [productId]);
 
@@ -363,73 +356,16 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const fetchAIProviders = async () => {
-    try {
-      const res = await fetch('/api/author/ai-providers');
-      if (res.ok) {
-        const data = await res.json();
-        setAiProviders(data.providers || []);
-        
-        // Auto-select default provider
-        const defaultProvider = data.providers?.find((p: any) => p.is_default);
-        if (defaultProvider) {
-          setSelectedProviderId(defaultProvider.id);
-          setSelectedModel(defaultProvider.default_model || '');
-        } else if (data.providers?.length > 0) {
-          setSelectedProviderId(data.providers[0].id);
-          setSelectedModel(data.providers[0].default_model || '');
-        }
-      }
-    } catch (err) {
-      console.error('Failed to fetch AI providers:', err);
-    }
-  };
-
   
-  const handleFetchModels = async () => {
-    if (!selectedProviderId) {
-      setError('Please select a provider first');
-      return;
-    }
-
-    setFetchingModels(true);
-    try {
-      const res = await fetch(`/api/author/ai-providers/${selectedProviderId}/models`, {
-        method: 'POST',
-      });
-
-      const data = await res.json();
-      if (data.models && data.models.length > 0) {
-        // Update the provider in the list with the new models
-        setAiProviders(prev => prev.map(p => 
-          p.id === selectedProviderId ? { ...p, models: data.models } : p
-        ));
-        setSelectedModel(data.models[0]);
-      } else {
-        setError('No models found or fetch failed');
-      }
-    } catch (err: any) {
-      setError('Failed to fetch models: ' + err.message);
-    } finally {
-      setFetchingModels(false);
-    }
-  };
-
+  
+  
   const handleAIGenerate = async () => {
     if (!aiScript.trim()) {
       setError('Please provide lesson script');
       return;
     }
 
-    if (!selectedProviderId) {
-      setError('Please select an AI provider');
-      return;
-    }
-
-    if (!selectedModel) {
-      setError('Please select a model');
-      return;
-    }
+    
 
     setAiGenerating(true);
     setError(null);
@@ -1132,17 +1068,6 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               <Sparkles className="w-5 h-5 text-purple-600" />
               AI Quiz Generator
             </h3>
-            
-            {aiProviders.length === 0 && (
-              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  No AI providers configured.{' '}
-                  <a href="/author/ai-providers" className="underline hover:text-yellow-900">
-                    Configure AI providers →
-                  </a>
-                </p>
-              </div>
-            )}
 
             
 
@@ -1176,77 +1101,15 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
-                    AI Provider
-                  </label>
-                  <select
-                    className="w-full bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
-                    value={selectedProviderId}
-                    onChange={(e) => {
-                      setSelectedProviderId(e.target.value);
-                      const provider = aiProviders.find((p: any) => p.id === e.target.value);
-                      setSelectedModel(provider?.default_model || '');
-                    }}
-                  >
-                    {aiProviders.length === 0 ? (
-                      <option value="">No providers</option>
-                    ) : (
-                      aiProviders.map((provider: any) => (
-                        <option key={provider.id} value={provider.id}>
-                          {provider.name} {provider.is_default && '(Default)'}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-neutral-700 mb-1.5">
-                    Model
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      className="flex-1 bg-brand-bg border border-brand-border text-brand-text text-sm rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 block p-3 transition-colors shadow-sm"
-                      value={selectedModel}
-                      onChange={(e) => setSelectedModel(e.target.value)}
-                    >
-                      {selectedProviderId ? (
-                        (() => {
-                          const provider = aiProviders.find((p: any) => p.id === selectedProviderId);
-                          const models = provider?.models || [];
-                          if (models.length === 0) {
-                            return <option value="">No models</option>;
-                          }
-                          return models.map((model: string) => (
-                            <option key={model} value={model}>{model}</option>
-                          ));
-                        })()
-                      ) : (
-                        <option value="">Select provider first</option>
-                      )}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={handleFetchModels}
-                      disabled={fetchingModels || !selectedProviderId}
-                      className="px-3 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-lg hover:bg-purple-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      title="Fetch available models"
-                    >
-                      {fetchingModels ? '...' : 'Fetch'}
-                    </button>
-                  </div>
-                </div>
-
                 
               </div>
+
+              
 
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleAIGenerate}
-                  disabled={aiGenerating || !aiScript.trim() || aiProviders.length === 0}
+                  disabled={aiGenerating || !aiScript.trim()}
                   className="flex-1 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {aiGenerating ? 'Generating...' : 'Generate Quiz'}
