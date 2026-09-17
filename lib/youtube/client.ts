@@ -103,8 +103,7 @@ export async function createResumableUploadSession(
   title: string,
   description: string,
   mimeType: string,
-  fileSize: number
-) {
+  fileSize: number, origin: string = 'https://autolearn-spot.vercel.app') {
   const connection = await getActiveConnection();
   if (!connection) {
     throw new Error('No active YouTube connection found. Please contact administration.');
@@ -128,7 +127,7 @@ export async function createResumableUploadSession(
       Authorization: `Bearer ${connection.accessToken}`,
       'Content-Type': 'application/json',
       'X-Upload-Content-Length': fileSize.toString(),
-      'X-Upload-Content-Type': mimeType
+      'X-Upload-Content-Type': mimeType, Origin: origin
     },
     body: JSON.stringify(metadata)
   });
@@ -146,3 +145,4 @@ export async function createResumableUploadSession(
 
   return { uploadUrl: locationUrl };
 }
+

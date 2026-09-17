@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required metadata (title, mimeType, fileSize)' }, { status: 400 });
     }
 
-    const result = await createResumableUploadSession(title, description || '', mimeType, fileSize);
+    const origin = request.headers.get('origin') || 'https://autolearn-spot.vercel.app';
+    const result = await createResumableUploadSession(title, description || '', mimeType, fileSize, origin);
 
     return NextResponse.json(result);
   } catch (error: any) {
@@ -23,3 +24,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

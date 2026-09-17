@@ -187,14 +187,15 @@ export async function POST(request: Request) {
     console.log('[POST /api/author/generate-quiz] Quiz saved successfully with ID:', savedQuiz.id)
 
     // Save the questions
-    const questionsToInsert = quizData.questions.map((q: any) => ({
+    const questionsToInsert = quizData.questions.map((q: any, index: number) => ({
       quiz_id: savedQuiz.id,
       question_text: q.question_text,
       question_type: q.question_type,
       options: q.options,
       correct_answer: q.correct_answer,
       explanation: q.explanation,
-      points: q.points
+      points: q.points,
+      order_index: index // Add order_index for question ordering
     }))
 
     const { error: questionsError } = await supabaseAdmin
