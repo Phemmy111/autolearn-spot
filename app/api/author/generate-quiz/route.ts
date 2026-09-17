@@ -105,16 +105,31 @@ export async function POST(request: Request) {
     // Parse the JSON response
     let quizData
     try {
-      // Remove markdown code blocks if present (more robust pattern)
+      // Remove markdown code blocks if present
       let cleanedContent = result.content
         .replace(/```json\s*\n?/g, '')
         .replace(/```\s*\n?/g, '')
         .trim()
       
-      // Try to extract JSON if mixed with other text
-      const jsonMatch = cleanedContent.match(/\{[\s\S]*\}/)
-      if (jsonMatch) {
-        cleanedContent = jsonMatch[0]
+      // Remove control characters that can break JSON parsing
+      cleanedContent = cleanedContent.replace(/[\x00-\x1F\x7F]/g, '')
+      
+      // Extract the first complete JSON object (handle duplicate/malformed responses)
+      const firstBrace = cleanedContent.indexOf('{')
+      if (firstBrace !== -1) {
+        let braceCount = 0
+        let endIndex = -1
+        for (let i = firstBrace; i < cleanedContent.length; i++) {
+          if (cleanedContent[i] === '{') braceCount++
+          if (cleanedContent[i] === '}') braceCount--
+          if (braceCount === 0) {
+            endIndex = i + 1
+            break
+          }
+        }
+        if (endIndex !== -1) {
+          cleanedContent = cleanedContent.substring(firstBrace, endIndex)
+        }
       }
       
       quizData = JSON.parse(cleanedContent)
