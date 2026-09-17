@@ -34,6 +34,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
     }
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Verify product ownership
     const { data: product } = await supabaseAdmin
       .from('learning_products')
@@ -41,28 +52,51 @@ export async function POST(request: Request) {
       .eq('id', lesson.product_id)
       .single()
 
-    if (!product || product.author_id !== userId) {
+    if (!product || product.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
     // Get the quiz generation prompt (use specific promptId if provided, otherwise get active for this author)
     let activePrompt
     if (promptId) {
-      const { data: prompt } = await supabaseAdmin
+      // First try matching author_id
+      let { data: prompt } = await supabaseAdmin
         .from('ai_prompts')
         .select('*')
         .eq('id', promptId)
-        .eq('author_id', userId)
+        .eq('author_id', author.id)
         .single()
+        
+      if (!prompt) {
+        // Fallback to global prompt
+        const { data: globalPrompt } = await supabaseAdmin
+          .from('ai_prompts')
+          .select('*')
+          .eq('id', promptId)
+          .is('author_id', null)
+          .single()
+        prompt = globalPrompt
+      }
       activePrompt = prompt
     } else {
-      const { data: prompt } = await supabaseAdmin
+      let { data: prompt } = await supabaseAdmin
         .from('ai_prompts')
         .select('*')
-        .eq('author_id', userId)
+        .eq('author_id', author.id)
         .eq('prompt_type', 'quiz_generation')
         .eq('is_active', true)
-        .single()
+        .maybeSingle()
+        
+      if (!prompt) {
+        const { data: globalPrompt } = await supabaseAdmin
+          .from('ai_prompts')
+          .select('*')
+          .is('author_id', null)
+          .eq('prompt_type', 'quiz_generation')
+          .eq('is_active', true)
+          .maybeSingle()
+        prompt = globalPrompt
+      }
       activePrompt = prompt
     }
     
