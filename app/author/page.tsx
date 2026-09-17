@@ -79,12 +79,7 @@ export default async function AuthorDashboardPage() {
     }
 
     // 5. Fetch Earnings from author_earnings ledger
-    const { data: author } = await supabaseAdmin
-      .from('authors')
-      .select('id')
-      .eq('clerk_user_id', userId)
-      .single();
-      
+    // author is already fetched at the top of the block
     if (author) {
       const { data: earningData } = await supabaseAdmin
         .from('author_earnings')
