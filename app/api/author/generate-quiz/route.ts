@@ -4,6 +4,7 @@ import { AIEngine } from '@/lib/alex/ai-engine'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60 // Allow up to 60 seconds for AI generation
 
 export async function POST(request: Request) {
   try {
