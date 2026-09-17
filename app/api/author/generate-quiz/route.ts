@@ -65,7 +65,7 @@ export async function POST(request: Request) {
         .select('*')
         .eq('id', promptId)
         .eq('author_id', author.id)
-        .single()
+        .maybeSingle()
         
       if (!prompt) {
         // Fallback to global prompt
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
           .select('*')
           .eq('id', promptId)
           .is('author_id', null)
-          .single()
+          .maybeSingle()
         prompt = globalPrompt
       }
       activePrompt = prompt
