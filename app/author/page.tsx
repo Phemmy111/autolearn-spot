@@ -17,18 +17,27 @@ export default async function AuthorDashboardPage() {
   let recentSales: { product_title: string; price_snapshot: number; created_at: string; buyer_email?: string }[] = [];
 
   if (userId) {
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .maybeSingle();
+      
+    if (!author) return null; // or handle empty state better? Wait, we can just use author.id safely if author exists
+    
+    const internalAuthorId = author.id;
     // 1. Fetch Products count
     const { count } = await supabaseAdmin
       .from('learning_products')
       .select('*', { count: 'exact', head: true })
-      .eq('author_id', userId);
+      .eq('author_id', internalAuthorId);
     productsCount = count || 0;
 
     // 2. Fetch author's product IDs (needed for students & sales)
     const { data: authorProducts } = await supabaseAdmin
       .from('learning_products')
       .select('id')
-      .eq('author_id', userId);
+      .eq('author_id', internalAuthorId);
     
     const productIds = (authorProducts || []).map(p => p.id);
 

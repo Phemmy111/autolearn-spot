@@ -385,27 +385,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  const fetchAIPrompts = async () => {
-    try {
-      const res = await fetch('/api/author/ai-prompts');
-      if (res.ok) {
-        const data = await res.json();
-        const quizPrompts = (data.prompts || []).filter((p: any) => p.prompt_type === 'quiz_generation');
-        setAiPrompts(quizPrompts);
-        
-        // Auto-select active prompt
-        const activePrompt = quizPrompts.find((p: any) => p.is_active);
-        if (activePrompt) {
-          setSelectedPromptId(activePrompt.id);
-        } else if (quizPrompts.length > 0) {
-          setSelectedPromptId(quizPrompts[0].id);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to fetch AI prompts:', err);
-    }
-  };
-
+  
   const handleFetchModels = async () => {
     if (!selectedProviderId) {
       setError('Please select a provider first');
@@ -462,8 +442,8 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
           script: aiScript,
           lessonId: aiLessonId,
           questionCount: aiQuestionCount,
-          providerId: selectedProviderId,
-          model: selectedModel,
+          
+          
           promptId: selectedPromptId,
         }),
       });
@@ -1164,16 +1144,7 @@ export default function CurriculumPage({ params }: { params: Promise<{ id: strin
               </div>
             )}
 
-            {aiPrompts.length === 0 && (
-              <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  No quiz generation prompts configured.{' '}
-                  <a href="/author/ai-prompts" className="underline hover:text-yellow-900">
-                    Configure AI prompts →
-                  </a>
-                </p>
-              </div>
-            )}
+            
 
             <div className="space-y-4">
               <div>

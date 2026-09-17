@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { AIProviderManager } from '@/lib/ai-provider'
+import { AIEngine } from '@/lib/alex/ai-engine'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { script, lessonId, questionCount, providerId, model, promptId } = await request.json()
+    const { script, lessonId, questionCount } = await request.json()
 
     if (!script) {
       return NextResponse.json({ error: 'Script is required' }, { status: 400 })
@@ -73,12 +73,18 @@ export async function POST(request: Request) {
     const countText = questionCount ? `Generate exactly ${questionCount} questions.` : 'Generate 10 questions.'
     const prompt = `${activePrompt.content}\n\nGenerate a quiz for lesson "${lesson.title}" based on this lesson script:\n\n${script}\n\n${countText}`
     
-    const result = await AIProviderManager.completion(prompt, {
-      providerId,
-      model,
-      temperature: 0.7,
-      maxTokens: 4000,
+    const chatResult = await AIEngine.processChat({
+      content: prompt,
+      mode: 'chat',
+      conversationHistory: [],
+      userId
     })
+
+    const result = {
+      success: true,
+      content: chatResult.orchestratorResponse.response,
+      error: null
+    }
 
     if (!result.success || !result.content) {
       return NextResponse.json({ error: result.error || 'Failed to generate quiz' }, { status: 500 })
