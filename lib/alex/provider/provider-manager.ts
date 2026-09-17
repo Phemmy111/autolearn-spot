@@ -918,6 +918,19 @@ export class ProviderManager {
             continue
           }
           
+          // Special handling for insufficient_credits - skip provider but continue fallback
+          if (providerError.type === 'insufficient_credits') {
+            console.log('[FALLBACK] Insufficient credits detected - skipping provider but continuing fallback:', provider.id)
+            exhaustedProviders.add(provider.id) // Mark as exhausted for this request
+            await this.updateProviderHealth(provider.id, {
+              healthStatus: 'unavailable',
+              healthError: providerError.message,
+              consecutiveFailureCount: 3,
+            })
+            // Continue to next provider in the chain
+            continue
+          }
+          
           console.log('[FALLBACK] Non-retryable error - stopping fallback chain:', providerError.type)
           await this.updateProviderHealth(provider.id, {
             healthStatus: 'unavailable',
