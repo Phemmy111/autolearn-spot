@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     
     for await (const chunk of providerManager.executeStreamingWithFallback({
       messages: [{ role: 'user', content: prompt }],
-      model: 'openai/gpt-4o', // fallback will auto-select if this fails
+      // Let provider manager auto-select the appropriate model for each provider
       temperature: 0.7,
       maxTokens: 4000,
       stream: true,
