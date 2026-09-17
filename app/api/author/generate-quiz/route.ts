@@ -164,7 +164,48 @@ export async function POST(request: Request) {
     quizData.lesson_id = lessonId
     quizData.description = quizData.description || `Quiz for lesson: ${lesson.title}`
 
-    return NextResponse.json({ quiz: quizData })
+    // Save the quiz to the database
+    const { data: savedQuiz, error: saveError } = await supabaseAdmin
+      .from('quizzes')
+      .insert({
+        title: quizData.title,
+        description: quizData.description,
+        lesson_id: lessonId,
+        time_limit: null,
+        passing_score: 70,
+        is_active: true
+      })
+      .select()
+      .single()
+
+    if (saveError) {
+      console.error('[POST /api/author/generate-quiz] Failed to save quiz:', saveError)
+      return NextResponse.json({ error: 'Failed to save quiz to database' }, { status: 500 })
+    }
+
+    // Save the questions
+    const questionsToInsert = quizData.questions.map((q: any) => ({
+      quiz_id: savedQuiz.id,
+      question_text: q.question_text,
+      question_type: q.question_type,
+      options: q.options,
+      correct_answer: q.correct_answer,
+      explanation: q.explanation,
+      points: q.points
+    }))
+
+    const { error: questionsError } = await supabaseAdmin
+      .from('questions')
+      .insert(questionsToInsert)
+
+    if (questionsError) {
+      console.error('[POST /api/author/generate-quiz] Failed to save questions:', questionsError)
+      // Clean up the quiz if questions failed to save
+      await supabaseAdmin.from('quizzes').delete().eq('id', savedQuiz.id)
+      return NextResponse.json({ error: 'Failed to save quiz questions' }, { status: 500 })
+    }
+
+    return NextResponse.json({ quiz: { ...quizData, id: savedQuiz.id } })
   } catch (error: any) {
     console.error('[POST /api/author/generate-quiz] Error:', error)
     return NextResponse.json({ error: error.message || 'Failed to generate quiz' }, { status: 500 })
