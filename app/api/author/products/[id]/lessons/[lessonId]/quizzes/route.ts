@@ -79,6 +79,8 @@ export async function POST(
   try {
     const { userId } = await auth()
     
+    console.log('[POST quizzes] Auth userId:', userId)
+    
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -86,12 +88,17 @@ export async function POST(
     const { lessonId } = await params
     const body = await request.json()
 
+    console.log('[POST quizzes] Request params:', { productId: (await params).id, lessonId })
+    console.log('[POST quizzes] Request body:', body)
+
     // Verify lesson ownership (lessonId is uuid_id)
     const { data: lesson } = await supabaseAdmin
       .from('lessons')
       .select('product_id')
       .eq('uuid_id', lessonId)
       .single()
+
+    console.log('[POST quizzes] Lesson found:', lesson ? 'Yes' : 'No', 'product_id:', lesson?.product_id)
 
     if (!lesson) {
       return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
@@ -104,6 +111,8 @@ export async function POST(
       .eq('id', lesson.product_id)
       .maybeSingle()
 
+    console.log('[POST quizzes] Product found:', product ? 'Yes' : 'No', 'author_id:', product?.author_id)
+
         // Get internal author_id from clerk userId
     const { data: author } = await supabaseAdmin
       .from('authors')
@@ -111,11 +120,18 @@ export async function POST(
       .eq('clerk_user_id', userId)
       .maybeSingle()
 
+    console.log('[POST quizzes] Author found:', author ? 'Yes' : 'No', 'author_id:', author?.id)
+
     if (!author) {
       return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
     }
 
     if (!product || product.author_id !== author.id) {
+      console.log('[POST quizzes] Authorization failed:', {
+        productAuthorId: product?.author_id,
+        authorId: author?.id,
+        match: product?.author_id === author?.id
+      })
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
