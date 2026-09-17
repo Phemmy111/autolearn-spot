@@ -39,6 +39,17 @@ export async function GET(request: Request) {
     console.log('[GET /api/author/quizzes] Author userId:', userId)
     console.log('[GET /api/author/quizzes] Quizzes found:', quizzes?.length || 0)
     console.log('[GET /api/author/quizzes] Quiz data:', quizzes)
+    
+    // If no quizzes found, try a simpler query to check if quizzes exist at all
+    if (!quizzes || quizzes.length === 0) {
+      console.log('[GET /api/author/quizzes] No quizzes found, checking all quizzes in database...')
+      const { data: allQuizzes } = await supabaseAdmin
+        .from('quizzes')
+        .select('id, title, lesson_id, created_at')
+        .order('created_at', { ascending: false })
+        .limit(5)
+      console.log('[GET /api/author/quizzes] All quizzes in database:', allQuizzes)
+    }
 
     if (error) {
       console.error('[GET /api/author/quizzes] Error:', error)
