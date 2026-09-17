@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       .from('lessons')
       .select('product_id, title')
       .eq('uuid_id', lessonId)
-      .single()
+      .maybeSingle()
 
     if (!lesson) {
       return NextResponse.json({ error: 'Lesson not found' }, { status: 404 })
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       .from('authors')
       .select('id')
       .eq('clerk_user_id', userId)
-      .single()
+      .maybeSingle()
 
     if (!author) {
       return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       .from('learning_products')
       .select('author_id')
       .eq('id', lesson.product_id)
-      .single()
+      .maybeSingle()
 
     if (!product || product.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
