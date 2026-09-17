@@ -92,7 +92,7 @@ export interface ProviderRequestResult {
 
 export type RetryableErrorType = 'timeout' | 'connection' | 'rate_limit' | 'provider_unavailable' | 'server_error'
 
-export type NonRetryableErrorType = 'invalid_request' | 'invalid_credentials' | 'invalid_model' | 'malformed_request' | 'auth_error' | 'quota_exhausted'
+export type NonRetryableErrorType = 'invalid_request' | 'invalid_credentials' | 'invalid_model' | 'malformed_request' | 'auth_error' | 'quota_exhausted' | 'insufficient_credits'
 
 export interface ProviderError {
   type: RetryableErrorType | NonRetryableErrorType
@@ -153,6 +153,12 @@ export function classifyError(error: any, statusCode?: number): ProviderError {
   // Invalid request
   if (statusCode === 400) {
     return { type: 'invalid_request', message: 'Invalid request', retryable: false, statusCode }
+  }
+
+  // Insufficient credits - non-retryable but should fallback to other providers
+  if (error.message?.toLowerCase().includes('credits') || 
+      error.message?.toLowerCase().includes('insufficient')) {
+    return { type: 'insufficient_credits', message: 'Insufficient credits', retryable: false, statusCode }
   }
 
   // Default to non-retryable for unknown errors

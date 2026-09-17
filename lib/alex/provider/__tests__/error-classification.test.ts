@@ -44,6 +44,20 @@ describe('Error Classification', () => {
       expect(classified.statusCode).toBe(429)
     })
 
+    it('should classify insufficient credits errors as non-retryable with special fallback handling', () => {
+      const error = { message: 'Insufficient credits. This account never purchased credits.' }
+      const classified = classifyError(error)
+      expect(classified.type).toBe('insufficient_credits')
+      expect(classified.retryable).toBe(false)
+    })
+
+    it('should classify insufficient errors as non-retryable with special fallback handling', () => {
+      const error = { message: 'Insufficient funds available' }
+      const classified = classifyError(error)
+      expect(classified.type).toBe('insufficient_credits')
+      expect(classified.retryable).toBe(false)
+    })
+
     it('should classify server errors (5xx) as retryable', () => {
       const error = { message: 'Internal server error' }
       const classified = classifyError(error, 500)
