@@ -32,6 +32,7 @@ interface Quiz {
   time_limit: number | null
   passing_score: number
   is_active: boolean
+  created_at: string
   lesson: {
     uuid_id: string
     title: string
@@ -49,6 +50,14 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    time_limit: 30,
+    passing_score: 70,
+    is_active: true
+  })
 
   useEffect(() => {
     if (params) {
@@ -65,6 +74,13 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
 
       if (data.success) {
         setQuiz(data.quiz)
+        setEditForm({
+          title: data.quiz.title,
+          description: data.quiz.description || '',
+          time_limit: data.quiz.time_limit || 30,
+          passing_score: data.quiz.passing_score,
+          is_active: data.quiz.is_active
+        })
       } else {
         setError(data.error || 'Failed to load quiz')
       }
@@ -99,6 +115,29 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
     }
   }
 
+  const handleSave = async () => {
+    if (!quiz) return
+
+    try {
+      const res = await fetch(`/api/author/quizzes/${quiz.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setQuiz(data.quiz)
+        setIsEditing(false)
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Failed to update quiz')
+      }
+    } catch (err) {
+      setError('Network error updating quiz')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--card)]">
@@ -129,32 +168,116 @@ export default function AuthorQuizDetailPage({ params }: { params: Promise<{ id:
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-brand-text">{quiz.title}</h1>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editForm.title}
+                onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                className="text-3xl font-bold text-brand-text bg-transparent border-b-2 border-brand-border focus:border-brand-primary outline-none w-full"
+              />
+            ) : (
+              <h1 className="text-3xl font-bold text-brand-text">{quiz.title}</h1>
+            )}
             <p className="text-sm text-brand-text/70 mt-1">
               {quiz.lesson.product.title} → {quiz.lesson.title}
             </p>
           </div>
           <div className="flex gap-2">
-            <Link
-              href={`/author/products/${quiz.lesson.product.id}/curriculum`}
-              className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
-            >
-              Edit in Curriculum
-            </Link>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="px-4 py-2 bg-red-50 text-red-700 text-sm font-semibold rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
-            >
-              {deleting ? 'Deleting...' : 'Delete'}
-            </button>
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-brand-primary text-white text-sm font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="px-4 py-2 bg-brand-primary text-white text-sm font-semibold rounded-lg hover:bg-brand-primary-hover transition-colors"
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </button>
+                <Link
+                  href={`/author/products/${quiz.lesson.product.id}/curriculum`}
+                  className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors"
+                >
+                  Edit in Curriculum
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="px-4 py-2 bg-red-50 text-red-700 text-sm font-semibold rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {quiz.description && (
-          <div className="bg-brand-bg border border-brand-border p-4 rounded-lg mb-6">
-            <p className="text-neutral-700">{quiz.description}</p>
+        {isEditing ? (
+          <div className="space-y-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-brand-text/70 mb-2">Description</label>
+              <textarea
+                value={editForm.description}
+                onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                rows={3}
+                className="w-full px-4 py-3 bg-brand-bg border border-brand-border rounded-lg text-brand-text focus:border-brand-primary outline-none"
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Time Limit (mins)</label>
+                <input
+                  type="number"
+                  value={editForm.time_limit}
+                  onChange={(e) => setEditForm({...editForm, time_limit: parseInt(e.target.value)})}
+                  className="w-full px-4 py-3 bg-brand-bg border border-brand-border rounded-lg text-brand-text focus:border-brand-primary outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-brand-text/70 mb-2">Passing Score (%)</label>
+                <input
+                  type="number"
+                  value={editForm.passing_score}
+                  onChange={(e) => setEditForm({...editForm, passing_score: parseInt(e.target.value)})}
+                  min="0"
+                  max="100"
+                  className="w-full px-4 py-3 bg-brand-bg border border-brand-border rounded-lg text-brand-text focus:border-brand-primary outline-none"
+                />
+              </div>
+              <div className="flex items-center pt-6">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editForm.is_active}
+                    onChange={(e) => setEditForm({...editForm, is_active: e.target.checked})}
+                    className="w-4 h-4 accent-brand-primary"
+                  />
+                  <span className="text-sm text-brand-text">Active</span>
+                </label>
+              </div>
+            </div>
           </div>
+        ) : (
+          <>
+            {quiz.description && (
+              <div className="bg-brand-bg border border-brand-border p-4 rounded-lg mb-6">
+                <p className="text-neutral-700">{quiz.description}</p>
+              </div>
+            )}
+          </>
         )}
 
         <div className="flex flex-wrap gap-4 mb-6 text-sm text-brand-text/70">

@@ -53,6 +53,68 @@ export async function GET(
 }
 
 /**
+ * PUT /api/author/quizzes/[id]
+ * Update a quiz
+ */
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { userId } = await auth()
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { id } = await params
+    const body = await request.json()
+    const { title, description, time_limit, passing_score, is_active } = body
+
+    // Verify ownership before updating
+    const { data: quiz } = await supabaseAdmin
+      .from('quizzes')
+      .select(`
+        lesson:lessons!inner (
+          product:learning_products!inner (
+            author_id
+          )
+        )
+      `)
+      .eq('id', id)
+      .single()
+
+    if (!quiz || quiz.lesson?.product?.author_id !== userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    // Update the quiz
+    const { data: updatedQuiz, error } = await supabaseAdmin
+      .from('quizzes')
+      .update({
+        title,
+        description,
+        time_limit,
+        passing_score,
+        is_active,
+      })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('[PUT /api/author/quizzes/[id]] Error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, quiz: updatedQuiz })
+  } catch (error: any) {
+    console.error('[PUT /api/author/quizzes/[id]] Error:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
+  }
+}
+
+/**
  * DELETE /api/author/quizzes/[id]
  * Delete a quiz
  */

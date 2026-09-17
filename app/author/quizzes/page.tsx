@@ -51,12 +51,16 @@ export default function AuthorQuizzesPage() {
       const res = await fetch('/api/author/quizzes')
       const data = await res.json()
 
+      console.log('[Author Quizzes] Response data:', data)
+
       if (data.success) {
-        setQuizzes(data.quizzes)
+        setQuizzes(data.quizzes || [])
+        console.log('[Author Quizzes] Loaded quizzes:', data.quizzes)
       } else {
         setError(data.error || 'Failed to load quizzes')
       }
     } catch (err) {
+      console.error('[Author Quizzes] Network error:', err)
       setError('Network error loading quizzes')
     } finally {
       setLoading(false)
@@ -99,12 +103,12 @@ export default function AuthorQuizzesPage() {
                 <Target className="h-8 w-8 text-neutral-400" />
               </div>
               <h3 className="text-lg font-semibold text-brand-text">No quizzes yet</h3>
-              <p className="text-brand-text/60">Create quizzes for your lessons to test student understanding</p>
+              <p className="text-brand-text/60">Generate quizzes for your lessons using AI or create them manually</p>
               <Link
                 href="/author/products"
                 className="px-6 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
               >
-                Go to Products
+                Go to Products to Generate Quizzes
               </Link>
             </div>
           </div>
