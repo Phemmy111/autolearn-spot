@@ -21,6 +21,17 @@ export async function GET(
 
     const { id } = await params
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Verify ownership
     const { data: quiz } = await supabaseAdmin
       .from('quizzes')
@@ -34,7 +45,7 @@ export async function GET(
       .eq('id', id)
       .single()
 
-    if (!quiz || quiz.lesson?.product?.author_id !== userId) {
+    if (!quiz || quiz.lesson?.product?.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
