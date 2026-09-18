@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       .select('id, title, author_id')
       .in('id', productIds);
 
-    // Get author names separately since author_id is TEXT in learning_products
+    // Get author names separately - use a simple approach
     const authorIds = products?.map(p => p.author_id).filter(Boolean) || [];
     const { data: authors } = authorIds.length > 0
       ? await supabaseAdmin
