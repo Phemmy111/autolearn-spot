@@ -3,8 +3,10 @@ import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getLessonsForProduct } from '@/lib/lesson-service';
 import Link from 'next/link';
-import { Lock, Play, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Lock, Play, CheckCircle, Clock, AlertTriangle, Video, MessageSquare, ExternalLink } from 'lucide-react';
 import StartCourseButton from './StartCourseButton';
+import LiveClassSection from './LiveClassSection';
+import AuthorMessagingSection from './AuthorMessagingSection';
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -268,6 +270,12 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
             </div>
           </div>
         )}
+      </div>
+
+      {/* Live Classes and Messaging */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <LiveClassSection productId={productId} userId={userId} />
+        <AuthorMessagingSection productId={productId} userId={userId} />
       </div>
 
       {/* Curriculum */}

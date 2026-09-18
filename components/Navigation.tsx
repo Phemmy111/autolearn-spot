@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth, useUser } from '@clerk/nextjs'
 import { getPublicSettings } from '@/lib/public-settings'
+import { NotificationBell } from '@/components/NotificationBell'
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
@@ -100,12 +101,15 @@ export default function Navigation() {
           {/* Student Login/Dashboard */}
           {isLoaded && (
             isSignedIn ? (
-              <Link
-                href="/dashboard"
-                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
-              >
-                Dashboard
-              </Link>
+              <>
+                <NotificationBell />
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                >
+                  Dashboard
+                </Link>
+              </>
             ) : (
               <Link
                 href="/dashboard"
@@ -154,12 +158,15 @@ export default function Navigation() {
           {/* Student Login/Dashboard */}
           {isLoaded && (
             isSignedIn ? (
-              <Link
-                href="/dashboard"
-                className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
-              >
-                Dashboard
-              </Link>
+              <>
+                <NotificationBell />
+                <Link
+                  href="/dashboard"
+                  className="text-sm text-brand-text/60 hover:text-[#10b981] transition-colors whitespace-nowrap"
+                >
+                  Dashboard
+                </Link>
+              </>
             ) : (
               <Link
                 href="/dashboard"
@@ -260,6 +267,11 @@ export default function Navigation() {
 
               {/* Student Login/Dashboard */}
               <div className="px-4 py-3">
+                {isLoaded && isSignedIn && (
+                  <div className="px-4 py-2">
+                    <NotificationBell />
+                  </div>
+                )}
                 {isLoaded && (
                   isSignedIn ? (
                     <Link

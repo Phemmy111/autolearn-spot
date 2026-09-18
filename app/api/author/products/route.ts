@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createProduct, listOwnProducts, deleteProduct } from '@/lib/product-service';
-import { requireAuthor } from '@/lib/author';
+import { requireAuthor, requireAcceptedTerms } from '@/lib/author';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +28,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     await requireAuthor();
+    await requireAcceptedTerms(); // Ensure author has accepted current terms
     const body = await request.json();
     // Basic validation – ensure required fields are present
     const required = ['skill_id', 'title', 'slug', 'product_type'];
@@ -43,7 +44,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, product });
   } catch (err: any) {
     console.error('[POST /api/author/products] error:', err);
-    return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 });
+    // Handle terms acceptance requirement specifically
+    if (err.status === 403 && err.redirectTo) {
+      return NextResponse.json({ 
+        error: err.error, 
+        message: err.message,
+        redirectTo: err.redirectTo 
+      }, { status: 403 });
+    }
+    return NextResponse.json({ error: err.message || 'Internal error' }, { status: err.status || 500 });
   }
 }
 

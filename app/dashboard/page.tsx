@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Lock, Play, BookOpen, Clock, Calendar, CheckCircle } from 'lucide-react';
+import { Lock, Play, BookOpen, Clock, Calendar, CheckCircle, MessageSquare, Video } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -16,6 +16,8 @@ interface Course {
     product_type: string;
     access_duration_days: number;
   };
+  has_live_class?: boolean;
+  has_conversation?: boolean;
 }
 
 export default function DashboardPage() {
@@ -150,6 +152,22 @@ export default function DashboardPage() {
                           style={{ width: `${progressPercent}%` }}
                         />
                       </div>
+                    </div>
+
+                    {/* Live Class and Messaging Indicators */}
+                    <div className="flex gap-2">
+                      {c.has_live_class && (
+                        <div className="flex items-center gap-1 text-xs text-sky-600 bg-sky-50 px-2 py-1 rounded-lg">
+                          <Video className="w-3 h-3" />
+                          Live Class
+                        </div>
+                      )}
+                      {c.has_conversation && (
+                        <div className="flex items-center gap-1 text-xs text-sky-600 bg-sky-50 px-2 py-1 rounded-lg">
+                          <MessageSquare className="w-3 h-3" />
+                          Messages
+                        </div>
+                      )}
                     </div>
                     
                     <Link

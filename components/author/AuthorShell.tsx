@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Package, Users, DollarSign, BarChart3, Settings, Home, LogOut, Target, FileText, Star, CreditCard, Wallet, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Package, Users, DollarSign, BarChart3, Settings, Home, LogOut, Target, FileText, Star, CreditCard, Wallet, ArrowUpRight, MessageSquare, Video } from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
+import { NotificationBell } from '@/components/NotificationBell';
 
 /**
  * Author Shell Component
@@ -18,15 +19,18 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: 'Dashboard', href: '/author', icon: Home },
     { name: 'Products', href: '/author/products', icon: Package },
+    { name: 'Students', href: '/author/students', icon: Users },
+    { name: 'Messages', href: '/author/messages', icon: MessageSquare },
+    { name: 'Live Classes', href: '/author/live-classes', icon: Video },
     { name: 'Quizzes', href: '/author/quizzes', icon: Target },
     { name: 'Assignments', href: '/author/assignments', icon: FileText },
-    { name: 'Students', href: '/author/students', icon: Users },
     { name: 'Reviews', href: '/author/reviews', icon: Star },
     { name: 'Earnings', href: '/author/earnings', icon: DollarSign },
     { name: 'Transactions', href: '/author/transactions', icon: CreditCard },
     { name: 'Bank Details', href: '/author/bank', icon: Wallet },
     { name: 'Withdrawals', href: '/author/withdrawals', icon: ArrowUpRight },
     { name: 'Analytics', href: '/author/analytics', icon: BarChart3 },
+    { name: 'Terms & Conditions', href: '/author/terms', icon: FileText },
     { name: 'Settings', href: '/author/settings', icon: Settings },
   ];
 
@@ -65,7 +69,10 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
               })}
             </nav>
 
-            <div className="mt-8 pt-8 border-t border-brand-border">
+            <div className="mt-8 pt-8 border-t border-brand-border space-y-2">
+              <div className="px-4 py-2">
+                <NotificationBell />
+              </div>
               <SignOutButton>
                 <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-brand-text/70 hover:bg-[var(--card)] brightness-95 w-full">
                   <LogOut className="w-5 h-5" />
@@ -98,7 +105,7 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
               AutoLearn Spot
             </span>
           </Link>
-          <div className="w-6" />
+          <NotificationBell />
         </header>
 
         {/* Mobile Content */}
@@ -148,7 +155,10 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
                 })}
               </nav>
 
-              <div className="mt-8 pt-8 border-t border-brand-border">
+              <div className="mt-8 pt-8 border-t border-brand-border space-y-2">
+                <div className="px-4 py-2">
+                  <NotificationBell />
+                </div>
                 <SignOutButton>
                   <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-brand-text/70 hover:bg-[var(--card)] brightness-95 w-full">
                     <LogOut className="w-5 h-5" />
