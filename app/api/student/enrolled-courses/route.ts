@@ -46,16 +46,24 @@ export async function GET(request: NextRequest) {
       .select('id, title, author_id')
       .in('id', productIds);
 
-    // Get author names separately - use a simple approach
+    // Get author names - handle the data type mismatch
     const authorIds = products?.map(p => p.author_id).filter(Boolean) || [];
-    const { data: authors } = authorIds.length > 0
-      ? await supabaseAdmin
+    let authorMap = new Map();
+    
+    if (authorIds.length > 0) {
+      try {
+        const { data: authors } = await supabaseAdmin
           .from('authors')
           .select('id, display_name')
-          .in('id', authorIds)
-      : { data: [] };
-
-    const authorMap = new Map(authors?.map(a => [a.id, a.display_name]) || []);
+          .in('id', authorIds);
+        
+        if (authors) {
+          authorMap = new Map(authors.map(a => [a.id, a.display_name]));
+        }
+      } catch (error) {
+        console.error('Error fetching authors:', error);
+      }
+    }
 
     const courses = products?.map(product => ({
       id: product.id,

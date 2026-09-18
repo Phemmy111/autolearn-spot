@@ -21,6 +21,7 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
@@ -29,7 +30,11 @@ export function NotificationBell() {
   const fetchNotifications = async () => {
     try {
       setLoading(true);
+      setError(false);
       const response = await fetch('/api/notifications');
+      if (!response.ok) {
+        throw new Error('Failed to fetch notifications');
+      }
       const data = await response.json();
       if (data.success) {
         setNotifications(data.notifications);
@@ -37,6 +42,9 @@ export function NotificationBell() {
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setError(true);
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
       setLoading(false);
     }
@@ -63,6 +71,11 @@ export function NotificationBell() {
   const isUnread = (notification: Notification) => {
     return notification.notification_deliveries[0]?.status === 'unread';
   };
+
+  // If there's an error, don't show the bell to prevent UI issues
+  if (error) {
+    return null;
+  }
 
   return (
     <div className="relative">
