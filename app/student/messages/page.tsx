@@ -151,8 +151,9 @@ export default function StudentMessagesPage() {
         <button
           type="button"
           onClick={() => {
-            console.log('New Message button clicked');
+            console.log('New Message button clicked, current modal state:', showNewMessageModal);
             setShowNewMessageModal(true);
+            console.log('Modal state set to true');
           }}
           className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors cursor-pointer active:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
         >
@@ -340,18 +341,20 @@ function MessageView({ conversation }: { conversation: Conversation }) {
 
       {/* New Message Modal */}
       {showNewMessageModal && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowNewMessageModal(false);
-            }
-          }}
-        >
+        <>
+          {console.log('Modal rendering, showNewMessageModal:', showNewMessageModal)}
           <div 
-            className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowNewMessageModal(false);
+              }
+            }}
           >
+            <div 
+              className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-brand-text">Start New Conversation</h2>
               <button
@@ -412,6 +415,7 @@ function MessageView({ conversation }: { conversation: Conversation }) {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );
