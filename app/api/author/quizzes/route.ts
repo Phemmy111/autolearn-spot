@@ -16,7 +16,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get all quizzes for the author's lessons
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .maybeSingle()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
+    // Get all quizzes for the author's lessons using internal author_id
     const { data: quizzes, error } = await supabaseAdmin
       .from('quizzes')
       .select(`
@@ -33,10 +44,11 @@ export async function GET(request: Request) {
         questions(count),
         responses:quiz_responses(count)
       `)
-      .eq('lesson.product.author_id', userId)
+      .eq('lesson.product.author_id', author.id)
       .order('created_at', { ascending: false })
 
-    console.log('[GET /api/author/quizzes] Author userId:', userId)
+    console.log('[GET /api/author/quizzes] Clerk userId:', userId)
+    console.log('[GET /api/author/quizzes] Internal author_id:', author.id)
     console.log('[GET /api/author/quizzes] Quizzes found:', quizzes?.length || 0)
     console.log('[GET /api/author/quizzes] Quiz data:', quizzes)
     
