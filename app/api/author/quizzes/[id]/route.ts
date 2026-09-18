@@ -21,6 +21,17 @@ export async function GET(
 
     const { id } = await params
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Get the quiz with ownership check
     const { data: quiz, error } = await supabaseAdmin
       .from('quizzes')
@@ -38,7 +49,7 @@ export async function GET(
         questions(*)
       `)
       .eq('id', id)
-      .eq('lesson.product.author_id', userId)
+      .eq('lesson.product.author_id', author.id)
       .single()
 
     if (error || !quiz) {
@@ -71,6 +82,17 @@ export async function PUT(
     const body = await request.json()
     const { title, description, time_limit, passing_score, is_active } = body
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Verify ownership before updating
     const { data: quiz } = await supabaseAdmin
       .from('quizzes')
@@ -84,7 +106,7 @@ export async function PUT(
       .eq('id', id)
       .single()
 
-    if (!quiz || quiz.lesson?.product?.author_id !== userId) {
+    if (!quiz || quiz.lesson?.product?.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
@@ -131,6 +153,17 @@ export async function DELETE(
 
     const { id } = await params
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Verify ownership before deleting
     const { data: quiz } = await supabaseAdmin
       .from('quizzes')
@@ -144,7 +177,7 @@ export async function DELETE(
       .eq('id', id)
       .single()
 
-    if (!quiz || quiz.lesson?.product?.author_id !== userId) {
+    if (!quiz || quiz.lesson?.product?.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
