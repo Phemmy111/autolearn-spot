@@ -21,6 +21,17 @@ export async function GET(
 
     const { id } = await params
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Get the assignment with ownership check
     const { data: assignment, error } = await supabaseAdmin
       .from('assignments')
@@ -37,7 +48,7 @@ export async function GET(
         )
       `)
       .eq('id', id)
-      .eq('lesson.product.author_id', userId)
+      .eq('lesson.product.author_id', author.id)
       .single()
 
     if (error || !assignment) {
@@ -68,6 +79,17 @@ export async function DELETE(
 
     const { id } = await params
 
+    // Get internal author_id from clerk userId
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', userId)
+      .single()
+
+    if (!author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 403 })
+    }
+
     // Verify ownership before deleting
     const { data: assignment } = await supabaseAdmin
       .from('assignments')
@@ -81,7 +103,7 @@ export async function DELETE(
       .eq('id', id)
       .single()
 
-    if (!assignment || assignment.lesson?.product?.author_id !== userId) {
+    if (!assignment || assignment.lesson?.product?.author_id !== author.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
