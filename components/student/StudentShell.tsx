@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, BookOpen, Award, Home, LogOut, Settings, FileText, ClipboardCheck } from 'lucide-react';
+import { Menu, X, BookOpen, Award, Home, LogOut, Settings, FileText, ClipboardCheck, MessageSquare } from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
+import { NotificationBell } from '@/components/NotificationBell';
 
 /**
  * Student Shell Component
@@ -18,6 +19,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: 'Dashboard', href: '/student', icon: Home },
     { name: 'My Learning', href: '/dashboard', icon: BookOpen },
+    { name: 'Messages', href: '/student/messages', icon: MessageSquare },
     { name: 'Quizzes', href: '/dashboard/quizzes', icon: ClipboardCheck },
     { name: 'Assignments', href: '/dashboard/assignments', icon: FileText },
     { name: 'Certificates', href: '/dashboard/achievements', icon: Award },
@@ -59,7 +61,10 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
               })}
             </nav>
 
-            <div className="mt-8 pt-8 border-t border-neutral-200">
+            <div className="mt-8 pt-8 border-t border-neutral-200 space-y-2">
+              <div className="px-4 py-2">
+                <NotificationBell />
+              </div>
               <SignOutButton>
                 <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-50 w-full">
                   <LogOut className="w-5 h-5" />
@@ -92,7 +97,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
               AutoLearn Spot
             </span>
           </Link>
-          <div className="w-6" />
+          <NotificationBell />
         </header>
 
         {/* Mobile Content */}
@@ -142,7 +147,10 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
                 })}
               </nav>
 
-              <div className="mt-8 pt-8 border-t border-neutral-200">
+              <div className="mt-8 pt-8 border-t border-neutral-200 space-y-2">
+                <div className="px-4 py-2">
+                  <NotificationBell />
+                </div>
                 <SignOutButton>
                   <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-50 w-full">
                     <LogOut className="w-5 h-5" />

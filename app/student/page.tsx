@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { BookOpen, Trophy, Award, ArrowRight, Clock, Play, ChevronRight } from 'lucide-react';
+import { BookOpen, Trophy, Award, ArrowRight, Clock, Play, ChevronRight, Video, MessageSquare } from 'lucide-react';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { UserButton } from '@clerk/nextjs';
 import { getUserEnrollments } from '@/lib/enrollment-service';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,34 @@ export default async function StudentDashboardPage() {
 
   // Fetch real enrollment data
   const enrollments = userId ? await getUserEnrollments(userId, primaryEmail) : [];
+
+  // Fetch live classes and conversations for enrolled courses
+  const enrolledProductIds = enrollments
+    .filter((e: any) => e.learning_product)
+    .map((e: any) => {
+      const lp = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+      return lp?.id;
+    })
+    .filter(Boolean);
+
+  const { data: liveClasses } = enrolledProductIds.length > 0 
+    ? await supabaseAdmin
+        .from('live_classes')
+        .select('learning_product_id')
+        .in('learning_product_id', enrolledProductIds)
+        .in('status', ['SCHEDULED', 'LIVE'])
+    : { data: [] };
+
+  const { data: conversations } = userId && enrolledProductIds.length > 0
+    ? await supabaseAdmin
+        .from('author_conversations')
+        .select('learning_product_id')
+        .eq('student_id', userId)
+        .in('learning_product_id', enrolledProductIds)
+    : { data: [] };
+
+  const productIdsWithLiveClasses = new Set(liveClasses?.map(lc => lc.learning_product_id) || []);
+  const productIdsWithConversations = new Set(conversations?.map(c => c.learning_product_id) || []);
 
   const activeEnrollments = enrollments.filter((e: any) => e.status === 'active' || e.status === 'not_started');
   const completedEnrollments = enrollments.filter((e: any) => e.status === 'completed');
@@ -34,7 +63,14 @@ export default async function StudentDashboardPage() {
         const now = Date.now();
         daysLeft = now > activatedTime + durationMs ? 0 : Math.ceil((activatedTime + durationMs - now) / (1000 * 60 * 60 * 24));
       }
-      return { enrollment_id: e.id, isStarted, daysLeft, course: lp };
+      return { 
+        enrollment_id: e.id, 
+        isStarted, 
+        daysLeft, 
+        course: lp,
+        has_live_class: productIdsWithLiveClasses.has(lp?.id),
+        has_conversation: productIdsWithConversations.has(lp?.id)
+      };
     });
 
   return (
@@ -107,6 +143,23 @@ export default async function StudentDashboardPage() {
                 ) : (
                   <p className="text-xs text-amber-500 font-medium">Not started yet</p>
                 )}
+                
+                {/* Live Class and Messaging Indicators */}
+                <div className="flex gap-2 flex-wrap">
+                  {c.has_live_class && (
+                    <div className="flex items-center gap-1 text-xs text-sky-600 bg-sky-50 px-2 py-1 rounded-lg">
+                      <Video className="w-3 h-3" />
+                      Live Class
+                    </div>
+                  )}
+                  {c.has_conversation && (
+                    <div className="flex items-center gap-1 text-xs text-sky-600 bg-sky-50 px-2 py-1 rounded-lg">
+                      <MessageSquare className="w-3 h-3" />
+                      Messages
+                    </div>
+                  )}
+                </div>
+
                 <Link
                   href={c.isStarted ? `/dashboard/course/${c.course?.id}` : '/dashboard'}
                   className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-[#10b981] hover:underline"
