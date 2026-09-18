@@ -11,7 +11,8 @@ import {
   Users, 
   ArrowLeft,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Trash2
 } from 'lucide-react'
 
 interface Assignment {
@@ -37,6 +38,7 @@ export default function AuthorAssignmentsPage() {
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAssignments()
@@ -58,6 +60,30 @@ export default function AuthorAssignmentsPage() {
       setError('Network error loading assignments')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async (assignmentId: string) => {
+    if (!confirm('Are you sure you want to delete this assignment? This action cannot be undone.')) {
+      return
+    }
+
+    setDeletingId(assignmentId)
+    try {
+      const res = await fetch(`/api/author/assignments/${assignmentId}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        setAssignments(assignments.filter(a => a.id !== assignmentId))
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Failed to delete assignment')
+      }
+    } catch (err) {
+      setError('Network error deleting assignment')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -160,6 +186,14 @@ export default function AuthorAssignmentsPage() {
                     <Users className="h-4 w-4" />
                     Review Submissions
                   </Link>
+                  <button
+                    onClick={() => handleDelete(assignment.id)}
+                    disabled={deletingId === assignment.id}
+                    className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-semibold transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {deletingId === assignment.id ? 'Deleting...' : 'Delete'}
+                  </button>
                 </div>
               </div>
             ))}

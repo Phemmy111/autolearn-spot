@@ -190,15 +190,6 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                     </p>
                   </div>
                 )}
-
-                <div className="mt-4 flex gap-2">
-                  <Link
-                    href={`/author/assignments/${submission.assignment.id}/submissions/${submission.id}`}
-                    className="px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
-                  >
-                    Grade & Provide Feedback
-                  </Link>
-                </div>
               </div>
             ))}
           </div>

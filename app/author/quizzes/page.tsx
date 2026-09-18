@@ -11,7 +11,8 @@ import {
   Users, 
   ArrowLeft,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Trash2
 } from 'lucide-react'
 
 interface Quiz {
@@ -39,6 +40,7 @@ export default function AuthorQuizzesPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchQuizzes()
@@ -64,6 +66,30 @@ export default function AuthorQuizzesPage() {
       setError('Network error loading quizzes')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDelete = async (quizId: string) => {
+    if (!confirm('Are you sure you want to delete this quiz? This action cannot be undone.')) {
+      return
+    }
+
+    setDeletingId(quizId)
+    try {
+      const res = await fetch(`/api/author/quizzes/${quizId}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        setQuizzes(quizzes.filter(q => q.id !== quizId))
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Failed to delete quiz')
+      }
+    } catch (err) {
+      setError('Network error deleting quiz')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -184,6 +210,14 @@ export default function AuthorQuizzesPage() {
                     <Eye className="h-4 w-4" />
                     Preview
                   </Link>
+                  <button
+                    onClick={() => handleDelete(quiz.id)}
+                    disabled={deletingId === quiz.id}
+                    className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-semibold transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    {deletingId === quiz.id ? 'Deleting...' : 'Delete'}
+                  </button>
                 </div>
               </div>
             ))}
