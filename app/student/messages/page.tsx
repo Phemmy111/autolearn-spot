@@ -65,8 +65,11 @@ export default function StudentMessagesPage() {
     try {
       const response = await fetch('/api/student/enrolled-courses');
       const data = await response.json();
+      console.log('Enrolled courses response:', data);
       if (data.success) {
         setEnrolledCourses(data.courses);
+      } else {
+        console.error('Failed to fetch enrolled courses:', data.error);
       }
     } catch (error) {
       console.error('Error fetching enrolled courses:', error);
@@ -74,7 +77,11 @@ export default function StudentMessagesPage() {
   };
 
   const startNewConversation = async () => {
-    if (!selectedCourse || creatingConversation) return;
+    console.log('Starting new conversation with course:', selectedCourse);
+    if (!selectedCourse || creatingConversation) {
+      console.log('Cannot start conversation - missing course or already creating');
+      return;
+    }
 
     setCreatingConversation(true);
     try {
@@ -85,6 +92,7 @@ export default function StudentMessagesPage() {
       });
 
       const data = await response.json();
+      console.log('Conversation creation response:', data);
       if (data.success) {
         setShowNewMessageModal(false);
         setSelectedCourse('');
@@ -136,7 +144,10 @@ export default function StudentMessagesPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowNewMessageModal(true)}
+          onClick={() => {
+            console.log('New Message button clicked');
+            setShowNewMessageModal(true);
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
