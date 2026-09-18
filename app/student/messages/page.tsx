@@ -49,7 +49,9 @@ export default function StudentMessagesPage() {
 
   const fetchConversations = async () => {
     try {
-      const response = await fetch('/api/student/messages/conversations');
+      const response = await fetch('/api/student/messages/conversations', {
+        credentials: 'include',
+      });
       const data = await response.json();
       if (data.success) {
         setConversations(data.conversations);
@@ -63,7 +65,9 @@ export default function StudentMessagesPage() {
 
   const fetchEnrolledCourses = async () => {
     try {
-      const response = await fetch('/api/student/enrolled-courses');
+      const response = await fetch('/api/student/enrolled-courses', {
+        credentials: 'include',
+      });
       const data = await response.json();
       console.log('Enrolled courses response:', data);
       if (data.success) {
@@ -88,6 +92,7 @@ export default function StudentMessagesPage() {
       const response = await fetch('/api/student/messages/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ learning_product_id: selectedCourse }),
       });
 

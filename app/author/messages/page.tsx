@@ -52,7 +52,9 @@ export default function AuthorMessagesPage() {
 
   const fetchConversations = async () => {
     try {
-      const response = await fetch('/api/author/messages/conversations');
+      const response = await fetch('/api/author/messages/conversations', {
+        credentials: 'include',
+      });
       const data = await response.json();
       if (data.success) {
         setConversations(data.conversations);
@@ -66,7 +68,9 @@ export default function AuthorMessagesPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/author/products');
+      const response = await fetch('/api/author/products', {
+        credentials: 'include',
+      });
       const data = await response.json();
       if (data.success) {
         setProducts(data.products);
@@ -78,7 +82,9 @@ export default function AuthorMessagesPage() {
 
   const fetchStudents = async () => {
     try {
-      const response = await fetch('/api/author/students');
+      const response = await fetch('/api/author/students', {
+        credentials: 'include',
+      });
       const data = await response.json();
       if (data.success) {
         setStudents(data.students);
@@ -96,6 +102,7 @@ export default function AuthorMessagesPage() {
       const response = await fetch('/api/author/messages/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ 
           student_id: selectedStudentId,
           learning_product_id: selectedProduct 
@@ -153,8 +160,9 @@ export default function AuthorMessagesPage() {
           </p>
         </div>
         <button
+          type="button"
           onClick={() => setShowNewMessageModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors cursor-pointer active:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
         >
           <Plus className="w-4 h-4" />
           New Message
@@ -341,11 +349,22 @@ function MessageView({ conversation }: { conversation: Conversation }) {
 
       {/* New Message Modal */}
       {showNewMessageModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6">
+        <div 
+          className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowNewMessageModal(false);
+            }
+          }}
+        >
+          <div 
+            className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-brand-text">Start New Conversation</h2>
               <button
+                type="button"
                 onClick={() => setShowNewMessageModal(false)}
                 className="text-brand-text/70 hover:text-brand-text"
               >
@@ -405,15 +424,17 @@ function MessageView({ conversation }: { conversation: Conversation }) {
 
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={startNewConversation}
                   disabled={!selectedProduct || !selectedStudentId || creatingConversation}
-                  className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
                   {creatingConversation ? 'Creating...' : 'Start Conversation'}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setShowNewMessageModal(false)}
-                  className="px-4 py-2 border border-brand-border rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-brand-border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
