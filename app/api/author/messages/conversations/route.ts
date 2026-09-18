@@ -105,6 +105,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You do not have access to this product' }, { status: 403 });
     }
 
+    // Verify student has access to this product
+    const hasAccess = await verifyStudentAccess(student_id, learning_product_id);
+    if (!hasAccess) {
+      return NextResponse.json({ error: 'Student does not have access to this product' }, { status: 403 });
+    }
+
     // Check if conversation already exists
     const { data: existing } = await supabaseAdmin
       .from('author_conversations')
@@ -139,6 +145,30 @@ export async function POST(request: NextRequest) {
     console.error('Error in conversations API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+async function verifyStudentAccess(studentId: string, productId: string): Promise<boolean> {
+  // Check if student has access via enrollments or orders
+  const { data: enrollments } = await supabaseAdmin
+    .from('enrollments')
+    .select('cohort_id')
+    .eq('clerk_user_id', studentId)
+    .eq('status', 'active');
+
+  if (!enrollments || enrollments.length === 0) {
+    return false;
+  }
+
+  const cohortIds = enrollments.map(e => e.cohort_id);
+
+  // Check if any cohort is linked to this learning product
+  const { data: cohorts } = await supabaseAdmin
+    .from('cohorts')
+    .select('id')
+    .in('id', cohortIds)
+    .eq('learning_product_id', productId);
+
+  return cohorts && cohorts.length > 0;
 }
 
 async function getUnreadCounts(conversationIds: string[], authorId: string) {

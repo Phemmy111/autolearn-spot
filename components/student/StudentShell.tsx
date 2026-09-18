@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, BookOpen, Award, Home, LogOut, Settings, FileText, ClipboardCheck, MessageSquare } from 'lucide-react';
+import { Menu, X, BookOpen, Award, Home, LogOut, Settings, FileText, ClipboardCheck, MessageSquare, Video } from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
 import { NotificationBell } from '@/components/NotificationBell';
 
@@ -20,6 +20,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
     { name: 'Dashboard', href: '/student', icon: Home },
     { name: 'My Learning', href: '/dashboard', icon: BookOpen },
     { name: 'Messages', href: '/student/messages', icon: MessageSquare },
+    { name: 'Live Classes', href: '/student/live-classes', icon: Video },
     { name: 'Quizzes', href: '/dashboard/quizzes', icon: ClipboardCheck },
     { name: 'Assignments', href: '/dashboard/assignments', icon: FileText },
     { name: 'Certificates', href: '/dashboard/achievements', icon: Award },
