@@ -153,15 +153,6 @@ export default function AuthorQuizResponsesPage({ params }: { params: Promise<{ 
                     Submitted: {new Date(response.submitted_at).toLocaleString()}
                   </span>
                 </div>
-
-                <div className="mt-4 flex gap-2">
-                  <Link
-                    href={`/author/quizzes/${response.quiz.id}/responses/${response.id}`}
-                    className="px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
-                  >
-                    View Details
-                  </Link>
-                </div>
               </div>
             ))}
           </div>

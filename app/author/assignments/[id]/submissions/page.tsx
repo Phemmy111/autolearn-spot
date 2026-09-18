@@ -36,6 +36,12 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [assignmentId, setAssignmentId] = useState<string>('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({
+    score: '',
+    feedback: ''
+  })
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (params) {
@@ -63,6 +69,50 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleStartEdit = (submission: Submission) => {
+    setEditingId(submission.id)
+    setEditForm({
+      score: submission.score?.toString() || '',
+      feedback: submission.ai_feedback || ''
+    })
+  }
+
+  const handleSave = async (submissionId: string) => {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/author/submissions/${submissionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          score: parseInt(editForm.score) || null,
+          feedback: editForm.feedback
+        }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setSubmissions(submissions.map(s => 
+          s.id === submissionId 
+            ? { ...s, ai_score: data.submission.ai_score, ai_feedback: data.submission.ai_feedback }
+            : s
+        ))
+        setEditingId(null)
+      } else {
+        const data = await res.json()
+        setError(data.error || 'Failed to update submission')
+      }
+    } catch (err) {
+      setError('Network error updating submission')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setEditingId(null)
+    setEditForm({ score: '', feedback: '' })
   }
 
   if (loading) {
@@ -188,6 +238,56 @@ export default function AuthorAssignmentSubmissionsPage({ params }: { params: Pr
                     <p className="text-sm text-brand-text/70">
                       <span className="font-semibold">Notes:</span> {submission.notes}
                     </p>
+                  </div>
+                )}
+
+                {editingId === submission.id ? (
+                  <div className="bg-[var(--card)] border border-brand-border p-4 rounded-lg mb-4">
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-brand-text/70 mb-2">Score (out of {submission.assignment.max_score})</label>
+                      <input
+                        type="number"
+                        value={editForm.score}
+                        onChange={(e) => setEditForm({...editForm, score: e.target.value})}
+                        min="0"
+                        max={submission.assignment.max_score}
+                        className="w-full px-4 py-2 bg-brand-bg border border-brand-border rounded-lg text-brand-text focus:border-brand-primary outline-none"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-brand-text/70 mb-2">Feedback</label>
+                      <textarea
+                        value={editForm.feedback}
+                        onChange={(e) => setEditForm({...editForm, feedback: e.target.value})}
+                        rows={3}
+                        className="w-full px-4 py-2 bg-brand-bg border border-brand-border rounded-lg text-brand-text focus:border-brand-primary outline-none"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSave(submission.id)}
+                        disabled={saving}
+                        className="px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
+                      >
+                        {saving ? 'Saving...' : 'Save Feedback'}
+                      </button>
+                      <button
+                        onClick={handleCancel}
+                        disabled={saving}
+                        className="px-4 py-2 bg-[var(--card)] brightness-95 text-neutral-700 text-sm font-semibold rounded-lg hover:bg-neutral-200 transition-colors disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      onClick={() => handleStartEdit(submission)}
+                      className="px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700 transition-colors"
+                    >
+                      Grade & Provide Feedback
+                    </button>
                   </div>
                 )}
               </div>
