@@ -5,32 +5,38 @@ import { supabaseAdmin } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 const DEFAULT_SKILLS = [
-  { name: 'AI Automation', description: 'Master workflow automation using AI tools like n8n, Make, and Zapier to build powerful, hands-free systems.', slug: 'ai-automation' },
-  { name: 'AI & Machine Learning', description: 'Understand and apply Artificial Intelligence and Machine Learning concepts to real-world problems.', slug: 'ai-machine-learning' },
-  { name: 'Video Content Creation', description: 'Create, edit and publish engaging video content using AI-powered tools for YouTube, TikTok and more.', slug: 'video-content-creation' },
-  { name: 'Digital Marketing', description: 'Learn how to grow an audience, run ads, and drive revenue through modern digital marketing strategies.', slug: 'digital-marketing' },
-  { name: 'Web Development', description: 'Build modern, responsive websites and web applications with the latest tools and frameworks.', slug: 'web-development' },
-  { name: 'No-Code Tools', description: 'Build powerful apps and automations without writing a single line of code using no-code platforms.', slug: 'no-code-tools' },
-  { name: 'Freelancing & Business', description: 'Start and grow a profitable freelance business or online agency with practical, actionable guidance.', slug: 'freelancing-business' },
-  { name: 'Prompt Engineering', description: 'Learn how to write effective AI prompts to get better results from ChatGPT, Claude, Gemini and more.', slug: 'prompt-engineering' },
+  { name: 'AI Automation', description: 'Master workflow automation using AI tools like n8n, Make, and Zapier to build powerful, hands-free systems.' },
+  { name: 'AI & Machine Learning', description: 'Understand and apply Artificial Intelligence and Machine Learning concepts to real-world problems.' },
+  { name: 'Video Content Creation', description: 'Create, edit and publish engaging video content using AI-powered tools for YouTube, TikTok and more.' },
+  { name: 'Digital Marketing', description: 'Learn how to grow an audience, run ads, and drive revenue through modern digital marketing strategies.' },
+  { name: 'Web Development', description: 'Build modern, responsive websites and web applications with the latest tools and frameworks.' },
+  { name: 'No-Code Tools', description: 'Build powerful apps and automations without writing a single line of code using no-code platforms.' },
+  { name: 'Freelancing & Business', description: 'Start and grow a profitable freelance business or online agency with practical, actionable guidance.' },
+  { name: 'Prompt Engineering', description: 'Learn how to write effective AI prompts to get better results from ChatGPT, Claude, Gemini and more.' },
 ];
 
 export default async function SkillsPage() {
   // Check if skills exist; auto-seed if not
   const { data: existingSkills } = await supabaseAdmin.from('skills').select('id').limit(1);
   if (!existingSkills || existingSkills.length === 0) {
-    await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS);
+    // Try inserting with name + description only (safest subset of columns)
+    const { error: seedError } = await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS);
+    if (seedError) {
+      // If description column also doesn't exist, fall back to name only
+      await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS.map(s => ({ name: s.name })));
+    }
   }
 
   const { data: skills } = await supabaseAdmin
     .from('skills')
-    .select('id, name, description, slug, learning_products(id, status)')
+    .select('id, name, description, learning_products(id, status)')
     .order('name');
 
   const validSkills = (skills || []).map(skill => {
     const publishedProducts = (skill.learning_products as any[])?.filter((p) => p.status === 'PUBLISHED') || [];
     return { ...skill, publishedCount: publishedProducts.length };
   });
+
 
   return (
     <div className="min-h-screen bg-brand-bg pt-20">
@@ -65,7 +71,7 @@ export default async function SkillsPage() {
               {validSkills.map((skill, index) => (
                 <Link
                   key={skill.id}
-                  href={`/skills/${skill.slug || skill.name.toLowerCase().replace(/ /g, '-')}`}
+                  href={`/skills/${skill.id}`}
                   className="group flex flex-col bg-[var(--card)] rounded-[24px] overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1 border border-brand-border/60"
                 >
                   <div className="relative h-40 w-full overflow-hidden bg-brand-primary/10">

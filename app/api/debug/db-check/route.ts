@@ -11,8 +11,20 @@ export async function GET() {
 
   const { data: skills, error: skillsError } = await supabaseAdmin
     .from('skills')
-    .select('id, name, description')
-    .limit(20);
+    .select('*')
+    .limit(5);
+
+  // Try to insert a test skill to see exact error
+  const { data: insertTest, error: insertError } = await supabaseAdmin
+    .from('skills')
+    .insert({ name: '__test_skill__', description: 'test' })
+    .select()
+    .single();
+
+  // If insert succeeded, delete it immediately
+  if (insertTest?.id) {
+    await supabaseAdmin.from('skills').delete().eq('id', insertTest.id);
+  }
 
   const { data: products, error: productsError } = await supabaseAdmin
     .from('learning_products')
@@ -21,7 +33,8 @@ export async function GET() {
 
   return NextResponse.json({
     authors: { count: authors?.length ?? 0, data: authors, error: authorsError?.message },
-    skills: { count: skills?.length ?? 0, data: skills, error: skillsError?.message },
+    skills: { count: skills?.length ?? 0, sample_columns: skills?.[0] ? Object.keys(skills[0]) : [], error: skillsError?.message },
+    skills_insert_test: { success: !!insertTest, error: insertError?.message },
     products: { count: products?.length ?? 0, data: products, error: productsError?.message },
   });
 }
