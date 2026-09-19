@@ -1,10 +1,22 @@
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Play, Code, Megaphone, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
+import { supabaseAdmin } from '@/lib/supabase';
+import { DynamicSlider } from '@/components/ui/DynamicSlider';
 
-export function MarketplaceHero() {
+export async function MarketplaceHero() {
+  const { data: sliderConfig } = await supabaseAdmin
+    .from('page_sliders')
+    .select('*, slider_media(*)')
+    .eq('target_id', 'homepage')
+    .single();
+
+  const hasSlider = sliderConfig && sliderConfig.slider_media && sliderConfig.slider_media.length > 0;
+  const sortedMedia = hasSlider ? sliderConfig.slider_media.sort((a: any, b: any) => a.order_index - b.order_index) : [];
+
   return (
     <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden bg-brand-bg">
+
       {/* Background radial gradient */}
       <div className="absolute inset-0 z-0 bg-brand-bg bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
       
@@ -77,18 +89,27 @@ export function MarketplaceHero() {
           {/* Right Column: Visuals */}
           <div className="relative h-[500px] lg:h-[650px] w-full hidden md:block animate-in fade-in zoom-in-95 duration-1000 delay-300 fill-mode-both">
             {/* Main Image Mask/Container */}
-            <div className="absolute right-0 bottom-0 w-[90%] h-[95%] bg-[var(--card)] brightness-95 rounded-[32px] overflow-hidden shadow-2xl">
-               <Image
-                 src="https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069&auto=format&fit=crop"
-                 alt="Student learning"
-                 fill
-                 className="object-cover object-top"
-                 priority
-               />
+            <div className="absolute right-0 bottom-0 w-[90%] h-[95%] bg-[var(--card)] brightness-95 rounded-[32px] overflow-hidden shadow-2xl relative">
+              {hasSlider ? (
+                <DynamicSlider
+                  media={sortedMedia}
+                  transitionStyle={sliderConfig.transition_style}
+                  durationMs={sliderConfig.duration_ms}
+                  className="w-full h-full"
+                />
+              ) : (
+                <Image
+                  src="https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069&auto=format&fit=crop"
+                  alt="Student learning"
+                  fill
+                  className="object-cover object-top"
+                  priority
+                />
+              )}
             </div>
 
             {/* Floating Card 1: AI Automation */}
-            <div className="absolute top-[10%] left-0 bg-brand-bg/80 backdrop-blur-lg p-3 pr-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default">
+            <div className="absolute top-[10%] left-0 bg-brand-bg/80 backdrop-blur-lg p-3 pr-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white flex items-center gap-4 hover:-translate-y-1 transition-transform cursor-default z-20">
               <div className="w-12 h-12 bg-brand-primary/10 rounded-xl flex items-center justify-center">
                 <Play className="w-5 h-5 text-brand-primary ml-0.5" fill="currentColor" />
               </div>
