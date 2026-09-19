@@ -5,36 +5,42 @@ import { supabaseAdmin } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 const DEFAULT_SKILLS = [
-  { name: 'AI Automation', description: 'Master workflow automation using AI tools like n8n, Make, and Zapier to build powerful, hands-free systems.' },
-  { name: 'AI & Machine Learning', description: 'Understand and apply Artificial Intelligence and Machine Learning concepts to real-world problems.' },
-  { name: 'Video Content Creation', description: 'Create, edit and publish engaging video content using AI-powered tools for YouTube, TikTok and more.' },
-  { name: 'Digital Marketing', description: 'Learn how to grow an audience, run ads, and drive revenue through modern digital marketing strategies.' },
-  { name: 'Web Development', description: 'Build modern, responsive websites and web applications with the latest tools and frameworks.' },
-  { name: 'No-Code Tools', description: 'Build powerful apps and automations without writing a single line of code using no-code platforms.' },
-  { name: 'Freelancing & Business', description: 'Start and grow a profitable freelance business or online agency with practical, actionable guidance.' },
-  { name: 'Prompt Engineering', description: 'Learn how to write effective AI prompts to get better results from ChatGPT, Claude, Gemini and more.' },
+  { name: 'AI Automation', slug: 'ai-automation', description: 'Master workflow automation using AI tools like n8n, Make, and Zapier to build powerful, hands-free systems.' },
+  { name: 'AI & Machine Learning', slug: 'ai-machine-learning', description: 'Understand and apply Artificial Intelligence and Machine Learning concepts to real-world problems.' },
+  { name: 'Video Content Creation', slug: 'video-content-creation', description: 'Create, edit and publish engaging video content using AI-powered tools for YouTube, TikTok and more.' },
+  { name: 'Digital Marketing', slug: 'digital-marketing', description: 'Learn how to grow an audience, run ads, and drive revenue through modern digital marketing strategies.' },
+  { name: 'Web Development', slug: 'web-development', description: 'Build modern, responsive websites and web applications with the latest tools and frameworks.' },
+  { name: 'No-Code Tools', slug: 'no-code-tools', description: 'Build powerful apps and automations without writing a single line of code using no-code platforms.' },
+  { name: 'Freelancing & Business', slug: 'freelancing-business', description: 'Start and grow a profitable freelance business or online agency with practical, actionable guidance.' },
+  { name: 'Prompt Engineering', slug: 'prompt-engineering', description: 'Learn how to write effective AI prompts to get better results from ChatGPT, Claude, Gemini and more.' },
 ];
 
 export default async function SkillsPage() {
   // Check if skills exist; auto-seed if not
   const { data: existingSkills } = await supabaseAdmin.from('skills').select('id').limit(1);
   if (!existingSkills || existingSkills.length === 0) {
-    // Try inserting with name + description only (safest subset of columns)
-    const { error: seedError } = await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS);
-    if (seedError) {
-      // If description column also doesn't exist, fall back to name only
-      await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS.map(s => ({ name: s.name })));
-    }
+    await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS);
   }
 
+  // Fetch skills WITHOUT nested join (nested joins fail silently if FK not in PostgREST)
   const { data: skills } = await supabaseAdmin
     .from('skills')
-    .select('id, name, description, learning_products(id, status)')
+    .select('id, name, description, slug')
     .order('name');
 
+  // Fetch published products separately to count per skill
+  const skillIds = (skills || []).map(s => s.id);
+  const { data: products } = skillIds.length > 0
+    ? await supabaseAdmin
+        .from('learning_products')
+        .select('id, skill_id, status')
+        .in('skill_id', skillIds)
+        .eq('status', 'PUBLISHED')
+    : { data: [] };
+
   const validSkills = (skills || []).map(skill => {
-    const publishedProducts = (skill.learning_products as any[])?.filter((p) => p.status === 'PUBLISHED') || [];
-    return { ...skill, publishedCount: publishedProducts.length };
+    const publishedCount = (products || []).filter(p => p.skill_id === skill.id).length;
+    return { ...skill, publishedCount };
   });
 
 
@@ -71,7 +77,7 @@ export default async function SkillsPage() {
               {validSkills.map((skill, index) => (
                 <Link
                   key={skill.id}
-                  href={`/skills/${skill.id}`}
+                  href={`/skills/${skill.slug || skill.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                   className="group flex flex-col bg-[var(--card)] rounded-[24px] overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1 border border-brand-border/60"
                 >
                   <div className="relative h-40 w-full overflow-hidden bg-brand-primary/10">
