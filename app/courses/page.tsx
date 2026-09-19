@@ -1,6 +1,7 @@
 import { getPublishedProducts } from '@/lib/public-product-service';
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Home, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,16 @@ export default async function CoursesPage() {
     <div className="min-h-screen bg-brand-bg">
       <div className="bg-[var(--card)] brightness-95 border-b border-brand-border">
         <div className="container mx-auto px-6 lg:px-12 py-12 pt-24">
+          {/* Breadcrumb */}
+          <div className="mb-6 flex items-center gap-2 text-sm text-brand-text/60">
+            <Link href="/" className="inline-flex items-center gap-1.5 hover:text-brand-primary transition-colors font-medium">
+              <Home className="w-4 h-4" />
+              Home
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-brand-text font-semibold">Courses</span>
+          </div>
+
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center">
               <BookOpen className="w-6 h-6 text-brand-primary" />

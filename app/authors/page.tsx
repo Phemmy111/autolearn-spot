@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { User, Star, BookOpen, Briefcase } from 'lucide-react';
+import { User, Star, BookOpen, Briefcase, Home, ChevronRight } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
 import Image from 'next/image';
 
@@ -67,6 +67,16 @@ export default async function AuthorsDirectoryPage() {
     <div className="min-h-screen bg-brand-bg pt-20">
       <section className="bg-brand-bg py-20">
         <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
+          {/* Home breadcrumb */}
+          <div className="mb-8 flex items-center gap-2 text-sm text-brand-text/60">
+            <Link href="/" className="inline-flex items-center gap-1.5 hover:text-brand-primary transition-colors font-medium">
+              <Home className="w-4 h-4" />
+              Home
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-brand-text font-semibold">Authors</span>
+          </div>
+
           <div className="mb-12 text-center max-w-2xl mx-auto">
             <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-brand-text mb-4">
               Meet Our Authors

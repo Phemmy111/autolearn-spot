@@ -140,6 +140,17 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
       {/* Header */}
       <div className="bg-gradient-to-br from-sky-900/20 to-sky-800/10 border-b border-sky-900/30">
         <div className="container mx-auto px-4 py-12">
+          {/* Breadcrumb */}
+          <div className="max-w-4xl mx-auto mb-6 flex items-center gap-2 text-sm text-gray-500">
+            <Link href="/" className="inline-flex items-center gap-1.5 hover:text-sky-600 transition-colors font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Home
+            </Link>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <Link href="/authors" className="hover:text-sky-600 transition-colors font-medium">Authors</Link>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <span className="text-gray-700 font-semibold truncate max-w-[200px]">{author.display_name}</span>
+          </div>
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               {/* Profile Image */}

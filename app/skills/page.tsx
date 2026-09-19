@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Tag, ArrowRight } from 'lucide-react';
+import { Tag, ArrowRight, Home, ChevronRight } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +23,16 @@ export default async function SkillsPage() {
     <div className="min-h-screen bg-brand-bg pt-20">
       <section className="bg-brand-bg py-20">
         <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
+          {/* Home breadcrumb */}
+          <div className="mb-8 flex items-center gap-2 text-sm text-brand-text/60">
+            <Link href="/" className="inline-flex items-center gap-1.5 hover:text-brand-primary transition-colors font-medium">
+              <Home className="w-4 h-4" />
+              Home
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-brand-text font-semibold">Skills</span>
+          </div>
+
           <div className="mb-10">
             <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-brand-text mb-2">
               Explore Top Skills
