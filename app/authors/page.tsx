@@ -13,18 +13,26 @@ export default async function AuthorsDirectoryPage() {
     .eq('status', 'ACTIVE')
     .order('display_name');
 
-  // Step 2: Fetch published products separately
+  // Step 2: Fetch published products separately (no nested join to avoid silent failures)
   const authorIds = (authors || []).map((a) => a.id);
   const { data: products } = authorIds.length > 0
     ? await supabaseAdmin
         .from('learning_products')
-        .select('id, author_id, status, enrolled_count')
+        .select('id, author_id, status')
         .in('author_id', authorIds)
         .eq('status', 'PUBLISHED')
     : { data: [] };
 
-  // Step 3: Fetch reviews for those products
+  // Step 3: Count enrollments per product from enrollments table
   const productIds = (products || []).map((p) => p.id);
+  const { data: enrollments } = productIds.length > 0
+    ? await supabaseAdmin
+        .from('enrollments')
+        .select('learning_product_id')
+        .in('learning_product_id', productIds)
+    : { data: [] };
+
+  // Step 4: Fetch reviews for those products
   const { data: reviews } = productIds.length > 0
     ? await supabaseAdmin
         .from('product_reviews')
@@ -32,12 +40,15 @@ export default async function AuthorsDirectoryPage() {
         .in('product_id', productIds)
     : { data: [] };
 
-  // Step 4: Merge everything in JS
+  // Step 5: Merge everything in JS
   const enrichedAuthors = (authors || []).map((author) => {
     const authorProducts = (products || []).filter((p) => p.author_id === author.id);
-    const totalStudents = authorProducts.reduce((sum, p) => sum + (p.enrolled_count || 0), 0);
-
     const authorProductIds = authorProducts.map((p) => p.id);
+
+    const totalStudents = (enrollments || []).filter((e) =>
+      authorProductIds.includes(e.learning_product_id)
+    ).length;
+
     const authorReviews = (reviews || []).filter((r) => authorProductIds.includes(r.product_id));
     const avgRating =
       authorReviews.length > 0

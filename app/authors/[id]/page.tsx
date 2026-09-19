@@ -49,33 +49,55 @@ async function getAuthorData(authorId: string) {
 }
 
 async function getAuthorProducts(authorId: string) {
+  // 1. Fetch products (no nested join - it breaks silently if FK isn't registered in PostgREST)
   const { data: products, error: productsError } = await supabaseAdmin
     .from('learning_products')
-    .select('*, product_reviews(rating)')
+    .select('id, title, slug, description, thumbnail_url, price, currency, status, created_at, author_id')
     .eq('author_id', authorId)
     .eq('status', 'PUBLISHED')
     .order('created_at', { ascending: false });
 
-  if (productsError || !products) {
+  if (productsError || !products || products.length === 0) {
     return [];
   }
 
-  // Calculate average rating for each product
-  const productsWithRating = products.map((product: any) => {
-    const reviews = product.product_reviews || [];
-    const avgRating = reviews.length > 0 
-      ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length 
-      : 0;
-    
+  const productIds = products.map((p: any) => p.id);
+
+  // 2. Fetch reviews separately
+  const { data: reviews } = await supabaseAdmin
+    .from('product_reviews')
+    .select('product_id, rating')
+    .in('product_id', productIds);
+
+  // 3. Count enrollments per product
+  const { data: enrollments } = await supabaseAdmin
+    .from('enrollments')
+    .select('learning_product_id')
+    .in('learning_product_id', productIds);
+
+  // 4. Merge in JS
+  const productsWithStats = products.map((product: any) => {
+    const productReviews = (reviews || []).filter((r: any) => r.product_id === product.id);
+    const avgRating =
+      productReviews.length > 0
+        ? productReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / productReviews.length
+        : 0;
+    const enrolled = (enrollments || []).filter(
+      (e: any) => e.learning_product_id === product.id
+    ).length;
+
     return {
       ...product,
+      thumbnail: product.thumbnail_url,
       rating: avgRating,
-      review_count: reviews.length
+      review_count: productReviews.length,
+      enrolled_count: enrolled,
     };
   });
 
-  return productsWithRating as Product[];
+  return productsWithStats as Product[];
 }
+
 
 export default async function AuthorPublicPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
