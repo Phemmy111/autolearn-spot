@@ -104,7 +104,7 @@ export default function AuthorStudentsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-text/60" />
           <input
             type="text"
-            placeholder="Search by name, email, or cohort..."
+            placeholder="Search by name, email, or course..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text placeholder-brand-text/50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
@@ -177,10 +177,10 @@ export default function AuthorStudentsPage() {
             {/* Table Header */}
             <div className="hidden sm:grid sm:grid-cols-[1fr_140px_100px_80px_80px] gap-4 px-6 py-3 bg-brand-bg border-b border-brand-border text-xs font-semibold text-brand-text/60 uppercase tracking-wider">
               <span>Student</span>
-              <span>Cohort</span>
+              <span>Course</span>
               <span>Status</span>
               <span className="text-center">Quizzes</span>
-              <span className="text-center">Tasks</span>
+              <span className="text-center">Assignments</span>
             </div>
 
             {/* Table Body */}
