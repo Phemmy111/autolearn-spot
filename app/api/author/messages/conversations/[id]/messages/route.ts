@@ -128,6 +128,10 @@ export async function POST(
     // Determine sender role
     const senderRole = isAuthor ? 'AUTHOR' : 'STUDENT';
 
+    // Sanitize message_type to valid enum values (TEXT, IMAGE, VOICE)
+    const validTypes = ['TEXT', 'IMAGE', 'VOICE'];
+    const safeMessageType = validTypes.includes(message_type) ? message_type : 'TEXT';
+
     // Create message
     const { data: message, error: messageError } = await supabaseAdmin
       .from('author_messages')
@@ -135,7 +139,7 @@ export async function POST(
         conversation_id: conversationId,
         sender_id: userId,
         sender_role: senderRole,
-        message_type: message_type || 'TEXT',
+        message_type: safeMessageType,
         body: messageBody,
       })
       .select()
