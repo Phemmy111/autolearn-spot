@@ -82,7 +82,7 @@ function VoicePlayer({ url, isMe }: { url: string; isMe: boolean }) {
 // Message Bubble
 function MessageBubble({ message, isMe, partnerName }: { message: Message; isMe: boolean; partnerName?: string }) {
   const atts = message.author_message_attachments || [];
-  const displayName = isMe ? "You" : (partnerName || "");
+  const displayName = message.sender_role === "AUTHOR" ? "Author" : "Student";
 
   return (
     <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-2`}>
@@ -244,7 +244,7 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
       mr.start(100);
       setRecording(true); setPaused(false); setRecTime(0);
       timerRef.current = setInterval(() => setRecTime(t => t + 1), 1000);
-    } catch { alert("Microphone access denied"); }
+    } catch (err: any) { alert("Microphone access denied or error: " + err.message); }
   };
 
   const pauseRecording = () => {
@@ -263,8 +263,10 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
     if (timerRef.current) clearInterval(timerRef.current);
     const mr = mediaRef.current;
     mr.onstop = async () => {
-      const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      const file = new File([blob], `voice-${Date.now()}.webm`, { type: "audio/webm" });
+      const mime = mr.mimeType || "audio/webm";
+      const ext = mime.includes("mp4") ? "mp4" : mime.includes("ogg") ? "ogg" : "webm";
+      const blob = new Blob(chunksRef.current, { type: mime });
+      const file = new File([blob], `voice-${Date.now()}.${ext}`, { type: mime });
       const previewUrl = URL.createObjectURL(blob);
       const att: PendingAttachment = { file, previewUrl, uploading: true };
       setPendingAttachments(prev => [...prev, att]);
@@ -376,7 +378,7 @@ export function ChatView({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-50 rounded-2xl overflow-hidden shadow-sm border border-gray-200">
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <button onClick={onBack} className="flex items-center gap-1 text-sky-600 hover:text-sky-700 font-medium text-sm flex-shrink-0">
           <ArrowLeft className="w-4 h-4" />
