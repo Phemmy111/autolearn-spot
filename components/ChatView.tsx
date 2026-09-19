@@ -1,4 +1,5 @@
-﻿use client;
+"use client";
+
 /**
  * Shared Chat Component for AutoLearn Spot
  * Used by both author/messages and student/messages pages
