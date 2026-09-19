@@ -6,11 +6,13 @@
  */
 import {
   useState, useEffect, useRef, useCallback, ChangeEvent, KeyboardEvent
-} from react;
+} from "react";
+
 import {
   ArrowLeft, Send, Paperclip, Mic, Play, Pause,
   StopCircle, Download, X, FileText
-} from lucide-react;
+} from "lucide-react";
+
 
 interface Message {
   id: string;
