@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
@@ -36,7 +36,8 @@ export async function POST(request: NextRequest) {
       "audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav",
     ];
 
-    if (!allowedTypes.includes(file.type)) {
+    const baseType = file.type.split(";")[0];
+    if (!allowedTypes.includes(baseType)) {
       return NextResponse.json({ error: "File type not allowed" }, { status: 400 });
     }
 

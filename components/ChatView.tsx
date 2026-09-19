@@ -378,7 +378,10 @@ export function ChatView({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-gray-50 rounded-2xl overflow-hidden shadow-sm border border-gray-200">
+    <div 
+      className="flex flex-col bg-gray-50 rounded-2xl overflow-hidden shadow-sm border border-gray-200 w-full"
+      style={{ height: 'calc(100vh - 64px)' }}
+    >
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <button onClick={onBack} className="flex items-center gap-1 text-sky-600 hover:text-sky-700 font-medium text-sm flex-shrink-0">
           <ArrowLeft className="w-4 h-4" />
