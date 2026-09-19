@@ -148,7 +148,7 @@ function PendingPreview({ att, onRemove }: { att: PendingAttachment; onRemove: (
 }
 
 // Message Input
-function MessageInput({ conversationId, onSent }: { conversationId: string; onSent: () => void }) {
+function MessageInput({ conversationId, onSent, myRole }: { conversationId: string; onSent: () => void; myRole: string }) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<PendingAttachment[]>([]);
@@ -378,9 +378,7 @@ export function ChatView({
   }, [messages]);
 
   return (
-    <div 
-      className="flex flex-col bg-gray-50 border-gray-200 w-full -m-4 md:-m-8 h-[calc(100vh-73px)] md:h-screen"
-    >
+    <div className="fixed inset-0 flex flex-col bg-gray-50 z-10 md:left-64">
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <button onClick={onBack} className="flex items-center gap-1 text-sky-600 hover:text-sky-700 font-medium text-sm flex-shrink-0">
           <ArrowLeft className="w-4 h-4" />
@@ -410,7 +408,7 @@ export function ChatView({
         )}
       </div>
       <div className="flex-shrink-0">
-        <MessageInput conversationId={conversationId} onSent={fetchMessages} />
+        <MessageInput conversationId={conversationId} onSent={fetchMessages} myRole={myRole} />
       </div>
     </div>
   );
