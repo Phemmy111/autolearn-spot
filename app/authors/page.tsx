@@ -38,7 +38,7 @@ export default async function AuthorsDirectoryPage() {
       totalStudents,
       avgRating
     };
-  }).filter(a => a.publishedCount > 0); // Only show authors with published products
+  }).filter(a => a.status === 'ACTIVE' || !a.status); // Show all approved/active authors
 
   return (
     <div className="min-h-screen bg-brand-bg pt-20">

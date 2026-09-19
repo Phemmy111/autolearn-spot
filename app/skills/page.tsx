@@ -38,27 +38,41 @@ export default async function SkillsPage() {
               <p className="text-brand-text/60">Check back later for new skills and courses.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {validSkills.map((skill) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {validSkills.map((skill, index) => (
                 <Link
                   key={skill.id}
                   href={`/skills/${skill.slug || skill.name.toLowerCase().replace(/ /g, '-')}`}
-                  className="group flex items-start gap-4 p-6 bg-[var(--card)] rounded-[24px] hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 hover:-translate-y-1 border border-brand-border/60"
+                  className="group flex flex-col bg-[var(--card)] rounded-[24px] overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1 border border-brand-border/60"
                 >
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 bg-brand-primary/10 text-brand-primary flex-shrink-0">
-                    <Tag className="w-6 h-6" />
+                  <div className="relative h-40 w-full overflow-hidden bg-brand-primary/10">
+                    <img 
+                      src={`https://picsum.photos/seed/${skill.id}/600/400`} 
+                      alt={skill.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-80" />
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 backdrop-blur-md text-white flex-shrink-0 border border-white/20">
+                        <Tag className="w-5 h-5" />
+                      </div>
+                      <span className="block text-xl font-bold text-white line-clamp-1 drop-shadow-md">
+                        {skill.name}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="block text-lg font-bold text-brand-text group-hover:text-brand-primary transition-colors mb-1">
-                      {skill.name}
-                    </span>
-                    {skill.description && (
-                      <p className="text-sm text-brand-text/70 line-clamp-2 mb-2">
+                  
+                  <div className="p-5 flex-1 flex flex-col">
+                    {skill.description ? (
+                      <p className="text-sm text-brand-text/70 line-clamp-2 mb-4 flex-1">
                         {skill.description}
                       </p>
+                    ) : (
+                      <div className="flex-1" />
                     )}
-                    <div className="text-xs font-semibold text-brand-text/50">
-                      {skill.publishedCount} published {skill.publishedCount === 1 ? 'product' : 'products'}
+                    <div className="text-xs font-semibold text-brand-text/50 pt-3 border-t border-brand-border flex items-center justify-between">
+                      <span>{skill.publishedCount} published {skill.publishedCount === 1 ? 'product' : 'products'}</span>
+                      <ArrowRight className="w-4 h-4 text-brand-primary opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                     </div>
                   </div>
                 </Link>
