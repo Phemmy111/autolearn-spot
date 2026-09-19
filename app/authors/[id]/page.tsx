@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { User, MapPin, Link as LinkIcon, Briefcase, Star, Award } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import AddToCartButton from '@/components/marketplace/AddToCartButton';
 
 interface Author {
   id: string;
@@ -268,69 +269,66 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Link 
-                  key={product.id} 
-                  href={`/learning_products/${product.id}`}
-                  className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-sky-500/50 transition-all hover:shadow-lg"
-                >
-                  <div className="aspect-video bg-gradient-to-br from-sky-900/20 to-sky-800/10 relative">
-                    {product.thumbnail ? (
-                      <Image 
-                        src={product.thumbnail} 
-                        alt={product.title} 
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Briefcase className="w-12 h-12 text-sky-600/50" />
+              {products.map((product) => {
+                // Parse JSON description if needed
+                let descText = product.description || '';
+                try {
+                  const parsed = JSON.parse(product.description || '');
+                  descText = parsed.short_description || parsed.full_description || descText;
+                } catch {}
+
+                const formattedPrice = new Intl.NumberFormat('en-NG', {
+                  style: 'currency',
+                  currency: product.currency || 'NGN',
+                  maximumFractionDigits: 0,
+                }).format(product.price);
+
+                return (
+                  <div key={product.id} className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-sky-400/60 transition-all hover:shadow-lg flex flex-col">
+                    <Link href={`/learning_products/${product.id}`}>
+                      <div className="aspect-video bg-gradient-to-br from-sky-900/20 to-sky-800/10 relative">
+                        {product.thumbnail ? (
+                          <Image
+                            src={product.thumbnail}
+                            alt={product.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Briefcase className="w-12 h-12 text-sky-600/50" />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs px-2 py-1 bg-sky-900/30 text-sky-700 rounded-full">
-                        {product.category}
-                      </span>
-                      <span className="text-xs px-2 py-1 bg-emerald-900/30 text-emerald-700 rounded-full">
-                        {product.skill}
-                      </span>
-                    </div>
-                    
-                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-sky-600 transition-colors">
-                      {product.title}
-                    </h3>
-                    
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                        <span className="text-sm font-semibold text-gray-900">
-                          {product.rating.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-gray-600">
-                          ({product.review_count})
-                        </span>
-                      </div>
-                      
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-sky-600">
-                          {new Intl.NumberFormat('en-NG', { 
-                            style: 'currency', 
-                            currency: product.currency || 'NGN',
-                            maximumFractionDigits: 0 
-                          }).format(product.price)}
-                        </p>
+                    </Link>
+
+                    <div className="p-4 flex flex-col flex-1">
+                      <Link href={`/learning_products/${product.id}`}>
+                        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-sky-600 transition-colors">
+                          {product.title}
+                        </h3>
+                        {descText && (
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2 flex-1">
+                            {descText}
+                          </p>
+                        )}
+                      </Link>
+
+                      <div className="mt-auto pt-3 border-t border-gray-100">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                            <span className="text-sm font-semibold text-gray-900">{product.rating.toFixed(1)}</span>
+                            <span className="text-xs text-gray-500">({product.review_count})</span>
+                          </div>
+                          <p className="text-lg font-bold text-sky-600">{formattedPrice}</p>
+                        </div>
+                        <AddToCartButton productId={product.id} />
                       </div>
                     </div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

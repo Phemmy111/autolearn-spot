@@ -79,7 +79,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
           </div>
         </div>
 
-        {/* Tab Navigation (Visual Only) */}
+        {/* Tab Navigation */}
         <div className="flex gap-2 overflow-x-auto pb-6 mb-8 hide-scrollbar scroll-smooth">
           {['All Products', 'Courses', 'Masterclasses', 'Cohorts', 'Digital Downloads'].map((tab) => (
             <button 
@@ -87,8 +87,8 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
               onClick={() => setActiveTab(tab)}
               className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                 activeTab === tab 
-                  ? 'bg-neutral-900 text-brand-text shadow-md' 
-                  : 'bg-[var(--card)] brightness-95 border border-brand-border/50 text-brand-text/70 hover:border-neutral-400 hover:text-brand-text'
+                  ? 'bg-brand-primary text-white shadow-md shadow-brand-primary/25' 
+                  : 'bg-white border border-gray-200 text-gray-600 hover:border-brand-primary/40 hover:text-brand-primary hover:bg-brand-primary/5'
               }`}
             >
               {tab}

@@ -4,19 +4,32 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+const DEFAULT_SKILLS = [
+  { name: 'AI Automation', description: 'Master workflow automation using AI tools like n8n, Make, and Zapier to build powerful, hands-free systems.', slug: 'ai-automation' },
+  { name: 'AI & Machine Learning', description: 'Understand and apply Artificial Intelligence and Machine Learning concepts to real-world problems.', slug: 'ai-machine-learning' },
+  { name: 'Video Content Creation', description: 'Create, edit and publish engaging video content using AI-powered tools for YouTube, TikTok and more.', slug: 'video-content-creation' },
+  { name: 'Digital Marketing', description: 'Learn how to grow an audience, run ads, and drive revenue through modern digital marketing strategies.', slug: 'digital-marketing' },
+  { name: 'Web Development', description: 'Build modern, responsive websites and web applications with the latest tools and frameworks.', slug: 'web-development' },
+  { name: 'No-Code Tools', description: 'Build powerful apps and automations without writing a single line of code using no-code platforms.', slug: 'no-code-tools' },
+  { name: 'Freelancing & Business', description: 'Start and grow a profitable freelance business or online agency with practical, actionable guidance.', slug: 'freelancing-business' },
+  { name: 'Prompt Engineering', description: 'Learn how to write effective AI prompts to get better results from ChatGPT, Claude, Gemini and more.', slug: 'prompt-engineering' },
+];
+
 export default async function SkillsPage() {
-  const { data: skills, error } = await supabaseAdmin
+  // Check if skills exist; auto-seed if not
+  const { data: existingSkills } = await supabaseAdmin.from('skills').select('id').limit(1);
+  if (!existingSkills || existingSkills.length === 0) {
+    await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS);
+  }
+
+  const { data: skills } = await supabaseAdmin
     .from('skills')
-    .select('*, learning_products(id, status)')
+    .select('id, name, description, slug, learning_products(id, status)')
     .order('name');
 
   const validSkills = (skills || []).map(skill => {
-    // Count only published products
-    const publishedProducts = skill.learning_products?.filter((p: any) => p.status === 'PUBLISHED') || [];
-    return {
-      ...skill,
-      publishedCount: publishedProducts.length
-    };
+    const publishedProducts = (skill.learning_products as any[])?.filter((p) => p.status === 'PUBLISHED') || [];
+    return { ...skill, publishedCount: publishedProducts.length };
   });
 
   return (
