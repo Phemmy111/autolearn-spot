@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 /**
  * Shared Chat Component for AutoLearn Spot
  * Used by both author/messages and student/messages pages
@@ -80,7 +80,48 @@ function VoicePlayer({ url, isMe }: { url: string; isMe: boolean }) {
 }
 
 // ── Message Bubble ────────────────────────────────────────────────────────────
-function MessageBubble({ message, isMe }: { message: Message; isMe: boolean }) {
+function MessageBubble({ message, isMe, partnerName }: { message: Message; isMe: boolean; partnerName?: string }) {
+  const atts = message.author_message_attachments || [];
+
+  const displayName = isMe ? 'You' : partnerName || '';
+
+  return (
+    <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-2`}>
+      <div className="flex flex-col max-w-[70%]">
+        {/* Name */}
+        <p className={`text-xs ${isMe ? "text-right text-gray-500" : "text-gray-500"} mb-0.5`}>{displayName}</p>
+        <div className={`rounded-2xl px-3 py-2 shadow-sm ${isMe ? "bg-sky-600 text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"}`}>
+          {/* Attachments */}
+          {atts.map((att) => {
+            const isImage = att.mime_type?.startsWith("image/");
+            const isAudio = att.mime_type?.startsWith("audio/");
+            if (isImage) return (
+              <a key={att.id} href={att.storage_path} target="_blank" rel="noopener noreferrer" className="block mb-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={att.storage_path} alt={att.file_name} className="rounded-xl max-h-52 max-w-full object-cover" />
+              </a>
+            );
+            if (isAudio) return <div key={att.id} className="mb-1"><VoicePlayer url={att.storage_path} isMe={isMe} /></div>;
+            return (
+              <a key={att.id} href={att.storage_path} target="_blank" rel="noopener noreferrer"
+                 className={`flex items-center gap-2 mb-1 p-2 rounded-lg text-xs ${isMe ? "bg-white/10 hover:bg-white/20" : "bg-gray-50 hover:bg-gray-100"}`}>
+                <FileText className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">{att.file_name}</span>
+                <Download className="w-3 h-3 flex-shrink-0 opacity-60" />
+              </a>
+            );
+          })}
+          {/* Text body */}
+          {message.body && <p className="text-sm whitespace-pre-wrap break-words">{message.body}</p>}
+          {/* Timestamp */}
+          <p className={`text-[10px] mt-0.5 ${isMe ? "text-white/60 text-right" : "text-gray-400"}`}>
+            {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
   const atts = message.author_message_attachments || [];
 
   return (
@@ -397,7 +438,7 @@ export function ChatView({
   }, [messages]);
 
   return (
-    <div className="flex flex-col bg-gray-50" style={{ height: "calc(100vh - 100px)", minHeight: "400px" }}>
+    <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <button onClick={onBack} className="flex items-center gap-1 text-sky-600 hover:text-sky-700 font-medium text-sm flex-shrink-0">
@@ -424,7 +465,7 @@ export function ChatView({
           </div>
         ) : (
           <>
-            {messages.map(m => <MessageBubble key={m.id} message={m} isMe={m.sender_role === myRole} />)}
+            {messages.map(m => <MessageBubble key={m.id} message={m} isMe={m.sender_role === myRole} partnerName={headerName} />)}
             <div ref={bottomRef} />
           </>
         )}
