@@ -213,7 +213,7 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
       const res = await fetch(`/api/author/messages/conversations/${conversationId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message_type: msgType, body: text.trim() || null, attachments }),
+        body: JSON.stringify({ message_type: msgType, body: text.trim() || null, attachments, sender_role: myRole }),
       });
       const d = await res.json();
       if (!d.success) throw new Error(d.error || "Failed to send");
@@ -241,7 +241,7 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
       const mr = new MediaRecorder(stream);
       mediaRef.current = mr; chunksRef.current = [];
       mr.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      mr.start(100);
+      mr.start();
       setRecording(true); setPaused(false); setRecTime(0);
       timerRef.current = setInterval(() => setRecTime(t => t + 1), 1000);
     } catch (err: any) { alert("Microphone access denied or error: " + err.message); }
@@ -379,8 +379,7 @@ export function ChatView({
 
   return (
     <div 
-      className="flex flex-col bg-gray-50 rounded-2xl overflow-hidden shadow-sm border border-gray-200 w-full"
-      style={{ height: 'calc(100vh - 64px)' }}
+      className="flex flex-col bg-gray-50 border-gray-200 w-full -m-4 md:-m-8 h-[calc(100vh-73px)] md:h-screen"
     >
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <button onClick={onBack} className="flex items-center gap-1 text-sky-600 hover:text-sky-700 font-medium text-sm flex-shrink-0">

@@ -126,9 +126,14 @@ export async function POST(
     }
 
     // Determine sender role
-    const senderRole = isAuthor ? 'AUTHOR' : 'STUDENT';
-
-    // Sanitize message_type to valid enum values (TEXT, IMAGE, VOICE)
+    let senderRole = isAuthor ? 'AUTHOR' : 'STUDENT';
+    if (isAuthor && isStudent && body.sender_role) {
+      senderRole = body.sender_role === 'AUTHOR' ? 'AUTHOR' : 'STUDENT';
+    } else if (isStudent && !isAuthor) {
+      senderRole = 'STUDENT';
+    } else if (isAuthor && !isStudent) {
+      senderRole = 'AUTHOR';
+    }
     const validTypes = ['TEXT', 'IMAGE', 'VOICE'];
     const safeMessageType = validTypes.includes(message_type) ? message_type : 'TEXT';
 
