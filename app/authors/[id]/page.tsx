@@ -77,9 +77,9 @@ async function getAuthorProducts(authorId: string) {
   return productsWithRating as Product[];
 }
 
-export default async function AuthorPublicPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
-  const resolvedSearchParams = await searchParams;
-  const authorId = resolvedSearchParams.id;
+export default async function AuthorPublicPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const authorId = resolvedParams.id;
   
   if (!authorId) {
     return (
@@ -238,7 +238,7 @@ export default async function AuthorPublicPage({ searchParams }: { searchParams:
               {products.map((product) => (
                 <Link 
                   key={product.id} 
-                  href={`/product/${product.slug}`}
+                  href={`/learning_products/${product.id}`}
                   className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-sky-500/50 transition-all hover:shadow-lg"
                 >
                   <div className="aspect-video bg-gradient-to-br from-sky-900/20 to-sky-800/10 relative">

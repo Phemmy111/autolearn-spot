@@ -53,7 +53,7 @@ export function ProductCard({ product, authorName = 'Expert Instructor', rating 
           </div>
           <span className="text-[10px] ml-1">({enrolledCount})</span>
           <span className="opacity-50">•</span>
-          <Link href={`/instructors/${product.author_id}`} className="flex items-center gap-1 hover:text-brand-primary transition-colors">
+          <Link href={`/authors/${product.author_id}`} className="flex items-center gap-1 hover:text-brand-primary transition-colors">
             <User className="w-3.5 h-3.5" />
             {authorName}
           </Link>

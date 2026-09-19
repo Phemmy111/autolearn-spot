@@ -19,8 +19,8 @@ export function MarketplaceNavigation() {
   const navItems = [
     { name: 'Explore', href: '/marketplace' },
     { name: 'Skills', href: '/skills' },
-    { name: 'Courses', href: '/learning_products' },
-    { name: 'Authors', href: '/dashboard' },
+    { name: 'Courses', href: '/courses' },
+    { name: 'Authors', href: '/authors' },
     { name: 'ALEX', href: '/autolearn-ai', icon: Brain },
   ];
 
