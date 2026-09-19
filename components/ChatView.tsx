@@ -82,7 +82,7 @@ function VoicePlayer({ url, isMe }: { url: string; isMe: boolean }) {
 // Message Bubble
 function MessageBubble({ message, isMe, partnerName }: { message: Message; isMe: boolean; partnerName?: string }) {
   const atts = message.author_message_attachments || [];
-  const displayName = message.sender_role === "AUTHOR" ? "Author" : "Student";
+  const displayName = isMe ? "You" : (partnerName || "");
 
   return (
     <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-2`}>
