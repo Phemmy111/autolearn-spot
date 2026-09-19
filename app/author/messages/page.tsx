@@ -553,57 +553,6 @@ function MessageView({ conversation }: { conversation: Conversation }) {
           </div>
         </div>
       )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-brand-text mb-2">
-                  Select Student
-                </label>
-                <select
-                  value={selectedStudentId}
-                  onChange={(e) => setSelectedStudentId(e.target.value)}
-                  disabled={!selectedProduct}
-                  className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-gray-100"
-                  required
-                >
-                  <option value="">Choose a student...</option>
-                  {selectedProduct && students
-                    .filter(s => s.product_id === selectedProduct)
-                    .map((student) => (
-                      <option key={student.student_id} value={student.student_id}>
-                        {student.full_name} ({student.email})
-                      </option>
-                    ))}
-                </select>
-                {!selectedProduct && (
-                  <p className="text-xs text-brand-text/50 mt-1">
-                    Select a product first to see enrolled students
-                  </p>
-                )}
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={startNewConversation}
-                  disabled={!selectedProduct || !selectedStudentId || creatingConversation}
-                  className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                >
-                  {creatingConversation ? 'Creating...' : 'Start Conversation'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowNewMessageModal(false)}
-                  className="px-4 py-2 border border-brand-border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        </>
-      )}
     </div>
   );
 }
