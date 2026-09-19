@@ -36,12 +36,13 @@ interface PendingAttachment {
 
 async function uploadAttachment(file: File): Promise<string> {
   const form = new FormData();
-  form.append(file, file);
-  const res = await fetch(/api/upload/message-attachment, { method: POST, body: form });
-  if (!res.ok) { const d = await res.json(); throw new Error(d.error || Upload failed); }
+  form.append("file", file);
+  const res = await fetch("/api/upload/message-attachment", { method: "POST", body: form });
+  if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Upload failed"); }
   const d = await res.json();
   return d.publicUrl as string;
 }
+
 
 // Voice Player
 function VoicePlayer({ url, isMe }: { url: string; isMe: boolean }) {
@@ -70,7 +71,7 @@ function VoicePlayer({ url, isMe }: { url: string; isMe: boolean }) {
  return (
  <div className={lex items-center gap-2 min-w-[180px] }>
  <button onClick={toggle} className={w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 }>
- {playing ? <Pause className=w-4 h-4 /> : <Play className=w-4 h-4 />}
+ {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
  </button>
  <div className=flex-1>
  <div className={h-1 rounded-full }>
@@ -91,29 +92,30 @@ function MessageBubble({ message, isMe, partnerName }: { message: Message; isMe:
  <div className={lex mb-2}>
  <div className=flex flex-col max-w-[70%]>
  <p className={ ext-xs mb-0.5 }>{displayName}</p>
- <div className={ounded-2xl px-3 py-2 shadow-sm }>
+ <div className={
+ounded-2xl px-3 py-2 shadow-sm }>
  {atts.map((att) => {
- const isImage = att.mime_type?.startsWith(image/);
- const isAudio = att.mime_type?.startsWith(audio/);
+ const isImage = att.mime_type?.startsWith("image/");
+ const isAudio = att.mime_type?.startsWith("audio/");
  if (isImage) return (
- <a key={att.id} href={att.storage_path} target=_blank rel=noopener noreferrer className=block mb-1>
+ <a key={att.id} href={att.storage_path} target="_blank" rel="noopener noreferrer" className="block mb-1">
  {/* eslint-disable-next-line @next/next/no-img-element */}
- <img src={att.storage_path} alt={att.file_name} className=rounded-xl max-h-52 max-w-full object-cover />
+ <img src={att.storage_path} alt={att.file_name} className="rounded-xl max-h-52 max-w-full object-cover" />
  </a>
  );
- if (isAudio) return <div key={att.id} className=mb-1><VoicePlayer url={att.storage_path} isMe={isMe} /></div>;
+ if (isAudio) return <div key={att.id} className="mb-1"><VoicePlayer url={att.storage_path} isMe={isMe} /></div>;
  return (
- <a key={att.id} href={att.storage_path} target=_blank rel=noopener noreferrer
+ <a key={att.id} href={att.storage_path} target="_blank" rel="noopener noreferrer"
  className={lex items-center gap-2 mb-1 p-2 rounded-lg text-xs }>
- <FileText className=w-4 h-4 flex-shrink-0 />
- <span className=truncate>{att.file_name}</span>
- <Download className=w-3 h-3 flex-shrink-0 opacity-60 />
+ <FileText className="w-4 h-4 flex-shrink-0" />
+ <span className="truncate">{att.file_name}</span>
+ <Download className="w-3 h-3 flex-shrink-0 opacity-60" />
  </a>
  );
  })}
- {message.body && <p className=text-sm whitespace-pre-wrap break-words>{message.body}</p>}
+ {message.body && <p className="text-sm whitespace-pre-wrap break-words">{message.body}</p>}
  <p className={ ext-[10px] mt-0.5 }>
- {new Date(message.created_at).toLocaleTimeString([], { hour: 2-digit, minute: 2-digit })}
+ {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
  </p>
  </div>
  </div>
@@ -123,28 +125,28 @@ function MessageBubble({ message, isMe, partnerName }: { message: Message; isMe:
 
 // Pending Attachment Preview
 function PendingPreview({ att, onRemove }: { att: PendingAttachment; onRemove: () => void }) {
- const isImage = att.file.type.startsWith(image/);
- const isAudio = att.file.type.startsWith(audio/);
+ const isImage = att.file.type.startsWith("image/");
+ const isAudio = att.file.type.startsWith("audio/");
  return (
  <div className=relative inline-flex items-center gap-2 bg-gray-100 rounded-lg p-2 max-w-[200px]>
  {isImage ? (
  // eslint-disable-next-line @next/next/no-img-element
- <img src={att.previewUrl} alt={att.file.name} className=h-14 w-14 object-cover rounded-lg flex-shrink-0 />
+ <img src={att.previewUrl} alt={att.file.name} className="h-14 w-14 object-cover rounded-lg flex-shrink-0" />
  ) : isAudio ? (
  <div className=flex items-center gap-2 text-xs text-gray-600>
- <Mic className=w-5 h-5 text-sky-500 />
+ <Mic className="w-5 h-5 text-sky-500" />
  <span>Voice note</span>
  </div>
  ) : (
  <div className=flex items-center gap-2 text-xs text-gray-600>
- <FileText className=w-5 h-5 text-sky-500 flex-shrink-0 />
- <span className=truncate max-w-[120px]>{att.file.name}</span>
+ <FileText className="w-5 h-5 text-sky-500" flex-shrink-0 />
+ <span className="truncate" max-w-[120px]>{att.file.name}</span>
  </div>
  )}
  {att.uploading && <span className=absolute inset-0 bg-white/60 flex items-center justify-center text-xs rounded-lg>Uploading...</span>}
  {att.error && <span className=absolute inset-0 bg-red-50/80 flex items-center justify-center text-xs text-red-600 rounded-lg>Failed</span>}
  <button onClick={onRemove} className=absolute -top-1.5 -right-1.5 w-4 h-4 bg-gray-500 text-white rounded-full flex items-center justify-center>
- <X className=w-2.5 h-2.5 />
+ <X className="w-2.5 h-2.5" />
  </button>
  </div>
  );
@@ -178,7 +180,7 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  const publicUrl = await uploadAttachment(att.file);
  setPendingAttachments(prev => prev.map(a => a.previewUrl === att.previewUrl ? { ...a, uploading: false, uploaded: { publicUrl } } : a));
  } catch {
- setPendingAttachments(prev => prev.map(a => a.previewUrl === att.previewUrl ? { ...a, uploading: false, error: Failed } : a));
+ setPendingAttachments(prev => prev.map(a => a.previewUrl === att.previewUrl ? { ...a, uploading: false, error: "Failed" } : a));
  }
  }
  };
@@ -194,9 +196,9 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  const doSend = async () => {
  if (!canSend) return;
  const failedAtts = pendingAttachments.filter(a => a.error);
- if (failedAtts.length > 0) { alert(Some attachments failed to upload. Remove them before sending.); return; }
+ if (failedAtts.length > 0) { alert("Some attachments failed to upload. Remove them before sending."); return; }
  const stillUploading = pendingAttachments.filter(a => a.uploading);
- if (stillUploading.length > 0) { alert(Please wait for uploads to finish.); return; }
+ if (stillUploading.length > 0) { alert("Please wait for uploads to finish."); return; }
  const readyAtts = pendingAttachments.filter(a => a.uploaded);
  setSending(true);
  try {
@@ -206,20 +208,20 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  mime_type: a.file.type,
  file_size: a.file.size,
  }));
- let msgType = TEXT;
+ let msgType = "TEXT";
  if (attachments.length > 0) {
  const firstMime = readyAtts[0].file.type;
- if (firstMime.startsWith(image/)) msgType = IMAGE;
- else if (firstMime.startsWith(audio/)) msgType = VOICE;
- else msgType = IMAGE;
+ if (firstMime.startsWith("image/")) msgType = "IMAGE";
+ else if (firstMime.startsWith("audio/")) msgType = "VOICE";
+ else msgType = "IMAGE";
  }
  const res = await fetch(/api/author/messages/conversations//messages, {
- method: POST, headers: { Content-Type: application/json },
+ method: POST, headers: { "Content-Type": "application/json" },
  body: JSON.stringify({ message_type: msgType, body: text.trim() || null, attachments }),
  });
  const d = await res.json();
- if (!d.success) throw new Error(d.error || Failed to send);
- setText();
+ if (!d.success) throw new Error(d.error || "Failed to send");
+ setText("");
  pendingAttachments.forEach(a => URL.revokeObjectURL(a.previewUrl));
  setPendingAttachments([]);
  onSent();
@@ -246,15 +248,15 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  mr.start(100);
  setRecording(true); setPaused(false); setRecTime(0);
  timerRef.current = setInterval(() => setRecTime(t => t + 1), 1000);
- } catch { alert(Microphone access denied); }
+ } catch { alert("Microphone access denied"); }
  };
 
  const pauseRecording = () => {
  if (!mediaRef.current) return;
- if (mediaRef.current.state === recording) {
+ if (mediaRef.current.state === "recording") {
  mediaRef.current.pause(); setPaused(true);
  if (timerRef.current) clearInterval(timerRef.current);
- } else if (mediaRef.current.state === paused) {
+ } else if (mediaRef.current.state === "paused") {
  mediaRef.current.resume(); setPaused(false);
  timerRef.current = setInterval(() => setRecTime(t => t + 1), 1000);
  }
@@ -265,8 +267,8 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  if (timerRef.current) clearInterval(timerRef.current);
  const mr = mediaRef.current;
  mr.onstop = async () => {
- const blob = new Blob(chunksRef.current, { type: audio/webm });
- const file = new File([blob], oice-.webm, { type: audio/webm });
+ const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+ const file = new File([blob], voice-.webm, { type: "audio/webm" });
  const previewUrl = URL.createObjectURL(blob);
  const att: PendingAttachment = { file, previewUrl, uploading: true };
  setPendingAttachments(prev => [...prev, att]);
@@ -274,7 +276,7 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  const publicUrl = await uploadAttachment(file);
  setPendingAttachments(prev => prev.map(a => a.previewUrl === previewUrl ? { ...a, uploading: false, uploaded: { publicUrl } } : a));
  } catch {
- setPendingAttachments(prev => prev.map(a => a.previewUrl === previewUrl ? { ...a, uploading: false, error: Failed } : a));
+ setPendingAttachments(prev => prev.map(a => a.previewUrl === previewUrl ? { ...a, uploading: false, error: "Failed" } : a));
  }
  };
  mr.stop();
@@ -307,28 +309,28 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  <span className={w-2 h-2 rounded-full } />
  <span className=text-sm font-medium text-gray-700>{paused ? Paused : Recording} — {fmt(recTime)}</span>
  <button onClick={pauseRecording} className=text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center gap-1 font-medium>
- {paused ? <Play className=w-3 h-3 /> : <Pause className=w-3 h-3 />}
+ {paused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
  {paused ? Resume : Pause}
  </button>
  <button onClick={stopRecording} className=text-xs px-2 py-1 bg-sky-600 text-white hover:bg-sky-700 rounded-lg flex items-center gap-1 font-medium>
- <StopCircle className=w-3 h-3 /> Stop &amp; Add
+ <StopCircle className="w-3 h-3" /> Stop &amp; Add
  </button>
  <button onClick={cancelRecording} className=text-xs px-2 py-1 text-red-500 hover:text-red-700 rounded-lg flex items-center gap-1>
- <X className=w-3 h-3 /> Cancel
+ <X className="w-3 h-3" /> Cancel
  </button>
  </div>
  )}
  <div className=flex items-end gap-2 px-4 py-3>
- <input ref={fileRef} type=file multiple
+ <input ref={fileRef} type="file" multiple
  accept=image/*,application/pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx
- className=hidden onChange={e => addFiles(e.target.files)} />
+ className="hidden" onChange={e => addFiles(e.target.files)} />
  <button onClick={() => fileRef.current?.click()} disabled={sending}
  className=flex-shrink-0 p-2 text-gray-400 hover:text-sky-600 transition-colors disabled:opacity-40 rounded-full hover:bg-sky-50>
- <Paperclip className=w-5 h-5 />
+ <Paperclip className="w-5 h-5" />
  </button>
  <button onClick={recording ? undefined : startRecording} disabled={sending}
  className={lex-shrink-0 p-2 transition-colors disabled:opacity-40 rounded-full }>
- <Mic className=w-5 h-5 />
+ <Mic className="w-5 h-5" />
  </button>
  <textarea ref={textareaRef} rows={1} placeholder=Type a message...
  value={text} onChange={handleTextChange} onKeyDown={handleKeyDown}
@@ -337,7 +339,7 @@ function MessageInput({ conversationId, onSent }: { conversationId: string; onSe
  style={{ minHeight: 40px, maxHeight: 120px }} />
  <button onClick={doSend} disabled={!canSend}
  className=flex-shrink-0 w-10 h-10 flex items-center justify-center bg-sky-600 text-white rounded-full hover:bg-sky-700 disabled:bg-gray-200 disabled:text-gray-400 transition-colors shadow-sm>
- <Send className=w-4 h-4 />
+ <Send className="w-4 h-4" />
  </button>
  </div>
  </div>
@@ -374,14 +376,14 @@ export function ChatView({
  }, [fetchMessages]);
 
  useEffect(() => {
- bottomRef.current?.scrollIntoView({ behavior: smooth });
+ bottomRef.current?.scrollIntoView({ behavior: "smooth" });
  }, [messages]);
 
  return (
  <div className=flex flex-col h-screen bg-gray-50>
  <div className=flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm flex-shrink-0>
  <button onClick={onBack} className=flex items-center gap-1 text-sky-600 hover:text-sky-700 font-medium text-sm flex-shrink-0>
- <ArrowLeft className=w-4 h-4 />
+ <ArrowLeft className="w-4 h-4" />
  </button>
  <div className=w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center flex-shrink-0>
  <span className=text-sky-700 font-bold text-sm>{headerName.charAt(0).toUpperCase()}</span>
