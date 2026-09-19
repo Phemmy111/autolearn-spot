@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { MessageSquare, Search, Plus, Clock, X } from "lucide-react";
 import { ChatView } from "@/components/ChatView";
+import { useUser } from "@clerk/nextjs";
 
 interface Conversation {
   id: string;
@@ -82,6 +83,7 @@ export default function AuthorMessagesPage() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Conversation | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const { user } = useUser();
 
   const loadConvs = useCallback(async () => {
     try {
@@ -116,7 +118,11 @@ export default function AuthorMessagesPage() {
   // Get student name from student_id
   const getStudentName = (conv: Conversation) => {
     const s = students.find(s => s.student_id === conv.student_id);
-    return s ? s.full_name : `Student ${conv.student_id.slice(0, 8)}`;
+    let name = s ? s.full_name : `Student ${conv.student_id.slice(0, 8)}`;
+    if (user && conv.student_id === user.id) {
+      name += " (You testing)";
+    }
+    return name;
   };
 
   if (selected) {

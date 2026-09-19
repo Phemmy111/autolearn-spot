@@ -232,7 +232,12 @@ function MessageInput({ conversationId, onSent, myRole }: { conversationId: stri
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); doSend(); }
+    if (e.key === "Enter" && !e.shiftKey) {
+      if (window.innerWidth >= 768) {
+        e.preventDefault();
+        doSend();
+      }
+    }
   };
 
   const startRecording = async () => {
