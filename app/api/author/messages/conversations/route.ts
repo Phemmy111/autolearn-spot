@@ -132,7 +132,18 @@ export async function POST(request: NextRequest) {
         author_id: author.id,
         learning_product_id,
       })
-      .select()
+      .select(`
+        id,
+        student_id,
+        learning_product_id,
+        created_at,
+        updated_at,
+        learning_products (
+          id,
+          title,
+          thumbnail
+        )
+      `)
       .single();
 
     if (error) {

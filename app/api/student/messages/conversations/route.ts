@@ -116,7 +116,24 @@ export async function POST(request: NextRequest) {
         author_id: product.author_id,
         learning_product_id,
       })
-      .select()
+      .select(`
+        id,
+        student_id,
+        author_id,
+        learning_product_id,
+        created_at,
+        updated_at,
+        learning_products (
+          id,
+          title,
+          thumbnail
+        ),
+        authors (
+          id,
+          display_name,
+          profile_image
+        )
+      `)
       .single();
 
     if (error) {
