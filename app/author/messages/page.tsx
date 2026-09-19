@@ -135,43 +135,145 @@ export default function AuthorMessagesPage() {
 
   if (selectedConversation) {
     return (
-      <div className="space-y-6">
-        <button
-          onClick={() => setSelectedConversation(null)}
-          className="flex items-center gap-2 text-sky-600 hover:text-sky-700"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to conversations
-        </button>
-        <MessageView conversation={selectedConversation} />
-      </div>
+      <>
+        <div className="space-y-6">
+          <button
+            onClick={() => setSelectedConversation(null)}
+            className="flex items-center gap-2 text-sky-600 hover:text-sky-700"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to conversations
+          </button>
+          <MessageView conversation={selectedConversation} />
+        </div>
+        {/* Modal - render here too when conversation is selected */}
+        {showNewMessageModal && (
+          <>
+            {console.log('Author modal rendering inside conversation view, showNewMessageModal:', showNewMessageModal)}
+            <div 
+              className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setShowNewMessageModal(false);
+                }
+              }}
+            >
+              <div 
+                className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-brand-text">Start New Conversation</h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewMessageModal(false)}
+                    className="text-brand-text/70 hover:text-brand-text"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-brand-text mb-2">
+                      Select Product
+                    </label>
+                    <select
+                      value={selectedProduct}
+                      onChange={(e) => {
+                        setSelectedProduct(e.target.value);
+                        setSelectedStudentId('');
+                      }}
+                      className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      required
+                    >
+                      <option value="">Choose a product...</option>
+                      {products.map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-brand-text mb-2">
+                      Select Student
+                    </label>
+                    <select
+                      value={selectedStudentId}
+                      onChange={(e) => setSelectedStudentId(e.target.value)}
+                      disabled={!selectedProduct}
+                      className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-gray-100"
+                      required
+                    >
+                      <option value="">Choose a student...</option>
+                      {selectedProduct && students
+                        .filter(s => s.product_id === selectedProduct)
+                        .map((student) => (
+                          <option key={student.student_id} value={student.student_id}>
+                            {student.full_name} ({student.email})
+                          </option>
+                        ))}
+                    </select>
+                    {!selectedProduct && (
+                      <p className="text-xs text-brand-text/50 mt-1">
+                        Select a product first to see enrolled students
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={startNewConversation}
+                      disabled={!selectedProduct || !selectedStudentId || creatingConversation}
+                      className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    >
+                      {creatingConversation ? 'Creating...' : 'Start Conversation'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewMessageModal(false)}
+                      className="px-4 py-2 border border-brand-border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </>
+        )}
+      </>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-brand-text mb-2">
-            Messages
-          </h1>
-          <p className="text-brand-text/70">
-            Communicate with your students
-          </p>
+    <>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-brand-text mb-2">
+              Messages
+            </h1>
+            <p className="text-brand-text/70">
+              Communicate with your students
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              console.log('Author New Message button clicked, current modal state:', showNewMessageModal);
+              setShowNewMessageModal(true);
+              console.log('Author modal state set to true');
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors cursor-pointer active:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Message
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            console.log('Author New Message button clicked, current modal state:', showNewMessageModal);
-            setShowNewMessageModal(true);
-            console.log('Author modal state set to true');
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors cursor-pointer active:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
-        >
-          <Plus className="w-4 h-4" />
-          New Message
-        </button>
-      </div>
 
       {/* Search */}
       <div className="relative">
@@ -212,6 +314,107 @@ export default function AuthorMessagesPage() {
         </div>
       )}
     </div>
+
+    {/* New Message Modal */}
+    {showNewMessageModal && (
+      <>
+        {console.log('Author modal rendering, showNewMessageModal:', showNewMessageModal)}
+        <div
+          className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowNewMessageModal(false);
+            }
+          }}
+        >
+          <div
+            className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-brand-text">Start New Conversation</h2>
+              <button
+                type="button"
+                onClick={() => setShowNewMessageModal(false)}
+                className="text-brand-text/70 hover:text-brand-text"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-brand-text mb-2">
+                  Select Product
+                </label>
+                <select
+                  value={selectedProduct}
+                  onChange={(e) => {
+                    setSelectedProduct(e.target.value);
+                    setSelectedStudentId('');
+                  }}
+                  className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  required
+                >
+                  <option value="">Choose a product...</option>
+                  {products.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-brand-text mb-2">
+                  Select Student
+                </label>
+                <select
+                  value={selectedStudentId}
+                  onChange={(e) => setSelectedStudentId(e.target.value)}
+                  disabled={!selectedProduct}
+                  className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 disabled:bg-gray-100"
+                  required
+                >
+                  <option value="">Choose a student...</option>
+                  {selectedProduct && students
+                    .filter(s => s.product_id === selectedProduct)
+                    .map((student) => (
+                      <option key={student.student_id} value={student.student_id}>
+                        {student.full_name} ({student.email})
+                      </option>
+                    ))}
+                </select>
+                {!selectedProduct && (
+                  <p className="text-xs text-brand-text/50 mt-1">
+                    Select a product first to see enrolled students
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={startNewConversation}
+                  disabled={!selectedProduct || !selectedStudentId || creatingConversation}
+                  className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  {creatingConversation ? 'Creating...' : 'Start Conversation'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowNewMessageModal(false)}
+                  className="px-4 py-2 border border-brand-border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </>
+    )}
+    </>
   );
 }
 
@@ -350,55 +553,6 @@ function MessageView({ conversation }: { conversation: Conversation }) {
           </div>
         </div>
       )}
-
-      {/* New Message Modal */}
-      {showNewMessageModal && (
-        <>
-          {console.log('Author modal rendering, showNewMessageModal:', showNewMessageModal)}
-          <div 
-            className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowNewMessageModal(false);
-              }
-            }}
-          >
-            <div 
-              className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-brand-text">Start New Conversation</h2>
-              <button
-                type="button"
-                onClick={() => setShowNewMessageModal(false)}
-                className="text-brand-text/70 hover:text-brand-text"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-brand-text mb-2">
-                  Select Product
-                </label>
-                <select
-                  value={selectedProduct}
-                  onChange={(e) => {
-                    setSelectedProduct(e.target.value);
-                    setSelectedStudentId(''); // Reset student when product changes
-                  }}
-                  className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  required
-                >
-                  <option value="">Choose a product...</option>
-                  {products.map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.title}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div>

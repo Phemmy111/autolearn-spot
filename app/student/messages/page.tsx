@@ -124,83 +124,244 @@ export default function StudentMessagesPage() {
 
   if (selectedConversation) {
     return (
-      <div className="space-y-6">
-        <button
-          onClick={() => setSelectedConversation(null)}
-          className="flex items-center gap-2 text-sky-600 hover:text-sky-700"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to conversations
-        </button>
-        <MessageView conversation={selectedConversation} />
-      </div>
+      <>
+        <div className="space-y-6">
+          <button
+            onClick={() => setSelectedConversation(null)}
+            className="flex items-center gap-2 text-sky-600 hover:text-sky-700"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to conversations
+          </button>
+          <MessageView conversation={selectedConversation} />
+        </div>
+        {/* Modal - render here too when conversation is selected */}
+        {showNewMessageModal && (
+          <>
+            {console.log('Modal rendering inside conversation view, showNewMessageModal:', showNewMessageModal)}
+            <div 
+              className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  setShowNewMessageModal(false);
+                }
+              }}
+            >
+              <div 
+                className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold text-brand-text">Start New Conversation</h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewMessageModal(false)}
+                    className="text-brand-text/70 hover:text-brand-text"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-brand-text mb-2">
+                      Select Course
+                    </label>
+                    <select
+                      value={selectedCourse}
+                      onChange={(e) => setSelectedCourse(e.target.value)}
+                      className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      required
+                    >
+                      <option value="">Choose a course...</option>
+                      {enrolledCourses.length === 0 ? (
+                        <option value="" disabled>No enrolled courses found</option>
+                      ) : (
+                        enrolledCourses.map((course) => (
+                          <option key={course.id} value={course.id}>
+                            {course.title} - {course.author_name}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                    {enrolledCourses.length === 0 && (
+                      <p className="text-xs text-brand-text/50 mt-1">
+                        You need to be enrolled in a course to start a conversation
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={startNewConversation}
+                      disabled={!selectedCourse || creatingConversation}
+                      className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    >
+                      {creatingConversation ? 'Creating...' : 'Start Conversation'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewMessageModal(false)}
+                      className="px-4 py-2 border border-brand-border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </>
+        )}
+      </>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-brand-text mb-2">
-            Messages
-          </h1>
-          <p className="text-brand-text/70">
-            Communicate with your course instructors
-          </p>
+    <>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-brand-text mb-2">
+              Messages
+            </h1>
+            <p className="text-brand-text/70">
+              Communicate with your course instructors
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              console.log('New Message button clicked, current modal state:', showNewMessageModal);
+              setShowNewMessageModal(true);
+              console.log('Modal state set to true');
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors cursor-pointer active:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Message
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            console.log('New Message button clicked, current modal state:', showNewMessageModal);
-            setShowNewMessageModal(true);
-            console.log('Modal state set to true');
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition-colors cursor-pointer active:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
-        >
-          <Plus className="w-4 h-4" />
-          New Message
-        </button>
+
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text/50" />
+          <input
+            type="text"
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+          />
+        </div>
+
+        {/* Conversations List */}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-brand-text/50">Loading conversations...</div>
+          </div>
+        ) : filteredConversations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <MessageSquare className="w-12 h-12 text-neutral-300 mb-3" />
+            <p className="text-brand-text/70 text-sm">
+              {searchQuery ? 'No conversations match your search' : 'No conversations yet'}
+            </p>
+            <p className="text-brand-text/50 text-xs mt-1">
+              Start a conversation with your course instructor
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredConversations.map((conversation) => (
+              <ConversationCard
+                key={conversation.id}
+                conversation={conversation}
+                onClick={() => setSelectedConversation(conversation)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text/50" />
-        <input
-          type="text"
-          placeholder="Search conversations..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-        />
-      </div>
+      {/* New Message Modal */}
+      {showNewMessageModal && (
+        <>
+          {console.log('Modal rendering, showNewMessageModal:', showNewMessageModal)}
+          <div 
+            className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowNewMessageModal(false);
+              }
+            }}
+          >
+            <div 
+              className="bg-[var(--card)] brightness-95 border border-brand-border rounded-lg max-w-md w-full p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-brand-text">Start New Conversation</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowNewMessageModal(false)}
+                  className="text-brand-text/70 hover:text-brand-text"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-      {/* Conversations List */}
-      {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="text-brand-text/50">Loading conversations...</div>
-        </div>
-      ) : filteredConversations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <MessageSquare className="w-12 h-12 text-neutral-300 mb-3" />
-          <p className="text-brand-text/70 text-sm">
-            {searchQuery ? 'No conversations match your search' : 'No conversations yet'}
-          </p>
-          <p className="text-brand-text/50 text-xs mt-1">
-            Start a conversation with your course instructor
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredConversations.map((conversation) => (
-            <ConversationCard
-              key={conversation.id}
-              conversation={conversation}
-              onClick={() => setSelectedConversation(conversation)}
-            />
-          ))}
-        </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-brand-text mb-2">
+                    Select Course
+                  </label>
+                  <select
+                    value={selectedCourse}
+                    onChange={(e) => setSelectedCourse(e.target.value)}
+                    className="w-full px-3 py-2 border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    required
+                  >
+                    <option value="">Choose a course...</option>
+                    {enrolledCourses.length === 0 ? (
+                      <option value="" disabled>No enrolled courses found</option>
+                    ) : (
+                      enrolledCourses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.title} - {course.author_name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  {enrolledCourses.length === 0 && (
+                    <p className="text-xs text-brand-text/50 mt-1">
+                      You need to be enrolled in a course to start a conversation
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={startNewConversation}
+                    disabled={!selectedCourse || creatingConversation}
+                    className="flex-1 px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  >
+                    {creatingConversation ? 'Creating...' : 'Start Conversation'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewMessageModal(false)}
+                    className="px-4 py-2 border border-brand-border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 }
 
