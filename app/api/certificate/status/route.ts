@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     // Check if student has unlocked certificates in DB
     const { data: certRecords } = await supabaseAdmin
       .from('certificates')
-      .select('*, cohorts(name, learning_products(title))')
+      .select('*, course_title, learning_product_id, cohorts(name, learning_products(title))')
       .eq('user_id', userId)
       .order('issued_at', { ascending: false })
 

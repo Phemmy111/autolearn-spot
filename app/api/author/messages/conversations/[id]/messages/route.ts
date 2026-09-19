@@ -125,14 +125,17 @@ export async function POST(
       }, { status: 400 });
     }
 
-    // Determine sender role
-    let senderRole = isAuthor ? 'AUTHOR' : 'STUDENT';
-    if (isAuthor && isStudent && body.sender_role) {
-      senderRole = body.sender_role === 'AUTHOR' ? 'AUTHOR' : 'STUDENT';
-    } else if (isStudent && !isAuthor) {
-      senderRole = 'STUDENT';
-    } else if (isAuthor && !isStudent) {
-      senderRole = 'AUTHOR';
+    // Determine sender role — trust client-provided role since they are already authorized
+    // If client sends sender_role and user has access, use it; otherwise default by authorization type
+    const clientRole = body.sender_role === 'AUTHOR' || body.sender_role === 'STUDENT' ? body.sender_role : null;
+    let senderRole: string;
+    if (clientRole) {
+      // Validate: AUTHOR role only valid if they are actually an author, STUDENT only if they are a student
+      if (clientRole === 'AUTHOR' && isAuthor) senderRole = 'AUTHOR';
+      else if (clientRole === 'STUDENT' && isStudent) senderRole = 'STUDENT';
+      else senderRole = isAuthor ? 'AUTHOR' : 'STUDENT'; // fallback
+    } else {
+      senderRole = isAuthor ? 'AUTHOR' : 'STUDENT';
     }
     const validTypes = ['TEXT', 'IMAGE', 'VOICE'];
     const safeMessageType = validTypes.includes(message_type) ? message_type : 'TEXT';

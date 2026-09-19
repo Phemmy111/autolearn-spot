@@ -110,7 +110,7 @@ export default function AchievementsPage() {
                 </div>
 
                 <h3 className="font-heading font-bold text-lg leading-tight mb-2 text-brand-text">
-                  {cert.cohorts?.learning_products?.title || cert.cohorts?.name || cert.course_slug?.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Course Certificate'}
+                  {(cert as any).course_title || cert.cohorts?.learning_products?.title || cert.cohorts?.name || cert.course_slug?.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Course Certificate'}
                 </h3>
 
                 <div className="space-y-2 text-sm text-brand-text/60">

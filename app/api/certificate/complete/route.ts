@@ -99,7 +99,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Lesson not found or not associated with a product.' }, { status: 400 })
     }
 
-    // Get all active lessons for this product
+    // Get all active lessons for this product + the product title
+    const { data: productData } = await supabaseAdmin
+      .from('learning_products')
+      .select('title')
+      .eq('id', productId)
+      .single()
+
+    const productTitle = productData?.title || null
+
     const { data: productLessons } = await supabaseAdmin
       .from('lessons')
       .select('uuid_id')
@@ -164,6 +172,8 @@ export async function POST(request: Request) {
             user_email: userEmail,
             certificate_code: certCode,
             issued_at: new Date().toISOString(),
+            learning_product_id: productId,
+            course_title: productTitle,
           },
           { onConflict: 'cohort_id,user_id' }
         )

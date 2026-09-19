@@ -71,7 +71,7 @@ export async function GET(request: Request) {
     // Fetch the certificate record to get the actual certificate code and course title
     let query = supabaseAdmin
       .from('certificates')
-      .select('certificate_code, cohorts(name, learning_products(title))')
+      .select('certificate_code, course_title, cohorts(name, learning_products(title))')
       .eq('user_id', targetUserId)
       
     if (certificateIdParam) {
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
       .maybeSingle()
 
     const certificateId = certificateRecord?.certificate_code || `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
-    const lpTitle = certificateRecord?.cohorts?.learning_products?.title;
+    const lpTitle = certificateRecord?.course_title || certificateRecord?.cohorts?.learning_products?.title;
     const cName = certificateRecord?.cohorts?.name;
     const dbCourseTitle = lpTitle || cName || 'AI Automation Training';
 
