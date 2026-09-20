@@ -53,24 +53,39 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
 
     try {
       setIsUploading(true);
+      console.log('[Client] Starting save slider process');
+      console.log('[Client] Media items:', mediaItems);
+      console.log('[Client] Target ID:', targetId);
+      console.log('[Client] Transition style:', transitionStyle);
+      console.log('[Client] Duration:', duration);
 
       // 1. Upload new files to Supabase Storage using server action
+      console.log('[Client] Starting file uploads');
       const uploadedMedia = await Promise.all(mediaItems.map(async (item, idx) => {
+        console.log(`[Client] Processing item ${idx}:`, item);
         if (item.url.startsWith('blob:') && item.file) {
+          console.log(`[Client] Uploading file ${idx}:`, item.file.name);
           const result = await uploadMediaFile(item.file);
+          console.log(`[Client] Upload result for item ${idx}:`, result);
           if (!result.success) throw new Error(result.error);
           return { url: result.url, type: item.type, orderIndex: idx };
         }
+        console.log(`[Client] Using existing URL for item ${idx}:`, item.url);
         return { url: item.url, type: item.type, orderIndex: idx };
       }));
 
+      console.log('[Client] All uploads completed. Uploaded media:', uploadedMedia);
+
       // 2. Call Server Action to update DB
+      console.log('[Client] Calling saveMediaSlider server action');
       const result = await saveMediaSlider({
         targetId,
         transitionStyle,
         durationMs: duration,
         media: uploadedMedia
       });
+
+      console.log('[Client] Server action result:', result);
 
       if (result.success) {
         setIsEditing(false);
@@ -80,7 +95,7 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
         alert('Error saving slider: ' + result.error);
       }
     } catch (error) {
-      console.error(error);
+      console.error('[Client] Error in saveSlider:', error);
       alert('Failed to save slider. Check console.');
     } finally {
       setIsUploading(false);
