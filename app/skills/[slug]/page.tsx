@@ -45,9 +45,9 @@ export default async function SkillPage({ params }: PageParams) {
               media={sortedMedia}
               transitionStyle={sliderConfig.transition_style}
               durationMs={sliderConfig.duration_ms}
-              className="w-full h-full opacity-40 mix-blend-overlay"
+              className="w-full h-full opacity-80"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-brand-bg via-brand-bg/90 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-brand-bg/30 via-brand-bg/50 to-transparent" />
           </div>
         )}
 

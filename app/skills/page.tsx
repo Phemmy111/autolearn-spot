@@ -139,7 +139,7 @@ export default async function SkillsPage() {
                       )}
 
                       {/* Overlay for text readability */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
 
                       <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 backdrop-blur-md text-white/90 flex-shrink-0 border border-white/20 shadow-sm">
