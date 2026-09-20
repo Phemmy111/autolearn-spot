@@ -2,12 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Image as ImageIcon, Video, Trash2, Save, Loader2, X } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
-import { saveMediaSlider, deleteMediaSlider } from './actions';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { saveMediaSlider, deleteMediaSlider, uploadMediaFile } from './actions';
 
 export default function MediaSliderClient({ initialSliders, skills }: { initialSliders: any[], skills: any[] }) {
   const [sliders, setSliders] = useState(initialSliders);
@@ -55,26 +50,16 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
 
   const saveSlider = async () => {
     if (mediaItems.length === 0) return alert('Please add at least one media item.');
-    
+
     try {
       setIsUploading(true);
-      
-      // 1. Upload new files to Supabase Storage
+
+      // 1. Upload new files to Supabase Storage using server action
       const uploadedMedia = await Promise.all(mediaItems.map(async (item, idx) => {
         if (item.url.startsWith('blob:') && item.file) {
-          const fileExt = item.file.name.split('.').pop();
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-          const { error } = await supabase.storage
-            .from('admin-media')
-            .upload(fileName, item.file);
-
-          if (error) throw error;
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('admin-media')
-            .getPublicUrl(fileName);
-
-          return { url: publicUrl, type: item.type, orderIndex: idx };
+          const result = await uploadMediaFile(item.file);
+          if (!result.success) throw new Error(result.error);
+          return { url: result.url, type: item.type, orderIndex: idx };
         }
         return { url: item.url, type: item.type, orderIndex: idx };
       }));

@@ -3,6 +3,33 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 
+export async function uploadMediaFile(file: File) {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    const { data, error } = await supabaseAdmin
+      .storage
+      .from('admin-media')
+      .upload(fileName, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabaseAdmin
+      .storage
+      .from('admin-media')
+      .getPublicUrl(fileName);
+
+    return { success: true, url: publicUrl };
+  } catch (error: any) {
+    console.error('Upload Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function saveMediaSlider(data: {
   targetId: string;
   transitionStyle: string;
@@ -49,7 +76,7 @@ export async function saveMediaSlider(data: {
     revalidatePath('/admin/media-sliders');
     revalidatePath('/');
     revalidatePath('/skills');
-    
+
     return { success: true };
   } catch (error: any) {
     console.error('Save Slider Error:', error);
