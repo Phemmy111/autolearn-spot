@@ -169,6 +169,7 @@ const navigation: NavSection[] = [
   {
     title: 'Content',
     items: [
+      { label: 'Media Sliders', href: '/admin/media-sliders', icon: Image },
       { label: 'Workflow Showcase', href: '/admin/content/workflow-showcase', icon: Video },
       { label: 'Testimonials', href: '/admin/content/testimonials', icon: MessageSquare },
       { label: 'FAQs', href: '/admin/content/faqs', icon: HelpCircle },
