@@ -2,8 +2,15 @@
 
 import { supabaseAdmin } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/admin';
 
 export async function uploadMediaFile(file: File) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   try {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -37,30 +44,62 @@ export async function saveMediaSlider(data: {
   media: { url: string; type: string; orderIndex: number }[];
 }) {
   try {
-    // 1. Upsert Slider Config
-    const { data: slider, error: sliderError } = await supabaseAdmin
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
+  try {
+    // 1. Check if slider exists for this target
+    const { data: existingSlider } = await supabaseAdmin
       .from('page_sliders')
-      .upsert({
-        target_id: data.targetId,
-        transition_style: data.transitionStyle,
-        duration_ms: data.durationMs,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'target_id' })
-      .select()
+      .select('id')
+      .eq('target_id', data.targetId)
       .single();
 
-    if (sliderError) throw sliderError;
+    let sliderId: string;
+
+    if (existingSlider) {
+      // Update existing slider
+      const { data: updatedSlider, error: updateError } = await supabaseAdmin
+        .from('page_sliders')
+        .update({
+          transition_style: data.transitionStyle,
+          duration_ms: data.durationMs,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingSlider.id)
+        .select()
+        .single();
+
+      if (updateError) throw updateError;
+      sliderId = updatedSlider.id;
+    } else {
+      // Create new slider
+      const { data: newSlider, error: insertError } = await supabaseAdmin
+        .from('page_sliders')
+        .insert({
+          target_id: data.targetId,
+          transition_style: data.transitionStyle,
+          duration_ms: data.durationMs,
+        })
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+      sliderId = newSlider.id;
+    }
 
     // 2. Delete existing media for this slider (simplest way to handle re-ordering/removals)
     await supabaseAdmin
       .from('slider_media')
       .delete()
-      .eq('slider_id', slider.id);
+      .eq('slider_id', sliderId);
 
     // 3. Insert new media
     if (data.media.length > 0) {
       const mediaToInsert = data.media.map(m => ({
-        slider_id: slider.id,
+        slider_id: sliderId,
         media_url: m.url,
         media_type: m.type,
         order_index: m.orderIndex
@@ -85,6 +124,12 @@ export async function saveMediaSlider(data: {
 }
 
 export async function deleteMediaSlider(id: string) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   try {
     await supabaseAdmin.from('page_sliders').delete().eq('id', id);
     revalidatePath('/admin/media-sliders');
