@@ -105,9 +105,6 @@ export function FeatureStrip() {
           ))}
         </div>
 
-        {/* Fade effects on edges */}
-        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-brand-bg to-transparent z-10" />
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-brand-bg to-transparent z-10" />
       </div>
     </section>
   );
