@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Image as ImageIcon, Video, Trash2, Save, Loader2, X } from 'lucide-react';
-import { saveMediaSlider, deleteMediaSlider, uploadMediaFile } from './actions';
+import { saveMediaSlider, deleteMediaSlider } from './actions';
 
 export default function MediaSliderClient({ initialSliders, skills }: { initialSliders: any[], skills: any[] }) {
   const [sliders, setSliders] = useState(initialSliders);
@@ -59,16 +59,25 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
       console.log('[Client] Transition style:', transitionStyle);
       console.log('[Client] Duration:', duration);
 
-      // 1. Upload new files to Supabase Storage using server action
-      console.log('[Client] Starting file uploads');
+      // 1. Upload new files to Supabase Storage using API route (not server action to avoid 1MB limit)
+      console.log('[Client] Starting file uploads via API route');
       const uploadedMedia = await Promise.all(mediaItems.map(async (item, idx) => {
         console.log(`[Client] Processing item ${idx}:`, item);
         if (item.url.startsWith('blob:') && item.file) {
           console.log(`[Client] Uploading file ${idx}:`, item.file.name);
-          const result = await uploadMediaFile(item.file);
+          const formData = new FormData();
+          formData.append('file', item.file);
+
+          const response = await fetch('/api/admin/content/media', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const result = await response.json();
           console.log(`[Client] Upload result for item ${idx}:`, result);
-          if (!result.success) throw new Error(result.error);
-          return { url: result.url, type: item.type, orderIndex: idx };
+
+          if (!result.success) throw new Error(result.error || 'Upload failed');
+          return { url: result.file.publicUrl, type: item.type, orderIndex: idx };
         }
         console.log(`[Client] Using existing URL for item ${idx}:`, item.url);
         return { url: item.url, type: item.type, orderIndex: idx };
@@ -76,7 +85,7 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
 
       console.log('[Client] All uploads completed. Uploaded media:', uploadedMedia);
 
-      // 2. Call Server Action to update DB
+      // 2. Call Server Action to update DB (only sending URLs, not files)
       console.log('[Client] Calling saveMediaSlider server action');
       const result = await saveMediaSlider({
         targetId,
