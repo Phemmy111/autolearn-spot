@@ -59,9 +59,11 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
       console.log('[Client] Transition style:', transitionStyle);
       console.log('[Client] Duration:', duration);
 
-      // 1. Upload new files to Supabase Storage using dedicated API route
-      console.log('[Client] Starting file uploads via API route');
-      const uploadedMedia = await Promise.all(mediaItems.map(async (item, idx) => {
+      // 1. Upload new files to Supabase Storage using dedicated API route (sequentially to avoid 413 error)
+      console.log('[Client] Starting file uploads via API route (sequential)');
+      const uploadedMedia = [];
+      for (let idx = 0; idx < mediaItems.length; idx++) {
+        const item = mediaItems[idx];
         console.log(`[Client] Processing item ${idx}:`, item);
         if (item.url.startsWith('blob:') && item.file) {
           console.log(`[Client] Uploading file ${idx}:`, item.file.name);
@@ -77,11 +79,12 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
           console.log(`[Client] Upload result for item ${idx}:`, result);
 
           if (!result.success) throw new Error(result.error || 'Upload failed');
-          return { url: result.url, type: item.type, orderIndex: idx };
+          uploadedMedia.push({ url: result.url, type: item.type, orderIndex: idx });
+        } else {
+          console.log(`[Client] Using existing URL for item ${idx}:`, item.url);
+          uploadedMedia.push({ url: item.url, type: item.type, orderIndex: idx });
         }
-        console.log(`[Client] Using existing URL for item ${idx}:`, item.url);
-        return { url: item.url, type: item.type, orderIndex: idx };
-      }));
+      }
 
       console.log('[Client] All uploads completed. Uploaded media:', uploadedMedia);
 
