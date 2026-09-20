@@ -39,8 +39,6 @@ export default async function SkillPage({ params }: PageParams) {
   return (
     <div className="min-h-screen bg-brand-bg">
       <div className="bg-[var(--card)] brightness-95 border-b border-brand-border relative overflow-hidden">
-        
-        {/* Render slider as background if available */}
         {hasSlider && (
           <div className="absolute inset-0 z-0">
             <DynamicSlider
@@ -66,7 +64,7 @@ export default async function SkillPage({ params }: PageParams) {
             {skill?.description || `Master ${title} with our premium, expert-led courses and digital resources.`}
           </p>
         </div>
-      </div>      </div>
+      </div>
 
       <MarketplaceProductGrid products={products} />
     </div>
