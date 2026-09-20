@@ -66,7 +66,7 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
         const item = mediaItems[idx];
         console.log(`[Client] Processing item ${idx}:`, item);
         if (item.url.startsWith('blob:') && item.file) {
-          console.log(`[Client] Uploading file ${idx}:`, item.file.name);
+          console.log(`[Client] Uploading file ${idx}:`, item.file.name, 'size:', item.file.size);
           const formData = new FormData();
           formData.append('file', item.file);
 
@@ -78,7 +78,14 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
           const result = await response.json();
           console.log(`[Client] Upload result for item ${idx}:`, result);
 
-          if (!result.success) throw new Error(result.error || 'Upload failed');
+          if (!result.success) {
+            // Check if it's a size-related error
+            if (result.error?.includes('413') || result.error?.includes('size') || result.error?.includes('limit')) {
+              const sizeMB = (item.file.size / (1024 * 1024)).toFixed(2);
+              throw new Error(`File "${item.file.name}" is too large (${sizeMB}MB). Please use a smaller file or compress it first.`);
+            }
+            throw new Error(result.error || 'Upload failed');
+          }
           uploadedMedia.push({ url: result.url, type: item.type, orderIndex: idx });
         } else {
           console.log(`[Client] Using existing URL for item ${idx}:`, item.url);
