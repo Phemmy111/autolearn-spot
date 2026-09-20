@@ -65,15 +65,15 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
           const fileExt = item.file.name.split('.').pop();
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
           const { error } = await supabase.storage
-            .from('media_assets')
+            .from('admin-media')
             .upload(fileName, item.file);
-            
+
           if (error) throw error;
-          
+
           const { data: { publicUrl } } = supabase.storage
-            .from('media_assets')
+            .from('admin-media')
             .getPublicUrl(fileName);
-            
+
           return { url: publicUrl, type: item.type, orderIndex: idx };
         }
         return { url: item.url, type: item.type, orderIndex: idx };
