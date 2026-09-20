@@ -20,6 +20,7 @@ interface DynamicSliderProps {
   durationMs?: number;
   className?: string;
   autoPlay?: boolean;
+  showIndicators?: boolean;
 }
 
 export function DynamicSlider({
@@ -28,6 +29,7 @@ export function DynamicSlider({
   durationMs = 5000,
   className = '',
   autoPlay = true,
+  showIndicators = true,
 }: DynamicSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -101,9 +103,9 @@ export function DynamicSlider({
           )}
         </motion.div>
       </AnimatePresence>
-      
+
       {/* Slide Indicators */}
-      {media.length > 1 && (
+      {showIndicators && media.length > 1 && (
         <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10">
           {media.map((_, index) => (
             <button

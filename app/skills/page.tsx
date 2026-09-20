@@ -126,7 +126,8 @@ export default async function SkillsPage() {
                           transitionStyle={sliderConfig.transitionStyle}
                           durationMs={sliderConfig.durationMs}
                           className="w-full h-full"
-                          autoPlay={false}
+                          autoPlay={true}
+                          showIndicators={false}
                         />
                       ) : (
                         <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`}>

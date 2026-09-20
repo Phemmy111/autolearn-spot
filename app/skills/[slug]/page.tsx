@@ -46,6 +46,7 @@ export default async function SkillPage({ params }: PageParams) {
               transitionStyle={sliderConfig.transition_style}
               durationMs={sliderConfig.duration_ms}
               className="w-full h-full opacity-80"
+              showIndicators={false}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-brand-bg/30 via-brand-bg/50 to-transparent" />
           </div>
