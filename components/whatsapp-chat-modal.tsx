@@ -5,29 +5,29 @@ import { ArrowRight, CalendarDays, CircleHelp, HandCoins, MessageCircle, Rocket,
 const quickMessages = [
   {
     icon: MessageCircle,
-    label: 'I want to enroll',
-    message: 'Hi, I want to enroll in a course on AutoLearn Spot.',
+    label: 'Course Enrollment',
+    message: 'Hello! I\'m interested in enrolling in a course on AutoLearn Spot.',
   },
   {
     icon: CalendarDays,
-    label: 'I want to become an author',
-    message: 'Hi, I want to become an author and create courses on AutoLearn Spot.',
+    label: 'Become an Author',
+    message: 'Hi! I\'d like to learn how to become an author and create courses on AutoLearn Spot.',
   },
   {
     icon: CircleHelp,
-    label: 'I have a question',
-    message: 'Hi, I have a question about courses on AutoLearn Spot.',
+    label: 'Course Information',
+    message: 'Hello! I have questions about the courses available on AutoLearn Spot.',
   },
   {
     icon: HandCoins,
-    label: 'I need payment help',
-    message: 'Hi, I need help with payment for a course on AutoLearn Spot.',
+    label: 'Payment Support',
+    message: 'Hi! I need assistance with payment options for a course on AutoLearn Spot.',
   },
   {
     featured: true,
     icon: Rocket,
-    label: 'I want to partner',
-    message: 'Hi, I want to become a partner with AutoLearn Spot.',
+    label: 'Partnership Inquiry',
+    message: 'Hello! I\'m interested in partnership opportunities with AutoLearn Spot.',
   },
 ];
 
@@ -129,10 +129,10 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
                     className="mt-2 font-heading text-2xl font-semibold tracking-normal text-[#e2e2e8] sm:text-3xl"
                     id="whatsapp-chat-title"
                   >
-                    Chat with Us
+                    Connect with Us
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-brand-text/60">
-                    Connect with us on WhatsApp for quick support.
+                    Start a conversation on WhatsApp for instant support.
                   </p>
                   {/* Quick message presets */}
                   <div className="space-y-3 sm:mt-5">
