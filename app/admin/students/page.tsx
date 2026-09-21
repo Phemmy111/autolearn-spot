@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, BookOpen, Calendar, CreditCard } from 'lucide-react';
+import { User, BookOpen, Calendar, CreditCard, Users } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
@@ -14,10 +14,12 @@ export default async function AdminStudentsPage() {
     redirect('/');
   }
 
+  // Fetch all enrolled students
   const { data: enrollments, error } = await supabaseAdmin
     .from('enrollments')
     .select(`
       id,
+      clerk_user_id,
       full_name,
       email,
       payment_amount,
@@ -34,47 +36,79 @@ export default async function AdminStudentsPage() {
 
   const safeEnrollments = enrollments || [];
 
-  const formattedData = safeEnrollments.map(e => {
-    const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
-    
-    let daysLeft = null;
-    if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
-      const start = new Date(e.activated_at).getTime();
-      const now = Date.now();
-      const durationMs = product.access_duration_days * 24 * 60 * 60 * 1000;
-      daysLeft = Math.max(0, Math.ceil((start + durationMs - now) / (1000 * 60 * 60 * 24)));
-    }
+  // Get unique students (by clerk_user_id) with their enrollments
+  const studentsMap = new Map();
+  
+  safeEnrollments.forEach(e => {
+    const studentId = e.clerk_user_id || e.email;
+    if (!studentsMap.has(studentId)) {
+      const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+      
+      let daysLeft = null;
+      if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
+        const start = new Date(e.activated_at).getTime();
+        const now = Date.now();
+        const durationMs = product.access_duration_days * 24 * 60 * 60 * 1000;
+        daysLeft = Math.max(0, Math.ceil((start + durationMs - now) / (1000 * 60 * 60 * 24)));
+      }
 
-    return {
-      id: e.id,
-      name: e.full_name || 'No name',
-      email: e.email,
-      course: product ? product.title : 'Unknown Course',
-      amount: e.payment_amount || e.amount_paid || 0,
-      status: e.status || 'inactive',
-      date: e.activated_at || e.enrolled_at || 'N/A',
-      days_left: daysLeft
-    };
+      studentsMap.set(studentId, {
+        id: studentId,
+        name: e.full_name || 'No name',
+        email: e.email,
+        courses: [product ? product.title : 'Unknown Course'],
+        totalAmount: e.payment_amount || e.amount_paid || 0,
+        enrollments: 1,
+        latestEnrollment: e.activated_at || e.enrolled_at || 'N/A',
+        latestStatus: e.status || 'inactive',
+        days_left: daysLeft
+      });
+    } else {
+      // Add additional courses to existing student
+      const student = studentsMap.get(studentId);
+      const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+      if (product) {
+        student.courses.push(product.title);
+      }
+      student.totalAmount += (e.payment_amount || e.amount_paid || 0);
+      student.enrollments += 1;
+      
+      // Update to latest enrollment date
+      const enrollmentDate = e.activated_at || e.enrolled_at;
+      if (enrollmentDate && enrollmentDate > student.latestEnrollment) {
+        student.latestEnrollment = enrollmentDate;
+        student.latestStatus = e.status || 'inactive';
+      }
+    }
   });
+
+  const students = Array.from(studentsMap.values());
 
   return (
     <div className="min-h-screen p-8 text-brand-text bg-brand-bg">
-      <h1 className="text-3xl font-extrabold mb-6 capitalize">Students</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-extrabold capitalize">Students</h1>
+        <div className="flex items-center gap-2 text-sm text-brand-text/60">
+          <Users className="h-4 w-4" />
+          <span>{students.length} total students</span>
+        </div>
+      </div>
+      
       <div className="bg-[var(--card)] brightness-95 rounded-2xl p-6 shadow-sm border border-gray-100 overflow-x-auto">
-        {formattedData.length > 0 ? (
+        {students.length > 0 ? (
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-gray-200 text-gray-500">
                 <th className="p-4 font-medium">Name &amp; Email</th>
-                <th className="p-4 font-medium">Course</th>
-                <th className="p-4 font-medium">Amount</th>
-                <th className="p-4 font-medium">Start Date</th>
-                <th className="p-4 font-medium">Days Left</th>
+                <th className="p-4 font-medium">Courses</th>
+                <th className="p-4 font-medium">Enrollments</th>
+                <th className="p-4 font-medium">Total Amount</th>
+                <th className="p-4 font-medium">Latest Enrollment</th>
                 <th className="p-4 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
-              {formattedData.map((item, idx) => (
+              {students.map((item, idx) => (
                 <tr key={item.id || idx} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -90,39 +124,39 @@ export default async function AdminStudentsPage() {
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-gray-400" />
-                      <span>{item.course}</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm">{item.courses.length} course{item.courses.length !== 1 ? 's' : ''}</span>
+                        <span className="text-xs text-gray-500 truncate max-w-[200px]">
+                          {item.courses.slice(0, 2).join(', ')}
+                          {item.courses.length > 2 && '...'}
+                        </span>
+                      </div>
                     </div>
+                  </td>
+                  <td className="p-4">
+                    <span className="font-medium text-gray-700">{item.enrollments}</span>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-gray-400" />
-                      <span>₦{item.amount.toLocaleString()}</span>
+                      <span>₦{item.totalAmount.toLocaleString()}</span>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-gray-400" />
-                      <span>{item.date !== 'N/A' ? new Date(item.date).toLocaleDateString() : 'N/A'}</span>
+                      <span>{item.latestEnrollment !== 'N/A' ? new Date(item.latestEnrollment).toLocaleDateString() : 'N/A'}</span>
                     </div>
-                  </td>
-                  <td className="p-4 text-sm font-medium">
-                    {item.days_left !== null ? (
-                      <span className={item.days_left < 5 ? 'text-red-500' : 'text-teal-600'}>
-                        {item.days_left} days
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">-</span>
-                    )}
                   </td>
                   <td className="p-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${ 
-                      item.status === 'active' || item.status === 'successful' 
+                      item.latestStatus === 'active' || item.latestStatus === 'successful' 
                         ? 'bg-green-100 text-green-800' 
-                        : item.status === 'not_started'
+                        : item.latestStatus === 'not_started'
                         ? 'bg-blue-100 text-blue-800'
                         : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {item.status.replace('_', ' ')}
+                      {item.latestStatus.replace('_', ' ')}
                     </span>
                   </td>
                 </tr>
@@ -130,7 +164,13 @@ export default async function AdminStudentsPage() {
             </tbody>
           </table>
         ) : (
-          <p className="text-brand-text/60">No students found.</p>
+          <div className="text-center py-12">
+            <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-brand-text/60 mb-2">No students found.</p>
+            <p className="text-sm text-brand-text/40">
+              Students will appear here once they enroll in courses.
+            </p>
+          </div>
         )}
       </div>
     </div>
