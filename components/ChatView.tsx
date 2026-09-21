@@ -8,7 +8,7 @@ import {
 } from "react";
 import {
   ArrowLeft, Send, Paperclip, Mic, Play, Pause,
-  StopCircle, Download, X, FileText
+  StopCircle, Download, X, FileText, Check, CheckCheck
 } from "lucide-react";
 
 interface Message {
@@ -17,6 +17,10 @@ interface Message {
   message_type: "TEXT" | "IMAGE" | "VOICE";
   body: string | null;
   created_at: string;
+  delivery_status: "PENDING" | "DELIVERED" | "FAILED";
+  read_status: "UNREAD" | "READ";
+  delivered_at: string | null;
+  read_at: string | null;
   author_message_attachments: {
     id: string; storage_path: string; file_name: string;
     mime_type: string; file_size: number; duration_seconds?: number | null;
@@ -109,9 +113,20 @@ function MessageBubble({ message, isMe, partnerName }: { message: Message; isMe:
             );
           })}
           {message.body && <p className="text-sm whitespace-pre-wrap break-words">{message.body}</p>}
-          <p className={`text-[10px] mt-0.5 ${isMe ? "text-white/60 text-right" : "text-gray-400"}`}>
-            {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </p>
+          <div className={`flex items-center gap-1 mt-0.5 ${isMe ? "justify-end" : ""}`}>
+            <p className={`text-[10px] ${isMe ? "text-white/60" : "text-gray-400"}`}>
+              {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </p>
+            {isMe && (
+              <div className="flex items-center">
+                {message.read_status === 'READ' ? (
+                  <CheckCheck className="w-3 h-3 text-white/80" />
+                ) : message.delivery_status === 'DELIVERED' ? (
+                  <Check className="w-3 h-3 text-white/60" />
+                ) : null}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -365,12 +380,29 @@ export function ChatView({
 
   const fetchMessages = useCallback(async () => {
     try {
-      const res = await fetch(`/api/author/messages/conversations/${conversationId}/messages`);
+      const apiUrl = myRole === 'AUTHOR'
+        ? `/api/author/messages/conversations/${conversationId}/messages`
+        : `/api/author/messages/conversations/${conversationId}/messages`; // Students use same endpoint for now
+      const res = await fetch(apiUrl);
       const d = await res.json();
       if (d.success) setMessages(d.messages || []);
+
+      // Mark unread messages as read
+      const unreadMessages = (d.messages || []).filter((m: Message) =>
+        m.sender_role !== myRole && m.read_status === 'UNREAD'
+      );
+
+      for (const msg of unreadMessages) {
+        const readApiUrl = myRole === 'AUTHOR'
+          ? `/api/author/messages/conversations/${conversationId}/messages/${msg.id}/read`
+          : `/api/student/messages/conversations/${conversationId}/messages/${msg.id}/read`;
+        await fetch(readApiUrl, {
+          method: 'POST',
+        });
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
-  }, [conversationId]);
+  }, [conversationId, myRole]);
 
   useEffect(() => {
     fetchMessages();
