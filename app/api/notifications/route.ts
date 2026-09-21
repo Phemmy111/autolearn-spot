@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getNotifications, getUnreadCount, markAllAsRead } from '@/lib/growth-engine/NotificationService';
+import { NotificationService } from '@/lib/growth-engine/NotificationService';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const notifications = await getNotifications(userId, limit);
-    const unreadCount = await getUnreadCount(userId);
+    const notifications = await NotificationService.getNotifications(userId, limit);
+    const unreadCount = await NotificationService.getUnreadCount(userId);
 
     return NextResponse.json({ 
       success: true, 
@@ -48,7 +48,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await markAllAsRead(userId);
+    await NotificationService.markAllAsRead(userId);
 
     return NextResponse.json({ success: true });
   } catch (error) {
