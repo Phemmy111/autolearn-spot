@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { auth } from '@clerk/nextjs/server';
+import { currentUser } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,19 +13,26 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    // Get user email from Clerk
+    const user = await currentUser();
+    if (!user?.emailAddresses || user.emailAddresses.length === 0) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase();
+    if (!userEmail) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify admin access
     const { data: admin, error: adminError } = await supabaseAdmin
       .from('admins')
-      .select('status')
-      .eq('clerk_user_id', userId)
+      .select('is_active')
+      .eq('email', userEmail)
+      .eq('is_active', true)
       .single();
 
-    if (adminError || !admin || admin.status !== 'ACTIVE') {
+    if (adminError || !admin) {
       return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 
@@ -65,19 +72,26 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    // Get user email from Clerk
+    const user = await currentUser();
+    if (!user?.emailAddresses || user.emailAddresses.length === 0) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userEmail = user.emailAddresses[0]?.emailAddress?.toLowerCase();
+    if (!userEmail) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify admin access
     const { data: admin, error: adminError } = await supabaseAdmin
       .from('admins')
-      .select('status')
-      .eq('clerk_user_id', userId)
+      .select('is_active')
+      .eq('email', userEmail)
+      .eq('is_active', true)
       .single();
 
-    if (adminError || !admin || admin.status !== 'ACTIVE') {
+    if (adminError || !admin) {
       return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
 

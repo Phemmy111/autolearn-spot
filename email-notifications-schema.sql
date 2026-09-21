@@ -10,77 +10,67 @@ CREATE TABLE IF NOT EXISTS email_notifications (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Try to enable RLS (might not be available in all PostgreSQL versions)
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'pgcrypto') THEN
-    ALTER TABLE email_notifications ENABLE ROW LEVEL SECURITY;
-  END IF;
-EXCEPTION WHEN OTHERS THEN
-  -- RLS not available, skip
-END $$;
+-- Enable RLS
+ALTER TABLE email_notifications ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Admins can read email notifications" ON email_notifications;
+DROP POLICY IF EXISTS "Admins can insert email notifications" ON email_notifications;
+DROP POLICY IF EXISTS "Admins can update email notifications" ON email_notifications;
+DROP POLICY IF EXISTS "Admins can delete email notifications" ON email_notifications;
 
 -- Only admins can read email notification configurations
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM pg_policy WHERE tablename = 'email_notifications') THEN
-    DROP POLICY IF EXISTS "Admins can read email notifications" ON email_notifications;
-  END IF;
-EXCEPTION WHEN OTHERS THEN
-  -- Policy doesn't exist, continue
-END $$;
-
-CREATE POLICY IF NOT EXISTS "Admins can read email notifications"
+CREATE POLICY "Admins can read email notifications"
   ON email_notifications FOR SELECT
   TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM admins
-      WHERE admins.clerk_user_id = auth.uid()
-      AND admins.status = 'ACTIVE'
+      WHERE admins.email = auth.email()
+      AND admins.is_active = true
     )
   );
 
 -- Only admins can insert email notification configurations
-CREATE POLICY IF NOT EXISTS "Admins can insert email notifications"
+CREATE POLICY "Admins can insert email notifications"
   ON email_notifications FOR INSERT
   TO authenticated
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM admins
-      WHERE admins.clerk_user_id = auth.uid()
-      AND admins.status = 'ACTIVE'
+      WHERE admins.email = auth.email()
+      AND admins.is_active = true
     )
   );
 
 -- Only admins can update email notification configurations
-CREATE POLICY IF NOT EXISTS "Admins can update email notifications"
+CREATE POLICY "Admins can update email notifications"
   ON email_notifications FOR UPDATE
   TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM admins
-      WHERE admins.clerk_user_id = auth.uid()
-      AND admins.status = 'ACTIVE'
+      WHERE admins.email = auth.email()
+      AND admins.is_active = true
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM admins
-      WHERE admins.clerk_user_id = auth.uid()
-      AND admins.status = 'ACTIVE'
+      WHERE admins.email = auth.email()
+      AND admins.is_active = true
     )
   );
 
 -- Only admins can delete email notification configurations
-CREATE POLICY IF NOT EXISTS "Admins can delete email notifications"
+CREATE POLICY "Admins can delete email notifications"
   ON email_notifications FOR DELETE
   TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM admins
-      WHERE admins.clerk_user_id = auth.uid()
-      AND admins.status = 'ACTIVE'
+      WHERE admins.email = auth.email()
+      AND admins.is_active = true
     )
   );
 
