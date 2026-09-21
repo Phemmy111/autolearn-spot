@@ -19,7 +19,20 @@ export async function POST(
 
     // Get the author ID from authentication
     const authorResult = await requireAuthor();
-    const authorId = typeof authorResult === 'object' && 'userId' in authorResult ? authorResult.userId : authorResult;
+    const clerkUserId = typeof authorResult === 'object' && 'userId' in authorResult ? authorResult.userId : authorResult;
+
+    // Get the database author ID from clerk user ID
+    const { data: author, error: authorError } = await supabaseAdmin
+      .from('authors')
+      .select('id')
+      .eq('clerk_user_id', clerkUserId)
+      .single();
+
+    if (authorError || !author) {
+      return NextResponse.json({ error: 'Author profile not found' }, { status: 404 });
+    }
+
+    const authorId = author.id;
 
     // Fetch the product to validate ownership
     const { data: product, error: fetchError } = await supabaseAdmin
