@@ -60,18 +60,45 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
 
   const subscribeToPushNotifications = async () => {
     try {
-      // Register service worker
-      const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/'
-      });
+      // Check if VAPID key is available
+      if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+        console.error('[PushNotificationOptIn] VAPID public key not configured');
+        alert('Push notifications are not configured. Please contact support.');
+        return;
+      }
+
+      console.log('[PushNotificationOptIn] Starting subscription process...');
+
+      // Get or register service worker
+      let registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        console.log('[PushNotificationOptIn] Registering new service worker...');
+        registration = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/'
+        });
+      } else {
+        console.log('[PushNotificationOptIn] Using existing service worker registration');
+      }
+
+      // Check if already subscribed
+      const existingSubscription = await registration.pushManager.getSubscription();
+      if (existingSubscription) {
+        console.log('[PushNotificationOptIn] Already subscribed, updating subscription...');
+        // Unsubscribe first to get a fresh subscription
+        await existingSubscription.unsubscribe();
+      }
 
       // Subscribe to push
+      console.log('[PushNotificationOptIn] Subscribing to push service...');
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!)
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)
       });
 
+      console.log('[PushNotificationOptIn] Subscription created:', subscription);
+
       // Send subscription to server
+      console.log('[PushNotificationOptIn] Sending subscription to server...');
       const response = await fetch('/api/push-subscriptions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,12 +109,17 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save subscription');
+        const errorText = await response.text();
+        console.error('[PushNotificationOptIn] Server rejected subscription:', errorText);
+        throw new Error(`Failed to save subscription: ${errorText}`);
       }
 
-      console.log('Push notification subscription saved successfully');
+      const result = await response.json();
+      console.log('[PushNotificationOptIn] Push notification subscription saved successfully:', result);
+      alert('Notifications enabled successfully!');
     } catch (error) {
-      console.error('Error subscribing to push notifications:', error);
+      console.error('[PushNotificationOptIn] Error subscribing to push notifications:', error);
+      alert(`Failed to enable notifications: ${error instanceof Error ? error.message : 'Unknown error'}`);
       // Don't fail the permission grant if subscription fails
     }
   };
@@ -106,6 +138,13 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
       <div className={`flex items-center gap-2 text-sm text-green-600 ${className}`}>
         <Bell className="w-4 h-4" />
         <span>Notifications enabled</span>
+        <button
+          onClick={requestPermission}
+          className="text-xs text-sky-600 hover:text-sky-700 underline"
+          title="Re-enable notifications"
+        >
+          Refresh
+        </button>
       </div>
     );
   }
