@@ -192,12 +192,14 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
 
   for (const item of orderItems) {
     const enrollmentData: Record<string, any> = {
-      cohort_id: currentCohort.id,
+      learning_product_id: item.learning_product_id,
       email: email,
       payment_ref: reference,
       amount_paid: item.price_snapshot,
-      status: 'not_started',
-      activated_at: null,
+      payment_amount: item.price_snapshot,
+      status: 'active',
+      activated_at: new Date().toISOString(),
+      enrolled_at: new Date().toISOString(),
       referral_code: null,
       referred_by_code: null,
     };
@@ -208,15 +210,10 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
       if (lastName) enrollmentData.last_name = lastName;
     }
 
-    // Include learning_product_id if the column exists (added via migration)
-    if (item.learning_product_id) {
-      enrollmentData.learning_product_id = item.learning_product_id;
-    }
-
     const { error: enrollmentError } = await supabaseAdmin
       .from('enrollments')
       .upsert(enrollmentData, {
-        onConflict: 'cohort_id, email'
+        onConflict: 'learning_product_id, email'
       });
 
     if (enrollmentError) {
@@ -451,12 +448,14 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   const fullName = [firstName, lastName].filter(Boolean).join(' ');
 
   const enrollmentData: any = {
-    cohort_id: currentCohort.id,
+    learning_product_id: pendingEnrollment.learning_product_id || currentCohort.id,
     email: pendingEnrollment.email,
     payment_ref: reference,
     amount_paid: amountInNaira,
-    status: 'not_started',
-    activated_at: null,
+    payment_amount: amountInNaira,
+    status: 'active',
+    activated_at: new Date().toISOString(),
+    enrolled_at: new Date().toISOString(),
     referral_code: pendingEnrollment.referral_code || null,
     referred_by_code: pendingEnrollment.referral_code || null
   };
@@ -472,7 +471,7 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   const { error: enrollmentError } = await supabaseAdmin
     .from('enrollments')
     .upsert(enrollmentData, {
-      onConflict: 'cohort_id, email'
+      onConflict: 'learning_product_id, email'
     });
 
   if (enrollmentError) {
@@ -1036,7 +1035,8 @@ export async function POST(request: NextRequest) {
           .eq('is_current', true)
           .single();
 
-        // Fallback to default cohort ID if no current cohort exists
+        // Note: Author applications use cohort-based enrollment for now
+        // This should be updated to use learning_product_id in the future
         const cohortId = currentCohort?.id || 'a1111111-1111-1111-1111-111111111111';
 
         const enrollmentData: any = {
