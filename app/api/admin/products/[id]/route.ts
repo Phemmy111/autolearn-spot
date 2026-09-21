@@ -50,20 +50,44 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     let skill = null;
     if (product.skill_id) {
-      const { data: s } = await supabaseAdmin
+      console.log('[Admin Product] Fetching skill with ID:', product.skill_id);
+      const { data: s, error: skillError } = await supabaseAdmin
         .from('skills')
         .select('name, category_id')
         .eq('id', product.skill_id)
         .single();
       
+      if (skillError) {
+        console.error('[Admin Product] Skill lookup failed:', skillError);
+      }
+      
       if (s) {
         skill = s;
+        console.log('[Admin Product] Skill found:', s);
+      } else {
+        console.log('[Admin Product] No skill found for ID:', product.skill_id);
+      }
+    } else {
+      console.log('[Admin Product] Product has no skill_id');
+    }
+
+    // Also fetch category if skill has category_id
+    let category = null;
+    if (skill?.category_id) {
+      const { data: c } = await supabaseAdmin
+        .from('categories')
+        .select('name')
+        .eq('id', skill.category_id)
+        .single();
+      
+      if (c) {
+        category = c;
       }
     }
 
     return NextResponse.json({ 
       success: true, 
-      product: { ...product, author, skill } 
+      product: { ...product, author, skill, category } 
     });
   } catch (err: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });

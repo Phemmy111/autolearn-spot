@@ -98,7 +98,8 @@ export default function AdminProductReviewPage({ params }: { params: Promise<{ i
               <h1 className="text-2xl md:text-3xl font-bold text-brand-text mb-2">{product.title}</h1>
               <div className="text-sm text-brand-text/70 space-y-1">
                 <p><strong>Author:</strong> {product.author?.name} ({product.author?.email})</p>
-                <p><strong>Skill:</strong> {product.skill?.name || 'Unknown'}</p>
+                <p><strong>Skill:</strong> {product.skill?.name || 'Unknown'} {product.skill_id && !product.skill?.name && <span className="text-xs text-gray-400">(ID: {product.skill_id})</span>}</p>
+                {product.category && <p><strong>Category:</strong> {product.category.name}</p>}
                 <p><strong>Price:</strong> {product.price > 0 ? `${product.currency} ${product.price.toLocaleString()}` : 'Free'}</p>
                 <p><strong>Type:</strong> {product.product_type} • <strong>Access:</strong> {product.access_duration_days} days</p>
               </div>
