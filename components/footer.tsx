@@ -35,23 +35,23 @@ async function FooterContent() {
             <h4 className="text-sm font-bold text-brand-text mb-4">Learning</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
-                  Fundamentals
+                <a href="/courses" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                  All Courses
                 </a>
               </li>
               <li>
-                <a href="#" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
-                  Advanced Courses
+                <a href="/skills" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                  Skills
                 </a>
               </li>
               <li>
-                <a href="#" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
-                  Documentation
+                <a href="/authors" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                  Authors
                 </a>
               </li>
               <li>
-                <a href="#" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
-                  Community Projects
+                <a href="/autolearn-ai" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                  ALEX AI
                 </a>
               </li>
             </ul>
@@ -62,22 +62,22 @@ async function FooterContent() {
             <h4 className="text-sm font-bold text-brand-text mb-4">Company</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                <a href="/about" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
                   About Us
                 </a>
               </li>
               <li>
-                <a href="#" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                <a href="/blog" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
                   Blog
                 </a>
               </li>
               <li>
-                <a href={settings.footerContactLink || '/contact'} className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                <a href="/contact" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
                   Contact
                 </a>
               </li>
               <li>
-                <a href="#" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
+                <a href="/career" className="text-brand-text/70 hover:text-[#10b981] text-sm transition-colors">
                   Career
                 </a>
               </li>
