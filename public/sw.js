@@ -19,19 +19,41 @@ self.addEventListener('fetch', (event) => {
 
 // Handle push notifications
 self.addEventListener('push', (event) => {
-  const options = {
-    body: event.data?.text(),
+  let notificationData = {
+    title: 'AutoLearn Spot',
+    body: 'You have a new message',
     icon: '/autolearn-brandmark.png',
     badge: '/autolearn-brandmark.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
       primaryKey: 1,
-  },
+    },
   };
 
+  // Parse the notification data
+  if (event.data) {
+    try {
+      const data = JSON.parse(event.data.text());
+      notificationData = {
+        ...notificationData,
+        title: data.title || notificationData.title,
+        body: data.body || notificationData.body,
+        icon: data.icon || notificationData.icon,
+        badge: data.badge || notificationData.badge,
+        data: {
+          ...notificationData.data,
+          ...data.data,
+        },
+      };
+    } catch (e) {
+      // If parsing fails, use the text as body
+      notificationData.body = event.data.text();
+    }
+  }
+
   event.waitUntil(
-    self.registration.showNotification('AutoLearn Spot', options)
+    self.registration.showNotification(notificationData.title, notificationData)
   );
 });
 
