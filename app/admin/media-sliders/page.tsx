@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import MediaSliderClient from './MediaSliderClient';
+import { SKILLS_BY_CATEGORY, CATEGORIES } from '@/lib/taxonomy';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,11 +10,18 @@ export default async function MediaSlidersPage() {
     .from('page_sliders')
     .select('*, slider_media(*)');
 
-  // Fetch skills for the dropdown
-  const { data: skills } = await supabaseAdmin
-    .from('skills')
-    .select('id, name')
-    .order('name');
+  // Get skills from taxonomy instead of database
+  const skillsFromTaxonomy = [];
+  for (const category of CATEGORIES) {
+    const skills = SKILLS_BY_CATEGORY[category] || [];
+    for (const skill of skills) {
+      skillsFromTaxonomy.push({
+        id: skill.id,
+        name: skill.name,
+        category
+      });
+    }
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -24,7 +32,7 @@ export default async function MediaSlidersPage() {
         </p>
       </div>
 
-      <MediaSliderClient initialSliders={sliders || []} skills={skills || []} />
+      <MediaSliderClient initialSliders={sliders || []} skills={skillsFromTaxonomy} />
     </div>
   );
 }

@@ -2,35 +2,28 @@ import Link from 'next/link';
 import { Tag, ArrowRight, Home, ChevronRight } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase';
 import { DynamicSlider } from '@/components/ui/DynamicSlider';
+import { SKILLS_BY_CATEGORY, CATEGORIES } from '@/lib/taxonomy';
 
 export const dynamic = 'force-dynamic';
 
-const DEFAULT_SKILLS = [
-  { name: 'AI Automation', slug: 'ai-automation', description: 'Master workflow automation using AI tools like n8n, Make, and Zapier to build powerful, hands-free systems.' },
-  { name: 'AI & Machine Learning', slug: 'ai-machine-learning', description: 'Understand and apply Artificial Intelligence and Machine Learning concepts to real-world problems.' },
-  { name: 'Video Content Creation', slug: 'video-content-creation', description: 'Create, edit and publish engaging video content using AI-powered tools for YouTube, TikTok and more.' },
-  { name: 'Digital Marketing', slug: 'digital-marketing', description: 'Learn how to grow an audience, run ads, and drive revenue through modern digital marketing strategies.' },
-  { name: 'Web Development', slug: 'web-development', description: 'Build modern, responsive websites and web applications with the latest tools and frameworks.' },
-  { name: 'No-Code Tools', slug: 'no-code-tools', description: 'Build powerful apps and automations without writing a single line of code using no-code platforms.' },
-  { name: 'Freelancing & Business', slug: 'freelancing-business', description: 'Start and grow a profitable freelance business or online agency with practical, actionable guidance.' },
-  { name: 'Prompt Engineering', slug: 'prompt-engineering', description: 'Learn how to write effective AI prompts to get better results from ChatGPT, Claude, Gemini and more.' },
-];
-
 export default async function SkillsPage() {
-  // Check if skills exist; auto-seed if not
-  const { data: existingSkills } = await supabaseAdmin.from('skills').select('id').limit(1);
-  if (!existingSkills || existingSkills.length === 0) {
-    await supabaseAdmin.from('skills').insert(DEFAULT_SKILLS);
+  // Get all skills from taxonomy (flattened from categories)
+  const skillsFromTaxonomy = [];
+  for (const category of CATEGORIES) {
+    const skills = SKILLS_BY_CATEGORY[category] || [];
+    for (const skill of skills) {
+      skillsFromTaxonomy.push({
+        id: skill.id,
+        name: skill.name,
+        slug: skill.id,
+        description: `Learn ${skill.name} through our comprehensive courses and resources.`,
+        category
+      });
+    }
   }
 
-  // Fetch skills WITHOUT nested join (nested joins fail silently if FK not in PostgREST)
-  const { data: skills } = await supabaseAdmin
-    .from('skills')
-    .select('id, name, description, slug')
-    .order('name');
-
   // Fetch slider media for skills
-  const skillIds = (skills || []).map(s => s.id);
+  const skillIds = skillsFromTaxonomy.map(s => s.id);
   const { data: sliderConfigs } = skillIds.length > 0
     ? await supabaseAdmin
         .from('page_sliders')
@@ -53,17 +46,16 @@ export default async function SkillsPage() {
   });
 
   // Fetch published products separately to count per skill
-  const skillIdentifiers = (skills || []).flatMap(s => [s.id, s.slug].filter(Boolean));
-  const { data: products } = skillIdentifiers.length > 0
+  const { data: products } = skillIds.length > 0
     ? await supabaseAdmin
         .from('learning_products')
         .select('id, skill_id, status')
-        .in('skill_id', skillIdentifiers)
+        .in('skill_id', skillIds)
         .eq('status', 'PUBLISHED')
     : { data: [] };
 
-  const validSkills = (skills || []).map(skill => {
-    const publishedCount = (products || []).filter(p => p.skill_id === skill.id || p.skill_id === skill.slug).length;
+  const validSkills = skillsFromTaxonomy.map(skill => {
+    const publishedCount = (products || []).filter(p => p.skill_id === skill.id).length;
     return { ...skill, publishedCount };
   });
 
@@ -116,7 +108,7 @@ export default async function SkillsPage() {
                 return (
                   <Link
                     key={skill.id}
-                    href={`/skills/${skill.slug || skill.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                    href={`/skills/${skill.slug}`}
                     className="group flex flex-col bg-[var(--card)] rounded-[24px] overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1 border border-brand-border/60"
                   >
                     <div className="relative aspect-video w-full overflow-hidden">
@@ -146,9 +138,14 @@ export default async function SkillsPage() {
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/10 backdrop-blur-md text-white/90 flex-shrink-0 border border-white/20 shadow-sm">
                           <Tag className="w-5 h-5" />
                         </div>
-                        <span className="block text-xl font-bold text-white line-clamp-1 drop-shadow-sm">
-                          {skill.name}
-                        </span>
+                        <div className="flex-1 min-w-0">
+                          <span className="block text-xl font-bold text-white line-clamp-1 drop-shadow-sm">
+                            {skill.name}
+                          </span>
+                          <span className="block text-xs text-white/70 line-clamp-1">
+                            {skill.category}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
