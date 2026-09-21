@@ -167,19 +167,18 @@ async function notifyEnrolledStudents(productId: string, liveClass: any) {
     if (studentIds.length === 0) return;
 
     // Create notifications
-    // TODO: Implement bulk notification creation for partners
-    // const { createBulkNotifications } = await import('@/lib/notification-service');
-    // await createBulkNotifications(studentIds, {
-    //   type: 'LIVE_CLASS_SCHEDULED',
-    //   title: 'Live Class Scheduled',
-    //   body: `Your author has scheduled a live class for ${liveClass.title}.`,
-    //   actionUrl: `/dashboard`,
-    //   metadata: {
-    //     live_class_id: liveClass.id,
-    //     scheduled_start: liveClass.scheduled_start,
-    //   },
-    //   eventId: `live-class-${liveClass.id}`,
-    // });
+    const { createBulkNotifications } = await import('@/lib/notification-service');
+    await createBulkNotifications(studentIds, {
+      type: 'LIVE_CLASS_SCHEDULED',
+      title: 'Live Class Scheduled',
+      body: `Your author has scheduled a live class for ${liveClass.title}.`,
+      actionUrl: `/dashboard`,
+      metadata: {
+        live_class_id: liveClass.id,
+        scheduled_start: liveClass.scheduled_start,
+      },
+      eventId: `live-class-${liveClass.id}`,
+    });
   } catch (error) {
     console.error('Error notifying students:', error);
   }
