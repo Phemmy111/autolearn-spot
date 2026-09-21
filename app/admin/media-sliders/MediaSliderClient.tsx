@@ -17,6 +17,17 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
+    
+    // Validate file size before adding (Vercel limit is 4.5MB, use 3MB to be safe)
+    const maxSize = 3 * 1024 * 1024; // 3MB
+    const invalidFiles = Array.from(e.target.files).filter(file => file.size > maxSize);
+    
+    if (invalidFiles.length > 0) {
+      const fileNames = invalidFiles.map(f => `${f.name} (${(f.size / (1024 * 1024)).toFixed(2)}MB)`).join(', ');
+      alert(`The following files are too large (max 3MB): ${fileNames}\n\nPlease compress these files or use smaller images.`);
+      return;
+    }
+    
     const newItems = Array.from(e.target.files).map(file => ({
       file,
       url: URL.createObjectURL(file),
@@ -183,7 +194,10 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
 
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-sm font-medium text-gray-700">Media Items (Order: Left to Right)</h3>
+              <div>
+                <h3 className="text-sm font-medium text-gray-700">Media Items (Order: Left to Right)</h3>
+                <p className="text-xs text-gray-500 mt-1">Maximum file size: 3MB per file</p>
+              </div>
               <label className="cursor-pointer flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                 <Plus className="w-4 h-4" /> Add Media
                 <input type="file" multiple accept="image/*,video/mp4" className="hidden" onChange={handleFileUpload} />

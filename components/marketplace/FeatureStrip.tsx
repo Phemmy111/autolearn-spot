@@ -81,7 +81,7 @@ export function FeatureStrip() {
   const scrollFeatures = [...features, ...features, ...features, ...features];
 
   return (
-    <section className="bg-brand-bg py-8 border-b border-brand-border/40 relative z-20 overflow-hidden">
+    <section className="bg-brand-bg py-4 border-b border-brand-border/40 relative z-20 overflow-hidden">
       <div className="relative">
         {/* Marquee Container */}
         <div className="flex gap-6 animate-marquee">

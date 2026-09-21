@@ -29,7 +29,7 @@ async function TestimonialsSection() {
   }
 
   return (
-    <section className="py-16 sm:py-24 bg-brand-bg border-t border-brand-border/50">
+    <section className="py-12 sm:py-16 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-text mb-4">
@@ -61,7 +61,7 @@ async function TestimonialsSection() {
 
 function ContactSection() {
   return (
-    <section className="py-16 sm:py-24 bg-brand-bg border-t border-brand-border/50">
+    <section className="py-12 sm:py-16 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-text mb-4">

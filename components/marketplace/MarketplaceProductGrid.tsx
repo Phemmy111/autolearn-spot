@@ -29,7 +29,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
   });
   if (!products || products.length === 0) {
     return (
-      <section id="products" className="py-24 bg-brand-bg">
+      <section id="products" className="py-16 bg-brand-bg">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--card)] brightness-95 border border-brand-border/50 mb-6 shadow-sm">
             <BookOpen className="w-8 h-8 text-neutral-400" />
@@ -46,7 +46,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
   }
 
   return (
-    <section id="products" className="py-20 md:py-32 bg-brand-bg border-t border-brand-border/50">
+    <section id="products" className="py-12 md:py-16 bg-brand-bg border-t border-brand-border/50">
       <div className="container mx-auto px-4">
         
         {/* Header & Search/Filter Bar */}
