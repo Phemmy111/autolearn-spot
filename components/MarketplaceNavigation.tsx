@@ -24,6 +24,12 @@ export function MarketplaceNavigation() {
     { name: 'ALEX', href: '/autolearn-ai', icon: Brain },
   ];
 
+  const moreItems = [
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Careers', href: '/career' },
+  ];
+
   return (
     <>
       {/* Desktop Navigation */}
@@ -51,6 +57,16 @@ export function MarketplaceNavigation() {
               className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors flex items-center gap-1.5"
             >
               {item.icon && <item.icon className="w-4 h-4" />}
+              {item.name}
+            </Link>
+          ))}
+          <div className="h-6 w-px bg-brand-border/50" />
+          {moreItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sm font-medium text-brand-text/70 hover:text-brand-text transition-colors"
+            >
               {item.name}
             </Link>
           ))}
@@ -139,6 +155,17 @@ export function MarketplaceNavigation() {
               {/* Navigation Links */}
               <div className="flex-1 overflow-y-auto p-4 space-y-1">
                 {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className="block px-4 py-3 text-base font-medium text-brand-text/70 hover:text-brand-text hover:bg-[var(--card)] brightness-95/50 rounded-xl transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+                <div className="border-t border-brand-border/50 my-2" />
+                {moreItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}

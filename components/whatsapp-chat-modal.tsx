@@ -5,29 +5,29 @@ import { ArrowRight, CalendarDays, CircleHelp, HandCoins, MessageCircle, Rocket,
 const quickMessages = [
   {
     icon: MessageCircle,
-    label: 'I want to register',
-    message: 'Hi Femi, I want to register for AutoLearn Spot.',
+    label: 'I want to enroll',
+    message: 'Hi, I want to enroll in a course on AutoLearn Spot.',
   },
   {
     icon: CalendarDays,
-    label: 'When does it start?',
-    message: 'Hi Femi, when does the next AutoLearn Spot cohort start?',
+    label: 'I want to become an author',
+    message: 'Hi, I want to become an author and create courses on AutoLearn Spot.',
   },
   {
     icon: CircleHelp,
     label: 'I have a question',
-    message: 'Hi Femi, I have a question about AutoLearn Spot.',
+    message: 'Hi, I have a question about courses on AutoLearn Spot.',
   },
   {
     icon: HandCoins,
-    label: 'Payment help',
-    message: 'Hi Femi, I need help with payment for AutoLearn Spot.',
+    label: 'I need payment help',
+    message: 'Hi, I need help with payment for a course on AutoLearn Spot.',
   },
   {
     featured: true,
     icon: Rocket,
-    label: 'I want to be an ambassador',
-    message: 'Hi Femi, I want to be an AutoLearn Spot ambassador.',
+    label: 'I want to partner',
+    message: 'Hi, I want to become a partner with AutoLearn Spot.',
   },
 ];
 
@@ -48,7 +48,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState('')
   const communityHref = useMemo(
-    () => whatsappCommunityUrl || whatsappHref('Hi Femi, I want to join the AutoLearn Spot WhatsApp community.'),
+    () => whatsappCommunityUrl || whatsappHref('Hi, I want to join the AutoLearn Spot community.'),
     [],
   )
 
@@ -129,10 +129,10 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
                     className="mt-2 font-heading text-2xl font-semibold tracking-normal text-[#e2e2e8] sm:text-3xl"
                     id="whatsapp-chat-title"
                   >
-                    Chat with Femi
+                    Chat with Us
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-brand-text/60">
-                    Pick a message to open WhatsApp instantly.
+                    Connect with us on WhatsApp for quick support.
                   </p>
                   {/* Quick message presets */}
                   <div className="space-y-3 sm:mt-5">
@@ -176,7 +176,7 @@ export function WhatsAppChatModal({ variant = 'inline' }: { variant?: 'inline' |
                       ? 'border-[#10b981]/70 bg-brand-bg/10 text-[#dbfcff] hover:bg-brand-bg/15'
                       : 'border-brand-border bg-brand-bg text-[#5d5f63] cursor-not-allowed'
                   }`}
-                  href={whatsappHref(message || 'Hi Femi, I have a question about AutoLearn Spot.')}
+                  href={whatsappHref(message || 'Hi, I have a question about AutoLearn Spot.')}
                   rel="noreferrer"
                   target="_blank"
                 >
