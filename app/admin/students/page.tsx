@@ -28,9 +28,12 @@ export default async function AdminStudentsPage() {
       status,
       activated_at,
       enrolled_at,
+      learning_product_id,
       learning_product:learning_products (
+        id,
         title,
-        access_duration_days
+        access_duration_days,
+        price
       )
     `)
     .order('created_at', { ascending: false });

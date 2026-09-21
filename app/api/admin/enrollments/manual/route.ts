@@ -9,34 +9,48 @@ export async function POST(req: Request) {
     const adminEmail = adminInfo?.email || 'Unknown Admin'
 
     const body = await req.json()
-    const { email, clerkUserId, cohortId, status, reason, firstName, lastName, fullName } = body
+    const { email, clerkUserId, productId, status, reason, firstName, lastName, fullName } = body
 
-    if (!email || !cohortId) {
-      return NextResponse.json({ error: 'Email and Cohort are required' }, { status: 400 })
+    if (!email || !productId) {
+      return NextResponse.json({ error: 'Email and Product are required' }, { status: 400 })
     }
 
-    // 1. Check if an active enrollment already exists
+    // 1. Check if product exists
+    const { data: product } = await supabaseAdmin
+      .from('learning_products')
+      .select('id, title, author_id, price')
+      .eq('id', productId)
+      .single()
+
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+    }
+
+    // 2. Check if an active enrollment already exists for this product
     const { data: existing } = await supabaseAdmin
       .from('enrollments')
       .select('id, status')
       .eq('email', email)
-      .eq('cohort_id', cohortId)
+      .eq('learning_product_id', productId)
       .single()
 
     if (existing?.status === 'active') {
-      return NextResponse.json({ error: 'User is Already Enrolled (Active)' }, { status: 409 })
+      return NextResponse.json({ error: 'User is Already Enrolled in this product (Active)' }, { status: 409 })
     }
 
-    // 2. Format notes field for human-readable reasons (no audit logs)
+    // 3. Format notes field for human-readable reasons (no audit logs)
     const formattedNotes = reason ? reason.trim() : null
 
-    // 3. Create or update the enrollment
+    // 4. Create or update the enrollment
     const enrollmentData: any = {
-      cohort_id: cohortId,
+      learning_product_id: productId,
       email: email.toLowerCase().trim(),
       status: status || 'active',
       notes: formattedNotes,
-      activated_at: new Date().toISOString()
+      activated_at: new Date().toISOString(),
+      enrolled_at: new Date().toISOString(),
+      payment_amount: product.price || 0,
+      amount_paid: product.price || 0,
     }
 
     if (clerkUserId) {
@@ -50,7 +64,7 @@ export async function POST(req: Request) {
 
     const { error: upsertError } = await supabaseAdmin
       .from('enrollments')
-      .upsert(enrollmentData, { onConflict: 'cohort_id, email' })
+      .upsert(enrollmentData, { onConflict: 'learning_product_id, email' })
 
     if (upsertError) {
       console.error('Error creating manual enrollment:', upsertError)
@@ -62,15 +76,15 @@ export async function POST(req: Request) {
       const { createNotification } = await import('@/lib/notifications');
       await createNotification({
         title: 'Welcome to AutoLearn Spot!',
-        message: `You have been manually enrolled by an administrator.`,
+        message: `You have been manually enrolled in "${product.title}" by an administrator.`,
         category: 'enrollment',
         priority: 'important',
         target_type: 'student',
-        target_id: clerkUserId || email, // Pass clerkUserId if available, else email
+        target_id: clerkUserId || email,
         action_url: '/dashboard',
         action_label: 'Go to Dashboard',
         send_email: true,
-        event_id: `enrollment_${email}_${cohortId}`,
+        event_id: `enrollment_${email}_${productId}`,
       });
     } catch (notifErr) {
       console.error('Failed to send manual enrollment notification:', notifErr);

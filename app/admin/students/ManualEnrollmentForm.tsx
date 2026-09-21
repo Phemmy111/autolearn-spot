@@ -1,11 +1,28 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function ManualEnrollmentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch available products
+    async function fetchProducts() {
+      try {
+        const response = await fetch('/api/admin/products');
+        const data = await response.json();
+        if (data.products) {
+          setProducts(data.products);
+        }
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
@@ -67,14 +84,19 @@ export function ManualEnrollmentForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-brand-text/70 mb-1">Cohort ID *</label>
-          <input
-            type="text"
-            name="cohortId"
+          <label className="block text-sm font-medium text-brand-text/70 mb-1">Product *</label>
+          <select
+            name="productId"
             required
             className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            placeholder="cohort-uuid"
-          />
+          >
+            <option value="">Select a product</option>
+            {products.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.title}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-brand-text/70 mb-1">Status</label>
