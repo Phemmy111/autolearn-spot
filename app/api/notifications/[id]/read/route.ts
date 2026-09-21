@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { markNotificationAsRead } from '@/lib/growth-engine/NotificationService';
+import { markAsRead } from '@/lib/growth-engine/NotificationService';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +20,7 @@ export async function POST(
 
     const { id: notificationId } = await params;
 
-    await markNotificationAsRead(notificationId, userId);
+    await markAsRead(notificationId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

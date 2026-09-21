@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getUserNotifications, getUnreadCount, markAllAsRead } from '@/lib/growth-engine/NotificationService';
+import { getNotifications, getUnreadCount, markAllAsRead } from '@/lib/growth-engine/NotificationService';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
 
-    const notifications = await getUserNotifications(userId, limit);
+    const notifications = await getNotifications(userId, limit);
     const unreadCount = await getUnreadCount(userId);
 
     return NextResponse.json({ 
