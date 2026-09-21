@@ -15,78 +15,34 @@ export default async function AdminStudentsPage() {
     redirect('/');
   }
 
-  // Fetch all enrolled students (both product-based and cohort-based)
+  // Simple query to debug - just get all enrollments
   const { data: enrollments, error } = await supabaseAdmin
     .from('enrollments')
-    .select(`
-      id,
-      clerk_user_id,
-      full_name,
-      email,
-      payment_amount,
-      amount_paid,
-      status,
-      activated_at,
-      enrolled_at,
-      learning_product_id,
-      cohort_id
-    `)
+    .select('*')
     .order('created_at', { ascending: false });
 
-  // If error, log it but continue
   if (error) {
     console.error('Error fetching enrollments:', error);
   }
 
   const safeEnrollments = enrollments || [];
 
-  // Fetch product names for enrollments with learning_product_id
-  const productIds = Array.from(new Set(safeEnrollments.map(e => e.learning_product_id).filter(Boolean)));
-  const productsMap = new Map();
-  
-  if (productIds.length > 0) {
-    const { data: products } = await supabaseAdmin
-      .from('learning_products')
-      .select('id, title')
-      .in('id', productIds);
-    
-    products?.forEach(p => {
-      productsMap.set(p.id, p.title);
-    });
-  }
-
-  // Fetch cohort names for enrollments with cohort_id
-  const cohortIds = Array.from(new Set(safeEnrollments.map(e => e.cohort_id).filter(Boolean)));
-  const cohortsMap = new Map();
-  
-  if (cohortIds.length > 0) {
-    const { data: cohorts } = await supabaseAdmin
-      .from('cohorts')
-      .select('id, name')
-      .in('id', cohortIds);
-    
-    cohorts?.forEach(c => {
-      cohortsMap.set(c.id, c.name);
-    });
-  }
+  // Debug: Log what we got
+  console.log('Total enrollments found:', safeEnrollments.length);
+  console.log('Sample enrollment:', safeEnrollments[0]);
 
   // Get unique students (by clerk_user_id) with their enrollments
   const studentsMap = new Map();
   
   safeEnrollments.forEach(e => {
     const studentId = e.clerk_user_id || e.email;
-    const productName = e.learning_product_id ? productsMap.get(e.learning_product_id) : null;
-    const cohortName = e.cohort_id ? cohortsMap.get(e.cohort_id) : null;
-    
-    // Use product title if available, otherwise use cohort name, otherwise "Unknown Course"
-    const courseName = productName || cohortName || 'Unknown Course';
     
     if (!studentsMap.has(studentId)) {
       studentsMap.set(studentId, {
         id: studentId,
         name: e.full_name || 'No name',
         email: e.email,
-        courses: [courseName],
+        courses: [e.learning_product_id || e.cohort_id || 'Unknown'],
         totalAmount: e.payment_amount || e.amount_paid || 0,
         enrollments: 1,
         latestEnrollment: e.activated_at || e.enrolled_at || 'N/A',
@@ -96,9 +52,10 @@ export default async function AdminStudentsPage() {
     } else {
       // Add additional courses to existing student
       const student = studentsMap.get(studentId);
+      const courseId = e.learning_product_id || e.cohort_id || 'Unknown';
       
-      if (courseName !== 'Unknown Course') {
-        student.courses.push(courseName);
+      if (courseId !== 'Unknown') {
+        student.courses.push(courseId);
       }
       student.totalAmount += (e.payment_amount || e.amount_paid || 0);
       student.enrollments += 1;
