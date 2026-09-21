@@ -45,7 +45,8 @@ import {
   Video,
   Image,
   HelpCircle,
-  Globe
+  Globe,
+  Mail
 } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 
@@ -163,6 +164,7 @@ const navigation: NavSection[] = [
       { label: 'Live Classes', href: '/admin/settings/live-classes', icon: Calendar },
       { label: 'Enrollment', href: '/admin/settings/enrollment', icon: Users },
       { label: 'Certificates', href: '/admin/settings/certificates', icon: Trophy },
+      { label: 'Email Notifications', href: '/admin/settings/email-notifications', icon: Mail },
       { label: 'SEO', href: '/admin/settings/seo', icon: Globe },
     ],
   },

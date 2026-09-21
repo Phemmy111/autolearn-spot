@@ -269,6 +269,15 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           reference
         );
 
+        // Send course purchase notification to configured recipients
+        await EmailService.sendCoursePurchaseNotificationToRecipients(
+          email,
+          data.customer.name || email,
+          product.title,
+          item.price_snapshot,
+          reference
+        );
+
         // Send course sale notification to author
         await EmailService.sendCourseSaleNotification(
           product.authors.email,

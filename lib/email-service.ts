@@ -8,9 +8,17 @@
  */
 
 import nodemailer from 'nodemailer';
+import { supabaseAdmin } from '@/lib/supabase';
 
 interface EmailTemplate {
   to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}
+
+interface EmailTemplateMultiple {
+  to: string[];
   subject: string;
   html: string;
   text?: string;
@@ -51,7 +59,7 @@ export class EmailService {
       };
 
       const info = await transporter.sendMail(mailOptions);
-      
+
       console.log('[EmailService] Email sent successfully:', {
         to: template.to,
         subject: template.subject,
@@ -61,14 +69,75 @@ export class EmailService {
       return true;
     } catch (error) {
       console.error('[EmailService] Failed to send email:', error);
-      
+
       // Fallback to logging if email fails
       console.log('[EmailService] Email fallback (logging):', {
         to: template.to,
         subject: template.subject,
       });
-      
+
       return false;
+    }
+  }
+
+  /**
+   * Send emails to multiple recipients
+   */
+  private static async sendEmailMultiple(template: EmailTemplateMultiple): Promise<boolean> {
+    try {
+      const mailOptions = {
+        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        to: template.to.join(','),
+        subject: template.subject,
+        html: template.html,
+        text: template.text,
+      };
+
+      const info = await transporter.sendMail(mailOptions);
+
+      console.log('[EmailService] Email sent successfully to multiple recipients:', {
+        to: template.to,
+        subject: template.subject,
+        messageId: info.messageId,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('[EmailService] Failed to send email to multiple recipients:', error);
+
+      // Fallback to logging if email fails
+      console.log('[EmailService] Email fallback (logging):', {
+        to: template.to,
+        subject: template.subject,
+      });
+
+      return false;
+    }
+  }
+
+  /**
+   * Get email recipients for a specific event from database configuration
+   */
+  private static async getEventRecipients(eventType: string): Promise<string[]> {
+    try {
+      const { data: config, error } = await supabaseAdmin
+        .from('email_notifications')
+        .select('recipient_emails, is_active')
+        .eq('event_type', eventType)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !config || !config.is_active) {
+        // Fallback to founder email if no configuration found
+        console.log(`[EmailService] No active configuration for ${eventType}, using fallback`);
+        return [process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com'];
+      }
+
+      return config.recipient_emails || [];
+    } catch (error) {
+      console.error('[EmailService] Error fetching event recipients:', error);
+      // Fallback to founder email on error
+      return [process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com'];
     }
   }
 
@@ -278,49 +347,49 @@ export class EmailService {
       bio: string;
     }
   ): Promise<boolean> {
-    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
-    
+    const recipients = await this.getEventRecipients('author_application_submitted');
+
     const expertiseList = applicantData.expertise
       .map(exp => `<li>${exp}</li>`)
       .join('');
 
-    const template: EmailTemplate = {
-      to: founderEmail,
+    const template: EmailTemplateMultiple = {
+      to: recipients,
       subject: `New Author Application: ${applicantData.fullName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #4F46E5;">New Author Application Received</h2>
           <p>A new author application has been submitted on AutoLearn Spot.</p>
-          
+
           <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #1f2937; margin-top: 0;">Applicant Details</h3>
-            
+
             <p><strong>Name:</strong> ${applicantData.fullName}</p>
             <p><strong>Email:</strong> ${applicantData.email}</p>
             <p><strong>Phone:</strong> ${applicantData.phone}</p>
             <p><strong>Location:</strong> ${applicantData.location}</p>
             <p><strong>Professional Title:</strong> ${applicantData.professionalTitle}</p>
             <p><strong>Years of Experience:</strong> ${applicantData.yearsOfExperience}</p>
-            
+
             ${applicantData.linkedinProfile ? `<p><strong>LinkedIn:</strong> <a href="${applicantData.linkedinProfile}">${applicantData.linkedinProfile}</a></p>` : ''}
             ${applicantData.websitePortfolio ? `<p><strong>Website/Portfolio:</strong> <a href="${applicantData.websitePortfolio}">${applicantData.websitePortfolio}</a></p>` : ''}
-            
+
             <p><strong>Expertise Areas:</strong></p>
             <ul style="margin: 10px 0; padding-left: 20px;">
               ${expertiseList}
             </ul>
-            
+
             <p><strong>Bio:</strong></p>
             <p style="font-style: italic; color: #6b7280;">${applicantData.bio}</p>
           </div>
-          
+
           <p>Please review this application in the admin portal to approve or decline it.</p>
           <p>Best regards,<br>AutoLearn Spot System</p>
         </div>
       `,
     };
 
-    return this.sendEmail(template);
+    return this.sendEmailMultiple(template);
   }
 
   /**
@@ -344,17 +413,17 @@ export class EmailService {
           <h2 style="color: #10B981;">🎉 Course Purchase Confirmed!</h2>
           <p>Dear ${studentName},</p>
           <p>Thank you for your purchase! Your payment has been successfully processed.</p>
-          
+
           <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #1f2937; margin-top: 0;">Purchase Details</h3>
             <p><strong>Course:</strong> ${courseTitle}</p>
             <p><strong>Amount Paid:</strong> ₦${amount.toLocaleString()}</p>
             <p><strong>Transaction Reference:</strong> ${reference}</p>
           </div>
-          
+
           <p>You can now access your course materials through your student dashboard.</p>
           <p><a href="${courseUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Access Your Courses</a></p>
-          
+
           <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
           <p>Best regards,<br>The AutoLearn Spot Team</p>
         </div>
@@ -362,6 +431,43 @@ export class EmailService {
     };
 
     return this.sendEmail(template);
+  }
+
+  /**
+   * Send course purchase notification to configured recipients
+   */
+  static async sendCoursePurchaseNotificationToRecipients(
+    studentEmail: string,
+    studentName: string,
+    courseTitle: string,
+    amount: number,
+    reference: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('course_purchase');
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `New Course Purchase: ${courseTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #4F46E5;">New Course Purchase</h2>
+          <p>A new course has been purchased on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Purchase Details</h3>
+            <p><strong>Course:</strong> ${courseTitle}</p>
+            <p><strong>Student:</strong> ${studentName}</p>
+            <p><strong>Student Email:</strong> ${studentEmail}</p>
+            <p><strong>Amount:</strong> ₦${amount.toLocaleString()}</p>
+            <p><strong>Reference:</strong> ${reference}</p>
+          </div>
+
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
   }
 
   /**
@@ -417,16 +523,16 @@ export class EmailService {
     amount: number,
     platformCommission: number
   ): Promise<boolean> {
-    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
+    const recipients = await this.getEventRecipients('course_sale');
 
-    const template: EmailTemplate = {
-      to: founderEmail,
+    const template: EmailTemplateMultiple = {
+      to: recipients,
       subject: `New Course Sale: ${courseTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #4F46E5;">New Course Sale on AutoLearn Spot</h2>
           <p>A new course has been purchased on the platform.</p>
-          
+
           <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #1f2937; margin-top: 0;">Sale Details</h3>
             <p><strong>Course:</strong> ${courseTitle}</p>
@@ -435,13 +541,13 @@ export class EmailService {
             <p><strong>Sale Amount:</strong> ₦${amount.toLocaleString()}</p>
             <p><strong>Platform Commission:</strong> ₦${platformCommission.toLocaleString()}</p>
           </div>
-          
+
           <p>Best regards,<br>AutoLearn Spot System</p>
         </div>
       `,
     };
 
-    return this.sendEmail(template);
+    return this.sendEmailMultiple(template);
   }
 
   /**
@@ -453,18 +559,18 @@ export class EmailService {
     amount: number,
     reference: string
   ): Promise<boolean> {
-    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
+    const recipients = await this.getEventRecipients('withdrawal_request');
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
     const adminUrl = `${baseUrl}/admin/withdrawals`;
 
-    const template: EmailTemplate = {
-      to: founderEmail,
+    const template: EmailTemplateMultiple = {
+      to: recipients,
       subject: `New Withdrawal Request: ₦${amount.toLocaleString()}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #4F46E5;">New Withdrawal Request</h2>
           <p>An author has requested a withdrawal from their earnings.</p>
-          
+
           <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #1f2937; margin-top: 0;">Withdrawal Details</h3>
             <p><strong>Author:</strong> ${authorName}</p>
@@ -472,16 +578,16 @@ export class EmailService {
             <p><strong>Amount:</strong> ₦${amount.toLocaleString()}</p>
             <p><strong>Reference:</strong> ${reference}</p>
           </div>
-          
+
           <p>Please review and approve this withdrawal request in the admin portal.</p>
           <p><a href="${adminUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review Withdrawals</a></p>
-          
+
           <p>Best regards,<br>AutoLearn Spot System</p>
         </div>
       `,
     };
 
-    return this.sendEmail(template);
+    return this.sendEmailMultiple(template);
   }
 
   /**
@@ -582,7 +688,7 @@ export class EmailService {
       description?: string;
     }
   ): Promise<boolean> {
-    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
+    const recipients = await this.getEventRecipients('product_submitted');
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
     const adminUrl = `${baseUrl}/admin/products`;
 
@@ -597,14 +703,14 @@ export class EmailService {
       }
     }
 
-    const template: EmailTemplate = {
-      to: founderEmail,
+    const template: EmailTemplateMultiple = {
+      to: recipients,
       subject: `New Product Submitted for Review: ${productData.title}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #4F46E5;">New Product Submitted for Review</h2>
           <p>A new learning product has been submitted for review on AutoLearn Spot.</p>
-          
+
           <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #1f2937; margin-top: 0;">Product Details</h3>
             <p><strong>Product Title:</strong> ${productData.title}</p>
@@ -614,15 +720,15 @@ export class EmailService {
             <p><strong>Author Email:</strong> ${productData.authorEmail}</p>
             ${shortDescription ? `<p><strong>Description:</strong> ${shortDescription.substring(0, 200)}${shortDescription.length > 200 ? '...' : ''}</p>` : ''}
           </div>
-          
+
           <p>Please review this product in the admin portal to approve or decline it for publication.</p>
           <p><a href="${adminUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review Products</a></p>
-          
+
           <p>Best regards,<br>AutoLearn Spot System</p>
         </div>
       `,
     };
 
-    return this.sendEmail(template);
+    return this.sendEmailMultiple(template);
   }
 }
