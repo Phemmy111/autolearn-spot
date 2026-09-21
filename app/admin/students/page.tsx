@@ -70,8 +70,6 @@ export default async function AdminStudentsPage() {
     });
   }
 
-  const safeEnrollments = enrollments || [];
-
   // Get unique students (by clerk_user_id) with their enrollments
   const studentsMap = new Map();
   
