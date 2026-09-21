@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get conversations with student info and product info
+    // Sort by the latest message created_at instead of conversation updated_at
     const { data: conversations, error } = await supabaseAdmin
       .from('author_conversations')
       .select(`
@@ -40,6 +41,9 @@ export async function GET(request: NextRequest) {
           id,
           title,
           thumbnail
+        ),
+        author_messages (
+          created_at
         )
       `)
       .eq('author_id', author.id)
@@ -188,7 +192,8 @@ async function getUnreadCounts(conversationIds: string[], authorId: string) {
     .from('author_messages')
     .select('conversation_id')
     .in('conversation_id', conversationIds)
-    .neq('sender_role', 'AUTHOR'); // Count messages not sent by author
+    .neq('sender_role', 'AUTHOR') // Count messages not sent by author
+    .eq('read_status', 'UNREAD'); // Only count unread messages
 
   const counts: Record<string, number> = {};
   data?.forEach(msg => {

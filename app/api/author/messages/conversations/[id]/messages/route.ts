@@ -150,6 +150,9 @@ export async function POST(
         sender_role: senderRole,
         message_type: safeMessageType,
         body: messageBody,
+        delivery_status: 'DELIVERED',
+        read_status: 'UNREAD',
+        delivered_at: new Date().toISOString(),
       })
       .select()
       .single();
@@ -176,6 +179,12 @@ export async function POST(
 
       await Promise.all(attachmentPromises);
     }
+
+    // Update conversation updated_at to bring it to top of list
+    await supabaseAdmin
+      .from('author_conversations')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', conversationId);
 
     // Send push notification to the recipient
     try {

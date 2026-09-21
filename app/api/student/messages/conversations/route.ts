@@ -34,6 +34,9 @@ export async function GET(request: NextRequest) {
           id,
           display_name,
           profile_image
+        ),
+        author_messages (
+          created_at
         )
       `)
       .eq('student_id', userId)
@@ -177,7 +180,8 @@ async function getUnreadCounts(conversationIds: string[], studentId: string) {
     .from('author_messages')
     .select('conversation_id')
     .in('conversation_id', conversationIds)
-    .neq('sender_role', 'STUDENT'); // Count messages not sent by student
+    .neq('sender_role', 'STUDENT') // Count messages not sent by student
+    .eq('read_status', 'UNREAD'); // Only count unread messages
 
   const counts: Record<string, number> = {};
   data?.forEach(msg => {

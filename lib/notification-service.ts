@@ -1,182 +1,239 @@
 import { supabaseAdmin } from '@/lib/supabase';
-
-export type NotificationType = 
-  | 'LIVE_CLASS_SCHEDULED'
-  | 'LIVE_CLASS_REMINDER'
-  | 'AUTHOR_MESSAGE'
-  | 'ASSIGNMENT_FEEDBACK'
-  | 'QUIZ_RESULT'
-  | 'PRODUCT_UPDATE'
-  | 'SYSTEM';
-
-export interface CreateNotificationParams {
-  userId: string;
-  type: NotificationType;
-  title: string;
-  body: string;
-  actionUrl?: string;
-  metadata?: Record<string, any>;
-  eventId?: string; // For idempotency
-}
+import { PushNotificationService } from '@/lib/push-notification-service';
+import { EmailService } from '@/lib/email-service';
 
 /**
- * Create a notification for a user
+ * Centralized notification service for all application events
+ * Handles both push notifications and email notifications
  */
-export async function createNotification(params: CreateNotificationParams) {
-  const { userId, type, title, body, actionUrl, metadata, eventId } = params;
-
-  try {
-    // If eventId is provided, check if notification already exists
-    if (eventId) {
-      const { data: existing } = await supabaseAdmin
-        .from('notifications')
-        .select('id')
-        .eq('event_id', eventId)
+export class NotificationService {
+  /**
+   * Send notification for new assignment
+   */
+  static async sendNewAssignmentNotification(
+    studentId: string,
+    assignmentTitle: string,
+    courseTitle: string,
+    authorId: string
+  ): Promise<void> {
+    try {
+      // Get student info
+      const { data: student } = await supabaseAdmin
+        .from('enrollments')
+        .select('full_name, email')
+        .eq('clerk_user_id', studentId)
         .single();
 
-      if (existing) {
-        return { success: true, existing: true, notification: existing };
-      }
-    }
+      if (!student) return;
 
-    const { data, error } = await supabaseAdmin
-      .from('notifications')
-      .insert({
-        user_id: userId,
-        notification_type: type,
-        title,
-        body,
-        action_url: actionUrl,
-        metadata: metadata || {},
-        event_id: eventId,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creating notification:', error);
-      throw error;
-    }
-
-    // Create delivery record
-    await supabaseAdmin
-      .from('notification_deliveries')
-      .insert({
-        notification_id: data.id,
-        user_id: userId,
-        channel: 'in_app',
-        status: 'unread',
+      // Send push notification
+      await PushNotificationService.sendNotification(studentId, {
+        title: 'New Assignment Posted',
+        body: `New assignment "${assignmentTitle}" has been posted for ${courseTitle}`,
+        data: {
+          type: 'new_assignment',
+          assignmentTitle,
+          courseTitle,
+        },
       });
 
-    return { success: true, existing: false, notification: data };
-  } catch (error) {
-    console.error('Error in createNotification:', error);
-    return { success: false, error };
-  }
-}
-
-/**
- * Get notifications for a user
- */
-export async function getUserNotifications(userId: string, limit: number = 20) {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('notifications')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (error) {
-      console.error('Error fetching notifications:', error);
-      return [];
+      // Send email notification
+      await EmailService.sendEmailMultiple({
+        to: [student.email],
+        subject: `New Assignment: ${assignmentTitle}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #4F46E5;">New Assignment Posted</h2>
+            <p>A new assignment has been posted for your course.</p>
+            <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>Assignment:</strong> ${assignmentTitle}</p>
+              <p><strong>Course:</strong> ${courseTitle}</p>
+            </div>
+            <p>Please log in to view and complete the assignment.</p>
+          </div>
+        `,
+      });
+    } catch (error) {
+      console.error('[NotificationService] Failed to send new assignment notification:', error);
     }
-
-    return data || [];
-  } catch (error) {
-    console.error('Error in getUserNotifications:', error);
-    return [];
   }
-}
 
-/**
- * Get unread count for a user
- */
-export async function getUnreadCount(userId: string): Promise<number> {
-  try {
-    // For now, return 0 since we need to check the actual schema
-    // This will be updated once we verify the notifications table structure
-    return 0;
-  } catch (error) {
-    console.error('Error fetching unread count:', error);
-    return 0;
-  }
-}
+  /**
+   * Send notification for quiz submission
+   */
+  static async sendQuizSubmissionNotification(
+    studentId: string,
+    studentName: string,
+    quizTitle: string,
+    score: number,
+    authorId: string
+  ): Promise<void> {
+    try {
+      // Get author info
+      const { data: author } = await supabaseAdmin
+        .from('authors')
+        .select('display_name, email')
+        .eq('id', authorId)
+        .single();
 
-/**
- * Mark notification as read
- */
-export async function markNotificationAsRead(notificationId: string, userId: string) {
-  try {
-    const { error } = await supabaseAdmin
-      .from('notification_deliveries')
-      .update({
-        status: 'read',
-        read_at: new Date().toISOString(),
-      })
-      .eq('notification_id', notificationId)
-      .eq('user_id', userId);
+      if (!author) return;
 
-    if (error) {
-      console.error('Error marking notification as read:', error);
-      return { success: false };
+      // Send push notification to author
+      await PushNotificationService.sendNotification(author.clerk_user_id, {
+        title: 'Quiz Submitted',
+        body: `${studentName} has submitted quiz: ${quizTitle}`,
+        data: {
+          type: 'quiz_submission',
+          studentName,
+          quizTitle,
+          score,
+        },
+      });
+    } catch (error) {
+      console.error('[NotificationService] Failed to send quiz submission notification:', error);
     }
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error in markNotificationAsRead:', error);
-    return { success: false };
   }
-}
 
-/**
- * Mark all notifications as read for a user
- */
-export async function markAllAsRead(userId: string) {
-  try {
-    const { error } = await supabaseAdmin
-      .from('notification_deliveries')
-      .update({
-        status: 'read',
-        read_at: new Date().toISOString(),
-      })
-      .eq('user_id', userId)
-      .eq('status', 'unread');
+  /**
+   * Send notification for course enrollment
+   */
+  static async sendCourseEnrollmentNotification(
+    studentId: string,
+    studentName: string,
+    courseTitle: string,
+    authorId: string
+  ): Promise<void> {
+    try {
+      // Get author info
+      const { data: author } = await supabaseAdmin
+        .from('authors')
+        .select('display_name, email')
+        .eq('id', authorId)
+        .single();
 
-    if (error) {
-      console.error('Error marking all as read:', error);
-      return { success: false };
+      if (!author) return;
+
+      // Send push notification to author
+      await PushNotificationService.sendNotification(author.clerk_user_id, {
+        title: 'New Student Enrolled',
+        body: `${studentName} has enrolled in ${courseTitle}`,
+        data: {
+          type: 'course_enrollment',
+          studentName,
+          courseTitle,
+        },
+      });
+
+      // Send email notification using existing service
+      await EmailService.sendNewStudentEnrollmentNotification(
+        studentId,
+        studentName,
+        courseTitle
+      );
+    } catch (error) {
+      console.error('[NotificationService] Failed to send enrollment notification:', error);
     }
-
-    return { success: true };
-  } catch (error) {
-    console.error('Error in markAllAsRead:', error);
-    return { success: false };
   }
-}
 
-/**
- * Create notifications for multiple users (bulk)
- */
-export async function createBulkNotifications(
-  userIds: string[],
-  params: Omit<CreateNotificationParams, 'userId'>
-) {
-  const results = await Promise.allSettled(
-    userIds.map(userId => createNotification({ ...params, userId }))
-  );
+  /**
+   * Send notification for withdrawal request
+   */
+  static async sendWithdrawalRequestNotification(
+    authorId: string,
+    authorName: string,
+    amount: number
+  ): Promise<void> {
+    try {
+      // Send push notification using existing service
+      await PushNotificationService.sendNotificationToUserType('admin', {
+        title: 'New Withdrawal Request',
+        body: `${authorName} has requested a withdrawal of ₦${amount.toLocaleString()}`,
+        data: {
+          type: 'withdrawal_request',
+          authorName,
+          amount,
+        },
+      });
+    } catch (error) {
+      console.error('[NotificationService] Failed to send withdrawal notification:', error);
+    }
+  }
 
-  const successful = results.filter(r => r.status === 'fulfilled').length;
-  const failed = results.filter(r => r.status === 'rejected').length;
+  /**
+   * Send notification for product approval
+   */
+  static async sendProductApprovalNotification(
+    authorId: string,
+    productTitle: string,
+    status: 'PUBLISHED' | 'REJECTED',
+    feedback?: string
+  ): Promise<void> {
+    try {
+      const { data: author } = await supabaseAdmin
+        .from('authors')
+        .select('display_name, email')
+        .eq('id', authorId)
+        .single();
 
-  return { successful, failed, total: userIds.length };
+      if (!author) return;
+
+      const title = status === 'PUBLISHED' ? 'Product Published' : 'Product Review Update';
+      const body = status === 'PUBLISHED'
+        ? `Your product "${productTitle}" has been published!`
+        : `Your product "${productTitle}" was ${status.toLowerCase()}. ${feedback || ''}`;
+
+      // Send push notification
+      await PushNotificationService.sendNotification(author.clerk_user_id, {
+        title,
+        body,
+        data: {
+          type: 'product_approval',
+          productTitle,
+          status,
+          feedback,
+        },
+      });
+
+      // Email is already handled by existing service
+    } catch (error) {
+      console.error('[NotificationService] Failed to send product approval notification:', error);
+    }
+  }
+
+  /**
+   * Send notification for course completion
+   */
+  static async sendCourseCompletionNotification(
+    studentId: string,
+    studentName: string,
+    courseTitle: string,
+    authorId: string
+  ): Promise<void> {
+    try {
+      // Send push notification to student
+      await PushNotificationService.sendNotification(studentId, {
+        title: '🎉 Course Completed!',
+        body: `Congratulations! You have completed ${courseTitle}`,
+        data: {
+          type: 'course_completion',
+          courseTitle,
+        },
+      });
+
+      // Send push notification to author
+      await PushNotificationService.sendNotification(authorId, {
+        title: 'Student Completed Course',
+        body: `${studentName} has completed ${courseTitle}`,
+        data: {
+          type: 'course_completion',
+          studentName,
+          courseTitle,
+        },
+      });
+
+      // Email is already handled by existing service
+    } catch (error) {
+      console.error('[NotificationService] Failed to send course completion notification:', error);
+    }
+  }
 }
