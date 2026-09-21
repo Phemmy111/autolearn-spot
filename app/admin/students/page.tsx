@@ -29,19 +29,46 @@ export default async function AdminStudentsPage() {
       activated_at,
       enrolled_at,
       learning_product_id,
-      cohort_id,
-      learning_product:learning_products (
-        id,
-        title,
-        access_duration_days,
-        price
-      ),
-      cohort:cohorts (
-        id,
-        name
-      )
+      cohort_id
     `)
     .order('created_at', { ascending: false });
+
+  // If error, log it but continue
+  if (error) {
+    console.error('Error fetching enrollments:', error);
+  }
+
+  const safeEnrollments = enrollments || [];
+
+  // Fetch product names for enrollments with learning_product_id
+  const productIds = Array.from(new Set(safeEnrollments.map(e => e.learning_product_id).filter(Boolean)));
+  const productsMap = new Map();
+  
+  if (productIds.length > 0) {
+    const { data: products } = await supabaseAdmin
+      .from('learning_products')
+      .select('id, title')
+      .in('id', productIds);
+    
+    products?.forEach(p => {
+      productsMap.set(p.id, p.title);
+    });
+  }
+
+  // Fetch cohort names for enrollments with cohort_id
+  const cohortIds = Array.from(new Set(safeEnrollments.map(e => e.cohort_id).filter(Boolean)));
+  const cohortsMap = new Map();
+  
+  if (cohortIds.length > 0) {
+    const { data: cohorts } = await supabaseAdmin
+      .from('cohorts')
+      .select('id, name')
+      .in('id', cohortIds);
+    
+    cohorts?.forEach(c => {
+      cohortsMap.set(c.id, c.name);
+    });
+  }
 
   const safeEnrollments = enrollments || [];
 
@@ -50,21 +77,13 @@ export default async function AdminStudentsPage() {
   
   safeEnrollments.forEach(e => {
     const studentId = e.clerk_user_id || e.email;
+    const productName = e.learning_product_id ? productsMap.get(e.learning_product_id) : null;
+    const cohortName = e.cohort_id ? cohortsMap.get(e.cohort_id) : null;
+    
+    // Use product title if available, otherwise use cohort name, otherwise "Unknown Course"
+    const courseName = productName || cohortName || 'Unknown Course';
+    
     if (!studentsMap.has(studentId)) {
-      const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
-      const cohort = Array.isArray(e.cohort) ? e.cohort[0] : e.cohort;
-      
-      // Use product title if available, otherwise use cohort name, otherwise "Unknown Course"
-      const courseName = product?.title || cohort?.name || 'Unknown Course';
-      
-      let daysLeft = null;
-      if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
-        const start = new Date(e.activated_at).getTime();
-        const now = Date.now();
-        const durationMs = product.access_duration_days * 24 * 60 * 60 * 1000;
-        daysLeft = Math.max(0, Math.ceil((start + durationMs - now) / (1000 * 60 * 60 * 24)));
-      }
-
       studentsMap.set(studentId, {
         id: studentId,
         name: e.full_name || 'No name',
@@ -74,15 +93,11 @@ export default async function AdminStudentsPage() {
         enrollments: 1,
         latestEnrollment: e.activated_at || e.enrolled_at || 'N/A',
         latestStatus: e.status || 'inactive',
-        days_left: daysLeft,
         isProductBased: !!e.learning_product_id
       });
     } else {
       // Add additional courses to existing student
       const student = studentsMap.get(studentId);
-      const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
-      const cohort = Array.isArray(e.cohort) ? e.cohort[0] : e.cohort;
-      const courseName = product?.title || cohort?.name || 'Unknown Course';
       
       if (courseName !== 'Unknown Course') {
         student.courses.push(courseName);
