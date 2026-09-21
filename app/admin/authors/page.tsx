@@ -30,12 +30,12 @@ export default function AdminAuthorsPage() {
             id: author.id,
             name: author.display_name || 'Unknown',
             avatar: (author.display_name || 'U').substring(0, 2).toUpperCase(),
-            expertise: 'Not specified', // Placeholder as it might not be in the schema
-            skills: [], // Placeholder
-            products: 0, // Placeholder
-            students: 0, // Placeholder
-            sales: 0, // Placeholder
-            revenue: `$${author.author_earnings?.[0]?.total_gross || 0}`,
+            expertise: author.bio || author.expertise || 'Not specified',
+            skills: author.skills ? (Array.isArray(author.skills) ? author.skills : author.skills.split(',').map((s: string) => s.trim())) : [],
+            products: author._stats?.products || 0,
+            students: author._stats?.students || 0,
+            sales: author._stats?.students || 0,
+            revenue: `$${(author._stats?.revenue || 0).toLocaleString()}`,
             status: author.status === 'ACTIVE' ? 'Active' : author.status === 'SUSPENDED' ? 'Suspended' : 'Pending',
             joined: new Date(author.created_at).toLocaleDateString()
           }));
@@ -112,7 +112,7 @@ export default function AdminAuthorsPage() {
             { label: 'Active Authors', value: stats?.activeAuthors || '0', icon: UserCheck, trend: 'Currently active', color: 'bg-emerald-50 text-brand-primary' },
             { label: 'Pending Apps', value: stats?.pendingApplications || '0', icon: Clock, trend: 'Needs review', color: 'bg-amber-50 text-amber-600' },
             { label: 'Suspended', value: '-', icon: ShieldAlert, trend: 'N/A', color: 'bg-red-50 text-red-600' },
-            { label: 'Total Revenue', value: '-', icon: DollarSign, trend: 'N/A', color: 'bg-indigo-50 text-indigo-600' }
+            { label: 'Total Revenue', value: `$${(stats?.totalRevenue || 0).toLocaleString()}`, icon: DollarSign, trend: 'All time', color: 'bg-indigo-50 text-indigo-600' }
           ].map((stat, i) => (
             <div key={i} className="bg-[var(--card)] brightness-95 rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-4">

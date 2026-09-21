@@ -52,6 +52,46 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch authors' }, { status: 500 });
     }
 
+    // Fetch real statistics for each author
+    const authorsWithStats = await Promise.all(
+      (authors || []).map(async (author) => {
+        // Count products
+        const { count: productCount } = await supabaseAdmin
+          .from('learning_products')
+          .select('*', { count: 'exact', head: true })
+          .eq('author_id', author.id);
+
+        // Count students (enrollments in author's products)
+        const { data: authorProducts } = await supabaseAdmin
+          .from('learning_products')
+          .select('id')
+          .eq('author_id', author.id);
+
+        const productIds = authorProducts?.map(p => p.id) || [];
+        let studentCount = 0;
+
+        if (productIds.length > 0) {
+          const { count: enrollmentCount } = await supabaseAdmin
+            .from('enrollments')
+            .select('*', { count: 'exact', head: true })
+            .in('learning_product_id', productIds);
+          studentCount = enrollmentCount || 0;
+        }
+
+        // Get revenue from author_earnings
+        const totalRevenue = author.author_earnings?.[0]?.total_gross || 0;
+
+        return {
+          ...author,
+          _stats: {
+            products: productCount || 0,
+            students: studentCount,
+            revenue: totalRevenue,
+          },
+        };
+      })
+    );
+
     // Count by status for statistics
     const [{ count: total }, { count: active }, { count: pending }] = await Promise.all([
       supabaseAdmin.from('authors').select('*', { count: 'exact', head: true }),
@@ -59,8 +99,15 @@ export async function GET(request: NextRequest) {
       supabaseAdmin.from('author_applications').select('*', { count: 'exact', head: true }).eq('status', 'SUBMITTED'),
     ]);
 
+    // Calculate total revenue from all authors
+    const { data: allEarnings } = await supabaseAdmin
+      .from('author_earnings')
+      .select('total_gross');
+
+    const totalRevenue = allEarnings?.reduce((sum, e) => sum + (e.total_gross || 0), 0) || 0;
+
     return NextResponse.json({
-      authors,
+      authors: authorsWithStats,
       pagination: {
         page,
         limit,
@@ -71,6 +118,7 @@ export async function GET(request: NextRequest) {
         totalAuthors: total || 0,
         activeAuthors: active || 0,
         pendingApplications: pending || 0,
+        totalRevenue: totalRevenue,
       },
     });
   } catch (error) {
