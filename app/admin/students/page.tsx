@@ -1,79 +1,12 @@
 import React from 'react';
-import { User, BookOpen, Calendar, CreditCard, Users, Plus } from 'lucide-react';
+import { User, BookOpen, Calendar, CreditCard, Users } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
+import { ManualEnrollmentForm } from './ManualEnrollmentForm';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-function ManualEnrollmentForm() {
-  return (
-    <div className="mb-6 bg-[var(--card)] brightness-95 rounded-2xl p-6 shadow-sm border border-gray-100">
-      <h2 className="text-lg font-bold text-brand-text mb-4">Manual Enrollment</h2>
-      <form action="/api/admin/enrollments/manual" method="POST" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-brand-text/70 mb-1">Email *</label>
-          <input
-            type="email"
-            name="email"
-            required
-            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            placeholder="student@example.com"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-brand-text/70 mb-1">Full Name</label>
-          <input
-            type="text"
-            name="fullName"
-            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            placeholder="John Doe"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-brand-text/70 mb-1">Cohort ID *</label>
-          <input
-            type="text"
-            name="cohortId"
-            required
-            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            placeholder="cohort-uuid"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-brand-text/70 mb-1">Status</label>
-          <select
-            name="status"
-            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-          >
-            <option value="active">Active</option>
-            <option value="pending">Pending</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-        <div className="md:col-span-2 lg:col-span-4">
-          <label className="block text-sm font-medium text-brand-text/70 mb-1">Reason (Optional)</label>
-          <input
-            type="text"
-            name="reason"
-            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            placeholder="Reason for manual enrollment"
-          />
-        </div>
-        <div className="md:col-span-2 lg:col-span-4">
-          <button
-            type="submit"
-            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            <Plus className="h-4 w-4" />
-            Enroll Student
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
 
 export default async function AdminStudentsPage() {
   try {
