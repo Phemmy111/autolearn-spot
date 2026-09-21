@@ -57,12 +57,24 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to suspend author' }, { status: 500 });
     }
 
-    // Send suspension email
+    // Send suspension email to author
     await EmailService.sendAuthorSuspended(
       author.email,
       author.display_name,
       reason
     );
+
+    // Send suspension notification to configured recipients
+    try {
+      await EmailService.sendAuthorSuspensionNotification(
+        author.display_name,
+        author.email,
+        reason
+      );
+    } catch (emailError) {
+      console.error('[Suspend Author] Failed to send admin notification:', emailError);
+      // Don't fail the suspension if email fails
+    }
 
     return NextResponse.json({
       success: true,

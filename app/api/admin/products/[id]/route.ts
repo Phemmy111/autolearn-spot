@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
+import { EmailService } from '@/lib/email-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,7 +98,56 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       throw error;
     }
 
-    // TODO: Send notification with feedback to author if needed
+    // Get author details for notification
+    const { data: author } = await supabaseAdmin
+      .from('authors')
+      .select('display_name, email')
+      .eq('id', product.author_id)
+      .single();
+
+    // Send email notification based on status change
+    try {
+      if (status === 'PUBLISHED' && author) {
+        await EmailService.sendProductPublishedNotification(
+          author.display_name || author.email || 'Author',
+          author.email || 'unknown',
+          product.title,
+          product.id
+        );
+      } else if (status === 'REJECTED' && author) {
+        await EmailService.sendProductRejectedNotification(
+          author.display_name || author.email || 'Author',
+          author.email || 'unknown',
+          product.title,
+          feedback || 'No specific reason provided'
+        );
+      }
+    } catch (emailError) {
+      console.error('[PATCH /api/admin/products/[id]] Email notification failed:', emailError);
+      // Don't fail the status update if email fails
+    }
+
+    // Send email notification based on status change
+    try {
+      if (status === 'PUBLISHED') {
+        await EmailService.sendProductPublishedNotification(
+          author?.display_name || author?.email || 'Author',
+          author?.email || 'unknown',
+          product.title,
+          product.id
+        );
+      } else if (status === 'REJECTED') {
+        await EmailService.sendProductRejectedNotification(
+          author?.display_name || author?.email || 'Author',
+          author?.email || 'unknown',
+          product.title,
+          feedback || 'No specific reason provided'
+        );
+      }
+    } catch (emailError) {
+      console.error('[PATCH /api/admin/products/[id]] Email notification failed:', emailError);
+      // Don't fail the status update if email fails
+    }
 
     return NextResponse.json({ success: true, product });
   } catch (err: any) {

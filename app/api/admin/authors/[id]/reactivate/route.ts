@@ -51,11 +51,22 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to reactivate author' }, { status: 500 });
     }
 
-    // Send reactivation email
+    // Send reactivation email to author
     await EmailService.sendAuthorReactivated(
       author.email,
       author.display_name
     );
+
+    // Send reactivation notification to configured recipients
+    try {
+      await EmailService.sendAuthorReactivationNotification(
+        author.display_name,
+        author.email
+      );
+    } catch (emailError) {
+      console.error('[Reactivate Author] Failed to send admin notification:', emailError);
+      // Don't fail the reactivation if email fails
+    }
 
     return NextResponse.json({
       success: true,

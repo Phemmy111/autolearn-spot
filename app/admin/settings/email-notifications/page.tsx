@@ -18,6 +18,17 @@ const EVENT_LABELS: Record<string, string> = {
   'course_sale': 'Course Sale',
   'withdrawal_request': 'Withdrawal Request',
   'course_purchase': 'Course Purchase',
+  'product_published': 'Product Published',
+  'product_rejected': 'Product Rejected',
+  'author_suspended': 'Author Suspended',
+  'author_reactivated': 'Author Reactivated',
+  'course_completion': 'Course Completion',
+  'quiz_completion': 'Quiz Completion',
+  'assignment_submission': 'Assignment Submission',
+  'partner_application_submitted': 'Partner Application Submitted',
+  'scholarship_application_submitted': 'Scholarship Application Submitted',
+  'new_student_enrollment': 'New Student Enrollment',
+  'system_alert': 'System Alert',
 };
 
 export default function EmailNotificationsPage() {

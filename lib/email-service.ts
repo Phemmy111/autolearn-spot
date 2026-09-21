@@ -675,6 +675,81 @@ export class EmailService {
   }
 
   /**
+   * Send author suspension notification to configured recipients
+   */
+  static async sendAuthorSuspensionNotification(
+    authorName: string,
+    authorEmail: string,
+    reason: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('author_suspended');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const adminUrl = `${baseUrl}/admin/authors`;
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `Author Suspended: ${authorName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #EF4444;">Author Suspended</h2>
+          <p>An author has been suspended on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Suspension Details</h3>
+            <p><strong>Author:</strong> ${authorName}</p>
+            <p><strong>Author Email:</strong> ${authorEmail}</p>
+            <p><strong>Reason:</strong> ${reason}</p>
+          </div>
+
+          <p>Please review this suspension in the admin portal.</p>
+          <p><a href="${adminUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Manage Authors</a></p>
+
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send author reactivation notification to configured recipients
+   */
+  static async sendAuthorReactivationNotification(
+    authorName: string,
+    authorEmail: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('author_reactivated');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const adminUrl = `${baseUrl}/admin/authors`;
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `Author Reactivated: ${authorName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">Author Reactivated</h2>
+          <p>An author has been reactivated on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Reactivation Details</h3>
+            <p><strong>Author:</strong> ${authorName}</p>
+            <p><strong>Author Email:</strong> ${authorEmail}</p>
+            <p><strong>Status:</strong> Active</p>
+          </div>
+
+          <p>The author can now access the author portal and continue managing their courses.</p>
+          <p><a href="${adminUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Manage Authors</a></p>
+
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
    * Send founder notification when a product is submitted for review
    */
   static async sendFounderProductSubmissionNotification(
@@ -724,6 +799,274 @@ export class EmailService {
           <p>Please review this product in the admin portal to approve or decline it for publication.</p>
           <p><a href="${adminUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review Products</a></p>
 
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send product published notification to author
+   */
+  static async sendProductPublishedNotification(
+    authorName: string,
+    authorEmail: string,
+    productTitle: string,
+    productId: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('product_published');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const productUrl = `${baseUrl}/learning_products/${productId}`;
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `🎉 Your Product Has Been Published: ${productTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">Congratulations! Your Product is Now Live</h2>
+          <p>Dear ${authorName},</p>
+          <p>Great news! Your product has been reviewed and published on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Product Details</h3>
+            <p><strong>Product Title:</strong> ${productTitle}</p>
+            <p><strong>Status:</strong> Published</p>
+          </div>
+
+          <p>Your product is now available for students to discover and purchase. You can view it on the platform.</p>
+          <p><a href="${productUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Your Product</a></p>
+
+          <p>Best regards,<br>The AutoLearn Spot Team</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send product rejected notification to author
+   */
+  static async sendProductRejectedNotification(
+    authorName: string,
+    authorEmail: string,
+    productTitle: string,
+    feedback: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('product_rejected');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const authorUrl = `${baseUrl}/author/products`;
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `Product Review Update: ${productTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #EF4444;">Product Review Update</h2>
+          <p>Dear ${authorName},</p>
+          <p>We have reviewed your product submission, and unfortunately, it has been declined at this time.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Product Details</h3>
+            <p><strong>Product Title:</strong> ${productTitle}</p>
+            <p><strong>Status:</strong> Rejected</p>
+            <p><strong>Feedback:</strong> ${feedback}</p>
+          </div>
+
+          <p>We encourage you to review the feedback and make the necessary improvements before resubmitting your product.</p>
+          <p><a href="${authorUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View Your Products</a></p>
+
+          <p>If you have any questions or need clarification on the feedback, please don't hesitate to reach out.</p>
+          <p>Best regards,<br>The AutoLearn Spot Team</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send course completion notification
+   */
+  static async sendCourseCompletionNotification(
+    studentEmail: string,
+    studentName: string,
+    courseTitle: string,
+    authorEmail: string,
+    authorName: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('course_completion');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `Course Completed: ${courseTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">🎉 Course Completed!</h2>
+          <p>A student has successfully completed a course on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Completion Details</h3>
+            <p><strong>Course:</strong> ${courseTitle}</p>
+            <p><strong>Student:</strong> ${studentName}</p>
+            <p><strong>Student Email:</strong> ${studentEmail}</p>
+            <p><strong>Author:</strong> ${authorName}</p>
+          </div>
+
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send quiz completion notification
+   */
+  static async sendQuizCompletionNotification(
+    studentEmail: string,
+    studentName: string,
+    quizTitle: string,
+    score: number,
+    passingScore: number
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('quiz_completion');
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `Quiz Completed: ${quizTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #4F46E5;">Quiz Completed</h2>
+          <p>A student has completed a quiz on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Quiz Details</h3>
+            <p><strong>Quiz:</strong> ${quizTitle}</p>
+            <p><strong>Student:</strong> ${studentName}</p>
+            <p><strong>Student Email:</strong> ${studentEmail}</p>
+            <p><strong>Score:</strong> ${score}%</p>
+            <p><strong>Passing Score:</strong> ${passingScore}%</p>
+            <p><strong>Status:</strong> ${score >= passingScore ? 'Passed ✅' : 'Failed ❌'}</p>
+          </div>
+
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send assignment submission notification
+   */
+  static async sendAssignmentSubmissionNotification(
+    studentEmail: string,
+    studentName: string,
+    assignmentTitle: string,
+    authorEmail: string,
+    authorName: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('assignment_submission');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `Assignment Submitted: ${assignmentTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #4F46E5;">Assignment Submitted</h2>
+          <p>A student has submitted an assignment on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Submission Details</h3>
+            <p><strong>Assignment:</strong> ${assignmentTitle}</p>
+            <p><strong>Student:</strong> ${studentName}</p>
+            <p><strong>Student Email:</strong> ${studentEmail}</p>
+            <p><strong>Author:</strong> ${authorName}</p>
+          </div>
+
+          <p>Please review the submission in your author dashboard.</p>
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send new student enrollment notification
+   */
+  static async sendNewStudentEnrollmentNotification(
+    studentEmail: string,
+    studentName: string,
+    courseTitle: string
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('new_student_enrollment');
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `New Student Enrollment: ${courseTitle}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #10B981;">New Student Enrollment</h2>
+          <p>A new student has enrolled in a course on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Enrollment Details</h3>
+            <p><strong>Course:</strong> ${courseTitle}</p>
+            <p><strong>Student:</strong> ${studentName}</p>
+            <p><strong>Student Email:</strong> ${studentEmail}</p>
+          </div>
+
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmailMultiple(template);
+  }
+
+  /**
+   * Send system alert notification
+   */
+  static async sendSystemAlertNotification(
+    alertType: string,
+    message: string,
+    severity: 'low' | 'medium' | 'high' | 'critical'
+  ): Promise<boolean> {
+    const recipients = await this.getEventRecipients('system_alert');
+
+    const severityColors = {
+      low: '#10B981',
+      medium: '#F59E0B',
+      high: '#EF4444',
+      critical: '#DC2626'
+    };
+
+    const template: EmailTemplateMultiple = {
+      to: recipients,
+      subject: `🚨 System Alert: ${alertType}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: ${severityColors[severity]};">System Alert</h2>
+          <p>A system alert has been triggered on AutoLearn Spot.</p>
+
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Alert Details</h3>
+            <p><strong>Type:</strong> ${alertType}</p>
+            <p><strong>Severity:</strong> ${severity.toUpperCase()}</p>
+            <p><strong>Message:</strong> ${message}</p>
+            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+          </div>
+
+          <p>Please investigate this alert as soon as possible.</p>
           <p>Best regards,<br>AutoLearn Spot System</p>
         </div>
       `,

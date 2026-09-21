@@ -80,7 +80,18 @@ INSERT INTO email_notifications (event_type, recipient_emails, is_active) VALUES
   ('product_submitted', ARRAY['femiadeleke2020@gmail.com'], true),
   ('course_sale', ARRAY['femiadeleke2020@gmail.com'], true),
   ('withdrawal_request', ARRAY['femiadeleke2020@gmail.com'], true),
-  ('course_purchase', ARRAY['femiadeleke2020@gmail.com'], true)
+  ('course_purchase', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('product_published', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('product_rejected', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('author_suspended', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('author_reactivated', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('course_completion', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('quiz_completion', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('assignment_submission', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('partner_application_submitted', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('scholarship_application_submitted', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('new_student_enrollment', ARRAY['femiadeleke2020@gmail.com'], true),
+  ('system_alert', ARRAY['femiadeleke2020@gmail.com'], true)
 ON CONFLICT (event_type) DO NOTHING;
 
 -- Create index for faster lookups
