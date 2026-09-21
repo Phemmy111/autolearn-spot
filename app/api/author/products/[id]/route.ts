@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { deleteProduct, updateProduct, submitProduct, validateProductCompleteness } from '@/lib/product-service';
 import { requireAuthor } from '@/lib/author';
 import { supabaseAdmin } from '@/lib/supabase';
+import { EmailService } from '@/lib/email-service';
 
 /** GET a single product by ID */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -36,7 +37,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // Get the database author ID from clerk user ID
     const { data: author, error: authorError } = await supabaseAdmin
       .from('authors')
-      .select('id')
+      .select('id, display_name, email')
       .eq('clerk_user_id', clerkUserId)
       .single();
 
@@ -79,6 +80,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const result = await submitProduct(id);
     if (!result) {
       return NextResponse.json({ error: 'Failed to submit product for review' }, { status: 500 });
+    }
+
+    // Send email notification to founder
+    try {
+      await EmailService.sendFounderProductSubmissionNotification({
+        title: product.title,
+        authorName: author.display_name || author.email,
+        authorEmail: author.email,
+        productType: product.product_type,
+        price: product.price,
+        currency: product.currency,
+        description: product.description,
+      });
+    } catch (emailError) {
+      console.error('[POST /api/author/products/[id]] Email notification failed:', emailError);
+      // Don't fail the request if email fails
     }
 
     return NextResponse.json({ success: true, product: result });

@@ -567,4 +567,62 @@ export class EmailService {
 
     return this.sendEmail(template);
   }
+
+  /**
+   * Send founder notification when a product is submitted for review
+   */
+  static async sendFounderProductSubmissionNotification(
+    productData: {
+      title: string;
+      authorName: string;
+      authorEmail: string;
+      productType: string;
+      price: number;
+      currency: string;
+      description?: string;
+    }
+  ): Promise<boolean> {
+    const founderEmail = process.env.FOUNDER_EMAIL || 'femiadeleke2020@gmail.com';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
+    const adminUrl = `${baseUrl}/admin/products`;
+
+    // Parse description if it's JSON
+    let shortDescription = '';
+    if (productData.description) {
+      try {
+        const descObj = JSON.parse(productData.description);
+        shortDescription = descObj.short_description || descObj.full_description || '';
+      } catch (e) {
+        shortDescription = productData.description;
+      }
+    }
+
+    const template: EmailTemplate = {
+      to: founderEmail,
+      subject: `New Product Submitted for Review: ${productData.title}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #4F46E5;">New Product Submitted for Review</h2>
+          <p>A new learning product has been submitted for review on AutoLearn Spot.</p>
+          
+          <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1f2937; margin-top: 0;">Product Details</h3>
+            <p><strong>Product Title:</strong> ${productData.title}</p>
+            <p><strong>Product Type:</strong> ${productData.productType}</p>
+            <p><strong>Price:</strong> ${productData.currency} ${productData.price.toLocaleString()}</p>
+            <p><strong>Author:</strong> ${productData.authorName}</p>
+            <p><strong>Author Email:</strong> ${productData.authorEmail}</p>
+            ${shortDescription ? `<p><strong>Description:</strong> ${shortDescription.substring(0, 200)}${shortDescription.length > 200 ? '...' : ''}</p>` : ''}
+          </div>
+          
+          <p>Please review this product in the admin portal to approve or decline it for publication.</p>
+          <p><a href="${adminUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review Products</a></p>
+          
+          <p>Best regards,<br>AutoLearn Spot System</p>
+        </div>
+      `,
+    };
+
+    return this.sendEmail(template);
+  }
 }
