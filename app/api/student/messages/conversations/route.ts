@@ -176,16 +176,40 @@ async function verifyStudentAccess(userId: string, productId: string): Promise<b
 }
 
 async function getUnreadCounts(conversationIds: string[], studentId: string) {
-  const { data } = await supabaseAdmin
-    .from('author_messages')
-    .select('conversation_id')
-    .in('conversation_id', conversationIds)
-    .neq('sender_role', 'STUDENT') // Count messages not sent by student
-    .eq('read_status', 'UNREAD'); // Only count unread messages
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('author_messages')
+      .select('conversation_id')
+      .in('conversation_id', conversationIds)
+      .neq('sender_role', 'STUDENT') // Count messages not sent by student
+      .eq('read_status', 'UNREAD'); // Only count unread messages
 
-  const counts: Record<string, number> = {};
-  data?.forEach(msg => {
-    counts[msg.conversation_id] = (counts[msg.conversation_id] || 0) + 1;
-  });
-  return counts;
+    if (error) {
+      console.error('[getUnreadCounts] Error:', error);
+      // If read_status column doesn't exist yet, fall back to counting all messages
+      if (error.code === '42703') { // column does not exist
+        const { data: fallbackData } = await supabaseAdmin
+          .from('author_messages')
+          .select('conversation_id')
+          .in('conversation_id', conversationIds)
+          .neq('sender_role', 'STUDENT');
+
+        const counts: Record<string, number> = {};
+        fallbackData?.forEach(msg => {
+          counts[msg.conversation_id] = (counts[msg.conversation_id] || 0) + 1;
+        });
+        return counts;
+      }
+      return {};
+    }
+
+    const counts: Record<string, number> = {};
+    data?.forEach(msg => {
+      counts[msg.conversation_id] = (counts[msg.conversation_id] || 0) + 1;
+    });
+    return counts;
+  } catch (error) {
+    console.error('[getUnreadCounts] Exception:', error);
+    return {};
+  }
 }

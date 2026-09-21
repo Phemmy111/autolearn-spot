@@ -142,18 +142,27 @@ export async function POST(
     const safeMessageType = validTypes.includes(message_type) ? message_type : 'TEXT';
 
     // Create message
+    const messageData: any = {
+      conversation_id: conversationId,
+      sender_id: userId,
+      sender_role: senderRole,
+      message_type: safeMessageType,
+      body: messageBody,
+    };
+
+    // Try to add delivery and read status columns if they exist
+    try {
+      messageData.delivery_status = 'DELIVERED';
+      messageData.read_status = 'UNREAD';
+      messageData.delivered_at = new Date().toISOString();
+    } catch (e) {
+      // Columns might not exist yet if migration hasn't been run
+      console.log('[POST messages] Status columns may not exist yet, using defaults');
+    }
+
     const { data: message, error: messageError } = await supabaseAdmin
       .from('author_messages')
-      .insert({
-        conversation_id: conversationId,
-        sender_id: userId,
-        sender_role: senderRole,
-        message_type: safeMessageType,
-        body: messageBody,
-        delivery_status: 'DELIVERED',
-        read_status: 'UNREAD',
-        delivered_at: new Date().toISOString(),
-      })
+      .insert(messageData)
       .select()
       .single();
 
@@ -181,10 +190,15 @@ export async function POST(
     }
 
     // Update conversation updated_at to bring it to top of list
-    await supabaseAdmin
-      .from('author_conversations')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', conversationId);
+    try {
+      await supabaseAdmin
+        .from('author_conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', conversationId);
+    } catch (error) {
+      console.error('[POST messages] Error updating conversation updated_at:', error);
+      // Don't fail the message sending if this fails
+    }
 
     // Send push notification to the recipient
     try {

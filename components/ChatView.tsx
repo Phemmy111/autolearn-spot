@@ -17,10 +17,10 @@ interface Message {
   message_type: "TEXT" | "IMAGE" | "VOICE";
   body: string | null;
   created_at: string;
-  delivery_status: "PENDING" | "DELIVERED" | "FAILED";
-  read_status: "UNREAD" | "READ";
-  delivered_at: string | null;
-  read_at: string | null;
+  delivery_status?: "PENDING" | "DELIVERED" | "FAILED";
+  read_status?: "UNREAD" | "READ";
+  delivered_at?: string | null;
+  read_at?: string | null;
   author_message_attachments: {
     id: string; storage_path: string; file_name: string;
     mime_type: string; file_size: number; duration_seconds?: number | null;
@@ -389,7 +389,7 @@ export function ChatView({
 
       // Mark unread messages as read
       const unreadMessages = (d.messages || []).filter((m: Message) =>
-        m.sender_role !== myRole && m.read_status === 'UNREAD'
+        m.sender_role !== myRole && (!m.read_status || m.read_status === 'UNREAD')
       );
 
       for (const msg of unreadMessages) {
