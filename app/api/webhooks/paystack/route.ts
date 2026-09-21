@@ -97,19 +97,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
     return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 });
   }
 
-  // 4. Resolve current cohort (for enrollments)
-  const { data: currentCohort } = await supabaseAdmin
-    .from('cohorts')
-    .select('id, name')
-    .eq('is_current', true)
-    .single();
-
-  if (!currentCohort) {
-    console.error('CART CHECKOUT: No current cohort found');
-    return NextResponse.json({ error: 'No active cohort found' }, { status: 400 });
-  }
-
-  // 5. Mark order as PAID
+  // 4. Mark order as PAID
   const marked = await markOrderPaid(order.id);
   if (!marked) {
     console.error(`Failed to mark order ${order.id} as PAID`);
@@ -448,7 +436,7 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
   const fullName = [firstName, lastName].filter(Boolean).join(' ');
 
   const enrollmentData: any = {
-    learning_product_id: pendingEnrollment.learning_product_id || currentCohort.id,
+    learning_product_id: pendingEnrollment.learning_product_id,
     email: pendingEnrollment.email,
     payment_ref: reference,
     amount_paid: amountInNaira,
@@ -459,6 +447,11 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
     referral_code: pendingEnrollment.referral_code || null,
     referred_by_code: pendingEnrollment.referral_code || null
   };
+
+  // If no learning_product_id, this is a legacy cohort-based enrollment
+  if (!enrollmentData.learning_product_id && currentCohort) {
+    enrollmentData.cohort_id = currentCohort.id;
+  }
 
   if (fullName) {
     enrollmentData.full_name = fullName;
@@ -510,7 +503,7 @@ async function processDirectEnrollment(data: any, reference: string, amountInNai
     phoneNumber: pendingEnrollment.phone_number,
     paymentAmount: amountInNaira,
     paymentReference: reference,
-    cohort: currentCohort.name
+    cohort: currentCohort?.name || 'Product Purchase'
   });
 
   // Create Student Partner (automatic for Direct Enrollment)
