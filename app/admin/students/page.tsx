@@ -15,7 +15,7 @@ export default async function AdminStudentsPage() {
     redirect('/');
   }
 
-  // Fetch all enrolled students
+  // Fetch all enrolled students (both product-based and cohort-based)
   const { data: enrollments, error } = await supabaseAdmin
     .from('enrollments')
     .select(`
@@ -29,11 +29,16 @@ export default async function AdminStudentsPage() {
       activated_at,
       enrolled_at,
       learning_product_id,
+      cohort_id,
       learning_product:learning_products (
         id,
         title,
         access_duration_days,
         price
+      ),
+      cohort:cohorts (
+        id,
+        name
       )
     `)
     .order('created_at', { ascending: false });
@@ -47,6 +52,10 @@ export default async function AdminStudentsPage() {
     const studentId = e.clerk_user_id || e.email;
     if (!studentsMap.has(studentId)) {
       const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
+      const cohort = Array.isArray(e.cohort) ? e.cohort[0] : e.cohort;
+      
+      // Use product title if available, otherwise use cohort name, otherwise "Unknown Course"
+      const courseName = product?.title || cohort?.name || 'Unknown Course';
       
       let daysLeft = null;
       if (e.status === 'active' && e.activated_at && product?.access_duration_days) {
@@ -60,19 +69,23 @@ export default async function AdminStudentsPage() {
         id: studentId,
         name: e.full_name || 'No name',
         email: e.email,
-        courses: [product ? product.title : 'Unknown Course'],
+        courses: [courseName],
         totalAmount: e.payment_amount || e.amount_paid || 0,
         enrollments: 1,
         latestEnrollment: e.activated_at || e.enrolled_at || 'N/A',
         latestStatus: e.status || 'inactive',
-        days_left: daysLeft
+        days_left: daysLeft,
+        isProductBased: !!e.learning_product_id
       });
     } else {
       // Add additional courses to existing student
       const student = studentsMap.get(studentId);
       const product = Array.isArray(e.learning_product) ? e.learning_product[0] : e.learning_product;
-      if (product) {
-        student.courses.push(product.title);
+      const cohort = Array.isArray(e.cohort) ? e.cohort[0] : e.cohort;
+      const courseName = product?.title || cohort?.name || 'Unknown Course';
+      
+      if (courseName !== 'Unknown Course') {
+        student.courses.push(courseName);
       }
       student.totalAmount += (e.payment_amount || e.amount_paid || 0);
       student.enrollments += 1;
@@ -111,6 +124,7 @@ export default async function AdminStudentsPage() {
                 <th className="p-4 font-medium">Total Amount</th>
                 <th className="p-4 font-medium">Latest Enrollment</th>
                 <th className="p-4 font-medium">Status</th>
+                <th className="p-4 font-medium">Type</th>
               </tr>
             </thead>
             <tbody>
@@ -165,6 +179,11 @@ export default async function AdminStudentsPage() {
                       {item.latestStatus.replace('_', ' ')}
                     </span>
                   </td>
+                  <td className="p-4">
+                    <span className="text-xs font-medium text-gray-500">
+                      {item.isProductBased ? 'Product' : 'Cohort'}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -174,7 +193,8 @@ export default async function AdminStudentsPage() {
             <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <p className="text-brand-text/60 mb-2">No students found.</p>
             <p className="text-sm text-brand-text/40">
-              Use the form above to manually enroll students, or students will appear here once they enroll in courses.
+              Students will appear here once they enroll in courses or products.
+              Use the form above to manually enroll students.
             </p>
           </div>
         )}
