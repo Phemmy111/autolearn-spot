@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { PushNotificationService } from '@/lib/push-notification-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +35,7 @@ export async function GET(
     // Check if user is author
     const { data: author } = await supabaseAdmin
       .from('authors')
-      .select('id')
+      .select('id, display_name')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -107,7 +108,7 @@ export async function POST(
     // Check if user is author
     const { data: author } = await supabaseAdmin
       .from('authors')
-      .select('id')
+      .select('id, display_name')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -174,6 +175,23 @@ export async function POST(
       );
 
       await Promise.all(attachmentPromises);
+    }
+
+    // Send push notification to the recipient
+    try {
+      const recipientId = isAuthor ? conversation.student_id : conversation.author_id;
+      const senderName = isAuthor ? author?.display_name || 'Author' : 'Student';
+      const messagePreview = messageBody ? (messageBody.length > 100 ? messageBody.substring(0, 100) + '...' : messageBody) : 'New message';
+
+      await PushNotificationService.sendNewMessageNotification(
+        recipientId,
+        senderName,
+        messagePreview,
+        conversationId
+      );
+    } catch (pushError) {
+      console.error('[POST /api/author/messages/conversations/[id]/messages] Push notification failed:', pushError);
+      // Don't fail the message sending if push notification fails
     }
 
     return NextResponse.json({ success: true, message });

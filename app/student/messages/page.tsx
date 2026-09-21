@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { MessageSquare, Search, Plus, Clock, X } from "lucide-react";
 import { ChatView } from "@/components/ChatView";
+import PushNotificationOptIn from "@/components/PushNotificationOptIn";
 
 interface Conversation {
   id: string;
@@ -109,9 +110,12 @@ export default function StudentMessagesPage() {
             <h1 className="text-2xl font-bold text-brand-text mb-0.5">Messages</h1>
             <p className="text-brand-text/60 text-sm">Communicate with your course instructors</p>
           </div>
-          <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-xl hover:bg-sky-700 text-sm font-medium shadow-sm">
-            <Plus className="w-4 h-4" /> New Message
-          </button>
+          <div className="flex items-center gap-3">
+            <PushNotificationOptIn userType="student" />
+            <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2 bg-sky-600 text-white rounded-xl hover:bg-sky-700 text-sm font-medium shadow-sm">
+              <Plus className="w-4 h-4" /> New Message
+            </button>
+          </div>
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
