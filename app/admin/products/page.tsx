@@ -20,6 +20,7 @@ interface Product {
   };
   skill?: {
     name: string;
+    category?: string;
   };
 }
 

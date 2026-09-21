@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
+import { SKILLS_BY_CATEGORY, CATEGORIES } from '@/lib/taxonomy';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,11 +11,20 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
-  // Placeholder data - replace with actual DB queries later
-  const mockData = [
-    { id: 1, name: 'Sample skills entry 1', status: 'Active' },
-    { id: 2, name: 'Sample skills entry 2', status: 'Pending' }
-  ];
+  // Convert taxonomy data to flat array for the skills page
+  const skillsData = [];
+  
+  for (const category of CATEGORIES) {
+    const skills = SKILLS_BY_CATEGORY[category] || [];
+    for (const skill of skills) {
+      skillsData.push({
+        id: skill.id,
+        name: skill.name,
+        category: category,
+        status: 'Active'
+      });
+    }
+  }
 
-  return NextResponse.json({ data: mockData });
+  return NextResponse.json({ data: skillsData });
 }

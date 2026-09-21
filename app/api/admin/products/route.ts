@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
+import { SKILLS_BY_CATEGORY } from '@/lib/taxonomy';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,15 +42,13 @@ export async function GET(request: Request) {
       }
     });
 
-    // Also fetch skills to map them
-    const skillIds = Array.from(new Set(products?.map(p => p.skill_id).filter(Boolean)));
-    const { data: skills } = await supabaseAdmin
-      .from('skills')
-      .select('id, name')
-      .in('id', skillIds);
-      
+    // Map skills using taxonomy data instead of database
     const skillMap = new Map();
-    skills?.forEach(s => skillMap.set(s.id, { name: s.name }));
+    for (const [category, skills] of Object.entries(SKILLS_BY_CATEGORY)) {
+      for (const skill of skills) {
+        skillMap.set(skill.id, { name: skill.name, category });
+      }
+    }
 
     const mappedProducts = products?.map((p: any) => ({
       ...p,

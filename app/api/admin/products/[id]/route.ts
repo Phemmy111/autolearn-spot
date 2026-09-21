@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { supabaseAdmin } from '@/lib/supabase';
 import { EmailService } from '@/lib/email-service';
+import { SKILLS_BY_CATEGORY } from '@/lib/taxonomy';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,45 +50,32 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     let skill = null;
+    let categoryName = null;
+    
     if (product.skill_id) {
-      console.log('[Admin Product] Fetching skill with ID:', product.skill_id);
-      const { data: s, error: skillError } = await supabaseAdmin
-        .from('skills')
-        .select('name, category_id')
-        .eq('id', product.skill_id)
-        .single();
+      console.log('[Admin Product] Looking up skill in taxonomy for ID:', product.skill_id);
       
-      if (skillError) {
-        console.error('[Admin Product] Skill lookup failed:', skillError);
+      // Look up skill in taxonomy data (not database)
+      for (const [cat, skills] of Object.entries(SKILLS_BY_CATEGORY)) {
+        const foundSkill = skills.find(s => s.id === product.skill_id);
+        if (foundSkill) {
+          skill = { name: foundSkill.name, id: foundSkill.id };
+          categoryName = cat;
+          console.log('[Admin Product] Skill found in taxonomy:', skill, 'Category:', categoryName);
+          break;
+        }
       }
       
-      if (s) {
-        skill = s;
-        console.log('[Admin Product] Skill found:', s);
-      } else {
-        console.log('[Admin Product] No skill found for ID:', product.skill_id);
+      if (!skill) {
+        console.log('[Admin Product] Skill not found in taxonomy for ID:', product.skill_id);
       }
     } else {
       console.log('[Admin Product] Product has no skill_id');
     }
 
-    // Also fetch category if skill has category_id
-    let category = null;
-    if (skill?.category_id) {
-      const { data: c } = await supabaseAdmin
-        .from('categories')
-        .select('name')
-        .eq('id', skill.category_id)
-        .single();
-      
-      if (c) {
-        category = c;
-      }
-    }
-
     return NextResponse.json({ 
       success: true, 
-      product: { ...product, author, skill, category } 
+      product: { ...product, author, skill, category: categoryName ? { name: categoryName } : null } 
     });
   } catch (err: any) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
