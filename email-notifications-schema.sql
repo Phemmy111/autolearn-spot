@@ -10,11 +10,27 @@ CREATE TABLE IF NOT EXISTS email_notifications (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS
-ALTER TABLE email_notifications ENABLE ROW LEVEL POLICY;
+-- Try to enable RLS (might not be available in all PostgreSQL versions)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'pgcrypto') THEN
+    ALTER TABLE email_notifications ENABLE ROW LEVEL SECURITY;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  -- RLS not available, skip
+END $$;
 
 -- Only admins can read email notification configurations
-CREATE POLICY "Admins can read email notifications"
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_policy WHERE tablename = 'email_notifications') THEN
+    DROP POLICY IF EXISTS "Admins can read email notifications" ON email_notifications;
+  END IF;
+EXCEPTION WHEN OTHERS THEN
+  -- Policy doesn't exist, continue
+END $$;
+
+CREATE POLICY IF NOT EXISTS "Admins can read email notifications"
   ON email_notifications FOR SELECT
   TO authenticated
   USING (
@@ -26,7 +42,7 @@ CREATE POLICY "Admins can read email notifications"
   );
 
 -- Only admins can insert email notification configurations
-CREATE POLICY "Admins can insert email notifications"
+CREATE POLICY IF NOT EXISTS "Admins can insert email notifications"
   ON email_notifications FOR INSERT
   TO authenticated
   WITH CHECK (
@@ -38,7 +54,7 @@ CREATE POLICY "Admins can insert email notifications"
   );
 
 -- Only admins can update email notification configurations
-CREATE POLICY "Admins can update email notifications"
+CREATE POLICY IF NOT EXISTS "Admins can update email notifications"
   ON email_notifications FOR UPDATE
   TO authenticated
   USING (
@@ -57,7 +73,7 @@ CREATE POLICY "Admins can update email notifications"
   );
 
 -- Only admins can delete email notification configurations
-CREATE POLICY "Admins can delete email notifications"
+CREATE POLICY IF NOT EXISTS "Admins can delete email notifications"
   ON email_notifications FOR DELETE
   TO authenticated
   USING (
@@ -89,6 +105,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_email_notifications_updated_at ON email_notifications;
 CREATE TRIGGER update_email_notifications_updated_at
   BEFORE UPDATE ON email_notifications
   FOR EACH ROW
