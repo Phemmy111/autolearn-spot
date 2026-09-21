@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getUserNotifications, getUnreadCount, markAllAsRead } from '@/lib/notification-service';
+import { getUserNotifications, getUnreadCount, markAllAsRead } from '@/lib/growth-engine/NotificationService';
 
 export const dynamic = 'force-dynamic';
 
