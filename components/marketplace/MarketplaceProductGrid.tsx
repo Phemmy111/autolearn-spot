@@ -46,7 +46,7 @@ export function MarketplaceProductGrid({ products }: MarketplaceProductGridProps
   }
 
   return (
-    <section id="products" className="py-12 md:py-16 bg-brand-bg border-t border-brand-border/50">
+    <section id="products" className="py-8 md:py-12 bg-brand-bg border-t border-brand-border/50">
       <div className="container mx-auto px-4">
         
         {/* Header & Search/Filter Bar */}

@@ -15,7 +15,7 @@ export async function MarketplaceHero() {
   const sortedMedia = hasSlider ? sliderConfig.slider_media.sort((a: any, b: any) => a.order_index - b.order_index) : [];
 
   return (
-    <section className="relative pt-12 pb-16 md:pt-16 md:pb-20 overflow-hidden bg-brand-bg">
+    <section className="relative pt-8 pb-12 md:pt-12 md:pb-16 overflow-hidden bg-brand-bg">
 
       {/* Background radial gradient */}
       <div className="absolute inset-0 z-0 bg-brand-bg bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />

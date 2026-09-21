@@ -21,9 +21,9 @@ export function TopSkillsGrid() {
   const topSkills = skillsFromTaxonomy.slice(0, 6);
 
   return (
-    <section className="bg-brand-bg py-8">
+    <section className="bg-brand-bg py-4">
       <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
           <div>
             <p className="text-xs font-bold text-brand-text/60 uppercase tracking-wider mb-2">
               Popular Categories
