@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     // Get paid orders to get actual students who purchased
     const { data: orders } = await supabaseAdmin
       .from('orders')
-      .select('id, user_id, created_at, status, customer_name, customer_email')
+      .select('id, user_id, created_at, status')
       .in('id', orderIds)
       .eq('status', 'PAID');
 
@@ -84,22 +84,27 @@ export async function GET(request: NextRequest) {
 
     console.log('[STUDENTS API] Found', orders.length, 'paid orders');
 
-    // Get user IDs from paid orders (excluding guest users)
-    const userIds = [...new Set(orders.map(o => o.user_id))].filter(id => !id.startsWith('guest_'));
-    console.log('[STUDENTS API] Non-guest user IDs from orders:', userIds);
+    // Get enrollments for these products to get customer details
+    const { data: enrollments } = await supabaseAdmin
+      .from('enrollments')
+      .select('learning_product_id, email, full_name, first_name, last_name, enrolled_at, activated_at')
+      .in('learning_product_id', productIds)
+      .eq('status', 'active');
 
-    // Create a map of user_id to customer info from orders
-    const customerInfoMap = new Map();
-    orders.forEach(order => {
-      if (order.customer_name || order.customer_email) {
-        customerInfoMap.set(order.user_id, {
-          name: order.customer_name,
-          email: order.customer_email,
-        });
-      }
+    console.log('[STUDENTS API] Enrollments lookup result:', enrollments);
+
+    // Create a map of (product_id, email) to enrollment details
+    const enrollmentMap = new Map();
+    enrollments?.forEach(enrollment => {
+      const key = `${enrollment.learning_product_id}:${enrollment.email}`;
+      enrollmentMap.set(key, enrollment);
     });
 
-    console.log('[STUDENTS API] Customer info from orders:', Object.fromEntries(customerInfoMap));
+    console.log('[STUDENTS API] Enrollment map size:', enrollmentMap.size);
+
+    // Get user IDs from paid orders
+    const userIds = [...new Set(orders.map(o => o.user_id))];
+    console.log('[STUDENTS API] User IDs from orders:', userIds);
 
     // Fetch quiz answers for these students
     const { data: quizAnswers } = await supabaseAdmin
@@ -135,14 +140,18 @@ export async function GET(request: NextRequest) {
     // Format students based on actual purchases
     const studentsByProduct = orders.map(order => {
       const productInfo = orderToProduct.get(order.id);
-      const customerInfo = customerInfoMap.get(order.user_id);
-      const isGuest = order.user_id.startsWith('guest_');
       
-      // Use customer info from orders if available, otherwise use ID-based fallback
-      const studentName = customerInfo?.name || (isGuest ? 'Guest Customer' : 'Unknown');
-      const studentEmail = customerInfo?.email || (isGuest ? 'guest@example.com' : 'unknown@example.com');
+      // Try to find enrollment for this product
+      // Since orders don't have email, we'll use the first enrollment for this product
+      // This is a limitation - we'd need to store customer email in orders for exact matching
+      const enrollmentForProduct = enrollments?.find(e => e.learning_product_id === productInfo?.productId);
       
-      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Customer info:', customerInfo, 'Is guest:', isGuest);
+      const studentName = enrollmentForProduct?.full_name || 'Unknown';
+      const studentEmail = enrollmentForProduct?.email || 'unknown@example.com';
+      const enrolledAt = enrollmentForProduct?.enrolled_at || order.created_at;
+      const activatedAt = enrollmentForProduct?.activated_at || order.created_at;
+      
+      console.log('[STUDENTS API] Processing order:', order.id, 'Product:', productInfo?.productId, 'Enrollment found:', !!enrollmentForProduct);
       
       return {
         // For messages page
@@ -157,9 +166,9 @@ export async function GET(request: NextRequest) {
         name: studentName,
         cohort: productInfo?.productTitle || 'Unknown Course',
         status: 'active', // All paid orders are considered active
-        profilePicture: null, // No profile picture available from orders
-        enrolledAt: order.created_at || new Date().toISOString(),
-        activatedAt: order.created_at || null,
+        profilePicture: null, // No profile picture available
+        enrolledAt: enrolledAt || new Date().toISOString(),
+        activatedAt: activatedAt || null,
         quizCount: quizCounts[order.user_id] || 0,
         submissionCount: assignmentCounts[order.user_id] || 0,
       };
