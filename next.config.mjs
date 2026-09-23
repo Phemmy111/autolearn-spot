@@ -14,30 +14,11 @@ const nextConfig = {
   // Ensure proper asset serving
   generateEtags: true,
   poweredByHeader: false,
-  // Disable Turbopack to avoid MIME type issues
-  turbo: undefined,
+  // Use empty turbopack config to work with Next.js 16
+  turbopack: {},
   // Force unique build ID for cache busting
   generateBuildId: async () => {
     return Date.now().toString();
-  },
-  // Ensure webpack optimizations
-  webpack: (config, { isServer }) => {
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          commons: {
-            name: 'commons',
-            chunks: 'all',
-            minChunks: 2,
-          },
-        },
-      },
-    };
-    return config;
   },
 }
 
