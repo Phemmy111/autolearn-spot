@@ -17,7 +17,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY!;
 
-export async function GET(request: NextRequest) {
+async function runBackfill() {
   try {
     console.log('[BACKFILL] Starting order customer details backfill');
 
@@ -30,16 +30,16 @@ export async function GET(request: NextRequest) {
 
     if (ordersError) {
       console.error('[BACKFILL] Error fetching orders:', ordersError);
-      return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
+      return { error: 'Failed to fetch orders' };
     }
 
     if (!orders || orders.length === 0) {
       console.log('[BACKFILL] No orders to backfill');
-      return NextResponse.json({ 
+      return { 
         success: true, 
         message: 'No orders to backfill',
         updated: 0 
-      });
+      };
     }
 
     console.log(`[BACKFILL] Found ${orders.length} orders to backfill`);
@@ -115,19 +115,39 @@ export async function GET(request: NextRequest) {
 
     console.log(`[BACKFILL] Completed. Updated ${updatedCount}/${orders.length} orders`);
 
-    return NextResponse.json({
+    return {
       success: true,
       message: `Backfill completed. Updated ${updatedCount}/${orders.length} orders.`,
       updated: updatedCount,
       total: orders.length,
       errors: errors.length > 0 ? errors : undefined,
-    });
+    };
 
   } catch (error) {
     console.error('[BACKFILL] Unexpected error:', error);
-    return NextResponse.json({ 
+    return { 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    };
   }
+}
+
+export async function GET(request: NextRequest) {
+  const result = await runBackfill();
+  
+  if (result.error) {
+    return NextResponse.json(result, { status: 500 });
+  }
+  
+  return NextResponse.json(result);
+}
+
+export async function POST(request: NextRequest) {
+  const result = await runBackfill();
+  
+  if (result.error) {
+    return NextResponse.json(result, { status: 500 });
+  }
+  
+  return NextResponse.json(result);
 }
