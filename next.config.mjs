@@ -10,15 +10,37 @@ const nextConfig = {
   compress: true,
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-label'],
+    // Disable Turbopack to use webpack instead
+    turbo: undefined,
   },
   // Ensure proper asset serving
   generateEtags: true,
   poweredByHeader: false,
-  // Use empty turbopack config to work with Next.js 16
-  turbopack: {},
   // Force unique build ID for cache busting
   generateBuildId: async () => {
     return Date.now().toString();
+  },
+  // Use webpack configuration for better chunk management
+  webpack: (config, { isServer }) => {
+    // Ensure proper chunk splitting
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            commons: {
+              name: 'commons',
+              chunks: 'all',
+              minChunks: 2,
+            },
+          },
+        },
+      };
+    }
+    return config;
   },
 }
 
