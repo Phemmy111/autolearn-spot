@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAuthor } from '@/lib/author';
-import { clerkClient } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -72,7 +71,7 @@ export async function GET(request: NextRequest) {
     // Get paid orders to get actual students who purchased
     const { data: orders } = await supabaseAdmin
       .from('orders')
-      .select('id, user_id, created_at, status')
+      .select('id, user_id, created_at, status, customer_name, customer_email')
       .in('id', orderIds)
       .eq('status', 'PAID');
 
@@ -85,51 +84,22 @@ export async function GET(request: NextRequest) {
 
     console.log('[STUDENTS API] Found', orders.length, 'paid orders');
 
-    // Get user IDs from paid orders
-    const userIds = [...new Set(orders.map(o => o.user_id))];
-    console.log('[STUDENTS API] User IDs from orders:', userIds);
+    // Get user IDs from paid orders (excluding guest users)
+    const userIds = [...new Set(orders.map(o => o.user_id))].filter(id => !id.startsWith('guest_'));
+    console.log('[STUDENTS API] Non-guest user IDs from orders:', userIds);
 
-    // Fetch user information from Clerk API
-    console.log('[STUDENTS API] Starting Clerk API calls for', userIds.length, 'users');
-    
-    const clerkUsers = await Promise.all(
-      userIds.map(async (userId) => {
-        try {
-          console.log('[STUDENTS API] Fetching user from Clerk:', userId);
-          const user = await clerkClient.users.getUser(userId);
-          const primaryEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId);
-          console.log('[STUDENTS API] Clerk user data for', userId, ':', {
-            email: primaryEmail?.emailAddress,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            imageUrl: user.imageUrl
-          });
-          return {
-            id: user.id,
-            email: primaryEmail?.emailAddress || 'unknown@example.com',
-            full_name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || primaryEmail?.emailAddress?.split('@')[0] || 'Unknown',
-            profile_picture: user.imageUrl || null,
-          };
-        } catch (error) {
-          console.error('[STUDENTS API] Error fetching user from Clerk:', userId, error);
-          // If Clerk API fails, use fallback
-          return {
-            id: userId,
-            email: 'unknown@example.com',
-            full_name: 'Unknown',
-            profile_picture: null,
-          };
-        }
-      })
-    );
-
-    console.log('[STUDENTS API] Clerk users fetched:', clerkUsers);
-
-    // Create a map of user_id to profile
-    const userProfileMap = new Map();
-    clerkUsers.forEach(profile => {
-      userProfileMap.set(profile.id, profile);
+    // Create a map of user_id to customer info from orders
+    const customerInfoMap = new Map();
+    orders.forEach(order => {
+      if (order.customer_name || order.customer_email) {
+        customerInfoMap.set(order.user_id, {
+          name: order.customer_name,
+          email: order.customer_email,
+        });
+      }
     });
+
+    console.log('[STUDENTS API] Customer info from orders:', Object.fromEntries(customerInfoMap));
 
     // Fetch quiz answers for these students
     const { data: quizAnswers } = await supabaseAdmin
@@ -165,24 +135,29 @@ export async function GET(request: NextRequest) {
     // Format students based on actual purchases
     const studentsByProduct = orders.map(order => {
       const productInfo = orderToProduct.get(order.id);
-      const userProfile = userProfileMap.get(order.user_id);
+      const customerInfo = customerInfoMap.get(order.user_id);
+      const isGuest = order.user_id.startsWith('guest_');
       
-      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Profile:', userProfile);
+      // Use customer info from orders if available, otherwise use ID-based fallback
+      const studentName = customerInfo?.name || (isGuest ? 'Guest Customer' : 'Unknown');
+      const studentEmail = customerInfo?.email || (isGuest ? 'guest@example.com' : 'unknown@example.com');
+      
+      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Customer info:', customerInfo, 'Is guest:', isGuest);
       
       return {
         // For messages page
         student_id: order.user_id,
-        full_name: userProfile?.full_name || 'Unknown',
+        full_name: studentName,
         product_id: productInfo?.productId,
         product_title: productInfo?.productTitle || 'Unknown Course',
         
         // For students page
         id: order.id,
-        email: userProfile?.email || 'unknown@example.com',
-        name: userProfile?.full_name || 'Unknown',
+        email: studentEmail,
+        name: studentName,
         cohort: productInfo?.productTitle || 'Unknown Course',
         status: 'active', // All paid orders are considered active
-        profilePicture: userProfile?.profile_picture || null,
+        profilePicture: null, // No profile picture available from orders
         enrolledAt: order.created_at || new Date().toISOString(),
         activatedAt: order.created_at || null,
         quizCount: quizCounts[order.user_id] || 0,
