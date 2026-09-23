@@ -84,24 +84,6 @@ export async function GET(request: NextRequest) {
 
     console.log('[STUDENTS API] Found', orders.length, 'paid orders');
 
-    // Get enrollments for these products to get customer details
-    const { data: enrollments } = await supabaseAdmin
-      .from('enrollments')
-      .select('learning_product_id, email, full_name, first_name, last_name, enrolled_at, activated_at')
-      .in('learning_product_id', productIds)
-      .eq('status', 'active');
-
-    console.log('[STUDENTS API] Enrollments lookup result:', enrollments);
-
-    // Create a map of (product_id, email) to enrollment details
-    const enrollmentMap = new Map();
-    enrollments?.forEach(enrollment => {
-      const key = `${enrollment.learning_product_id}:${enrollment.email}`;
-      enrollmentMap.set(key, enrollment);
-    });
-
-    console.log('[STUDENTS API] Enrollment map size:', enrollmentMap.size);
-
     // Get user IDs from paid orders
     const userIds = [...new Set(orders.map(o => o.user_id))];
     console.log('[STUDENTS API] User IDs from orders:', userIds);
@@ -140,35 +122,30 @@ export async function GET(request: NextRequest) {
     // Format students based on actual purchases
     const studentsByProduct = orders.map(order => {
       const productInfo = orderToProduct.get(order.id);
+      const isGuest = order.user_id.startsWith('guest_');
       
-      // Try to find enrollment for this product
-      // Since orders don't have email, we'll use the first enrollment for this product
-      // This is a limitation - we'd need to store customer email in orders for exact matching
-      const enrollmentForProduct = enrollments?.find(e => e.learning_product_id === productInfo?.productId);
+      // Use user_id as identifier since customer details are not available
+      const displayName = isGuest ? 'Guest Purchaser' : order.user_id;
+      const displayEmail = isGuest ? 'guest@example.com' : `${order.user_id}@clerk.user`;
       
-      const studentName = enrollmentForProduct?.full_name || 'Unknown';
-      const studentEmail = enrollmentForProduct?.email || 'unknown@example.com';
-      const enrolledAt = enrollmentForProduct?.enrolled_at || order.created_at;
-      const activatedAt = enrollmentForProduct?.activated_at || order.created_at;
-      
-      console.log('[STUDENTS API] Processing order:', order.id, 'Product:', productInfo?.productId, 'Enrollment found:', !!enrollmentForProduct);
+      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Is guest:', isGuest);
       
       return {
         // For messages page
         student_id: order.user_id,
-        full_name: studentName,
+        full_name: displayName,
         product_id: productInfo?.productId,
         product_title: productInfo?.productTitle || 'Unknown Course',
         
         // For students page
         id: order.id,
-        email: studentEmail,
-        name: studentName,
+        email: displayEmail,
+        name: displayName,
         cohort: productInfo?.productTitle || 'Unknown Course',
         status: 'active', // All paid orders are considered active
         profilePicture: null, // No profile picture available
-        enrolledAt: enrolledAt || new Date().toISOString(),
-        activatedAt: activatedAt || null,
+        enrolledAt: order.created_at || new Date().toISOString(),
+        activatedAt: order.created_at || null,
         quizCount: quizCounts[order.user_id] || 0,
         submissionCount: assignmentCounts[order.user_id] || 0,
       };
