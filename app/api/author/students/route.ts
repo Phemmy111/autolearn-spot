@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAuthor } from '@/lib/author';
-import { clerkClient } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest) {
     // Get paid orders to get actual students who purchased
     const { data: orders } = await supabaseAdmin
       .from('orders')
-      .select('id, user_id, created_at, status')
+      .select('id, user_id, created_at, status, customer_email, customer_name')
       .in('id', orderIds)
       .eq('status', 'PAID');
 
@@ -64,38 +63,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, students: [] });
     }
 
+    console.log('Fetched orders:', orders);
+
     // Get user IDs from paid orders
     const userIds = [...new Set(orders.map(o => o.user_id))];
-
-    // Fetch user information from Clerk directly
-    const clerkUsers = await Promise.all(
-      userIds.map(async (userId) => {
-        try {
-          const user = await clerkClient.users.getUser(userId);
-          const primaryEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId);
-          return {
-            id: user.id,
-            email: primaryEmail?.emailAddress || 'unknown@example.com',
-            full_name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || primaryEmail?.emailAddress?.split('@')[0] || 'Unknown',
-            profile_picture: user.imageUrl || null,
-          };
-        } catch (error) {
-          console.error(`Error fetching user ${userId}:`, error);
-          return {
-            id: userId,
-            email: 'unknown@example.com',
-            full_name: 'Unknown',
-            profile_picture: null,
-          };
-        }
-      })
-    );
-
-    // Create a map of user_id to profile
-    const userProfileMap = new Map();
-    clerkUsers.forEach(profile => {
-      userProfileMap.set(profile.id, profile);
-    });
 
     // Fetch quiz answers for these students
     const { data: quizAnswers } = await supabaseAdmin
@@ -131,28 +102,29 @@ export async function GET(request: NextRequest) {
     // Format students based on actual purchases
     const studentsByProduct = orders.map(order => {
       const productInfo = orderToProduct.get(order.id);
-      const userProfile = userProfileMap.get(order.user_id);
       
       return {
         // For messages page
         student_id: order.user_id,
-        full_name: userProfile?.full_name || 'Unknown',
+        full_name: order.customer_name || order.customer_email?.split('@')[0] || 'Unknown',
         product_id: productInfo?.productId,
         product_title: productInfo?.productTitle || 'Unknown Course',
         
         // For students page
         id: order.id,
-        email: userProfile?.email || 'unknown@example.com',
-        name: userProfile?.full_name || 'Unknown',
+        email: order.customer_email || 'unknown@example.com',
+        name: order.customer_name || order.customer_email?.split('@')[0] || 'Unknown',
         cohort: productInfo?.productTitle || 'Unknown Course',
         status: 'active', // All paid orders are considered active
-        profilePicture: userProfile?.profile_picture || null,
+        profilePicture: null,
         enrolledAt: order.created_at || new Date().toISOString(),
         activatedAt: order.created_at || null,
         quizCount: quizCounts[order.user_id] || 0,
         submissionCount: assignmentCounts[order.user_id] || 0,
       };
     });
+
+    console.log('Formatted students:', studentsByProduct);
 
     return NextResponse.json({ success: true, students: studentsByProduct });
   } catch (error) {
