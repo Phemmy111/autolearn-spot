@@ -38,8 +38,5 @@
     "app/**/*.{js,ts,jsx,tsx}": {
       "maxDuration": 60
     }
-  },
-  "engines": {
-    "node": "22.x"
   }
 }
