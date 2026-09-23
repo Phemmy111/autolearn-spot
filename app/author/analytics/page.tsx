@@ -12,11 +12,26 @@ export default async function AuthorAnalyticsPage() {
     return null;
   }
 
-  // 1. Fetch author's products
+  // 1. Fetch author ID first
+  const { data: author } = await supabaseAdmin
+    .from('authors')
+    .select('id')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (!author) {
+    return (
+      <div className="p-8 text-center text-brand-text/60">
+        Author profile not found.
+      </div>
+    );
+  }
+
+  // 2. Fetch author's products
   const { data: products } = await supabaseAdmin
     .from('learning_products')
     .select('id, title, status, price')
-    .eq('author_id', userId);
+    .eq('author_id', author.id);
 
   const productIds = (products || []).map(p => p.id);
   const totalProducts = productIds.length;

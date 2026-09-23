@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/author/students
- * Get students enrolled in author's products
+ * Get students who actually purchased author's products via orders
  */
 export async function GET(request: NextRequest) {
   try {
@@ -39,37 +39,50 @@ export async function GET(request: NextRequest) {
 
     const productIds = products.map(p => p.id);
 
-    // Get cohorts for these products
-    const { data: cohorts } = await supabaseAdmin
-      .from('cohorts')
-      .select('id, learning_product_id')
+    // Get order items for author's products
+    const { data: orderItems } = await supabaseAdmin
+      .from('order_items')
+      .select('order_id, learning_product_id, product_title')
       .in('learning_product_id', productIds);
 
-    if (!cohorts || cohorts.length === 0) {
+    if (!orderItems || orderItems.length === 0) {
       return NextResponse.json({ success: true, students: [] });
     }
 
-    const cohortIds = cohorts.map(c => c.id);
+    // Get unique order IDs
+    const orderIds = [...new Set(orderItems.map(oi => oi.order_id))];
 
-    // Get enrollments for these cohorts
-    const { data: enrollments } = await supabaseAdmin
-      .from('enrollments')
-      .select('id, clerk_user_id, full_name, email, cohort_id, status, created_at')
-      .in('cohort_id', cohortIds)
-      .eq('status', 'active');
+    // Get paid orders to get actual students who purchased
+    const { data: orders } = await supabaseAdmin
+      .from('orders')
+      .select('id, user_id, created_at, status')
+      .in('id', orderIds)
+      .eq('status', 'PAID');
 
-    if (!enrollments || enrollments.length === 0) {
+    if (!orders || orders.length === 0) {
       return NextResponse.json({ success: true, students: [] });
     }
 
-    // Fetch all student IDs
-    const studentIds = enrollments.map(e => e.clerk_user_id);
+    // Get user IDs from paid orders
+    const userIds = [...new Set(orders.map(o => o.user_id))];
+
+    // Fetch user information from Clerk or user profiles
+    const { data: userProfiles } = await supabaseAdmin
+      .from('users')
+      .select('id, email, full_name, profile_picture')
+      .in('id', userIds);
+
+    // Create a map of user_id to profile
+    const userProfileMap = new Map();
+    userProfiles?.forEach(profile => {
+      userProfileMap.set(profile.id, profile);
+    });
 
     // Fetch quiz answers for these students
     const { data: quizAnswers } = await supabaseAdmin
       .from('student_quiz_answers')
       .select('student_id')
-      .in('student_id', studentIds);
+      .in('student_id', userIds);
 
     const quizCounts: Record<string, number> = {};
     quizAnswers?.forEach(qa => {
@@ -80,38 +93,45 @@ export async function GET(request: NextRequest) {
     const { data: assignments } = await supabaseAdmin
       .from('student_assignments')
       .select('student_id')
-      .in('student_id', studentIds);
+      .in('student_id', userIds);
 
     const assignmentCounts: Record<string, number> = {};
     assignments?.forEach(sa => {
       assignmentCounts[sa.student_id] = (assignmentCounts[sa.student_id] || 0) + 1;
     });
 
-    // Create a map of cohort to product
-    const cohortToProduct = new Map(cohorts.map(c => [c.id, c.learning_product_id]));
+    // Create a map of order_id to product info
+    const orderToProduct = new Map();
+    orderItems.forEach(oi => {
+      orderToProduct.set(oi.order_id, {
+        productId: oi.learning_product_id,
+        productTitle: oi.product_title
+      });
+    });
 
-    // Format students for the page and for messages list
-    const studentsByProduct = enrollments.map(enrollment => {
-      const productId = cohortToProduct.get(enrollment.cohort_id);
-      const productTitle = products.find(p => p.id === productId)?.title || 'Unknown Course';
+    // Format students based on actual purchases
+    const studentsByProduct = orders.map(order => {
+      const productInfo = orderToProduct.get(order.id);
+      const userProfile = userProfileMap.get(order.user_id);
+      
       return {
         // For messages page
-        student_id: enrollment.clerk_user_id,
-        full_name: enrollment.full_name || enrollment.email?.split('@')[0] || 'Unknown',
-        product_id: productId,
-        product_title: productTitle,
+        student_id: order.user_id,
+        full_name: userProfile?.full_name || userProfile?.email?.split('@')[0] || 'Unknown',
+        product_id: productInfo?.productId,
+        product_title: productInfo?.productTitle || 'Unknown Course',
         
         // For students page
-        id: enrollment.id,
-        email: enrollment.email,
-        name: enrollment.full_name || enrollment.email?.split('@')[0] || 'Unknown',
-        cohort: productTitle, // User requested Course name instead of cohort
-        status: enrollment.status || 'active',
-        profilePicture: null,
-        enrolledAt: enrollment.created_at || new Date().toISOString(),
-        activatedAt: enrollment.created_at || null,
-        quizCount: quizCounts[enrollment.clerk_user_id] || 0,
-        submissionCount: assignmentCounts[enrollment.clerk_user_id] || 0,
+        id: order.id,
+        email: userProfile?.email || 'unknown@example.com',
+        name: userProfile?.full_name || userProfile?.email?.split('@')[0] || 'Unknown',
+        cohort: productInfo?.productTitle || 'Unknown Course',
+        status: 'active', // All paid orders are considered active
+        profilePicture: userProfile?.profile_picture || null,
+        enrolledAt: order.created_at || new Date().toISOString(),
+        activatedAt: order.created_at || null,
+        quizCount: quizCounts[order.user_id] || 0,
+        submissionCount: assignmentCounts[order.user_id] || 0,
       };
     });
 
