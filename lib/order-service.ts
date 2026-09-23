@@ -16,6 +16,8 @@ export interface Order {
   status: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
   payment_provider: string;
   provider_ref: string | null;
+  customer_name?: string;
+  customer_email?: string;
   created_at: string;
   updated_at: string;
   paid_at: string | null;
@@ -36,7 +38,9 @@ export interface OrderItem {
  */
 export async function createOrderFromCart(
   userId: string,
-  cart: CartDetails
+  cart: CartDetails,
+  customerName?: string,
+  customerEmail?: string
 ): Promise<Order | null> {
   if (!cart.items || cart.items.length === 0) return null;
 
@@ -68,6 +72,8 @@ export async function createOrderFromCart(
       status: 'PENDING',
       payment_provider: 'paystack',
       provider_ref: null,
+      customer_name: customerName,
+      customer_email: customerEmail,
     })
     .select()
     .single();

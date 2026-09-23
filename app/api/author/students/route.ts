@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     // Get paid orders to get actual students who purchased
     const { data: orders } = await supabaseAdmin
       .from('orders')
-      .select('id, user_id, created_at, status')
+      .select('id, user_id, created_at, status, customer_name, customer_email')
       .in('id', orderIds)
       .eq('status', 'PAID');
 
@@ -124,11 +124,11 @@ export async function GET(request: NextRequest) {
       const productInfo = orderToProduct.get(order.id);
       const isGuest = order.user_id.startsWith('guest_');
       
-      // Use user_id as identifier since customer details are not available
-      const displayName = isGuest ? 'Guest Purchaser' : order.user_id;
-      const displayEmail = isGuest ? 'guest@example.com' : `${order.user_id}@clerk.user`;
+      // Use customer details from orders if available, otherwise fallback
+      const displayName = order.customer_name || (isGuest ? 'Guest Purchaser' : order.user_id);
+      const displayEmail = order.customer_email || (isGuest ? 'guest@example.com' : `${order.user_id}@clerk.user`);
       
-      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Is guest:', isGuest);
+      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Customer name:', order.customer_name, 'Customer email:', order.customer_email);
       
       return {
         // For messages page

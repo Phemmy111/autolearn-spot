@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Cart is empty' }, { status: 422 });
   }
 
-  const order = await createOrderFromCart(userId, cart);
+  const order = await createOrderFromCart(userId, cart, fullName, email);
   if (!order) {
     return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
   }

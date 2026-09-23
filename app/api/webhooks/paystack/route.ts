@@ -97,6 +97,21 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
     return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 });
   }
 
+  // 3.5. Update order with customer details from Paystack
+  const firstName = data.customer.first_name;
+  const lastName = data.customer.last_name;
+  const fullName = [firstName, lastName].filter(Boolean).join(' ');
+  
+  if (fullName || email) {
+    await supabaseAdmin
+      .from('orders')
+      .update({
+        customer_name: fullName || null,
+        customer_email: email,
+      })
+      .eq('id', order.id);
+  }
+
   // 4. Mark order as PAID
   const marked = await markOrderPaid(order.id);
   if (!marked) {
@@ -173,11 +188,6 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   }
 
   // 6. Create enrollments for each order item
-  
-  const firstName = data.customer.first_name;
-  const lastName = data.customer.last_name;
-  const fullName = [firstName, lastName].filter(Boolean).join(' ');
-
   for (const item of orderItems) {
     const enrollmentData: Record<string, any> = {
       learning_product_id: item.learning_product_id,
