@@ -1,5 +1,5 @@
-const CACHE_NAME = 'autolearn-spot-v1';
-const urlsToCache = ['/', '/author/messages', '/student/messages'];
+const CACHE_NAME = 'autolearn-spot-v2';
+const urlsToCache = ['/author/messages', '/student/messages'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -11,7 +11,28 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
 self.addEventListener('fetch', (event) => {
+  // Don't cache HTML files - always fetch from network
+  if (event.request.url.includes('.html') || event.request.mode === 'navigate') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+  
+  // Cache other resources
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request);
