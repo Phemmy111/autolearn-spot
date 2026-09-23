@@ -6,7 +6,10 @@ export function BrandTheming() {
   useEffect(() => {
     async function applyTheme() {
       try {
-        const res = await fetch('/api/public/design-studio');
+        const res = await fetch('/api/public/design-studio', { 
+          cache: 'no-store',
+          next: { revalidate: 0 }
+        });
         if (!res.ok) return;
         const data = await res.json();
         const settings = data.config || {};
@@ -46,6 +49,7 @@ export function BrandTheming() {
         }
       } catch (error) {
         console.error('Failed to apply brand theme:', error);
+        // Silently fail - don't break the app if theme loading fails
       }
     }
     

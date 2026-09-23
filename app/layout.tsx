@@ -7,14 +7,20 @@ import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
 import './globals.css'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getPublicSettings([
-    'site_title',
-    'meta_description',
-    'og_title',
-    'og_description',
-    'og_image',
-    'twitter_card_type'
-  ])
+  let settings;
+  try {
+    settings = await getPublicSettings([
+      'site_title',
+      'meta_description',
+      'og_title',
+      'og_description',
+      'og_image',
+      'twitter_card_type'
+    ])
+  } catch (error) {
+    console.error('Error fetching settings for metadata:', error);
+    settings = {};
+  }
 
   return {
     metadataBase: new URL('https://autolearn-spot.vercel.app'),

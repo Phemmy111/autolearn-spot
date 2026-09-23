@@ -12,12 +12,14 @@ export async function GET() {
       .single();
     if (error) {
       console.error('Error fetching design studio config:', error);
-      return NextResponse.json({ error: 'Failed to fetch config' }, { status: 500 });
+      // Return empty config instead of error to prevent app from breaking
+      return NextResponse.json({ config: {} });
     }
     const config = data?.value ?? {};
     return NextResponse.json({ config });
   } catch (err) {
     console.error('Unexpected error:', err);
-    return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
+    // Return empty config instead of error to prevent app from breaking
+    return NextResponse.json({ config: {} });
   }
 }

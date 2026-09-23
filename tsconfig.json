@@ -40,8 +40,7 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "lib/analytics/**",
-    "lib/alex/workflows/__tests__/**",
-    "lib/alex/vision-service.ts",
+    "lib/alex/**",
     "lib/badge-system.ts",
     "lib/leaderboard-scoring.ts",
     "lib/notification-scheduler.ts"

@@ -21,7 +21,13 @@ import { TopSkillsGrid } from '@/components/marketplace/TopSkillsGrid'
 import './page.css'
 
 async function TestimonialsSection() {
-  const settings = await getPublicSettings(['section_testimonials_enabled']);
+  let settings;
+  try {
+    settings = await getPublicSettings(['section_testimonials_enabled']);
+  } catch (error) {
+    console.error('Error fetching testimonials settings:', error);
+    settings = {};
+  }
   const sectionEnabled = settings.section_testimonials_enabled !== 'false' && settings.section_testimonials_enabled !== false;
 
   if (!sectionEnabled) {
@@ -114,12 +120,20 @@ function ContactSection() {
 }
 
 export default async function Page() {
-  const settings = await getPublicSettings([
-    'section_hero_enabled',
-    'section_testimonials_enabled',
-    'section_faq_enabled',
-    'section_footer_enabled'
-  ])
+  let settings;
+  let publishedProducts;
+  
+  try {
+    settings = await getPublicSettings([
+      'section_hero_enabled',
+      'section_testimonials_enabled',
+      'section_faq_enabled',
+      'section_footer_enabled'
+    ])
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    settings = {};
+  }
 
   const sectionEnabled = (key: string) => {
     const value = settings[key as keyof typeof settings]
@@ -127,7 +141,12 @@ export default async function Page() {
   }
 
   // Fetch real published learning products from the DB
-  const publishedProducts = await getPublishedProducts();
+  try {
+    publishedProducts = await getPublishedProducts();
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    publishedProducts = [];
+  }
 
   return (
     <main className="relative min-h-screen bg-brand-bg text-brand-text">
@@ -141,7 +160,7 @@ export default async function Page() {
       {sectionEnabled('section_hero_enabled') && <MarketplaceHero />}
       <FeatureStrip />
       <TopSkillsGrid />
-      <MarketplaceProductGrid products={publishedProducts} />
+      <MarketplaceProductGrid products={publishedProducts || []} />
 
       {/* Social Proof & Contact */}
       {sectionEnabled('section_testimonials_enabled') && <TestimonialsSection />}
