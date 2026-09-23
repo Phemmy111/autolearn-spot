@@ -17,7 +17,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 const paystackSecretKey = process.env.PAYSTACK_SECRET_KEY!;
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     console.log('[BACKFILL] Starting order customer details backfill');
 
