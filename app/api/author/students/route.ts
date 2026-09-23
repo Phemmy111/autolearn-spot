@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAuthor } from '@/lib/author';
+import { clerkClient } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,15 +67,33 @@ export async function GET(request: NextRequest) {
     // Get user IDs from paid orders
     const userIds = [...new Set(orders.map(o => o.user_id))];
 
-    // Try to get user information from users table
-    const { data: userProfiles } = await supabaseAdmin
-      .from('users')
-      .select('id, email, full_name, profile_picture')
-      .in('id', userIds);
+    // Fetch user information from Clerk API
+    const clerkUsers = await Promise.all(
+      userIds.map(async (userId) => {
+        try {
+          const user = await clerkClient.users.getUser(userId);
+          const primaryEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId);
+          return {
+            id: user.id,
+            email: primaryEmail?.emailAddress || 'unknown@example.com',
+            full_name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || primaryEmail?.emailAddress?.split('@')[0] || 'Unknown',
+            profile_picture: user.imageUrl || null,
+          };
+        } catch (error) {
+          // If Clerk API fails, use fallback
+          return {
+            id: userId,
+            email: 'unknown@example.com',
+            full_name: 'Unknown',
+            profile_picture: null,
+          };
+        }
+      })
+    );
 
     // Create a map of user_id to profile
     const userProfileMap = new Map();
-    userProfiles?.forEach(profile => {
+    clerkUsers.forEach(profile => {
       userProfileMap.set(profile.id, profile);
     });
 
@@ -117,14 +136,14 @@ export async function GET(request: NextRequest) {
       return {
         // For messages page
         student_id: order.user_id,
-        full_name: userProfile?.full_name || userProfile?.email?.split('@')[0] || 'Unknown',
+        full_name: userProfile?.full_name || 'Unknown',
         product_id: productInfo?.productId,
         product_title: productInfo?.productTitle || 'Unknown Course',
         
         // For students page
         id: order.id,
         email: userProfile?.email || 'unknown@example.com',
-        name: userProfile?.full_name || userProfile?.email?.split('@')[0] || 'Unknown',
+        name: userProfile?.full_name || 'Unknown',
         cohort: productInfo?.productTitle || 'Unknown Course',
         status: 'active', // All paid orders are considered active
         profilePicture: userProfile?.profile_picture || null,
