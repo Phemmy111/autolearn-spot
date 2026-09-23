@@ -11,6 +11,11 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-label'],
   },
+  // Ensure proper asset serving
+  generateEtags: true,
+  poweredByHeader: false,
+  // Disable Turbopack to avoid MIME type issues
+  turbo: undefined,
 }
 
 export default nextConfig

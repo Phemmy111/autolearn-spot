@@ -8,6 +8,12 @@
     "start": "next start",
     "lint": "eslint ."
   },
+  "engines": {
+    "node": "22.x"
+  },
+  "overrides": {
+    "hono": "4.12.25"
+  }
   "dependencies": {
     "@base-ui/react": "^1.5.0",
     "@clerk/backend": "^3.13.2",
