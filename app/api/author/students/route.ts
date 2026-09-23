@@ -12,10 +12,13 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
+    console.log('[STUDENTS API] Starting students API call');
+    
     const authorCheck = await requireAuthor();
     if (authorCheck instanceof NextResponse) return authorCheck;
 
     const { userId } = authorCheck;
+    console.log('[STUDENTS API] Current user ID:', userId);
 
     // Get author ID
     const { data: author } = await supabaseAdmin
@@ -24,9 +27,14 @@ export async function GET(request: NextRequest) {
       .eq('clerk_user_id', userId)
       .single();
 
+    console.log('[STUDENTS API] Author lookup result:', author);
+
     if (!author) {
+      console.log('[STUDENTS API] Author not found for user ID:', userId);
       return NextResponse.json({ error: 'Author not found' }, { status: 404 });
     }
+
+    console.log('[STUDENTS API] Author ID:', author.id);
 
     // Get author's products
     const { data: products } = await supabaseAdmin
@@ -34,11 +42,15 @@ export async function GET(request: NextRequest) {
       .select('id, title')
       .eq('author_id', author.id);
 
+    console.log('[STUDENTS API] Products lookup result:', products);
+
     if (!products || products.length === 0) {
+      console.log('[STUDENTS API] No products found for author');
       return NextResponse.json({ success: true, students: [] });
     }
 
     const productIds = products.map(p => p.id);
+    console.log('[STUDENTS API] Product IDs:', productIds);
 
     // Get order items for author's products
     const { data: orderItems } = await supabaseAdmin
@@ -46,12 +58,16 @@ export async function GET(request: NextRequest) {
       .select('order_id, learning_product_id, product_title')
       .in('learning_product_id', productIds);
 
+    console.log('[STUDENTS API] Order items lookup result:', orderItems);
+
     if (!orderItems || orderItems.length === 0) {
+      console.log('[STUDENTS API] No order items found for products');
       return NextResponse.json({ success: true, students: [] });
     }
 
     // Get unique order IDs
     const orderIds = [...new Set(orderItems.map(oi => oi.order_id))];
+    console.log('[STUDENTS API] Order IDs:', orderIds);
 
     // Get paid orders to get actual students who purchased
     const { data: orders } = await supabaseAdmin
@@ -60,19 +76,34 @@ export async function GET(request: NextRequest) {
       .in('id', orderIds)
       .eq('status', 'PAID');
 
+    console.log('[STUDENTS API] Orders lookup result:', orders);
+
     if (!orders || orders.length === 0) {
+      console.log('[STUDENTS API] No paid orders found');
       return NextResponse.json({ success: true, students: [] });
     }
 
+    console.log('[STUDENTS API] Found', orders.length, 'paid orders');
+
     // Get user IDs from paid orders
     const userIds = [...new Set(orders.map(o => o.user_id))];
+    console.log('[STUDENTS API] User IDs from orders:', userIds);
 
     // Fetch user information from Clerk API
+    console.log('[STUDENTS API] Starting Clerk API calls for', userIds.length, 'users');
+    
     const clerkUsers = await Promise.all(
       userIds.map(async (userId) => {
         try {
+          console.log('[STUDENTS API] Fetching user from Clerk:', userId);
           const user = await clerkClient.users.getUser(userId);
           const primaryEmail = user.emailAddresses.find(email => email.id === user.primaryEmailAddressId);
+          console.log('[STUDENTS API] Clerk user data for', userId, ':', {
+            email: primaryEmail?.emailAddress,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            imageUrl: user.imageUrl
+          });
           return {
             id: user.id,
             email: primaryEmail?.emailAddress || 'unknown@example.com',
@@ -80,6 +111,7 @@ export async function GET(request: NextRequest) {
             profile_picture: user.imageUrl || null,
           };
         } catch (error) {
+          console.error('[STUDENTS API] Error fetching user from Clerk:', userId, error);
           // If Clerk API fails, use fallback
           return {
             id: userId,
@@ -90,6 +122,8 @@ export async function GET(request: NextRequest) {
         }
       })
     );
+
+    console.log('[STUDENTS API] Clerk users fetched:', clerkUsers);
 
     // Create a map of user_id to profile
     const userProfileMap = new Map();
@@ -133,6 +167,8 @@ export async function GET(request: NextRequest) {
       const productInfo = orderToProduct.get(order.id);
       const userProfile = userProfileMap.get(order.user_id);
       
+      console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Profile:', userProfile);
+      
       return {
         // For messages page
         student_id: order.user_id,
@@ -154,9 +190,12 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    console.log('[STUDENTS API] Final students list:', studentsByProduct);
+    console.log('[STUDENTS API] Returning', studentsByProduct.length, 'students');
+
     return NextResponse.json({ success: true, students: studentsByProduct });
   } catch (error) {
-    console.error('Error in students API:', error);
+    console.error('[STUDENTS API] Error in students API:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
