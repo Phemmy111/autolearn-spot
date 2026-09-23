@@ -21,10 +21,10 @@ async function runBackfill() {
   try {
     console.log('[BACKFILL] Starting order customer details backfill');
 
-    // Fetch paid orders that don't have customer details
+    // Fetch paid orders that don't have customer names
     const { data: orders, error: ordersError } = await supabaseAdmin
       .from('orders')
-      .select('id, provider_ref, status')
+      .select('id, provider_ref, status, customer_name, customer_email')
       .eq('status', 'PAID')
       .is('customer_name', null);
 
@@ -80,18 +80,28 @@ async function runBackfill() {
         const fullName = [firstName, lastName].filter(Boolean).join(' ');
         const email = customer.email;
 
-        if (!fullName && !email) {
+        // Try to get name from metadata if not in customer object
+        let finalName = fullName;
+        if (!finalName && transaction.metadata?.full_name) {
+          finalName = transaction.metadata.full_name;
+        }
+
+        // Fallback: use email local part as name
+        if (!finalName && email) {
+          finalName = email.split('@')[0];
+        }
+
+        if (!finalName && !email) {
           console.log(`[BACKFILL] No customer data in Paystack for order ${order.id}`);
           errors.push(`Order ${order.id}: No customer data in Paystack`);
           continue;
         }
 
-        // Update only customer_name and customer_email fields
+        // Update customer_name field
         const { error: updateError } = await supabaseAdmin
           .from('orders')
           .update({
-            customer_name: fullName || null,
-            customer_email: email || null,
+            customer_name: finalName,
           })
           .eq('id', order.id);
 
@@ -102,7 +112,7 @@ async function runBackfill() {
         }
 
         console.log(`[BACKFILL] Successfully updated order ${order.id}:`, {
-          customer_name: fullName,
+          customer_name: finalName,
           customer_email: email,
         });
         updatedCount++;

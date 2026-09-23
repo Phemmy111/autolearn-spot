@@ -125,7 +125,10 @@ export async function GET(request: NextRequest) {
       const isGuest = order.user_id.startsWith('guest_');
       
       // Use customer details from orders if available, otherwise fallback
-      const displayName = order.customer_name || (isGuest ? 'Guest Purchaser' : order.user_id);
+      // Use email local part as name if customer_name is null
+      const displayName = order.customer_name || 
+                        (order.customer_email ? order.customer_email.split('@')[0] : 
+                        (isGuest ? 'Guest Purchaser' : order.user_id));
       const displayEmail = order.customer_email || (isGuest ? 'guest@example.com' : `${order.user_id}@clerk.user`);
       
       console.log('[STUDENTS API] Processing order:', order.id, 'User:', order.user_id, 'Customer name:', order.customer_name, 'Customer email:', order.customer_email);
