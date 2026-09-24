@@ -36,7 +36,7 @@ console.log('[EmailService] SMTP Config:', {
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
+  secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
@@ -51,7 +51,7 @@ export class EmailService {
   private static async sendEmail(template: EmailTemplate): Promise<boolean> {
     try {
       const mailOptions = {
-        from: process.env.SMTP_FROM || 'noreply@autolearnspot.com',
+        from: `"AutoLearn Spot" <${process.env.SMTP_USER}>`,
         to: template.to,
         subject: template.subject,
         html: template.html,
