@@ -144,13 +144,18 @@ export class AlexOrchestrator {
       
       // Phase 2: Use enhanced Task Router for classification
       try {
+        const availableTools = enableTools && toolRegistry 
+          ? toolRegistry.listEnabledTools().map(t => t.name)
+          : []
+
         routerDecision = await TaskRouter.route({
           content,
           currentMode: mode,
           conversationHistory,
           userId,
           conversationId,
-          attachedFiles
+          attachedFiles,
+          availableTools
         })
         
         console.log('[DEBUG ORCHESTRATOR] Task Router decision:', {

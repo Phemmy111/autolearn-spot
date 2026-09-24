@@ -6,6 +6,7 @@
  */
 
 import { TaskClassifier, ClassificationResult, TaskType } from './task-classifier'
+import { TaskPlanner, PlanningRequest, PlanningResult } from '../task-planner/task-planner'
 import { AlexMode } from '../types'
 
 export interface RouterRequest {
@@ -15,6 +16,7 @@ export interface RouterRequest {
   userId?: string
   conversationId?: string
   attachedFiles?: any[]
+  availableTools?: string[] // Phase 3: Available tools for planning
 }
 
 export interface RouterDecision {
@@ -32,6 +34,7 @@ export interface RouterDecision {
   }
   estimatedSubtasks: number
   reasoning: string
+  taskPlan?: PlanningResult // Phase 3: Optional task plan for complex tasks
 }
 
 /**
@@ -42,7 +45,7 @@ export class TaskRouter {
    * Route a task to the appropriate execution path
    */
   static async route(request: RouterRequest): Promise<RouterDecision> {
-    const { content, currentMode, conversationHistory } = request
+    const { content, currentMode, conversationHistory, userId, conversationId } = request
 
     // Classify the task
     const classification = TaskClassifier.classify(content)
@@ -56,6 +59,29 @@ export class TaskRouter {
     // Build execution parameters
     const executionParameters = this.buildExecutionParameters(classification)
 
+    // Phase 3: Create task plan for complex tasks
+    let taskPlan: PlanningResult | undefined
+    if (classification.classification.requiresPlanning) {
+      try {
+        taskPlan = await TaskPlanner.createPlan({
+          objective: content,
+          taskType: classification.classification.primaryType,
+          complexity: classification.classification.complexity,
+          availableTools: classification.classification.requiredTools,
+          userId,
+          conversationId,
+        })
+        console.log('[Task Router] Created task plan:', {
+          planId: taskPlan.plan.id,
+          subtaskCount: taskPlan.plan.subtasks.length,
+          estimatedDuration: taskPlan.plan.estimatedTotalDuration
+        })
+      } catch (error) {
+        console.error('[Task Router] Failed to create task plan:', error)
+        // Continue without plan if planning fails
+      }
+    }
+
     return {
       classification,
       executionPath,
@@ -63,6 +89,7 @@ export class TaskRouter {
       executionParameters,
       estimatedSubtasks: classification.classification.estimatedSubtasks,
       reasoning: classification.classification.reasoning,
+      taskPlan,
     }
   }
 
