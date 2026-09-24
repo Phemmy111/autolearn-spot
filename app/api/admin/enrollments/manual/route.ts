@@ -26,52 +26,61 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    // 2. Check if an active enrollment already exists for this product
-    const { data: existing } = await supabaseAdmin
-      .from('enrollments')
+    // 2. Check if user already has a paid order for this product
+    const { data: existingOrder } = await supabaseAdmin
+      .from('orders')
       .select('id, status')
-      .eq('email', email)
-      .eq('learning_product_id', productId)
+      .eq('user_id', clerkUserId || email)
+      .eq('status', 'PAID')
       .single()
 
-    if (existing?.status === 'active') {
-      return NextResponse.json({ error: 'User is Already Enrolled in this product (Active)' }, { status: 409 })
+    if (existingOrder) {
+      return NextResponse.json({ error: 'User already has a paid order for this product' }, { status: 409 })
     }
 
-    // 3. Format notes field for human-readable reasons (no audit logs)
-    const formattedNotes = reason ? reason.trim() : null
+    // 3. Create an order instead of enrollment (since we're focusing on products)
+    const orderData: any = {
+      user_id: clerkUserId || `manual_${email}`,
+      order_ref: `MANUAL-${Date.now()}`,
+      currency: 'NGN',
+      subtotal: product.price || 0,
+      total: product.price || 0,
+      status: 'PAID',
+      paid_at: new Date().toISOString(),
+      customer_name: fullName || firstName || null,
+      customer_email: email.toLowerCase().trim(),
+    }
 
-    // 4. Create or update the enrollment
-    const enrollmentData: any = {
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .insert(orderData)
+      .select()
+      .single()
+
+    if (orderError) {
+      console.error('Error creating manual order:', orderError)
+      return NextResponse.json({ error: `Failed to create order: ${orderError.message}` }, { status: 500 })
+    }
+
+    // 4. Create order item
+    const orderItemData = {
+      order_id: order.id,
       learning_product_id: productId,
-      email: email.toLowerCase().trim(),
-      status: status || 'active',
-      notes: formattedNotes,
-      activated_at: new Date().toISOString(),
-      payment_amount: product.price || 0,
-      amount_paid: product.price || 0,
+      product_title: product.title,
+      price_snapshot: product.price || 0,
+      quantity: 1,
     }
 
-    if (clerkUserId) {
-      enrollmentData.clerk_user_id = clerkUserId
+    const { error: itemError } = await supabaseAdmin
+      .from('order_items')
+      .insert(orderItemData)
+
+    if (itemError) {
+      console.error('Error creating order item:', itemError)
+      return NextResponse.json({ error: `Failed to create order item: ${itemError.message}` }, { status: 500 })
     }
 
-    // Add name fields if provided
-    if (firstName) enrollmentData.first_name = firstName
-    if (lastName) enrollmentData.last_name = lastName
-    if (fullName) enrollmentData.full_name = fullName
-
-    const { error: upsertError } = await supabaseAdmin
-      .from('enrollments')
-      .upsert(enrollmentData, { onConflict: 'learning_product_id, email' })
-
-    if (upsertError) {
-      console.error('Error creating manual enrollment:', upsertError)
-      console.error('Error details:', JSON.stringify(upsertError, null, 2))
-      return NextResponse.json({ error: `Failed to create enrollment: ${upsertError.message}` }, { status: 500 })
-    }
-
-    // Send Enrollment Notification
+    // 5. Send Notification
     try {
       const { createNotification } = await import('@/lib/notifications');
       await createNotification({
@@ -84,13 +93,13 @@ export async function POST(req: Request) {
         action_url: '/dashboard',
         action_label: 'Go to Dashboard',
         send_email: true,
-        event_id: `enrollment_${email}_${productId}`,
+        event_id: `manual_enrollment_${email}_${productId}`,
       });
     } catch (notifErr) {
       console.error('Failed to send manual enrollment notification:', notifErr);
     }
 
-    return NextResponse.json({ success: true, message: 'Enrollment created successfully' })
+    return NextResponse.json({ success: true, message: 'Manual enrollment created successfully' })
   } catch (error: any) {
     console.error('Manual Enrollment Error:', error)
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
