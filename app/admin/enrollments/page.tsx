@@ -15,79 +15,74 @@ export default async function AdminEnrollmentsPage() {
     redirect('/');
   }
 
-  // Fetch all enrollments
-  const { data: enrollments } = await supabaseAdmin
-    .from('enrollments')
+  // Fetch product purchasers from orders and order_items
+  const { data: orderItems, error } = await supabaseAdmin
+    .from('order_items')
     .select(`
-      *,
-      learning_product:learning_products(title)
+      id,
+      product_title,
+      price_snapshot,
+      created_at,
+      order_id,
+      orders!inner(
+        id,
+        user_id,
+        customer_name,
+        customer_email,
+        status
+      )
     `)
-    .order('created_at', { ascending: false });
+    .eq('orders.status', 'PAID')
+    .order('created_at', { ascending: false })
+    .limit(50);
 
-  const safeEnrollments = enrollments || [];
+  if (error) {
+    console.error('Error fetching orders:', error);
+  }
 
-  // Fetch pending enrollments
-  const { data: pendingEnrollments } = await supabaseAdmin
-    .from('pending_enrollments')
-    .select(`
-      *,
-      learning_product:learning_products(title)
-    `)
-    .order('created_at', { ascending: false });
+  const safeOrderItems = orderItems || [];
 
-  const safePendingEnrollments = pendingEnrollments || [];
-
-  // Deduplicate by email and learning_product_id
-  const enrolledKeys = new Set(safeEnrollments.map(e => `${e.email}:${e.learning_product_id}`));
-  const uniquePendingEnrollments = safePendingEnrollments.filter(pending => {
-    const key = `${pending.email}:${pending.learning_product_id}`;
-    return !enrolledKeys.has(key);
-  });
-
-  const pendingMapped = uniquePendingEnrollments.map(pending => ({
-    ...pending,
-    is_pending: true,
-    display_status: pending.payment_status === 'pending' ? 'Payment Pending' : 
-                  pending.payment_status === 'expired' ? 'Expired' :
-                  pending.payment_status === 'failed' ? 'Payment Failed' : pending.payment_status
-  }));
-
-  const allRecords = [
-    ...safeEnrollments.map(e => ({ ...e, is_pending: false, display_status: e.status === 'active' ? 'Enrolled' : e.status })),
-    ...pendingMapped
-  ];
-
-  let paidCount = 0;
-  let pendingCount = 0;
-  let expiredCount = 0;
-  let failedCount = 0;
-  let revenue = 0;
-
-  safeEnrollments.forEach(en => {
-    if (en.status === 'active') {
-      paidCount++;
-      revenue += (en.amount_paid || 0);
-    } else if (en.status === 'pending') {
-      pendingCount++;
+  // Get unique purchasers (by user_id or customer_email)
+  const purchasersMap = new Map();
+  
+  safeOrderItems.forEach(item => {
+    const userId = item.orders.user_id || item.orders.customer_email;
+    const userName = item.orders.customer_name || 'Unknown';
+    const userEmail = item.orders.customer_email || item.orders.user_id || 'Unknown';
+    
+    if (!purchasersMap.has(userId)) {
+      purchasersMap.set(userId, {
+        id: userId,
+        name: userName,
+        email: userEmail,
+        courses: [item.product_title],
+        totalAmount: item.price_snapshot || 0,
+        purchases: 1,
+        latestPurchase: item.created_at,
+        status: item.orders.status
+      });
+    } else {
+      // Add additional courses to existing purchaser
+      const purchaser = purchasersMap.get(userId);
+      
+      if (!purchaser.courses.includes(item.product_title)) {
+        purchaser.courses.push(item.product_title);
+      }
+      purchaser.totalAmount += (item.price_snapshot || 0);
+      purchaser.purchases += 1;
+      
+      // Update to latest purchase date
+      if (item.created_at > purchaser.latestPurchase) {
+        purchaser.latestPurchase = item.created_at;
+      }
     }
   });
 
-  uniquePendingEnrollments.forEach(pending => {
-    if (pending.payment_status === 'pending') {
-      pendingCount++;
-    } else if (pending.payment_status === 'expired') {
-      expiredCount++;
-    } else if (pending.payment_status === 'failed') {
-      failedCount++;
-    }
-  });
+  const purchasers = Array.from(purchasersMap.values());
 
   const summary = {
-    paid: paidCount,
-    pending: pendingCount,
-    expired: expiredCount,
-    failed: failedCount,
-    revenue: revenue / 100
+    total: purchasers.length,
+    revenue: purchasers.reduce((sum, p) => sum + p.totalAmount, 0) / 100
   };
 
   return (
@@ -103,15 +98,20 @@ export default async function AdminEnrollmentsPage() {
           </Link>
           <div className="flex items-center gap-3">
             <Users className="h-8 w-8 text-[#10b981]" />
-            <h1 className="font-heading text-4xl font-bold text-brand-text">Enrollments</h1>
+            <h1 className="font-heading text-4xl font-bold text-brand-text">Product Purchasers</h1>
           </div>
           <p className="font-mono text-sm text-brand-text/70 max-w-2xl mt-4">
-            Manage student enrollments and view payments.
+            View all product purchasers and their purchase history.
           </p>
         </div>
 
         <EnrollmentsTable 
-          initialEnrollments={allRecords} 
+          initialEnrollments={purchasers.map(p => ({
+            ...p,
+            is_pending: false,
+            display_status: p.status === 'PAID' ? 'Paid' : p.status,
+            amount_paid: p.totalAmount
+          }))} 
           summary={summary}
         />
       </div>
