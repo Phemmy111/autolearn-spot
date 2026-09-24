@@ -50,7 +50,7 @@ async function getAuthorData(authorId: string) {
 }
 
 async function getAuthorProducts(authorId: string) {
-  // 1. Fetch products (no nested join - it breaks silently if FK isn't registered in PostgREST)
+  // 1. Fetch products
   const { data: products, error: productsError } = await supabaseAdmin
     .from('learning_products')
     .select('id, title, slug, description, thumbnail_url, price, currency, status, created_at, author_id')
@@ -70,11 +70,12 @@ async function getAuthorProducts(authorId: string) {
     .select('product_id, rating')
     .in('product_id', productIds);
 
-  // 3. Count enrollments per product
-  const { data: enrollments } = await supabaseAdmin
-    .from('enrollments')
-    .select('learning_product_id')
-    .in('learning_product_id', productIds);
+  // 3. Count paid students per product from orders/order_items
+  const { data: orderItems } = await supabaseAdmin
+    .from('order_items')
+    .select('learning_product_id, orders!inner(user_id, status)')
+    .in('learning_product_id', productIds)
+    .eq('orders.status', 'PAID');
 
   // 4. Merge in JS
   const productsWithStats = products.map((product: any) => {
@@ -83,16 +84,20 @@ async function getAuthorProducts(authorId: string) {
       productReviews.length > 0
         ? productReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / productReviews.length
         : 0;
-    const enrolled = (enrollments || []).filter(
-      (e: any) => e.learning_product_id === product.id
-    ).length;
+
+    // Count unique paid students for this product
+    const productOrderItems = (orderItems || []).filter(
+      (oi: any) => oi.learning_product_id === product.id
+    );
+    const uniqueStudentIds = new Set(productOrderItems.map((oi: any) => oi.orders.user_id));
+    const enrolledCount = uniqueStudentIds.size;
 
     return {
       ...product,
       thumbnail: product.thumbnail_url,
       rating: avgRating,
       review_count: productReviews.length,
-      enrolled_count: enrolled,
+      enrolled_count: enrolledCount,
     };
   });
 
@@ -130,10 +135,21 @@ export default async function AuthorPublicPage({ params }: { params: Promise<{ i
 
   const products = await getAuthorProducts(authorId);
 
-  // Calculate author stats
-  const totalStudents = products.reduce((sum, p) => sum + (p.enrolled_count || 0), 0);
-  const avgRating = products.length > 0 
-    ? products.reduce((sum, p) => sum + p.rating, 0) / products.length 
+  // Calculate unique students across all products
+  const productIds = products.map((p) => p.id);
+  const { data: allOrderItems } = productIds.length > 0
+    ? await supabaseAdmin
+        .from('order_items')
+        .select('orders!inner(user_id, status)')
+        .in('learning_product_id', productIds)
+        .eq('orders.status', 'PAID')
+    : { data: [] };
+
+  const uniqueStudentIds = new Set((allOrderItems || []).map((oi: any) => oi.orders.user_id));
+  const totalStudents = uniqueStudentIds.size;
+
+  const avgRating = products.length > 0
+    ? products.reduce((sum, p) => sum + p.rating, 0) / products.length
     : 0;
 
   return (
