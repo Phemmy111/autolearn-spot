@@ -56,8 +56,12 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    console.log('[POST /api/admin/email-notifications] Starting');
+    
     // Get user email from Clerk
     const user = await currentUser();
+    console.log('[POST /api/admin/email-notifications] User:', user?.emailAddresses?.[0]?.emailAddress);
+    
     if (!user?.emailAddresses || user.emailAddresses.length === 0) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -75,6 +79,8 @@ export async function POST(request: Request) {
       .eq('is_active', true)
       .single();
 
+    console.log('[POST /api/admin/email-notifications] Admin check:', { admin, adminError });
+
     if (adminError || !admin) {
       return NextResponse.json({ error: 'Forbidden: admin access required' }, { status: 403 });
     }
@@ -82,10 +88,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { event_type, recipient_emails, is_active } = body;
 
+    console.log('[POST /api/admin/email-notifications] Body:', { event_type, recipient_emails, is_active });
+
     if (!event_type || !recipient_emails || !Array.isArray(recipient_emails)) {
       return NextResponse.json({ error: 'event_type and recipient_emails are required' }, { status: 400 });
     }
 
+    console.log('[POST /api/admin/email-notifications] Inserting notification...');
     const { data: notification, error } = await supabaseAdmin
       .from('email_notifications')
       .insert({
@@ -96,14 +105,16 @@ export async function POST(request: Request) {
       .select()
       .single();
 
+    console.log('[POST /api/admin/email-notifications] Insert result:', { notification, error });
+
     if (error) {
       console.error('[POST /api/admin/email-notifications] error:', error);
-      return NextResponse.json({ error: 'Failed to create email notification' }, { status: 500 });
+      return NextResponse.json({ error: `Failed to create email notification: ${error.message}`, details: error }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, notification });
   } catch (err: any) {
     console.error('[POST /api/admin/email-notifications] error:', err);
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Internal server error', details: err }, { status: 500 });
   }
 }
