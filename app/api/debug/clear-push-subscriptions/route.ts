@@ -3,7 +3,15 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
+export async function GET(request: Request) {
+  return await handleClearSubscriptions();
+}
+
 export async function POST(request: Request) {
+  return await handleClearSubscriptions();
+}
+
+async function handleClearSubscriptions() {
   try {
     // Delete all push subscriptions
     const { error } = await supabaseAdmin
