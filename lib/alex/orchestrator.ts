@@ -11,6 +11,7 @@ import { AgentService, AgentExecutionResult } from './agents'
 import { AIEngine } from './ai-engine'
 import { WorkflowManagerV2, WorkflowRequest } from './artifact-generation/workflow-manager-v2'
 import { WorkflowOrchestrator } from './orchestration/workflow-orchestrator'
+import { TaskRouter, RouterDecision } from './task-router/task-router'
 
 export interface OrchestratorRequest {
   content: string
@@ -134,18 +135,65 @@ export class AlexOrchestrator {
     let detectedIntent: string | undefined
     let suggestedMode: AlexMode | undefined
     let isArtifactGeneration = false
+    let routerDecision: RouterDecision | undefined
+    let shouldEnableWebResearch = request.enableWebResearch
+    let shouldEnableMemory = enableMemory
 
     if (mode === 'auto') {
       console.log('[DEBUG ORCHESTRATOR] Detecting intent for auto mode', { contentPreview: content.substring(0, 100) })
-      const intentResult = await detectIntent(content)
-      detectedIntent = intentResult.intent
-      suggestedMode = intentResult.suggestedMode
-      isArtifactGeneration = intentResult.isArtifactGeneration || false
+      
+      // Phase 2: Use enhanced Task Router for classification
+      try {
+        routerDecision = await TaskRouter.route({
+          content,
+          currentMode: mode,
+          conversationHistory,
+          userId,
+          conversationId,
+          attachedFiles
+        })
+        
+        console.log('[DEBUG ORCHESTRATOR] Task Router decision:', {
+          primaryType: routerDecision.classification.classification.primaryType,
+          complexity: routerDecision.classification.classification.complexity,
+          executionPath: routerDecision.executionPath,
+          recommendedMode: routerDecision.recommendedMode,
+          estimatedSubtasks: routerDecision.estimatedSubtasks
+        })
+        
+        // Override intent detection with router results
+        detectedIntent = routerDecision.classification.classification.primaryType
+        suggestedMode = routerDecision.recommendedMode
+        isArtifactGeneration = routerDecision.executionPath === 'artifact_workflow'
+        
+        // Use router execution parameters
+        if (routerDecision) {
+          // Enable web research if router suggests it
+          if (routerDecision.executionParameters.enableWebResearch) {
+            console.log('[DEBUG ORCHESTRATOR] Task Router recommends web research, enabling')
+            shouldEnableWebResearch = true
+          }
+          
+          // Enable memory if router suggests it
+          if (routerDecision.executionParameters.enableMemory) {
+            console.log('[DEBUG ORCHESTRATOR] Task Router recommends memory, enabling')
+            shouldEnableMemory = true
+          }
+        }
+      } catch (error) {
+        console.error('[DEBUG ORCHESTRATOR] Task Router failed, falling back to legacy intent detection:', error)
+        // Fallback to legacy intent detection
+        const intentResult = await detectIntent(content)
+        detectedIntent = intentResult.intent
+        suggestedMode = intentResult.suggestedMode
+        isArtifactGeneration = intentResult.isArtifactGeneration || false
+      }
+      
       console.log('[DEBUG ORCHESTRATOR] Intent detection result', {
         detectedIntent,
         suggestedMode,
         isArtifactGeneration,
-        confidence: intentResult.confidence
+        confidence: routerDecision?.classification.classification.confidence || 'N/A'
       })
     }
 
@@ -386,7 +434,7 @@ export class AlexOrchestrator {
     const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools)
 
     // Enable web research for research mode, when intent suggests research, or when explicitly requested
-    const enableWebResearch = mode === 'research' || suggestedMode === 'research' || request.enableWebResearch
+    const enableWebResearch = mode === 'research' || suggestedMode === 'research' || shouldEnableWebResearch
 
     // Assemble context with platform context, files, retrieval, web research, and memory if available
     const assemblyResult = await assembleContext(mode, conversationHistory, {
@@ -404,7 +452,7 @@ export class AlexOrchestrator {
       providerRegistry: request.providerRegistry, // Pass provider registry for vision preprocessing
       enableWebResearch, // Phase 3C: Enable web research
       webResearchService, // Phase 3C: Pass web research service
-      enableMemory // Phase 4: Enable memory retrieval
+      enableMemory: shouldEnableMemory // Phase 4: Enable memory retrieval
     })
 
     const { context, imageFiles } = assemblyResult
