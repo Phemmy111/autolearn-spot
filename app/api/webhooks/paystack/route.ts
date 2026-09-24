@@ -132,9 +132,13 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   let commissionRate = 10; // Default to 10%
   if (commissionSetting?.value) {
     try {
-      // Try to parse as JSON first
       const parsed = JSON.parse(commissionSetting.value);
-      commissionRate = parsed.rate || parsed.value || 10;
+      // Handle both { rate: 20 } and plain number 20
+      if (typeof parsed === 'number') {
+        commissionRate = parsed;
+      } else if (parsed && typeof parsed === 'object') {
+        commissionRate = parsed.rate || parsed.value || 10;
+      }
     } catch {
       // If not JSON, try to parse as number
       const parsed = parseFloat(commissionSetting.value);
