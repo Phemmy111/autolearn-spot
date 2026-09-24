@@ -28,7 +28,7 @@ export default async function AuthorsDirectoryPage() {
   const { data: orderItems } = productIds.length > 0
     ? await supabaseAdmin
         .from('order_items')
-        .select('learning_product_id, order_id, orders(status)')
+        .select('learning_product_id, orders!inner(user_id, status)')
         .in('learning_product_id', productIds)
         .eq('orders.status', 'PAID')
     : { data: [] };
@@ -50,7 +50,7 @@ export default async function AuthorsDirectoryPage() {
     const paidOrderItems = (orderItems || []).filter((oi) =>
       authorProductIds.includes(oi.learning_product_id)
     );
-    const uniqueStudentIds = new Set(paidOrderItems.map((oi) => oi.order_id));
+    const uniqueStudentIds = new Set(paidOrderItems.map((oi) => oi.orders.user_id));
     const totalStudents = uniqueStudentIds.size;
 
     const authorReviews = (reviews || []).filter((r) => authorProductIds.includes(r.product_id));
