@@ -13,6 +13,7 @@ import { WorkflowManagerV2, WorkflowRequest } from './artifact-generation/workfl
 import { WorkflowOrchestrator } from './orchestration/workflow-orchestrator'
 import { TaskRouter, RouterDecision } from './task-router/task-router'
 import { ExpertiseProfileRegistry } from './expertise'
+import { MultiAgentCoordinator } from './agents/multi-agent-coordinator'
 
 export interface OrchestratorRequest {
   content: string
@@ -38,6 +39,7 @@ export interface OrchestratorRequest {
   enableAgent?: boolean // Phase 6: Enable agent mode for multi-step execution
   aiEngine?: AIEngine // Phase 6: AI engine for agent execution
   signal?: AbortSignal // Phase 6: Cancellation signal
+  enableMultiAgent?: boolean // Phase 7: Enable multi-agent coordination
   // Phase 7: Workflow generation support
   workflowJson?: string // Direct workflow JSON input
   workflowErrors?: string[] // Workflow error debugging
@@ -70,6 +72,79 @@ export class AlexOrchestrator {
     
     // Ensure providerCapabilities is always an array
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []
+
+    // Phase 7: Check if multi-agent coordination is enabled
+    if (enableMultiAgent && enableAgent && aiEngine && toolRegistry && toolExecutionService && userId) {
+      console.log('[Orchestrator] Multi-agent coordination enabled')
+
+      const collaborationAnalysis = MultiAgentCoordinator.analyzeCollaborationNeeded(content)
+
+      if (collaborationAnalysis.needsCollaboration) {
+        console.log('[Orchestrator] Multi-agent collaboration needed:', collaborationAnalysis)
+
+        const plan = MultiAgentCoordinator.createCollaborationPlan(
+          conversationId || 'unknown',
+          content,
+          collaborationAnalysis.primaryDomain,
+          collaborationAnalysis.supportingDomains
+        )
+
+        // Execute collaboration (simplified - in practice would use agent service)
+        const executeAgent = async (task: any) => {
+          const agentService = new AgentService(toolRegistry, toolExecutionService, aiEngine)
+          const agentRequest = {
+            userId,
+            conversationId,
+            content: task.description,
+            mode,
+            conversationHistory,
+            platformContext,
+            systemPrompt: MultiAgentCoordinator.getAgentSystemPrompt(task.domain, content),
+            enableWebResearch: mode === 'research' || request.enableWebResearch,
+            enableMemory,
+            enableRetrieval,
+            webResearchService,
+            memoryService: undefined,
+            toolRegistry,
+            toolExecutionService,
+            providerManager: request.providerManager,
+            providerRegistry: request.providerRegistry,
+            providerCapabilities: capabilities,
+            modelName: modelName || 'openai/gpt-oss-120b',
+            signal,
+            attachedFiles: request.attachedFiles,
+            workflowJson: request.workflowJson,
+            workflowErrors: request.workflowErrors,
+            generateWorkflowArtifact: request.generateWorkflowArtifact
+          }
+
+          return await agentService.execute(agentRequest, () => {})
+        }
+
+        const collaborationResult = await MultiAgentCoordinator.executeCollaboration(plan, executeAgent)
+
+        if (collaborationResult.success) {
+          console.log('[Orchestrator] Multi-agent collaboration successful')
+
+          // Return synthesized result
+          return {
+            systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content),
+            context: `Multi-agent collaboration completed with ${collaborationResult.agentCount} agents. Synthesis strategy: ${plan.synthesisStrategy}.`,
+            detectedIntent: 'multi-agent collaboration',
+            suggestedMode: mode,
+            aiRequest: {
+              messages: [
+                { role: 'system', content: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content) },
+                { role: 'user', content: content }
+              ],
+              stream: true,
+              disableTools: true
+            },
+            imageFiles: []
+          }
+        }
+      }
+    }
 
     // Phase 6: Check if agent mode is enabled
     if (enableAgent && aiEngine && toolRegistry && toolExecutionService && userId) {
