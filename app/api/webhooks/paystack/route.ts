@@ -281,11 +281,23 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   for (const item of orderItems) {
     try {
       // Get product and author details
+      // Get product details
       const { data: product } = await supabaseAdmin
         .from('learning_products')
-        .select('*, authors(display_name, email)')
+        .select('*')
         .eq('id', item.learning_product_id)
         .single();
+
+      if (product && product.author_id) {
+        // Fetch author separately due to PostgREST schema cache issues with joins
+        const { data: author } = await supabaseAdmin
+          .from('authors')
+          .select('display_name, email')
+          .eq('id', product.author_id)
+          .single();
+          
+        product.authors = author;
+      }
 
       if (product && product.authors) {
         const authorEarnings = item.price_snapshot * authorShare;
