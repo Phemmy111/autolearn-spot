@@ -47,6 +47,8 @@ export async function POST(req: Request) {
       total: product.price || 0,
       status: 'PAID',
       paid_at: new Date().toISOString(),
+      provider_ref: `MANUAL-${Date.now()}`,
+      payment_provider: 'MANUAL',
       customer_name: fullName || firstName || null,
       customer_email: email.toLowerCase().trim(),
     }
