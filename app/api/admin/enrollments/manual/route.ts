@@ -68,7 +68,8 @@ export async function POST(req: Request) {
 
     if (upsertError) {
       console.error('Error creating manual enrollment:', upsertError)
-      return NextResponse.json({ error: 'Failed to create enrollment in database' }, { status: 500 })
+      console.error('Error details:', JSON.stringify(upsertError, null, 2))
+      return NextResponse.json({ error: `Failed to create enrollment: ${upsertError.message}` }, { status: 500 })
     }
 
     // Send Enrollment Notification

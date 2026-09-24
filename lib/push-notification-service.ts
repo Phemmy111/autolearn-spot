@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
-const VAPID_SUBJECT = 'mailto:contact@autolearnspot.com';
+const VAPID_SUBJECT = 'mailto:autolearnspot@gmail.com';
 
 if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
   console.warn('[PushNotificationService] VAPID keys not configured. Push notifications will not work.');

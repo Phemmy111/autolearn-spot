@@ -4,7 +4,7 @@ import webpush from 'web-push'
 
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    'mailto:femiadeleке2020@gmail.com',
+    'mailto:autolearnspot@gmail.com',
     process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   )
@@ -220,24 +220,29 @@ export async function createNotification(params: CreateNotificationParams) {
             icon: icon || '/icon.png'
           })
 
-          const pushPromises = subscriptions.map(sub => 
-            webpush.sendNotification({
-              endpoint: sub.endpoint,
-              keys: {
-                p256dh: sub.p256dh,
-                auth: sub.auth
-              }
+          const pushPromises = subscriptions.map(sub => {
+            // Extract subscription data from JSON object or flattened fields
+            const subscriptionData = (sub as any).subscription || sub
+            const endpoint = subscriptionData.endpoint
+            const keys = subscriptionData.keys || {
+              p256dh: subscriptionData.p256dh,
+              auth: subscriptionData.auth
+            }
+
+            return webpush.sendNotification({
+              endpoint,
+              keys
             }, payload).catch(err => {
               if (err.statusCode === 410 || err.statusCode === 404) {
                 // Subscription has expired or is no longer valid, we should delete it
                 return supabaseAdmin
                   .from('push_subscriptions')
                   .delete()
-                  .eq('endpoint', sub.endpoint)
+                  .eq('endpoint', endpoint)
               }
               console.error('Error sending push notification', err)
             })
-          )
+          })
 
           await Promise.all(pushPromises)
         }
