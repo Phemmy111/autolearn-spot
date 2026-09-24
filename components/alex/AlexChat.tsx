@@ -543,10 +543,7 @@ export function AlexChat({ userId }: AlexChatProps) {
             >
               <Home className="h-4 w-4" />
             </button>
-            <div className="w-8 h-8 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-xl flex items-center justify-center">
-              <Bot className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-semibold text-brand-text text-sm">ALEX</span>
+            <span className="font-semibold text-white text-sm">ALEX</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -558,7 +555,7 @@ export function AlexChat({ userId }: AlexChatProps) {
             </button>
             <button
               onClick={startNewConversation}
-              className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-[#10b981] to-[#059669] text-white rounded-xl hover:opacity-90 transition-opacity"
+              className="w-10 h-10 flex items-center justify-center bg-gradient-to-r from-[#10b981] via-[#059669] to-[#047857] text-white rounded-xl hover:opacity-90 transition-opacity"
               aria-label="New conversation"
             >
               <Plus className="h-5 w-5" />

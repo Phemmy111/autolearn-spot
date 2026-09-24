@@ -160,7 +160,7 @@ export function AlexSidebar({
                 onNewConversation()
                 onToggleSidebar()
               }}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-[#10b981]/20"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#10b981] via-[#059669] to-[#047857] hover:from-[#059669] hover:via-[#047857] hover:to-[#065f46] text-white font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-[#10b981]/30"
             >
               <Plus className="h-4 w-4" />
               New Chat
@@ -306,7 +306,7 @@ export function AlexSidebar({
       <div className="p-4">
         <button
           onClick={onNewConversation}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-[#10b981]/20"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#10b981] via-[#059669] to-[#047857] hover:from-[#059669] hover:via-[#047857] hover:to-[#065f46] text-white font-medium rounded-xl px-4 py-3 transition-all shadow-lg shadow-[#10b981]/30"
         >
           <Plus className="h-4 w-4" />
           New Chat

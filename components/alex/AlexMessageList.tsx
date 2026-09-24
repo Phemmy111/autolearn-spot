@@ -453,7 +453,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                 message.role === 'user'
                   ? 'rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-br from-[#10b981] to-[#059669] text-white shadow-lg shadow-[#10b981]/20 max-w-[85%] sm:max-w-xl mx-2'
                   : isMobile
-                  ? 'w-full px-4 py-4 text-white text-lg leading-relaxed'
+                  ? 'w-full px-0 py-4 text-white text-lg leading-relaxed'
                   : 'rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] text-white w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
               }`}
             >
