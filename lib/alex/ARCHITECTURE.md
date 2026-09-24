@@ -1,6 +1,10 @@
 # ALEX Architecture Map
 
 **Phase 1: Core Unification - Architecture Mapping**
+**Phase 2: Intelligent Task Router**
+**Phase 3: Task Planner + Execution Engine**
+**Phase 5: Knowledge Engine Enhancement**
+**Phase 6: Digital Expertise Engine**
 
 ## Existing ALEX Systems
 
@@ -144,6 +148,24 @@
   - Error classification
   - Recovery strategies
 
+### 12. Knowledge Engine (Phase 5)
+- **Source Quality Ranker** (`lib/alex/knowledge/source-quality-ranker.ts`)
+  - Domain-based source ranking
+  - Quality category classification
+  - Freshness scoring
+
+- **Contextual Retrieval** (`lib/alex/knowledge/contextual-retrieval.ts`)
+  - Context-aware chunk selection
+  - Task-type aware scoring
+  - Conversation context consideration
+
+### 13. Digital Expertise Engine (Phase 6)
+- **Expertise Profile Registry** (`lib/alex/expertise/expertise-profiles.ts`)
+  - 13 domain expertise profiles
+  - Automatic domain detection
+  - System prompt customization
+  - Domain-specific reasoning patterns
+
 ## Database Tables
 
 ### ALEX Tables
@@ -178,6 +200,11 @@
 11. Intent detection
 12. Platform context integration
 13. Cost tracking and TPM limits
+14. **Task Router (Phase 2)** - 22 task types, complexity detection, knowledge freshness
+15. **Task Planner (Phase 3)** - Structured execution plans, file analysis tool
+16. **Source Quality Ranking (Phase 5)** - Domain-based source ranking, quality categories
+17. **Contextual Retrieval (Phase 5)** - Context-aware chunk selection, task-type aware
+18. **Digital Expertise Engine (Phase 6)** - 13 domain profiles, automatic domain detection
 
 ### 🔄 Potential Duplication Areas
 1. **Workflow Systems**: Both WorkflowManagerV2 and WorkflowOrchestrator exist

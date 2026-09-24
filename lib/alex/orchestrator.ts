@@ -12,6 +12,7 @@ import { AIEngine } from './ai-engine'
 import { WorkflowManagerV2, WorkflowRequest } from './artifact-generation/workflow-manager-v2'
 import { WorkflowOrchestrator } from './orchestration/workflow-orchestrator'
 import { TaskRouter, RouterDecision } from './task-router/task-router'
+import { ExpertiseProfileRegistry } from './expertise'
 
 export interface OrchestratorRequest {
   content: string
@@ -83,7 +84,7 @@ export class AlexOrchestrator {
         mode,
         conversationHistory,
         platformContext,
-        systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools),
+        systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content),
         enableWebResearch: mode === 'research' || request.enableWebResearch,
         enableMemory,
         enableRetrieval,
@@ -244,13 +245,13 @@ export class AlexOrchestrator {
             
             // Return a special response indicating artifact workflow
             return {
-              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content),
               context: '',
               detectedIntent,
               suggestedMode,
               aiRequest: {
                 messages: [
-                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content) },
                   { role: 'user', content: content }
                 ],
                 stream: false,
@@ -282,13 +283,13 @@ export class AlexOrchestrator {
 
             // Return a special response indicating artifact workflow
             return {
-              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools),
+              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content),
               context: '',
               detectedIntent,
               suggestedMode,
               aiRequest: {
                 messages: [
-                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools) },
+                  { role: 'system', content: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content) },
                   { role: 'user', content: content }
                 ],
                 stream: false,
@@ -436,7 +437,7 @@ export class AlexOrchestrator {
     }
 
     // Generate system prompt for token estimation
-    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools)
+    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content)
 
     // Enable web research for research mode, when intent suggests research, or when explicitly requested
     const enableWebResearch = mode === 'research' || suggestedMode === 'research' || shouldEnableWebResearch
@@ -630,7 +631,17 @@ export class AlexOrchestrator {
   /**
    * Generate system prompt based on mode
    */
-  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext, enableTools?: boolean): string {
+  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext, enableTools?: boolean, content?: string): string {
+    // Phase 6: Detect domain and get expertise profile
+    let expertiseAdditions = ''
+    if (content) {
+      const domain = ExpertiseProfileRegistry.detectDomain(content)
+      const systemPromptAdditions = ExpertiseProfileRegistry.getSystemPromptAdditions(domain)
+      if (systemPromptAdditions) {
+        expertiseAdditions = systemPromptAdditions
+      }
+    }
+
     const basePrompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an AI assistant for AutoLearn Spot students. You help students learn n8n automation, build AI-powered workflows, and master technical skills.
 
 Your responses should be:
@@ -638,7 +649,7 @@ Your responses should be:
 - Practical and actionable
 - Encouraging and supportive
 - Technical when appropriate, but accessible
-- Focused on helping students succeed`
+- Focused on helping students succeed${expertiseAdditions}`
 
     // Add tool calling instructions based on whether tools are enabled
     let toolInstructions = ''
