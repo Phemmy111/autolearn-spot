@@ -65,135 +65,163 @@ export default async function AuthorDashboardPage() {
       const activities: any[] = [];
 
       // Sales
-      const { data: recentOrderItems } = await supabaseAdmin
-        .from('order_items')
-        .select('product_title, price_snapshot, created_at, order_id')
-        .in('learning_product_id', productIds)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      try {
+        const { data: recentOrderItems } = await supabaseAdmin
+          .from('order_items')
+          .select('product_title, price_snapshot, created_at, order_id')
+          .in('learning_product_id', productIds)
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-      if (recentOrderItems) {
-        recentOrderItems.forEach(item => {
-          activities.push({
-            type: 'sale',
-            title: item.product_title,
-            amount: item.price_snapshot,
-            created_at: item.created_at,
+        if (recentOrderItems) {
+          recentOrderItems.forEach(item => {
+            activities.push({
+              type: 'sale',
+              title: item.product_title,
+              amount: item.price_snapshot,
+              created_at: item.created_at,
+            });
           });
-        });
+        }
+      } catch (e) {
+        console.error('Error fetching sales:', e);
       }
 
       // Product published/updated
-      const { data: recentProducts } = await supabaseAdmin
-        .from('learning_products')
-        .select('id, title, created_at, updated_at, status')
-        .eq('author_id', authorId)
-        .order('updated_at', { ascending: false })
-        .limit(10);
+      try {
+        const { data: recentProducts } = await supabaseAdmin
+          .from('learning_products')
+          .select('id, title, created_at, updated_at, status')
+          .eq('author_id', authorId)
+          .order('updated_at', { ascending: false })
+          .limit(10);
 
-      if (recentProducts) {
-        recentProducts.forEach(product => {
-          if (product.status === 'published') {
-            activities.push({
-              type: 'product_published',
-              title: `Published: ${product.title}`,
-              created_at: product.updated_at,
-            });
-          }
-        });
+        if (recentProducts) {
+          recentProducts.forEach(product => {
+            if (product.status === 'published') {
+              activities.push({
+                type: 'product_published',
+                title: `Published: ${product.title}`,
+                created_at: product.updated_at,
+              });
+            }
+          });
+        }
+      } catch (e) {
+        console.error('Error fetching products:', e);
       }
 
       // Withdrawal requests
-      const { data: recentWithdrawals } = await supabaseAdmin
-        .from('withdrawals')
-        .select('id, amount, status, created_at')
-        .eq('author_id', authorId)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      try {
+        const { data: recentWithdrawals } = await supabaseAdmin
+          .from('withdrawals')
+          .select('id, amount, status, created_at')
+          .eq('author_id', authorId)
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-      if (recentWithdrawals) {
-        recentWithdrawals.forEach(withdrawal => {
-          activities.push({
-            type: 'withdrawal',
-            title: `Withdrawal request - ${withdrawal.status}`,
-            amount: withdrawal.amount,
-            created_at: withdrawal.created_at,
+        if (recentWithdrawals) {
+          recentWithdrawals.forEach(withdrawal => {
+            activities.push({
+              type: 'withdrawal',
+              title: `Withdrawal request - ${withdrawal.status}`,
+              amount: withdrawal.amount,
+              created_at: withdrawal.created_at,
+            });
           });
-        });
+        }
+      } catch (e) {
+        console.error('Error fetching withdrawals:', e);
       }
 
       // Quizzes created
-      const { data: recentQuizzes } = await supabaseAdmin
-        .from('quizzes')
-        .select('id, title, created_at')
-        .eq('author_id', authorId)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      try {
+        const { data: recentQuizzes } = await supabaseAdmin
+          .from('quizzes')
+          .select('id, title, created_at')
+          .eq('author_id', authorId)
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-      if (recentQuizzes) {
-        recentQuizzes.forEach(quiz => {
-          activities.push({
-            type: 'quiz',
-            title: `Created quiz: ${quiz.title}`,
-            created_at: quiz.created_at,
+        if (recentQuizzes) {
+          recentQuizzes.forEach(quiz => {
+            activities.push({
+              type: 'quiz',
+              title: `Created quiz: ${quiz.title}`,
+              created_at: quiz.created_at,
+            });
           });
-        });
+        }
+      } catch (e) {
+        console.error('Error fetching quizzes:', e);
       }
 
       // Assignments created
-      const { data: recentAssignments } = await supabaseAdmin
-        .from('assignments')
-        .select('id, title, created_at')
-        .eq('author_id', authorId)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      try {
+        const { data: recentAssignments } = await supabaseAdmin
+          .from('assignments')
+          .select('id, title, created_at')
+          .eq('author_id', authorId)
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-      if (recentAssignments) {
-        recentAssignments.forEach(assignment => {
-          activities.push({
-            type: 'assignment',
-            title: `Created assignment: ${assignment.title}`,
-            created_at: assignment.created_at,
+        if (recentAssignments) {
+          recentAssignments.forEach(assignment => {
+            activities.push({
+              type: 'assignment',
+              title: `Created assignment: ${assignment.title}`,
+              created_at: assignment.created_at,
+            });
           });
-        });
+        }
+      } catch (e) {
+        console.error('Error fetching assignments:', e);
       }
 
       // Live classes scheduled
-      const { data: recentLiveClasses } = await supabaseAdmin
-        .from('live_schedules')
-        .select('id, title, scheduled_at, created_at')
-        .eq('author_id', authorId)
-        .order('created_at', { ascending: false })
-        .limit(10);
+      try {
+        const { data: recentLiveClasses } = await supabaseAdmin
+          .from('live_schedules')
+          .select('id, title, scheduled_at, created_at')
+          .eq('author_id', authorId)
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-      if (recentLiveClasses) {
-        recentLiveClasses.forEach(liveClass => {
-          activities.push({
-            type: 'live_class',
-            title: `Scheduled live class: ${liveClass.title}`,
-            created_at: liveClass.created_at,
+        if (recentLiveClasses) {
+          recentLiveClasses.forEach(liveClass => {
+            activities.push({
+              type: 'live_class',
+              title: `Scheduled live class: ${liveClass.title}`,
+              created_at: liveClass.created_at,
+            });
           });
-        });
+        }
+      } catch (e) {
+        console.error('Error fetching live classes:', e);
       }
 
       // Certificates issued for author's products
-      const { data: recentCertificates } = await supabaseAdmin
-        .from('certificates')
-        .select('id, user_name, user_email, issued_at, cohort_id, cohorts(learning_products(id, author_id))')
-        .order('issued_at', { ascending: false })
-        .limit(10);
+      try {
+        const { data: recentCertificates } = await supabaseAdmin
+          .from('certificates')
+          .select('id, user_name, user_email, issued_at, cohort_id, cohorts(learning_products(id, author_id))')
+          .order('issued_at', { ascending: false })
+          .limit(10);
 
-      if (recentCertificates) {
-        recentCertificates.forEach(cert => {
-          const authorProduct = cert.cohorts?.learning_products?.author_id === authorId;
-          if (authorProduct) {
-            activities.push({
-              type: 'certificate',
-              title: `${cert.user_name || cert.user_email} earned a certificate`,
-              created_at: cert.issued_at,
-            });
-          }
-        });
+        if (recentCertificates) {
+          recentCertificates.forEach(cert => {
+            const authorProduct = cert.cohorts?.learning_products?.author_id === authorId;
+            if (authorProduct) {
+              activities.push({
+                type: 'certificate',
+                title: `${cert.user_name || cert.user_email} earned a certificate`,
+                created_at: cert.issued_at,
+              });
+            }
+          });
+        }
+      } catch (e) {
+        console.error('Error fetching certificates:', e);
       }
 
       // Sort all activities by date
