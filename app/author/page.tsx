@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Package, Users, DollarSign, Star, ArrowRight, Plus, TrendingUp, CreditCard, BarChart3, Wallet, ShoppingCart, Clock, MessageSquare, Award } from 'lucide-react';
+import { Package, Users, DollarSign, Star, ArrowRight, Plus, TrendingUp, CreditCard, BarChart3, Wallet, ShoppingCart, Clock, MessageSquare, Award, BookOpen, FileText, Calendar, Upload, ArrowUpCircle } from 'lucide-react';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
@@ -61,7 +61,7 @@ export default async function AuthorDashboardPage() {
         }
       }
 
-      // 4. Fetch Recent Activities (sales, certificates, etc.)
+      // 4. Fetch Recent Activities (sales, certificates, product actions, etc.)
       const activities: any[] = [];
 
       // Sales
@@ -79,6 +79,99 @@ export default async function AuthorDashboardPage() {
             title: item.product_title,
             amount: item.price_snapshot,
             created_at: item.created_at,
+          });
+        });
+      }
+
+      // Product published/updated
+      const { data: recentProducts } = await supabaseAdmin
+        .from('learning_products')
+        .select('id, title, created_at, updated_at, status')
+        .eq('author_id', authorId)
+        .order('updated_at', { ascending: false })
+        .limit(10);
+
+      if (recentProducts) {
+        recentProducts.forEach(product => {
+          if (product.status === 'published') {
+            activities.push({
+              type: 'product_published',
+              title: `Published: ${product.title}`,
+              created_at: product.updated_at,
+            });
+          }
+        });
+      }
+
+      // Withdrawal requests
+      const { data: recentWithdrawals } = await supabaseAdmin
+        .from('withdrawals')
+        .select('id, amount, status, created_at')
+        .eq('author_id', authorId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (recentWithdrawals) {
+        recentWithdrawals.forEach(withdrawal => {
+          activities.push({
+            type: 'withdrawal',
+            title: `Withdrawal request - ${withdrawal.status}`,
+            amount: withdrawal.amount,
+            created_at: withdrawal.created_at,
+          });
+        });
+      }
+
+      // Quizzes created
+      const { data: recentQuizzes } = await supabaseAdmin
+        .from('quizzes')
+        .select('id, title, created_at')
+        .eq('author_id', authorId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (recentQuizzes) {
+        recentQuizzes.forEach(quiz => {
+          activities.push({
+            type: 'quiz',
+            title: `Created quiz: ${quiz.title}`,
+            created_at: quiz.created_at,
+          });
+        });
+      }
+
+      // Assignments created
+      const { data: recentAssignments } = await supabaseAdmin
+        .from('assignments')
+        .select('id, title, created_at')
+        .eq('author_id', authorId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (recentAssignments) {
+        recentAssignments.forEach(assignment => {
+          activities.push({
+            type: 'assignment',
+            title: `Created assignment: ${assignment.title}`,
+            created_at: assignment.created_at,
+          });
+        });
+      }
+
+      // Live classes scheduled
+      const { data: recentLiveClasses } = await supabaseAdmin
+        .from('live_schedules')
+        .select('id, title, scheduled_at, created_at')
+        .eq('author_id', authorId)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (recentLiveClasses) {
+        recentLiveClasses.forEach(liveClass => {
+          activities.push({
+            type: 'live_class',
+            title: `Scheduled live class: ${liveClass.title}`,
+            created_at: liveClass.created_at,
           });
         });
       }
@@ -301,23 +394,33 @@ export default async function AuthorDashboardPage() {
             {recentSales.map((activity, idx) => {
               const isSale = activity.type === 'sale';
               const isCertificate = activity.type === 'certificate';
-              const isMessage = activity.type === 'message';
+              const isProductPublished = activity.type === 'product_published';
+              const isWithdrawal = activity.type === 'withdrawal';
+              const isQuiz = activity.type === 'quiz';
+              const isAssignment = activity.type === 'assignment';
+              const isLiveClass = activity.type === 'live_class';
+
+              const getIconAndColor = () => {
+                if (isSale) return { icon: ShoppingCart, color: 'bg-green-50', iconColor: 'text-green-600' };
+                if (isCertificate) return { icon: Award, color: 'bg-yellow-50', iconColor: 'text-yellow-600' };
+                if (isProductPublished) return { icon: Upload, color: 'bg-blue-50', iconColor: 'text-blue-600' };
+                if (isWithdrawal) return { icon: ArrowUpCircle, color: 'bg-purple-50', iconColor: 'text-purple-600' };
+                if (isQuiz) return { icon: BookOpen, color: 'bg-orange-50', iconColor: 'text-orange-600' };
+                if (isAssignment) return { icon: FileText, color: 'bg-pink-50', iconColor: 'text-pink-600' };
+                if (isLiveClass) return { icon: Calendar, color: 'bg-cyan-50', iconColor: 'text-cyan-600' };
+                return { icon: TrendingUp, color: 'bg-gray-50', iconColor: 'text-gray-600' };
+              };
+
+              const { icon: Icon, color, iconColor } = getIconAndColor();
 
               return (
                 <div key={idx} className="flex items-center justify-between py-3 border-b border-brand-border last:border-0">
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                      isSale ? 'bg-green-50' : isCertificate ? 'bg-yellow-50' : 'bg-blue-50'
-                    }`}>
-                      {isSale && <ShoppingCart className="w-4 h-4 text-green-600" />}
-                      {isCertificate && <Award className="w-4 h-4 text-yellow-600" />}
-                      {isMessage && <MessageSquare className="w-4 h-4 text-blue-600" />}
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${color}`}>
+                      <Icon className={`w-4 h-4 ${iconColor}`} />
                     </div>
                     <div>
                       <p className="text-sm font-medium text-brand-text">{activity.title}</p>
-                      {activity.subtitle && (
-                        <p className="text-xs text-brand-text/50 mt-0.5">{activity.subtitle}</p>
-                      )}
                       <div className="flex items-center gap-1.5 text-xs text-brand-text/50 mt-1">
                         <Clock className="w-3 h-3" />
                         {new Date(activity.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -327,6 +430,11 @@ export default async function AuthorDashboardPage() {
                   {isSale && (
                     <span className="text-sm font-bold text-green-600">
                       +{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(activity.amount)}
+                    </span>
+                  )}
+                  {isWithdrawal && (
+                    <span className="text-sm font-bold text-purple-600">
+                      {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(activity.amount)}
                     </span>
                   )}
                 </div>
@@ -340,7 +448,7 @@ export default async function AuthorDashboardPage() {
               No recent activity to show
             </p>
             <p className="text-brand-text/50 text-xs mt-1">
-              Your sales, certificates, and messages will appear here
+              Your sales, products, quizzes, and activities will appear here
             </p>
           </div>
         )}
