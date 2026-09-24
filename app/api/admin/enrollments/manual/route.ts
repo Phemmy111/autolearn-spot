@@ -70,7 +70,6 @@ export async function POST(req: Request) {
       learning_product_id: productId,
       product_title: product.title,
       price_snapshot: product.price || 0,
-      quantity: 1,
     }
 
     const { error: itemError } = await supabaseAdmin
