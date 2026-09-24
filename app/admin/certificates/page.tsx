@@ -14,15 +14,25 @@ export default async function AdminCertificatesPage() {
     redirect('/');
   }
 
-  // Fetch all enrollments
-  const { data: enrollments } = await supabaseAdmin
-    .from('enrollments')
+  // Fetch product purchasers from orders and order_items
+  const { data: orderItems } = await supabaseAdmin
+    .from('order_items')
     .select(`
-      id, clerk_user_id, full_name, email,
-      learning_product:learning_products (title),
-      cohorts (name)
+      id,
+      product_title,
+      price_snapshot,
+      created_at,
+      order_id,
+      orders!inner(
+        id,
+        user_id,
+        customer_name,
+        customer_email,
+        status
+      )
     `)
-    .in('status', ['active', 'completed', 'successful']);
+    .eq('orders.status', 'PAID')
+    .order('created_at', { ascending: false });
 
   // Fetch all certificates
   const { data: certificates } = await supabaseAdmin
@@ -30,7 +40,7 @@ export default async function AdminCertificatesPage() {
     .select('id, certificate_code, user_id, user_name, user_email, issued_at, cohort_id, cohorts(name, learning_products(title))')
     .order('issued_at', { ascending: false });
 
-  const safeEnrollments = enrollments || [];
+  const safeOrderItems = orderItems || [];
   const safeCertificates = certificates || [];
 
   // Group by student email
@@ -39,37 +49,35 @@ export default async function AdminCertificatesPage() {
   const getFallbackName = (email: string) => {
     if (!email) return 'Student';
     const prefix = email.split('@')[0];
-    // Capitalize first letter or remove numbers if we want to be fancy, but simple prefix is fine
     return prefix.replace(/[0-9]/g, '').replace(/\b\w/g, l => l.toUpperCase()) || 'Student';
   };
 
-  // Process enrollments
-  safeEnrollments.forEach(enr => {
-    if (!enr.email) return;
-    const lp = Array.isArray(enr.learning_product) ? enr.learning_product[0] : enr.learning_product;
-    const courseTitle = lp?.title || enr.cohorts?.name || 'Unknown Course';
-    // Map legacy cohorts to current product titles
-    const displayCourse = courseTitle === 'Cohort 1' ? 'AI Automation with n8n' : courseTitle === 'Cohort 2' ? 'AI Video Content Creation' : courseTitle;
-    
-    if (!studentsMap.has(enr.email)) {
-      let name = enr.full_name;
-      if (!name || name.trim() === '' || name === 'Student') {
-        name = getFallbackName(enr.email);
+  // Process order items (product purchasers)
+  safeOrderItems.forEach(item => {
+    const userId = item.orders.user_id || item.orders.customer_email;
+    const userName = item.orders.customer_name || 'Unknown';
+    const userEmail = item.orders.customer_email || item.orders.user_id || 'Unknown';
+    const courseTitle = item.product_title || 'Unknown Course';
+
+    if (!studentsMap.has(userId)) {
+      let name = userName;
+      if (!name || name.trim() === '' || name === 'Student' || name === 'Unknown') {
+        name = getFallbackName(userEmail);
       }
-      
-      studentsMap.set(enr.email, {
+
+      studentsMap.set(userId, {
         name,
-        email: enr.email,
-        userId: enr.clerk_user_id,
+        email: userEmail,
+        userId: item.orders.user_id,
         courses: []
       });
     }
-    
-    const student = studentsMap.get(enr.email);
+
+    const student = studentsMap.get(userId);
     // Avoid duplicates
-    if (!student.courses.find((c: any) => c.title === displayCourse)) {
+    if (!student.courses.find((c: any) => c.title === courseTitle)) {
        student.courses.push({
-         title: displayCourse,
+         title: courseTitle,
          certificate: null
        });
     }
@@ -81,14 +89,13 @@ export default async function AdminCertificatesPage() {
     const lp = cert.cohorts?.learning_products;
     const cName = cert.cohorts?.name;
     const courseTitle = lp?.title || cName || 'Unknown Course';
-    const displayCourse = courseTitle === 'Cohort 1' ? 'AI Automation with n8n' : courseTitle === 'Cohort 2' ? 'AI Video Content Creation' : courseTitle;
 
     if (!studentsMap.has(cert.user_email)) {
       let name = cert.user_name;
       if (!name || name.trim() === '' || name === 'Student') {
         name = getFallbackName(cert.user_email);
       }
-      
+
       studentsMap.set(cert.user_email, {
         name,
         email: cert.user_email,
@@ -99,7 +106,6 @@ export default async function AdminCertificatesPage() {
       // Update name if certificate has a better one
       const student = studentsMap.get(cert.user_email);
       if (cert.user_name && cert.user_name !== 'Student' && cert.user_name.trim() !== '') {
-        // If the current name is just the email prefix or 'Student', upgrade it
         const fallback = getFallbackName(cert.user_email);
         if (student.name === 'Student' || student.name === fallback) {
           student.name = cert.user_name;
@@ -109,9 +115,9 @@ export default async function AdminCertificatesPage() {
 
     const student = studentsMap.get(cert.user_email);
     // Find or add course
-    let courseObj = student.courses.find((c: any) => c.title === displayCourse);
+    let courseObj = student.courses.find((c: any) => c.title === courseTitle);
     if (!courseObj) {
-      courseObj = { title: displayCourse, certificate: null };
+      courseObj = { title: courseTitle, certificate: null };
       student.courses.push(courseObj);
     }
     // Attach certificate
