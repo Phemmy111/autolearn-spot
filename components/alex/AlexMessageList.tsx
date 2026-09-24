@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Message, AlexFile } from '@/lib/alex/types'
-import { Loader2, Bot, User, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown, Edit2, X, FileText, Download, Package, CheckCircle } from 'lucide-react'
+import { Loader2, Bot, Copy, Check, AlertCircle, Sparkles, Lightbulb, BookOpen, Award, Workflow, Search, Zap, ThumbsUp, ThumbsDown, Edit2, X, FileText, Download, Package, CheckCircle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -369,7 +369,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                 <Sparkles className="h-8 w-8 text-[#10b981]" />
               </div>
             </div>
-            <h2 className="text-xl font-bold text-brand-text mb-2">Welcome to ALEX</h2>
+            <h2 className="text-xl font-bold text-[#10b981] mb-2">Welcome to ALEX</h2>
             <p className="text-slate-400 mb-6">Your AutoLearn Intelligence & Execution Agent</p>
             
             {/* Example Prompts */}
@@ -440,14 +440,6 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
             key={message.id}
             className={`flex gap-3 w-full ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            {message.role === 'assistant' && (
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-gradient-to-br from-[#10b981]/20 to-[#059669]/20 rounded-xl flex items-center justify-center border border-[#10b981]/30">
-                  <Bot className="h-4 w-4 text-[#10b981]" />
-                </div>
-              </div>
-            )}
-            
             <div
               className={`min-w-0 w-full overflow-x-auto ${
                 message.role === 'user'
@@ -526,12 +518,12 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                                 {message.artifacts.map((artifact: any) => (
                                   <div
                                     key={artifact.id}
-                                    className="flex items-center justify-between bg-slate-800/50 rounded-lg p-3 hover:bg-slate-700/50 transition-colors"
+                                    className="flex items-center justify-between bg-[#404040]/50 rounded-lg p-3 hover:bg-[#505050]/50 transition-colors"
                                   >
                                     <div className="flex items-center gap-2">
-                                      <FileText className="h-4 w-4 text-cyan-400" />
-                                      <span className="text-sm text-slate-300">{artifact.filename}</span>
-                                      <span className="text-xs text-brand-text/60">({artifact.file_type})</span>
+                                      <FileText className="h-4 w-4 text-[#10b981]" />
+                                      <span className="text-sm text-white/90">{artifact.filename}</span>
+                                      <span className="text-xs text-white/60">({artifact.file_type})</span>
                                     </div>
                                     <button
                                       onClick={() => handleDownloadArtifact(artifact.id, artifact.filename, artifact.download_url)}
@@ -552,19 +544,19 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     <textarea
                       value={editContent}
                       onChange={(e) => setEditContent(e.target.value)}
-                      className="w-full bg-[var(--card)] brightness-95/20 rounded-lg px-3 py-2 text-brand-text placeholder-slate-700 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
+                      className="w-full bg-[#404040]/20 rounded-lg px-3 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#10b981]/50 resize-none"
                       rows={3}
                       autoFocus
                     />
                   ) : (
-                    <p className="text-brand-text leading-relaxed">{message.content}</p>
+                    <p className="text-white leading-relaxed">{message.content}</p>
                   )}
                 </div>
                 {message.role === 'assistant' && (
-                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-700/50">
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-[#404040]/50">
                     <button
                       onClick={() => handleCopyMessage(message.content, message.id)}
-                      className="p-1.5 text-brand-text/60 hover:text-cyan-400 transition-colors"
+                      className="p-1.5 text-white/60 hover:text-[#10b981] transition-colors"
                       title="Copy response"
                     >
                       {copiedCode === message.id ? (
@@ -575,14 +567,14 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     </button>
                     <button
                       onClick={() => handleFeedback(message.id, 'up')}
-                      className={`p-1.5 transition-colors ${feedback[message.id] === 'up' ? 'text-green-400' : 'text-brand-text/60 hover:text-green-400'}`}
+                      className={`p-1.5 transition-colors ${feedback[message.id] === 'up' ? 'text-green-400' : 'text-white/60 hover:text-green-400'}`}
                       title="Helpful"
                     >
                       <ThumbsUp className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleFeedback(message.id, 'down')}
-                      className={`p-1.5 transition-colors ${feedback[message.id] === 'down' ? 'text-red-400' : 'text-brand-text/60 hover:text-red-400'}`}
+                      className={`p-1.5 transition-colors ${feedback[message.id] === 'down' ? 'text-red-400' : 'text-white/60 hover:text-red-400'}`}
                       title="Not helpful"
                     >
                       <ThumbsDown className="h-4 w-4" />
@@ -590,7 +582,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {onRegenerateResponse && index === messages.length - 1 && message.role === 'assistant' && (
                       <button
                         onClick={() => onRegenerateResponse(message.id)}
-                        className="p-1.5 text-brand-text/60 hover:text-cyan-400 transition-colors"
+                        className="p-1.5 text-white/60 hover:text-[#10b981] transition-colors"
                         title="Regenerate response"
                       >
                         <Zap className="h-4 w-4" />
@@ -599,10 +591,10 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   </div>
                 )}
                 {message.role === 'user' && editingMessageId !== message.id && (
-                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-slate-600/30">
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-[#404040]/30">
                     <button
                       onClick={() => handleCopyMessage(message.content, message.id)}
-                      className="p-1.5 text-slate-700 hover:text-brand-text transition-colors"
+                      className="p-1.5 text-white/60 hover:text-[#10b981] transition-colors"
                       title="Copy message"
                     >
                       {copiedCode === message.id ? (
@@ -614,7 +606,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {onEditMessage && (
                       <button
                         onClick={() => handleStartEdit(message.id, message.content)}
-                        className="p-1.5 text-slate-700 hover:text-brand-text transition-colors"
+                        className="p-1.5 text-white/60 hover:text-[#10b981] transition-colors"
                         title="Edit message"
                       >
                         <Edit2 className="h-4 w-4" />
@@ -643,13 +635,6 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
               </div>
             </div>
 
-            {message.role === 'user' && (
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center border border-slate-600">
-                  <User className="h-4 w-4 text-slate-300" />
-                </div>
-              </div>
-            )}
           </div>
         ))}
 
