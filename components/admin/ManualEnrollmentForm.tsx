@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, CheckCircle2, AlertCircle, UserPlus } from 'lucide-react'
 
-export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
+export function ManualEnrollmentForm({ cohorts, products }: { cohorts: any[], products: any[] }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -16,7 +16,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
     firstName: '',
     lastName: '',
     fullName: '',
-    cohortId: cohorts.find(c => c.is_current)?.id || cohorts[0]?.id || '',
+    productId: products[0]?.id || '',
     status: 'active',
     reason: ''
   })
@@ -41,7 +41,7 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
       }
 
       setSuccess(true)
-      // Reset form but keep the cohort
+      // Reset form but keep the product
       setFormData(prev => ({
         ...prev,
         email: '',
@@ -111,21 +111,21 @@ export function ManualEnrollmentForm({ cohorts }: { cohorts: any[] }) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="cohortId" className="block font-mono text-sm text-brand-text/70">
-            Cohort <span className="text-red-400">*</span>
+          <label htmlFor="productId" className="block font-mono text-sm text-brand-text/70">
+            Product <span className="text-red-400">*</span>
           </label>
           <select
-            id="cohortId"
-            name="cohortId"
+            id="productId"
+            name="productId"
             required
-            value={formData.cohortId}
+            value={formData.productId}
             onChange={handleChange}
             className="w-full bg-brand-bg border border-[#3b494b] px-4 py-2 font-mono text-sm text-brand-text focus:outline-none focus:border-[#10b981] rounded"
           >
-            <option value="">Select a cohort</option>
-            {cohorts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} {c.is_current ? '(Current)' : ''}
+            <option value="">Select a product</option>
+            {products.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.title}
               </option>
             ))}
           </select>

@@ -24,25 +24,29 @@ export function ManualEnrollmentForm() {
     fetchProducts();
   }, []);
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setIsSubmitting(true);
     setMessage(null);
 
     try {
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
       const response = await fetch('/api/admin/enrollments/manual', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (response.ok) {
         setMessage({ type: 'success', text: 'Student enrolled successfully!' });
-        // Reset form
-        const form = document.querySelector('form') as HTMLFormElement;
         form.reset();
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to enroll student' });
+        setMessage({ type: 'error', text: result.error || 'Failed to enroll student' });
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'An error occurred' });
