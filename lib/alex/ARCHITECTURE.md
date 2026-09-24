@@ -6,6 +6,7 @@
 **Phase 5: Knowledge Engine Enhancement**
 **Phase 6: Digital Expertise Engine**
 **Phase 7: Multi-Agent Coordination**
+**Phase 8: Advanced Memory & Learning**
 
 ## Existing ALEX Systems
 
@@ -101,6 +102,13 @@
 - **Memory Commands** (`lib/alex/memory/memory-commands.ts`)
   - Command parsing
   - Command execution
+
+- **Advanced Memory Learning (Phase 8)** (`lib/alex/memory/advanced-memory-learning.ts`)
+  - Pattern detection from memories
+  - Memory consolidation
+  - Forgetting curve application
+  - Learning insight generation
+  - Knowledge gap identification
 
 ### 7. Artifact Generation
 - **Artifact Service** (`lib/alex/artifact-generation/artifact-service.ts`)
@@ -215,6 +223,7 @@
 17. **Contextual Retrieval (Phase 5)** - Context-aware chunk selection, task-type aware
 18. **Digital Expertise Engine (Phase 6)** - 13 domain profiles, automatic domain detection
 19. **Multi-Agent Coordination (Phase 7)** - Multi-domain collaboration, result synthesis
+20. **Advanced Memory Learning (Phase 8)** - Pattern detection, consolidation, forgetting curve
 
 ### 🔄 Potential Duplication Areas
 1. **Workflow Systems**: Both WorkflowManagerV2 and WorkflowOrchestrator exist
