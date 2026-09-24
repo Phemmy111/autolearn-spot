@@ -92,7 +92,7 @@ export default async function AuthorDashboardPage() {
         const { data: recentProducts } = await supabaseAdmin
           .from('learning_products')
           .select('id, title, created_at, updated_at, status')
-          .eq('author_id', authorId)
+          .eq('author_id', internalAuthorId)
           .order('updated_at', { ascending: false })
           .limit(10);
 
@@ -116,7 +116,7 @@ export default async function AuthorDashboardPage() {
         const { data: recentWithdrawals } = await supabaseAdmin
           .from('withdrawals')
           .select('id, amount, status, created_at')
-          .eq('author_id', authorId)
+          .eq('author_id', internalAuthorId)
           .order('created_at', { ascending: false })
           .limit(10);
 
@@ -139,7 +139,7 @@ export default async function AuthorDashboardPage() {
         const { data: recentQuizzes } = await supabaseAdmin
           .from('quizzes')
           .select('id, title, created_at')
-          .eq('author_id', authorId)
+          .eq('author_id', internalAuthorId)
           .order('created_at', { ascending: false })
           .limit(10);
 
@@ -161,7 +161,7 @@ export default async function AuthorDashboardPage() {
         const { data: recentAssignments } = await supabaseAdmin
           .from('assignments')
           .select('id, title, created_at')
-          .eq('author_id', authorId)
+          .eq('author_id', internalAuthorId)
           .order('created_at', { ascending: false })
           .limit(10);
 
@@ -183,7 +183,7 @@ export default async function AuthorDashboardPage() {
         const { data: recentLiveClasses } = await supabaseAdmin
           .from('live_schedules')
           .select('id, title, scheduled_at, created_at')
-          .eq('author_id', authorId)
+          .eq('author_id', internalAuthorId)
           .order('created_at', { ascending: false })
           .limit(10);
 
@@ -210,7 +210,7 @@ export default async function AuthorDashboardPage() {
 
         if (recentCertificates) {
           recentCertificates.forEach(cert => {
-            const authorProduct = cert.cohorts?.learning_products?.author_id === authorId;
+            const authorProduct = cert.cohorts?.learning_products?.author_id === internalAuthorId;
             if (authorProduct) {
               activities.push({
                 type: 'certificate',
