@@ -79,7 +79,13 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
         });
       } else {
         console.log('[PushNotificationOptIn] Using existing service worker registration');
+        // Force update to get fresh service worker
+        await registration.update();
+        console.log('[PushNotificationOptIn] Service worker updated');
       }
+
+      // Wait a bit for service worker to be ready
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Check if already subscribed
       const existingSubscription = await registration.pushManager.getSubscription();
@@ -147,8 +153,8 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
       // Add browser-specific guidance
       if ((error as Error).name === 'SecurityError') {
         errorMsg += '\n\nThis is a security error. Please make sure:\n- You are using HTTPS\n- You are not in incognito/private mode\n- No browser extensions are blocking notifications';
-      } else if ((error as Error).message.includes('push service error')) {
-        errorMsg += '\n\nThis is a browser push service error. Please try:\n- Clearing browser cache and cookies\n- Disabling browser extensions\n- Trying in a different browser\n- Checking if a firewall is blocking push services';
+      } else if ((error as Error).message.includes('push service error') || (error as Error).name === 'AbortError') {
+        errorMsg += '\n\nThis is a timing error with the service worker. Please try:\n- Unregister the service worker in DevTools (Application → Service Workers)\n- Refresh the page\n- Try enabling notifications again\n- Or try in a different browser';
       }
       
       alert(errorMsg);
