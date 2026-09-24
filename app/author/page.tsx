@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Package, Users, DollarSign, Star, ArrowRight, Plus, TrendingUp, CreditCard, BarChart3, Wallet, ShoppingCart, Clock } from 'lucide-react';
+import { Package, Users, DollarSign, Star, ArrowRight, Plus, TrendingUp, CreditCard, BarChart3, Wallet, ShoppingCart, Clock, MessageSquare, Award } from 'lucide-react';
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
@@ -14,7 +14,7 @@ export default async function AuthorDashboardPage() {
   let studentsCount = 0;
   let earnings = 0;
   let rating: number | null = null;
-  let recentSales: { product_title: string; price_snapshot: number; created_at: string; buyer_email?: string }[] = [];
+  let recentSales: { type: string; title: string; amount?: number; created_at: string; subtitle?: string }[] = [];
 
   if (userId) {
     const { data: author } = await supabaseAdmin
@@ -61,21 +61,50 @@ export default async function AuthorDashboardPage() {
         }
       }
 
-      // 4. Fetch Recent Sales (last 10) for activity feed
+      // 4. Fetch Recent Activities (sales, certificates, etc.)
+      const activities: any[] = [];
+
+      // Sales
       const { data: recentOrderItems } = await supabaseAdmin
         .from('order_items')
         .select('product_title, price_snapshot, created_at, order_id')
         .in('learning_product_id', productIds)
         .order('created_at', { ascending: false })
         .limit(10);
-      
-      if (recentOrderItems && recentOrderItems.length > 0) {
-        recentSales = recentOrderItems.map(item => ({
-          product_title: item.product_title,
-          price_snapshot: item.price_snapshot,
-          created_at: item.created_at,
-        }));
+
+      if (recentOrderItems) {
+        recentOrderItems.forEach(item => {
+          activities.push({
+            type: 'sale',
+            title: item.product_title,
+            amount: item.price_snapshot,
+            created_at: item.created_at,
+          });
+        });
       }
+
+      // Certificates issued for author's products
+      const { data: recentCertificates } = await supabaseAdmin
+        .from('certificates')
+        .select('id, user_name, user_email, issued_at, cohort_id, cohorts(learning_products(id, author_id))')
+        .order('issued_at', { ascending: false })
+        .limit(10);
+
+      if (recentCertificates) {
+        recentCertificates.forEach(cert => {
+          const authorProduct = cert.cohorts?.learning_products?.author_id === authorId;
+          if (authorProduct) {
+            activities.push({
+              type: 'certificate',
+              title: `${cert.user_name || cert.user_email} earned a certificate`,
+              created_at: cert.issued_at,
+            });
+          }
+        });
+      }
+
+      // Sort all activities by date
+      recentSales = activities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 10);
     }
 
     // 5. Fetch Earnings from author_earnings ledger
@@ -269,25 +298,40 @@ export default async function AuthorDashboardPage() {
         </h2>
         {recentSales.length > 0 ? (
           <div className="space-y-3">
-            {recentSales.map((sale, idx) => (
-              <div key={idx} className="flex items-center justify-between py-3 border-b border-brand-border last:border-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-green-50 flex items-center justify-center shrink-0">
-                    <ShoppingCart className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-brand-text">{sale.product_title}</p>
-                    <div className="flex items-center gap-1.5 text-xs text-brand-text/50">
-                      <Clock className="w-3 h-3" />
-                      {new Date(sale.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
+            {recentSales.map((activity, idx) => {
+              const isSale = activity.type === 'sale';
+              const isCertificate = activity.type === 'certificate';
+              const isMessage = activity.type === 'message';
+
+              return (
+                <div key={idx} className="flex items-center justify-between py-3 border-b border-brand-border last:border-0">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                      isSale ? 'bg-green-50' : isCertificate ? 'bg-yellow-50' : 'bg-blue-50'
+                    }`}>
+                      {isSale && <ShoppingCart className="w-4 h-4 text-green-600" />}
+                      {isCertificate && <Award className="w-4 h-4 text-yellow-600" />}
+                      {isMessage && <MessageSquare className="w-4 h-4 text-blue-600" />}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-brand-text">{activity.title}</p>
+                      {activity.subtitle && (
+                        <p className="text-xs text-brand-text/50 mt-0.5">{activity.subtitle}</p>
+                      )}
+                      <div className="flex items-center gap-1.5 text-xs text-brand-text/50 mt-1">
+                        <Clock className="w-3 h-3" />
+                        {new Date(activity.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
                     </div>
                   </div>
+                  {isSale && (
+                    <span className="text-sm font-bold text-green-600">
+                      +{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(activity.amount)}
+                    </span>
+                  )}
                 </div>
-                <span className="text-sm font-bold text-green-600">
-                  +{new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(sale.price_snapshot)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -296,7 +340,7 @@ export default async function AuthorDashboardPage() {
               No recent activity to show
             </p>
             <p className="text-brand-text/50 text-xs mt-1">
-              Your sales and student activity will appear here
+              Your sales, certificates, and messages will appear here
             </p>
           </div>
         )}
