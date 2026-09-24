@@ -68,6 +68,7 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
       }
 
       console.log('[PushNotificationOptIn] Starting subscription process...');
+      console.log('[PushNotificationOptIn] VAPID key length:', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY.length);
 
       // Get or register service worker
       let registration = await navigator.serviceWorker.getRegistration();
@@ -106,6 +107,8 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
 
       // Subscribe to push
       console.log('[PushNotificationOptIn] Subscribing to push service...');
+      console.log('[PushNotificationOptIn] applicationServerKey:', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY.substring(0, 20) + '...');
+      
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)
@@ -135,8 +138,20 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
       alert('Notifications enabled successfully!');
     } catch (error) {
       console.error('[PushNotificationOptIn] Error subscribing to push notifications:', error);
-      alert(`Failed to enable notifications: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      // Don't fail the permission grant if subscription fails
+      console.error('[PushNotificationOptIn] Error name:', (error as Error).name);
+      console.error('[PushNotificationOptIn] Error message:', (error as Error).message);
+      console.error('[PushNotificationOptIn] Error stack:', (error as Error).stack);
+      
+      let errorMsg = `Failed to enable notifications: ${(error as Error).message}`;
+      
+      // Add browser-specific guidance
+      if ((error as Error).name === 'SecurityError') {
+        errorMsg += '\n\nThis is a security error. Please make sure:\n- You are using HTTPS\n- You are not in incognito/private mode\n- No browser extensions are blocking notifications';
+      } else if ((error as Error).message.includes('push service error')) {
+        errorMsg += '\n\nThis is a browser push service error. Please try:\n- Clearing browser cache and cookies\n- Disabling browser extensions\n- Trying in a different browser\n- Checking if a firewall is blocking push services';
+      }
+      
+      alert(errorMsg);
     }
   };
 
