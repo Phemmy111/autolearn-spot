@@ -83,9 +83,25 @@ export default function PushNotificationOptIn({ userType, className = '' }: Push
       // Check if already subscribed
       const existingSubscription = await registration.pushManager.getSubscription();
       if (existingSubscription) {
-        console.log('[PushNotificationOptIn] Already subscribed, updating subscription...');
-        // Unsubscribe first to get a fresh subscription
-        await existingSubscription.unsubscribe();
+        console.log('[PushNotificationOptIn] Already subscribed, updating server...');
+        // Send existing subscription to server to update it
+        const response = await fetch('/api/push-subscriptions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscription: existingSubscription,
+            user_type: userType
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[PushNotificationOptIn] Server rejected subscription update:', errorText);
+          throw new Error(`Failed to update subscription: ${errorText}`);
+        }
+
+        alert('Notifications already enabled!');
+        return;
       }
 
       // Subscribe to push
