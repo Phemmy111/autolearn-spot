@@ -578,7 +578,7 @@ export function AlexInputArea({
             {attachedFiles.map((attachedFile) => (
               <div
                 key={attachedFile.id}
-                className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2"
+                className="flex items-center gap-2 bg-[#404040]/50 border border-[#505050] rounded-lg px-3 py-2"
               >
                 {getFileIcon(attachedFile.file.name)}
                 <span className="text-sm text-slate-300 truncate max-w-[150px]">
@@ -612,14 +612,14 @@ export function AlexInputArea({
           </div>
         )}
 
-        <div className="flex items-end gap-3 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-2 shadow-lg">
+        <div className="flex items-end gap-3 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg">>
           {/* Mode Selector Button */}
           {onModeChange && (
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setShowModeDropdown(!showModeDropdown)}
-                className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50 rounded-xl transition-all"
+                className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-white/60 hover:text-[#10b981] hover:bg-[#404040]/50 rounded-xl transition-all"
                 title="Select mode"
                 disabled={isLoading || isGenerating}
                 aria-label="Select mode"
@@ -632,7 +632,7 @@ export function AlexInputArea({
 
               {/* Mode Dropdown */}
               {showModeDropdown && (
-                <div className="absolute bottom-full left-0 mb-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl z-50 min-w-[180px] py-1">
+                <div className="absolute bottom-full left-0 mb-2 bg-[#404040] border border-[#505050] rounded-xl shadow-xl z-50 min-w-[180px] py-1">
                   {modes.map((mode) => {
                     const Icon = mode.icon
                     return (
@@ -645,8 +645,8 @@ export function AlexInputArea({
                         }}
                         className={`w-full px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
                           currentMode === mode.value
-                            ? 'bg-cyan-500/20 text-cyan-400'
-                            : 'text-slate-300 hover:bg-slate-700/50 hover:text-brand-text'
+                            ? 'bg-[#10b981]/20 text-[#10b981]'
+                            : 'text-white/80 hover:bg-[#404040]/50 hover:text-white'
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -719,7 +719,7 @@ export function AlexInputArea({
               className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
                 isRecording 
                   ? 'bg-red-500/20 text-red-400 animate-pulse' 
-                  : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50'
+                  : 'text-white/60 hover:text-[#10b981] hover:bg-[#404040]/50'
               }`}
               title="Voice input (coming soon)"
               disabled={isLoading || isGenerating}
@@ -747,10 +747,10 @@ export function AlexInputArea({
               disabled={!content.trim() || isLoading || attachedFiles.some(f => f.status !== 'ready' || !f.uploadedFileId)}
               className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
                 content.trim() && !isLoading && attachedFiles.length > 0 && attachedFiles.every(f => f.status === 'ready' && f.uploadedFileId)
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-brand-text shadow-lg shadow-cyan-500/20'
+                  ? 'bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white shadow-lg shadow-[#10b981]/20'
                   : content.trim() && !isLoading && attachedFiles.length === 0
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-brand-text shadow-lg shadow-cyan-500/20'
-                  : 'bg-slate-700 text-brand-text/60 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white shadow-lg shadow-[#10b981]/20'
+                  : 'bg-[#404040] text-white/60 cursor-not-allowed'
               }`}
               title="Send message"
               aria-label="Send message"

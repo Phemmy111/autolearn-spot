@@ -118,12 +118,12 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
     if (!workflowData) return null
 
     return (
-      <div className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+      <div className="bg-gradient-to-br from-[#10b981]/10 to-[#059669]/10 border border-[#10b981]/30 rounded-xl p-4 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Package className="h-5 w-5 text-purple-400" />
-          <span className="font-semibold text-purple-300">Artifact Generation</span>
+          <Package className="h-5 w-5 text-[#10b981]" />
+          <span className="font-semibold text-[#10b981]">Artifact Generation</span>
           <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
-            workflowData.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+            workflowData.status === 'completed' ? 'bg-[#10b981]/20 text-[#10b981]' :
             workflowData.status === 'failed' ? 'bg-red-500/20 text-red-400' :
             'bg-yellow-500/20 text-yellow-400'
           }`}>
@@ -184,7 +184,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
         {workflowData.specification && (
           <div className="mb-3">
             <p className="text-sm text-slate-400 mb-2">Specification:</p>
-            <pre className="bg-slate-900/50 rounded-lg p-3 text-xs text-slate-300 overflow-x-auto">
+            <pre className="bg-[#404040]/50 rounded-lg p-3 text-xs text-white/90 overflow-x-auto">
               {JSON.stringify(workflowData.specification, null, 2)}
             </pre>
           </div>
@@ -197,7 +197,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
               {workflowData.artifacts.map((artifact: any) => (
                 <div
                   key={artifact.id}
-                  className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3 hover:bg-slate-800/50 transition-colors"
+                  className="flex items-center justify-between bg-[#404040]/50 rounded-lg p-3 hover:bg-[#505050]/50 transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-cyan-400" />
@@ -209,7 +209,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   </div>
                   <button
                     onClick={() => handleDownloadArtifact(artifact.id, artifact.filename, artifact.download_url)}
-                    className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm flex items-center gap-1 transition-colors"
+                    className="px-3 py-1.5 bg-[#10b981]/20 hover:bg-[#10b981]/30 text-[#10b981] rounded-lg text-sm flex items-center gap-1 transition-colors"
                   >
                     <Download className="h-4 w-4" />
                     Download
@@ -235,8 +235,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
       if (!inline && match) {
         return (
           <div className="relative group my-4">
-            <div className="flex items-center justify-between bg-slate-800 px-4 py-2 rounded-t-lg border-b border-slate-700">
-              <span className="text-xs font-medium text-slate-400 capitalize">{language}</span>
+            <div className="flex items-center justify-between bg-[#404040] px-4 py-2 rounded-t-lg border-b border-[#505050]">
+              <span className="text-xs font-medium text-white/60 capitalize">{language}</span>
               <button
                 onClick={() => handleCopyCode(codeString, codeId)}
                 className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors"
@@ -258,7 +258,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
               style={vscDarkPlus}
               language={language}
               PreTag="div"
-              className="!bg-slate-900 !rounded-b-lg !rounded-t-none !m-0 !p-4 text-sm overflow-x-auto"
+              className="!bg-[#404040] !rounded-b-lg !rounded-t-none !m-0 !p-4 text-sm overflow-x-auto"
               {...props}
             >
               {codeString}
@@ -269,7 +269,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
       // Inline code
       return (
-        <code className="bg-slate-800 text-cyan-400 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+        <code className="bg-[#404040] text-[#10b981] px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
           {children}
         </code>
       )
@@ -304,8 +304,8 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Blockquotes
     blockquote: ({ children }: any) => (
-      <blockquote className="border-l-4 border-cyan-500/30 pl-4 py-2 my-4 bg-slate-800/30 rounded-r-lg">
-        <p className="text-slate-400 italic">{children}</p>
+      <blockquote className="border-l-4 border-[#10b981]/30 pl-4 py-2 my-4 bg-[#404040]/30 rounded-r-lg">
+        <p className="text-white/70 italic">{children}</p>
       </blockquote>
     ),
 
@@ -330,16 +330,16 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
       </div>
     ),
     thead: ({ children }: any) => (
-      <thead className="bg-slate-800">{children}</thead>
+      <thead className="bg-[#404040]">{children}</thead>
     ),
     tbody: ({ children }: any) => (
-      <tbody className="bg-slate-900/50 divide-y divide-slate-700">{children}</tbody>
+      <tbody className="bg-[#2d2d2d]/50 divide-y divide-[#404040]">{children}</tbody>
     ),
     tr: ({ children }: any) => (
-      <tr className="hover:bg-slate-800/50">{children}</tr>
+      <tr className="hover:bg-[#404040]/50">{children}</tr>
     ),
     th: ({ children }: any) => (
-      <th className="px-3 py-2 text-left text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+      <th className="px-3 py-2 text-left text-[10px] font-medium text-white/60 uppercase tracking-wider">
         {children}
       </th>
     ),
@@ -364,9 +364,9 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
         {messages.length === 0 && !isLoading && !isGenerating && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="relative mb-6">
-              <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full"></div>
-              <div className="relative w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30">
-                <Sparkles className="h-8 w-8 text-cyan-400" />
+              <div className="absolute inset-0 bg-[#10b981]/20 blur-3xl rounded-full"></div>
+              <div className="relative w-16 h-16 bg-gradient-to-br from-[#10b981]/20 to-[#059669]/20 rounded-2xl flex items-center justify-center border border-[#10b981]/30">
+                <Sparkles className="h-8 w-8 text-[#10b981]" />
               </div>
             </div>
             <h2 className="text-xl font-bold text-brand-text mb-2">Welcome to ALEX</h2>
@@ -383,7 +383,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
+                className="px-4 py-2 bg-[#404040]/50 rounded-full text-sm text-white/90 border border-[#505050] hover:bg-[#505050]/50 hover:text-white transition-all"
               >
                 <BookOpen className="h-4 w-4 inline mr-2" />
                 Check my progress
@@ -397,7 +397,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
+                className="px-4 py-2 bg-[#404040]/50 rounded-full text-sm text-white/90 border border-[#505050] hover:bg-[#505050]/50 hover:text-white transition-all"
               >
                 <Lightbulb className="h-4 w-4 inline mr-2" />
                 What should I study next?
@@ -411,7 +411,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
+                className="px-4 py-2 bg-[#404040]/50 rounded-full text-sm text-white/90 border border-[#505050] hover:bg-[#505050]/50 hover:text-white transition-all"
               >
                 <Award className="h-4 w-4 inline mr-2" />
                 My scholarship status
@@ -425,7 +425,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     textarea.focus()
                   }
                 }}
-                className="px-4 py-2 bg-slate-800/50 rounded-full text-sm text-slate-300 border border-slate-700 hover:bg-slate-700/50 hover:text-brand-text transition-all"
+                className="px-4 py-2 bg-[#404040]/50 rounded-full text-sm text-white/90 border border-[#505050] hover:bg-[#505050]/50 hover:text-white transition-all"
               >
                 <Workflow className="h-4 w-4 inline mr-2" />
                 Build automation
@@ -442,17 +442,19 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
           >
             {message.role === 'assistant' && (
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30">
-                  <Bot className="h-4 w-4 text-cyan-400" />
+                <div className="w-8 h-8 bg-gradient-to-br from-[#10b981]/20 to-[#059669]/20 rounded-xl flex items-center justify-center border border-[#10b981]/30">
+                  <Bot className="h-4 w-4 text-[#10b981]" />
                 </div>
               </div>
             )}
             
             <div
-              className={`rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 min-w-0 w-full overflow-x-auto ${
+              className={`min-w-0 w-full overflow-x-auto ${
                 message.role === 'user'
-                  ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-brand-text shadow-lg shadow-cyan-500/20 max-w-[85%] sm:max-w-xl mx-2'
-                  : 'bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-brand-text w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
+                  ? 'rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-br from-[#10b981] to-[#059669] text-white shadow-lg shadow-[#10b981]/20 max-w-[85%] sm:max-w-xl mx-2'
+                  : isMobile
+                  ? 'w-full px-4 py-4 text-white text-lg leading-relaxed'
+                  : 'rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] text-white w-full max-w-full sm:max-w-2xl md:max-w-3xl mx-2'
               }`}
             >
               <div className="flex flex-col gap-3">
@@ -462,7 +464,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                     {message.attached_files.map((file) => (
                       <div
                         key={file.id}
-                        className="flex items-center gap-2 bg-[var(--card)] brightness-95/20 rounded-lg px-3 py-2"
+                        className="flex items-center gap-2 bg-[#404040]/20 rounded-lg px-3 py-2"
                       >
                         {getFileIcon(file.original_filename)}
                         <span className="text-sm text-brand-text truncate max-w-[150px]">
@@ -484,7 +486,11 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                           {renderArtifactWorkflow((message as any).workflowData)}
                           {/* Also render any text content */}
                           {message.content && (
-                            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-brand-text prose-p:text-slate-300 prose-strong:text-brand-text prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                            <div className={`prose prose-invert max-w-none ${
+                            isMobile 
+                              ? 'prose-lg prose-headings:text-white prose-p:text-white/90 prose-strong:text-white prose-code:text-[#10b981] prose-pre:bg-[#404040] text-lg' 
+                              : 'prose-sm prose-headings:text-white prose-p:text-white/90 prose-strong:text-white prose-code:text-[#10b981] prose-pre:bg-[#404040]'
+                          }`}>
                               <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={MarkdownComponents}
@@ -496,7 +502,11 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                         </>
                       ) : (
                         <>
-                          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-brand-text prose-p:text-slate-300 prose-strong:text-brand-text prose-code:text-cyan-400 prose-pre:bg-slate-900">
+                          <div className={`prose prose-invert max-w-none ${
+                            isMobile 
+                              ? 'prose-lg prose-headings:text-white prose-p:text-white/90 prose-strong:text-white prose-code:text-[#10b981] prose-pre:bg-[#404040] text-lg' 
+                              : 'prose-sm prose-headings:text-white prose-p:text-white/90 prose-strong:text-white prose-code:text-[#10b981] prose-pre:bg-[#404040]'
+                          }`}>
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={MarkdownComponents}
@@ -525,7 +535,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                                     </div>
                                     <button
                                       onClick={() => handleDownloadArtifact(artifact.id, artifact.filename, artifact.download_url)}
-                                      className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm flex items-center gap-1 transition-colors"
+                                      className="px-3 py-1.5 bg-[#10b981]/20 hover:bg-[#10b981]/30 text-[#10b981] rounded-lg text-sm flex items-center gap-1 transition-colors"
                                     >
                                       <Download className="h-4 w-4" />
                                       Download
