@@ -94,18 +94,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'event_type and recipient_emails are required' }, { status: 400 });
     }
 
-    console.log('[POST /api/admin/email-notifications] Inserting notification...');
+    console.log('[POST /api/admin/email-notifications] Upserting notification...');
     const { data: notification, error } = await supabaseAdmin
       .from('email_notifications')
-      .insert({
+      .upsert({
         event_type,
         recipient_emails,
         is_active: is_active !== undefined ? is_active : true,
+      }, {
+        onConflict: 'event_type',
+        ignoreDuplicates: false,
       })
       .select()
       .single();
 
-    console.log('[POST /api/admin/email-notifications] Insert result:', { notification, error });
+    console.log('[POST /api/admin/email-notifications] Upsert result:', { notification, error });
 
     if (error) {
       console.error('[POST /api/admin/email-notifications] error:', error);
