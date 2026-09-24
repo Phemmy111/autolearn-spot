@@ -72,7 +72,7 @@ export class TaskClassifier {
     ['current_information_research', [
       /\b(latest|current|recent|new|updated|version|price|now|today)\b/i,
       /\b(stock|crypto|weather|news|trending|popular)\b/i,
-      /\b(is (down|up|available|working|offline)\b/i,
+      /\b(is (down|up|available|working|offline))\b/i,
     ]],
     ['research', [
       /\b(research|investigate|look into|find information about|compare)\b/i,
