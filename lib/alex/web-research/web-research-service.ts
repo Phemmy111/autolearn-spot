@@ -1,14 +1,17 @@
 /**
  * Web Research Service - Research Intent Detection and Execution
+ * Phase 5: Enhanced with source quality ranking
  * 
  * This service handles:
  * - Determining when web research is appropriate
  * - Executing web searches through configured providers
  * - Managing research context and source attribution
  * - Implementing safety limits and error handling
+ * - Ranking sources by quality and reliability
  */
 
 import { SearchProvider, SearchQuery, SearchResult, SearchResponse } from './search-provider-interface';
+import { SourceQualityRanker, SourceMetadata } from '../knowledge/source-quality-ranker';
 
 export interface ResearchIntent {
   requiresResearch: boolean;
@@ -371,11 +374,18 @@ export class WebResearchService {
       // Deduplicate results by URL
       const uniqueResults = this.deduplicateResults(allResults);
 
-      // Sort by relevance
-      uniqueResults.sort((a, b) => (b.relevance || 0) - (a.relevance || 0));
+      // Phase 5: Apply source quality ranking
+      const rankedResults = this.rankBySourceQuality(uniqueResults);
+
+      // Sort by relevance first, then quality
+      rankedResults.sort((a, b) => {
+        const relevanceDiff = (b.relevance || 0) - (a.relevance || 0);
+        if (Math.abs(relevanceDiff) > 0.1) return relevanceDiff;
+        return (b.qualityScore || 0) - (a.qualityScore || 0);
+      });
 
       // Limit total results
-      const limitedResults = uniqueResults.slice(0, opts.maxResults * limitedQueries.length);
+      const limitedResults = rankedResults.slice(0, opts.maxResults * limitedQueries.length);
 
       return {
         success: true,
@@ -397,6 +407,68 @@ export class WebResearchService {
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
+  }
+
+  /**
+   * Phase 5: Rank results by source quality
+   */
+  private rankBySourceQuality(results: SearchResult[]): SearchResult[] {
+    return results.map(result => {
+      const metadata: SourceMetadata = {
+        url: result.url,
+        title: result.title,
+        domain: this.extractDomain(result.url),
+        type: this.inferSourceType(result.url, result.source),
+        date: result.publishedDate,
+      }
+
+      const quality = SourceQualityRanker.rankSource(metadata)
+
+      return {
+        ...result,
+        qualityScore: quality.score,
+        qualityCategory: quality.category,
+        qualityReasoning: quality.reasoning,
+      }
+    })
+  }
+
+  /**
+   * Extract domain from URL
+   */
+  private extractDomain(url: string): string {
+    try {
+      const urlObj = new URL(url)
+      return urlObj.hostname
+    } catch {
+      return 'unknown'
+    }
+  }
+
+  /**
+   * Infer source type from URL and source name
+   */
+  private inferSourceType(url: string, source: string): 'documentation' | 'api' | 'article' | 'blog' | 'forum' | 'unknown' {
+    const lowerUrl = url.toLowerCase()
+    const lowerSource = source.toLowerCase()
+
+    if (lowerUrl.includes('/docs/') || lowerUrl.includes('/documentation/') || lowerUrl.includes('/api/')) {
+      return 'documentation'
+    }
+    if (lowerUrl.includes('/api/') || lowerSource.includes('api')) {
+      return 'api'
+    }
+    if (lowerUrl.includes('github.com') || lowerUrl.includes('gitlab.com')) {
+      return 'documentation'
+    }
+    if (lowerUrl.includes('stackoverflow.com') || lowerUrl.includes('reddit.com')) {
+      return 'forum'
+    }
+    if (lowerUrl.includes('medium.com') || lowerUrl.includes('blog.')) {
+      return 'blog'
+    }
+
+    return 'article'
   }
 
   /**

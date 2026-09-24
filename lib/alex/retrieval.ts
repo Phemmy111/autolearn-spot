@@ -1,5 +1,6 @@
 /**
  * ALEX Phase 3B - Semantic Retrieval for RAG
+ * Phase 5: Enhanced with contextual retrieval and source quality ranking
  * 
  * Retrieves relevant document chunks using vector similarity search.
  * Uses the match_document_chunks() database function for efficient retrieval.
@@ -7,6 +8,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { generateEmbeddings, Chunk } from './embeddings'
+import { ContextualRetrieval, ContextualRetrievalOptions } from './knowledge/contextual-retrieval'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -33,6 +35,10 @@ export interface RetrievalOptions {
   fileIds?: string[] // Specific file IDs to retrieve from
   userId?: string // Required for file-specific retrieval
   preferLatest?: boolean // Prefer newer chunks when multiple versions exist
+  enableContextualRetrieval?: boolean // Phase 5: Enable contextual retrieval
+  taskType?: string // Phase 5: Task type for contextual scoring
+  conversationContext?: string // Phase 5: Conversation context for relevance
+  recentQueries?: string[] // Phase 5: Recent queries for pattern matching
 }
 
 export interface RetrievedChunk {
@@ -113,13 +119,37 @@ export async function retrieveChunks(
     // Step 4: Format results with filenames
     const formattedChunks = await formatRetrievedChunks(rankedChunks)
 
+    // Phase 5: Apply contextual retrieval if enabled
+    const contextualChunks = options.enableContextualRetrieval
+      ? ContextualRetrieval.enhanceRetrieval(formattedChunks, {
+          ...options,
+          taskType: options.taskType,
+          conversationContext: options.conversationContext,
+          recentQueries: options.recentQueries,
+        } as ContextualRetrievalOptions)
+      : formattedChunks
+
+    // Phase 5: Apply deduplication if contextual retrieval is enabled
+    const finalChunks = options.enableContextualRetrieval
+      ? ContextualRetrieval.deduplicateByContext(contextualChunks)
+      : contextualChunks
+
+    if (options.enableContextualRetrieval) {
+      console.log('[Retrieval] Applied contextual retrieval:', {
+        originalCount: formattedChunks.length,
+        contextualCount: contextualChunks.length,
+        finalCount: finalChunks.length,
+        taskType: options.taskType,
+      })
+    }
+
     const processingTimeMs = Date.now() - startTime
 
     return {
-      chunks: formattedChunks,
+      chunks: finalChunks,
       metadata: {
         queryLength: query.length,
-        chunksRetrieved: formattedChunks.length,
+        chunksRetrieved: finalChunks.length,
         embeddingModel: options.embeddingModel || 'text-embedding-3-small',
         processingTimeMs
       }

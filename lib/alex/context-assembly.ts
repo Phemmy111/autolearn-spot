@@ -245,7 +245,11 @@ export async function assembleContext(
             conversationId: options.conversationId,
             limit: 5,
             minSimilarity: 0.7,
-            preferLatest: true // Enable freshness ranking for latest source preference
+            preferLatest: true, // Enable freshness ranking for latest source preference
+            enableContextualRetrieval: true, // Phase 5: Enable contextual retrieval
+            taskType: mode, // Phase 5: Pass task type for contextual scoring
+            conversationContext: lastUserMessage.content, // Phase 5: Pass conversation context
+            recentQueries: conversationHistory.slice(-3).map(m => m.content) // Phase 5: Pass recent queries
           }
         )
 
@@ -257,7 +261,11 @@ export async function assembleContext(
 
           for (const chunk of retrievalResult.chunks) {
             const filename = chunk.filename || 'Unknown file'
-            context += `--- ${filename} (similarity: ${chunk.similarity.toFixed(2)}) ---\n`
+            const similarity = chunk.similarity.toFixed(2)
+            const contextualScore = (chunk as any).contextualScore 
+              ? (chunk as any).contextualScore.toFixed(2)
+              : 'N/A'
+            context += `--- ${filename} (similarity: ${similarity}${contextualScore !== 'N/A' ? `, contextual: ${contextualScore}` : ''}) ---\n`
             context += chunk.content + '\n\n'
           }
 

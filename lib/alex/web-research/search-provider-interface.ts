@@ -42,6 +42,21 @@ export interface SearchResult {
    * Retrieval timestamp
    */
   retrievedAt: Date;
+
+  /**
+   * Phase 5: Source quality score (0-1)
+   */
+  qualityScore?: number;
+  
+  /**
+   * Phase 5: Source quality category
+   */
+  qualityCategory?: 'official' | 'primary' | 'reputable' | 'community' | 'unverified';
+  
+  /**
+   * Phase 5: Source quality reasoning
+   */
+  qualityReasoning?: string;
 }
 
 export interface SearchQuery {
