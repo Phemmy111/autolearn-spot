@@ -48,7 +48,6 @@ export async function POST(req: Request) {
       status: status || 'active',
       notes: formattedNotes,
       activated_at: new Date().toISOString(),
-      enrolled_at: new Date().toISOString(),
       payment_amount: product.price || 0,
       amount_paid: product.price || 0,
     }
