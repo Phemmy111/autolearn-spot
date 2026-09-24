@@ -88,6 +88,42 @@ export function ManualEnrollmentForm() {
           />
         </div>
         <div>
+          <label className="block text-sm font-medium text-brand-text/70 mb-1">Clerk User ID (Optional)</label>
+          <input
+            type="text"
+            name="clerkUserId"
+            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            placeholder="user_2..."
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-brand-text/70 mb-1">First Name</label>
+          <input
+            type="text"
+            name="firstName"
+            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            placeholder="John"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-brand-text/70 mb-1">Last Name</label>
+          <input
+            type="text"
+            name="lastName"
+            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            placeholder="Doe"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-brand-text/70 mb-1">Full Name</label>
+          <input
+            type="text"
+            name="fullName"
+            className="w-full px-3 py-2 bg-brand-bg border border-brand-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            placeholder="John Doe"
+          />
+        </div>
+        <div>
           <label className="block text-sm font-medium text-brand-text/70 mb-1">Product *</label>
           <select
             name="productId"
