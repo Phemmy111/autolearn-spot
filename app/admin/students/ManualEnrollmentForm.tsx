@@ -67,7 +67,7 @@ export function ManualEnrollmentForm() {
         </div>
       )}
 
-      <form action={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label className="block text-sm font-medium text-brand-text/70 mb-1">Email *</label>
           <input
