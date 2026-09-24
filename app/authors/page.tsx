@@ -6,14 +6,14 @@ import Image from 'next/image';
 export const dynamic = 'force-dynamic';
 
 export default async function AuthorsDirectoryPage() {
-  // Step 1: Fetch all ACTIVE authors (no relational join that might break)
+  // Step 1: Fetch all ACTIVE authors
   const { data: authors, error } = await supabaseAdmin
     .from('authors')
     .select('id, display_name, bio, profile_image, professional_title, status, created_at')
     .eq('status', 'ACTIVE')
     .order('display_name');
 
-  // Step 2: Fetch published products separately (no nested join to avoid silent failures)
+  // Step 2: Fetch published products separately
   const authorIds = (authors || []).map((a) => a.id);
   const { data: products } = authorIds.length > 0
     ? await supabaseAdmin
@@ -23,13 +23,14 @@ export default async function AuthorsDirectoryPage() {
         .eq('status', 'PUBLISHED')
     : { data: [] };
 
-  // Step 3: Count enrollments per product from enrollments table
+  // Step 3: Count paid students per product from orders/order_items tables
   const productIds = (products || []).map((p) => p.id);
-  const { data: enrollments } = productIds.length > 0
+  const { data: orderItems } = productIds.length > 0
     ? await supabaseAdmin
-        .from('enrollments')
-        .select('learning_product_id')
+        .from('order_items')
+        .select('learning_product_id, order_id, orders(status)')
         .in('learning_product_id', productIds)
+        .eq('orders.status', 'PAID')
     : { data: [] };
 
   // Step 4: Fetch reviews for those products
@@ -45,9 +46,12 @@ export default async function AuthorsDirectoryPage() {
     const authorProducts = (products || []).filter((p) => p.author_id === author.id);
     const authorProductIds = authorProducts.map((p) => p.id);
 
-    const totalStudents = (enrollments || []).filter((e) =>
-      authorProductIds.includes(e.learning_product_id)
-    ).length;
+    // Count unique paid students from orders
+    const paidOrderItems = (orderItems || []).filter((oi) =>
+      authorProductIds.includes(oi.learning_product_id)
+    );
+    const uniqueStudentIds = new Set(paidOrderItems.map((oi) => oi.order_id));
+    const totalStudents = uniqueStudentIds.size;
 
     const authorReviews = (reviews || []).filter((r) => authorProductIds.includes(r.product_id));
     const avgRating =
