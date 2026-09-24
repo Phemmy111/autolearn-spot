@@ -82,7 +82,7 @@ export default async function AdminEnrollmentsPage() {
 
   const summary = {
     total: purchasers.length,
-    revenue: purchasers.reduce((sum, p) => sum + p.totalAmount, 0) / 100
+    revenue: purchasers.reduce((sum, p) => sum + p.totalAmount, 0)
   };
 
   return (
