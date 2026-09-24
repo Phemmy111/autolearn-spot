@@ -523,14 +523,14 @@ export function AlexChat({ userId }: AlexChatProps) {
   return (
     <div
       ref={containerRef}
-      className="flex h-full w-full overflow-hidden bg-brand-bg overflow-y-hidden"
+      className="flex h-full w-full overflow-hidden bg-[#1a1a1a] overflow-y-hidden"
     >
       {/* Mobile Header */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border px-4 py-3 flex items-center justify-between safe-area-top">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-[#2d2d2d]/95 backdrop-blur-md border-b border-[#404040] px-4 py-3 flex items-center justify-between safe-area-top">
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="w-10 h-10 flex items-center justify-center text-brand-text/60 hover:text-brand-text transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
             aria-label="Open conversations"
           >
             <Menu className="h-5 w-5" />
@@ -538,27 +538,27 @@ export function AlexChat({ userId }: AlexChatProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.location.href = '/'}
-              className="w-8 h-8 flex items-center justify-center text-brand-text/60 hover:text-brand-text transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-white/60 hover:text-white transition-colors"
               aria-label="Go to homepage"
             >
               <Home className="h-4 w-4" />
             </button>
-            <div className="w-8 h-8 bg-[#10b981]/20 rounded-xl flex items-center justify-center">
-              <Bot className="h-4 w-4 text-[#10b981]" />
+            <div className="w-8 h-8 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-xl flex items-center justify-center">
+              <Bot className="h-4 w-4 text-white" />
             </div>
             <span className="font-semibold text-brand-text text-sm">ALEX</span>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="w-10 h-10 flex items-center justify-center text-brand-text/60 hover:text-brand-text transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
               aria-label="Settings"
             >
               <Settings className="h-5 w-5" />
             </button>
             <button
               onClick={startNewConversation}
-              className="w-10 h-10 flex items-center justify-center bg-[#10b981]/10 text-[#10b981] rounded-xl hover:bg-[#10b981]/20 transition-colors"
+              className="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-[#10b981] to-[#059669] text-white rounded-xl hover:opacity-90 transition-opacity"
               aria-label="New conversation"
             >
               <Plus className="h-5 w-5" />
@@ -584,41 +584,41 @@ export function AlexChat({ userId }: AlexChatProps) {
       {!isMobile && isSidebarOpen && (
         <div
           onMouseDown={handleMouseDown}
-          className="w-1 bg-brand-border hover:bg-[#10b981] cursor-col-resize transition-colors z-20 flex-shrink-0"
+          className="w-1 bg-[#404040] hover:bg-[#10b981] cursor-col-resize transition-colors z-20 flex-shrink-0"
           style={{ cursor: isResizing ? 'col-resize' : 'col-resize' }}
         />
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-[#f5f5f5]">
         {/* Desktop Header - Fixed */}
         {!isMobile && (
-          <div className="bg-brand-bg/50 backdrop-blur-sm border-b border-brand-border px-6 py-3 flex-shrink-0">
+          <div className="bg-white/50 backdrop-blur-sm border-b border-[#e5e5e5] px-6 py-3 flex-shrink-0">
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => window.location.href = '/'}
-                  className="w-9 h-9 flex items-center justify-center text-brand-text/60 hover:text-brand-text transition-colors rounded-xl hover:bg-brand-border"
+                  className="w-9 h-9 flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors rounded-xl hover:bg-gray-100"
                   aria-label="Go to homepage"
                 >
                   <Home className="h-5 w-5" />
                 </button>
-                <div className="w-9 h-9 bg-[#10b981]/20 rounded-xl flex items-center justify-center">
-                  <Bot className="h-5 w-5 text-[#10b981]" />
+                <div className="w-9 h-9 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-xl flex items-center justify-center">
+                  <Bot className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-semibold text-brand-text">ALEX</span>
+                <span className="font-semibold text-gray-900">ALEX</span>
               </div>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setIsSettingsOpen(true)}
-                  className="text-brand-text/60 hover:text-brand-text transition-colors flex items-center justify-center w-8 h-8 rounded-lg hover:bg-brand-border"
+                  className="text-gray-600 hover:text-gray-900 transition-colors flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100"
                   title="Personal AI Settings"
                 >
                   <Settings className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="text-brand-text/60 hover:text-brand-text transition-colors"
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   {isSidebarOpen ? 'Hide' : 'Show'} conversations
                 </button>
@@ -646,7 +646,7 @@ export function AlexChat({ userId }: AlexChatProps) {
         </div>
 
         {/* Input Area - Fixed at bottom */}
-        <div className={`bg-brand-bg/50 backdrop-blur-sm border-t border-brand-border flex-shrink-0 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
+        <div className={`bg-white/50 backdrop-blur-sm border-t border-[#e5e5e5] flex-shrink-0 ${isMobile ? 'pb-safe-area-bottom' : ''}`}>
           <AlexInputArea
             onSendMessage={sendMessage}
             onStopGeneration={stopGeneration}

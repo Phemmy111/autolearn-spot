@@ -38,7 +38,7 @@ export default function AutolearnAIPage() {
   }
 
   return (
-    <div className="h-screen bg-brand-bg flex overflow-hidden">
+    <div className="h-screen bg-[#1a1a1a] flex overflow-hidden">
       <AlexChat userId={user?.id || ''} />
     </div>
   )
