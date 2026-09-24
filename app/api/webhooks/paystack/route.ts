@@ -122,6 +122,34 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   // 5.5. Record author sales for financial tracking using direct inserts
   const orderItems = await getOrderItems(order.id);
   
+  // Fetch commission rate from settings
+  const { data: commissionSetting } = await supabaseAdmin
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'platform_commission_rate')
+    .single();
+  
+  let commissionRate = 10; // Default to 10%
+  if (commissionSetting?.value) {
+    try {
+      // Try to parse as JSON first
+      const parsed = JSON.parse(commissionSetting.value);
+      commissionRate = parsed.rate || parsed.value || 10;
+    } catch {
+      // If not JSON, try to parse as number
+      const parsed = parseFloat(commissionSetting.value);
+      if (!isNaN(parsed)) {
+        commissionRate = parsed;
+      }
+    }
+  }
+  
+  // Convert percentage to decimal (e.g., 20% -> 0.20)
+  const commissionDecimal = commissionRate / 100;
+  const authorShare = 1 - commissionDecimal;
+  
+  console.log(`CART CHECKOUT: Commission rate: ${commissionRate}%, Author share: ${(authorShare * 100)}%`);
+  
   try {
     for (const item of orderItems) {
       // Check if sale already exists
@@ -147,6 +175,10 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
         continue;
       }
 
+      // Calculate commission and net amount using configured rate
+      const commissionAmount = item.price_snapshot * commissionDecimal;
+      const netAmount = item.price_snapshot * authorShare;
+
       // Direct insert into author_sales
       const { data: sale, error: saleError } = await supabaseAdmin
         .from('author_sales')
@@ -156,8 +188,8 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           product_id: item.learning_product_id,
           author_id: product.author_id,
           gross_amount: item.price_snapshot,
-          commission_amount: item.price_snapshot * 0.1, // 10% commission
-          net_amount: item.price_snapshot * 0.9, // 90% net
+          commission_amount: commissionAmount,
+          net_amount: netAmount,
           currency: 'NGN'
         })
         .select()
@@ -174,7 +206,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
         .insert({
           author_id: product.author_id,
           type: 'SALE_CREDIT',
-          amount: item.price_snapshot * 0.9,
+          amount: netAmount,
           currency: 'NGN',
           related_id: sale.id,
           description: `Sale for order ${order.id}, item ${item.id}`
@@ -252,8 +284,8 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
         .single();
 
       if (product && product.authors) {
-        const authorEarnings = item.price_snapshot * 0.9; // 90% to author
-        const platformCommission = item.price_snapshot * 0.1; // 10% platform commission
+        const authorEarnings = item.price_snapshot * authorShare;
+        const platformCommission = item.price_snapshot * commissionDecimal;
 
         // Send course purchase confirmation to student
         await EmailService.sendCoursePurchaseConfirmation(
