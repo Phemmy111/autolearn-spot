@@ -612,7 +612,7 @@ export function AlexInputArea({
           </div>
         )}
 
-        <div className="flex items-end gap-3 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg">>
+        <div className="flex items-end gap-3 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg">
           {/* Mode Selector Button */}
           {onModeChange && (
             <div className="relative" ref={dropdownRef}>
