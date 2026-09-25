@@ -700,9 +700,9 @@ export function AlexInputArea({
                 height: 'auto',
                 color: '#ffffff',
                 caretColor: '#00f0ff',
-                width: '100%',
-                maxWidth: '100%',
-                minWidth: '0',
+                width: '100% !important',
+                maxWidth: '100% !important',
+                minWidth: '0 !important',
                 display: 'block',
                 boxSizing: 'border-box'
               }}
