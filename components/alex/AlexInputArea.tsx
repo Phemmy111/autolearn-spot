@@ -571,7 +571,7 @@ export function AlexInputArea({
 
   return (
     <div className="px-4 py-4">
-      <div className="max-w-3xl mx-auto">
+      <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-3xl'}`}>
         {/* File attachments */}
         {attachedFiles.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
@@ -612,10 +612,10 @@ export function AlexInputArea({
           </div>
         )}
 
-        <div className="flex items-end gap-3 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg">
+        <div className="flex items-end gap-2 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg w-full">
           {/* Mode Selector Button */}
           {onModeChange && (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative flex-shrink-0" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setShowModeDropdown(!showModeDropdown)}
@@ -660,7 +660,7 @@ export function AlexInputArea({
           )}
 
           {/* Attachment Button */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <button
               type="button"
               onClick={handleAttachment}
@@ -682,7 +682,7 @@ export function AlexInputArea({
           </div>
           
           {/* Textarea */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative min-w-0">
             <textarea
               ref={textareaRef}
               value={content}
