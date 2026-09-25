@@ -570,8 +570,8 @@ export function AlexInputArea({
   }
 
   return (
-    <div className="px-4 py-4 w-full">
-      <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-3xl'}`}>
+    <div className={`${isMobile ? 'px-2 py-3 w-full' : 'px-4 py-4'}`}>
+      <div className={`${isMobile ? 'w-full' : 'mx-auto max-w-3xl'}`}>
         {/* File attachments */}
         {attachedFiles.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
@@ -693,7 +693,7 @@ export function AlexInputArea({
               placeholder={isMobile ? "Message ALEX..." : "Ask ALEX anything..."}
               disabled={isLoading || isGenerating}
               rows={1}
-              className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto ${
+              className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto text-left ${
                 isMobile ? 'min-h-[52px] max-h-[120px] py-3 px-3 text-base' : 'min-h-[44px] max-h-[200px] py-2 px-3 text-sm'
               }`}
               style={{ 
