@@ -496,6 +496,104 @@ export default function PartnerDashboard() {
             </div>
 
             {/* Content based on active tab */}
+            {activeTab === "promote" && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-[#e2e2e8]">Affiliate Marketplace</h3>
+                  <p className="text-sm text-brand-text/60">Find courses to promote and earn commissions</p>
+                </div>
+                
+                {loadingMarketplace ? (
+                  <div className="flex justify-center p-10"><Loader2 className="h-8 w-8 animate-spin text-[#00F5FF]" /></div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {marketplaceProducts.map(product => (
+                        <div key={product.id} className="border border-brand-border bg-[var(--card)] rounded-xl overflow-hidden flex flex-col">
+                          <div className="h-40 bg-brand-bg/50 relative">
+                            {product.thumbnail_url ? (
+                              <Image src={product.thumbnail_url} alt={product.title} fill className="object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-brand-text/30">No Image</div>
+                            )}
+                            <div className="absolute top-2 right-2 bg-[#00F5FF]/90 text-[#070B12] text-xs font-bold px-2 py-1 rounded">
+                              Earn {product.affiliate_commission_rate}%
+                            </div>
+                          </div>
+                          <div className="p-4 flex flex-col flex-1">
+                            <h4 className="font-bold text-[#e2e2e8] mb-1 line-clamp-2">{product.title}</h4>
+                            <p className="text-sm text-brand-text/60 mb-4">Price: ₦{product.price?.toLocaleString()}</p>
+                            <div className="mt-auto">
+                              {product.already_promoting ? (
+                                <p className="text-sm text-[#00F5FF] flex items-center gap-2 mb-2 font-medium"><CheckCircle2 className="w-4 h-4" /> Link Active</p>
+                              ) : (
+                                <button
+                                  onClick={() => generateAffiliateLink(product.id)}
+                                  disabled={generatingLink === product.id}
+                                  className="w-full py-2 bg-brand-bg hover:bg-[#00F5FF]/10 border border-[#00F5FF]/50 text-[#00F5FF] rounded-lg transition-colors flex justify-center items-center gap-2"
+                                >
+                                  {generatingLink === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+                                  Get Affiliate Link
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {affiliateLinks.length > 0 && (
+                      <div className="mt-12">
+                        <h3 className="text-xl font-bold text-[#e2e2e8] mb-4">Your Active Links</h3>
+                        <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl overflow-hidden">
+                          <table className="w-full text-left text-sm">
+                            <thead className="bg-[var(--card)] brightness-95 border-b border-brand-border text-brand-text/60">
+                              <tr>
+                                <th className="p-4 font-medium">Product</th>
+                                <th className="p-4 font-medium">Comm. Rate</th>
+                                <th className="p-4 font-medium">Stats</th>
+                                <th className="p-4 font-medium">Earned</th>
+                                <th className="p-4 font-medium">Link</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-brand-border">
+                              {affiliateLinks.map(link => (
+                                <tr key={link.id} className="hover:bg-[var(--card)] brightness-95/30">
+                                  <td className="p-4 font-medium text-[#e2e2e8] max-w-[200px] truncate" title={link.product?.title}>
+                                    {link.product?.title || 'Unknown Product'}
+                                  </td>
+                                  <td className="p-4 text-[#00F5FF]">
+                                    {link.product?.affiliate_commission_rate}%
+                                  </td>
+                                  <td className="p-4 text-brand-text/60">
+                                    {link.clicks || 0} clicks / {link.conversions || 0} sales
+                                  </td>
+                                  <td className="p-4 font-bold text-green-400">
+                                    ₦{(link.total_earned || 0).toLocaleString()}
+                                  </td>
+                                  <td className="p-4">
+                                    <button
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(link.affiliate_url);
+                                        alert('Link copied!');
+                                      }}
+                                      className="px-3 py-1.5 bg-[#00F5FF]/10 hover:bg-[#00F5FF]/20 text-[#00F5FF] border border-[#00F5FF]/30 rounded flex items-center gap-2"
+                                    >
+                                      <Copy className="w-3 h-3" /> Copy
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
             {activeTab === "overview" && (
               <>
                 {/* Charts Section */}
