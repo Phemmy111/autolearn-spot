@@ -764,4 +764,17 @@
   .alex-mobile-no-scroll {
     overflow-x: hidden;
   }
+
+  /* Force textarea to use full width on mobile */
+  textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  
+  /* Force flex containers to allow full width */
+  .flex-1 {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
 }

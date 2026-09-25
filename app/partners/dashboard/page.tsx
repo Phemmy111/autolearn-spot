@@ -62,6 +62,10 @@ export default function PartnerDashboard() {
     account_name: ''
   });
   const [isSavingBank, setIsSavingBank] = useState(false);
+  const [marketplaceProducts, setMarketplaceProducts] = useState<any[]>([]);
+  const [affiliateLinks, setAffiliateLinks] = useState<any[]>([]);
+  const [loadingMarketplace, setLoadingMarketplace] = useState(false);
+  const [generatingLink, setGeneratingLink] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -175,33 +179,6 @@ export default function PartnerDashboard() {
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/partners/logout", { method: "POST" });
-      router.push("/partners/login");
-    } catch (err) {
-      router.push("/partners/login");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
-      </div>
-    );
-  }
-
-  const partner = data?.partner;
-  const stats = data?.stats;
-  const referral = data?.referral;
-  const bankProfile = data?.bankProfile;
-
-  const [marketplaceProducts, setMarketplaceProducts] = useState<any[]>([]);
-  const [affiliateLinks, setAffiliateLinks] = useState<any[]>([]);
-  const [loadingMarketplace, setLoadingMarketplace] = useState(false);
-  const [generatingLink, setGeneratingLink] = useState<string | null>(null);
-
   const fetchAffiliateData = async () => {
     setLoadingMarketplace(true);
     try {
@@ -243,6 +220,28 @@ export default function PartnerDashboard() {
       setGeneratingLink(null);
     }
   };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/partners/logout", { method: "POST" });
+      router.push("/partners/login");
+    } catch (err) {
+      router.push("/partners/login");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+      </div>
+    );
+  }
+
+  const partner = data?.partner;
+  const stats = data?.stats;
+  const referral = data?.referral;
+  const bankProfile = data?.bankProfile;
 
   const navItems = [
     { id: "overview", label: "Overview", icon: BarChart3 },

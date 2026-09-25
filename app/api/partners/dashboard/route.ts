@@ -18,14 +18,24 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get partner based on role
+    // Get partner based on role or direct lookup
     let partner;
     if (session.role === 'community') {
       partner = await PartnerService.getPartnerByCommunityAmbassadorId(session.userId);
     } else if (session.role === 'influencer') {
       partner = await PartnerService.getPartnerByInfluencerId(session.userId);
-    } else {
-      return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+    } else if (session.role === 'student') {
+      partner = await PartnerService.getPartnerByClerkUserId(session.userId);
+    }
+
+    if (!partner) {
+      // Direct lookup in partners table by session userId or ambassador/influencer/clerk IDs
+      const { data } = await supabaseAdmin
+        .from('partners')
+        .select('*')
+        .or(`id.eq.${session.userId},community_ambassador_id.eq.${session.userId},influencer_id.eq.${session.userId},clerk_user_id.eq.${session.userId}`)
+        .maybeSingle();
+      partner = data;
     }
 
     if (!partner) {
