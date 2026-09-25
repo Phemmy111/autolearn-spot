@@ -570,7 +570,7 @@ export function AlexInputArea({
   }
 
   return (
-    <div className={`${isMobile ? 'px-2 py-3 w-full' : 'px-4 py-4'}`}>
+    <div className={`${isMobile ? 'px-2 py-2 w-full' : 'px-4 py-4'}`}>
       <div className={`${isMobile ? 'w-full' : 'mx-auto max-w-3xl'}`}>
         {/* File attachments */}
         {attachedFiles.length > 0 && (
@@ -612,7 +612,7 @@ export function AlexInputArea({
           </div>
         )}
 
-        <div className="flex items-end gap-2 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg w-full max-w-full">
+        <div className="flex items-end gap-1 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg w-full max-w-full">
           {/* Mode Selector Button */}
           {onModeChange && (
             <div className="relative flex-shrink-0" ref={dropdownRef}>
@@ -682,7 +682,7 @@ export function AlexInputArea({
           </div>
           
           {/* Textarea */}
-          <div className="flex-1 relative min-w-0 max-w-full">
+          <div className="flex-1 relative min-w-0 max-w-full" style={{ flex: '1 1 auto', minWidth: 0, maxWidth: '100%' }}>
             <textarea
               ref={textareaRef}
               value={content}
@@ -702,7 +702,9 @@ export function AlexInputArea({
                 caretColor: '#00f0ff',
                 width: '100%',
                 maxWidth: '100%',
-                minWidth: '0'
+                minWidth: '0',
+                display: 'block',
+                boxSizing: 'border-box'
               }}
               aria-label="Message input"
               aria-describedby={isMobile ? "mobile-input-hint" : undefined}
