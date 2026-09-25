@@ -317,6 +317,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       currency,
       access_duration_days: finalAccessDuration,
       thumbnail_url: updatedThumbnailUrl,
+      affiliate_enabled: affiliateEnabled,
+      affiliate_commission_rate: affiliateRate,
     };
 
     try {
@@ -582,37 +584,75 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* AFFILIATE SETTINGS */}
-        <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 space-y-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-              <span className="text-purple-500 text-xl">🤝</span>
-            </div>
-            <div>
-              <h3 className="font-bold text-brand-text text-lg">Affiliate Programme</h3>
-              <p className="text-sm text-brand-text/60">Let affiliates promote this course and earn a commission per sale</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-4 bg-brand-bg rounded-lg border border-brand-border">
-            <div>
-              <p className="font-semibold text-brand-text">Allow Affiliates</p>
-              <p className="text-xs text-brand-text/60 mt-0.5">Affiliates can generate a unique link to promote this course</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setAffiliateEnabled(!affiliateEnabled)}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${affiliateEnabled ? 'bg-brand-primary' : 'bg-brand-border'}`}
-            >
-              <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${affiliateEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
-            </button>
-          </div>
-
-          {affiliateEnabled && (
-            <div className="space-y-4">
+        <div className="bg-[var(--card)] rounded-2xl border-2 border-brand-border p-6 sm:p-7 space-y-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-brand-border">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center text-brand-primary">
+                <span className="text-2xl">🤝</span>
+              </div>
               <div>
-                <label className="block text-sm font-semibold text-brand-text mb-2">
-                  Affiliate Commission Rate: <span className="text-brand-primary">{affiliateRate}%</span>
-                </label>
+                <h3 className="font-heading font-bold text-brand-text text-lg">Affiliate Programme</h3>
+                <p className="text-xs sm:text-sm text-brand-text/60">Allow affiliates to promote this course and earn a commission per sale</p>
+              </div>
+            </div>
+
+            {/* HIGH-CONTRAST TOGGLE BUTTON */}
+            <div className="flex items-center gap-3 self-start sm:self-auto bg-brand-bg/80 border border-brand-border px-4 py-2 rounded-2xl">
+              <span className={`text-xs font-bold uppercase tracking-wider ${affiliateEnabled ? 'text-emerald-600 dark:text-emerald-400' : 'text-neutral-500'}`}>
+                {affiliateEnabled ? 'Enabled' : 'Disabled'}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={affiliateEnabled}
+                onClick={() => setAffiliateEnabled(!affiliateEnabled)}
+                className={`relative inline-flex h-8 w-14 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                  affiliateEnabled
+                    ? 'bg-emerald-600 border-emerald-600'
+                    : 'bg-neutral-300 border-neutral-400 dark:bg-neutral-700 dark:border-neutral-500'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    affiliateEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* COMMISSION RATE CONTROLS */}
+          <div className={`space-y-6 transition-opacity ${affiliateEnabled ? 'opacity-100' : 'opacity-60'}`}>
+            <div className="bg-brand-bg/70 border border-brand-border rounded-xl p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <label className="block text-sm font-bold text-brand-text">
+                    Affiliate Commission Percentage
+                  </label>
+                  <p className="text-xs text-brand-text/60">Authors can choose any rate between 5% and 70%</p>
+                </div>
+
+                {/* Direct Number Input */}
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={5}
+                      max={70}
+                      value={affiliateRate}
+                      onChange={e => {
+                        const val = Math.min(70, Math.max(5, Number(e.target.value) || 5));
+                        setAffiliateRate(val);
+                      }}
+                      className="w-24 px-3 py-2 text-center font-bold text-base bg-[var(--card)] border-2 border-brand-primary rounded-xl text-brand-text focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 font-bold text-brand-primary">%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Slider */}
+              <div className="space-y-2 pt-1">
                 <input
                   type="range"
                   min={5}
@@ -620,36 +660,74 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                   step={1}
                   value={affiliateRate}
                   onChange={e => setAffiliateRate(Number(e.target.value))}
-                  className="w-full accent-brand-primary"
+                  className="w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-brand-primary"
                 />
-                <div className="flex justify-between text-xs text-brand-text/50 mt-1">
-                  <span>5%</span><span>35%</span><span>70%</span>
+                <div className="flex justify-between text-xs text-brand-text/50 font-medium px-1">
+                  <span>5% (Min)</span>
+                  <span>25%</span>
+                  <span>50%</span>
+                  <span>70% (Max)</span>
                 </div>
               </div>
 
-              {productPrice > 0 && (
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3 rounded-lg bg-purple-500/10 text-center">
-                    <p className="text-xs text-brand-text/60 mb-1">Affiliate Earns</p>
-                    <p className="font-bold text-purple-500">₦{Math.round(productPrice * affiliateRate / 100).toLocaleString()}</p>
+              {/* Preset Quick Buttons */}
+              <div className="flex items-center gap-2 flex-wrap pt-2">
+                <span className="text-xs font-semibold text-brand-text/60 mr-1">Quick Select:</span>
+                {[10, 20, 30, 40, 50, 70].map(pct => (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={() => setAffiliateRate(pct)}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                      affiliateRate === pct
+                        ? 'bg-brand-primary text-white border-brand-primary shadow-sm'
+                        : 'bg-[var(--card)] text-brand-text/70 border-brand-border hover:border-brand-primary/50'
+                    }`}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* LIVE FINANCIAL BREAKDOWN */}
+            {(Number(price) || 0) > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-brand-text/60">
+                  Per Sale Breakdown (Course Price: ₦{(Number(price) || 0).toLocaleString()})
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-4 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-center">
+                    <p className="text-xs font-semibold text-brand-text/60 mb-1">Affiliate Earns ({affiliateRate}%)</p>
+                    <p className="text-xl font-extrabold text-brand-primary">
+                      ₦{Math.round((Number(price) || 0) * (affiliateRate / 100)).toLocaleString()}
+                    </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-red-500/10 text-center">
-                    <p className="text-xs text-brand-text/60 mb-1">Platform Cuts</p>
-                    <p className="font-bold text-red-400">₦{Math.round(productPrice * 0.1).toLocaleString()}</p>
+                  <div className="p-4 rounded-xl bg-neutral-500/10 border border-neutral-500/20 text-center">
+                    <p className="text-xs font-semibold text-brand-text/60 mb-1">Platform Fee (10%)</p>
+                    <p className="text-xl font-extrabold text-brand-text/70">
+                      ₦{Math.round((Number(price) || 0) * 0.1).toLocaleString()}
+                    </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-green-500/10 text-center">
-                    <p className="text-xs text-brand-text/60 mb-1">You Receive</p>
-                    <p className="font-bold text-green-500">₦{Math.round(productPrice * (1 - 0.1 - affiliateRate / 100)).toLocaleString()}</p>
+                  <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                    <p className="text-xs font-semibold text-brand-text/60 mb-1">Your Net Earnings</p>
+                    <p className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
+                      ₦{Math.max(0, Math.round((Number(price) || 0) * (1 - 0.1 - affiliateRate / 100))).toLocaleString()}
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              <p className="text-xs text-amber-500 bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
-                ⚠️ Your payout per sale will be reduced by the affiliate commission. Make sure the math works for you!
-              </p>
-            </div>
-          )}
+            {!affiliateEnabled && (
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs flex items-center gap-2">
+                <span>ℹ️</span>
+                <span>Affiliate promotion is currently <strong>Disabled</strong>. Toggle the switch above to <strong>Enabled</strong> to let affiliates generate links in the marketplace.</span>
+              </div>
+            )}
+          </div>
 
+          {/* SAVE BUTTON */}
           <button
             type="button"
             disabled={affiliateSaving}
@@ -660,14 +738,33 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                 const res = await fetch(`/api/author/products/${id}/affiliate`, {
                   method: 'PATCH',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ affiliate_enabled: affiliateEnabled, affiliate_commission_rate: affiliateRate }),
+                  body: JSON.stringify({ 
+                    affiliate_enabled: affiliateEnabled, 
+                    affiliate_commission_rate: affiliateRate 
+                  }),
                 });
-                if (res.ok) { setAffiliateSaved(true); setTimeout(() => setAffiliateSaved(false), 3000); }
-              } finally { setAffiliateSaving(false); }
+                if (res.ok) { 
+                  setAffiliateSaved(true); 
+                  setTimeout(() => setAffiliateSaved(false), 3000); 
+                } else {
+                  const errData = await res.json();
+                  alert(errData.error || 'Failed to save affiliate settings');
+                }
+              } catch (err) {
+                alert('An error occurred while saving affiliate settings');
+              } finally { 
+                setAffiliateSaving(false); 
+              }
             }}
-            className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 bg-brand-primary text-white font-bold rounded-xl hover:bg-brand-primary-hover transition-all text-sm flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
           >
-            {affiliateSaving ? <><span className="animate-spin">⟳</span> Saving...</> : affiliateSaved ? '✓ Affiliate Settings Saved!' : '💾 Save Affiliate Settings'}
+            {affiliateSaving ? (
+              <><span className="animate-spin">⟳</span> Saving Affiliate Settings...</>
+            ) : affiliateSaved ? (
+              '✓ Affiliate Settings Saved Successfully!'
+            ) : (
+              'Save Affiliate Settings'
+            )}
           </button>
         </div>
 
