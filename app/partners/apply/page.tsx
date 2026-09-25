@@ -67,7 +67,7 @@ const BENEFITS = [
 
 function PartnersFooter() {
   return (
-    <footer className="border-t border-brand-border bg-[var(--card)] brightness-95 py-12 sm:py-16">
+    <footer className="border-t border-brand-border bg-brand-bg py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
           <div className="md:col-span-2">
@@ -78,7 +78,7 @@ function PartnersFooter() {
                 width={32}
                 height={32}
               />
-              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-brand-text">
                 AutoLearn Spot
               </span>
             </div>
@@ -86,45 +86,45 @@ function PartnersFooter() {
               Become a partner and earn commissions while helping others learn valuable AI automation skills.
             </p>
             <div className="flex gap-3 flex-wrap">
-              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                 Facebook
               </a>
-              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                 LinkedIn
               </a>
-              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                 Instagram
               </a>
-              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                 TikTok
               </a>
-              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                 YouTube
               </a>
-              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                 X
               </a>
-              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                 WhatsApp
               </a>
             </div>
           </div>
           
           <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Program</h3>
+            <h3 className="font-semibold text-brand-text mb-4">Program</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/partners" className="text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors">
+                <Link href="/partners" className="text-sm text-brand-primary hover:text-brand-primary/80 transition-colors">
                   Partner Program
                 </Link>
               </li>
               <li>
-                <Link href="/partners/apply" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners/apply" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   Apply Now
                 </Link>
               </li>
               <li>
-                <Link href="/partners/dashboard" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners/dashboard" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   Partner Dashboard
                 </Link>
               </li>
@@ -132,20 +132,20 @@ function PartnersFooter() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Support</h3>
+            <h3 className="font-semibold text-brand-text mb-4">Support</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/contact" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <Link href="/contact" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <a href={socialLinks.whatsapp.url} className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <a href={socialLinks.whatsapp.url} className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   WhatsApp Support
                 </a>
               </li>
               <li>
-                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   Scholarship
                 </Link>
               </li>
@@ -153,20 +153,20 @@ function PartnersFooter() {
           </div>
           
           <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
+            <h3 className="font-semibold text-brand-text mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <Link href="/" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/partners" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <Link href="/partners" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   Partners
                 </Link>
               </li>
               <li>
-                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
+                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-brand-primary transition-colors">
                   Scholarship
                 </Link>
               </li>
@@ -292,20 +292,20 @@ export default function PartnerApplicationPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-[var(--card)] brightness-95 flex flex-col">
+      <div className="min-h-screen bg-brand-bg flex flex-col">
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="max-w-md w-full">
             <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 text-center">
-              <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 border border-[#00F5FF]/60 bg-brand-bg/10 rounded-full mx-auto mb-6">
-                <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-[#00F5FF]" />
+              <div className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 border border-brand-primary/60 bg-brand-bg/10 rounded-full mx-auto mb-6">
+                <CheckCircle className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#e2e2e8] mb-4">Application Received!</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-brand-text mb-4">Application Received!</h2>
               <p className="text-sm sm:text-base text-brand-text/60 mb-8 leading-relaxed">
                 Thank you for applying to become a Community Partner with AutoLearn Spot. Our team will review your application and get back to you via email within 2-3 business days.
               </p>
               <Link
                 href="/"
-                className="inline-flex items-center justify-center gap-2 w-full border border-[#00F5FF] bg-brand-bg px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
+                className="inline-flex items-center justify-center gap-2 w-full border border-brand-primary bg-brand-bg px-6 py-3 sm:px-8 sm:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)]"
               >
                 Return Home
               </Link>
@@ -318,7 +318,7 @@ export default function PartnerApplicationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--card)] brightness-95">
+    <div className="min-h-screen bg-brand-bg">
       {/* Header */}
       <header className="border-b border-brand-border bg-brand-bg/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -331,13 +331,13 @@ export default function PartnerApplicationPage() {
                 height={32}
                 className="group-hover:scale-110 transition-transform"
               />
-              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-brand-text">
                 AutoLearn Spot
               </span>
             </Link>
             <Link 
               href="/" 
-              className="flex items-center gap-2 text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors"
+              className="flex items-center gap-2 text-sm text-brand-text/60 hover:text-brand-primary transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
@@ -352,13 +352,13 @@ export default function PartnerApplicationPage() {
           {/* Left Column - Content */}
           <div>
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-brand-bg/10 px-3 py-1 mb-4">
-                <Target className="h-4 w-4 text-[#00F5FF]" />
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
+              <div className="inline-flex items-center gap-2 border border-brand-primary/60 bg-brand-bg/10 px-3 py-1 mb-4">
+                <Target className="h-4 w-4 text-brand-primary" />
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-primary">
                   Partner Program
                 </span>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
+              <h1 className="text-3xl sm:text-4xl font-bold text-brand-text mb-4">
                 Become an Affiliate Partner
               </h1>
               <p className="text-base text-brand-text/60 leading-relaxed">
@@ -373,12 +373,12 @@ export default function PartnerApplicationPage() {
                 return (
                   <div
                     key={benefit.title}
-                    className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-xl p-4 hover:border-[#00F5FF]/50 transition-all duration-300"
+                    className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-xl p-4 hover:border-brand-primary/50 transition-all duration-300"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center border border-[#00F5FF]/60 bg-brand-bg/10 rounded-lg mb-3">
-                      <Icon className="h-5 w-5 text-[#00F5FF]" />
+                    <div className="flex h-10 w-10 items-center justify-center border border-brand-primary/60 bg-brand-bg/10 rounded-lg mb-3">
+                      <Icon className="h-5 w-5 text-brand-primary" />
                     </div>
-                    <h3 className="font-semibold text-[#e2e2e8] text-sm mb-1">{benefit.title}</h3>
+                    <h3 className="font-semibold text-brand-text text-sm mb-1">{benefit.title}</h3>
                     <p className="text-xs text-brand-text/60">{benefit.description}</p>
                   </div>
                 );
@@ -387,22 +387,22 @@ export default function PartnerApplicationPage() {
 
             {/* Commission Info */}
             <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-xl p-6">
-              <h3 className="font-semibold text-[#e2e2e8] mb-4 flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-[#00F5FF]" />
+              <h3 className="font-semibold text-brand-text mb-4 flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-brand-primary" />
                 Commission Structure
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-brand-text/60">Affiliate Commissions</span>
-                  <span className="font-mono text-[#00F5FF]">10% to 70% per sale</span>
+                  <span className="font-mono text-brand-primary">10% to 70% per sale</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-brand-text/60">Minimum Withdrawal</span>
-                  <span className="font-mono text-[#00F5FF]">₦5,000</span>
+                  <span className="font-mono text-brand-primary">₦5,000</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-brand-text/60">Payout Schedule</span>
-                  <span className="font-mono text-[#00F5FF]">Weekly</span>
+                  <span className="font-mono text-brand-primary">Weekly</span>
                 </div>
               </div>
             </div>
@@ -410,7 +410,7 @@ export default function PartnerApplicationPage() {
 
           {/* Right Column - Application Form */}
           <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
-            <h2 className="text-xl font-bold text-[#e2e2e8] mb-6">Partner Application</h2>
+            <h2 className="text-xl font-bold text-brand-text mb-6">Partner Application</h2>
             
             {error && (
               <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
@@ -421,7 +421,7 @@ export default function PartnerApplicationPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information */}
               <div className="space-y-4">
-                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
+                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-primary">
                   Personal Information
                 </h3>
                 
@@ -431,7 +431,7 @@ export default function PartnerApplicationPage() {
                     required
                     type="text"
                     name="full_name"
-                    className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -442,7 +442,7 @@ export default function PartnerApplicationPage() {
                     required
                     type="email"
                     name="email"
-                    className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                     placeholder="your@email.com"
                   />
                 </div>
@@ -454,7 +454,7 @@ export default function PartnerApplicationPage() {
                       required
                       type="tel"
                       name="phone"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                       placeholder="0801 234 5678"
                     />
                   </div>
@@ -464,7 +464,7 @@ export default function PartnerApplicationPage() {
                       required
                       type="tel"
                       name="whatsapp"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                       placeholder="0801 234 5678"
                     />
                   </div>
@@ -476,7 +476,7 @@ export default function PartnerApplicationPage() {
                     <select
                       required
                       name="state"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                     >
                       <option value="">Select your state</option>
                       {NIGERIAN_STATES.map((state) => (
@@ -491,7 +491,7 @@ export default function PartnerApplicationPage() {
                     <select
                       required
                       name="occupation"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                     >
                       <option value="">Select your occupation</option>
                       {OCCUPATIONS.map((occupation) => (
@@ -506,7 +506,7 @@ export default function PartnerApplicationPage() {
 
               {/* Professional Information */}
               <div className="space-y-4">
-                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
+                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-primary">
                   Professional Information
                 </h3>
 
@@ -515,7 +515,7 @@ export default function PartnerApplicationPage() {
                   <input
                     type="text"
                     name="organization"
-                    className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                     placeholder="Your organization or institution"
                   />
                 </div>
@@ -525,7 +525,7 @@ export default function PartnerApplicationPage() {
                   <input
                     type="url"
                     name="website"
-                    className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                    className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                     placeholder="https://yourwebsite.com"
                   />
                 </div>
@@ -533,7 +533,7 @@ export default function PartnerApplicationPage() {
 
               {/* Social Media */}
               <div className="space-y-4">
-                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
+                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-primary">
                   Social Media (Optional)
                 </h3>
 
@@ -543,7 +543,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="facebook"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                       placeholder="facebook.com/yourprofile"
                     />
                   </div>
@@ -552,7 +552,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="instagram"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                       placeholder="instagram.com/yourprofile"
                     />
                   </div>
@@ -561,7 +561,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="tiktok"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                       placeholder="tiktok.com/@yourprofile"
                     />
                   </div>
@@ -570,7 +570,7 @@ export default function PartnerApplicationPage() {
                     <input
                       type="url"
                       name="youtube"
-                      className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8]"
+                      className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
                       placeholder="youtube.com/@yourchannel"
                     />
                   </div>
@@ -579,7 +579,7 @@ export default function PartnerApplicationPage() {
 
               {/* Motivation & Strategy */}
               <div className="space-y-4">
-                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
+                <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-primary">
                   Application Details
                 </h3>
 
@@ -589,7 +589,7 @@ export default function PartnerApplicationPage() {
                     required
                     name="motivation"
                     rows={4}
-                    className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text resize-none"
                     placeholder="Tell us why you're interested in becoming a partner..."
                   />
                 </div>
@@ -600,7 +600,7 @@ export default function PartnerApplicationPage() {
                     required
                     name="promotion_method"
                     rows={4}
-                    className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text resize-none"
                     placeholder="Describe your promotion strategy..."
                   />
                 </div>
@@ -610,7 +610,7 @@ export default function PartnerApplicationPage() {
                   <textarea
                     name="experience"
                     rows={3}
-                    className="w-full bg-[var(--card)] brightness-95/50 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-[#00F5FF] transition-colors text-[#e2e2e8] resize-none"
+                    className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text resize-none"
                     placeholder="Any previous experience with partnerships or marketing..."
                   />
                 </div>
@@ -623,7 +623,7 @@ export default function PartnerApplicationPage() {
                     type="checkbox"
                     checked={agreed}
                     onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-1 w-4 h-4 border border-brand-border bg-[var(--card)] brightness-95/50 rounded focus:outline-none focus:border-[#00F5FF]"
+                    className="mt-1 w-4 h-4 border border-brand-border bg-brand-bg/60 rounded focus:outline-none focus:border-brand-primary"
                   />
                   <span className="text-sm text-brand-text/60">
                     I agree to the partner program terms and conditions. I understand that commission payments are subject to successful student enrollments and a 7-day holding period.
@@ -634,7 +634,7 @@ export default function PartnerApplicationPage() {
               <button
                 disabled={isSubmitting || !agreed}
                 type="submit"
-                className="w-full py-4 rounded-xl border border-[#00F5FF] bg-brand-bg text-[#070B12] font-bold hover:bg-[var(--card)] brightness-95 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-xl border border-brand-primary bg-brand-bg text-white font-bold hover:bg-brand-bg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -656,3 +656,4 @@ export default function PartnerApplicationPage() {
     </div>
   );
 }
+
