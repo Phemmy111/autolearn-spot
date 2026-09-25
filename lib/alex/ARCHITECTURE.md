@@ -7,6 +7,7 @@
 **Phase 6: Digital Expertise Engine**
 **Phase 7: Multi-Agent Coordination**
 **Phase 8: Advanced Memory & Learning**
+**Phase 9: Self-Improvement & Feedback**
 
 ## Existing ALEX Systems
 
@@ -183,6 +184,15 @@
   - Result synthesis strategies
   - Sequential, parallel, and hierarchical coordination
 
+### 15. Self-Improvement Engine (Phase 9)
+- **Self-Improvement Engine** (`lib/alex/self-improvement/self-improvement-engine.ts`)
+  - User feedback collection
+  - Feedback analysis and trend detection
+  - Adaptive behavior generation
+  - System prompt adaptation
+  - Behavior effectiveness tracking
+  - Privacy controls (feedback clearing)
+
 ## Database Tables
 
 ### ALEX Tables
@@ -224,6 +234,7 @@
 18. **Digital Expertise Engine (Phase 6)** - 13 domain profiles, automatic domain detection
 19. **Multi-Agent Coordination (Phase 7)** - Multi-domain collaboration, result synthesis
 20. **Advanced Memory Learning (Phase 8)** - Pattern detection, consolidation, forgetting curve
+21. **Self-Improvement Engine (Phase 9)** - Feedback collection, adaptive behavior, system prompt adaptation
 
 ### 🔄 Potential Duplication Areas
 1. **Workflow Systems**: Both WorkflowManagerV2 and WorkflowOrchestrator exist

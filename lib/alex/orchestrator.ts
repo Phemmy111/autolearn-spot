@@ -14,6 +14,7 @@ import { WorkflowOrchestrator } from './orchestration/workflow-orchestrator'
 import { TaskRouter, RouterDecision } from './task-router/task-router'
 import { ExpertiseProfileRegistry } from './expertise'
 import { MultiAgentCoordinator } from './agents/multi-agent-coordinator'
+import { SelfImprovementEngine } from './self-improvement'
 
 export interface OrchestratorRequest {
   content: string
@@ -40,6 +41,7 @@ export interface OrchestratorRequest {
   aiEngine?: AIEngine // Phase 6: AI engine for agent execution
   signal?: AbortSignal // Phase 6: Cancellation signal
   enableMultiAgent?: boolean // Phase 7: Enable multi-agent coordination
+  enableSelfImprovement?: boolean // Phase 9: Enable self-improvement and adaptive behavior
   // Phase 7: Workflow generation support
   workflowJson?: string // Direct workflow JSON input
   workflowErrors?: string[] // Workflow error debugging
@@ -128,13 +130,13 @@ export class AlexOrchestrator {
 
           // Return synthesized result
           return {
-            systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content),
+            systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content, userId),
             context: `Multi-agent collaboration completed with ${collaborationResult.agentCount} agents. Synthesis strategy: ${plan.synthesisStrategy}.`,
             detectedIntent: 'multi-agent collaboration',
             suggestedMode: mode,
             aiRequest: {
               messages: [
-                { role: 'system', content: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content) },
+                { role: 'system', content: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content, userId) },
                 { role: 'user', content: content }
               ],
               stream: true,
@@ -159,7 +161,7 @@ export class AlexOrchestrator {
         mode,
         conversationHistory,
         platformContext,
-        systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content),
+        systemPrompt: this.generateSystemPrompt(mode, undefined, platformContext, enableTools, content, userId),
         enableWebResearch: mode === 'research' || request.enableWebResearch,
         enableMemory,
         enableRetrieval,
@@ -320,7 +322,7 @@ export class AlexOrchestrator {
             
             // Return a special response indicating artifact workflow
             return {
-              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content),
+              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content, userId),
               context: '',
               detectedIntent,
               suggestedMode,
@@ -358,7 +360,7 @@ export class AlexOrchestrator {
 
             // Return a special response indicating artifact workflow
             return {
-              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content),
+              systemPrompt: this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content, userId),
               context: '',
               detectedIntent,
               suggestedMode,
@@ -512,7 +514,7 @@ export class AlexOrchestrator {
     }
 
     // Generate system prompt for token estimation
-    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content)
+    const systemPrompt = this.generateSystemPrompt(mode, detectedIntent, platformContext, enableTools, content, userId)
 
     // Enable web research for research mode, when intent suggests research, or when explicitly requested
     const enableWebResearch = mode === 'research' || suggestedMode === 'research' || shouldEnableWebResearch
@@ -706,7 +708,7 @@ export class AlexOrchestrator {
   /**
    * Generate system prompt based on mode
    */
-  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext, enableTools?: boolean, content?: string): string {
+  private static generateSystemPrompt(mode: AlexMode, detectedIntent?: string, platformContext?: PlatformContext, enableTools?: boolean, content?: string, userId?: string): string {
     // Phase 6: Detect domain and get expertise profile
     let expertiseAdditions = ''
     if (content) {
@@ -717,6 +719,12 @@ export class AlexOrchestrator {
       }
     }
 
+    // Phase 9: Apply adaptive behavior based on feedback
+    let adaptiveAdditions = ''
+    if (userId && content) {
+      adaptiveAdditions = SelfImprovementEngine.applyAdaptiveBehavior('', userId, content)
+    }
+
     const basePrompt = `You are ALEX (AutoLearn Intelligence & Execution Agent), an AI assistant for AutoLearn Spot students. You help students learn n8n automation, build AI-powered workflows, and master technical skills.
 
 Your responses should be:
@@ -724,7 +732,7 @@ Your responses should be:
 - Practical and actionable
 - Encouraging and supportive
 - Technical when appropriate, but accessible
-- Focused on helping students succeed${expertiseAdditions}`
+- Focused on helping students succeed${expertiseAdditions}${adaptiveAdditions ? '\n\n' + adaptiveAdditions : ''}`
 
     // Add tool calling instructions based on whether tools are enabled
     let toolInstructions = ''
