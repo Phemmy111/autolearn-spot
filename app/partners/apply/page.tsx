@@ -35,8 +35,8 @@ const OCCUPATIONS = [
 const BENEFITS = [
   {
     icon: DollarSign,
-    title: "₦1,500 Commission",
-    description: "Earn for every successful student referral"
+    title: "Custom Commissions",
+    description: "Earn 10% to 70% for every successful student referral"
   },
   {
     icon: Megaphone,
@@ -359,13 +359,14 @@ export default function PartnerApplicationPage() {
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-[#e2e2e8] mb-4">
-                Become a Community Partner
+                Become an Affiliate Partner
               </h1>
               <p className="text-base text-brand-text/60 leading-relaxed">
                 Earn commissions while helping others learn valuable automation skills. Join our growing network of partners across Nigeria.
               </p>
             </div>
 
+          <div className="space-y-6 lg:space-y-8 flex flex-col justify-center">
             {/* Benefits Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               {BENEFITS.map((benefit) => {
@@ -393,8 +394,8 @@ export default function PartnerApplicationPage() {
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-brand-text/60">Community Partner</span>
-                  <span className="font-mono text-[#00F5FF]">₦1,500 per referral</span>
+                  <span className="text-brand-text/60">Affiliate Commissions</span>
+                  <span className="font-mono text-[#00F5FF]">10% to 70% per sale</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-brand-text/60">Minimum Withdrawal</span>

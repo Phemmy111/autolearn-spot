@@ -38,9 +38,7 @@ import {
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'applications', label: 'Applications', icon: FileText },
-  { id: 'student', label: 'Student Partners', icon: Users },
-  { id: 'community', label: 'Community Partners', icon: Users },
-  { id: 'influencer', label: 'Influencer Partners', icon: Award },
+  { id: 'affiliate', label: 'Affiliate Partners', icon: Users },
   { id: 'withdrawals', label: 'Withdrawals', icon: DollarSign },
   { id: 'marketing', label: 'Marketing Kit', icon: Shield },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -840,11 +838,11 @@ export default function AdminPartnersPage() {
           </div>
         )}
 
-        {/* Community Partners Tab */}
-        {activeTab === 'community' && (
+        {/* Affiliate Partners Tab */}
+        {activeTab === 'affiliate' && (
           <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
             <div className="p-4 border-b border-brand-border flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Community Partners</h2>
+              <h2 className="text-lg font-semibold text-[#e2e2e8]">Affiliate Partners</h2>
               <button
                 onClick={() => setShowAddPartnerModal(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
@@ -868,83 +866,12 @@ export default function AdminPartnersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {partners.filter(p => p.partner_type === 'community').length === 0 ? (
+                  {partners.filter(p => p.partner_type === 'affiliate').length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="p-8 text-center text-brand-text/70">No community partners</td>
+                      <td colSpan={7} className="p-8 text-center text-brand-text/70">No affiliate partners</td>
                     </tr>
                   ) : (
-                    partners.filter(p => p.partner_type === 'community').map((p) => (
-                      <tr key={p.id} className="border-t border-brand-border hover:bg-[var(--card)] brightness-95/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
-                        <td className="p-4">
-                          <div className="h-10 w-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-xs">
-                            {p.full_name?.charAt(0) || '?'}
-                          </div>
-                        </td>
-                        <td className="p-4 text-sm text-[#e2e2e8]">{p.full_name}</td>
-                        <td className="p-4 text-sm text-brand-text/70">{p.email}</td>
-                        <td className="p-4 text-sm text-[#e2e2e8]">{p.total_registrations || 0}</td>
-                        <td className="p-4 text-sm text-[#12E6F3]">₦{(p.available_earnings || 0).toLocaleString()}</td>
-                        <td className="p-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            p.status === 'active' 
-                              ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
-                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                          }`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handlePartnerClick(p); }}
-                            className="p-2 hover:bg-brand-bg/10 rounded-lg transition-colors text-brand-text/70 hover:text-[#12E6F3]"
-                            title="View Details"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Influencer Partners Tab */}
-        {activeTab === 'influencer' && (
-          <div className="border border-brand-border bg-[var(--card)] brightness-95/50 backdrop-blur-xl rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-brand-border flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-[#e2e2e8]">Influencer Partners</h2>
-              <button
-                onClick={() => setShowAddPartnerModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-bg text-[#070B12] rounded-lg font-medium hover:bg-brand-bg/90 transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Add Partner
-              </button>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[var(--card)] brightness-95">
-                  <tr>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Passport</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Name</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Email</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Referrals</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Earnings</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Status</th>
-                    <th className="text-left p-4 text-xs font-medium text-brand-text/70 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {partners.filter(p => p.partner_type === 'influencer').length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="p-8 text-center text-brand-text/70">No influencer partners</td>
-                    </tr>
-                  ) : (
-                    partners.filter(p => p.partner_type === 'influencer').map((p) => (
+                    partners.filter(p => p.partner_type === 'affiliate').map((p) => (
                       <tr key={p.id} className="border-t border-brand-border hover:bg-[var(--card)] brightness-95/50 transition-colors cursor-pointer" onClick={() => handlePartnerClick(p)}>
                         <td className="p-4">
                           <div className="h-10 w-10 rounded-full bg-brand-bg flex items-center justify-center text-brand-text/70 text-xs">

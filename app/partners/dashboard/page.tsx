@@ -465,9 +465,9 @@ export default function PartnerDashboard() {
             <div className="border border-[#00F5FF]/30 bg-gradient-to-r from-[#00F5FF]/10 to-transparent rounded-2xl p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">Your Referral Link</h3>
+                  <h3 className="text-lg font-bold text-[#e2e2e8] mb-2">Legacy Referral Link</h3>
                   <p className="text-sm text-brand-text/60">
-                    Share this unique link with your network. When they enroll in the ₦8,000 course, you earn ₦{partner?.commissionRate || data?.partner?.commissionRate || 1500} commission.
+                    This is your old generic referral link. To earn commissions on specific courses, please use the <strong>Promote Courses</strong> tab to generate unique affiliate links.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">

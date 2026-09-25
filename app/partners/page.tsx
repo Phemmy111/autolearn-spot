@@ -111,13 +111,13 @@ function HeroSection() {
             </h1>
 
             <p className="text-sm sm:text-base lg:text-lg text-brand-text/60 leading-relaxed max-w-xl">
-              Become an AutoLearn Spot Community Partner and earn commissions by referring students to our AI Automation Training.
+              Become an AutoLearn Spot Affiliate Partner and earn commissions by referring students to premium courses in our Affiliate Marketplace.
             </p>
 
             <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-brand-bg/10 px-4 py-2 sm:px-5 sm:py-2.5">
               <DollarSign className="h-5 w-5 text-[#00F5FF]" />
               <span className="font-mono text-sm font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
-                Earn up to ₦1,500 for every successful enrollment
+                Earn custom commissions up to 70% per enrollment
               </span>
             </div>
 
@@ -126,7 +126,7 @@ function HeroSection() {
                 href="/partners/apply"
                 className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-brand-bg px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
               >
-                Apply as Community Partner
+                Apply as Affiliate Partner
               </Link>
               <Link
                 href="/partners/dashboard"
@@ -352,11 +352,11 @@ function FAQSection() {
   const faqs = [
     {
       question: "How do I become a partner?",
-      answer: "Simply apply through our partner application form. Once approved, you'll receive your referral link and dashboard access."
+      answer: "Simply apply through our partner application form. Once approved, you'll receive your dashboard access and can start generating links."
     },
     {
       question: "How much can I earn?",
-      answer: "You earn ₦1,500 for every successful enrollment through your referral link. There's no limit to your earnings."
+      answer: "You earn custom commissions set by authors (typically 10% to 70%) for every successful enrollment through your unique affiliate link."
     },
     {
       question: "When do I get paid?",

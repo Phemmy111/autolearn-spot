@@ -24,12 +24,12 @@ export interface UserProfileContext {
 
 export interface EnrollmentContext {
   enrollmentId: string;
-  cohortId: string;
-  cohortName: string;
-  cohortSlug: string;
+  courseId: string;
+  courseName: string;
+  courseSlug: string;
   status: 'pending' | 'active' | 'revoked';
   enrolledDate?: string;
-  isCurrentCohort: boolean;
+  isCurrentCourse: boolean;
 }
 
 export interface LearningContext {
@@ -37,8 +37,8 @@ export interface LearningContext {
   completedLessons: number;
   progressPercentage: number;
   recentLessonProgress: LessonProgressItem[];
-  currentCohortId: string;
-  currentCohortName: string;
+  currentCourseId: string;
+  currentCourseName: string;
   allLessons: LessonInfo[];
   currentLesson?: LessonInfo;
   nextLesson?: LessonInfo;
@@ -88,7 +88,7 @@ export interface CertificateContext {
 
 export interface CertificateInfo {
   certificateCode: string;
-  cohortName: string;
+  courseName: string;
   issuedDate: string;
   isRevoked: boolean;
   verificationUrl?: string;
