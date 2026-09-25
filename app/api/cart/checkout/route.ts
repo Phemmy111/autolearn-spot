@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
         order_ref: order.order_ref,
         full_name: fullName,
         user_id: userId,
+        affiliate_ref: body?.affiliate_ref || undefined,
       },
       callback_url:
         callbackUrl ??

@@ -87,12 +87,16 @@ export default function CartPage() {
     }
     setCheckingOut(true);
     try {
+      const affiliateRef = typeof window !== 'undefined' ? localStorage.getItem('affiliate_ref') : null;
+      let refValue = affiliateRef ? JSON.parse(affiliateRef).code : undefined;
+      
       const res = await fetch('/api/cart/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: !isSignedIn ? guestEmail : undefined,
-          fullName: !isSignedIn ? guestName : undefined
+          fullName: !isSignedIn ? guestName : undefined,
+          affiliate_ref: refValue
         })
       });
       if (!res.ok) throw new Error('Checkout failed');
