@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Navigation from "@/components/Navigation";
+import { MarketplaceNavigation } from "@/components/MarketplaceNavigation";
 import { WhatsAppChatModal } from "@/components/whatsapp-chat-modal";
 import { AutolearnBot } from "@/components/autolearn-bot";
-import { socialLinks } from "@/config/social";
+import { getPublicSettings } from "@/lib/public-settings";
 import {
   ArrowRight,
   DollarSign,
@@ -20,6 +20,7 @@ import {
   BarChart3,
   Globe,
   Award,
+  Mail,
 } from "lucide-react";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -60,25 +61,25 @@ const BENEFITS = [
     icon: TrendingUp,
     title: "Custom Commissions",
     description:
-      "No fixed rate. Earn 10% to 70% per sale — set by each course author.",
+      "No fixed rate. Earn 10% to 70% per sale — set directly by each course author.",
   },
   {
     icon: BarChart3,
     title: "Real-Time Tracking",
     description:
-      "Monitor clicks, conversions, and earnings for every link from your dashboard.",
+      "Monitor clicks, conversions, and earnings for every link from your partner dashboard.",
   },
   {
     icon: DollarSign,
     title: "Partner Wallet",
     description:
-      "All commissions land in your partner wallet. Request a withdrawal anytime.",
+      "All commissions land in your partner wallet. Request weekly withdrawals anytime.",
   },
   {
     icon: Globe,
     title: "Multiple Courses",
     description:
-      "Promote as many opted-in courses as you want. More links = more income streams.",
+      "Promote as many opted-in courses as you want. Multiple links mean multiple income streams.",
   },
   {
     icon: Award,
@@ -90,7 +91,7 @@ const BENEFITS = [
     icon: Sparkles,
     title: "Leaderboard & Perks",
     description:
-      "Top affiliates get featured on our public leaderboard and receive exclusive perks.",
+      "Top affiliates get featured on our public leaderboard and receive exclusive perks and bonuses.",
   },
 ];
 
@@ -168,7 +169,7 @@ function HeroSection() {
 
           {/* Left – Text */}
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-6 border border-brand-primary/20 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-6 border border-brand-primary/20 shadow-sm">
               <Sparkles className="w-4 h-4" />
               Affiliate Partner Programme
             </div>
@@ -195,7 +196,7 @@ function HeroSection() {
               </Link>
               <Link
                 href="/partners/dashboard"
-                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-brand-primary text-brand-primary font-semibold rounded-full hover:bg-brand-primary/5 transition-all duration-300"
+                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-brand-primary text-brand-primary font-semibold rounded-full hover:bg-brand-primary/5 transition-all duration-300 text-center"
               >
                 Partner Dashboard
               </Link>
@@ -208,7 +209,7 @@ function HeroSection() {
                   (src, i) => (
                     <div
                       key={i}
-                      className="w-10 h-10 rounded-full border-2 border-white bg-brand-bg overflow-hidden relative"
+                      className="w-10 h-10 rounded-full border-2 border-white bg-brand-bg overflow-hidden relative shadow-sm"
                     >
                       <Image src={src} alt="Partner" fill className="object-cover" />
                     </div>
@@ -224,8 +225,7 @@ function HeroSection() {
 
           {/* Right – Stats card */}
           <div className="relative hidden md:flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-700">
-            {/* Main card */}
-            <div className="bg-brand-bg/80 backdrop-blur-lg border border-brand-border/50 rounded-3xl p-8 shadow-xl">
+            <div className="bg-brand-bg border border-brand-border/60 rounded-3xl p-8 shadow-xl">
               <p className="text-xs font-semibold uppercase tracking-widest text-brand-text/50 mb-6">
                 Partner Dashboard Preview
               </p>
@@ -255,7 +255,7 @@ function HeroSection() {
               {/* Mini bar chart */}
               <div className="bg-brand-bg rounded-2xl p-4 border border-brand-border/40">
                 <p className="text-xs text-brand-text/50 mb-3">Monthly Earnings</p>
-                <div className="flex items-end gap-1 h-16">
+                <div className="flex items-end gap-1.5 h-16">
                   {[30, 50, 35, 70, 45, 60, 40, 80, 55, 75, 50, 90].map((h, i) => (
                     <div
                       key={i}
@@ -283,14 +283,14 @@ function HowItWorksSection() {
     <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
             Simple Process
           </div>
           <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
             How It Works
           </h2>
           <p className="text-brand-text/70 max-w-xl mx-auto">
-            From sign-up to first payout in four simple steps.
+            From application to your first payout in four straightforward steps.
           </p>
         </div>
 
@@ -326,14 +326,14 @@ function BenefitsSection() {
     <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
             Why Join
           </div>
           <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
             Everything You Need to Earn
           </h2>
           <p className="text-brand-text/70 max-w-xl mx-auto">
-            Our affiliate programme is built around your success.
+            Built from the ground up for high converting affiliates.
           </p>
         </div>
 
@@ -367,24 +367,21 @@ function CommissionExplainerSection() {
       <div className="max-w-5xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
               Commission Model
             </div>
             <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
               Authors Set the Rate. You Keep It.
             </h2>
             <p className="text-brand-text/70 mb-6 leading-relaxed">
-              This isn't a one-size-fits-all flat fee. Every course author on
-              AutoLearn Spot chooses their own affiliate commission rate — between
-              10% and 70%. You see the rate before you generate any link, so you
-              always know exactly what you'll earn.
+              Every course author on AutoLearn Spot sets their own affiliate commission rate — between 10% and 70%. You see the exact rate before generating a link, so you always know your exact payout.
             </p>
             <ul className="space-y-3">
               {[
-                "No hidden deductions",
-                "Commissions auto-credited after purchase",
-                "Withdraw whenever your balance qualifies",
-                "Track every link independently",
+                "No hidden fees or deductions",
+                "Commissions auto-credited instantly upon verified payment",
+                "Withdraw to your bank account anytime your wallet qualifies",
+                "Independent link metrics for granular conversion tracking",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-brand-text/80">
                   <CheckCircle2 className="w-5 h-5 text-brand-primary flex-shrink-0" />
@@ -431,7 +428,7 @@ function CommissionExplainerSection() {
               ))}
             </div>
             <p className="text-xs text-brand-text/40 mt-4 text-center">
-              * Actual amounts depend on course price and author-set rate
+              * Actual earnings depend on the specific course price and author-set rate
             </p>
           </div>
         </div>
@@ -448,7 +445,7 @@ function TestimonialsSection() {
           <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
             What Our Partners Say
           </h2>
-          <p className="text-brand-text/70">Real stories from real affiliates.</p>
+          <p className="text-brand-text/70">Real feedback from active affiliate partners.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -491,7 +488,7 @@ function FAQSection() {
           <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-brand-text/70">Got questions? We've got answers.</p>
+          <p className="text-brand-text/70">Everything you need to know about the affiliate program.</p>
         </div>
 
         <div className="space-y-3">
@@ -530,7 +527,7 @@ function CTASection() {
   return (
     <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-6 border border-brand-primary/20">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-6 border border-brand-primary/20">
           <Sparkles className="w-4 h-4" />
           Ready to Start?
         </div>
@@ -538,8 +535,7 @@ function CTASection() {
           Join the Affiliate Programme Today
         </h2>
         <p className="text-brand-text/70 mb-8 leading-relaxed">
-          Pick the courses you believe in, share your links, and earn real
-          commissions — all in one place.
+          Pick courses in the marketplace, share your links, and start generating earnings with every enrollment.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
@@ -561,38 +557,185 @@ function CTASection() {
   );
 }
 
-function PartnersFooter() {
+function StandardSiteFooter() {
+  const [settings, setSettings] = useState<any>({
+    siteName: 'AutoLearn Spot',
+    siteTagline: 'Learn without limits. Accelerate your growth with premium courses and AI automation.',
+    footerCopyrightText: `© ${new Date().getFullYear()} AutoLearn Spot. All rights reserved.`,
+  });
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const loaded = await getPublicSettings([
+          'footerCopyrightText',
+          'siteName',
+          'footerPrivacyLink',
+          'footerTermsLink',
+          'footerDescription',
+          'siteTagline',
+          'footerContactLink',
+          'facebookUrl',
+          'instagramUrl',
+          'twitterUrl',
+          'linkedinUrl',
+          'youtubeUrl',
+          'supportEmail'
+        ]);
+        if (loaded) setSettings((prev: any) => ({ ...prev, ...loaded }));
+      } catch (e) {
+        // use default
+      }
+    }
+    load();
+  }, []);
+
   return (
-    <footer className="bg-brand-bg border-t border-brand-border/50 py-12">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid sm:grid-cols-3 gap-8 mb-10">
+    <footer className="relative z-20 border-t border-brand-border/50 bg-brand-bg">
+      <div className="container mx-auto px-6 lg:px-12 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          {/* Brand */}
           <div>
-            <h3 className="font-bold text-brand-text mb-4">Programme</h3>
-            <ul className="space-y-2 text-sm text-brand-text/60">
-              <li><Link href="/partners" className="hover:text-brand-primary transition-colors">Overview</Link></li>
-              <li><Link href="/partners/apply" className="hover:text-brand-primary transition-colors">Apply Now</Link></li>
-              <li><Link href="/partners/dashboard" className="hover:text-brand-primary transition-colors">Partner Dashboard</Link></li>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-8 h-8 flex items-center justify-center">
+                <Image
+                  src="/autolearn-brandmark.png"
+                  alt={settings.siteName || "AutoLearn Spot"}
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-brand-text">{settings.siteName || "AutoLearn Spot"}</h3>
+            </div>
+            <p className="text-brand-text/70 text-sm leading-relaxed">
+              {settings.siteTagline || "Elevate your career with premium courses, curated digital products, and communities led by industry experts."}
+            </p>
+          </div>
+
+          {/* Learning */}
+          <div>
+            <h4 className="text-sm font-bold text-brand-text mb-4">Learning</h4>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/courses" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  All Courses
+                </Link>
+              </li>
+              <li>
+                <Link href="/skills" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  Skills
+                </Link>
+              </li>
+              <li>
+                <Link href="/authors" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  Authors
+                </Link>
+              </li>
+              <li>
+                <Link href="/autolearn-ai" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  ALEX AI
+                </Link>
+              </li>
             </ul>
           </div>
+
+          {/* Company */}
           <div>
-            <h3 className="font-bold text-brand-text mb-4">Support</h3>
-            <ul className="space-y-2 text-sm text-brand-text/60">
-              <li><Link href="/contact" className="hover:text-brand-primary transition-colors">Contact Us</Link></li>
-              <li><a href={socialLinks.whatsapp.url} className="hover:text-brand-primary transition-colors">WhatsApp Support</a></li>
-              <li><Link href="/scholarship" className="hover:text-brand-primary transition-colors">Scholarship</Link></li>
+            <h4 className="text-sm font-bold text-brand-text mb-4">Company</h4>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/about" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/partners" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  Affiliate Program
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/career" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors">
+                  Career
+                </Link>
+              </li>
             </ul>
           </div>
+
+          {/* Connect */}
           <div>
-            <h3 className="font-bold text-brand-text mb-4">Company</h3>
-            <ul className="space-y-2 text-sm text-brand-text/60">
-              <li><Link href="/" className="hover:text-brand-primary transition-colors">Home</Link></li>
-              <li><Link href="/marketplace" className="hover:text-brand-primary transition-colors">Marketplace</Link></li>
-              <li><Link href="/author-apply" className="hover:text-brand-primary transition-colors">Become a Creator</Link></li>
-            </ul>
+            <h4 className="text-sm font-bold text-brand-text mb-4">Connect</h4>
+            <div className="flex gap-3 flex-wrap">
+              {settings.facebookUrl && (
+                <a
+                  href={settings.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-brand-border/50 bg-brand-bg flex items-center justify-center text-brand-text/70 hover:text-brand-primary hover:border-brand-primary transition-all"
+                >
+                  <span className="font-bold text-xs">FB</span>
+                </a>
+              )}
+              {settings.instagramUrl && (
+                <a
+                  href={settings.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-brand-border/50 bg-brand-bg flex items-center justify-center text-brand-text/70 hover:text-brand-primary hover:border-brand-primary transition-all"
+                >
+                  <span className="font-bold text-xs">IG</span>
+                </a>
+              )}
+              {settings.twitterUrl && (
+                <a
+                  href={settings.twitterUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-brand-border/50 bg-brand-bg flex items-center justify-center text-brand-text/70 hover:text-brand-primary hover:border-brand-primary transition-all"
+                >
+                  <span className="font-bold text-xs">X</span>
+                </a>
+              )}
+              {settings.linkedinUrl && (
+                <a
+                  href={settings.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border border-brand-border/50 bg-brand-bg flex items-center justify-center text-brand-text/70 hover:text-brand-primary hover:border-brand-primary transition-all"
+                >
+                  <span className="font-bold text-xs">IN</span>
+                </a>
+              )}
+              {settings.supportEmail && (
+                <a
+                  href={`mailto:${settings.supportEmail}`}
+                  className="w-10 h-10 rounded-full border border-brand-border/50 bg-brand-bg flex items-center justify-center text-brand-text/70 hover:text-brand-primary hover:border-brand-primary transition-all"
+                >
+                  <Mail className="w-4 h-4" />
+                </a>
+              )}
+            </div>
           </div>
         </div>
-        <div className="border-t border-brand-border/40 pt-6 text-center text-sm text-brand-text/50">
-          © 2026 AutoLearn Spot. All Rights Reserved.
+
+        {/* Bottom */}
+        <div className="border-t border-brand-border/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-brand-text/60 text-sm">
+            {settings.footerCopyrightText || `© ${new Date().getFullYear()} ${settings.siteName || 'AutoLearn Spot'}. All rights reserved.`}
+          </p>
+          <div className="flex gap-6">
+            <Link href={settings.footerPrivacyLink || '/privacy'} className="text-brand-text/60 hover:text-brand-primary text-sm transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href={settings.footerTermsLink || '/terms'} className="text-brand-text/60 hover:text-brand-primary text-sm transition-colors">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
@@ -604,7 +747,7 @@ function PartnersFooter() {
 export default function PartnersPage() {
   return (
     <main className="min-h-screen bg-brand-bg">
-      <Navigation />
+      <MarketplaceNavigation />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />
       <HeroSection />
@@ -614,7 +757,7 @@ export default function PartnersPage() {
       <TestimonialsSection />
       <FAQSection />
       <CTASection />
-      <PartnersFooter />
+      <StandardSiteFooter />
     </main>
   );
 }

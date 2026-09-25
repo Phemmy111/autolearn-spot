@@ -63,7 +63,7 @@ export default function Navigation() {
       <nav className="hidden xl:flex items-center justify-between h-[72px] border-b border-brand-border bg-brand-bg/95 backdrop-blur-xl px-6 lg:px-8 sticky top-0 z-50">
         <Link href="/" className="flex items-center gap-2 group">
           <Image
-            src="/logo.png"
+            src="/autolearn-brandmark.png"
             alt={settings.siteName}
             width={32}
             height={32}
@@ -141,7 +141,7 @@ export default function Navigation() {
           </button>
           <Link href="/" className="flex items-center gap-2 group">
             <Image
-              src="/logo.png"
+              src="/autolearn-brandmark.png"
               alt={settings.siteName}
               width={32}
               height={32}
@@ -197,7 +197,7 @@ export default function Navigation() {
           </button>
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/logo.png"
+              src="/autolearn-brandmark.png"
               alt="AutoLearn Spot"
               width={24}
               height={24}
@@ -330,3 +330,4 @@ export default function Navigation() {
     </>
   )
 }
+

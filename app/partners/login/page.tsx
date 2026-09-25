@@ -48,79 +48,52 @@ export default function PartnerLoginPage() {
     <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
             <Image
-              src="/logo.png"
+              src="/autolearn-brandmark.png"
               alt="AutoLearn Spot"
-              width={32}
-              height={32}
+              width={36}
+              height={36}
+              className="object-contain"
             />
-            <span className="font-mono text-sm font-semibold tracking-[0.1em] text-brand-text">
+            <span className="font-heading text-lg font-bold text-brand-text">
               AutoLearn Spot
             </span>
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold text-brand-text mb-2">
-            Partner Portal
+          <h1 className="text-3xl font-heading font-extrabold text-brand-text mb-2">
+            Affiliate Partner Portal
           </h1>
-          <p className="text-brand-text/60">
-            Sign in to manage your referrals and earnings
+          <p className="text-sm text-brand-text/60">
+            Sign in to manage your affiliate links, referrals, and earnings
           </p>
         </div>
 
-        <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8">
+        <div className="border border-brand-border bg-brand-bg rounded-3xl p-6 sm:p-8 shadow-sm">
           {error && (
-            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 mb-6">
+            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 mb-6 text-sm">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-text/60">Partner Type</label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="partnerType"
-                    value="community"
-                    checked={partnerType === "community"}
-                    onChange={() => setPartnerType("community")}
-                    className="accent-brand-primary"
-                  />
-                  <span className="text-brand-text">Community Partner</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="partnerType"
-                    value="influencer"
-                    checked={partnerType === "influencer"}
-                    onChange={() => setPartnerType("influencer")}
-                    className="accent-brand-primary"
-                  />
-                  <span className="text-brand-text">Influencer</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-text/60">Email Address</label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-brand-text">Email Address</label>
               <input
                 required
                 type="email"
                 name="email"
-                className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
+                className="w-full bg-brand-bg border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text text-sm"
                 placeholder="your@email.com"
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-text/60">Password</label>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-brand-text">Password</label>
               <input
                 required
                 type="password"
                 name="password"
-                className="w-full bg-brand-bg/60 border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text"
+                className="w-full bg-brand-bg border border-brand-border rounded-xl px-4 py-3 focus:outline-none focus:border-brand-primary transition-colors text-brand-text text-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -128,7 +101,7 @@ export default function PartnerLoginPage() {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="w-full py-4 rounded-xl border border-brand-primary bg-brand-bg text-white font-bold hover:bg-brand-bg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-full bg-brand-primary text-white font-bold hover:bg-brand-primary-hover transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-md"
             >
               {isSubmitting ? (
                 <>
@@ -145,8 +118,8 @@ export default function PartnerLoginPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/partners/apply" className="text-brand-text/60 hover:text-brand-primary text-sm transition-colors inline-flex items-center gap-1">
-              Apply to become a Community Partner
+            <Link href="/partners/apply" className="text-brand-text/70 hover:text-brand-primary text-sm transition-colors inline-flex items-center gap-1 font-medium">
+              Not a partner yet? Apply here
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

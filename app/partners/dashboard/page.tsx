@@ -261,23 +261,23 @@ export default function PartnerDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2.5">
                 <Image
-                  src="/logo.png"
+                  src="/autolearn-brandmark.png"
                   alt="AutoLearn Spot"
                   width={32}
                   height={32}
+                  className="object-contain"
                 />
-                <span className="font-mono text-sm font-semibold tracking-[0.1em] text-brand-text hidden sm:block">
+                <span className="font-heading text-base font-bold text-brand-text hidden sm:block">
                   AutoLearn Spot
                 </span>
               </Link>
-              <div className="hidden md:block h-6 w-px bg-brand-bg" />
+              <div className="hidden md:block h-6 w-px bg-brand-border" />
               <div>
-                <h1 className="text-lg font-bold text-brand-text">Partner Dashboard</h1>
+                <h1 className="text-base sm:text-lg font-bold text-brand-text leading-tight">Affiliate Dashboard</h1>
                 <p className="text-xs text-brand-text/60">
-                  {partner?.type === "student" ? "Student Partner" : 
-                   partner?.type === "community" ? "Community Partner" : "Influencer"}
+                  Affiliate Partner
                 </p>
               </div>
             </div>
