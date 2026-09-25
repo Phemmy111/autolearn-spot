@@ -44,7 +44,7 @@ const HOW_IT_WORKS = [
     icon: Link2,
     title: "Generate Your Unique Link",
     description:
-      "Click "Get My Link" on any course to instantly generate a trackable affiliate link with your personal referral code.",
+      'Click "Get My Link" on any course to instantly generate a trackable affiliate link with your personal referral code.',
   },
   {
     step: "04",
