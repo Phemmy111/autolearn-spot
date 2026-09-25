@@ -6,8 +6,10 @@
  */
 
 import { TaskClassifier, ClassificationResult, TaskType } from './task-classifier'
+import { AIIntentClassifier } from './ai-intent-classifier'
 import { TaskPlanner, PlanningRequest, PlanningResult } from '../task-planner/task-planner'
 import { AlexMode } from '../types'
+import { AIEngine } from '../ai-engine'
 
 export interface RouterRequest {
   content: string
@@ -17,6 +19,8 @@ export interface RouterRequest {
   conversationId?: string
   attachedFiles?: any[]
   availableTools?: string[] // Phase 3: Available tools for planning
+  aiEngine?: AIEngine // Optional AI engine for AI-based classification
+  useAIClassification?: boolean // Use AI-based classification instead of keyword-based
 }
 
 export interface RouterDecision {
@@ -45,10 +49,29 @@ export class TaskRouter {
    * Route a task to the appropriate execution path
    */
   static async route(request: RouterRequest): Promise<RouterDecision> {
-    const { content, currentMode, conversationHistory, userId, conversationId } = request
+    const { content, currentMode, conversationHistory, userId, conversationId, aiEngine, useAIClassification } = request
 
-    // Classify the task
-    const classification = TaskClassifier.classify(content)
+    // Classify the task (use AI-based if enabled and AI engine is available)
+    let classification: ClassificationResult
+    if (useAIClassification && aiEngine) {
+      try {
+        console.log('[Task Router] Using AI-based intent classification')
+        classification = await AIIntentClassifier.classifyWithAI(
+          { content, conversationHistory },
+          aiEngine
+        )
+        console.log('[Task Router] AI classification result:', {
+          primaryType: classification.classification.primaryType,
+          confidence: classification.classification.confidence,
+          reasoning: classification.classification.reasoning
+        })
+      } catch (error) {
+        console.error('[Task Router] AI classification failed, falling back to keyword-based:', error)
+        classification = TaskClassifier.classify(content)
+      }
+    } else {
+      classification = TaskClassifier.classify(content)
+    }
 
     // Determine execution path
     const executionPath = this.determineExecutionPath(classification, request)

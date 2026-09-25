@@ -233,7 +233,9 @@ export class AlexOrchestrator {
           userId,
           conversationId,
           attachedFiles,
-          availableTools
+          availableTools,
+          aiEngine,
+          useAIClassification: true // Enable AI-based intent classification
         })
         
         console.log('[DEBUG ORCHESTRATOR] Task Router decision:', {
