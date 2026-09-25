@@ -1,46 +1,97 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
-import { useDirectEnrollmentFee } from "@/hooks/useDirectEnrollmentFee";
+import { WhatsAppChatModal } from "@/components/whatsapp-chat-modal";
+import { AutolearnBot } from "@/components/autolearn-bot";
+import { socialLinks } from "@/config/social";
 import {
   ArrowRight,
-  ArrowDown,
-  Users,
   DollarSign,
-  Building2,
-  Award,
-  Zap,
-  BarChart3,
+  Link2,
   TrendingUp,
+  Users,
   Star,
-  MessageCircle,
-  Shield,
-  Rocket,
-  Target,
+  CheckCircle2,
+  ChevronDown,
+  Sparkles,
+  BarChart3,
   Globe,
-  FileText,
-  Clock,
-  Crown,
-  Medal,
-  Building,
-  Infinity,
-  CheckCircle
+  Award,
 } from "lucide-react";
-import { socialLinks } from "@/config/social";
-import { AutolearnBot } from '@/components/autolearn-bot';
-import { WhatsAppChatModal } from '@/components/whatsapp-chat-modal';
-import { PartnerTypesSection } from './PartnerTypesSection';
+
+// ─── Data ────────────────────────────────────────────────────────────────────
 
 const HOW_IT_WORKS = [
-  { step: "1", title: "Apply", description: "Submit your partner application" },
-  { step: "2", title: "Get Approved", description: "Review and approval process" },
-  { step: "3", title: "Receive Dashboard", description: "Get access to partner dashboard" },
-  { step: "4", title: "Share Referral Link", description: "Promote using your unique link" },
-  { step: "5", title: "Student Enrolls", description: "Students enroll via your link" },
-  { step: "6", title: "Receive Commission", description: "Earn commissions on successful enrollments" }
+  {
+    step: "01",
+    icon: Users,
+    title: "Apply & Get Approved",
+    description:
+      "Submit your affiliate partner application. Our team reviews it and approves you within 2–3 business days.",
+  },
+  {
+    step: "02",
+    icon: Globe,
+    title: "Browse the Affiliate Marketplace",
+    description:
+      "Log in to your partner dashboard and discover courses whose authors have opted in. Each course shows its custom commission rate.",
+  },
+  {
+    step: "03",
+    icon: Link2,
+    title: "Generate Your Unique Link",
+    description:
+      "Click "Get My Link" on any course to instantly generate a trackable affiliate link with your personal referral code.",
+  },
+  {
+    step: "04",
+    icon: DollarSign,
+    title: "Earn Your Commission",
+    description:
+      "When a student purchases through your link, your commission (set by the course author, 10–70%) is automatically credited to your wallet.",
+  },
+];
+
+const BENEFITS = [
+  {
+    icon: TrendingUp,
+    title: "Custom Commissions",
+    description:
+      "No fixed rate. Earn 10% to 70% per sale — set by each course author.",
+  },
+  {
+    icon: BarChart3,
+    title: "Real-Time Tracking",
+    description:
+      "Monitor clicks, conversions, and earnings for every link from your dashboard.",
+  },
+  {
+    icon: DollarSign,
+    title: "Partner Wallet",
+    description:
+      "All commissions land in your partner wallet. Request a withdrawal anytime.",
+  },
+  {
+    icon: Globe,
+    title: "Multiple Courses",
+    description:
+      "Promote as many opted-in courses as you want. More links = more income streams.",
+  },
+  {
+    icon: Award,
+    title: "Marketing Kit",
+    description:
+      "Access professionally designed flyers, captions, and reels to boost your promotions.",
+  },
+  {
+    icon: Sparkles,
+    title: "Leaderboard & Perks",
+    description:
+      "Top affiliates get featured on our public leaderboard and receive exclusive perks.",
+  },
 ];
 
 const PARTNER_TESTIMONIALS = [
@@ -48,174 +99,179 @@ const PARTNER_TESTIMONIALS = [
     name: "Marvellous Olaoluwa",
     school: "University of Ibadan",
     image: "/Partners/Ola.png",
-    review: "I joined because I believe AI automation is one of the most valuable digital skills anyone can learn today. AutoLearn Spot provides everything a partner needs to confidently recommend the training.",
-    rating: 5
+    review:
+      "The new affiliate marketplace is a game changer. I now promote three different courses and each one pays a different rate. My income has multiplied.",
+    rating: 5,
   },
   {
     name: "Oluwapelumi Samson",
     school: "University of Ibadan",
     image: "/Partners/Samson.png",
-    review: "The referral dashboard and marketing materials are easy to use. I already have my referral link and I'm excited to introduce more students to AI automation.",
-    rating: 5
+    review:
+      "Generating my unique link takes literally two clicks. The dashboard shows me exactly which link is converting and how much I've earned.",
+    rating: 5,
   },
   {
     name: "Isaac Moon",
-    school: "Data Analyst - LAUTECH Graduate",
+    school: "Data Analyst – LAUTECH Graduate",
     image: "/Partners/Isaac.png",
-    review: "What impressed me most is the professionalism of the entire program. The partner system is transparent and makes referral tracking very easy.",
-    rating: 5
+    review:
+      "What impressed me most is the transparency. I can see the commission rate before I even generate a link. No surprises, just clean earnings.",
+    rating: 5,
   },
   {
     name: "Beloved Justina",
-    school: "Data Analyst - University of Ilorin Graduate",
+    school: "Data Analyst – University of Ilorin Graduate",
     image: "/Partners/Beloved.png",
-    review: "I partnered with AutoLearn Spot because I genuinely believe more students deserve access to practical AI skills while partners also earn legitimate commissions.",
-    rating: 5
-  }
+    review:
+      "I partnered because the model is honest. Authors choose their own rates, I pick courses I believe in, and students get real value. Everyone wins.",
+    rating: 5,
+  },
 ];
 
-const ACTIVITY_FEED = [
-  "Deborah from Lagos just enrolled",
-  "Samuel became a Community Partner",
-  "John from Ibadan completed payment",
-  "Isaac received ₦6,000 commission",
-  "Blessing withdrew ₦18,000",
-  "Ruth from Imo joined AutoLearn Spot"
+const FAQS = [
+  {
+    q: "How do I become an affiliate partner?",
+    a: "Apply through our partner application form. Once approved (2–3 business days), you'll receive dashboard access and can start generating affiliate links immediately.",
+  },
+  {
+    q: "How much can I earn per sale?",
+    a: "Each course author sets their own commission rate, ranging from 10% to 70% of the course price. You'll see the exact rate before generating a link.",
+  },
+  {
+    q: "How does the tracking work?",
+    a: "Each link you generate contains your unique referral code. When a student clicks it, it's stored in their browser for 30 days. Any purchase within that window is credited to you.",
+  },
+  {
+    q: "When and how do I get paid?",
+    a: "Commissions land in your Partner Wallet automatically after a successful purchase. You can request a withdrawal at any time from your dashboard.",
+  },
+  {
+    q: "Can I promote more than one course?",
+    a: "Yes! You can browse the entire Affiliate Marketplace and generate unique links for as many courses as you want.",
+  },
 ];
 
-const TRUST_PARTNERS = [
-  { name: "Marvellous Olaoluwa", image: "/Partners/Ola.png" },
-  { name: "Oluwapelumi Samson", image: "/Partners/Samson.png" },
-  { name: "Isaac Moon", image: "/Partners/Isaac.png" },
-  { name: "Beloved Justina", image: "/Partners/Beloved.png" }
-];
-
-const LEADERBOARD = [
-  { rank: 1, name: "Emmanuel David", earnings: "₦45,000", badge: "gold" },
-  { rank: 2, name: "Ruth Nwoke", earnings: "₦38,500", badge: "silver" },
-  { rank: 3, name: "Jimoh Naheemot", earnings: "₦32,000", badge: "bronze" }
-];
+// ─── Sections ─────────────────────────────────────────────────────────────────
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center bg-[var(--card)] brightness-95 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#070B12] via-[#0c0e12] to-[#111317]" />
-      <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_50%_50%,rgba(0,245,255,0.1)_0%,transparent_50%)]" />
+    <section className="relative pt-8 pb-16 md:pt-16 md:pb-24 overflow-hidden bg-brand-bg">
+      {/* Dot grid background */}
+      <div className="absolute inset-0 z-0 bg-brand-bg bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]" />
+      {/* Accent glows */}
+      <div className="absolute top-20 left-0 w-[500px] h-[500px] bg-brand-primary/10 blur-[120px] rounded-full pointer-events-none mix-blend-multiply" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-brand-primary/5 blur-[120px] rounded-full pointer-events-none mix-blend-multiply" />
 
-      <div className="relative max-w-[1280px] mx-auto px-6 lg:px-8 pt-24 md:pt-20 lg:pt-16 pb-12">
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div className="space-y-6 lg:space-y-8 flex flex-col justify-center">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#e2e2e8] leading-tight">
-              Earn More.
-              <span className="text-[#00F5FF]"> Impact More.</span>
-            </h1>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
 
-            <p className="text-sm sm:text-base lg:text-lg text-brand-text/60 leading-relaxed max-w-xl">
-              Become an AutoLearn Spot Affiliate Partner and earn commissions by referring students to premium courses in our Affiliate Marketplace.
-            </p>
-
-            <div className="inline-flex items-center gap-2 border border-[#00F5FF]/60 bg-brand-bg/10 px-4 py-2 sm:px-5 sm:py-2.5">
-              <DollarSign className="h-5 w-5 text-[#00F5FF]" />
-              <span className="font-mono text-sm font-semibold uppercase tracking-[0.14em] text-[#00F5FF]">
-                Earn custom commissions up to 70% per enrollment
-              </span>
+          {/* Left – Text */}
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-6 border border-brand-primary/20 shadow-sm">
+              <Sparkles className="w-4 h-4" />
+              Affiliate Partner Programme
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <h1 className="text-4xl md:text-5xl lg:text-[60px] font-heading font-extrabold text-brand-text tracking-tight mb-6 leading-[1.08]">
+              Turn Your Audience{" "}
+              <span className="text-brand-primary">Into Income.</span>
+            </h1>
+
+            <p className="text-lg text-brand-text/70 mb-8 max-w-xl leading-relaxed">
+              Join AutoLearn Spot's Affiliate Marketplace. Pick courses, share
+              unique links, and earn custom commissions of up to{" "}
+              <strong className="text-brand-text">70%</strong> per sale —
+              set by each course author.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
               <Link
                 href="/partners/apply"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-brand-bg px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#070B12] transition duration-150 hover:translate-y-[-1px] hover:shadow-[0_0_0_1px_rgba(0,245,255,0.45)] w-full sm:w-auto"
+                className="group flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 bg-brand-primary text-white font-semibold rounded-full hover:bg-brand-primary-hover transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
               >
                 Apply as Affiliate Partner
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/partners/dashboard"
-                className="flex items-center justify-center gap-2 border border-[#00F5FF] bg-transparent px-5 py-3 sm:px-6 sm:py-3 lg:px-8 lg:py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-[#00F5FF] transition duration-150 hover:bg-brand-bg/10 w-full sm:w-auto"
+                className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-brand-primary text-brand-primary font-semibold rounded-full hover:bg-brand-primary/5 transition-all duration-300"
               >
                 Partner Dashboard
               </Link>
             </div>
+
+            {/* Social proof */}
+            <div className="flex items-center gap-4">
+              <div className="flex -space-x-3">
+                {["/Partners/Ola.png", "/Partners/Samson.png", "/Partners/Isaac.png", "/Partners/Beloved.png"].map(
+                  (src, i) => (
+                    <div
+                      key={i}
+                      className="w-10 h-10 rounded-full border-2 border-white bg-brand-bg overflow-hidden relative"
+                    >
+                      <Image src={src} alt="Partner" fill className="object-cover" />
+                    </div>
+                  )
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-bold text-brand-text">Join our growing affiliate network</p>
+                <p className="text-xs text-brand-text/60">Partners earning every day</p>
+              </div>
+            </div>
           </div>
 
-          <div className="relative order-2 md:order-2 mt-8 md:mt-0">
-            <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6 shadow-[0_0_40px_rgba(0,245,255,0.1)]">
-              <div className="absolute inset-0 bg-brand-bg/5 rounded-2xl blur-xl" />
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-3 sm:mb-4">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60">Partner Dashboard Preview</span>
-                  <div className="flex gap-2">
-                    <div className="h-2 w-2 rounded-full bg-brand-bg" />
-                    <div className="h-2 w-2 rounded-full bg-brand-bg" />
-                    <div className="h-2 w-2 rounded-full bg-brand-bg" />
+          {/* Right – Stats card */}
+          <div className="relative hidden md:flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-700">
+            {/* Main card */}
+            <div className="bg-brand-bg/80 backdrop-blur-lg border border-brand-border/50 rounded-3xl p-8 shadow-xl">
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand-text/50 mb-6">
+                Partner Dashboard Preview
+              </p>
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {[
+                  { label: "Available Balance", value: "₦24,500", highlight: true },
+                  { label: "Pending Earnings", value: "₦7,500", highlight: false },
+                  { label: "Total Conversions", value: "89", highlight: false },
+                  { label: "Active Links", value: "12", highlight: false },
+                ].map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="bg-brand-bg rounded-2xl p-4 border border-brand-border/40 shadow-sm"
+                  >
+                    <p className="text-xs text-brand-text/50 mb-1">{stat.label}</p>
+                    <p
+                      className={`text-xl font-extrabold ${
+                        stat.highlight ? "text-brand-primary" : "text-brand-text"
+                      }`}
+                    >
+                      {stat.value}
+                    </p>
                   </div>
-                </div>
+                ))}
+              </div>
 
-                <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-4">
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Available Balance</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#00F5FF]">₦24,500</div>
-                  </div>
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Pending Earnings</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">₦7,500</div>
-                  </div>
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Total Referrals</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">127</div>
-                  </div>
-                  <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-1">Successful Enrollments</div>
-                    <div className="text-base sm:text-lg lg:text-xl font-bold text-[#e2e2e8]">89</div>
-                  </div>
-                </div>
-
-                <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-lg p-2 sm:p-3 lg:p-4">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60 mb-2">Monthly Earnings</div>
-                  <div className="h-16 sm:h-20 lg:h-24 flex items-end gap-1">
-                    {[30, 45, 25, 60, 40, 55, 35, 70, 50, 65, 45, 75].map((height, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 bg-brand-bg/20 rounded-t transition-all hover:bg-brand-bg/40"
-                        style={{ height: `${height}%` }}
-                      />
-                    ))}
-                  </div>
+              {/* Mini bar chart */}
+              <div className="bg-brand-bg rounded-2xl p-4 border border-brand-border/40">
+                <p className="text-xs text-brand-text/50 mb-3">Monthly Earnings</p>
+                <div className="flex items-end gap-1 h-16">
+                  {[30, 50, 35, 70, 45, 60, 40, 80, 55, 75, 50, 90].map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 bg-brand-primary/20 rounded-t hover:bg-brand-primary/40 transition-colors"
+                      style={{ height: `${h}%` }}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="absolute -top-4 -right-4 w-32 h-32 bg-brand-bg/20 rounded-full blur-3xl" />
-            <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function TrustSection() {
-  return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Trusted by Partners</h2>
-          <p className="text-sm sm:text-base text-brand-text/60">Join our growing community of successful partners</p>
-        </div>
-        
-        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 lg:gap-8">
-          {TRUST_PARTNERS.map((partner, index) => (
-            <div key={index} className="flex flex-col items-center gap-3">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden">
-                <Image
-                  src={partner.image}
-                  alt={partner.name}
-                  width={80}
-                  height={80}
-                  className="object-cover"
-                />
-              </div>
-              <span className="text-xs sm:text-sm text-[#e2e2e8]">{partner.name}</span>
+            {/* Floating badge */}
+            <div className="absolute -top-4 -right-4 bg-brand-primary text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
+              Up to 70% commission
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>
@@ -224,25 +280,160 @@ function TrustSection() {
 
 function HowItWorksSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">How It Works</h2>
-          <p className="text-sm sm:text-base text-brand-text/60">Simple steps to start earning</p>
+    <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
+            Simple Process
+          </div>
+          <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
+            How It Works
+          </h2>
+          <p className="text-brand-text/70 max-w-xl mx-auto">
+            From sign-up to first payout in four simple steps.
+          </p>
         </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-          {HOW_IT_WORKS.map((item, index) => (
-            <div key={index} className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-xl p-4 sm:p-5 lg:p-6">
-              <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center border border-[#00F5FF]/30 bg-brand-bg/10 rounded-lg font-mono text-base sm:text-lg font-bold text-[#00F5FF]">
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {HOW_IT_WORKS.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.step}
+                className="relative bg-brand-bg border border-brand-border/50 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
+              >
+                <div className="absolute top-4 right-4 text-5xl font-extrabold text-brand-primary/10 leading-none select-none">
                   {item.step}
                 </div>
-                <h3 className="font-semibold text-sm sm:text-base text-[#e2e2e8]">{item.title}</h3>
+                <div className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center mb-4 group-hover:bg-brand-primary/20 transition-colors">
+                  <Icon className="w-6 h-6 text-brand-primary" />
+                </div>
+                <h3 className="font-bold text-brand-text mb-2">{item.title}</h3>
+                <p className="text-sm text-brand-text/60 leading-relaxed">
+                  {item.description}
+                </p>
               </div>
-              <p className="text-sm text-brand-text/60">{item.description}</p>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BenefitsSection() {
+  return (
+    <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
+            Why Join
+          </div>
+          <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
+            Everything You Need to Earn
+          </h2>
+          <p className="text-brand-text/70 max-w-xl mx-auto">
+            Our affiliate programme is built around your success.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {BENEFITS.map((b) => {
+            const Icon = b.icon;
+            return (
+              <div
+                key={b.title}
+                className="bg-brand-bg border border-brand-border/50 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center mb-4 group-hover:bg-brand-primary/20 transition-colors">
+                  <Icon className="w-6 h-6 text-brand-primary" />
+                </div>
+                <h3 className="font-bold text-brand-text mb-2">{b.title}</h3>
+                <p className="text-sm text-brand-text/60 leading-relaxed">
+                  {b.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CommissionExplainerSection() {
+  return (
+    <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
+      <div className="max-w-5xl mx-auto px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-4 border border-brand-primary/20">
+              Commission Model
             </div>
-          ))}
+            <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
+              Authors Set the Rate. You Keep It.
+            </h2>
+            <p className="text-brand-text/70 mb-6 leading-relaxed">
+              This isn't a one-size-fits-all flat fee. Every course author on
+              AutoLearn Spot chooses their own affiliate commission rate — between
+              10% and 70%. You see the rate before you generate any link, so you
+              always know exactly what you'll earn.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "No hidden deductions",
+                "Commissions auto-credited after purchase",
+                "Withdraw whenever your balance qualifies",
+                "Track every link independently",
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-brand-text/80">
+                  <CheckCircle2 className="w-5 h-5 text-brand-primary flex-shrink-0" />
+                  <span className="text-sm font-medium">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Example calculation card */}
+          <div className="bg-brand-bg border border-brand-border/50 rounded-3xl p-8 shadow-md">
+            <p className="text-sm font-semibold text-brand-text/60 mb-6 uppercase tracking-wide">
+              Example Calculation
+            </p>
+            <div className="space-y-4">
+              {[
+                { label: "Course Price", value: "₦20,000" },
+                { label: "Author Commission Rate", value: "25%" },
+                { label: "Your Affiliate Earnings", value: "₦5,000", primary: true },
+              ].map((row) => (
+                <div
+                  key={row.label}
+                  className={`flex items-center justify-between p-4 rounded-xl ${
+                    row.primary
+                      ? "bg-brand-primary/10 border border-brand-primary/20"
+                      : "bg-brand-bg border border-brand-border/40"
+                  }`}
+                >
+                  <span
+                    className={`text-sm font-medium ${
+                      row.primary ? "text-brand-primary font-bold" : "text-brand-text/70"
+                    }`}
+                  >
+                    {row.label}
+                  </span>
+                  <span
+                    className={`font-bold ${
+                      row.primary ? "text-brand-primary text-xl" : "text-brand-text"
+                    }`}
+                  >
+                    {row.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-brand-text/40 mt-4 text-center">
+              * Actual amounts depend on course price and author-set rate
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -251,93 +442,38 @@ function HowItWorksSection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--card)] brightness-95">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">What Partners Say</h2>
-          <p className="text-sm sm:text-base text-brand-text/60">Hear from our successful partners</p>
+    <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
+            What Our Partners Say
+          </h2>
+          <p className="text-brand-text/70">Real stories from real affiliates.</p>
         </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-          {PARTNER_TESTIMONIALS.map((testimonial, index) => (
-            <div key={index} className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-4 sm:p-5 lg:p-6">
-              <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full border-2 border-[#00F5FF]/30 overflow-hidden flex-shrink-0">
-                  <Image
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    width={64}
-                    height={64}
-                    className="object-cover"
-                  />
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {PARTNER_TESTIMONIALS.map((t) => (
+            <div
+              key={t.name}
+              className="bg-brand-bg border border-brand-border/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full border-2 border-brand-primary/30 overflow-hidden flex-shrink-0 relative">
+                  <Image src={t.image} alt={t.name} fill className="object-cover" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm sm:text-base text-[#e2e2e8]">{testimonial.name}</h3>
-                  <p className="text-xs sm:text-sm text-brand-text/60">{testimonial.school}</p>
-                  <div className="flex gap-1 mt-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-[#00F5FF] fill-current" />
-                    ))}
-                  </div>
+                  <p className="font-bold text-brand-text text-sm">{t.name}</p>
+                  <p className="text-xs text-brand-text/50">{t.school}</p>
                 </div>
               </div>
-              <p className="text-sm text-brand-text/60 italic">"{testimonial.review}"</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ActivityFeedSection() {
-  return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Live Activity</h2>
-          <p className="text-sm sm:text-base text-brand-text/60">Real-time partner activity</p>
-        </div>
-        
-        <div className="border border-brand-border bg-[var(--card)] brightness-95/50 rounded-2xl p-4 sm:p-5 lg:p-6">
-          <div className="space-y-2 sm:space-y-3 lg:space-y-4">
-            {ACTIVITY_FEED.map((activity, index) => (
-              <div key={index} className="flex items-center gap-3 text-sm text-brand-text/60">
-                <div className="h-2 w-2 rounded-full bg-brand-bg" />
-                {activity}
+              <div className="flex gap-0.5 mb-3">
+                {[...Array(t.rating)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 text-brand-primary fill-current" />
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function LeaderboardSection() {
-  return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-[var(--card)] brightness-95">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Top Partners</h2>
-          <p className="text-sm sm:text-base text-brand-text/60">Leaderboard of this month</p>
-        </div>
-        
-        <div className="border border-brand-border bg-brand-bg/50 rounded-2xl overflow-hidden">
-          {LEADERBOARD.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 sm:p-4 lg:p-5 border-b border-brand-border last:border-b-0">
-              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center border border-[#00F5FF]/30 bg-brand-bg/10 rounded-lg font-mono text-xs sm:text-sm font-bold text-[#00F5FF]">
-                  {item.rank}
-                </div>
-                <span className="text-xs sm:text-sm lg:text-base text-[#e2e2e8]">{item.name}</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                <span className="text-xs sm:text-sm lg:text-base text-[#00F5FF] font-semibold">{item.earnings}</span>
-                {item.badge === 'gold' && <Crown className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500" />}
-                {item.badge === 'silver' && <Medal className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />}
-                {item.badge === 'bronze' && <Award className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />}
-              </div>
+              <p className="text-sm text-brand-text/70 leading-relaxed italic">
+                "{t.review}"
+              </p>
             </div>
           ))}
         </div>
@@ -347,51 +483,39 @@ function LeaderboardSection() {
 }
 
 function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  
-  const faqs = [
-    {
-      question: "How do I become a partner?",
-      answer: "Simply apply through our partner application form. Once approved, you'll receive your dashboard access and can start generating links."
-    },
-    {
-      question: "How much can I earn?",
-      answer: "You earn custom commissions set by authors (typically 10% to 70%) for every successful enrollment through your unique affiliate link."
-    },
-    {
-      question: "When do I get paid?",
-      answer: "Commissions are paid weekly on Fridays after the 7-day withdrawal window closes."
-    },
-    {
-      question: "What's the minimum withdrawal amount?",
-      answer: "The minimum withdrawal amount is set to ensure efficient processing. Check your dashboard for the current minimum threshold."
-    }
-  ];
-  
+  const [open, setOpen] = useState<number | null>(null);
   return (
-    <section className="py-4 sm:py-6 lg:py-8 bg-brand-bg">
+    <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
       <div className="max-w-3xl mx-auto px-6 lg:px-8">
-        <div className="text-center mb-3 sm:mb-4 lg:mb-6">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#e2e2e8] mb-2 sm:mb-3 lg:mb-4">Frequently Asked Questions</h2>
-          <p className="text-sm sm:text-base text-brand-text/60">Got questions? We've got answers</p>
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-brand-text/70">Got questions? We've got answers.</p>
         </div>
-        
-        <div className="space-y-3 sm:space-y-4">
-          {faqs.map((faq, index) => (
+
+        <div className="space-y-3">
+          {FAQS.map((faq, i) => (
             <div
-              key={index}
-              className="border border-brand-border bg-[var(--card)] brightness-95/80 backdrop-blur-xl rounded-xl overflow-hidden"
+              key={i}
+              className="bg-brand-bg border border-brand-border/50 rounded-2xl overflow-hidden shadow-sm"
             >
               <button
-                className="w-full px-4 sm:px-5 lg:px-6 py-3 sm:py-4 text-left flex items-center justify-between"
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                onClick={() => setOpen(open === i ? null : i)}
+                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-brand-primary/5 transition-colors"
               >
-                <span className="font-medium text-sm sm:text-base text-[#e2e2e8]">{faq.question}</span>
-                <CheckCircle className={`h-5 w-5 text-[#00F5FF] transition-transform ${openIndex === index ? 'rotate-180' : ''}`} />
+                <span className="font-semibold text-brand-text text-sm sm:text-base">
+                  {faq.q}
+                </span>
+                <ChevronDown
+                  className={`w-5 h-5 text-brand-primary flex-shrink-0 transition-transform duration-200 ${
+                    open === i ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              {openIndex === index && (
-                <div className="px-4 sm:px-5 lg:px-6 pb-3 sm:pb-4 text-sm text-brand-text/60">
-                  {faq.answer}
+              {open === i && (
+                <div className="px-6 pb-5 text-sm text-brand-text/70 leading-relaxed border-t border-brand-border/40 pt-4">
+                  {faq.a}
                 </div>
               )}
             </div>
@@ -402,148 +526,95 @@ function FAQSection() {
   );
 }
 
+function CTASection() {
+  return (
+    <section className="py-16 md:py-24 bg-brand-bg border-t border-brand-border/50">
+      <div className="max-w-3xl mx-auto px-6 lg:px-8 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary text-sm font-semibold mb-6 border border-brand-primary/20">
+          <Sparkles className="w-4 h-4" />
+          Ready to Start?
+        </div>
+        <h2 className="text-3xl md:text-4xl font-heading font-extrabold text-brand-text mb-4">
+          Join the Affiliate Programme Today
+        </h2>
+        <p className="text-brand-text/70 mb-8 leading-relaxed">
+          Pick the courses you believe in, share your links, and earn real
+          commissions — all in one place.
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
+          <Link
+            href="/partners/apply"
+            className="group flex items-center justify-center gap-2 px-8 py-4 bg-brand-primary text-white font-semibold rounded-full hover:bg-brand-primary-hover transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+          >
+            Apply Now
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link
+            href="/partners/dashboard"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-transparent border-2 border-brand-primary text-brand-primary font-semibold rounded-full hover:bg-brand-primary/5 transition-all duration-300"
+          >
+            Go to Dashboard
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PartnersFooter() {
   return (
-    <footer className="border-t border-brand-border bg-[var(--card)] brightness-95 py-6 sm:py-8 lg:py-12">
-      <div className="max-w-[1280px] mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
-              <Image
-                src="/logo.png"
-                alt="AutoLearn Spot"
-                width={32}
-                height={32}
-              />
-              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-[#e2e2e8]">
-                AutoLearn Spot
-              </span>
-            </div>
-            <p className="text-sm text-brand-text/60 mb-4">
-              Become a partner and earn commissions while helping others learn valuable AI automation skills.
-            </p>
-            <div className="flex gap-3 flex-wrap">
-              <a href={socialLinks.facebook.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                Facebook
-              </a>
-              <a href={socialLinks.linkedin.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                LinkedIn
-              </a>
-              <a href={socialLinks.instagram.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                Instagram
-              </a>
-              <a href={socialLinks.tiktok.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                TikTok
-              </a>
-              <a href={socialLinks.youtube.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                YouTube
-              </a>
-              <a href={socialLinks.x.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                X
-              </a>
-              <a href={socialLinks.whatsapp.url} target="_blank" rel="noopener noreferrer" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                WhatsApp
-              </a>
-            </div>
-          </div>
-          
+    <footer className="bg-brand-bg border-t border-brand-border/50 py-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="grid sm:grid-cols-3 gap-8 mb-10">
           <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Program</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/partners" className="text-sm text-[#00F5FF] hover:text-[#00F5FF]/80 transition-colors">
-                  Partner Program
-                </Link>
-              </li>
-              <li>
-                <Link href="/partners/apply" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  Apply Now
-                </Link>
-              </li>
-              <li>
-                <Link href="/partners/dashboard" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  Partner Dashboard
-                </Link>
-              </li>
+            <h3 className="font-bold text-brand-text mb-4">Programme</h3>
+            <ul className="space-y-2 text-sm text-brand-text/60">
+              <li><Link href="/partners" className="hover:text-brand-primary transition-colors">Overview</Link></li>
+              <li><Link href="/partners/apply" className="hover:text-brand-primary transition-colors">Apply Now</Link></li>
+              <li><Link href="/partners/dashboard" className="hover:text-brand-primary transition-colors">Partner Dashboard</Link></li>
             </ul>
           </div>
-          
           <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Support</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/contact" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <a href={socialLinks.whatsapp.url} className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  WhatsApp Support
-                </a>
-              </li>
-              <li>
-                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  Scholarship
-                </Link>
-              </li>
+            <h3 className="font-bold text-brand-text mb-4">Support</h3>
+            <ul className="space-y-2 text-sm text-brand-text/60">
+              <li><Link href="/contact" className="hover:text-brand-primary transition-colors">Contact Us</Link></li>
+              <li><a href={socialLinks.whatsapp.url} className="hover:text-brand-primary transition-colors">WhatsApp Support</a></li>
+              <li><Link href="/scholarship" className="hover:text-brand-primary transition-colors">Scholarship</Link></li>
             </ul>
           </div>
-          
           <div>
-            <h3 className="font-semibold text-[#e2e2e8] mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/partners" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  Partners
-                </Link>
-              </li>
-              <li>
-                <Link href="/scholarship" className="text-sm text-brand-text/60 hover:text-[#00F5FF] transition-colors">
-                  Scholarship
-                </Link>
-              </li>
+            <h3 className="font-bold text-brand-text mb-4">Company</h3>
+            <ul className="space-y-2 text-sm text-brand-text/60">
+              <li><Link href="/" className="hover:text-brand-primary transition-colors">Home</Link></li>
+              <li><Link href="/marketplace" className="hover:text-brand-primary transition-colors">Marketplace</Link></li>
+              <li><Link href="/author-apply" className="hover:text-brand-primary transition-colors">Become a Creator</Link></li>
             </ul>
           </div>
         </div>
-        
-        <div className="border-t border-brand-border pt-8 text-center">
-          <p className="text-sm text-brand-text/60">
-            © 2026 AutoLearn Spot. All Rights Reserved.
-          </p>
+        <div className="border-t border-brand-border/40 pt-6 text-center text-sm text-brand-text/50">
+          © 2026 AutoLearn Spot. All Rights Reserved.
         </div>
       </div>
     </footer>
   );
 }
 
-function PartnerPage() {
-  return (
-    <>
-      <HeroSection />
-      <TrustSection />
-      <PartnerTypesSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
-      <ActivityFeedSection />
-      <LeaderboardSection />
-      <FAQSection />
-      <PartnersFooter />
-    </>
-  );
-}
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function PartnersPage() {
   return (
-    <main className="min-h-screen bg-[var(--card)] brightness-95">
+    <main className="min-h-screen bg-brand-bg">
       <Navigation />
       <WhatsAppChatModal variant="floating" />
       <AutolearnBot />
-      <PartnerPage />
+      <HeroSection />
+      <HowItWorksSection />
+      <BenefitsSection />
+      <CommissionExplainerSection />
+      <TestimonialsSection />
+      <FAQSection />
+      <CTASection />
+      <PartnersFooter />
     </main>
   );
 }
