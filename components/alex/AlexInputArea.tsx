@@ -682,7 +682,7 @@ export function AlexInputArea({
           </div>
           
           {/* Textarea */}
-          <div className="flex-1 relative min-w-0 max-w-full" style={{ flex: '1 1 auto', minWidth: 0, maxWidth: '100%' }}>
+          <div className="flex-1 relative min-w-0 max-w-full w-full" style={{ flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
             <textarea
               ref={textareaRef}
               value={content}
@@ -693,6 +693,7 @@ export function AlexInputArea({
               placeholder={isMobile ? "Message ALEX..." : "Ask ALEX anything..."}
               disabled={isLoading || isGenerating}
               rows={1}
+              cols={50}
               className={`bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto text-left block ${
                 isMobile ? 'min-h-[52px] max-h-[120px] py-3 px-3 text-base' : 'min-h-[44px] max-h-[200px] py-2 px-3 text-sm'
               }`}
