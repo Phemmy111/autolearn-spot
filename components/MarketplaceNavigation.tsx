@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, User, Brain } from 'lucide-react';
+import { Menu, X, User, Brain, Users } from 'lucide-react';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import Image from 'next/image';
 
@@ -10,7 +10,7 @@ import Image from 'next/image';
  * Marketplace Navigation
  *
  * Light/gray-themed navigation for the public marketplace:
- * Logo, Explore, Skills, Courses, Authors, ALEX, Cart, Account
+ * Logo, Explore, Skills, Courses, Authors, ALEX, Affiliates, Cart, Account
  */
 export function MarketplaceNavigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +21,7 @@ export function MarketplaceNavigation() {
     { name: 'Skills', href: '/skills' },
     { name: 'Courses', href: '/courses' },
     { name: 'Authors', href: '/authors' },
+    { name: 'Affiliates', href: '/partners', icon: Users },
     { name: 'ALEX', href: '/autolearn-ai', icon: Brain },
   ];
 

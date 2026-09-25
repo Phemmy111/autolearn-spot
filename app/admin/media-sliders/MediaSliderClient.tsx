@@ -161,10 +161,17 @@ export default function MediaSliderClient({ initialSliders, skills }: { initialS
                 onChange={e => setTargetId(e.target.value)}
                 className="w-full border-gray-300 rounded-lg shadow-sm focus:border-brand-primary focus:ring-brand-primary"
               >
-                <option value="homepage">Homepage</option>
-                {skills.map(s => (
-                  <option key={s.id} value={`skill:${s.id}`}>Skill: {s.name}</option>
-                ))}
+                <option value="homepage">Homepage Hero</option>
+                <optgroup label="Affiliate Showcase Cards (Homepage)">
+                  <option value="affiliate:pick_course">Affiliate Card 1: Pick Any Course</option>
+                  <option value="affiliate:share_link">Affiliate Card 2: Generate & Share Links</option>
+                  <option value="affiliate:earn_payout">Affiliate Card 3: Earn 10%–70% Payouts</option>
+                </optgroup>
+                <optgroup label="Skill Cards">
+                  {skills.map(s => (
+                    <option key={s.id} value={`skill:${s.id}`}>Skill: {s.name}</option>
+                  ))}
+                </optgroup>
               </select>
             </div>
             <div>

@@ -17,6 +17,7 @@ import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero'
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid'
 import { FeatureStrip } from '@/components/marketplace/FeatureStrip'
 import { TopSkillsGrid } from '@/components/marketplace/TopSkillsGrid'
+import { AffiliateShowcaseSection } from '@/components/marketplace/AffiliateShowcaseSection'
 
 import './page.css'
 
@@ -161,6 +162,9 @@ export default async function Page() {
       <FeatureStrip />
       <TopSkillsGrid />
       <MarketplaceProductGrid products={publishedProducts || []} />
+
+      {/* Affiliate & Partner Showcase Section */}
+      <AffiliateShowcaseSection />
 
       {/* Social Proof & Contact */}
       {sectionEnabled('section_testimonials_enabled') && <TestimonialsSection />}
