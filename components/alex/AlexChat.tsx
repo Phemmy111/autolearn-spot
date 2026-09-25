@@ -587,7 +587,7 @@ export function AlexChat({ userId }: AlexChatProps) {
       )}
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-[#1a1a1a] w-full">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-[#1a1a1a]">
         {/* Desktop Header - Simple ChatGPT Style */}
         {!isMobile && (
           <div className="bg-[#2d2d2d]/50 backdrop-blur-sm border-b border-[#404040] px-6 py-3 flex-shrink-0">

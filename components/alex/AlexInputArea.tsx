@@ -570,8 +570,8 @@ export function AlexInputArea({
   }
 
   return (
-    <div className={`${isMobile ? 'px-1 py-2 w-full mx-0' : 'px-4 py-4'}`} style={{ marginLeft: 0, marginRight: 0, width: '100%' }}>
-      <div className={`${isMobile ? 'w-full mx-0' : 'mx-auto max-w-3xl'}`} style={{ marginLeft: isMobile ? 0 : 'auto', marginRight: isMobile ? 0 : 'auto', width: isMobile ? '100%' : 'auto' }}>
+    <div className={`${isMobile ? 'px-2 py-2' : 'px-4 py-4'}`}>
+      <div className={`${isMobile ? 'w-full' : 'mx-auto max-w-3xl'}`}>
         {/* File attachments */}
         {attachedFiles.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
@@ -612,7 +612,7 @@ export function AlexInputArea({
           </div>
         )}
 
-        <div className="flex items-end gap-1 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg w-full max-w-full mx-0" style={{ width: '100%', maxWidth: '100%', marginLeft: 0, marginRight: 0 }}>
+        <div className="flex items-end gap-2 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg">
           {/* Mode Selector Button */}
           {onModeChange && (
             <div className="relative flex-shrink-0" ref={dropdownRef}>
@@ -682,7 +682,7 @@ export function AlexInputArea({
           </div>
           
           {/* Textarea */}
-          <div className="flex-1 relative min-w-0 max-w-full w-full" style={{ flex: '1 1 0%', minWidth: 0, maxWidth: '100%' }}>
+          <div className="flex-1 min-w-0">
             <textarea
               ref={textareaRef}
               value={content}
@@ -693,21 +693,13 @@ export function AlexInputArea({
               placeholder={isMobile ? "Message ALEX..." : "Ask ALEX anything..."}
               disabled={isLoading || isGenerating}
               rows={1}
-              cols={50}
-              className={`bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto text-left block ${
+              className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto ${
                 isMobile ? 'min-h-[52px] max-h-[120px] py-3 px-3 text-base' : 'min-h-[44px] max-h-[200px] py-2 px-3 text-sm'
               }`}
               style={{ 
                 height: 'auto',
                 color: '#ffffff',
-                caretColor: '#00f0ff',
-                width: '100% !important',
-                maxWidth: 'none !important',
-                minWidth: '0 !important',
-                display: 'block',
-                boxSizing: 'border-box',
-                textAlign: 'left',
-                textIndent: '0'
+                caretColor: '#00f0ff'
               }}
               aria-label="Message input"
               aria-describedby={isMobile ? "mobile-input-hint" : undefined}
