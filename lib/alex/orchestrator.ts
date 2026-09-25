@@ -70,7 +70,7 @@ export class AlexOrchestrator {
    * Orchestrate an AI request
    */
   static async orchestrate(request: OrchestratorRequest): Promise<OrchestratorResponse> {
-    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService, disableTools, enableMemory, enableTools, toolRegistry, toolExecutionService, enableAgent, aiEngine, signal } = request
+    const { content, mode, conversationHistory, platformContext, userIntent, attachedFiles, userId, conversationId, enableRetrieval, modelName, enableTokenAwareAssembly, providerCapabilities, webResearchService, disableTools, enableMemory, enableTools, toolRegistry, toolExecutionService, enableAgent, aiEngine, signal, enableMultiAgent, enableSelfImprovement } = request
     
     // Ensure providerCapabilities is always an array
     const capabilities = Array.isArray(providerCapabilities) ? providerCapabilities : []

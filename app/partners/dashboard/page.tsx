@@ -197,8 +197,56 @@ export default function PartnerDashboard() {
   const referral = data?.referral;
   const bankProfile = data?.bankProfile;
 
+  const [marketplaceProducts, setMarketplaceProducts] = useState<any[]>([]);
+  const [affiliateLinks, setAffiliateLinks] = useState<any[]>([]);
+  const [loadingMarketplace, setLoadingMarketplace] = useState(false);
+  const [generatingLink, setGeneratingLink] = useState<string | null>(null);
+
+  const fetchAffiliateData = async () => {
+    setLoadingMarketplace(true);
+    try {
+      const [mpRes, linksRes] = await Promise.all([
+        fetch('/api/partners/affiliate-marketplace'),
+        fetch('/api/partners/affiliate-links')
+      ]);
+      if (mpRes.ok) setMarketplaceProducts(await mpRes.json());
+      if (linksRes.ok) setAffiliateLinks(await linksRes.json());
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingMarketplace(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'promote') {
+      fetchAffiliateData();
+    }
+  }, [activeTab]);
+
+  const generateAffiliateLink = async (productId: string) => {
+    setGeneratingLink(productId);
+    try {
+      const res = await fetch('/api/partners/affiliate-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ learning_product_id: productId })
+      });
+      if (res.ok) {
+        await fetchAffiliateData(); // Refresh lists
+      } else {
+        alert('Failed to generate link');
+      }
+    } catch (e) {
+      alert('Error generating link');
+    } finally {
+      setGeneratingLink(null);
+    }
+  };
+
   const navItems = [
     { id: "overview", label: "Overview", icon: BarChart3 },
+    { id: "promote", label: "Promote Courses", icon: Globe },
     { id: "referrals", label: "Referrals", icon: Users },
     { id: "earnings", label: "Earnings", icon: DollarSign },
     { id: "withdrawals", label: "Withdrawals", icon: CreditCard },
