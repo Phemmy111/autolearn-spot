@@ -570,8 +570,8 @@ export function AlexInputArea({
   }
 
   return (
-    <div className={`${isMobile ? 'px-2 py-2 w-full' : 'px-4 py-4'}`}>
-      <div className={`${isMobile ? 'w-full' : 'mx-auto max-w-3xl'}`}>
+    <div className={`${isMobile ? 'px-1 py-2 w-full mx-0' : 'px-4 py-4'}`} style={{ marginLeft: 0, marginRight: 0, width: '100%' }}>
+      <div className={`${isMobile ? 'w-full mx-0' : 'mx-auto max-w-3xl'}`} style={{ marginLeft: isMobile ? 0 : 'auto', marginRight: isMobile ? 0 : 'auto', width: isMobile ? '100%' : 'auto' }}>
         {/* File attachments */}
         {attachedFiles.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
@@ -612,7 +612,7 @@ export function AlexInputArea({
           </div>
         )}
 
-        <div className="flex items-end gap-1 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg w-full max-w-full">
+        <div className="flex items-end gap-1 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg w-full max-w-full mx-0" style={{ width: '100%', maxWidth: '100%', marginLeft: 0, marginRight: 0 }}>
           {/* Mode Selector Button */}
           {onModeChange && (
             <div className="relative flex-shrink-0" ref={dropdownRef}>
