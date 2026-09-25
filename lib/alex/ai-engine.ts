@@ -187,6 +187,8 @@ export class AIEngine {
       webResearchService,
       enableAgent: request.enableAgent, // Phase 6: Pass agent flag
       aiEngine: request.aiEngine || this, // Phase 6: Pass AI engine
+      enableMultiAgent: false, // Phase 7: Multi-agent coordination (disabled by default)
+      enableSelfImprovement: false, // Phase 9: Self-improvement (disabled by default)
     });
 
     return {

@@ -346,6 +346,94 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
     }
   }
 
+  // AFFILIATE COMMISSION PAYOUT
+  // Check if the purchase came via an affiliate link (metadata.affiliate_ref)
+  const affiliateRef = data.metadata?.affiliate_ref || data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'affiliate_ref')?.value;
+  if (affiliateRef) {
+    try {
+      for (const item of orderItems) {
+        // Find referral code
+        const { data: refCode } = await supabaseAdmin
+          .from('referral_codes')
+          .select('id, owner_id, owner_type')
+          .eq('code', affiliateRef)
+          .eq('owner_type', 'affiliate')
+          .single();
+
+        if (!refCode) continue;
+
+        // Find affiliate link matching this code and product
+        const { data: affLink } = await supabaseAdmin
+          .from('affiliate_links')
+          .select('id, partner_id')
+          .eq('referral_code_id', refCode.id)
+          .eq('learning_product_id', item.learning_product_id)
+          .single();
+
+        if (!affLink) continue;
+
+        // Get product affiliate_commission_rate
+        const { data: affProduct } = await supabaseAdmin
+          .from('learning_products')
+          .select('affiliate_commission_rate, affiliate_enabled')
+          .eq('id', item.learning_product_id)
+          .single();
+
+        if (!affProduct?.affiliate_enabled) continue;
+
+        const affiliateCommissionRate = (affProduct.affiliate_commission_rate || 20) / 100;
+        const affiliateAmount = Math.round(item.price_snapshot * affiliateCommissionRate);
+
+        // Record commission
+        await supabaseAdmin.from('commissions').insert({
+          referrer_id: affLink.partner_id,
+          referrer_type: 'affiliate',
+          referee_email: email,
+          referral_code: affiliateRef,
+          payment_reference: reference,
+          amount: affiliateAmount,
+          status: 'pending',
+          learning_product_id: item.learning_product_id,
+          commission_type: 'affiliate',
+          holding_period_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        });
+
+        // Credit partner earnings
+        const { data: currentPartner } = await supabaseAdmin
+          .from('partners')
+          .select('available_earnings, lifetime_earnings')
+          .eq('id', affLink.partner_id)
+          .single();
+
+        if (currentPartner) {
+          await supabaseAdmin.from('partners').update({
+            available_earnings: (currentPartner.available_earnings || 0) + affiliateAmount,
+            lifetime_earnings: (currentPartner.lifetime_earnings || 0) + affiliateAmount,
+          }).eq('id', affLink.partner_id);
+        }
+
+        // Update affiliate_links stats
+        await supabaseAdmin.from('affiliate_links').update({
+          conversions: affLink.partner_id ? undefined : 0,
+          total_earned: affiliateAmount,
+        }).eq('id', affLink.id);
+
+        // Increment conversions separately to avoid race conditions
+        await supabaseAdmin.rpc('increment_affiliate_conversions', { link_id: affLink.id, earned: affiliateAmount }).catch(() => {
+          // RPC might not exist yet - fallback to simple update
+          supabaseAdmin.from('affiliate_links')
+            .update({ conversions: 1, total_earned: affiliateAmount })
+            .eq('id', affLink.id);
+        });
+
+        console.log(`AFFILIATE: Paid out ₦${affiliateAmount} to partner ${affLink.partner_id} for product ${item.learning_product_id}`);
+      }
+    } catch (affiliateError) {
+      console.error('AFFILIATE: Failed to process affiliate commission:', affiliateError);
+      // Don't fail checkout if affiliate commission fails
+    }
+  }
+
   return NextResponse.json({
     received: true,
     message: 'Cart checkout processed successfully',
