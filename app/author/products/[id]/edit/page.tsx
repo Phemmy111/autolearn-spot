@@ -57,6 +57,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
 
+  // Affiliate settings
+  const [affiliateEnabled, setAffiliateEnabled] = useState(false);
+  const [affiliateRate, setAffiliateRate] = useState(20);
+  const [affiliateSaving, setAffiliateSaving] = useState(false);
+  const [affiliateSaved, setAffiliateSaved] = useState(false);
+  const [productPrice, setProductPriceForAffiliate] = useState(0);
+
   useEffect(() => {
     fetch(`/api/author/products/${id}`)
       .then(res => res.json())
@@ -69,6 +76,9 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setPrice(String(p.price ?? 0));
           setCurrency(p.currency || 'NGN');
           setThumbnailUrl(p.thumbnail_url || null);
+          setProductPriceForAffiliate(p.price || 0);
+          setAffiliateEnabled(p.affiliate_enabled || false);
+          setAffiliateRate(p.affiliate_commission_rate || 20);
           
           if (p.access_duration_days) {
             if (ACCESS_DURATIONS.includes(p.access_duration_days)) {
@@ -571,6 +581,96 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
 
+        {/* AFFILIATE SETTINGS */}
+        <div className="bg-[var(--card)] rounded-xl border border-brand-border p-6 space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+              <span className="text-purple-500 text-xl">🤝</span>
+            </div>
+            <div>
+              <h3 className="font-bold text-brand-text text-lg">Affiliate Programme</h3>
+              <p className="text-sm text-brand-text/60">Let affiliates promote this course and earn a commission per sale</p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-brand-bg rounded-lg border border-brand-border">
+            <div>
+              <p className="font-semibold text-brand-text">Allow Affiliates</p>
+              <p className="text-xs text-brand-text/60 mt-0.5">Affiliates can generate a unique link to promote this course</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAffiliateEnabled(!affiliateEnabled)}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${affiliateEnabled ? 'bg-brand-primary' : 'bg-brand-border'}`}
+            >
+              <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${affiliateEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
+          {affiliateEnabled && (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-brand-text mb-2">
+                  Affiliate Commission Rate: <span className="text-brand-primary">{affiliateRate}%</span>
+                </label>
+                <input
+                  type="range"
+                  min={5}
+                  max={70}
+                  step={1}
+                  value={affiliateRate}
+                  onChange={e => setAffiliateRate(Number(e.target.value))}
+                  className="w-full accent-brand-primary"
+                />
+                <div className="flex justify-between text-xs text-brand-text/50 mt-1">
+                  <span>5%</span><span>35%</span><span>70%</span>
+                </div>
+              </div>
+
+              {productPrice > 0 && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 rounded-lg bg-purple-500/10 text-center">
+                    <p className="text-xs text-brand-text/60 mb-1">Affiliate Earns</p>
+                    <p className="font-bold text-purple-500">₦{Math.round(productPrice * affiliateRate / 100).toLocaleString()}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-red-500/10 text-center">
+                    <p className="text-xs text-brand-text/60 mb-1">Platform Cuts</p>
+                    <p className="font-bold text-red-400">₦{Math.round(productPrice * 0.1).toLocaleString()}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-green-500/10 text-center">
+                    <p className="text-xs text-brand-text/60 mb-1">You Receive</p>
+                    <p className="font-bold text-green-500">₦{Math.round(productPrice * (1 - 0.1 - affiliateRate / 100)).toLocaleString()}</p>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-xs text-amber-500 bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
+                ⚠️ Your payout per sale will be reduced by the affiliate commission. Make sure the math works for you!
+              </p>
+            </div>
+          )}
+
+          <button
+            type="button"
+            disabled={affiliateSaving}
+            onClick={async () => {
+              setAffiliateSaving(true);
+              setAffiliateSaved(false);
+              try {
+                const res = await fetch(`/api/author/products/${id}/affiliate`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ affiliate_enabled: affiliateEnabled, affiliate_commission_rate: affiliateRate }),
+                });
+                if (res.ok) { setAffiliateSaved(true); setTimeout(() => setAffiliateSaved(false), 3000); }
+              } finally { setAffiliateSaving(false); }
+            }}
+            className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {affiliateSaving ? <><span className="animate-spin">⟳</span> Saving...</> : affiliateSaved ? '✓ Affiliate Settings Saved!' : '💾 Save Affiliate Settings'}
+          </button>
+        </div>
+
         {/* ACTIONS */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 mt-8 border-t border-brand-border">
           <div className="text-sm font-medium w-full sm:w-auto text-center sm:text-left">
@@ -599,3 +699,4 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
     </div>
   );
 }
+

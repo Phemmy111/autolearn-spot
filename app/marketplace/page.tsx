@@ -2,6 +2,8 @@ import { getPublishedProducts } from '@/lib/public-product-service';
 import { MarketplaceProductGrid } from '@/components/marketplace/MarketplaceProductGrid';
 import { Home, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { Suspense } from 'react';
+import { AffiliateRefCapture } from '@/components/affiliate/AffiliateRefCapture';
 
 /**
  * Marketplace Landing Page
@@ -13,6 +15,10 @@ export default async function MarketplacePage() {
 
   return (
     <div className="min-h-screen bg-brand-bg">
+      {/* Capture ?ref= affiliate codes from URL */}
+      <Suspense fallback={null}>
+        <AffiliateRefCapture />
+      </Suspense>
       {/* Header */}
       <div className="bg-[var(--card)] brightness-95 border-b border-brand-border">
         <div className="container mx-auto px-6 lg:px-12 py-8 pt-24">
