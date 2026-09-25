@@ -174,7 +174,7 @@ export function formatPlatformContextForPrompt(context: PlatformContext): string
   if (context.enrollments && context.enrollments.length > 0) {
     prompt += '--- Enrollments ---\n';
     context.enrollments.forEach(enrollment => {
-      prompt += `Course: ${enrollment.cohortName}\n`;
+      prompt += `Course: ${enrollment.courseName}\n`;
       prompt += `Status: ${enrollment.status}\n`;
       if (enrollment.enrolledDate) {
         prompt += `Enrolled: ${new Date(enrollment.enrolledDate).toLocaleDateString()}\n`;
@@ -185,7 +185,7 @@ export function formatPlatformContextForPrompt(context: PlatformContext): string
 
   if (context.learning) {
     prompt += '--- Learning Progress ---\n';
-    prompt += `Course: ${context.learning.currentCohortName}\n`;
+    prompt += `Course: ${context.learning.currentCourseName}\n`;
     prompt += `Progress: ${context.learning.progressPercentage}% (${context.learning.completedLessons}/${context.learning.totalLessons} lessons)\n`;
     
     if (context.learning.currentLesson) {

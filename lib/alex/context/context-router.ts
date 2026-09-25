@@ -27,8 +27,8 @@ export function routeContext(request: ContextRequest): ContextRoutingResult {
       'my details', 'account', 'user', 'myself'
     ],
     enrollment: [
-      'enrolled', 'enrollment', 'cohort', 'signed up', 'registered', 'my course',
-      'which course', 'what cohort', 'my enrollment status'
+      'enrolled', 'enrollment', 'course', 'signed up', 'registered', 'my course',
+      'which course', 'what course', 'my enrollment status'
     ],
     learning: [
       'progress', 'lesson', 'learning', 'study', 'complete', 'watch', 'video',

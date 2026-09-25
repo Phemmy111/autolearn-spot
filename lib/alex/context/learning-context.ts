@@ -116,7 +116,7 @@ async function getCompletionSummary(userId: string, courseId: string) {
   return { total, completed, percentage };
 }
 
-async function getRecentLessonProgress(userId: string, cohortId: string) {
+async function getRecentLessonProgress(userId: string, courseId: string) {
   const { data: progressData } = await supabaseAdmin
     .from('lesson_progress')
     .select(`
@@ -131,7 +131,7 @@ async function getRecentLessonProgress(userId: string, cohortId: string) {
       )
     `)
     .eq('user_id', userId)
-    .eq('cohort_id', cohortId)
+    .eq('learning_product_id', courseId)
     .order('updated_at', { ascending: false })
     .limit(10);
 
@@ -147,12 +147,12 @@ async function getRecentLessonProgress(userId: string, cohortId: string) {
   }));
 }
 
-async function getAllLessonsWithProgress(userId: string, cohortId: string): Promise<LessonInfo[]> {
-  // Get all lessons for the cohort, ordered by week_number and order_index
+async function getAllLessonsWithProgress(userId: string, courseId: string): Promise<LessonInfo[]> {
+  // Get all lessons for the course, ordered by week_number and order_index
   const { data: lessons } = await supabaseAdmin
     .from('lessons')
     .select('id, title, week_number, session_number, order_index, available_at')
-    .eq('cohort_id', cohortId)
+    .eq('learning_product_id', courseId)
     .order('week_number', { ascending: true })
     .order('order_index', { ascending: true });
 
@@ -163,7 +163,7 @@ async function getAllLessonsWithProgress(userId: string, cohortId: string): Prom
     .from('lesson_progress')
     .select('lesson_id, completed, watch_pct')
     .eq('user_id', userId)
-    .eq('cohort_id', cohortId);
+    .eq('learning_product_id', courseId);
 
   // Create a map of lesson progress
   const progressMap = new Map();

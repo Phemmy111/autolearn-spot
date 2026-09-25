@@ -18,12 +18,12 @@ export async function getEnrollmentContext(
       .from('enrollments')
       .select(`
         id,
-        cohort_id,
+        learning_product_id,
         status,
         created_at,
-        cohort:cohorts (
+        learning_product:learning_products (
           id,
-          name,
+          title,
           slug,
           is_current
         )
@@ -48,12 +48,12 @@ export async function getEnrollmentContext(
           .from('enrollments')
           .select(`
             id,
-            cohort_id,
+            learning_product_id,
             status,
             created_at,
-            cohort:cohorts (
+            learning_product:learning_products (
               id,
-              name,
+              title,
               slug,
               is_current
             )
@@ -102,12 +102,12 @@ export async function getEnrollmentContext(
 function sanitizeEnrollments(data: any[]): { context: EnrollmentContext[]; error: null } {
   const context: EnrollmentContext[] = data.map(enrollment => ({
     enrollmentId: enrollment.id,
-    cohortId: enrollment.cohort_id,
-    cohortName: enrollment.cohort?.name || 'Unknown Cohort',
-    cohortSlug: enrollment.cohort?.slug || 'unknown',
+    courseId: enrollment.learning_product_id,
+    courseName: enrollment.learning_product?.title || 'Unknown Course',
+    courseSlug: enrollment.learning_product?.slug || 'unknown',
     status: enrollment.status,
     enrolledDate: enrollment.created_at,
-    isCurrentCohort: enrollment.cohort?.is_current || false,
+    isCurrentCourse: enrollment.learning_product?.is_current || false,
   }));
 
   return { context, error: null };

@@ -17,13 +17,13 @@ export async function getCertificateContext(
       .from('certificates')
       .select(`
         certificate_code,
-        cohort_id,
+        learning_product_id,
         user_name,
         issued_at,
         revoked_at,
         verification_url,
-        cohort:cohorts (
-          name
+        learning_product:learning_products (
+          title
         )
       `)
       .eq('user_id', authenticatedUserId)
@@ -44,7 +44,7 @@ export async function getCertificateContext(
       hasCertificate: !!data && data.length > 0,
       certificates: (data || []).map(cert => ({
         certificateCode: cert.certificate_code,
-        cohortName: (cert.cohort as any)?.name || 'Unknown Cohort',
+        courseName: (cert.learning_product as any)?.title || 'Unknown Course',
         issuedDate: cert.issued_at,
         isRevoked: !!cert.revoked_at,
         verificationUrl: cert.verification_url,
