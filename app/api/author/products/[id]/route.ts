@@ -17,7 +17,35 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     if (error || !product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
-    return NextResponse.json({ success: true, product });
+
+    // Fetch dynamic platform commission rate from site_settings
+    const { data: commissionSetting } = await supabaseAdmin
+      .from('site_settings')
+      .select('value')
+      .eq('key', 'platform_commission_rate')
+      .maybeSingle();
+
+    let platformCommissionRate = 10;
+    if (commissionSetting?.value) {
+      try {
+        const parsed = JSON.parse(commissionSetting.value);
+        if (typeof parsed === 'number') platformCommissionRate = parsed;
+        else if (parsed && typeof parsed === 'object') platformCommissionRate = parsed.rate || parsed.value || 10;
+      } catch {
+        const parsed = parseFloat(commissionSetting.value);
+        if (!isNaN(parsed)) platformCommissionRate = parsed;
+      }
+    } else if (product.commission_rate !== undefined && product.commission_rate !== null) {
+      const pRate = Number(product.commission_rate);
+      if (pRate <= 1 && pRate > 0) platformCommissionRate = pRate * 100;
+      else if (pRate > 1) platformCommissionRate = pRate;
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      product,
+      platform_commission_rate: platformCommissionRate 
+    });
   } catch (err: any) {
     console.error('[GET /api/author/products/[id]] error:', err);
     return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 });

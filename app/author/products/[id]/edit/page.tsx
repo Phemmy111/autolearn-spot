@@ -63,6 +63,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   const [affiliateSaving, setAffiliateSaving] = useState(false);
   const [affiliateSaved, setAffiliateSaved] = useState(false);
   const [productPrice, setProductPriceForAffiliate] = useState(0);
+  const [platformCommissionRate, setPlatformCommissionRate] = useState(10);
 
   useEffect(() => {
     fetch(`/api/author/products/${id}`)
@@ -79,6 +80,13 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setProductPriceForAffiliate(p.price || 0);
           setAffiliateEnabled(p.affiliate_enabled || false);
           setAffiliateRate(p.affiliate_commission_rate || 20);
+
+          if (data.platform_commission_rate !== undefined) {
+            setPlatformCommissionRate(Number(data.platform_commission_rate));
+          } else if (p.commission_rate !== undefined && p.commission_rate !== null) {
+            const pRate = Number(p.commission_rate);
+            setPlatformCommissionRate(pRate <= 1 && pRate > 0 ? pRate * 100 : pRate);
+          }
           
           if (p.access_duration_days) {
             if (ACCESS_DURATIONS.includes(p.access_duration_days)) {
@@ -704,15 +712,15 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-neutral-500/10 border border-neutral-500/20 text-center">
-                    <p className="text-xs font-semibold text-brand-text/60 mb-1">Platform Fee (10%)</p>
+                    <p className="text-xs font-semibold text-brand-text/60 mb-1">Platform Fee ({platformCommissionRate}%)</p>
                     <p className="text-xl font-extrabold text-brand-text/70">
-                      ₦{Math.round((Number(price) || 0) * 0.1).toLocaleString()}
+                      ₦{Math.round((Number(price) || 0) * (platformCommissionRate / 100)).toLocaleString()}
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
                     <p className="text-xs font-semibold text-brand-text/60 mb-1">Your Net Earnings</p>
                     <p className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                      ₦{Math.max(0, Math.round((Number(price) || 0) * (1 - 0.1 - affiliateRate / 100))).toLocaleString()}
+                      ₦{Math.max(0, Math.round((Number(price) || 0) * (1 - (platformCommissionRate / 100) - (affiliateRate / 100)))).toLocaleString()}
                     </p>
                   </div>
                 </div>
