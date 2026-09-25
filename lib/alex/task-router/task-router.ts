@@ -159,15 +159,16 @@ export class TaskRouter {
 
   /**
    * Check if request is for artifact generation
+   * Note: This is specifically for n8n workflow generation, not general coding tasks
    */
   private static isArtifactGenerationRequest(content: string): boolean {
     const artifactKeywords = [
-      'build me a website',
       'create a workflow',
-      'design a landing page',
       'generate automation',
-      'make an app',
-      'build a dashboard',
+      'build a workflow',
+      'n8n workflow',
+      'automation workflow',
+      'make a workflow',
     ]
 
     const lowerContent = content.toLowerCase()
