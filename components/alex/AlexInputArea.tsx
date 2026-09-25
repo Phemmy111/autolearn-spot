@@ -612,77 +612,9 @@ export function AlexInputArea({
           </div>
         )}
 
-        <div className="flex items-end gap-2 bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2 shadow-lg">
-          {/* Mode Selector Button */}
-          {onModeChange && (
-            <div className="relative flex-shrink-0" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setShowModeDropdown(!showModeDropdown)}
-                className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-white/60 hover:text-[#10b981] hover:bg-[#404040]/50 rounded-xl transition-all"
-                title="Select mode"
-                disabled={isLoading || isGenerating}
-                aria-label="Select mode"
-              >
-                {(() => {
-                  const CurrentIcon = modes.find(m => m.value === currentMode)?.icon || Sparkles
-                  return <CurrentIcon className="h-5 w-5" />
-                })()}
-              </button>
-
-              {/* Mode Dropdown */}
-              {showModeDropdown && (
-                <div className="absolute bottom-full left-0 mb-2 bg-[#404040] border border-[#505050] rounded-xl shadow-xl z-50 min-w-[180px] py-1">
-                  {modes.map((mode) => {
-                    const Icon = mode.icon
-                    return (
-                      <button
-                        key={mode.value}
-                        type="button"
-                        onClick={() => {
-                          onModeChange(mode.value as any)
-                          setShowModeDropdown(false)
-                        }}
-                        className={`w-full px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
-                          currentMode === mode.value
-                            ? 'bg-[#10b981]/20 text-[#10b981]'
-                            : 'text-white/80 hover:bg-[#404040]/50 hover:text-white'
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                        <span>{mode.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Attachment Button */}
-          <div className="relative flex-shrink-0">
-            <button
-              type="button"
-              onClick={handleAttachment}
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:bg-slate-700/50 rounded-xl transition-all"
-              title="Attach files"
-              disabled={isLoading || isGenerating || !conversationId}
-              aria-label="Attach files"
-            >
-              <Paperclip className="h-5 w-5" />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept=".pdf,.doc,.docx,.txt,.md,.js,.jsx,.ts,.tsx,.json,.css,.html,.py,.java,.c,.cpp,.cs,.csv,.png,.jpg,.jpeg,.webp"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </div>
-          
-          {/* Textarea */}
-          <div className="flex-1 min-w-0">
+        <div className="flex flex-col bg-[#2d2d2d] backdrop-blur-sm border border-[#404040] rounded-2xl p-2.5 sm:p-3 shadow-lg gap-2">
+          {/* Textarea - Takes Full 100% Width */}
+          <div className="w-full min-w-0">
             <textarea
               ref={textareaRef}
               value={content}
@@ -693,8 +625,8 @@ export function AlexInputArea({
               placeholder={isMobile ? "Message ALEX..." : "Ask ALEX anything..."}
               disabled={isLoading || isGenerating}
               rows={1}
-              className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto ${
-                isMobile ? 'min-h-[52px] max-h-[120px] py-3 px-3 text-base' : 'min-h-[44px] max-h-[200px] py-2 px-3 text-sm'
+              className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto block ${
+                isMobile ? 'min-h-[44px] max-h-[140px] py-1.5 px-2 text-base' : 'min-h-[44px] max-h-[200px] py-1.5 px-2 text-sm'
               }`}
               style={{ 
                 height: 'auto',
@@ -710,54 +642,136 @@ export function AlexInputArea({
               </div>
             )}
           </div>
-          
-          {/* Voice Input Button (Mobile Only) */}
-          {isMobile && (
-            <button
-              type="button"
-              onClick={handleVoiceInput}
-              className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                isRecording 
-                  ? 'bg-red-500/20 text-red-400 animate-pulse' 
-                  : 'text-white/60 hover:text-[#10b981] hover:bg-[#404040]/50'
-              }`}
-              title="Voice input (coming soon)"
-              disabled={isLoading || isGenerating}
-              aria-label="Voice input"
-            >
-              {isRecording ? <StopCircle className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-            </button>
-          )}
-          
-          {/* Send/Stop Button */}
-          {isGenerating ? (
-            <button
-              type="button"
-              onClick={handleStop}
-              className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 hover:bg-red-500/30 transition-all"
-              title="Stop generation"
-              aria-label="Stop generation"
-            >
-              <Square className="h-5 w-5" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={!content.trim() || isLoading || attachedFiles.some(f => f.status !== 'ready' || !f.uploadedFileId)}
-              className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
-                content.trim() && !isLoading && attachedFiles.length > 0 && attachedFiles.every(f => f.status === 'ready' && f.uploadedFileId)
-                  ? 'bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white shadow-lg shadow-[#10b981]/20'
-                  : content.trim() && !isLoading && attachedFiles.length === 0
-                  ? 'bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white shadow-lg shadow-[#10b981]/20'
-                  : 'bg-[#404040] text-white/60 cursor-not-allowed'
-              }`}
-              title="Send message"
-              aria-label="Send message"
-            >
-              <Send className="h-5 w-5" />
-            </button>
-          )}
+
+          {/* Action Toolbar Row - Distributed evenly across full width */}
+          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-[#3a3a3a]/60">
+            {/* Left Actions: Mode Selector & Attachment */}
+            <div className="flex items-center gap-1.5">
+              {/* Mode Selector Button */}
+              {onModeChange && (
+                <div className="relative flex-shrink-0" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowModeDropdown(!showModeDropdown)}
+                    className="flex-shrink-0 h-8 px-2.5 flex items-center gap-1.5 text-xs font-medium text-white/70 hover:text-[#10b981] bg-[#383838]/70 hover:bg-[#404040] rounded-xl transition-all border border-[#4a4a4a]/40"
+                    title="Select mode"
+                    disabled={isLoading || isGenerating}
+                    aria-label="Select mode"
+                  >
+                    {(() => {
+                      const currentModeObj = modes.find(m => m.value === currentMode)
+                      const CurrentIcon = currentModeObj?.icon || Sparkles
+                      return (
+                        <>
+                          <CurrentIcon className="h-3.5 w-3.5 text-[#10b981]" />
+                          <span className="hidden sm:inline">{currentModeObj?.label || 'Auto'}</span>
+                          <ChevronDown className="h-3 w-3 opacity-60 ml-0.5" />
+                        </>
+                      )
+                    })()}
+                  </button>
+
+                  {/* Mode Dropdown */}
+                  {showModeDropdown && (
+                    <div className="absolute bottom-full left-0 mb-2 bg-[#333333] border border-[#505050] rounded-xl shadow-2xl z-50 min-w-[190px] py-1.5 backdrop-blur-md">
+                      {modes.map((mode) => {
+                        const Icon = mode.icon
+                        return (
+                          <button
+                            key={mode.value}
+                            type="button"
+                            onClick={() => {
+                              onModeChange(mode.value as any)
+                              setShowModeDropdown(false)
+                            }}
+                            className={`w-full px-3 py-2 flex items-center gap-2 text-xs transition-colors ${
+                              currentMode === mode.value
+                                ? 'bg-[#10b981]/20 text-[#10b981] font-medium'
+                                : 'text-white/80 hover:bg-[#404040]/70 hover:text-white'
+                            }`}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                            <span>{mode.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Attachment Button */}
+              <button
+                type="button"
+                onClick={handleAttachment}
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:bg-[#383838] rounded-xl transition-all"
+                title="Attach files"
+                disabled={isLoading || isGenerating || !conversationId}
+                aria-label="Attach files"
+              >
+                <Paperclip className="h-4 w-4" />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.txt,.md,.js,.jsx,.ts,.tsx,.json,.css,.html,.py,.java,.c,.cpp,.cs,.csv,.png,.jpg,.jpeg,.webp"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </div>
+
+            {/* Right Actions: Voice & Send */}
+            <div className="flex items-center gap-1.5">
+              {/* Voice Input Button (Mobile Only) */}
+              {isMobile && (
+                <button
+                  type="button"
+                  onClick={handleVoiceInput}
+                  className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl transition-all ${
+                    isRecording 
+                      ? 'bg-red-500/20 text-red-400 animate-pulse' 
+                      : 'text-white/60 hover:text-[#10b981] hover:bg-[#383838]'
+                  }`}
+                  title="Voice input (coming soon)"
+                  disabled={isLoading || isGenerating}
+                  aria-label="Voice input"
+                >
+                  {isRecording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </button>
+              )}
+              
+              {/* Send/Stop Button */}
+              {isGenerating ? (
+                <button
+                  type="button"
+                  onClick={handleStop}
+                  className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 hover:bg-red-500/30 transition-all shadow-sm"
+                  title="Stop generation"
+                  aria-label="Stop generation"
+                >
+                  <Square className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSend}
+                  disabled={!content.trim() || isLoading || attachedFiles.some(f => f.status !== 'ready' || !f.uploadedFileId)}
+                  className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl transition-all ${
+                    content.trim() && !isLoading && attachedFiles.length > 0 && attachedFiles.every(f => f.status === 'ready' && f.uploadedFileId)
+                      ? 'bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white shadow-md shadow-[#10b981]/25 active:scale-95'
+                      : content.trim() && !isLoading && attachedFiles.length === 0
+                      ? 'bg-gradient-to-r from-[#10b981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white shadow-md shadow-[#10b981]/25 active:scale-95'
+                      : 'bg-[#383838] text-white/40 cursor-not-allowed'
+                  }`}
+                  title="Send message"
+                  aria-label="Send message"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
