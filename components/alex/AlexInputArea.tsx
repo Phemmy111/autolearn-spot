@@ -693,7 +693,7 @@ export function AlexInputArea({
               placeholder={isMobile ? "Message ALEX..." : "Ask ALEX anything..."}
               disabled={isLoading || isGenerating}
               rows={1}
-              className={`w-full bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto text-left ${
+              className={`bg-transparent border-none text-white placeholder-slate-500 focus:outline-none focus:ring-0 resize-none overflow-y-auto text-left block ${
                 isMobile ? 'min-h-[52px] max-h-[120px] py-3 px-3 text-base' : 'min-h-[44px] max-h-[200px] py-2 px-3 text-sm'
               }`}
               style={{ 
@@ -701,10 +701,12 @@ export function AlexInputArea({
                 color: '#ffffff',
                 caretColor: '#00f0ff',
                 width: '100% !important',
-                maxWidth: '100% !important',
+                maxWidth: 'none !important',
                 minWidth: '0 !important',
                 display: 'block',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                textAlign: 'left',
+                textIndent: '0'
               }}
               aria-label="Message input"
               aria-describedby={isMobile ? "mobile-input-hint" : undefined}
