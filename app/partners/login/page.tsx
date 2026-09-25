@@ -85,7 +85,7 @@ export default function PartnerLoginPage() {
                     value="community"
                     checked={partnerType === "community"}
                     onChange={() => setPartnerType("community")}
-                    className="accent-[#00F5FF]"
+                    className="accent-brand-primary"
                   />
                   <span className="text-brand-text">Community Partner</span>
                 </label>
@@ -96,7 +96,7 @@ export default function PartnerLoginPage() {
                     value="influencer"
                     checked={partnerType === "influencer"}
                     onChange={() => setPartnerType("influencer")}
-                    className="accent-[#00F5FF]"
+                    className="accent-brand-primary"
                   />
                   <span className="text-brand-text">Influencer</span>
                 </label>
@@ -161,4 +161,5 @@ export default function PartnerLoginPage() {
     </div>
   );
 }
+
 

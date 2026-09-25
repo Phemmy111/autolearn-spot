@@ -462,7 +462,7 @@ export default function PartnerDashboard() {
             </div>
 
             {/* Referral Link Card */}
-            <div className="border border-brand-primary/30 bg-gradient-to-r from-[#00F5FF]/10 to-transparent rounded-2xl p-6">
+            <div className="border border-brand-primary/30 bg-gradient-to-r from-brand-primary/10 to-transparent rounded-2xl p-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-bold text-brand-text mb-2">Legacy Referral Link</h3>
@@ -509,14 +509,14 @@ export default function PartnerDashboard() {
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {marketplaceProducts.map(product => (
-                        <div key={product.id} className="border border-brand-border bg-[var(--card)] rounded-xl overflow-hidden flex flex-col">
+                        <div key={product.id} className="border border-brand-border bg-brand-bg rounded-xl overflow-hidden flex flex-col">
                           <div className="h-40 bg-brand-bg/50 relative">
                             {product.thumbnail_url ? (
                               <Image src={product.thumbnail_url} alt={product.title} fill className="object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-brand-text/30">No Image</div>
                             )}
-                            <div className="absolute top-2 right-2 bg-[#00F5FF]/90 text-white text-xs font-bold px-2 py-1 rounded">
+                            <div className="absolute top-2 right-2 bg-brand-primary/90 text-white text-xs font-bold px-2 py-1 rounded">
                               Earn {product.affiliate_commission_rate}%
                             </div>
                           </div>
@@ -530,7 +530,7 @@ export default function PartnerDashboard() {
                                 <button
                                   onClick={() => generateAffiliateLink(product.id)}
                                   disabled={generatingLink === product.id}
-                                  className="w-full py-2 bg-brand-bg hover:bg-[#00F5FF]/10 border border-brand-primary/50 text-brand-primary rounded-lg transition-colors flex justify-center items-center gap-2"
+                                  className="w-full py-2 bg-brand-bg hover:bg-brand-primary/10 border border-brand-primary/50 text-brand-primary rounded-lg transition-colors flex justify-center items-center gap-2"
                                 >
                                   {generatingLink === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
                                   Get Affiliate Link
@@ -577,7 +577,7 @@ export default function PartnerDashboard() {
                                         navigator.clipboard.writeText(link.affiliate_url);
                                         alert('Link copied!');
                                       }}
-                                      className="px-3 py-1.5 bg-[#00F5FF]/10 hover:bg-[#00F5FF]/20 text-brand-primary border border-brand-primary/30 rounded flex items-center gap-2"
+                                      className="px-3 py-1.5 bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary border border-brand-primary/30 rounded flex items-center gap-2"
                                     >
                                       <Copy className="w-3 h-3" /> Copy
                                     </button>
@@ -1190,4 +1190,5 @@ export default function PartnerDashboard() {
     </div>
   );
 }
+
 
