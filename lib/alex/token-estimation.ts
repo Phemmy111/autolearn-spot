@@ -140,12 +140,12 @@ export function getModelContextLimit(modelName: string): number {
 export function getTPMLimit(modelName: string): number {
   const tpmLimits: Record<string, number> = {
     // Groq models - typically 8000 TPM for free tier
-    'openai/gpt-oss-120b': 8000,
+    'openai/gpt-oss-120b': 4000,
     'meta-llama/llama-prompt-guard-2-22m': 8000,
     'openai/gpt-oss-safeguard-20b': 8000,
     
     // OpenRouter models - conservative default
-    'openrouter/free': 8000,
+    'openrouter/free': 4000,
     'openrouter/': 8000,
     
     // OpenAI models - higher limits, use conservative default
