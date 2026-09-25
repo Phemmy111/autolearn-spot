@@ -366,7 +366,6 @@ export default function PartnerApplicationPage() {
               </p>
             </div>
 
-          <div className="space-y-6 lg:space-y-8 flex flex-col justify-center">
             {/* Benefits Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               {BENEFITS.map((benefit) => {
