@@ -12,7 +12,7 @@ export default async function AdminLayout({
   try {
     await requireAdmin()
   } catch (error) {
-    redirect('/')
+    redirect('/admin-sign-in')
   }
 
   return (
