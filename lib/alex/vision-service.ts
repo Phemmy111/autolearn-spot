@@ -151,6 +151,21 @@ export class VisionService {
       try {
         console.log('[Vision Service] Analyzing image:', imageFile.original_filename)
 
+        // Check if visual description is already cached/extracted
+        if (imageFile.extracted_text && imageFile.extracted_text.trim().length > 30) {
+          console.log('[Vision Service] Using cached visual extraction for:', imageFile.original_filename)
+          const visionResult: VisionAnalysisResult = {
+            success: true,
+            filename: imageFile.original_filename,
+            mimeType: imageFile.mime_type,
+            visualDescription: imageFile.extracted_text,
+            confidence: 0.95
+          }
+          analysisResults.push(visionResult)
+          combinedTextContext += this.formatAnalysisAsContext(visionResult)
+          continue
+        }
+
         // Handle SVG files specially
         if (imageFile.mime_type === 'image/svg+xml') {
           const svgAnalysis = await this.analyzeSVG(imageFile, visionProvider, maxAnalysisTokens)
@@ -170,6 +185,11 @@ export class VisionService {
 
             if (visionResult.visualDescription) {
               combinedTextContext += this.formatAnalysisAsContext(visionResult)
+              if (imageFile.id) {
+                this.persistVisualExtraction(imageFile.id, visionResult.visualDescription).catch(err =>
+                  console.warn('[Vision Service] Failed to persist SVG extraction:', err)
+                )
+              }
             }
           } else {
             analysisResults.push({
@@ -186,6 +206,11 @@ export class VisionService {
 
           if (analysis.success && analysis.visualDescription) {
             combinedTextContext += this.formatAnalysisAsContext(analysis)
+            if (imageFile.id) {
+              this.persistVisualExtraction(imageFile.id, analysis.visualDescription).catch(err =>
+                console.warn('[Vision Service] Failed to persist visual extraction:', err)
+              )
+            }
           }
         }
       } catch (error) {
@@ -561,17 +586,97 @@ export class VisionService {
   }
 
   /**
-   * Build analysis prompt for vision provider
-   * Simplified to reduce token usage
+   * Persist extracted visual text to Supabase alex_files
    */
-  private static buildAnalysisPrompt(filename: string): string {
-    return `Briefly analyze this image:
-1. What does it show? (1-2 sentences)
-2. Any visible text? (extract if present)
-3. Key elements or UI components? (list main items)
-4. Purpose? (what is this image for?)
+  public static async persistVisualExtraction(fileId: string, visualDescription: string): Promise<void> {
+    try {
+      const supabase = this.getSupabaseClient()
+      const { error } = await supabase
+        .from('alex_files')
+        .update({
+          extracted_text: visualDescription,
+          extraction_status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', fileId)
 
-Be concise. Max 200 words total.`
+      if (error) {
+        console.warn('[Vision Service] DB update error persisting visual extraction:', error.message)
+      } else {
+        console.log('[Vision Service] Successfully persisted visual extraction to DB for file:', fileId)
+      }
+    } catch (err) {
+      console.warn('[Vision Service] Error in persistVisualExtraction:', err)
+    }
+  }
+
+  /**
+   * Direct image buffer analysis for immediate upload-time processing
+   */
+  public static async analyzeImageBuffer(
+    buffer: Buffer,
+    mimeType: string,
+    filename: string
+  ): Promise<string> {
+    const base64 = buffer.toString('base64')
+    const dataUrl = `data:${mimeType};base64,${base64}`
+    const prompt = this.buildAnalysisPrompt(filename)
+
+    try {
+      const visionProvider = new FallbackVisionProvider()
+      console.log('[Vision Service] Running upload-time vision analysis with provider:', visionProvider.name)
+
+      const response = await Promise.race([
+        visionProvider.generate({
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: dataUrl,
+                    detail: 'auto'
+                  }
+                }
+              ]
+            }
+          ],
+          maxTokens: 1500,
+          stream: false
+        }),
+        new Promise<any>((_, reject) =>
+          setTimeout(() => reject(new Error('Vision provider upload timeout')), 25000)
+        )
+      ])
+
+      if (response && response.content && response.content.trim().length > 0 && !response.content.includes('failed:')) {
+        console.log('[Vision Service] Upload-time remote vision succeeded, length:', response.content.length)
+        return response.content.trim()
+      }
+    } catch (err) {
+      console.warn('[Vision Service] Upload-time remote vision failed, using local Sharp analysis:', err)
+    }
+
+    // Local Sharp fallback
+    const local = await this.analyzeLocalImage(dataUrl, filename)
+    return local.visualDescription
+  }
+
+  /**
+   * Build analysis prompt for vision provider
+   * Comprehensive visual inspection for deep multi-turn understanding
+   */
+  public static buildAnalysisPrompt(filename: string): string {
+    return `You are a high-accuracy vision analysis engine. Perform a comprehensive, deep visual inspection of this image (filename: "${filename}"):
+1. Overview: What is shown in the image? Describe the overall scene, diagram, UI, screenshot, document, or subject in detail.
+2. Visual Elements & Architecture: Describe all visible objects, components, nodes, layers, connections, flowcharts, architectures, graphs, tables, or interface controls.
+3. Visible Text & Labels: Transcribe and list all readable text, labels, titles, code snippets, numbers, or annotations visible in the image verbatim.
+4. Colors, Highlights & Details: Note specific visual cues, highlighted components, active tabs, error badges, or data points.
+5. Purpose & Technical Meaning: Explain what this diagram, screenshot, or graphic represents technically and conceptually.
+
+Provide a thorough, rich, and objective description so any AI model or user can understand everything visible in the image without seeing the original pixels.`
   }
 
   /**
@@ -675,21 +780,29 @@ Be concise. Max 200 words total.`
   }
 
   /**
-   * Format analysis result as context text
-   * Simplified to reduce token usage
+   * Format analysis result as context text for conversation injection
    */
-  private static formatAnalysisAsContext(analysis: VisionAnalysisResult): string {
-    let context = `\n=== IMAGE: ${analysis.filename} ===\n`
+  public static formatAnalysisAsContext(analysis: VisionAnalysisResult): string {
+    let context = `\n=== ATTACHED IMAGE VISUAL ANALYSIS: ${analysis.filename} ===\n`
+    context += `File: ${analysis.filename} (${analysis.mimeType})\n`
 
     if (analysis.visualDescription) {
-      context += `${analysis.visualDescription}\n`
+      context += `\n[Visual Content Description]:\n${analysis.visualDescription}\n`
     }
 
     if (analysis.detectedText) {
-      context += `Text: ${analysis.detectedText}\n`
+      context += `\n[Detected Text & Labels]:\n${analysis.detectedText}\n`
     }
 
-    context += '=== END ===\n'
+    if (analysis.structure) {
+      context += `\n[Visual Structure & Elements]:\n${analysis.structure}\n`
+    }
+
+    if (analysis.technicalDetails) {
+      context += `\n[Technical Details]:\n${analysis.technicalDetails}\n`
+    }
+
+    context += `=== END IMAGE ANALYSIS ===\n`
 
     return context
   }
@@ -987,7 +1100,7 @@ Be concise. Max 200 words total.`
   private static formatSVGAnalysisAsDescription(svgAnalysis: SVGAnalysisResult): string {
     let description = `SVG File Analysis:\n`
     
-    if (svgAnalysis.structuralData?.metadata.title) {
+    if (svgAnalysis.structuralData?.metadata?.title) {
       description += `Title: ${svgAnalysis.structuralData.metadata.title}\n`
     }
     
@@ -995,11 +1108,11 @@ Be concise. Max 200 words total.`
       description += `Dimensions: ${svgAnalysis.structuralData.dimensions.width} x ${svgAnalysis.structuralData.dimensions.height}\n`
     }
     
-    if (svgAnalysis.structuralData?.textElements.length > 0) {
+    if (svgAnalysis.structuralData?.textElements && svgAnalysis.structuralData.textElements.length > 0) {
       description += `Text Content: ${svgAnalysis.structuralData.textElements.join(', ')}\n`
     }
     
-    if (svgAnalysis.structuralData?.elements.length > 0) {
+    if (svgAnalysis.structuralData?.elements && svgAnalysis.structuralData.elements.length > 0) {
       description += `Elements: ${svgAnalysis.structuralData.elements.join(', ')}\n`
     }
     

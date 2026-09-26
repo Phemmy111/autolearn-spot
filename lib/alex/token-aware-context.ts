@@ -87,15 +87,17 @@ export async function assembleTokenAwareContext(
   let visionContext = ''
   let researchContext = ''
 
-  if (rawImageFiles.length > 0 && options.providerManager && options.providerRegistry) {
+  if (rawImageFiles.length > 0) {
     console.log('[Token-Aware Context] Images detected with vision preprocessing available')
     
     try {
+      const registry = options.providerRegistry || new ProviderRegistry()
+      const manager = options.providerManager || new ProviderManager(registry)
       const visionResult = await VisionService.processImages({
         imageFiles: rawImageFiles,
         primaryProviderCapabilities: options.providerCapabilities || [],
-        providerManager: options.providerManager,
-        providerRegistry: options.providerRegistry,
+        providerManager: manager,
+        providerRegistry: registry,
         maxAnalysisTokens: 2000, // Use fewer tokens for token-aware context
         analysisTimeout: 120000 // 120 second timeout for vision analysis
       })

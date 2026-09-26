@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { validateFile, extractTextFromFile, sanitizeExtractedText, isMeaningfulText, ExtractionResult } from '@/lib/alex/file-extraction'
 import { AlexFile } from '@/lib/alex/types'
 import { indexFile } from '@/lib/alex/indexing'
+import { VisionService } from '@/lib/alex/vision-service'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -106,11 +107,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: uploadError.message }, { status: 500 })
     }
 
-    // For images, create database record directly as ready (no extraction needed)
+    // For images, extract visual analysis synchronously and save in database
     // For text files, create as processing and trigger extraction
     let fileRecord
     if (file.type.startsWith('image/')) {
-      console.log('[Files Route] Image file detected, creating record as ready')
+      console.log('[Files Route] Image file detected, extracting visual description synchronously')
+      let visualDescription = ''
+      try {
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Buffer.from(arrayBuffer)
+        visualDescription = await VisionService.analyzeImageBuffer(buffer, file.type, file.name)
+        console.log('[Files Route] Visual analysis generated for upload, length:', visualDescription.length)
+      } catch (err) {
+        console.warn('[Files Route] Visual extraction during upload error:', err)
+        visualDescription = `Image: "${file.name}" (${file.type}) uploaded and ready for analysis.`
+      }
 
       const { data: imageFileRecord, error: imageDbError } = await supabase
         .from('alex_files')
@@ -123,10 +134,12 @@ export async function POST(request: Request) {
           file_size: file.size,
           status: 'ready',
           extraction_status: 'completed',
+          extracted_text: visualDescription,
           metadata: {
             fileName: file.name,
             fileType: file.type,
-            fileSize: file.size
+            fileSize: file.size,
+            extractedAt: new Date().toISOString()
           }
         })
         .select()
@@ -138,7 +151,8 @@ export async function POST(request: Request) {
         dbError: imageDbError?.message,
         recordId: imageFileRecord?.id,
         finalStatus: imageFileRecord?.status,
-        finalExtractionStatus: imageFileRecord?.extraction_status
+        finalExtractionStatus: imageFileRecord?.extraction_status,
+        hasExtractedText: !!imageFileRecord?.extracted_text
       })
 
       if (imageDbError) {

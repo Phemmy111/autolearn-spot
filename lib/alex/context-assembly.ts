@@ -303,15 +303,17 @@ export async function assembleContext(
     })
 
     // Vision preprocessing: if primary provider doesn't support vision, use vision-capable provider
-    if (rawImageFiles.length > 0 && options.providerManager && options.providerRegistry) {
+    if (rawImageFiles.length > 0) {
       console.log('[Context Assembly] Images detected with vision preprocessing available')
       
       try {
+        const registry = options?.providerRegistry || new ProviderRegistry()
+        const manager = options?.providerManager || new ProviderManager(registry)
         const visionResult = await VisionService.processImages({
           imageFiles: rawImageFiles,
-          primaryProviderCapabilities: options.providerCapabilities || [],
-          providerManager: options.providerManager,
-          providerRegistry: options.providerRegistry,
+          primaryProviderCapabilities: options?.providerCapabilities || [],
+          providerManager: manager,
+          providerRegistry: registry,
           maxAnalysisTokens: 3000,
           analysisTimeout: 120000 // 120 second timeout for vision analysis
         })
