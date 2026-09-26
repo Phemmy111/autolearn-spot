@@ -476,14 +476,15 @@ export class AIEngine {
       console.log('[TPM Gate] Tool follow-up request tokens:', toolFollowUpTokens)
 
       // If tool result is very large, truncate it to fit TPM
-      if (toolFollowUpTokens > 6000) { // Conservative threshold
+      if (toolFollowUpTokens > 3000) { // Conservative threshold for Groq TPM limits
         console.log('[TPM Gate] Tool result too large, truncating')
         // Truncate the tool result in the last message
-        const lastAssistantMessage = updatedMessages[updatedMessages.length - 1]
+        const lastIndex = updatedMessages.length - 1
+        const lastAssistantMessage = updatedMessages[lastIndex]
         if (lastAssistantMessage && typeof lastAssistantMessage.content === 'string') {
           const content = lastAssistantMessage.content
-          const maxChars = Math.floor(content.length * (6000 / toolFollowUpTokens))
-          updatedMessages[updatedMessages.length.length - 1] = {
+          const maxChars = Math.floor(content.length * (3000 / toolFollowUpTokens))
+          updatedMessages[lastIndex] = {
             ...lastAssistantMessage,
             content: content.substring(0, maxChars) + '... [truncated for TPM limit]'
           }
