@@ -69,15 +69,15 @@ export function AlexArchitectureApproval({
       <div className="flex items-start gap-3 mb-4">
         <FileText className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
         <div className="flex-1">
-          <h3 className="text-slate-200 font-semibold mb-1">Proposed Architecture</h3>
-          <p className="text-xs text-brand-text/60">
-            Platform: {architecture.platform || 'Not specified'} | Complexity: {architecture.complexity}
+          <h3 className="text-slate-100 font-semibold mb-1">Proposed Architecture</h3>
+          <p className="text-xs text-slate-400">
+            Platform: <span className="text-cyan-400 font-medium">{architecture.platform || 'Not specified'}</span> | Complexity: <span className="text-slate-200 capitalize">{architecture.complexity}</span>
           </p>
         </div>
       </div>
 
       <div className="mb-4 p-3 bg-slate-900/50 rounded-lg">
-        <p className="text-sm text-slate-300 whitespace-pre-line">{architecture.description}</p>
+        <p className="text-sm text-slate-200 whitespace-pre-line">{architecture.description}</p>
       </div>
 
       {!architecture.platform && (
@@ -90,11 +90,11 @@ export function AlexArchitectureApproval({
 
       {architecture.assumptions.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs font-medium text-slate-400 mb-2">Assumptions:</p>
-          <ul className="text-xs text-brand-text/60 space-y-1">
+          <p className="text-xs font-semibold text-slate-300 mb-2">Assumptions:</p>
+          <ul className="text-xs text-slate-300 space-y-1">
             {architecture.assumptions.map((assumption, index) => (
               <li key={index} className="flex items-start gap-2">
-                <span className="text-brand-text/70">•</span>
+                <span className="text-cyan-400">•</span>
                 <span>{assumption}</span>
               </li>
             ))}
@@ -104,11 +104,11 @@ export function AlexArchitectureApproval({
 
       {architecture.recommendations.length > 0 && (
         <div className="mb-4">
-          <p className="text-xs font-medium text-slate-400 mb-2">Recommendations:</p>
-          <ul className="text-xs text-brand-text/60 space-y-1">
+          <p className="text-xs font-semibold text-slate-300 mb-2">Recommendations:</p>
+          <ul className="text-xs text-slate-300 space-y-1">
             {architecture.recommendations.map((rec, index) => (
               <li key={index} className="flex items-start gap-2">
-                <span className="text-brand-text/70">•</span>
+                <span className="text-cyan-400">•</span>
                 <span>{rec}</span>
               </li>
             ))}
@@ -152,7 +152,7 @@ export function AlexArchitectureApproval({
         <button
           onClick={handleApprove}
           disabled={disabled || isApproving || !architecture.platform}
-          className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-brand-text rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-slate-900 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Check className="h-4 w-4" />
           <span>{isApproving ? 'Generating...' : 'Approve & Generate'}</span>

@@ -584,7 +584,7 @@ export function AlexInputArea({
                 <span className="text-sm text-slate-300 truncate max-w-[150px]">
                   {attachedFile.file.name}
                 </span>
-                <span className="text-xs text-brand-text/60">
+                <span className="text-xs text-slate-400">
                   ({formatFileSize(attachedFile.file.size)})
                 </span>
                 {attachedFile.status === 'uploading' && (
@@ -602,7 +602,7 @@ export function AlexInputArea({
                 <button
                   type="button"
                   onClick={() => removeAttachment(attachedFile.id)}
-                  className="text-slate-400 hover:text-brand-text transition-colors"
+                  className="text-slate-400 hover:text-slate-200 transition-colors"
                   disabled={attachedFile.status === 'uploading'}
                 >
                   <X className="h-4 w-4" />

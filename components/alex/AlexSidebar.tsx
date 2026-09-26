@@ -172,12 +172,12 @@ export function AlexSidebar({
             {filteredConversations.length === 0 ? (
               <div className="text-center py-8">
                 {searchQuery ? (
-                  <p className="text-sm text-brand-text/60">No conversations found</p>
+                  <p className="text-sm text-slate-400">No conversations found</p>
                 ) : (
                   <>
-                    <MessageSquare className="h-8 w-8 text-slate-700 mx-auto mb-2" />
-                    <p className="text-sm text-brand-text/60">No conversations yet</p>
-                    <p className="text-xs text-brand-text/70 mt-1">Start a new conversation</p>
+                    <MessageSquare className="h-8 w-8 text-slate-600 mx-auto mb-2" />
+                    <p className="text-sm text-slate-400">No conversations yet</p>
+                    <p className="text-xs text-slate-500 mt-1">Start a new conversation</p>
                   </>
                 )}
               </div>

@@ -60,16 +60,16 @@ export function AlexModeSelector({ currentMode, onModeChange, isMobile = false }
             <button
               key={mode.id}
               onClick={() => onModeChange(mode.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
                 isActive
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-brand-text shadow-lg shadow-cyan-500/20'
-                  : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50 hover:text-brand-text border border-slate-700'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg shadow-cyan-500/20'
+                  : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:text-white border border-slate-700'
               }`}
               title={mode.description}
               aria-label={`Switch to ${mode.name} mode: ${mode.description}`}
               aria-pressed={isActive}
             >
-              <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-brand-text' : ''}`} />
+              <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : ''}`} />
               <span>{mode.name}</span>
             </button>
           )

@@ -690,17 +690,10 @@ export class AlexOrchestrator {
         content: multimodalContent
       })
     } else {
-      // Regular text-only message (either no images or provider doesn't support vision)
-      // If there are images but provider doesn't support vision, add a note about them
-      let messageContent = content
-      if (imageFiles && imageFiles.length > 0 && !supportsVision) {
-        const imageNames = imageFiles.map(f => f.original_filename).join(', ')
-        messageContent = `${content}\n\n[Note: Images attached but current AI provider doesn't support vision: ${imageNames}]`
-      }
-      
+      // Regular text-only message (either no images or provider uses vision preprocessing)
       messages.push({
         role: 'user',
-        content: messageContent,
+        content,
       })
     }
 

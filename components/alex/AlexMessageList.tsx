@@ -328,7 +328,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-cyan-400" />
                     <span className="text-sm text-slate-300">{artifact.filename}</span>
-                    <span className="text-xs text-brand-text/60">({artifact.file_type})</span>
+                    <span className="text-xs text-slate-400">({artifact.file_type})</span>
                     {artifact.validation_status === 'valid' && (
                       <CheckCircle className="h-4 w-4 text-green-400" />
                     )}
@@ -413,13 +413,13 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
 
     // Headings
     h1: ({ children }: any) => (
-      <h1 className="text-xl font-bold text-brand-text mt-6 mb-3">{children}</h1>
+      <h1 className="text-xl font-bold text-white mt-6 mb-3">{children}</h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="text-lg font-semibold text-brand-text mt-5 mb-2">{children}</h2>
+      <h2 className="text-lg font-semibold text-white mt-5 mb-2">{children}</h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="text-base font-medium text-brand-text mt-4 mb-2">{children}</h3>
+      <h3 className="text-base font-medium text-white mt-4 mb-2">{children}</h3>
     ),
 
     // Paragraphs
@@ -595,10 +595,10 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                         className="flex items-center gap-2 bg-[#404040]/20 rounded-lg px-3 py-2"
                       >
                         {getFileIcon(file.original_filename)}
-                        <span className="text-sm text-brand-text truncate max-w-[150px]">
+                        <span className="text-sm text-white truncate max-w-[150px]">
                           {file.original_filename}
                         </span>
-                        <span className="text-xs text-slate-700">
+                        <span className="text-xs text-slate-300">
                           ({formatFileSize(file.file_size)})
                         </span>
                       </div>

@@ -24,10 +24,10 @@ export default function AutolearnAIPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 text-[#10b981] animate-spin mx-auto mb-4" />
-          <p className="text-brand-text/60">Loading ALEX...</p>
+          <p className="text-slate-300 font-medium">Loading ALEX...</p>
         </div>
       </div>
     )
