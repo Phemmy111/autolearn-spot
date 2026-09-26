@@ -193,6 +193,28 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
       })
       count++
     }
+
+    // Also check for raw un-fenced SVG blocks
+    if (artifacts.length === 0) {
+      const rawSvgRegex = /<svg[\s\S]*?<\/svg>/gi
+      let svgMatch
+      while ((svgMatch = rawSvgRegex.exec(content)) !== null) {
+        const svgCode = svgMatch[0].trim()
+        if (svgCode.length > 50) {
+          const bytes = new Blob([svgCode]).size
+          const sizeStr = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`
+          artifacts.push({
+            id: `extracted-svg-${count}-${Math.random().toString(36).substr(2, 5)}`,
+            filename: `vector_illustration_${count}.svg`,
+            language: 'svg',
+            code: svgCode,
+            size: sizeStr
+          })
+          count++
+        }
+      }
+    }
+
     return artifacts
   }
 

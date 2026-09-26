@@ -86,7 +86,20 @@ export function AlexInteractiveQuestion({ question, onSelect, disabled = false }
 
   const handleInputSubmit = () => {
     if (disabled || !inputValue.trim()) return
-    onSelect(inputValue.trim())
+    const val = inputValue.trim()
+    onSelect(val)
+    
+    // Send selection event with full context
+    const event = new CustomEvent('alexQuestionAnswer', { 
+      detail: { 
+        field: question.field || 'general', 
+        value: val,
+        question: question.text,
+        context: question.context || question.reason,
+        header: question.header
+      } 
+    })
+    window.dispatchEvent(event)
     setInputValue('')
   }
 
