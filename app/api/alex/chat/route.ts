@@ -475,69 +475,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch attached files' }, { status: 500 })
       }
 
-      if (!files || files.length === 0) {
-        console.log('[MULTI-FILE] No files found in database')
-        return NextResponse.json({ error: 'Attached files not found or access denied' }, { status: 404 })
-      }
-
-      // Validate that all files are ready and have extracted text (for text files)
-      // Images are ready immediately and don't need text extraction
-      const notReadyFiles = files.filter(f =>
-        !f.mime_type.startsWith('image/') && (
-          f.extraction_status !== 'completed' ||
-          !f.extracted_text ||
-          f.extracted_text.trim().length === 0
+      if (files && files.length > 0) {
+        // Filter files to only include those that are ready for context
+        // Images are ready immediately; text files are ready when extraction is completed or has text
+        attachedFiles = files.filter(f =>
+          f.mime_type.startsWith('image/') || (f.extracted_text && f.extracted_text.trim().length > 0) || f.extraction_status === 'completed'
         )
-      )
-
-      console.log('[MULTI-FILE] File validation', {
-        totalFiles: files.length,
-        notReadyFiles: notReadyFiles.length,
-        imageFiles: files.filter(f => f.mime_type.startsWith('image/')).length,
-        textFiles: files.filter(f => !f.mime_type.startsWith('image/')).length,
-        validationDetails: files.map(f => ({
-          id: f.id,
-          filename: f.original_filename,
-          mime_type: f.mime_type,
-          extraction_status: f.extraction_status,
-          has_text: !!f.extracted_text,
-          text_length: f.extracted_text?.length,
-          ready: f.mime_type.startsWith('image/') || (f.extraction_status === 'completed' && f.extracted_text && f.extracted_text.trim().length > 0)
-        }))
-      })
-
-      if (notReadyFiles.length > 0) {
-        const failedFiles = notReadyFiles.filter(f => f.extraction_status === 'failed')
-        const processingFiles = notReadyFiles.filter(f => f.extraction_status !== 'failed')
-
-        console.log('[MULTI-FILE] Files not ready', {
-          failed: failedFiles.map(f => f.original_filename),
-          processing: processingFiles.map(f => f.original_filename)
-        })
-
-        if (failedFiles.length > 0) {
-          return NextResponse.json({
-            error: 'Some attached files failed to process',
-            failedFiles: failedFiles.map(f => f.original_filename)
-          }, { status: 400 })
-        }
-
-        if (processingFiles.length > 0) {
-          return NextResponse.json({
-            error: 'Some attached files are still processing',
-            processingFiles: processingFiles.map(f => f.original_filename)
-          }, { status: 400 })
-        }
+      } else {
+        attachedFiles = []
       }
 
-      attachedFiles = files
-      console.log('[MULTI-FILE] All files validated and ready for context', {
-        attachedFilesCount: attachedFiles.length,
-        fileIds: attachedFiles.map(f => f.id),
-        filenames: attachedFiles.map(f => f.original_filename),
-        totalTextLength: attachedFiles.reduce((sum, f) => sum + (f.extracted_text?.length || 0), 0),
-        availableFileCount: attachedFiles.length,
-        unavailableFileCount: effectiveFileIds.length - attachedFiles.length
+      console.log('[MULTI-FILE] Files filtered for context:', {
+        totalFound: files.length,
+        readyCount: attachedFiles.length,
+        readyFiles: attachedFiles.map(f => f.original_filename)
       })
       alexLogger.debug('CHAT', 'Attached files validated', { effectiveFileIds, attachedFiles: attachedFiles.length, files: attachedFiles.map(f => ({ id: f.id, status: f.status, extraction_status: f.extraction_status, has_text: !!f.extracted_text })) })
 
@@ -719,6 +670,20 @@ export async function POST(request: NextRequest) {
                     content: text
                   })}\n\n`)
                 )
+              } else if (event.type === 'tool_call') {
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({
+                    type: 'tool_call',
+                    data: event.data
+                  })}\n\n`)
+                )
+              } else if (event.type === 'tool_result') {
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({
+                    type: 'tool_result',
+                    data: event.data
+                  })}\n\n`)
+                )
               } else if (event.type === 'usage') {
                 // Update usage info from provider
                 if (event.data?.usage) {
@@ -726,30 +691,25 @@ export async function POST(request: NextRequest) {
                 }
               } else if (event.type === 'finish') {
                 // Save assistant message
-                const { data: assistantMessage, error: assistantMsgError } = await supabase
-                  .from('alex_messages')
-                  .insert({
-                    conversation_id: conversationId,
-                    role: 'assistant',
-                    content: fullContent,
-                    model_used: modelUsed,
-                    tokens: tokensUsed,
+                if (fullContent.trim().length > 0) {
+                  await supabase
+                    .from('alex_messages')
+                    .insert({
+                      conversation_id: conversationId,
+                      role: 'assistant',
+                      content: fullContent,
+                      model_used: modelUsed,
+                      tokens: tokensUsed,
+                    })
+
+                  await AlexCostTracker.trackUsage({
+                    userId,
+                    conversationId,
+                    model: modelUsed,
+                    tokensUsed,
+                    mode: mode as AlexMode,
                   })
-                  .select()
-                  .single()
-
-                if (assistantMsgError) {
-                  console.error('Error saving assistant message:', assistantMsgError)
                 }
-
-                // Track usage
-                await AlexCostTracker.trackUsage({
-                  userId,
-                  conversationId,
-                  model: modelUsed,
-                  tokensUsed,
-                  mode: mode as AlexMode,
-                })
 
                 controller.enqueue(
                   encoder.encode(`data: ${JSON.stringify({ 
@@ -759,6 +719,7 @@ export async function POST(request: NextRequest) {
                 )
                 controller.enqueue(encoder.encode('data: [DONE]\n\n'))
                 controller.close()
+                return
               } else if (event.type === 'error') {
                 controller.enqueue(
                   encoder.encode(`data: ${JSON.stringify({ 
@@ -767,18 +728,44 @@ export async function POST(request: NextRequest) {
                   })}\n\n`)
                 )
                 controller.close()
+                return
               }
             }
           }
+
+          // Fallback close if generator ended without explicit finish event
+          if (fullContent.trim().length > 0) {
+            await supabase
+              .from('alex_messages')
+              .insert({
+                conversation_id: conversationId,
+                role: 'assistant',
+                content: fullContent,
+                model_used: modelUsed,
+                tokens: tokensUsed,
+              })
+          }
+
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'finish' })}\n\n`))
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+            controller.close()
+          } catch {
+            // Controller may already be closed
+          }
         } catch (error) {
           alexLogger.error('CHAT', 'Streaming error', { error })
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ 
-              type: 'error',
-              error: error instanceof Error ? error.message : 'Unknown error' 
-            })}\n\n`)
-          )
-          controller.close()
+          try {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ 
+                type: 'error',
+                error: error instanceof Error ? error.message : 'Unknown error' 
+              })}\n\n`)
+            )
+            controller.close()
+          } catch {
+            // Already closed
+          }
         }
       },
     })
