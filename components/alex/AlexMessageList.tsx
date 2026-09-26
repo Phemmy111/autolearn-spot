@@ -78,6 +78,51 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
   // Generate code block ID
   const generateCodeId = () => `code-${Math.random().toString(36).substr(2, 9)}`
 
+  // Handle direct download of code artifacts
+  const handleDownloadCode = (code: string, language: string) => {
+    const extMap: Record<string, string> = {
+      html: 'html',
+      htm: 'html',
+      jsx: 'jsx',
+      tsx: 'tsx',
+      js: 'js',
+      javascript: 'js',
+      ts: 'ts',
+      typescript: 'ts',
+      json: 'json',
+      css: 'css',
+      python: 'py',
+      py: 'py',
+      sql: 'sql',
+      sh: 'sh',
+      bash: 'sh',
+      yaml: 'yaml',
+      yml: 'yml',
+      markdown: 'md',
+      md: 'md',
+      svg: 'svg',
+    }
+    const ext = extMap[language.toLowerCase()] || (language ? language.toLowerCase() : 'txt')
+    
+    // Try to extract filename from the first line comment if present
+    let filename = `artifact.${ext}`
+    const firstLine = code.split('\n')[0].trim()
+    const nameMatch = firstLine.match(/(?:filename:|file:|\/\/\s*|<!--\s*|#\s*)([a-zA-Z0-9_\-\.]+\.[a-zA-Z0-9]+)/i)
+    if (nameMatch && nameMatch[1]) {
+      filename = nameMatch[1]
+    }
+
+    const blob = new Blob([code], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase()
     if (ext === 'pdf') return <FileText className="h-4 w-4" />
@@ -237,22 +282,32 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
           <div className="relative group my-4">
             <div className="flex items-center justify-between bg-[#404040] px-4 py-2 rounded-t-lg border-b border-[#505050]">
               <span className="text-xs font-medium text-white/60 capitalize">{language}</span>
-              <button
-                onClick={() => handleCopyCode(codeString, codeId)}
-                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors"
-              >
-                {copiedCode === codeId ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 text-green-400" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" />
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleDownloadCode(codeString, language)}
+                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-[#10b981] transition-colors"
+                  title="Download as file"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Download</span>
+                </button>
+                <button
+                  onClick={() => handleCopyCode(codeString, codeId)}
+                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-400 transition-colors"
+                >
+                  {copiedCode === codeId ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-green-400" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             <SyntaxHighlighter
               style={vscDarkPlus}
