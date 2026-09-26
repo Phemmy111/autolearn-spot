@@ -137,6 +137,65 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
 
+  // Extract downloadable code artifacts from message content
+  const getExtractedArtifacts = (content: string) => {
+    if (!content) return []
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
+    const artifacts: Array<{ id: string; filename: string; language: string; code: string; size: string }> = []
+    let match
+    let count = 1
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      const lang = (match[1] || 'text').toLowerCase()
+      const code = match[2].trim()
+      if (!code || code.length < 20) continue
+
+      const extMap: Record<string, string> = {
+        html: 'html', htm: 'html',
+        jsx: 'jsx', tsx: 'tsx',
+        js: 'js', javascript: 'js',
+        ts: 'ts', typescript: 'ts',
+        json: 'json', css: 'css',
+        python: 'py', py: 'py',
+        sql: 'sql', sh: 'sh', bash: 'sh',
+        yaml: 'yaml', yml: 'yml',
+        markdown: 'md', md: 'md', svg: 'svg'
+      }
+      const ext = extMap[lang] || (lang ? lang : 'txt')
+
+      let filename = `artifact_${count}.${ext}`
+      const firstLine = code.split('\n')[0].trim()
+      const nameMatch = firstLine.match(/(?:filename:|file:|\/\/\s*|<!--\s*|#\s*)([a-zA-Z0-9_\-\.]+\.[a-zA-Z0-9]+)/i)
+      if (nameMatch && nameMatch[1]) {
+        filename = nameMatch[1]
+      } else if (lang === 'html' || lang === 'htm') {
+        filename = `index.html`
+      } else if (lang === 'json') {
+        filename = `data.json`
+      } else if (lang === 'tsx' || lang === 'jsx') {
+        filename = `Component.${ext}`
+      } else if (lang === 'css') {
+        filename = `styles.css`
+      } else if (lang === 'py' || lang === 'python') {
+        filename = `script.py`
+      } else if (lang === 'sql') {
+        filename = `schema.sql`
+      }
+
+      const bytes = new Blob([code]).size
+      const sizeStr = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`
+
+      artifacts.push({
+        id: `extracted-${count}-${Math.random().toString(36).substr(2, 5)}`,
+        filename,
+        language: lang,
+        code,
+        size: sizeStr
+      })
+      count++
+    }
+    return artifacts
+  }
+
   // Phase 7: Handle artifact download
   const handleDownloadArtifact = async (artifactId: string, filename: string, downloadUrl?: string) => {
     try {
@@ -563,7 +622,7 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                           </div>
                           
                           {/* Phase 7: Render artifacts if present */}
-                          {message.artifacts && message.artifacts.length > 0 && (
+                          {message.artifacts && message.artifacts.length > 0 ? (
                             <div className="mt-4 p-4 bg-slate-900/50 rounded-lg border border-slate-700">
                               <p className="text-sm text-slate-400 mb-3 flex items-center gap-2">
                                 <Package className="h-4 w-4 text-cyan-400" />
@@ -591,6 +650,44 @@ export function AlexMessageList({ messages, isLoading, isGenerating = false, isM
                                 ))}
                               </div>
                             </div>
+                          ) : (
+                            (() => {
+                              const extracted = getExtractedArtifacts(message.content || '')
+                              if (extracted.length === 0) return null
+                              return (
+                                <div className="mt-4 p-4 bg-[#232323] rounded-xl border border-[#383838]">
+                                  <p className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+                                    <Package className="h-4 w-4 text-[#10b981]" />
+                                    Downloadable Artifacts ({extracted.length}):
+                                  </p>
+                                  <div className="space-y-2">
+                                    {extracted.map((art) => (
+                                      <div
+                                        key={art.id}
+                                        className="flex items-center justify-between bg-[#2d2d2d] rounded-lg p-3 border border-[#404040] hover:border-[#10b981]/50 transition-colors"
+                                      >
+                                        <div className="flex items-center gap-2.5">
+                                          <div className="p-2 bg-[#10b981]/10 rounded-lg">
+                                            <FileText className="h-4 w-4 text-[#10b981]" />
+                                          </div>
+                                          <div>
+                                            <div className="text-sm font-medium text-white">{art.filename}</div>
+                                            <div className="text-xs text-white/50">{art.language.toUpperCase()} • {art.size}</div>
+                                          </div>
+                                        </div>
+                                        <button
+                                          onClick={() => handleDownloadCode(art.code, art.language)}
+                                          className="px-4 py-2 bg-[#10b981] hover:bg-[#059669] text-white font-medium rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-md hover:shadow-[#10b981]/20 active:scale-95"
+                                        >
+                                          <Download className="h-3.5 w-3.5" />
+                                          Download File
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })()
                           )}
                         </>
                       )}
