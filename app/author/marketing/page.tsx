@@ -643,8 +643,8 @@ export default function AuthorMarketingPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
-                    <label className="flex-1 cursor-pointer">
-                      <div className="border-2 border-dashed border-brand-border hover:border-sky-500/60 rounded-xl p-4 text-center bg-brand-bg/40 hover:bg-brand-bg/70 transition-all flex flex-col items-center justify-center gap-1.5">
+                    <label className="flex-1 cursor-pointer group">
+                      <div className="border-2 border-dashed border-brand-border hover:border-sky-500/60 rounded-xl p-4 text-center bg-brand-bg/40 hover:bg-brand-bg/70 transition-all flex flex-col items-center justify-center gap-1.5 min-h-[100px]">
                         {uploadingFile ? (
                           <>
                             <Loader2 className="w-5 h-5 text-sky-600 animate-spin" />
@@ -652,14 +652,17 @@ export default function AuthorMarketingPage() {
                           </>
                         ) : formData.resource_url ? (
                           <>
-                            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                            <span className="text-xs text-emerald-600 font-medium">Asset Attached!</span>
+                            <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                            <span className="text-xs text-emerald-600 font-bold">Asset Attached!</span>
                             <span className="text-[10px] text-brand-text/50 truncate max-w-xs">{formData.resource_url}</span>
+                            <div className="mt-2 text-[10px] font-semibold text-sky-500 bg-sky-500/10 px-3 py-1 rounded-full group-hover:bg-sky-500/20 transition-colors">
+                              Click to Replace File
+                            </div>
                           </>
                         ) : (
                           <>
-                            <UploadCloud className="w-5 h-5 text-sky-600" />
-                            <span className="text-xs font-medium text-brand-text">Click to upload banner, flyer, or document</span>
+                            <UploadCloud className="w-6 h-6 text-sky-600 mb-1" />
+                            <span className="text-xs font-medium text-brand-text">Click to upload banner, flyer, or video</span>
                             <span className="text-[10px] text-brand-text/50">PNG, JPG, MP4, PDF up to 10MB</span>
                           </>
                         )}
@@ -672,6 +675,16 @@ export default function AuthorMarketingPage() {
                         accept="image/*,video/*,application/pdf"
                       />
                     </label>
+                    {formData.resource_url && !uploadingFile && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, resource_url: '' })}
+                        className="p-3 text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors shrink-0"
+                        title="Remove Asset"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
 
                   <input
