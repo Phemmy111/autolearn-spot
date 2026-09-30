@@ -57,9 +57,96 @@ export async function GET(req: Request) {
       console.error('Error counting transactions:', countError);
     }
 
+    // -------------------------------------------------------
+    // Enrich SALE_CREDIT transactions with breakdown details
+    // -------------------------------------------------------
+    const enriched = await Promise.all(
+      (transactions || []).map(async (tx: any) => {
+        if (tx.type !== 'SALE_CREDIT' || !tx.related_id) return tx;
+
+        try {
+          // Fetch the author_sale record which has the breakdown
+          const { data: sale } = await supabaseAdmin
+            .from('author_sales')
+            .select('id, order_id, item_id, sale_price, commission_amount, net_amount')
+            .eq('id', tx.related_id)
+            .maybeSingle();
+
+          if (!sale) return tx;
+
+          // Get the order item to find product and student
+          const { data: orderItem } = await supabaseAdmin
+            .from('order_items')
+            .select('id, product_id, price_snapshot')
+            .eq('id', sale.item_id)
+            .maybeSingle();
+
+          // Get the order to find the student email
+          const { data: order } = await supabaseAdmin
+            .from('orders')
+            .select('id, email, metadata')
+            .eq('id', sale.order_id)
+            .maybeSingle();
+
+          // Get the product title
+          let courseTitle: string | null = null;
+          if (orderItem?.product_id) {
+            const { data: product } = await supabaseAdmin
+              .from('learning_products')
+              .select('title')
+              .eq('id', orderItem.product_id)
+              .maybeSingle();
+            courseTitle = product?.title || null;
+          }
+
+          // Check for affiliate commission on this order/item
+          let affiliateCommission: number | null = null;
+          let affiliateName: string | null = null;
+          if (sale.order_id) {
+            const { data: commission } = await supabaseAdmin
+              .from('commissions')
+              .select('amount, referrer_id, referrer_type')
+              .eq('payment_reference', order?.id)
+              .maybeSingle();
+
+            if (commission) {
+              affiliateCommission = commission.amount;
+              // Try to get partner name
+              const { data: partner } = await supabaseAdmin
+                .from('partners')
+                .select('full_name')
+                .eq('id', commission.referrer_id)
+                .maybeSingle();
+              affiliateName = partner?.full_name || 'Affiliate';
+            }
+          }
+
+          // Platform commission = sale_price - net_amount - affiliate_commission
+          const salePrice = sale.sale_price || orderItem?.price_snapshot || 0;
+          const netAmount = sale.net_amount || tx.amount;
+          const platformCommission = salePrice - netAmount - (affiliateCommission || 0);
+
+          return {
+            ...tx,
+            course_title: courseTitle,
+            student_email: order?.email || null,
+            sale_price: salePrice,
+            platform_commission: platformCommission > 0 ? platformCommission : null,
+            affiliate_commission: affiliateCommission,
+            affiliate_name: affiliateName,
+            net_amount: netAmount,
+          };
+        } catch (e) {
+          // If enrichment fails, return raw transaction without crashing
+          console.error('[transactions] Enrichment failed for tx', tx.id, e);
+          return tx;
+        }
+      })
+    );
+
     return NextResponse.json({
       success: true,
-      transactions: transactions || [],
+      transactions: enriched,
       total: count || 0,
       limit,
       offset,
