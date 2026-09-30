@@ -424,18 +424,37 @@ export default function AuthorMarketingPage() {
                   {item.name}
                 </h3>
 
-                {/* Media preview if image */}
-                {item.url && (item.type === 'banner' || item.type === 'flyer' || item.type === 'image' || item.url.match(/\.(jpeg|jpg|png|webp|gif)/i)) && (
+                {/* Media preview */}
+                {item.url && (
                   <div
                     onClick={() => setPreviewMaterial(item)}
-                    className="h-36 w-full rounded-xl overflow-hidden bg-brand-bg/80 border border-brand-border relative mb-3 cursor-pointer group-hover:opacity-95"
+                    className="h-36 w-full rounded-xl overflow-hidden bg-brand-bg/80 border border-brand-border relative mb-3 cursor-pointer group-hover:opacity-95 flex items-center justify-center"
                   >
-                    <img
-                      src={item.url}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                    {item.type === 'video' || item.url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                      <video
+                        src={item.url}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        preload="metadata"
+                        muted
+                      />
+                    ) : item.type === 'guide' || item.type === 'pdf' || item.url.match(/\.(pdf)$/i) ? (
+                       <div className="flex flex-col items-center justify-center text-brand-text/50">
+                         <BookOpen className="w-8 h-8 mb-2" />
+                         <span className="text-xs font-semibold">PDF Document</span>
+                       </div>
+                    ) : (
+                      <img
+                        src={item.url}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement?.classList.add('bg-brand-bg');
+                        }}
+                      />
+                    )}
                     <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold gap-1.5">
                       <Eye className="w-4 h-4" /> Preview
                     </div>
@@ -684,11 +703,26 @@ export default function AuthorMarketingPage() {
 
             {previewMaterial.url && (
               <div className="max-h-[60vh] overflow-hidden rounded-xl bg-black/40 flex items-center justify-center">
-                <img
-                  src={previewMaterial.url}
-                  alt={previewMaterial.name}
-                  className="max-h-[55vh] w-auto object-contain rounded-lg"
-                />
+                {previewMaterial.type === 'video' || previewMaterial.url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                  <video
+                    src={previewMaterial.url}
+                    controls
+                    autoPlay
+                    className="max-h-[55vh] w-auto object-contain rounded-lg"
+                  />
+                ) : previewMaterial.type === 'guide' || previewMaterial.type === 'pdf' || previewMaterial.url.match(/\.(pdf)$/i) ? (
+                  <div className="flex flex-col items-center justify-center p-12 text-brand-text/50">
+                    <BookOpen className="w-16 h-16 mb-4" />
+                    <span className="text-sm font-semibold">PDF Document</span>
+                    <a href={previewMaterial.url} target="_blank" rel="noreferrer" className="mt-4 text-sky-500 hover:underline">Open Document</a>
+                  </div>
+                ) : (
+                  <img
+                    src={previewMaterial.url}
+                    alt={previewMaterial.name}
+                    className="max-h-[55vh] w-auto object-contain rounded-lg"
+                  />
+                )}
               </div>
             )}
 
