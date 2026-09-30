@@ -37,11 +37,11 @@ export async function GET() {
       console.error('Error fetching author products:', prodErr);
     }
 
-    // Fetch author's own marketing resources (partner_id stores the uploader's Clerk userId)
+    // Fetch author's own marketing resources (partner_id stores the uploader's author.id)
     const { data: resources, error: resErr } = await supabaseAdmin
       .from('partner_marketing_downloads')
       .select('*')
-      .eq('partner_id', userId)
+      .eq('partner_id', author.id)
       .order('created_at', { ascending: false });
 
     if (resErr) {
@@ -108,7 +108,7 @@ export async function POST(req: Request) {
       description: description?.trim() || null,
       resource_url: resource_url?.trim() || '',
       download_count: 0,
-      partner_id: userId, // track uploading author by their Clerk userId
+      partner_id: author.id, // track uploading author by their actual DB UUID
     };
 
     const { data: newResource, error: insertErr } = await supabaseAdmin
