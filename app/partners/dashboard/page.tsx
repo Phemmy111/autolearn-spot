@@ -249,6 +249,9 @@ export default function PartnerDashboard() {
   const stats = data?.stats;
   const referral = data?.referral;
   const bankProfile = data?.bankProfile;
+  const partnerInitials = partner?.name 
+    ? partner.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()
+    : 'AP';
 
   const navItems = [
     { id: "overview", label: "Overview", icon: BarChart3 },
@@ -263,64 +266,114 @@ export default function PartnerDashboard() {
   return (
     <div className="min-h-screen bg-brand-bg">
       {/* Header */}
-      <header className="border-b border-brand-border bg-brand-bg/80 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-brand-border bg-[var(--card)]/90 backdrop-blur-xl sticky top-0 z-50 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2.5">
+            
+            {/* Left: Brand & Portal Badge */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Link href="/" className="flex items-center gap-2.5 group">
                 <Image
                   src="/autolearn-brandmark.png"
                   alt="AutoLearn Spot"
-                  width={32}
-                  height={32}
-                  className="object-contain"
+                  width={34}
+                  height={34}
+                  className="object-contain group-hover:scale-105 transition-transform"
                 />
-                <span className="font-heading text-base font-bold text-brand-text hidden sm:block">
-                  AutoLearn Spot
+                <span className="font-heading text-base sm:text-lg font-bold text-brand-text hidden sm:block">
+                  AutoLearn<span className="text-emerald-600">Spot</span>
                 </span>
               </Link>
-              <div className="hidden md:block h-6 w-px bg-brand-border" />
-              <div>
-                <h1 className="text-base sm:text-lg font-bold text-brand-text leading-tight">Affiliate Dashboard</h1>
-                <p className="text-xs text-brand-text/60">
-                  Affiliate Partner
-                </p>
+              
+              <div className="hidden sm:block h-5 w-px bg-brand-border" />
+              
+              <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-semibold tracking-wide uppercase">Affiliate Portal</span>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            {/* Right: User Pill, Notifications, Logout & Mobile Toggle */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Partner User Capsule (Desktop) */}
+              <div className="hidden md:flex items-center gap-2.5 py-1 px-2.5 rounded-full bg-brand-bg/60 border border-brand-border/60">
+                <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  {partnerInitials}
+                </div>
+                <div className="text-left pr-1">
+                  <p className="text-xs font-semibold text-brand-text leading-none">{partner?.name || "Partner"}</p>
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium leading-tight">Verified Affiliate</p>
+                </div>
+              </div>
+
+              {/* Notification Bell */}
               <button 
                 onClick={() => { fetchNotifications(); setShowNotifications(!showNotifications); }}
-                className="relative p-2 hover:bg-brand-bg/60 rounded-lg transition-colors"
+                className="relative p-2 rounded-xl hover:bg-brand-bg/80 border border-transparent hover:border-brand-border transition-colors text-brand-text/70 hover:text-brand-text"
+                title="Notifications"
               >
-                <Bell className="h-5 w-5 text-brand-text/60" />
+                <Bell className="h-5 w-5" />
                 {data?.unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-brand-bg rounded-full" />
+                  <span className="absolute top-1 right-1 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
                 )}
               </button>
+
+              {/* Logout Button (Desktop) */}
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 border border-brand-border bg-brand-bg/60 hover:bg-brand-bg rounded-lg transition-colors text-sm text-brand-text/60"
+                className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-brand-border bg-brand-bg/60 hover:bg-brand-bg hover:border-red-500/30 hover:text-red-500 transition-colors text-xs font-medium text-brand-text/70"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3.5 w-3.5" />
                 Logout
               </button>
+
+              {/* Mobile Menu Toggle Button */}
               <button
-                className="md:hidden text-brand-text/60"
+                className="md:hidden p-2 rounded-xl text-brand-text/80 hover:bg-brand-bg/80 border border-brand-border/50"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
               >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                {mobileMenuOpen ? <X className="h-5 w-5 text-emerald-500" /> : <Menu className="h-5 w-5" />}
               </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Mobile/Tablet Horizontal Quick-Tab Navigation Bar */}
+      <div className="lg:hidden border-b border-brand-border bg-[var(--card)]/95 backdrop-blur-md sticky top-16 z-40 shadow-xs">
+        <div className="px-4 py-2.5 overflow-x-auto flex items-center gap-2 scrollbar-none">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap shrink-0 ${
+                  isActive
+                    ? 'bg-emerald-600 text-white shadow-sm font-semibold'
+                    : 'bg-brand-bg/60 text-brand-text/70 hover:text-brand-text border border-brand-border/50 hover:bg-brand-bg'
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Notification Dropdown */}
       {showNotifications && (
-        <div className="absolute top-20 right-4 sm:right-6 w-96 bg-brand-bg border border-brand-border rounded-2xl shadow-xl z-50">
-          <div className="p-4 border-b border-brand-border flex items-center justify-between">
-            <h3 className="font-bold text-brand-text">Notifications</h3>
+        <div className="absolute top-20 right-4 sm:right-6 w-80 sm:w-96 bg-[var(--card)] border border-brand-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-4 border-b border-brand-border flex items-center justify-between bg-brand-bg/40">
+            <h3 className="font-bold text-brand-text text-sm flex items-center gap-2">
+              <Bell className="w-4 h-4 text-emerald-500" /> Notifications
+            </h3>
             <button
               onClick={async () => {
                 await fetch("/api/partners/notifications", {
@@ -331,17 +384,17 @@ export default function PartnerDashboard() {
                 fetchNotifications();
                 fetchDashboardData();
               }}
-              className="text-sm text-brand-primary hover:underline"
+              className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
             >
-              Mark all as read
+              Mark all read
             </button>
           </div>
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 overflow-y-auto divide-y divide-brand-border/60">
             {notifications.length > 0 ? (
               notifications.map((notif: any) => (
                 <div 
                   key={notif.id} 
-                  className={`p-4 border-b border-brand-border cursor-pointer hover:bg-brand-bg/60 transition-colors ${!notif.read ? 'bg-brand-bg/5' : ''}`}
+                  className={`p-4 cursor-pointer hover:bg-brand-bg/60 transition-colors ${!notif.read ? 'bg-emerald-500/5' : ''}`}
                   onClick={async () => {
                     if (!notif.read) {
                       await fetch("/api/partners/notifications", {
@@ -354,74 +407,123 @@ export default function PartnerDashboard() {
                     }
                   }}
                 >
-                  <p className="font-medium text-sm text-brand-text">{notif.title}</p>
-                  <p className="text-brand-text/60 text-xs mt-1">{notif.message}</p>
-                  <p className="text-brand-text/60 text-xs mt-2">{new Date(notif.created_at).toLocaleString()}</p>
+                  <p className="font-semibold text-xs text-brand-text">{notif.title}</p>
+                  <p className="text-brand-text/70 text-xs mt-1 leading-relaxed">{notif.message}</p>
+                  <p className="text-brand-text/40 text-[10px] mt-2 font-mono">{new Date(notif.created_at).toLocaleString()}</p>
                 </div>
               ))
             ) : (
-              <div className="p-8 text-center text-brand-text/60">No notifications</div>
+              <div className="p-8 text-center text-xs text-brand-text/50">No notifications yet</div>
             )}
           </div>
         </div>
       )}
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-brand-border bg-brand-bg">
-          <div className="px-4 py-4 space-y-3">
+        <div className="md:hidden border-b border-brand-border bg-[var(--card)] shadow-xl animate-in slide-in-from-top-2 duration-200">
+          {/* Mobile Partner Profile Header */}
+          <div className="p-4 border-b border-brand-border bg-brand-bg/50 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+              {partnerInitials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-brand-text truncate">{partner?.name || "Partner"}</p>
+              <p className="text-xs text-brand-text/60 truncate">{partner?.email}</p>
+            </div>
+          </div>
+
+          <div className="px-4 py-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
+              const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
-                  className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
-                    activeTab === item.id
-                      ? 'bg-brand-bg/10 text-brand-primary'
-                      : 'text-brand-text/60 hover:bg-brand-bg/60'
+                  className={`flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold'
+                      : 'text-brand-text/70 hover:bg-brand-bg hover:text-brand-text'
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-4 w-4 text-emerald-500" />
                   {item.label}
                 </button>
               );
             })}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-brand-text/60 hover:bg-brand-bg/60"
-            >
-              <LogOut className="h-5 w-5" />
-              Logout
-            </button>
+            
+            <div className="pt-2 border-t border-brand-border mt-2">
+              <button
+                onClick={handleContactSupport}
+                className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/5 transition-colors"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Contact Support
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors mt-1"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
+          {/* Desktop Sidebar Navigation */}
           <div className="hidden lg:block">
-            <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-4 sticky top-24">
-              <nav className="space-y-2">
+            <div className="border border-brand-border bg-[var(--card)]/90 backdrop-blur-xl rounded-2xl p-5 sticky top-24 shadow-xs space-y-6">
+              
+              {/* Sidebar Profile Card */}
+              <div className="flex items-center gap-3 pb-4 border-b border-brand-border">
+                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                  {partnerInitials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold text-brand-text text-sm truncate">{partner?.name || "Partner"}</h3>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="w-3 h-3 inline" /> Affiliate Partner
+                  </span>
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="space-y-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
+                  const isActive = activeTab === item.id;
                   return (
                     <button
                       key={item.id}
                       onClick={() => setActiveTab(item.id)}
-                      className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg transition-colors ${
-                        activeTab === item.id
-                          ? 'bg-brand-bg/10 text-brand-primary'
-                          : 'text-brand-text/60 hover:bg-brand-bg/60'
+                      className={`flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border-l-3 border-emerald-500 pl-3'
+                          : 'text-brand-text/70 hover:bg-brand-bg/80 hover:text-brand-text'
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className={`h-4 w-4 ${isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-text/60'}`} />
                       {item.label}
                     </button>
                   );
                 })}
               </nav>
+
+              {/* Support Quick CTA */}
+              <div className="pt-4 border-t border-brand-border">
+                <button
+                  onClick={handleContactSupport}
+                  className="w-full py-2.5 px-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Partner Support
+                </button>
+              </div>
             </div>
           </div>
 
