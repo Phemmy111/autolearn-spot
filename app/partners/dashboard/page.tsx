@@ -51,7 +51,7 @@ export default function PartnerDashboard() {
   const [copied, setCopied] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [minWithdrawal, setMinWithdrawal] = useState(5000);
+  const [minWithdrawal, setMinWithdrawal] = useState(1000);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);

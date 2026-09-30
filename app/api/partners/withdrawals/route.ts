@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { SessionService } from '@/lib/growth-engine/SessionService';
-import { PartnerService } from '@/lib/growth-engine/PartnerService';
-import { WithdrawalService } from '@/lib/growth-engine/WithdrawalService';
 import { PartnerWithdrawalService } from '@/lib/partner-system/PartnerWithdrawalService';
 import { createClient } from '@supabase/supabase-js';
 
@@ -16,14 +14,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let partner;
-    if (session.role === 'community') {
-      partner = await PartnerService.getPartnerByCommunityAmbassadorId(session.userId);
-    } else if (session.role === 'influencer') {
-      partner = await PartnerService.getPartnerByInfluencerId(session.userId);
-    } else {
-      return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
-    }
+    // Flat partner lookup — supports all partner types (affiliate, community, influencer, etc.)
+    const { data: partner } = await supabaseAdmin
+      .from('partners')
+      .select('*')
+      .or(
+        `id.eq.${session.userId},clerk_user_id.eq.${session.userId}`
+      )
+      .maybeSingle();
 
     if (!partner) {
       return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
@@ -40,7 +38,7 @@ export async function POST(request: Request) {
       .from('partner_bank_profiles')
       .select('*')
       .eq('partner_id', partner.id)
-      .single();
+      .maybeSingle();
 
     if (!bankProfile) {
       return NextResponse.json({ error: 'Bank profile not found. Please add your bank details first.' }, { status: 400 });
@@ -59,12 +57,40 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: result.error || 'Failed to submit withdrawal' }, { status: 400 });
     }
 
-    // Update partner stats
-    await PartnerService.updatePartnerStats(partner.id);
-
     return NextResponse.json({ success: true, withdrawal: result.withdrawal });
   } catch (error) {
     console.error('[POST /api/partners/withdrawals] Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  try {
+    const session = await SessionService.getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Flat partner lookup
+    const { data: partner } = await supabaseAdmin
+      .from('partners')
+      .select('id')
+      .or(`id.eq.${session.userId},clerk_user_id.eq.${session.userId}`)
+      .maybeSingle();
+
+    if (!partner) {
+      return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+    }
+
+    const { data: withdrawals } = await supabaseAdmin
+      .from('partner_withdrawals')
+      .select('*')
+      .eq('partner_id', partner.id)
+      .order('created_at', { ascending: false });
+
+    return NextResponse.json({ withdrawals: withdrawals || [] });
+  } catch (error) {
+    console.error('[GET /api/partners/withdrawals] Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -7,7 +7,7 @@ const SETTING_KEYS = {
 };
 
 const DEFAULT_VALUES = {
-  minWithdrawal: 5000,
+  minWithdrawal: 1000,
 };
 
 const MAX_WITHDRAWAL = 1000000; // ₦1,000,000 maximum
