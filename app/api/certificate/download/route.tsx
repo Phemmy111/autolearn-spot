@@ -68,10 +68,10 @@ export async function GET(request: Request) {
 
     const baseUrl = new URL('/', request.url).toString().slice(0, -1) // e.g. https://domain.com
 
-    // Fetch the certificate record to get the actual certificate code and course title
+    // Fetch the certificate record to get the actual certificate code, user name, and course title
     let query = supabaseAdmin
       .from('certificates')
-      .select('certificate_code, course_title, cohorts(name, learning_products(title))')
+      .select('user_name, certificate_code, course_title, cohorts(name, learning_products(title))')
       .eq('user_id', targetUserId)
       
     if (certificateIdParam) {
@@ -82,6 +82,13 @@ export async function GET(request: Request) {
       .order('issued_at', { ascending: false })
       .limit(1)
       .maybeSingle()
+
+    if (certificateRecord?.user_name && !studentNameParam) {
+      userName = certificateRecord.user_name
+        .split(' ')
+        .map(word => word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : '')
+        .join(' ')
+    }
 
     const certificateId = certificateRecord?.certificate_code || `CERT-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     const lpTitle = certificateRecord?.course_title || certificateRecord?.cohorts?.learning_products?.title;

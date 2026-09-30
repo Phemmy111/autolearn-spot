@@ -70,21 +70,6 @@ export async function POST(request: Request) {
       ) 
     } */
 
-    // 2. Fetch User Details
-    const user = await currentUser()
-    const userName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || (user?.emailAddresses?.[0]?.emailAddress?.split('@')[0]) || 'Student'
-    const userEmail = user?.emailAddresses?.[0]?.emailAddress || ''
-
-    // Get default cohort ID or fallback UUID
-    const { data: currentCohort } = await supabaseAdmin
-      .from('cohorts')
-      .select('id')
-      .eq('is_current', true)
-      .single()
-
-    const cohortId = currentCohort?.id || 'a1111111-1111-1111-1111-111111111111'
-
-    
     // 3. Verify eligibility before issuing certificate
     // First, find the product_id of the lesson they just completed
     const { data: lessonData } = await supabaseAdmin
@@ -98,6 +83,49 @@ export async function POST(request: Request) {
     if (!productId) {
       return NextResponse.json({ error: 'Lesson not found or not associated with a product.' }, { status: 400 })
     }
+
+    // 2. Fetch User Details - check enrollments and orders first for the confirmed certificate name
+    const user = await currentUser()
+    const userEmail = user?.emailAddresses?.[0]?.emailAddress || ''
+
+    let confirmedName: string | null = null
+
+    // Look up enrollment for this user/email and product
+    if (userEmail && productId) {
+      const { data: enrollment } = await supabaseAdmin
+        .from('enrollments')
+        .select('full_name')
+        .eq('learning_product_id', productId)
+        .eq('email', userEmail)
+        .maybeSingle()
+      if (enrollment?.full_name) {
+        confirmedName = enrollment.full_name
+      }
+    }
+
+    if (!confirmedName && userEmail) {
+      const { data: order } = await supabaseAdmin
+        .from('orders')
+        .select('customer_name')
+        .eq('customer_email', userEmail)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (order?.customer_name) {
+        confirmedName = order.customer_name
+      }
+    }
+
+    const userName = confirmedName || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || (userEmail?.split('@')[0]) || 'Student'
+
+    // Get default cohort ID or fallback UUID
+    const { data: currentCohort } = await supabaseAdmin
+      .from('cohorts')
+      .select('id')
+      .eq('is_current', true)
+      .single()
+
+    const cohortId = currentCohort?.id || 'a1111111-1111-1111-1111-111111111111'
 
     // Get all active lessons for this product + the product title
     const { data: productData } = await supabaseAdmin

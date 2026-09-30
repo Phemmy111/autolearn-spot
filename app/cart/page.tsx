@@ -29,6 +29,7 @@ interface CartResponse {
 
 export default function CartPage() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
   const [cart, setCart] = useState<CartResponse['cart'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -38,8 +39,14 @@ export default function CartPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (user && !guestName) {
+      const name = user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim();
+      if (name) setGuestName(name);
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (isLoaded) {
-      
       fetchCart();
     }
   }, [isLoaded, isSignedIn]);
@@ -104,7 +111,7 @@ export default function CartPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: !isSignedIn ? guestEmail : undefined,
-          fullName: !isSignedIn ? guestName : undefined,
+          fullName: guestName && guestName.trim().length > 0 ? guestName.trim() : undefined,
           affiliate_ref: refValue
         })
       });

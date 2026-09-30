@@ -97,16 +97,21 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
     return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 });
   }
 
-  // 3.5. Update order with customer details from Paystack
-  const firstName = data.customer.first_name;
-  const lastName = data.customer.last_name;
-  const fullName = [firstName, lastName].filter(Boolean).join(' ');
+  // 3.5. Update order with customer details - prioritize student's confirmed certificate name from cart
+  const metadataFullName = data.metadata?.full_name;
+  const orderCustomerName = order.customer_name;
+  const paystackCustomerName = [data.customer?.first_name, data.customer?.last_name].filter(Boolean).join(' ');
+  const confirmedFullName = orderCustomerName || metadataFullName || paystackCustomerName || 'Student';
   
-  if (fullName || email) {
+  const nameParts = confirmedFullName.split(' ');
+  const firstName = nameParts[0] || data.customer?.first_name || 'Student';
+  const lastName = nameParts.slice(1).join(' ') || data.customer?.last_name || '';
+  
+  if (confirmedFullName || email) {
     await supabaseAdmin
       .from('orders')
       .update({
-        customer_name: fullName || null,
+        customer_name: confirmedFullName,
         customer_email: email,
       })
       .eq('id', order.id);
@@ -238,8 +243,8 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
       referred_by_code: null,
     };
 
-    if (fullName) {
-      enrollmentData.full_name = fullName;
+    if (confirmedFullName) {
+      enrollmentData.full_name = confirmedFullName;
       if (firstName) enrollmentData.first_name = firstName;
       if (lastName) enrollmentData.last_name = lastName;
     }
