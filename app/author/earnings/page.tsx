@@ -252,7 +252,7 @@ export default async function AuthorEarningsPage() {
                 {withdrawals.map((w) => (
                   <tr key={w.id} className="hover:bg-brand-bg/50 transition-colors">
                     <td className="py-4 text-brand-text">
-                      {new Date(w.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(w.requested_at || w.created_at || Date.now()).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </td>
                     <td className="py-4 font-medium text-brand-text">
                       {new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(w.amount)}
