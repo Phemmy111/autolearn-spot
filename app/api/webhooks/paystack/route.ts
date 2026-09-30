@@ -387,7 +387,6 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
 
   // AFFILIATE COMMISSION PAYOUT
   // Check if the purchase came via an affiliate link (metadata.affiliate_ref)
-  const affiliateRef = data.metadata?.affiliate_ref || data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'affiliate_ref')?.value;
   if (affiliateRef) {
     try {
       for (const item of orderItems) {

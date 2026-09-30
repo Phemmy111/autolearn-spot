@@ -13,7 +13,14 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  XCircle
+  XCircle,
+  X,
+  Info,
+  User,
+  BookOpen,
+  Receipt,
+  Banknote,
+  Share2
 } from 'lucide-react'
 
 interface Transaction {
@@ -24,6 +31,211 @@ interface Transaction {
   description: string | null
   created_at: string
   related_id: string | null
+  // enriched fields (may be present if API returns them)
+  course_title?: string | null
+  student_email?: string | null
+  sale_price?: number | null
+  platform_commission?: number | null
+  affiliate_commission?: number | null
+  affiliate_name?: string | null
+  net_amount?: number | null
+  withdrawal_reference?: string | null
+  bank_name?: string | null
+}
+
+function DetailRow({ icon, label, value, valueClass = '' }: { icon: React.ReactNode; label: string; value: React.ReactNode; valueClass?: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-3 border-b border-brand-border last:border-0">
+      <div className="flex items-center gap-2 text-sm text-brand-text/60 min-w-0">
+        <span className="shrink-0">{icon}</span>
+        <span className="truncate">{label}</span>
+      </div>
+      <div className={`text-sm font-semibold text-right max-w-[55%] break-words ${valueClass || 'text-brand-text'}`}>
+        {value}
+      </div>
+    </div>
+  )
+}
+
+function TransactionDetailModal({ transaction, onClose }: { transaction: Transaction; onClose: () => void }) {
+  const isCredit = transaction.type === 'SALE_CREDIT' || transaction.type === 'ADMIN_CREDIT' || transaction.type === 'WITHDRAWAL_REVERSAL'
+
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'SALE_CREDIT': return 'Course Sale'
+      case 'REFUND_DEBIT': return 'Refund Deducted'
+      case 'WITHDRAWAL_DEBIT': return 'Withdrawal Processed'
+      case 'WITHDRAWAL_REVERSAL': return 'Withdrawal Reversed'
+      case 'ADMIN_CREDIT': return 'Admin Credit'
+      case 'ADMIN_DEBIT': return 'Admin Debit'
+      default: return type
+    }
+  }
+
+  const getTypeDescription = (t: Transaction) => {
+    switch (t.type) {
+      case 'SALE_CREDIT':
+        return `A student purchased your course and your earnings were credited after platform and affiliate commissions.`
+      case 'REFUND_DEBIT':
+        return `A refund was issued for one of your course purchases. The amount was deducted from your balance.`
+      case 'WITHDRAWAL_DEBIT':
+        return `You requested a withdrawal. The amount was deducted from your available balance and is being processed.`
+      case 'WITHDRAWAL_REVERSAL':
+        return `A withdrawal request was reversed. The amount was returned to your available balance.`
+      case 'ADMIN_CREDIT':
+        return `An administrator manually credited your account.`
+      case 'ADMIN_DEBIT':
+        return `An administrator manually deducted from your account.`
+      default:
+        return t.description || 'Transaction recorded.'
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-[var(--card)] border border-brand-border rounded-2xl max-w-lg w-full shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-xl ${isCredit ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+              {isCredit
+                ? <ArrowUpRight className={`w-5 h-5 ${transaction.type === 'WITHDRAWAL_REVERSAL' ? 'text-blue-500' : 'text-emerald-500'}`} />
+                : <ArrowDownLeft className="w-5 h-5 text-red-500" />
+              }
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-brand-text">{getTypeLabel(transaction.type)}</h3>
+              <p className="text-xs text-brand-text/50">
+                {new Date(transaction.created_at).toLocaleDateString('en-NG', {
+                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                })}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl text-brand-text/40 hover:text-brand-text hover:bg-brand-bg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Amount Banner */}
+        <div className={`mx-6 mt-5 mb-4 rounded-2xl px-5 py-4 ${isCredit ? 'bg-emerald-500/8 border border-emerald-500/20' : 'bg-red-500/8 border border-red-500/20'}`}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand-text/50 mb-1">
+            {isCredit ? 'Amount Credited' : 'Amount Deducted'}
+          </p>
+          <p className={`text-3xl font-black ${isCredit ? 'text-emerald-600' : 'text-red-600'}`}>
+            {isCredit ? '+' : '-'}₦{transaction.amount.toLocaleString()}
+          </p>
+        </div>
+
+        {/* Detail Rows */}
+        <div className="px-6 pb-2">
+          {/* What happened summary */}
+          <div className="flex items-start gap-2 bg-brand-bg/60 border border-brand-border rounded-xl p-3 mb-4">
+            <Info className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
+            <p className="text-xs text-brand-text/70 leading-relaxed">{getTypeDescription(transaction)}</p>
+          </div>
+
+          {/* Course info — SALE_CREDIT */}
+          {transaction.type === 'SALE_CREDIT' && (
+            <>
+              {transaction.course_title && (
+                <DetailRow
+                  icon={<BookOpen className="w-4 h-4" />}
+                  label="Course"
+                  value={transaction.course_title}
+                />
+              )}
+              {transaction.student_email && (
+                <DetailRow
+                  icon={<User className="w-4 h-4" />}
+                  label="Student"
+                  value={transaction.student_email}
+                />
+              )}
+              {transaction.sale_price != null && (
+                <DetailRow
+                  icon={<DollarSign className="w-4 h-4" />}
+                  label="Course Sale Price"
+                  value={`₦${transaction.sale_price.toLocaleString()}`}
+                />
+              )}
+              {transaction.platform_commission != null && (
+                <DetailRow
+                  icon={<Receipt className="w-4 h-4" />}
+                  label="Platform Commission"
+                  value={`- ₦${transaction.platform_commission.toLocaleString()}`}
+                  valueClass="text-red-500"
+                />
+              )}
+              {transaction.affiliate_commission != null && transaction.affiliate_commission > 0 && (
+                <DetailRow
+                  icon={<Share2 className="w-4 h-4" />}
+                  label={`Affiliate Commission${transaction.affiliate_name ? ` (${transaction.affiliate_name})` : ''}`}
+                  value={`- ₦${transaction.affiliate_commission.toLocaleString()}`}
+                  valueClass="text-orange-500"
+                />
+              )}
+              <DetailRow
+                icon={<Banknote className="w-4 h-4" />}
+                label="Your Net Earnings"
+                value={`₦${transaction.amount.toLocaleString()}`}
+                valueClass="text-emerald-600"
+              />
+            </>
+          )}
+
+          {/* Withdrawal info */}
+          {(transaction.type === 'WITHDRAWAL_DEBIT' || transaction.type === 'WITHDRAWAL_REVERSAL') && (
+            <>
+              {transaction.bank_name && (
+                <DetailRow
+                  icon={<Banknote className="w-4 h-4" />}
+                  label="Bank"
+                  value={transaction.bank_name}
+                />
+              )}
+              {transaction.withdrawal_reference && (
+                <DetailRow
+                  icon={<Receipt className="w-4 h-4" />}
+                  label="Reference"
+                  value={<span className="font-mono text-xs">{transaction.withdrawal_reference}</span>}
+                />
+              )}
+            </>
+          )}
+
+          {/* Transaction ID */}
+          <DetailRow
+            icon={<Info className="w-4 h-4" />}
+            label="Transaction ID"
+            value={<span className="font-mono text-xs text-brand-text/50">{transaction.id}</span>}
+          />
+
+          {/* Full description if present and not already explained */}
+          {transaction.description && transaction.type !== 'SALE_CREDIT' && (
+            <DetailRow
+              icon={<Info className="w-4 h-4" />}
+              label="Details"
+              value={transaction.description}
+              valueClass="text-brand-text/70 font-normal text-xs"
+            />
+          )}
+        </div>
+
+        <div className="px-6 pb-5 pt-3">
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl border border-brand-border text-sm font-semibold text-brand-text/70 hover:bg-brand-bg transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AuthorTransactionsPage() {
@@ -34,6 +246,7 @@ export default function AuthorTransactionsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [total, setTotal] = useState(0)
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
   useEffect(() => {
     if (userId) fetchTransactions()
@@ -42,10 +255,10 @@ export default function AuthorTransactionsPage() {
   const fetchTransactions = async () => {
     try {
       setLoading(true)
-      const url = typeFilter === 'all' 
+      const url = typeFilter === 'all'
         ? '/api/author/transactions'
         : `/api/author/transactions?type=${typeFilter}`
-      
+
       const res = await fetch(url)
       const data = await res.json()
 
@@ -66,7 +279,8 @@ export default function AuthorTransactionsPage() {
     const q = searchQuery.toLowerCase()
     return (
       t.description?.toLowerCase().includes(q) ||
-      t.type.toLowerCase().includes(q)
+      t.type.toLowerCase().includes(q) ||
+      t.course_title?.toLowerCase().includes(q)
     )
   })
 
@@ -91,20 +305,13 @@ export default function AuthorTransactionsPage() {
 
   const getTransactionTypeLabel = (type: string) => {
     switch (type) {
-      case 'SALE_CREDIT':
-        return 'Sale'
-      case 'REFUND_DEBIT':
-        return 'Refund'
-      case 'WITHDRAWAL_DEBIT':
-        return 'Withdrawal'
-      case 'WITHDRAWAL_REVERSAL':
-        return 'Reversal'
-      case 'ADMIN_CREDIT':
-        return 'Admin Credit'
-      case 'ADMIN_DEBIT':
-        return 'Admin Debit'
-      default:
-        return type
+      case 'SALE_CREDIT': return 'Sale'
+      case 'REFUND_DEBIT': return 'Refund'
+      case 'WITHDRAWAL_DEBIT': return 'Withdrawal'
+      case 'WITHDRAWAL_REVERSAL': return 'Reversal'
+      case 'ADMIN_CREDIT': return 'Admin Credit'
+      case 'ADMIN_DEBIT': return 'Admin Debit'
+      default: return type
     }
   }
 
@@ -130,6 +337,12 @@ export default function AuthorTransactionsPage() {
     return `${sign}₦${amount.toLocaleString()}`
   }
 
+  const getDescriptionSummary = (t: Transaction) => {
+    if (t.course_title) return `Sale of "${t.course_title}"`
+    if (t.description) return t.description
+    return '—'
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--card)]">
@@ -148,7 +361,7 @@ export default function AuthorTransactionsPage() {
           <div>
             <h1 className="text-3xl font-bold text-brand-text">Transactions</h1>
             <p className="text-sm text-brand-text/70 mt-1">
-              {total} transaction{total !== 1 ? 's' : ''}
+              {total} transaction{total !== 1 ? 's' : ''} · Click any row to see the full breakdown
             </p>
           </div>
         </div>
@@ -165,7 +378,7 @@ export default function AuthorTransactionsPage() {
               className="w-full pl-10 pr-4 py-3 rounded-lg border border-brand-border bg-brand-bg text-brand-text placeholder-brand-text/50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
             />
           </div>
-          
+
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-brand-text/60" />
             <select
@@ -220,21 +433,22 @@ export default function AuthorTransactionsPage() {
             {/* Table Body */}
             <div className="divide-y divide-brand-border">
               {filteredTransactions.map((transaction) => (
-                <div
+                <button
                   key={transaction.id}
-                  className="sm:grid sm:grid-cols-[200px_1fr_140px_100px] gap-4 px-6 py-4 items-center hover:bg-brand-bg/50 transition-colors"
+                  onClick={() => setSelectedTransaction(transaction)}
+                  className="w-full text-left sm:grid sm:grid-cols-[200px_1fr_140px_100px] gap-4 px-6 py-4 items-center hover:bg-brand-bg/50 transition-colors cursor-pointer group"
                 >
                   {/* Type */}
                   <div className="flex items-center gap-2 mb-2 sm:mb-0">
                     {getTransactionIcon(transaction.type)}
-                    <span className="text-sm font-medium text-brand-text">
+                    <span className="text-sm font-medium text-brand-text group-hover:text-sky-600 transition-colors">
                       {getTransactionTypeLabel(transaction.type)}
                     </span>
                   </div>
 
                   {/* Description */}
                   <div className="text-sm text-brand-text/70 mb-2 sm:mb-0 truncate">
-                    {transaction.description || 'No description'}
+                    {getDescriptionSummary(transaction)}
                   </div>
 
                   {/* Amount */}
@@ -250,12 +464,20 @@ export default function AuthorTransactionsPage() {
                       year: 'numeric'
                     })}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
         )}
       </div>
+
+      {/* Transaction Detail Modal */}
+      {selectedTransaction && (
+        <TransactionDetailModal
+          transaction={selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
+      )}
     </div>
   )
 }
