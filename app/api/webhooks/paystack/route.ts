@@ -362,8 +362,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           .from('referral_codes')
           .select('id, owner_id, owner_type')
           .eq('code', affiliateRef)
-          .eq('owner_type', 'affiliate')
-          .single();
+          .maybeSingle();
 
         if (!refCode) continue;
 
@@ -373,7 +372,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           .select('id, partner_id')
           .eq('referral_code_id', refCode.id)
           .eq('learning_product_id', item.learning_product_id)
-          .single();
+          .maybeSingle();
 
         if (!affLink) continue;
 
@@ -384,32 +383,34 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           .eq('id', item.learning_product_id)
           .single();
 
-        if (!affProduct?.affiliate_enabled) continue;
+        if (affProduct && affProduct.affiliate_enabled === false) continue;
 
-        const affiliateCommissionRate = (affProduct.affiliate_commission_rate || 20) / 100;
+        const affiliateCommissionRate = (affProduct?.affiliate_commission_rate || 20) / 100;
         const affiliateAmount = Math.round(item.price_snapshot * affiliateCommissionRate);
+
+        // Fetch partner
+        const { data: currentPartner } = await supabaseAdmin
+          .from('partners')
+          .select('id, partner_type, available_earnings, lifetime_earnings')
+          .eq('id', affLink.partner_id)
+          .single();
+
+        const referrerType = currentPartner?.partner_type || 'community';
 
         // Record commission
         await supabaseAdmin.from('commissions').insert({
           referrer_id: affLink.partner_id,
-          referrer_type: 'affiliate',
+          referrer_type: referrerType,
           referee_email: email,
           referral_code: affiliateRef,
           payment_reference: reference,
           amount: affiliateAmount,
           status: 'pending',
           learning_product_id: item.learning_product_id,
-          commission_type: 'affiliate',
           holding_period_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         });
 
         // Credit partner earnings
-        const { data: currentPartner } = await supabaseAdmin
-          .from('partners')
-          .select('available_earnings, lifetime_earnings')
-          .eq('id', affLink.partner_id)
-          .single();
-
         if (currentPartner) {
           await supabaseAdmin.from('partners').update({
             available_earnings: (currentPartner.available_earnings || 0) + affiliateAmount,
@@ -418,18 +419,20 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
         }
 
         // Update affiliate_links stats
-        await supabaseAdmin.from('affiliate_links').update({
-          conversions: affLink.partner_id ? undefined : 0,
-          total_earned: affiliateAmount,
-        }).eq('id', affLink.id);
+        const { data: currentLink } = await supabaseAdmin
+          .from('affiliate_links')
+          .select('conversions, total_earned')
+          .eq('id', affLink.id)
+          .single();
 
-        // Increment conversions separately to avoid race conditions
-        await supabaseAdmin.rpc('increment_affiliate_conversions', { link_id: affLink.id, earned: affiliateAmount }).catch(() => {
-          // RPC might not exist yet - fallback to simple update
-          supabaseAdmin.from('affiliate_links')
-            .update({ conversions: 1, total_earned: affiliateAmount })
+        if (currentLink) {
+          await supabaseAdmin.from('affiliate_links')
+            .update({
+              conversions: (currentLink.conversions || 0) + 1,
+              total_earned: (currentLink.total_earned || 0) + affiliateAmount,
+            })
             .eq('id', affLink.id);
-        });
+        }
 
         console.log(`AFFILIATE: Paid out ₦${affiliateAmount} to partner ${affLink.partner_id} for product ${item.learning_product_id}`);
       }
