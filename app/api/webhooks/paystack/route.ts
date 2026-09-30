@@ -434,6 +434,28 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
             .eq('id', affLink.id);
         }
 
+        // Send email and in-app notification to affiliate partner
+        if (currentPartner && currentPartner.email) {
+          try {
+            await PartnerEmailService.sendCommissionEarnedEmail(
+              currentPartner.email,
+              currentPartner.full_name || 'Partner',
+              affiliateAmount,
+              email
+            );
+
+            await PartnerNotificationService.createNotification({
+              partnerId: affLink.partner_id,
+              type: 'commission_earned',
+              title: 'Commission Earned! 💰',
+              message: `You earned ₦${affiliateAmount.toLocaleString()} from a course referral.`,
+              metadata: { amount: affiliateAmount, courseId: item.learning_product_id }
+            });
+          } catch (mailErr) {
+            console.error('[Paystack Webhook] Failed to send partner commission notification:', mailErr);
+          }
+        }
+
         console.log(`AFFILIATE: Paid out ₦${affiliateAmount} to partner ${affLink.partner_id} for product ${item.learning_product_id}`);
       }
     } catch (affiliateError) {
