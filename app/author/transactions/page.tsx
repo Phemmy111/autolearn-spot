@@ -31,12 +31,15 @@ interface Transaction {
   description: string | null
   created_at: string
   related_id: string | null
-  // enriched fields (may be present if API returns them)
+  // enriched fields from API
   course_title?: string | null
+  student_name?: string | null
   student_email?: string | null
-  sale_price?: number | null
+  gross_amount?: number | null
   platform_commission?: number | null
+  platform_commission_rate?: number | null
   affiliate_commission?: number | null
+  affiliate_commission_rate?: number | null
   affiliate_name?: string | null
   net_amount?: number | null
   withdrawal_reference?: string | null
@@ -148,42 +151,81 @@ function TransactionDetailModal({ transaction, onClose }: { transaction: Transac
                   value={transaction.course_title}
                 />
               )}
-              {transaction.student_email && (
+              {transaction.student_name && (
                 <DetailRow
                   icon={<User className="w-4 h-4" />}
                   label="Student"
-                  value={transaction.student_email}
+                  value={<span>{transaction.student_name}<span className="text-brand-text/40 font-normal ml-1 text-xs">({transaction.student_email})</span></span>}
                 />
               )}
-              {transaction.sale_price != null && (
+
+              {/* Visual breakdown */}
+              {transaction.gross_amount != null && (
+                <div className="mt-3 mb-1 rounded-xl border border-brand-border overflow-hidden">
+                  {/* Course price */}
+                  <div className="flex items-center justify-between px-4 py-3 bg-brand-bg/40">
+                    <div className="flex items-center gap-2 text-sm text-brand-text/70">
+                      <DollarSign className="w-4 h-4 text-brand-text/40" />
+                      <span>Course Price</span>
+                    </div>
+                    <span className="text-sm font-bold text-brand-text">
+                      ₦{transaction.gross_amount.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Platform commission */}
+                  {transaction.platform_commission != null && transaction.platform_commission > 0 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-brand-border bg-red-500/4">
+                      <div className="flex items-center gap-2 text-sm text-brand-text/70">
+                        <Receipt className="w-4 h-4 text-red-400" />
+                        <span>Platform{transaction.platform_commission_rate != null ? ` (${transaction.platform_commission_rate}%)` : ''}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-red-500">
+                        − ₦{transaction.platform_commission.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Affiliate commission */}
+                  {transaction.affiliate_commission != null && transaction.affiliate_commission > 0 && (
+                    <div className="flex items-center justify-between px-4 py-3 border-t border-brand-border bg-orange-500/4">
+                      <div className="flex items-center gap-2 text-sm text-brand-text/70">
+                        <Share2 className="w-4 h-4 text-orange-400" />
+                        <span>
+                          Affiliate{transaction.affiliate_commission_rate != null ? ` (${transaction.affiliate_commission_rate}%)` : ''}
+                          {transaction.affiliate_name && (
+                            <span className="ml-1 text-xs text-brand-text/40">· {transaction.affiliate_name}</span>
+                          )}
+                        </span>
+                      </div>
+                      <span className="text-sm font-semibold text-orange-500">
+                        − ₦{transaction.affiliate_commission.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Net earnings — highlighted */}
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-emerald-500/30 bg-emerald-500/8">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
+                      <Banknote className="w-4 h-4" />
+                      <span>Your Earnings</span>
+                    </div>
+                    <span className="text-base font-black text-emerald-600">
+                      ₦{transaction.amount.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Fallback if no gross_amount enriched */}
+              {transaction.gross_amount == null && (
                 <DetailRow
-                  icon={<DollarSign className="w-4 h-4" />}
-                  label="Course Sale Price"
-                  value={`₦${transaction.sale_price.toLocaleString()}`}
+                  icon={<Banknote className="w-4 h-4" />}
+                  label="Your Net Earnings"
+                  value={`₦${transaction.amount.toLocaleString()}`}
+                  valueClass="text-emerald-600"
                 />
               )}
-              {transaction.platform_commission != null && (
-                <DetailRow
-                  icon={<Receipt className="w-4 h-4" />}
-                  label="Platform Commission"
-                  value={`- ₦${transaction.platform_commission.toLocaleString()}`}
-                  valueClass="text-red-500"
-                />
-              )}
-              {transaction.affiliate_commission != null && transaction.affiliate_commission > 0 && (
-                <DetailRow
-                  icon={<Share2 className="w-4 h-4" />}
-                  label={`Affiliate Commission${transaction.affiliate_name ? ` (${transaction.affiliate_name})` : ''}`}
-                  value={`- ₦${transaction.affiliate_commission.toLocaleString()}`}
-                  valueClass="text-orange-500"
-                />
-              )}
-              <DetailRow
-                icon={<Banknote className="w-4 h-4" />}
-                label="Your Net Earnings"
-                value={`₦${transaction.amount.toLocaleString()}`}
-                valueClass="text-emerald-600"
-              />
             </>
           )}
 
