@@ -37,19 +37,26 @@ export async function GET() {
       console.error('Error fetching author products:', prodErr);
     }
 
-    // Fetch author's own marketing resources (partner_id stores the uploader's author.id)
+    // Authors can see 'general' resources, plus any resources categorized under their own product titles
+    const authorProductTitles = (products || []).map(p => p.title);
+    
     const { data: resources, error: resErr } = await supabaseAdmin
       .from('partner_marketing_downloads')
       .select('*')
-      .eq('partner_id', author.id)
       .order('created_at', { ascending: false });
 
     if (resErr) {
       console.error('Error fetching marketing downloads:', resErr);
     }
 
+    // Filter resources in memory (simpler than complex Supabase OR queries with arrays)
+    const filteredResources = (resources || []).filter(item => {
+      if (!item.category || item.category === 'general') return true;
+      return authorProductTitles.includes(item.category);
+    });
+
     // Normalize resources
-    const transformedResources = (resources || []).map((item) => ({
+    const transformedResources = filteredResources.map((item) => ({
       id: item.id,
       name: item.resource_name,
       type: item.resource_type || 'flyer',
@@ -108,7 +115,7 @@ export async function POST(req: Request) {
       description: description?.trim() || null,
       resource_url: resource_url?.trim() || '',
       download_count: 0,
-      partner_id: author.id, // track uploading author by their actual DB UUID
+      // partner_id left null intentionally as this is author-uploaded content
     };
 
     const { data: newResource, error: insertErr } = await supabaseAdmin
