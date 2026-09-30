@@ -1,4 +1,3 @@
-// Learning Product Details Page
 import { notFound } from 'next/navigation';
 import { supabaseAdmin } from '@/lib/supabase';
 import AddToCartButton from '@/components/marketplace/AddToCartButton';
@@ -11,21 +10,33 @@ import { Suspense } from 'react';
 import { AffiliateRefCapture } from '@/components/affiliate/AffiliateRefCapture';
 
 interface PageParams {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
-export default async function LearningProductPage({ params }: PageParams) {
-  const { id } = await params;
+export default async function MarketplaceProductPage({ params }: PageParams) {
+  const { slug } = await params;
 
-  // 1. Fetch Product
-  const { data: product, error } = await supabaseAdmin
+  // 1. Fetch Product by slug (or fallback to id)
+  const { data: productBySlug } = await supabaseAdmin
     .from('learning_products')
     .select('*')
-    .eq('id', id)
+    .eq('slug', slug)
     .eq('status', 'PUBLISHED')
-    .single();
+    .maybeSingle();
 
-  if (error || !product) {
+  let product = productBySlug;
+
+  if (!product) {
+    const { data: productById } = await supabaseAdmin
+      .from('learning_products')
+      .select('*')
+      .eq('id', slug)
+      .eq('status', 'PUBLISHED')
+      .maybeSingle();
+    product = productById;
+  }
+
+  if (!product) {
     notFound();
     return null;
   }
@@ -46,7 +57,7 @@ export default async function LearningProductPage({ params }: PageParams) {
   const { data: lessons } = await supabaseAdmin
     .from('lessons')
     .select('title, description, duration_label, order_index')
-    .eq('product_id', id)
+    .eq('product_id', product.id)
     .eq('status', 'PUBLISHED')
     .order('order_index', { ascending: true });
 
@@ -94,7 +105,7 @@ export default async function LearningProductPage({ params }: PageParams) {
           <div className="flex items-center text-sm text-muted-foreground font-medium">
             <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight className="w-4 h-4 mx-2 opacity-50" />
-            <Link href="/#products" className="hover:text-foreground transition-colors">Marketplace</Link>
+            <Link href="/marketplace" className="hover:text-foreground transition-colors">Marketplace</Link>
             <ChevronRight className="w-4 h-4 mx-2 opacity-50" />
             <span className="text-foreground truncate max-w-[200px] sm:max-w-none">{product.title}</span>
           </div>
