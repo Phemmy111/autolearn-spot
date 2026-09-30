@@ -87,8 +87,17 @@ export default function CartPage() {
     }
     setCheckingOut(true);
     try {
-      const affiliateRef = typeof window !== 'undefined' ? localStorage.getItem('affiliate_ref') : null;
-      let refValue = affiliateRef ? JSON.parse(affiliateRef).code : undefined;
+      let refValue: string | undefined;
+      try {
+        const affiliateRef = typeof window !== 'undefined' ? localStorage.getItem('affiliate_ref') : null;
+        if (affiliateRef) {
+          const parsed = JSON.parse(affiliateRef);
+          refValue = parsed?.code || parsed;
+        }
+      } catch {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('affiliate_ref') : null;
+        if (raw) refValue = raw;
+      }
       
       const res = await fetch('/api/cart/checkout', {
         method: 'POST',
@@ -99,9 +108,17 @@ export default function CartPage() {
           affiliate_ref: refValue
         })
       });
-      if (!res.ok) throw new Error('Checkout failed');
-      const { authorization_url } = await res.json();
-      window.location.href = authorization_url;
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.details || data?.error || 'Checkout failed');
+      }
+
+      if (data?.authorization_url) {
+        window.location.href = data.authorization_url;
+      } else {
+        throw new Error('No payment authorization URL returned');
+      }
     } catch (e) {
       setError((e as Error).message);
       setCheckingOut(false);

@@ -17,15 +17,17 @@ export async function POST(request: NextRequest) {
   let email = clerkUser?.emailAddresses?.[0]?.emailAddress ?? clerkUser?.primaryEmailAddress?.emailAddress;
   let fullName = clerkUser?.fullName ?? `${clerkUser?.firstName ?? ''} ${clerkUser?.lastName ?? ''}`.trim() ?? 'Student';
 
-  // Parse optional callback URL and guest details from body
+  // Parse optional callback URL, affiliate ref, and guest details from body
   let callbackUrl: string | undefined;
   let guestEmail: string | undefined;
   let guestName: string | undefined;
+  let affiliateRef: string | undefined;
   try {
     const body = await request.json();
     callbackUrl = body?.callbackUrl;
     guestEmail = body?.email;
     guestName = body?.fullName;
+    affiliateRef = body?.affiliate_ref;
   } catch {
     // ignore
   }
@@ -83,7 +85,7 @@ export async function POST(request: NextRequest) {
         order_ref: order.order_ref,
         full_name: fullName,
         user_id: userId,
-        affiliate_ref: body?.affiliate_ref || undefined,
+        affiliate_ref: affiliateRef || undefined,
       },
       callback_url:
         callbackUrl ??
