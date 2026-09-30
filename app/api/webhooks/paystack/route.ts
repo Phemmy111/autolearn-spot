@@ -405,7 +405,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           referral_code: affiliateRef,
           payment_reference: reference,
           amount: affiliateAmount,
-          status: 'pending',
+          status: 'available',
           learning_product_id: item.learning_product_id,
           holding_period_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         });

@@ -75,10 +75,29 @@ export async function GET(request: Request) {
       ? `${appUrl}/enroll?ref=${referralStats.code}`
       : null;
 
-    // Get recent commissions
-    const recentCommissions = await CommissionService.listCommissions({
+    // Get recent commissions enriched with student names
+    const rawCommissions = await CommissionService.listCommissions({
       referrerId: partner.id
-    }).then(comms => comms.slice(0, 10));
+    }).then(comms => comms.slice(0, 20));
+
+    const refereeEmails = [...new Set(rawCommissions.map(c => c.referee_email).filter(Boolean))];
+    const { data: customerOrders } = refereeEmails.length > 0
+      ? await supabaseAdmin
+          .from('orders')
+          .select('customer_email, customer_name')
+          .in('customer_email', refereeEmails)
+      : { data: [] };
+
+    const nameMap = Object.fromEntries(
+      (customerOrders || [])
+        .filter(o => o.customer_name && o.customer_email)
+        .map(o => [o.customer_email, o.customer_name])
+    );
+
+    const recentCommissions = rawCommissions.map(c => ({
+      ...c,
+      referred_name: nameMap[c.referee_email] || (c.referee_email ? c.referee_email.split('@')[0] : 'Student Referral')
+    }));
 
     // Get withdrawal history
     const withdrawals = await WithdrawalService.listWithdrawals({

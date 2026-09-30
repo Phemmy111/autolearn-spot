@@ -694,16 +694,18 @@ export default function PartnerDashboard() {
                       {data?.recentCommissions && data.recentCommissions.length > 0 ? (
                         data.recentCommissions.map((commission: any) => (
                           <tr key={commission.id} className="border-b border-brand-border">
-                            <td className="py-3 px-4 text-sm text-brand-text">{commission.referred_name || 'Unknown'}</td>
+                            <td className="py-3 px-4 text-sm text-brand-text font-medium">
+                              {commission.referred_name || commission.referee_email || 'Student Referral'}
+                            </td>
                             <td className="py-3 px-4">
-                              <span className={`px-2 py-1 text-xs rounded-full ${
-                                commission.status === 'paid' 
+                              <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                                commission.status === 'paid' || commission.status === 'available'
                                   ? 'bg-green-500/10 text-green-400' 
                                   : commission.status === 'pending'
                                   ? 'bg-yellow-500/10 text-yellow-400'
                                   : 'bg-red-500/10 text-red-400'
                               }`}>
-                                {commission.status || 'Pending'}
+                                {commission.status || 'available'}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-sm text-brand-text/60">{new Date(commission.created_at).toLocaleDateString()}</td>
