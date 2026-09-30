@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getAvailableBalance } from '@/lib/authorService';
-import { Wallet, ArrowUpRight, DollarSign, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Wallet, ArrowUpRight, DollarSign, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -47,17 +47,23 @@ export default async function AuthorEarningsPage() {
     console.error('Failed to fetch available balance:', error);
   }
   
-  // Calculate pending balance (available balance + pending withdrawals)
-  const pendingBalance = 0; // This would need to be calculated from pending withdrawals
+  // Fetch pending withdrawals for pending balance
+  const { data: pendingWithdrawals } = await supabaseAdmin
+    .from('author_withdrawals')
+    .select('amount, status')
+    .eq('author_id', author.id)
+    .in('status', ['PENDING', 'PROCESSING', 'APPROVED']);
+
+  const pendingBalance = pendingWithdrawals?.reduce((sum, w) => sum + Number(w.amount), 0) || 0;
   
   // Fetch withdrawals history for total withdrawn amount
   const { data: paidWithdrawals } = await supabaseAdmin
     .from('author_withdrawals')
     .select('amount, status')
     .eq('author_id', author.id)
-    .eq('status', 'PAID');
+    .in('status', ['PAID', 'COMPLETED']);
   
-  const totalWithdrawn = paidWithdrawals?.reduce((sum, w) => sum + w.amount, 0) || 0;
+  const totalWithdrawn = paidWithdrawals?.reduce((sum, w) => sum + Number(w.amount), 0) || 0;
 
   // 3.5 Fetch current commission rate
   const { data: commissionSetting } = await supabaseAdmin
@@ -76,19 +82,36 @@ export default async function AuthorEarningsPage() {
     }
   }
 
-  // 4. Fetch Withdrawals History
+  // 4. Fetch Withdrawals History (ordered by requested_at DESC)
   const { data: withdrawals } = await supabaseAdmin
     .from('author_withdrawals')
     .select('*')
     .eq('author_id', author.id)
-    .order('created_at', { ascending: false });
+    .order('requested_at', { ascending: false });
 
   const getStatusIcon = (status: string) => {
-    switch(status) {
+    switch(status?.toUpperCase()) {
+      case 'PAID':
       case 'COMPLETED': return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+      case 'APPROVED': return <CheckCircle className="w-4 h-4 text-blue-500" />;
+      case 'PROCESSING': return <Loader2 className="w-4 h-4 text-purple-500 animate-spin" />;
       case 'PENDING': return <Clock className="w-4 h-4 text-amber-500" />;
-      case 'FAILED': return <AlertCircle className="w-4 h-4 text-red-500" />;
+      case 'FAILED':
+      case 'REJECTED': return <AlertCircle className="w-4 h-4 text-red-500" />;
       default: return <Clock className="w-4 h-4 text-neutral-500" />;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch(status?.toUpperCase()) {
+      case 'PAID':
+      case 'COMPLETED': return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      case 'APPROVED': return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case 'PROCESSING': return 'bg-purple-50 text-purple-700 border border-purple-200';
+      case 'PENDING': return 'bg-amber-50 text-amber-700 border border-amber-200';
+      case 'FAILED':
+      case 'REJECTED': return 'bg-red-50 text-red-700 border border-red-200';
+      default: return 'bg-gray-50 text-gray-700 border border-gray-200';
     }
   };
 

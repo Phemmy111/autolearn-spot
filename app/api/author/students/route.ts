@@ -68,12 +68,13 @@ export async function GET(request: NextRequest) {
     const orderIds = [...new Set(orderItems.map(oi => oi.order_id))];
     console.log('[STUDENTS API] Order IDs:', orderIds);
 
-    // Get paid orders to get actual students who purchased
+    // Get paid orders to get actual students who purchased, newest first
     const { data: orders } = await supabaseAdmin
       .from('orders')
       .select('id, user_id, created_at, status, customer_name, customer_email')
       .in('id', orderIds)
-      .eq('status', 'PAID');
+      .eq('status', 'PAID')
+      .order('created_at', { ascending: false });
 
     console.log('[STUDENTS API] Orders lookup result:', orders);
 
@@ -154,7 +155,10 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    console.log('[STUDENTS API] Final students list:', studentsByProduct);
+    // Explicitly sort newest enrollments first
+    studentsByProduct.sort((a, b) => new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime());
+
+    console.log('[STUDENTS API] Final students list (newest first):', studentsByProduct);
     console.log('[STUDENTS API] Returning', studentsByProduct.length, 'students');
 
     return NextResponse.json({ success: true, students: studentsByProduct });
