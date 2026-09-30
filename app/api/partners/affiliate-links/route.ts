@@ -6,8 +6,8 @@ import { supabaseAdmin } from '@/lib/supabase';
 export const dynamic = 'force-dynamic';
 
 function generateAffiliateCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  return 'AFF' + Array.from({ length: 7 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return 'AF' + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
 async function resolvePartner(session: { userId: string; role?: string }) {
