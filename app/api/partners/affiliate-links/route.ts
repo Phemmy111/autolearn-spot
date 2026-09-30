@@ -77,15 +77,21 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // Create referral code
+  // Create referral code with valid owner_type matching table constraint
+  const ownerType = partner.partner_type === 'influencer' ? 'influencer' : 
+                   partner.partner_type === 'student' ? 'student' : 'community';
+
   const code = generateAffiliateCode();
   const { data: refCode, error: refError } = await supabaseAdmin
     .from('referral_codes')
-    .insert({ owner_id: partner.id, owner_type: 'affiliate', code, status: 'Active' })
+    .insert({ owner_id: partner.id, owner_type: ownerType, code, status: 'Active' })
     .select('id, code')
     .single();
 
-  if (refError || !refCode) return NextResponse.json({ error: 'Failed to create referral code' }, { status: 500 });
+  if (refError || !refCode) {
+    console.error('[Affiliate Links POST] Error creating referral code:', refError);
+    return NextResponse.json({ error: refError?.message || 'Failed to create referral code' }, { status: 500 });
+  }
 
   const { data: link, error: linkError } = await supabaseAdmin
     .from('affiliate_links')
@@ -93,7 +99,10 @@ export async function POST(request: NextRequest) {
     .select('id')
     .single();
 
-  if (linkError || !link) return NextResponse.json({ error: 'Failed to create affiliate link' }, { status: 500 });
+  if (linkError || !link) {
+    console.error('[Affiliate Links POST] Error creating affiliate link:', linkError);
+    return NextResponse.json({ error: linkError?.message || 'Failed to create affiliate link' }, { status: 500 });
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://autolearn-spot.vercel.app';
   return NextResponse.json({

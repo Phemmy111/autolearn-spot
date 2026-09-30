@@ -215,13 +215,14 @@ export default function PartnerDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ learning_product_id: productId })
       });
+      const result = await res.json();
       if (res.ok) {
         await fetchAffiliateData(); // Refresh lists
       } else {
-        alert('Failed to generate link');
+        alert(result.error || 'Failed to generate link');
       }
-    } catch (e) {
-      alert('Error generating link');
+    } catch (e: any) {
+      alert(e?.message || 'Error generating link');
     } finally {
       setGeneratingLink(null);
     }
@@ -463,40 +464,6 @@ export default function PartnerDashboard() {
                   <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-brand-text/60">Total Referrals</span>
                 </div>
                 <div className="text-2xl font-bold text-brand-text">{stats?.totalRegistrations || 0}</div>
-              </div>
-            </div>
-
-            {/* Referral Link Card */}
-            <div className="border border-brand-primary/30 bg-gradient-to-r from-brand-primary/10 to-transparent rounded-2xl p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-brand-text mb-2">Legacy Referral Link</h3>
-                  <p className="text-sm text-brand-text/60">
-                    This is your old generic referral link. To earn commissions on specific courses, please use the <strong>Promote Courses</strong> tab to generate unique affiliate links.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <div className="bg-brand-bg/60 border border-brand-border rounded-lg px-4 py-3 font-mono text-sm text-brand-text/60 truncate flex-1 sm:w-64">
-                    {data?.referral?.link || "Generating referral link..."}
-                  </div>
-                  <button
-                    onClick={handleCopyLink}
-                    disabled={!data?.referral?.link}
-                    className="border border-brand-primary bg-brand-bg text-white px-4 py-3 rounded-lg font-bold hover:bg-brand-bg transition-colors flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {copied ? "Copied!" : "Copy"}
-                  </button>
-                  {!data?.referral?.link && (
-                    <button
-                      onClick={fetchDashboardData}
-                      className="border border-brand-border bg-brand-bg text-brand-text/60 px-3 py-3 rounded-lg font-medium hover:bg-brand-bg transition-colors flex-shrink-0"
-                      title="Refresh referral link"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
               </div>
             </div>
 
