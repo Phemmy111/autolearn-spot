@@ -126,6 +126,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
 
   // 5.5. Record author sales for financial tracking using direct inserts
   const orderItems = await getOrderItems(order.id);
+  const affiliateRef = data.metadata?.affiliate_ref || data.metadata?.custom_fields?.find((f: any) => f.variable_name === 'affiliate_ref')?.value;
   
   // Fetch commission rate from settings
   const { data: commissionSetting } = await supabaseAdmin
@@ -155,9 +156,8 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
   
   // Convert percentage to decimal (e.g., 20% -> 0.20)
   const commissionDecimal = commissionRate / 100;
-  const authorShare = 1 - commissionDecimal;
   
-  console.log(`CART CHECKOUT: Commission rate: ${commissionRate}%, Author share: ${(authorShare * 100)}%`);
+  console.log(`CART CHECKOUT: Platform commission rate: ${commissionRate}%, affiliateRef: ${affiliateRef || 'none'}`);
   
   try {
     for (const item of orderItems) {
@@ -172,10 +172,10 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
         continue; // Skip if already recorded
       }
 
-      // Get product author_id
+      // Get product details
       const { data: product } = await supabaseAdmin
         .from('learning_products')
-        .select('author_id')
+        .select('author_id, affiliate_commission_rate, affiliate_enabled')
         .eq('id', item.learning_product_id)
         .single();
 
@@ -184,9 +184,34 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
         continue;
       }
 
-      // Calculate commission and net amount using configured rate
-      const commissionAmount = item.price_snapshot * commissionDecimal;
-      const netAmount = item.price_snapshot * authorShare;
+      // Calculate affiliate commission deduction if purchased via affiliate link
+      let affiliateCommissionAmount = 0;
+      if (affiliateRef && product.affiliate_enabled !== false) {
+        const { data: refCode } = await supabaseAdmin
+          .from('referral_codes')
+          .select('id')
+          .eq('code', affiliateRef)
+          .maybeSingle();
+
+        if (refCode) {
+          const { data: affLink } = await supabaseAdmin
+            .from('affiliate_links')
+            .select('id')
+            .eq('referral_code_id', refCode.id)
+            .eq('learning_product_id', item.learning_product_id)
+            .maybeSingle();
+
+          if (affLink) {
+            const affRate = (product.affiliate_commission_rate || 20) / 100;
+            affiliateCommissionAmount = Math.round(item.price_snapshot * affRate);
+          }
+        }
+      }
+
+      // Calculate platform commission and net amount for author
+      const platformCommissionAmount = Math.round(item.price_snapshot * commissionDecimal);
+      const totalCommissionDeduction = platformCommissionAmount + affiliateCommissionAmount;
+      const netAmount = Math.max(0, item.price_snapshot - totalCommissionDeduction);
 
       // Direct insert into author_sales
       const { data: sale, error: saleError } = await supabaseAdmin
@@ -197,7 +222,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           product_id: item.learning_product_id,
           author_id: product.author_id,
           gross_amount: item.price_snapshot,
-          commission_amount: commissionAmount,
+          commission_amount: totalCommissionDeduction,
           net_amount: netAmount,
           currency: 'NGN'
         })
@@ -209,6 +234,10 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
         continue;
       }
 
+      const txDescription = affiliateCommissionAmount > 0
+        ? `Sale for order ${order.id}, item ${item.id} (Affiliate ref: ${affiliateRef}, -₦${affiliateCommissionAmount.toLocaleString()} affiliate comm.)`
+        : `Sale for order ${order.id}, item ${item.id}`;
+
       // Direct insert into author_transactions
       await supabaseAdmin
         .from('author_transactions')
@@ -218,7 +247,7 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
           amount: netAmount,
           currency: 'NGN',
           related_id: sale.id,
-          description: `Sale for order ${order.id}, item ${item.id}`
+          description: txDescription
         });
     }
     
@@ -305,8 +334,13 @@ async function processCartCheckout(data: any, reference: string, amountInNaira: 
       }
 
       if (product && product.authors) {
-        const authorEarnings = item.price_snapshot * authorShare;
-        const platformCommission = item.price_snapshot * commissionDecimal;
+        let affiliateCommissionAmount = 0;
+        if (affiliateRef && product.affiliate_enabled !== false) {
+          const affRate = (product.affiliate_commission_rate || 20) / 100;
+          affiliateCommissionAmount = Math.round(item.price_snapshot * affRate);
+        }
+        const platformCommission = Math.round(item.price_snapshot * commissionDecimal);
+        const authorEarnings = Math.max(0, item.price_snapshot - platformCommission - affiliateCommissionAmount);
 
         // Send course purchase confirmation to student
         await EmailService.sendCoursePurchaseConfirmation(

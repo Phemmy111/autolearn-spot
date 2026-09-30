@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Package, Users, DollarSign, BarChart3, Settings, Home, LogOut, Target, FileText, Star, CreditCard, Wallet, ArrowUpRight, MessageSquare, Video } from 'lucide-react';
+import { Menu, X, Package, Users, DollarSign, BarChart3, Settings, Home, LogOut, Target, FileText, Star, CreditCard, Wallet, ArrowUpRight, MessageSquare, Video, Megaphone } from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
 import { NotificationBell } from '@/components/NotificationBell';
 
@@ -19,6 +19,7 @@ export function AuthorShell({ children }: { children: React.ReactNode }) {
   const navItems = [
     { name: 'Dashboard', href: '/author', icon: Home },
     { name: 'Products', href: '/author/products', icon: Package },
+    { name: 'Marketing Kit', href: '/author/marketing', icon: Megaphone },
     { name: 'Students', href: '/author/students', icon: Users },
     { name: 'Messages', href: '/author/messages', icon: MessageSquare },
     { name: 'Live Classes', href: '/author/live-classes', icon: Video },

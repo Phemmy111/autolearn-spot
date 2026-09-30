@@ -36,7 +36,10 @@ import {
   CheckCircle,
   MessageCircle,
   RefreshCw,
-  Eye
+  Eye,
+  Check,
+  Search,
+  Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -66,6 +69,10 @@ export default function PartnerDashboard() {
   const [affiliateLinks, setAffiliateLinks] = useState<any[]>([]);
   const [loadingMarketplace, setLoadingMarketplace] = useState(false);
   const [generatingLink, setGeneratingLink] = useState<string | null>(null);
+  const [mktSearch, setMktSearch] = useState('');
+  const [mktTypeFilter, setMktTypeFilter] = useState('ALL');
+  const [mktCategoryFilter, setMktCategoryFilter] = useState('ALL');
+  const [copiedMktId, setCopiedMktId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -929,63 +936,212 @@ export default function PartnerDashboard() {
             )}
 
             {activeTab === "marketing" && (
-              <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-6">
-                <h3 className="font-semibold text-brand-text mb-4">Marketing Kit</h3>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {data?.marketingResources && data.marketingResources.length > 0 ? (
-                    data.marketingResources.map((item: any) => {
-                      const Icon = FileText; // Default icon, can be customized based on type
-                      return (
-                        <div key={item.id} className="border border-brand-border bg-brand-bg/60 rounded-xl p-4 hover:border-brand-primary/50 transition-all">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="flex h-10 w-10 items-center justify-center border border-brand-primary/60 bg-brand-bg/10 rounded-lg">
-                              <Icon className="h-5 w-5 text-brand-primary" />
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-xl font-bold text-brand-text">Marketing Kit & Promotional Assets</h3>
+                    <p className="text-sm text-brand-text/60">Download promotional creatives and copy pre-written marketing scripts</p>
+                  </div>
+                </div>
+
+                {/* Filter and Search Bar */}
+                <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-4 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-text/40" />
+                      <input
+                        type="text"
+                        placeholder="Search creatives or copy..."
+                        value={mktSearch}
+                        onChange={(e) => setMktSearch(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 bg-brand-bg/60 border border-brand-border rounded-xl text-xs sm:text-sm text-brand-text focus:outline-none focus:border-emerald-500 transition-colors"
+                      />
+                    </div>
+
+                    {/* Course Filter */}
+                    <div>
+                      <select
+                        value={mktCategoryFilter}
+                        onChange={(e) => setMktCategoryFilter(e.target.value)}
+                        className="w-full px-3.5 py-2 bg-brand-bg/60 border border-brand-border rounded-xl text-xs sm:text-sm text-brand-text focus:outline-none focus:border-emerald-500 transition-colors"
+                      >
+                        <option value="ALL">All Categories & Courses</option>
+                        <option value="general">General Platform</option>
+                        {Array.from(new Set((data?.marketingResources || []).map((r: any) => r.category).filter(Boolean))).map((cat: any) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Type Filter */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+                      {[
+                        { id: 'ALL', label: 'All' },
+                        { id: 'flyer', label: 'Flyers' },
+                        { id: 'banner', label: 'Banners' },
+                        { id: 'copy', label: 'Copy' },
+                        { id: 'video', label: 'Video' },
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setMktTypeFilter(tab.id)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                            mktTypeFilter === tab.id
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-brand-bg/40 text-brand-text/70 border border-brand-border hover:bg-brand-bg'
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Filtered Grid */}
+                {(() => {
+                  const filtered = (data?.marketingResources || []).filter((item: any) => {
+                    const q = mktSearch.toLowerCase();
+                    const matchesSearch =
+                      !mktSearch ||
+                      item.name?.toLowerCase().includes(q) ||
+                      item.description?.toLowerCase().includes(q) ||
+                      item.category?.toLowerCase().includes(q);
+
+                    const matchesType =
+                      mktTypeFilter === 'ALL' ||
+                      item.type?.toLowerCase() === mktTypeFilter.toLowerCase();
+
+                    const matchesCategory =
+                      mktCategoryFilter === 'ALL' ||
+                      item.category?.toLowerCase() === mktCategoryFilter.toLowerCase();
+
+                    return matchesSearch && matchesType && matchesCategory;
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-12 text-center">
+                        <FileText className="w-10 h-10 text-brand-text/30 mx-auto mb-3" />
+                        <h4 className="text-base font-bold text-brand-text mb-1">No Materials Found</h4>
+                        <p className="text-xs text-brand-text/60">Try adjusting your search or category filter</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {filtered.map((item: any) => {
+                        const Icon = item.type === 'video' ? Video : item.type === 'copy' ? FileText : ImageIcon;
+                        return (
+                          <div
+                            key={item.id}
+                            className="border border-brand-border bg-brand-bg/80 backdrop-blur-xl rounded-2xl p-5 hover:border-emerald-500/40 transition-all flex flex-col justify-between group shadow-xs"
+                          >
+                            <div>
+                              {/* Top badges */}
+                              <div className="flex items-center justify-between gap-2 mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="p-1.5 bg-emerald-500/10 text-emerald-600 rounded-lg">
+                                    <Icon className="h-4 w-4" />
+                                  </div>
+                                  <span className="px-2 py-0.5 bg-brand-bg text-[10px] font-bold text-emerald-600 uppercase rounded-md border border-emerald-500/20">
+                                    {item.type?.toUpperCase() || 'FLYER'}
+                                  </span>
+                                </div>
+                                <span className="text-[11px] text-brand-text/50 font-medium truncate max-w-[120px]" title={item.category}>
+                                  {item.category || 'General'}
+                                </span>
+                              </div>
+
+                              {/* Title */}
+                              <h4
+                                className="font-bold text-sm text-brand-text mb-2 line-clamp-1 cursor-pointer hover:text-emerald-500 transition-colors"
+                                onClick={() => openMaterialDetail(item)}
+                                title={item.name}
+                              >
+                                {item.name}
+                              </h4>
+
+                              {/* Image Preview if applicable */}
+                              {item.url && (item.type === 'flyer' || item.type === 'banner' || item.type === 'image' || item.url.match(/\.(jpeg|jpg|png|webp|gif)/i)) && (
+                                <div
+                                  onClick={() => openMaterialDetail(item)}
+                                  className="h-36 w-full rounded-xl overflow-hidden bg-brand-bg/60 border border-brand-border relative mb-3 cursor-pointer group-hover:opacity-95"
+                                >
+                                  <img
+                                    src={item.url}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                    loading="lazy"
+                                  />
+                                </div>
+                              )}
+
+                              {/* Description / Copy */}
+                              {item.description && (
+                                <div className="mb-3 p-3 bg-brand-bg/60 border border-brand-border rounded-xl">
+                                  <p
+                                    className="text-xs text-brand-text/70 whitespace-pre-wrap break-words line-clamp-3 font-sans"
+                                    title={item.description}
+                                  >
+                                    {item.description}
+                                  </p>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(item.description);
+                                      setCopiedMktId(item.id);
+                                      setTimeout(() => setCopiedMktId(null), 2000);
+                                    }}
+                                    className="mt-2 text-xs font-semibold text-emerald-600 hover:text-emerald-500 flex items-center gap-1.5 transition-colors"
+                                  >
+                                    {copiedMktId === item.id ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-emerald-500" /> Copied!
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy className="w-3.5 h-3.5" /> Copy Promotional Text
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-brand-text truncate cursor-pointer hover:text-brand-primary" onClick={() => openMaterialDetail(item)} title={item.name}>{item.name}</p>
-                              <div className="flex items-center gap-2 text-xs text-brand-text/60">
-                                <span className="px-2 py-0.5 bg-brand-bg/10 text-brand-primary rounded-full">{item.type?.toUpperCase() || 'FLYER'}</span>
-                                <span>{item.download_count || 0} downloads</span>
+
+                            {/* Actions */}
+                            <div className="pt-3 border-t border-brand-border flex items-center justify-between gap-2 mt-2">
+                              <span className="text-[11px] text-brand-text/50">
+                                {item.download_count || 0} downloads
+                              </span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => openMaterialDetail(item)}
+                                  className="py-1.5 px-3 border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5"
+                                >
+                                  <Eye className="h-3.5 w-3.5" /> View
+                                </button>
+                                {item.url && (
+                                  <a
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="py-1.5 px-3 border border-brand-border bg-brand-bg text-brand-text hover:bg-brand-bg/80 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5"
+                                  >
+                                    <Download className="h-3.5 w-3.5" /> Get Asset
+                                  </a>
+                                )}
                               </div>
                             </div>
                           </div>
-                          {item.description && (
-                            <div className="mb-3 p-2 bg-brand-bg rounded-lg">
-                              <p className="text-xs text-brand-text/60 whitespace-pre-wrap break-words" style={{
-                                maxHeight: '60px',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 3,
-                                WebkitBoxOrient: 'vertical'
-                              }} title={item.description}>
-                                {item.description}
-                              </p>
-                            </div>
-                          )}
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => openMaterialDetail(item)}
-                              className="flex-1 py-2 border border-brand-primary/60 bg-brand-bg/10 text-brand-primary rounded-lg text-sm font-medium hover:bg-brand-bg/20 transition-colors flex items-center justify-center gap-2"
-                            >
-                              <Eye className="h-4 w-4" />
-                              View Details
-                            </button>
-                            <button 
-                              onClick={() => window.open(`/api/partners/marketing/download/${item.id}`, '_blank')}
-                              className="flex-1 py-2 border border-brand-border bg-brand-bg text-brand-text rounded-lg text-sm font-medium hover:bg-brand-bg transition-colors flex items-center justify-center gap-2"
-                            >
-                              <Download className="h-4 w-4" />
-                              Download
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-sm text-brand-text/60 text-center py-4 col-span-2">No marketing resources available</p>
-                  )}
-                </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
