@@ -3,7 +3,8 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, User, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, User, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { isApprovedAuthor } from '@/lib/author';
 
 /**
@@ -49,7 +50,14 @@ export default async function AuthorSignInPage({
                 <span className="text-sm font-medium">Back to Author Portal</span>
               </Link>
               <Link href="/" className="flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-indigo-600" />
+                <Image
+                  src="/logo.png"
+                  alt="AutoLearn Spot"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain"
+                  unoptimized
+                />
                 <span className="font-heading text-lg font-bold text-gray-900">AutoLearn Spot</span>
               </Link>
             </div>
@@ -169,7 +177,14 @@ export default async function AuthorSignInPage({
               <span className="text-sm font-medium">Back to Author Portal</span>
             </Link>
             <Link href="/" className="flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-indigo-600" />
+              <Image
+                src="/logo.png"
+                alt="AutoLearn Spot"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain"
+                unoptimized
+              />
               <span className="font-heading text-lg font-bold text-gray-900">AutoLearn Spot</span>
             </Link>
           </div>

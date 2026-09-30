@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { UserPlus, LogIn, ArrowRight, BookOpen, Users, DollarSign, TrendingUp, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
+import { UserPlus, LogIn, ArrowRight, Users, DollarSign, TrendingUp, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
 
 /**
  * Author Auth Landing Page
@@ -70,7 +71,14 @@ export default async function AuthorAuthPage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-2">
-              <BookOpen className="w-8 h-8 text-indigo-600" />
+              <Image
+                src="/logo.png"
+                alt="AutoLearn Spot"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain"
+                unoptimized
+              />
               <span className="font-heading text-xl font-bold text-brand-text">
                 AutoLearn Spot
               </span>
