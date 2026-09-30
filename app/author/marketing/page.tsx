@@ -23,7 +23,8 @@ import {
   X,
   UploadCloud,
   CheckCircle2,
-  BookOpen
+  BookOpen,
+  Pencil
 } from 'lucide-react';
 
 interface Product {
@@ -60,6 +61,7 @@ export default function AuthorMarketingPage() {
   
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -73,6 +75,17 @@ export default function AuthorMarketingPage() {
     description: '',
     resource_url: '',
   });
+
+  const resetForm = () => {
+    setFormData({
+      resource_name: '',
+      resource_type: 'flyer',
+      category: 'general',
+      description: '',
+      resource_url: '',
+    });
+    setEditingId(null);
+  };
 
   useEffect(() => {
     if (userId) {
@@ -128,6 +141,18 @@ export default function AuthorMarketingPage() {
     }
   };
 
+  const handleEditClick = (item: MarketingResource) => {
+    setEditingId(item.id);
+    setFormData({
+      resource_name: item.name,
+      resource_type: item.type || 'flyer',
+      category: item.category || 'general',
+      description: item.description || '',
+      resource_url: item.url || '',
+    });
+    setShowAddModal(true);
+  };
+
   const handleSaveResource = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.resource_name.trim()) {
@@ -137,23 +162,24 @@ export default function AuthorMarketingPage() {
 
     try {
       setSaving(true);
+      const method = editingId ? 'PATCH' : 'POST';
+      const bodyPayload = editingId ? { ...formData, id: editingId } : formData;
+      
       const res = await fetch('/api/author/marketing', {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(bodyPayload),
       });
 
       const data = await res.json();
       if (data.success && data.resource) {
-        setResources((prev) => [data.resource, ...prev]);
+        if (editingId) {
+          setResources((prev) => prev.map(r => r.id === editingId ? data.resource : r));
+        } else {
+          setResources((prev) => [data.resource, ...prev]);
+        }
         setShowAddModal(false);
-        setFormData({
-          resource_name: '',
-          resource_type: 'flyer',
-          category: 'general',
-          description: '',
-          resource_url: '',
-        });
+        resetForm();
       } else {
         alert(data.error || 'Failed to save material');
       }
@@ -505,6 +531,14 @@ export default function AuthorMarketingPage() {
                   )}
 
                   <button
+                    onClick={() => handleEditClick(item)}
+                    className="p-2 rounded-lg hover:bg-sky-500/10 text-brand-text/40 hover:text-sky-600 transition-colors"
+                    title="Edit Material"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
                     onClick={() => handleDeleteResource(item.id)}
                     className="p-2 rounded-lg hover:bg-red-500/10 text-brand-text/40 hover:text-red-500 transition-colors"
                     title="Delete Material"
@@ -518,7 +552,7 @@ export default function AuthorMarketingPage() {
         </div>
       )}
 
-      {/* Add Material Modal */}
+      {/* Add / Edit Material Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
           <div className="bg-[var(--card)] border border-brand-border rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
@@ -528,12 +562,19 @@ export default function AuthorMarketingPage() {
                   <Megaphone className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-brand-text">Add Marketing Material</h3>
-                  <p className="text-xs text-brand-text/60">Provide assets and copy for affiliates</p>
+                  <h3 className="text-lg font-bold text-brand-text">
+                    {editingId ? 'Edit Marketing Material' : 'Add Marketing Material'}
+                  </h3>
+                  <p className="text-xs text-brand-text/60">
+                    {editingId ? 'Update your promotional asset' : 'Provide assets and copy for affiliates'}
+                  </p>
                 </div>
               </div>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  resetForm();
+                }}
                 className="p-2 rounded-xl text-brand-text/40 hover:text-brand-text hover:bg-brand-bg transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -661,7 +702,10 @@ export default function AuthorMarketingPage() {
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-brand-border">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    resetForm();
+                  }}
                   className="px-4 py-2.5 rounded-xl border border-brand-border text-sm font-medium text-brand-text/70 hover:bg-brand-bg transition-colors"
                 >
                   Cancel
@@ -676,7 +720,7 @@ export default function AuthorMarketingPage() {
                       <Loader2 className="w-4 h-4 animate-spin" /> Saving...
                     </>
                   ) : (
-                    'Publish for Affiliates'
+                    editingId ? 'Save Changes' : 'Publish for Affiliates'
                   )}
                 </button>
               </div>
